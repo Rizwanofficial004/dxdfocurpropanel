@@ -1,0 +1,283 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% trans "DDS FocusRo V-1" %}</title>
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    {% block head %}{% endblock %}
+
+    <style>
+        body { display: flex; margin: 0; font-family: sans-serif; }
+        .sidebar { width: 200px; color: white; padding: 20px; height: 100vh; }
+        .sidebar a { color: white; display: block; padding: 10px 0; text-decoration: none; }
+        .sidebar .logo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar .logo h3 { margin: 0; font-size: 18px; }
+        .sidebar .menu-toggle { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .sidebar .sidebar-menu a { display: flex; align-items: center; padding: 10px 0; }
+        .sidebar .sidebar-menu a i { margin-right: 10px; }
+        .sidebar .sidebar-item { border-radius: 5px; }
+        .main { flex: 1; padding: 20px; }
+        .logout-button {
+            display: inline-block;
+            justify-content: center;
+            background-color: #0560fd;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+             border: 1px solid transparent;
+             font-size: 12px;
+        }
+        .logout-button:hover {
+            background-color: transparent;
+            border-color: #0560fd;
+            border: 1px solid #0560fd;
+        }
+	
+
+
+        .nk-mask {
+            position: fixed;
+            bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: -1 !important;
+        }
+        .blur-1 {
+        z-index: 0;
+        overflow: hidden;
+        }
+
+        .blur-1::before {
+        content: "";
+        background-image: url(https://dash.focusro.com/assets/images/a.png);
+        position: absolute;
+        top: 0;
+        left: 0;
+            height: 831px;
+            left: 0;
+            top: 0;
+            width: 350px;
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
+        }
+        .blur-1::after {
+        content: "";
+        background-image: url(https://dash.focusro.com/assets/images/b.png);
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: -80px;
+        width: 370px;
+        background-size: cover;
+        background-position: center;
+        z-index: -1;
+        }
+
+
+        
+.sidebar .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #bbb;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sidebar .sidebar-menu a span{
+    font-size: 12px;
+}
+
+.sidebar .sidebar-menu a:hover {
+    background: #1e1f25;
+    color: #fff;
+}
+
+.sidebar .sidebar-menu a:hover i {
+    color: #fff;
+}
+
+.sidebar .sidebar-menu a i {
+    margin-right: 10px;
+    font-size: 18px;
+    color: inherit;
+}
+
+.sidebar .sidebar-item {
+    padding: 10px;
+}
+
+
+.sidebar.collapsed {
+    width: 60px;
+    transition: width 0.3s;
+}
+
+.sidebar.collapsed .sidebar-menu span,
+.sidebar.collapsed .logo h3,
+.sidebar.collapsed .logout-button span {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-menu a {
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-menu i {
+    margin-right: 0;
+}
+
+.sidebar {
+    transition: width 0.3s;
+}
+.sidebar.collapsed .logo {
+    padding: 0;
+}
+.sidebar.collapsed .sidebar-menu a {
+    padding: 6px 13px;
+}
+.sidebar.collapsed .sidebar-menu a:hover {
+    padding: 6px 13px;
+}
+.sidebar.collapsed .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px 0px;
+}
+
+
+.sidebar.collapsed .sidebar-item[title] {
+  position: relative;
+}
+
+.sidebar.collapsed .sidebar-item[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #1e1f25;
+  color: #fff;
+  padding: 6px 10px;
+  white-space: nowrap;
+  font-size: 12px;
+  border-radius: 4px;
+  margin-left: 10px;
+  z-index: 9999;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+
+
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+<div class="nk-mask blur-1"></div>
+        <div class="logo">
+            <h3>{% trans "DDS FocusRo" %}</h3>
+         <button class="menu-toggle" id="menuToggle">≡</button>
+
+        </div>
+
+        <!-- <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" data-route="dashboard" class="sidebar-item">
+                <i>📊</i><span>{% trans "Home" %}</span>
+            </a>
+
+            <a href="{% url 'live_tracking' %}" data-route="live-tracking" class="sidebar-item">
+                <i>📍</i><span>{% trans "Tracking" %}</span>
+            </a>
+
+            <a href="{% url 'logout' %}" class="logout-button">{% trans "Logout" %}</a>
+        </div> -->
+ <div class="sidebar-menu">
+    <a href="{% url 'dashboard' %}" class="sidebar-item" title="{% trans 'Dashboard' %}">
+        <i class="ri-pie-chart-line"></i>
+        <span>{% trans "Dashboard" %}</span>
+    </a>
+
+    <a href="{% url 'live_tracking' %}" class="sidebar-item" title="{% trans 'Live Tracking' %}">
+        <i class="ri-focus-2-line"></i>
+        <span>{% trans "Live Tracking" %}</span>
+    </a>
+
+    <a href="{% url 'reports' %}" class="sidebar-item" title="{% trans 'Reports' %}">
+        <i class="ri-pie-chart-line"></i>
+        <span>{% trans "Reports" %}</span>
+    </a>
+
+    <a href="#" class="sidebar-item" title="{% trans 'Quick View' %}">
+        <i class="ri-eye-line"></i>
+        <span>{% trans "Quick View" %}</span>
+    </a>
+
+
+
+    <a href="#" class="sidebar-item" title="{% trans 'Task Management' %}">
+        <i class="ri-task-line"></i>
+        <span>{% trans "Task Management" %}</span>
+    </a>
+
+    <a href="#" class="sidebar-item" title="{% trans 'Attendance' %}">
+        <i class="ri-calendar-check-line"></i>
+        <span>{% trans "Attendance" %}</span>
+    </a>
+
+    <a href="#" class="sidebar-item" title="{% trans 'Employees' %}">
+        <i class="ri-user-line"></i>
+        <span>{% trans "Employees" %}</span>
+    </a>
+
+    <a href="#" class="sidebar-item" title="{% trans 'Teams' %}">
+        <i class="ri-group-line"></i>
+        <span>{% trans "Teams" %}</span>
+    </a>
+
+    <a href="#" class="sidebar-item" title="{% trans 'Settings' %}">
+        <i class="ri-settings-3-line"></i>
+        <span>{% trans "Settings" %}</span>
+    </a>
+
+    
+
+    <a href="{% url 'logout' %}" class="logout-button">
+        <i class="ri-logout-box-r-line"></i>
+        <span>{% trans "Logout" %}</span>
+    </a>
+
+    
+</div>
+
+ 
+ 
+ 
+    </div>
+    
+    <div class="main">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+
+<script>
+
+document.getElementById("menuToggle").addEventListener("click", function () {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("collapsed");
+});
+
+
+</script>
