@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # from .get_employee_screenshots import scan_and_download_screenshots
 from dashboard.get_employee_screenshots import scan_and_download_screenshots
 
-from dotenv import load_dotenv
+
 from django.conf import settings
 from urllib.parse import quote
 import os
@@ -47,12 +47,11 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.shortcuts import render
 from . import crm_status_data
-# Load environment variables from .env file
-load_dotenv()
+
 import logging
 
 
-AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+AUTH_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiZGVsdXhldGltZSIsIm5hbWUiOiJkZWx1eGV0aW1lIiwiQVBJX1RJTUUiOjE3NDUzNDQyNjJ9.kJGo5DksaPwkHwufDvLMGaMmjk5q2F7GhjzwdHtfT_o"
 API_URL = "https://crm.deluxebilisim.com/api/staffs/"
 BASE_DIR = Path(__file__).resolve().parent.parent
 (Path(BASE_DIR / "dashboard" / "data")).mkdir(parents=True, exist_ok=True)
