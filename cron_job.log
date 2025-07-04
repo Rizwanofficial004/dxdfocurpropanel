@@ -1,0 +1,40 @@
+🔍 Fetching logs from S3: logs/test_at_example.com/
+✅ Found 0 log files for user test@example.com
+📊 Generating summary for user: haseebcodejourney@gmail.com, date: 2025-06-28
+🔍 Fetching logs from S3: logs/haseebcodejourney_at_gmail.com/2025-06-28/
+✅ Found 0 log files for user haseebcodejourney@gmail.com
+📅 Generating timeline for user: haseebcodejourney@gmail.com, date: 2025-06-28
+📊 Generating summary for user: haseebcodejourney@gmail.com, date: 2025-06-28
+🔍 Fetching logs from S3: logs/haseebcodejourney_at_gmail.com/2025-06-28/
+✅ Found 0 log files for user haseebcodejourney@gmail.com
+✅ Timeline generated: 0 items
+📊 Generating summary for user: haseebcodejourney@gmail.com, date: 2025-06-10
+🔍 Fetching logs from S3: logs/haseebcodejourney_at_gmail.com/2025-06-10/
+✅ Found 0 log files for user haseebcodejourney@gmail.com
+✅ Summary generated: 0 apps tracked, 0 logs processed
+📅 Generating timeline for user: haseebcodejourney@gmail.com, date: 2025-06-10
+📊 Generating summary for user: haseebcodejourney@gmail.com, date: 2025-06-10
+🔍 Fetching logs from S3: logs/haseebcodejourney_at_gmail.com/2025-06-10/
+✅ Found 0 log files for user haseebcodejourney@gmail.com
+✅ Summary generated: 0 apps tracked, 0 logs processed
+✅ Timeline generated: 0 items
+📅 Generating timeline for user: web.alican.er@gmail.com, date: 2025-06-29
+📊 Generating summary for user: web.alican.er@gmail.com, date: 2025-06-29
+🔍 Fetching logs from S3: logs/web.alican.er_at_gmail.com/2025-06-29/
+✅ Found 0 log files for user web.alican.er@gmail.com
+✅ Timeline generated: 0 items
+📅 Generating timeline for user: bernatopal00@gmail.com, date: 2025-06-29
+📊 Generating summary for user: bernatopal00@gmail.com, date: 2025-06-29
+🔍 Fetching logs from S3: logs/bernatopal00_at_gmail.com/2025-06-29/
+✅ Found 0 log files for user bernatopal00@gmail.com
+✅ Timeline generated: 0 items
+📊 Generating summary for user: haseebcodejourney@gmail.com, date: 2025-06-10
+🔍 Fetching logs from S3: logs/haseebcodejourney_at_gmail.com/2025-06-10/
+✅ Found 0 log files for user haseebcodejourney@gmail.com
+✅ Summary generated: 0 apps tracked, 0 logs processed
+📅 Generating timeline for user: haseebcodejourney@gmail.com, date: 2025-06-10
+📊 Generating summary for user: haseebcodejourney@gmail.com, date: 2025-06-10
+🔍 Fetching logs from S3: logs/haseebcodejourney_at_gmail.com/2025-06-10/
+✅ Found 0 log files for user haseebcodejourney@gmail.com
+✅ Summary generated: 0 apps tracked, 0 logs processed
+✅ Timeline generated: 0 items
