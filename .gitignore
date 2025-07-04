@@ -1,64 +1,24 @@
-# Python bytecode
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Django migration files
-*/migrations/*.py
-*/migrations/*.pyc
-*/migrations/__pycache__/
-
-# SQLite database
-*.sqlite3
-
-# Environment variables
-.env
-
-# VSCode settings
-.vscode/
-
-# macOS junk
-.DS_Store
-
-# Log files
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Local settings
-settings_local.py
+node_modules
+dist
+dist-ssr
+*.local
 
-# pip environment
-venv/
-env/
-ENV/
-.venv/
-.python-version
-
-# Pytest cache
-.pytest_cache/
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-
-# mypy
-.mypy_cache/
-
-# PyCharm
-.idea/
-
-# Static and media files (optional - only if generated in development)
-staticfiles/
-media/
-
-# Node modules (if using frontend like React with Django)
-node_modules/
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
