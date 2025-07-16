@@ -1,445 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Container } from '../styles/commonStyles';
 import { useLanguage } from '../context/LanguageContext';
 import { CircularProgress } from '@mui/material';
-import { api } from '../../services/api';
-
-const LiveTrackingContainer = styled.div`
-  background: ${props => props.theme.colors.background};
-  min-height: 100vh;
-  padding: ${props => props.theme.spacing.lg} 0;
-  transition: background-color 0.3s ease;
-`;
-
-const ContentSection = styled.div`
-  margin-bottom: ${props => props.theme.spacing.xl};
-`;
-
-const TrackingCard = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  border: 1px solid ${props => props.theme.colors.border};
-  transition: all 0.3s ease;
-`;
-
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const Title = styled.h3`
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: color 0.3s ease;
-`;
-
-const FilterSection = styled.div`
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-between;
-`;
-
-const LeftFilters = styled.div`
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
-const RightFilters = styled.div`
-  display: flex;
-  gap: 12px;
-  align-items: center;
-`;
-
-const EmployeeName = styled.div`
-  font-weight: 600;
-  color: ${props => props.theme.colors.primary};
-  font-size: 16px;
-  white-space: nowrap;
-`;
-
-const FilterDropdown = styled.select`
-  padding: 8px 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  background: ${props => props.theme.colors.surface};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-  min-width: 140px;
-  cursor: pointer;
-
-  &:focus {
-    border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary}20;
-  }
-
-  option {
-    background: ${props => props.theme.colors.surface};
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-const SearchInput = styled.input`
-  padding: 8px 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  background: ${props => props.theme.colors.surface};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-  min-width: 200px;
-
-  &::placeholder {
-    color: ${props => props.theme.colors.text.secondary};
-  }
-
-  &:focus {
-    border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary}20;
-  }
-`;
-
-const FilterButton = styled.button`
-  padding: 8px 16px;
-  background: ${props => props.theme.colors.primary};
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-`;
-
-const RefreshButton = styled.button`
-  padding: 8px 16px;
-  background: ${props => props.theme.colors.success || '#10b981'};
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const ExportButton = styled.button`
-  padding: 8px 16px;
-  background: transparent;
-  border: 1px solid ${props => props.theme.colors.border};
-  color: ${props => props.theme.colors.text.primary};
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  &:hover {
-    border-color: ${props => props.theme.colors.primary};
-    color: ${props => props.theme.colors.primary};
-    transform: translateY(-1px);
-  }
-`;
-
-const StatusBadge = styled.span`
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  background: ${props => {
-    switch(props.status) {
-      case 'online': return '#dcfce7';
-      case 'offline': return '#fee2e2';
-      case 'idle': return '#fef3c7';
-      default: return '#f3f4f6';
-    }
-  }};
-  color: ${props => {
-    switch(props.status) {
-      case 'online': return '#166534';
-      case 'offline': return '#dc2626';
-      case 'idle': return '#d97706';
-      default: return '#374151';
-    }
-  }};
-`;
-
-const ActivityInfo = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: linear-gradient(135deg, ${props => props.theme.colors.surface} 0%, ${props => props.theme.colors.background} 100%);
-  border-radius: 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-`;
-
-const InfoItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  background: ${props => props.theme.colors.surface};
-  border-radius: 8px;
-  border: 1px solid ${props => props.theme.colors.border};
-  transition: all 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  .label {
-    font-size: 12px;
-    color: ${props => props.theme.colors.text.secondary};
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .value {
-    font-size: 24px;
-    color: ${props => props.theme.colors.text.primary};
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .icon {
-    font-size: 20px;
-    margin-bottom: 4px;
-  }
-`;
-
-const ScreenshotGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 24px;
-`;
-
-const ScreenshotCard = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease;
-  border: 1px solid ${props => props.theme.colors.border};
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.success});
-  }
-`;
-
-const ScreenshotImage = styled.div`
-  width: 100%;
-  height: 160px;
-  background: linear-gradient(135deg, ${props => props.theme.colors.background} 0%, ${props => props.theme.colors.border} 100%);
-  border-radius: 8px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${props => props.theme.colors.text.secondary};
-  font-size: 14px;
-  font-weight: 500;
-  position: relative;
-  overflow: hidden;
-
-  /* &::before {
-    content: '📸';
-    font-size: 32px;
-    margin-bottom: 8px;
-  } */
-
-  &::after {
-    content: 'Screenshot Preview';
-    position: absolute;
-    bottom: 12px;
-    font-size: 12px;
-    opacity: 0.7;
-  }
-`;
-
-const CardContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const TaskHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-`;
-
-const TaskName = styled.div`
-  font-weight: 600;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.primary};
-  line-height: 1.4;
-  flex: 1;
-`;
-
-const TaskMeta = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 8px;
-  border-top: 1px solid ${props => props.theme.colors.border};
-`;
-
-const TaskTime = styled.div`
-  font-size: 13px;
-  color: ${props => props.theme.colors.text.secondary};
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  &::before {
-    content: '🕐';
-    font-size: 12px;
-  }
-`;
-
-const PaginationContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 32px;
-  padding: 20px;
-  background: ${props => props.theme.colors.surface};
-  border-radius: 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-`;
-
-const PaginationButton = styled.button`
-  padding: 8px 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.surface};
-  color: ${props => props.active ? 'white' : props.theme.colors.text.primary};
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  min-width: 40px;
-
-  &:hover:not(:disabled) {
-    background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.background};
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const PaginationInfo = styled.div`
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.secondary};
-  margin: 0 16px;
-  font-weight: 500;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const ErrorMessage = styled.div`
-  color: #ef4444;
-  text-align: center;
-  padding: 20px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  margin: 16px 0;
-`;
-
-const NoDataMessage = styled.div`
-  text-align: center;
-  padding: 40px;
-  color: ${props => props.theme.colors.text.secondary};
-  font-size: 16px;
-`;
-
-const ResultsInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 16px 0;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
+import axios from 'axios';
+import {
+  LiveTrackingContainer,
+  ContentSection,
+  TrackingCard,
+  CardHeader,
+  Title,
+  FilterSection,
+  LeftFilters,
+  RightFilters,
+  FilterDropdown,
+  SearchInput,
+  RefreshButton,
+  ExportButton,
+  StatusBadge,
+  ActivityInfo,
+  InfoItem,
+  ScreenshotGrid,
+  ScreenshotCard,
+  ScreenshotImage,
+  CardContent,
+  TaskHeader,
+  TaskName,
+  TaskMeta,
+  TaskTime,
+  PaginationContainer,
+  PaginationButton,
+  PaginationInfo,
+  LoadingContainer,
+  ErrorMessage,
+  NoDataMessage,
+  ResultsInfo,
+  ImageError
+} from './LiveTracking.styles';
 
 const LiveTracking = () => {
   const { t } = useLanguage();
@@ -487,36 +84,79 @@ const LiveTracking = () => {
     }
   };
 
-  // Test image URL accessibility and create proxy URL if needed
+  // Enhanced image URL handler with multiple fallback strategies
   const getImageUrl = (originalUrl) => {
     if (!originalUrl) return null;
     
-    // If it's an S3 URL, proxy it through our Vite dev server to avoid CORS
-    if (originalUrl.includes('ddsfocustime.s3.amazonaws.com')) {
-      // Convert S3 URL to proxied URL
-      const s3Path = originalUrl.replace('https://ddsfocustime.s3.amazonaws.com', '');
-      const proxiedUrl = `/s3-proxy${s3Path}`;
-      console.log('🔄 Converting S3 URL to proxy:', originalUrl, '->', proxiedUrl);
-      return proxiedUrl;
+    console.log('🔍 Processing image URL:', originalUrl);
+    
+    // If it's already a data URL or blob, return as-is
+    if (originalUrl.startsWith('data:') || originalUrl.startsWith('blob:')) {
+      console.log('✅ Using data/blob URL directly');
+      return originalUrl;
     }
     
-    // For non-S3 URLs, return as-is
+    // If it's an S3 URL, try different approaches
+    if (originalUrl.includes('ddsfocustime.s3.amazonaws.com') || originalUrl.includes('s3.amazonaws.com')) {
+      console.log('🔄 Detected S3 URL, applying CORS-friendly modifications');
+      
+      // Try adding CORS headers via URL parameters
+      const corsUrl = `${originalUrl}${originalUrl.includes('?') ? '&' : '?'}cache-control=public&cors=enabled`;
+      console.log('� Generated CORS URL:', corsUrl);
+      return corsUrl;
+    }
+    
+    // For other URLs, return as-is but log for debugging
     console.log('🔗 Using direct URL:', originalUrl);
     return originalUrl;
   };
 
-  // Create a function to handle image loading with fallbacks
-  const ImageComponent = ({ src, alt, style, onLoad, onError }) => {
+  // Enhanced Image Component with better error handling and fallback strategies
+  const ImageComponent = ({ src, alt, style, onLoad, onError, fallbackText = "No Image" }) => {
     const [imageSrc, setImageSrc] = useState(src);
     const [hasError, setHasError] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [retryCount, setRetryCount] = useState(0);
+    const maxRetries = 2;
     
     useEffect(() => {
       setImageSrc(src);
       setHasError(false);
+      setIsLoading(true);
+      setRetryCount(0);
     }, [src]);
 
     const handleError = (e) => {
-      console.error('❌ Image failed to load:', imageSrc);
+      console.error('❌ Image failed to load:', imageSrc, 'Error:', e.target.error);
+      setIsLoading(false);
+      
+      // Try fallback strategies
+      if (retryCount < maxRetries && imageSrc) {
+        console.log(`🔄 Retrying image load (${retryCount + 1}/${maxRetries})`);
+        
+        if (retryCount === 0) {
+          // First retry: try with different CORS approach
+          const fallbackUrl = imageSrc.includes('?') 
+            ? imageSrc.replace(/[?&]cache-control=[^&]*/, '').replace(/[?&]cors=[^&]*/, '')
+            : imageSrc;
+          console.log('🔄 Retry 1: Using clean URL:', fallbackUrl);
+          setImageSrc(fallbackUrl + '?' + Date.now()); // Add timestamp to bypass cache
+          setRetryCount(1);
+          return;
+        } else if (retryCount === 1) {
+          // Second retry: try with proxy approach (if available)
+          if (imageSrc.includes('ddsfocustime.s3.amazonaws.com')) {
+            const s3Path = imageSrc.replace('https://ddsfocustime.s3.amazonaws.com', '');
+            const proxyUrl = `/api/proxy/s3${s3Path}`;
+            console.log('🔄 Retry 2: Using proxy URL:', proxyUrl);
+            setImageSrc(proxyUrl);
+            setRetryCount(2);
+            return;
+          }
+        }
+      }
+      
+      // All retries failed
       setHasError(true);
       if (onError) onError(e);
     };
@@ -524,41 +164,61 @@ const LiveTracking = () => {
     const handleLoad = (e) => {
       console.log('✅ Image loaded successfully:', imageSrc);
       setHasError(false);
+      setIsLoading(false);
       if (onLoad) onLoad(e);
     };
 
     if (hasError || !imageSrc) {
       return (
-        <div style={{
-          ...style,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#fef2f2',
-          color: '#dc2626'
-        }}>
-          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🚫</div>
-          <div style={{ fontSize: '10px', textAlign: 'center' }}>
-            Image Load Failed
-            <br />
-            <span style={{ fontSize: '8px', opacity: 0.7 }}>
-              {imageSrc ? (imageSrc.length > 30 ? imageSrc.substring(0, 30) + '...' : imageSrc) : 'No URL'}
-            </span>
+        <ImageError style={style}>
+          <div className="icon">🚫</div>
+          <div className="message">Image Load Failed</div>
+          <div className="url">
+            {imageSrc ? (imageSrc.length > 30 ? imageSrc.substring(0, 30) + '...' : imageSrc) : 'No URL'}
           </div>
-        </div>
+          {retryCount > 0 && (
+            <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
+              Tried {retryCount} fallback{retryCount > 1 ? 's' : ''}
+            </div>
+          )}
+        </ImageError>
       );
     }
 
     return (
-      <img
-        src={imageSrc}
-        alt={alt}
-        style={style}
-        onLoad={handleLoad}
-        onError={handleError}
-        referrerPolicy="no-referrer"
-      />
+      <div style={{ position: 'relative', ...style }}>
+        <img
+          src={imageSrc}
+          alt={alt}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover', 
+            borderRadius: '8px',
+            opacity: isLoading ? 0.5 : 1,
+            transition: 'opacity 0.3s ease'
+          }}
+          onLoad={handleLoad}
+          onError={handleError}
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
+        />
+        {isLoading && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '12px',
+            color: '#6b7280',
+            background: 'rgba(255,255,255,0.8)',
+            padding: '4px 8px',
+            borderRadius: '4px'
+          }}>
+            Loading...
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -643,7 +303,7 @@ const LiveTracking = () => {
       console.log('Fetching live tracking data from:', apiUrl);
       console.log('⏳ Note: This API scans all S3 folders and can take 30-90 seconds to complete...');
       
-      const response = await api.get(apiUrl, {
+      const response = await axios.get(apiUrl, {
         timeout: 180000, // 3 minutes timeout for slow S3 scanning
         headers: {
           'Accept': 'application/json',
@@ -822,7 +482,7 @@ const LiveTracking = () => {
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
         setError('⏰ Request timeout: The S3 scan is taking longer than expected (3+ minutes). The API might be processing a large number of folders. Please try again or contact support if this persists.');
       } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        setError('🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on https://dxdtime.ddsolutions.io/api/\n• CORS is properly configured\n• No firewall is blocking the connection');
+        setError('🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on http://127.0.0.1:8000\n• CORS is properly configured\n• No firewall is blocking the connection');
       } else if (err.response) {
         setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
       } else if (err.request) {

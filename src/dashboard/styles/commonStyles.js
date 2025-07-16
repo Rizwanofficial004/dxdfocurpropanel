@@ -2,9 +2,10 @@ import styled from 'styled-components';
 import { theme } from './theme';
 
 export const Container = styled.div`
-  max-width: 1200px;
+  // max-width: 1200px;
   margin: 0 auto;
   padding: 0 ${theme.spacing.md};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const Card = styled.div`
@@ -14,6 +15,7 @@ export const Card = styled.div`
   border: 1px solid ${theme.colors.border};
   overflow: hidden;
   transition: all 0.2s ease-in-out;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   &:hover {
     box-shadow: ${theme.shadows.lg};
@@ -25,16 +27,19 @@ export const CardHeader = styled.div`
   padding: ${theme.spacing.md} ${theme.spacing.lg};
   border-bottom: 1px solid ${theme.colors.border};
   background: ${theme.colors.background};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const CardBody = styled.div`
   padding: ${theme.spacing.lg};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const Grid = styled.div`
   display: grid;
   gap: ${theme.spacing.md};
   grid-template-columns: ${props => props.columns || 'repeat(auto-fit, minmax(300px, 1fr))'};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -48,6 +53,7 @@ export const FlexContainer = styled.div`
   gap: ${props => props.gap || theme.spacing.sm};
   flex-direction: ${props => props.direction || 'row'};
   flex-wrap: ${props => props.wrap || 'nowrap'};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const Button = styled.button`
@@ -66,6 +72,7 @@ export const Button = styled.button`
   padding: ${theme.spacing.xs} ${theme.spacing.md};
   font-size: ${theme.typography.fontSize.sm};
   font-weight: ${theme.typography.fontWeight.medium};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   
@@ -85,7 +92,7 @@ export const Button = styled.button`
 `;
 
 export const Typography = styled.div`
-  font-family: ${theme.typography.fontFamily};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: ${props => theme.typography.fontSize[props.size] || theme.typography.fontSize.base};
   font-weight: ${props => theme.typography.fontWeight[props.weight] || theme.typography.fontWeight.normal};
   color: ${props => {
@@ -107,6 +114,7 @@ export const Heading = styled(Typography).attrs(props => ({
   as: props.level || 'h2',
   weight: 'semibold'
 }))`
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: ${props => {
     switch(props.level) {
       case 'h1': return theme.typography.fontSize['4xl'];
@@ -131,6 +139,7 @@ const getThemeProps = (props) => {
 export const SliderContainer = styled.div`
   width: 100%;
   padding: ${props => props.theme?.spacing?.sm || '8px'} 0;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const Slider = styled.input.attrs({ type: 'range' })`
@@ -320,6 +329,7 @@ export const SliderLabel = styled.label`
   display: block;
   font-size: ${props => props.theme?.typography?.fontSize?.sm || '14px'};
   font-weight: ${props => props.theme?.typography?.fontWeight?.medium || '500'};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: ${props => {
     const { isDarkMode, theme } = getThemeProps(props);
     return isDarkMode ? (theme?.colors?.text?.primary || '#f8fafc') : (theme?.colors?.text?.primary || '#1e293b');
@@ -331,6 +341,7 @@ export const SliderValue = styled.span`
   display: inline-block;
   font-size: ${props => props.theme?.typography?.fontSize?.sm || '14px'};
   font-weight: ${props => props.theme?.typography?.fontWeight?.medium || '500'};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: ${props => {
     const { isDarkMode, theme } = getThemeProps(props);
     return isDarkMode ? (theme?.colors?.primary || '#3b82f6') : (theme?.colors?.primary || '#2563eb');
@@ -353,4 +364,5 @@ export const SliderGroup = styled.div`
   flex-direction: column;
   gap: ${props => props.theme?.spacing?.xs || '4px'};
   margin-bottom: ${props => props.theme?.spacing?.md || '16px'};
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;

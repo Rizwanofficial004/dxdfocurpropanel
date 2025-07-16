@@ -72,7 +72,7 @@ const commonTheme = {
     xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
   },
   typography: {
-    fontFamily: '"Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+    fontFamily: "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     fontSize: {
       xs: '0.75rem',
       sm: '0.875rem',
@@ -84,10 +84,12 @@ const commonTheme = {
       '4xl': '2.25rem'
     },
     fontWeight: {
+      light: 300,
       normal: 400,
       medium: 500,
       semibold: 600,
-      bold: 700
+      bold: 700,
+      extrabold: 800
     }
   }
 };
