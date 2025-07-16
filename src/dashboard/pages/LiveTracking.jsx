@@ -4,6 +4,8 @@ import { Container } from '../styles/commonStyles';
 import { useLanguage } from '../context/LanguageContext';
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
+import { API_CONFIG, buildLiveTrackingUrl, buildScreenshotProxyUrl } from '../../config/apiConfig';
+import ImageModal from '../components/common/ImageModal';
 import {
   LiveTrackingContainer,
   ContentSection,
@@ -43,10 +45,14 @@ const LiveTracking = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('all');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [dateRange, setDateRange] = useState('today');
+  const [selectedStatus, setSelectedStatus] = useState('all');  const [dateRange, setDateRange] = useState('today');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+
+  // Image modal states
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [currentImages, setCurrentImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // API related states
   const [liveTrackingData, setLiveTrackingData] = useState([]);
@@ -62,6 +68,48 @@ const LiveTracking = () => {
     totalHours: '0h'
   });
   const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Image modal handlers
+  const openImageModal = (imageUrl, imageTitle = "Screenshot") => {
+    console.log('🖼️ Opening image modal for:', imageUrl);
+    const imageData = {
+      url: imageUrl,
+      title: imageTitle,
+      alt: imageTitle
+    };
+    setCurrentImages([imageData]);
+    setCurrentImageIndex(0);
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    console.log('🚫 Closing image modal');
+    setIsImageModalOpen(false);
+    setCurrentImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  // Helper function to format time ago
+  const formatTimeAgo = (minutes) => {
+    if (minutes === null || minutes === undefined) return 'Unknown';
+    
+    if (minutes === 0) return 'just now';
+    if (minutes === 1) return '1 minute ago';
+    if (minutes < 60) return `${minutes} minutes ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (hours === 1) {
+      if (remainingMinutes === 0) return '1 hour ago';
+      if (remainingMinutes === 1) return '1 hour 1 minute ago';
+      return `1 hour ${remainingMinutes} minutes ago`;
+    }
+    
+    if (remainingMinutes === 0) return `${hours} hours ago`;
+    if (remainingMinutes === 1) return `${hours} hours 1 minute ago`;
+    return `${hours} hours ${remainingMinutes} minutes ago`;
+  };
 
   // Helper function to get human-readable date range description
   const getDateRangeDescription = () => {
@@ -96,19 +144,10 @@ const LiveTracking = () => {
       return originalUrl;
     }
     
-    // If it's an S3 URL, try different approaches
-    if (originalUrl.includes('ddsfocustime.s3.amazonaws.com') || originalUrl.includes('s3.amazonaws.com')) {
-      console.log('🔄 Detected S3 URL, applying CORS-friendly modifications');
-      
-      // Try adding CORS headers via URL parameters
-      const corsUrl = `${originalUrl}${originalUrl.includes('?') ? '&' : '?'}cache-control=public&cors=enabled`;
-      console.log('� Generated CORS URL:', corsUrl);
-      return corsUrl;
-    }
-    
-    // For other URLs, return as-is but log for debugging
-    console.log('🔗 Using direct URL:', originalUrl);
-    return originalUrl;
+    // Use the centralized helper to build the correct proxy URL
+    const proxyUrl = buildScreenshotProxyUrl(originalUrl);
+    console.log('🔄 Generated proxy URL:', proxyUrl);
+    return proxyUrl;
   };
 
   // Enhanced Image Component with better error handling and fallback strategies
@@ -144,11 +183,10 @@ const LiveTracking = () => {
           setRetryCount(1);
           return;
         } else if (retryCount === 1) {
-          // Second retry: try with proxy approach (if available)
-          if (imageSrc.includes('ddsfocustime.s3.amazonaws.com')) {
-            const s3Path = imageSrc.replace('https://ddsfocustime.s3.amazonaws.com', '');
-            const proxyUrl = `/api/proxy/s3${s3Path}`;
-            console.log('🔄 Retry 2: Using proxy URL:', proxyUrl);
+          // Second retry: try with proxy approach using centralized helper
+          const proxyUrl = buildScreenshotProxyUrl(imageSrc);
+          if (proxyUrl !== imageSrc) {
+            console.log('🔄 Retry 2: Using centralized proxy URL:', proxyUrl);
             setImageSrc(proxyUrl);
             setRetryCount(2);
             return;
@@ -289,29 +327,20 @@ const LiveTracking = () => {
         });
       }, 2000);
       
-      const params = new URLSearchParams();
-      params.append('limit', '100'); // Get up to 100 users
-          // Add date range parameters
-    const dateParams = getDateRangeParams();
-    params.append('start_date', dateParams.start_date);
-    params.append('end_date', dateParams.end_date);
-    
-    console.log(`📅 Filtering screenshots for date range: ${getDateRangeDescription()}`);
-    console.log(`📅 API date params:`, dateParams);
+      // Get date range parameters for API
+      const dateParams = getDateRangeParams();
       
-      const apiUrl = `/api/live-tracking/fast-screenshots/?${params.toString()}`;
+      // Build API URL with filters
+      const apiUrl = buildLiveTrackingUrl({
+        limit: 100,
+        start_date: dateParams.start_date,
+        end_date: dateParams.end_date
+      });
+      
       console.log('Fetching live tracking data from:', apiUrl);
       console.log('⏳ Note: This API scans all S3 folders and can take 30-90 seconds to complete...');
       
-      const response = await axios.get(apiUrl, {
-        timeout: 180000, // 3 minutes timeout for slow S3 scanning
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        // Add withCredentials if needed for CORS
-        withCredentials: false
-      });
+      const response = await axios.get(apiUrl, API_CONFIG.REQUEST_CONFIG);
       
       clearInterval(progressInterval);
       setLoadingProgress(100);
@@ -482,7 +511,7 @@ const LiveTracking = () => {
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
         setError('⏰ Request timeout: The S3 scan is taking longer than expected (3+ minutes). The API might be processing a large number of folders. Please try again or contact support if this persists.');
       } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        setError('🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on http://127.0.0.1:8000\n• CORS is properly configured\n• No firewall is blocking the connection');
+        setError(`🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on ${API_CONFIG.BASE_URL}\n• CORS is properly configured\n• No firewall is blocking the connection`);
       } else if (err.response) {
         setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
       } else if (err.request) {
@@ -655,7 +684,7 @@ const LiveTracking = () => {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedEmployee, dateRange]);
+  }, [searchQuery, selectedEmployee, dateRange, itemsPerPage]);
 
   const generatePageNumbers = () => {
     const pages = [];
@@ -766,6 +795,27 @@ const LiveTracking = () => {
                     <option value="this_week">{t('thisWeek') || 'This Week'}</option>
                     <option value="this_month">{t('thisMonth') || 'This Month'}</option>
                     <option value="this_year">This Year</option>
+                  </FilterDropdown>
+
+                  <FilterDropdown 
+                    value={itemsPerPage} 
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1); // Reset to first page when changing items per page
+                    }}
+                    style={{
+                      background: itemsPerPage !== 6 ? '#f0fdf4' : undefined,
+                      fontWeight: itemsPerPage !== 6 ? '600' : 'normal',
+                      color: itemsPerPage !== 6 ? '#166534' : undefined
+                    }}
+                  >
+                    <option value={6}>6 per page</option>
+                    <option value={20}>20 per page</option>
+                    <option value={50}>50 per page</option>
+                    <option value={100}>100 per page</option>
+                    <option value={150}>150 per page</option>
+                    <option value={200}>200 per page</option>
+                    <option value={300}>300 per page</option>
                   </FilterDropdown>
 
                   <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -948,8 +998,18 @@ const LiveTracking = () => {
                           <img 
                             src={item.screenshot} 
                             alt={item.task}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                            style={{ 
+                              width: '100%', 
+                              height: '100%', 
+                              objectFit: 'cover', 
+                              borderRadius: '8px',
+                              cursor: 'pointer'
+                            }}
                             referrerPolicy="no-referrer"
+                            onClick={() => {
+                              console.log('🖼️ Image clicked:', item.screenshot);
+                              openImageModal(item.screenshot, `${item.employee} - ${item.task}`);
+                            }}
                             onLoad={(e) => {
                               console.log('✅ Image loaded successfully:', item.screenshot);
                             }}
@@ -1014,13 +1074,23 @@ const LiveTracking = () => {
                     {item.screenshot && (
                       <div style={{ 
                         fontSize: '10px', 
-                        color: '#6b7280',
+                        color: '#3b82f6',
                         padding: '8px 0 4px 0',
                         borderBottom: '1px solid #e5e7eb',
                         marginBottom: '8px',
                         cursor: 'pointer',
                         wordBreak: 'break-all',
-                        lineHeight: '1.3'
+                        lineHeight: '1.3',
+                        background: 'linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%)',
+                        borderRadius: '4px',
+                        paddingLeft: '8px',
+                        paddingRight: '8px',
+                        fontWeight: '500',
+                        border: '1px solid #bfdbfe',
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
                       }}
                       onClick={() => {
                         console.log('🔗 Image URL:', item.screenshot);
@@ -1028,7 +1098,23 @@ const LiveTracking = () => {
                       }}
                       title="Click to open image in new tab"
                       >
-                        🔗 {item.screenshot}
+                        <span style={{ 
+                          fontSize: '12px', 
+                          color: '#1d4ed8',
+                          fontWeight: 'bold'
+                        }}>➤</span>
+                        <span style={{ 
+                          background: 'linear-gradient(90deg, #1d4ed8, #2563eb)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          fontWeight: '600'
+                        }}>🔗 {item.screenshot}</span>
+                        <span style={{ 
+                          fontSize: '8px', 
+                          color: '#6366f1',
+                          marginLeft: 'auto',
+                          opacity: 0.8
+                        }}>↗</span>
                       </div>
                     )}
                     
@@ -1072,9 +1158,7 @@ const LiveTracking = () => {
                             {item.minutesSinceLastScreenshot <= 5 ? '🟢' : 
                              item.minutesSinceLastScreenshot <= 15 ? '🟡' : '🔴'}
                           </span>
-                          Last seen: {item.minutesSinceLastScreenshot === 0 ? 'just now' : 
-                                    item.minutesSinceLastScreenshot === 1 ? '1 minute ago' :
-                                    `${item.minutesSinceLastScreenshot} minutes ago`}
+                          Last seen: {formatTimeAgo(item.minutesSinceLastScreenshot)}
                         </div>
                       )}
                       {item.duration && item.duration !== 'N/A' && (
@@ -1181,6 +1265,15 @@ const LiveTracking = () => {
           </ContentSection>
         </Container>
       </LiveTrackingContainer>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        images={currentImages}
+        currentIndex={currentImageIndex}
+        onClose={closeImageModal}
+        onNavigate={setCurrentImageIndex}
+      />
     </DashboardLayout>
   );
 };
