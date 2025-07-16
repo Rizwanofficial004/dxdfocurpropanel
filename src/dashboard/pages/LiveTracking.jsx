@@ -1,0 +1,1528 @@
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { Container } from '../styles/commonStyles';
+import { useLanguage } from '../context/LanguageContext';
+import { CircularProgress } from '@mui/material';
+import { api } from '../../services/api';
+
+const LiveTrackingContainer = styled.div`
+  background: ${props => props.theme.colors.background};
+  min-height: 100vh;
+  padding: ${props => props.theme.spacing.lg} 0;
+  transition: background-color 0.3s ease;
+`;
+
+const ContentSection = styled.div`
+  margin-bottom: ${props => props.theme.spacing.xl};
+`;
+
+const TrackingCard = styled.div`
+  background: ${props => props.theme.colors.surface};
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid ${props => props.theme.colors.border};
+  transition: all 0.3s ease;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const Title = styled.h3`
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s ease;
+`;
+
+const FilterSection = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
+const LeftFilters = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+const RightFilters = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
+
+const EmployeeName = styled.div`
+  font-weight: 600;
+  color: ${props => props.theme.colors.primary};
+  font-size: 16px;
+  white-space: nowrap;
+`;
+
+const FilterDropdown = styled.select`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  cursor: pointer;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary}20;
+  }
+
+  option {
+    background: ${props => props.theme.colors.surface};
+    color: ${props => props.theme.colors.text.primary};
+  }
+`;
+
+const SearchInput = styled.input`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 200px;
+
+  &::placeholder {
+    color: ${props => props.theme.colors.text.secondary};
+  }
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary}20;
+  }
+`;
+
+const FilterButton = styled.button`
+  padding: 8px 16px;
+  background: ${props => props.theme.colors.primary};
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+`;
+
+const RefreshButton = styled.button`
+  padding: 8px 16px;
+  background: ${props => props.theme.colors.success || '#10b981'};
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const ExportButton = styled.button`
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid ${props => props.theme.colors.border};
+  color: ${props => props.theme.colors.text.primary};
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary};
+    color: ${props => props.theme.colors.primary};
+    transform: translateY(-1px);
+  }
+`;
+
+const StatusBadge = styled.span`
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: ${props => {
+    switch(props.status) {
+      case 'online': return '#dcfce7';
+      case 'offline': return '#fee2e2';
+      case 'idle': return '#fef3c7';
+      default: return '#f3f4f6';
+    }
+  }};
+  color: ${props => {
+    switch(props.status) {
+      case 'online': return '#166534';
+      case 'offline': return '#dc2626';
+      case 'idle': return '#d97706';
+      default: return '#374151';
+    }
+  }};
+`;
+
+const ActivityInfo = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, ${props => props.theme.colors.surface} 0%, ${props => props.theme.colors.background} 100%);
+  border-radius: 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: ${props => props.theme.colors.surface};
+  border-radius: 8px;
+  border: 1px solid ${props => props.theme.colors.border};
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .label {
+    font-size: 12px;
+    color: ${props => props.theme.colors.text.secondary};
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .value {
+    font-size: 24px;
+    color: ${props => props.theme.colors.text.primary};
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+`;
+
+const ScreenshotGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+`;
+
+const ScreenshotCard = styled.div`
+  background: ${props => props.theme.colors.surface};
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  border: 1px solid ${props => props.theme.colors.border};
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.success});
+  }
+`;
+
+const ScreenshotImage = styled.div`
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, ${props => props.theme.colors.background} 0%, ${props => props.theme.colors.border} 100%);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.colors.text.secondary};
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+
+  /* &::before {
+    content: '📸';
+    font-size: 32px;
+    margin-bottom: 8px;
+  } */
+
+  &::after {
+    content: 'Screenshot Preview';
+    position: absolute;
+    bottom: 12px;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+`;
+
+const CardContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const TaskHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+`;
+
+const TaskName = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.primary};
+  line-height: 1.4;
+  flex: 1;
+`;
+
+const TaskMeta = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid ${props => props.theme.colors.border};
+`;
+
+const TaskTime = styled.div`
+  font-size: 13px;
+  color: ${props => props.theme.colors.text.secondary};
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &::before {
+    content: '🕐';
+    font-size: 12px;
+  }
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 20px;
+  background: ${props => props.theme.colors.surface};
+  border-radius: 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+`;
+
+const PaginationButton = styled.button`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.surface};
+  color: ${props => props.active ? 'white' : props.theme.colors.text.primary};
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 40px;
+
+  &:hover:not(:disabled) {
+    background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.background};
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const PaginationInfo = styled.div`
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.secondary};
+  margin: 0 16px;
+  font-weight: 500;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const ErrorMessage = styled.div`
+  color: #ef4444;
+  text-align: center;
+  padding: 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin: 16px 0;
+`;
+
+const NoDataMessage = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: ${props => props.theme.colors.text.secondary};
+  font-size: 16px;
+`;
+
+const ResultsInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const LiveTracking = () => {
+  const { t } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedEmployee, setSelectedEmployee] = useState('all');
+  const [selectedDepartment, setSelectedDepartment] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [dateRange, setDateRange] = useState('today');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  
+  // API related states
+  const [liveTrackingData, setLiveTrackingData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [error, setError] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
+  const [activityStats, setActivityStats] = useState({
+    totalActive: 0,
+    online: 0,
+    idle: 0,
+    offline: 0,
+    totalHours: '0h'
+  });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // Helper function to get human-readable date range description
+  const getDateRangeDescription = () => {
+    const now = new Date();
+    const dateParams = getDateRangeParams();
+    
+    switch (dateRange) {
+      case 'today':
+        return `Today (${now.toLocaleDateString()})`;
+      case 'this_week':
+        const startOfWeek = new Date(dateParams.start_date);
+        const endOfWeek = new Date(dateParams.end_date);
+        return `This Week (${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()})`;
+      case 'this_month':
+        return `This Month (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})`;
+      case 'this_year':
+        return `This Year (${now.getFullYear()})`;
+      default:
+        return 'Today';
+    }
+  };
+
+  // Test image URL accessibility and create proxy URL if needed
+  const getImageUrl = (originalUrl) => {
+    if (!originalUrl) return null;
+    
+    // If it's an S3 URL, proxy it through our Vite dev server to avoid CORS
+    if (originalUrl.includes('ddsfocustime.s3.amazonaws.com')) {
+      // Convert S3 URL to proxied URL
+      const s3Path = originalUrl.replace('https://ddsfocustime.s3.amazonaws.com', '');
+      const proxiedUrl = `/s3-proxy${s3Path}`;
+      console.log('🔄 Converting S3 URL to proxy:', originalUrl, '->', proxiedUrl);
+      return proxiedUrl;
+    }
+    
+    // For non-S3 URLs, return as-is
+    console.log('🔗 Using direct URL:', originalUrl);
+    return originalUrl;
+  };
+
+  // Create a function to handle image loading with fallbacks
+  const ImageComponent = ({ src, alt, style, onLoad, onError }) => {
+    const [imageSrc, setImageSrc] = useState(src);
+    const [hasError, setHasError] = useState(false);
+    
+    useEffect(() => {
+      setImageSrc(src);
+      setHasError(false);
+    }, [src]);
+
+    const handleError = (e) => {
+      console.error('❌ Image failed to load:', imageSrc);
+      setHasError(true);
+      if (onError) onError(e);
+    };
+
+    const handleLoad = (e) => {
+      console.log('✅ Image loaded successfully:', imageSrc);
+      setHasError(false);
+      if (onLoad) onLoad(e);
+    };
+
+    if (hasError || !imageSrc) {
+      return (
+        <div style={{
+          ...style,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#fef2f2',
+          color: '#dc2626'
+        }}>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🚫</div>
+          <div style={{ fontSize: '10px', textAlign: 'center' }}>
+            Image Load Failed
+            <br />
+            <span style={{ fontSize: '8px', opacity: 0.7 }}>
+              {imageSrc ? (imageSrc.length > 30 ? imageSrc.substring(0, 30) + '...' : imageSrc) : 'No URL'}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <img
+        src={imageSrc}
+        alt={alt}
+        style={style}
+        onLoad={handleLoad}
+        onError={handleError}
+        referrerPolicy="no-referrer"
+      />
+    );
+  };
+
+  // Helper function to get date range for API filtering
+  const getDateRangeParams = () => {
+    const now = new Date();
+    let startDate, endDate;
+    
+    switch (dateRange) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        break;
+      case 'this_week':
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+      case 'this_month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        break;
+      case 'this_year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+        break;
+      default:
+        // Default to today
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    }
+    
+    console.log(`📅 Date range calculation for "${dateRange}":`, {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      startLocal: startDate.toLocaleString(),
+      endLocal: endDate.toLocaleString()
+    });
+    
+    return {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0]
+    };
+  };
+
+  // Fetch live tracking data from API
+  const fetchLiveTrackingData = async (forceRefresh = false) => {
+    try {
+      setLoading(true);
+      setError('');
+      setLoadingProgress(0);
+      
+      // Show refresh message if it's a manual refresh
+      if (forceRefresh) {
+        console.log('🔄 Manual refresh triggered...');
+      }
+      
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 90) return prev; // Stop at 90% until real response
+          return prev + Math.random() * 10;
+        });
+      }, 2000);
+      
+      const params = new URLSearchParams();
+      params.append('limit', '100'); // Get up to 100 users
+          // Add date range parameters
+    const dateParams = getDateRangeParams();
+    params.append('start_date', dateParams.start_date);
+    params.append('end_date', dateParams.end_date);
+    
+    console.log(`📅 Filtering screenshots for date range: ${getDateRangeDescription()}`);
+    console.log(`📅 API date params:`, dateParams);
+      
+      const apiUrl = `/api/live-tracking/fast-screenshots/?${params.toString()}`;
+      console.log('Fetching live tracking data from:', apiUrl);
+      console.log('⏳ Note: This API scans all S3 folders and can take 30-90 seconds to complete...');
+      
+      const response = await api.get(apiUrl, {
+        timeout: 180000, // 3 minutes timeout for slow S3 scanning
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        // Add withCredentials if needed for CORS
+        withCredentials: false
+      });
+      
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+      
+      console.log('Live tracking API response:', response.data);
+      
+      // Handle the new API response structure
+      if (response.data && response.data.success && response.data.data && response.data.data.users) {
+        const users = response.data.data.users;
+        const summary = response.data.data.summary;
+        
+        console.log(`📊 Total users from API: ${users.length}`);
+        console.log(`Successfully fetched ${users.length} users from API`);
+        
+        // Log first few users with their timestamps for debugging
+        if (users.length > 0) {
+          console.log('📅 Sample user timestamps for debugging:');
+          users.slice(0, 5).forEach((user, index) => {
+            const timestamp = user.latest_screenshot?.timestamp;
+            const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : 'No timestamp';
+            console.log(`  ${index + 1}. ${user.display_name || 'Unknown'}: ${formattedTime}`);
+          });
+        }
+        
+        // Debug: Log a few sample image URLs
+        const usersWithImages = users.filter(user => user.latest_screenshot?.url);
+        if (usersWithImages.length > 0) {
+          console.log('📷 Sample image URLs from API:');
+          usersWithImages.slice(0, 3).forEach((user, index) => {
+            console.log(`  ${index + 1}. ${user.display_name}: ${user.latest_screenshot.url}`);
+          });
+        } else {
+          console.warn('⚠️ No users with image URLs found in API response');
+        }
+        
+        // Apply client-side filtering based on current filter states
+        let filteredUsers = users;
+        
+        // Filter by date range (client-side backup filtering)
+        if (dateRange && dateRange !== 'all') {
+          const dateParams = getDateRangeParams();
+          const startDate = new Date(dateParams.start_date);
+          const endDate = new Date(dateParams.end_date);
+          endDate.setHours(23, 59, 59, 999); // Include the entire end day
+          
+          console.log(`🔍 Client-side date filtering: ${dateRange}`);
+          console.log(`📅 Date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
+          
+          filteredUsers = filteredUsers.filter(user => {
+            if (!user.latest_screenshot?.timestamp) {
+              console.log(`⚠️ User ${user.display_name} has no timestamp, excluding from date filter`);
+              return false; // Exclude users without timestamps when date filtering
+            }
+            
+            const screenshotDate = new Date(user.latest_screenshot.timestamp);
+            const isInRange = screenshotDate >= startDate && screenshotDate <= endDate;
+            
+            if (!isInRange) {
+              console.log(`📅 Filtering out ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (outside range)`);
+            } else {
+              console.log(`✅ Including ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (in range)`);
+            }
+            
+            return isInRange;
+          });
+          
+          console.log(`📊 After date filtering: ${filteredUsers.length} users (was ${users.length})`);
+        }
+        
+        // Filter by search query
+        if (searchQuery.trim()) {
+          console.log(`🔍 Applying search filter for: "${searchQuery}"`);
+          console.log(`📊 Before search filtering: ${filteredUsers.length} users`);
+          
+          const beforeSearch = filteredUsers.length;
+          filteredUsers = filteredUsers.filter(user => {
+            const matchesName = user.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesEmail = user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesUsername = user.username?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matches = matchesName || matchesEmail || matchesUsername;
+            
+            if (matches) {
+              console.log(`✅ Search match: ${user.display_name || user.email || user.username}`);
+            }
+            
+            return matches;
+          });
+          
+          console.log(`📊 After search filtering: ${filteredUsers.length} users (was ${beforeSearch})`);
+        }
+        
+        // Filter by selected employee
+        if (selectedEmployee !== 'all') {
+          console.log(`🔍 Filtering by selected employee: "${selectedEmployee}"`);
+          const beforeEmployeeFilter = filteredUsers.length;
+          
+          filteredUsers = filteredUsers.filter(user => {
+            const employeeId = user.email || user.username || user.id || (user.display_name || user.name || user.username || 'Unknown Employee').toLowerCase().replace(/\s+/g, '_');
+            const matches = employeeId === selectedEmployee ||
+                           user.email === selectedEmployee || 
+                           user.username === selectedEmployee ||
+                           user.display_name?.toLowerCase().includes(selectedEmployee.toLowerCase());
+            
+            if (matches) {
+              console.log(`✅ Employee filter match: ${user.display_name || user.email || user.username}`);
+            }
+            
+            return matches;
+          });
+          
+          console.log(`📊 After employee filtering: ${filteredUsers.length} users (was ${beforeEmployeeFilter})`);
+        }
+        
+        // Filter by status
+        if (selectedStatus !== 'all') {
+          filteredUsers = filteredUsers.filter(user => {
+            const userStatus = (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase();
+            return userStatus === selectedStatus.toLowerCase();
+          });
+        }
+        
+        setLiveTrackingData(filteredUsers);
+        
+        // Calculate stats from the summary or user data using screenshot-based status
+        const calculateStatusFromScreenshot = (user) => {
+          if (user.latest_screenshot?.timestamp) {
+            const screenshotDate = new Date(user.latest_screenshot.timestamp);
+            const now = new Date();
+            const timeDiffMinutes = Math.floor((now - screenshotDate) / (1000 * 60));
+            
+            if (timeDiffMinutes <= 5) return 'online';
+            if (timeDiffMinutes <= 15) return 'idle';
+            return 'offline';
+          }
+          return 'offline';
+        };
+        
+        // Calculate stats using screenshot-based status
+        const onlineUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'online').length;
+        const idleUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'idle').length;
+        const offlineUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'offline').length;
+        const usersWithScreenshots = users.filter(user => user.latest_screenshot?.timestamp).length;
+        
+        console.log(`📊 Screenshot-based stats: Online: ${onlineUsers}, Idle: ${idleUsers}, Offline: ${offlineUsers}`);
+        
+        setActivityStats({
+          totalActive: users.length,
+          online: onlineUsers,
+          idle: idleUsers,
+          offline: offlineUsers,
+          totalHours: `${usersWithScreenshots}h`
+        });
+        
+        // Set total count for pagination (use filtered count)
+        setTotalCount(filteredUsers.length);
+        
+        // Update last updated time
+        setLastUpdated(new Date());
+      } else {
+        setLiveTrackingData([]);
+        setTotalCount(0);
+        setError('No data received from API or invalid response structure');
+      }
+      
+    } catch (err) {
+      console.error('Error fetching live tracking data:', err);
+      
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        setError('⏰ Request timeout: The S3 scan is taking longer than expected (3+ minutes). The API might be processing a large number of folders. Please try again or contact support if this persists.');
+      } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+        setError('🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on https://dxdtime.ddsolutions.io/api/\n• CORS is properly configured\n• No firewall is blocking the connection');
+      } else if (err.response) {
+        setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
+      } else if (err.request) {
+        setError('📡 Connection error: Request was made but no response received. The API server may be slow or unreachable.');
+      } else {
+        setError(`❌ Unexpected error: ${err.message}`);
+      }
+    } finally {
+      setLoading(false);
+      setLoadingProgress(0);
+    }
+  };
+
+  // Manual refresh function
+  const handleRefresh = () => {
+    console.log('🔄 Refreshing live tracking data...');
+    setCurrentPage(1); // Reset to first page
+    fetchLiveTrackingData(true);
+  };
+
+  // Fetch data when component mounts or filters change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchLiveTrackingData();
+    }, 300); // 300ms debounce for search
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedEmployee, dateRange, currentPage]);
+
+  // Format tracking data for display
+  const formatTrackingData = (user, index) => {
+    // Format the screenshot timestamp for better display
+    let formattedTime = new Date().toLocaleTimeString();
+    let formattedDate = new Date().toLocaleDateString();
+    
+    if (user.latest_screenshot?.timestamp) {
+      const screenshotDate = new Date(user.latest_screenshot.timestamp);
+      formattedTime = screenshotDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      formattedDate = screenshotDate.toLocaleDateString([], { 
+        month: 'short', 
+        day: 'numeric',
+        year: screenshotDate.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+    }
+    
+    // Extract task information from various sources
+    let taskName = user.current_task || user.current_activity || 'No Active Task';
+    
+    // If task is from task_folder, clean it up for better display
+    if (user.latest_screenshot?.task_folder) {
+      taskName = user.latest_screenshot.task_folder
+        .replace(/_/g, ' ')
+        .replace(/([A-Z])/g, ' $1')
+        .trim();
+    }
+    
+    // Determine status based on screenshot recency (within last 5 minutes = online)
+    let calculatedStatus = 'offline';
+    let isRecentlyActive = false;
+    let minutesSinceLastScreenshot = null;
+    
+    if (user.latest_screenshot?.timestamp) {
+      const screenshotDate = new Date(user.latest_screenshot.timestamp);
+      const now = new Date();
+      const timeDiffMs = now - screenshotDate;
+      const timeDiffMinutes = Math.floor(timeDiffMs / (1000 * 60));
+      minutesSinceLastScreenshot = timeDiffMinutes;
+      
+      if (timeDiffMinutes <= 5) {
+        calculatedStatus = 'online';
+        isRecentlyActive = true;
+      } else if (timeDiffMinutes <= 15) {
+        calculatedStatus = 'idle';
+      } else {
+        calculatedStatus = 'offline';
+      }
+      
+      console.log(`📊 Status calculation for ${user.display_name}: ${timeDiffMinutes} minutes ago = ${calculatedStatus}`);
+    } else {
+      console.log(`⚠️ No screenshot timestamp for ${user.display_name}, defaulting to offline`);
+    }
+    
+    return {
+      id: user.id || user.user_id || user.email || index,
+      task: taskName,
+      time: `${formattedDate} ${formattedTime}`,
+      screenshot: getImageUrl(user.latest_screenshot?.url || user.latest_screenshot?.image_url || user.latest_screenshot?.image_path),
+      status: calculatedStatus,
+      originalStatus: (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase(),
+      minutesSinceLastScreenshot: minutesSinceLastScreenshot,
+      employee: user.display_name || user.name || user.username || 'Unknown Employee',
+      email: user.email || '',
+      department: user.department || 'Unknown Department',
+      duration: user.duration || 'N/A',
+      productivity: user.productivity_score || user.productivity || 'N/A',
+      taskPriority: user.task_priority || 'Normal',
+      location: user.location || 'Unknown Location',
+      lastActivity: user.last_activity_time ? new Date(user.last_activity_time).toLocaleString() : 'Unknown',
+      screenshotsCount: user.screenshots_count || 0,
+      isActive: isRecentlyActive, // Based on screenshot recency instead of API status
+      profileImage: user.profile_image || user.avatar,
+      project: user.current_project || 'No Project',
+      hasScreenshot: user.latest_screenshot?.has_screenshot || false,
+      screenshotSize: user.latest_screenshot?.file_size || null,
+      screenshotFilename: user.latest_screenshot?.filename || null,
+      fullDate: formattedDate,
+      timeOnly: formattedTime
+    };
+  };
+
+  // Employee list for filter dropdown - dynamically populated from API data
+  const employees = React.useMemo(() => {
+    const baseEmployees = [{ id: 'all', name: t('allEmployees') || 'All Employees' }];
+    
+    if (liveTrackingData.length > 0) {
+      const uniqueEmployees = liveTrackingData.reduce((acc, user) => {
+        const employeeName = user.display_name || user.name || user.username || 'Unknown Employee';
+        const employeeId = user.email || user.username || user.id || employeeName.toLowerCase().replace(/\s+/g, '_');
+        
+        // Check if employee already exists in the accumulator
+        if (!acc.find(emp => emp.id === employeeId)) {
+          acc.push({
+            id: employeeId,
+            name: employeeName,
+            email: user.email,
+            status: user.status || (user.is_online ? 'online' : 'offline')
+          });
+        }
+        
+        return acc;
+      }, []);
+      
+      // Sort employees alphabetically by name
+      uniqueEmployees.sort((a, b) => a.name.localeCompare(b.name));
+      
+      console.log(`👥 Generated employee list: ${uniqueEmployees.length} employees from API data`);
+      uniqueEmployees.forEach((emp, index) => {
+        console.log(`  ${index + 1}. ${emp.name} (${emp.email || 'no email'}) - ${emp.status}`);
+      });
+      
+      return [...baseEmployees, ...uniqueEmployees];
+    }
+    
+    return baseEmployees;
+  }, [liveTrackingData, t]);
+
+  const departments = [
+    { id: 'all', name: t('allDepartments') },
+    { id: 'dev', name: t('development') },
+    { id: 'design', name: t('design') },
+    { id: 'marketing', name: t('marketing') }
+  ];
+
+  // Filter data based on current filters - now using real API data
+  const filteredScreenshots = liveTrackingData.length > 0 
+    ? liveTrackingData.map((user, index) => formatTrackingData(user, index))
+    : [];
+
+  const totalPages = Math.ceil(filteredScreenshots.length / itemsPerPage);
+  
+  // Apply pagination to the filtered results
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedItems = filteredScreenshots.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedEmployee, dateRange]);
+
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
+  return (
+    <DashboardLayout headerTitle={t('liveTracking')} headerBreadcrumb={`${t('home')} / ${t('liveTracking')}`}>
+      <LiveTrackingContainer>
+        <Container>
+          <ContentSection>
+            <TrackingCard>
+              <CardHeader>
+                <Title>
+                  📍 {t('realTimeActivityStream')}
+                  <span style={{ fontSize: '14px', opacity: 0.7 }}>ⓘ</span>
+                </Title>
+                <div style={{ 
+                  fontSize: '11px', 
+                  color: '#6b7280', 
+                  background: '#f8fafc',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  🟢 Online (≤5min) | 🟡 Idle (≤15min) | 🔴 Offline ({'>'}15min)
+                </div>
+              </CardHeader>
+
+              <ActivityInfo>
+                <InfoItem>
+                  <div className="icon">👥</div>
+                  <div className="label">{t('totalActive')}</div>
+                  <div className="value">{activityStats.totalActive}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">🟢</div>
+                  <div className="label">{t('online')}</div>
+                  <div className="value">{activityStats.online}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">🟡</div>
+                  <div className="label">{t('idle')}</div>
+                  <div className="value">{activityStats.idle}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">🔴</div>
+                  <div className="label">{t('offline')}</div>
+                  <div className="value">{activityStats.offline}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">⏰</div>
+                  <div className="label">{t('totalHours')}</div>
+                  <div className="value">{activityStats.totalHours}</div>
+                </InfoItem>
+              </ActivityInfo>
+
+              <FilterSection>
+                <LeftFilters>
+                  <FilterDropdown 
+                    value={selectedEmployee} 
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    style={{
+                      background: selectedEmployee !== 'all' ? '#f0f9ff' : undefined,
+                      fontWeight: selectedEmployee !== 'all' ? '600' : 'normal'
+                    }}
+                  >
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.id === 'all' ? emp.name : `${emp.name}${emp.email ? ` (${emp.email})` : ''}`}
+                      </option>
+                    ))}
+                  </FilterDropdown>
+
+                  <FilterDropdown 
+                    value={dateRange} 
+                    onChange={(e) => setDateRange(e.target.value)}
+                    style={{
+                      background: dateRange !== 'today' ? '#fef3c7' : undefined,
+                      fontWeight: dateRange !== 'today' ? '600' : 'normal'
+                    }}
+                  >
+                    <option value="today">{t('today') || 'Today'}</option>
+                    <option value="this_week">{t('thisWeek') || 'This Week'}</option>
+                    <option value="this_month">{t('thisMonth') || 'This Month'}</option>
+                    <option value="this_year">This Year</option>
+                  </FilterDropdown>
+
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <SearchInput
+                      type="text"
+                      placeholder={t('searchEmployees') || 'Search employees...'}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{
+                        background: searchQuery ? '#fef3c7' : undefined,
+                        fontWeight: searchQuery ? '600' : 'normal',
+                        paddingRight: searchQuery ? '35px' : '12px'
+                      }}
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        style={{
+                          position: 'absolute',
+                          right: '8px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '16px',
+                          color: '#6b7280',
+                          padding: '2px'
+                        }}
+                        title="Clear search"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </LeftFilters>
+
+                <RightFilters>
+                  <RefreshButton 
+                    onClick={handleRefresh}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <CircularProgress size={16} style={{ color: 'white' }} />
+                        Refreshing...
+                      </>
+                    ) : (
+                      <>
+                        🔄 Refresh
+                      </>
+                    )}
+                  </RefreshButton>
+                  
+                  <ExportButton>
+                    📊 Export
+                  </ExportButton>
+                </RightFilters>
+           
+              </FilterSection>
+
+              {/* Results Info */}
+              <ResultsInfo>
+                <div>
+                  Showing {filteredScreenshots.length} employee{filteredScreenshots.length !== 1 ? 's' : ''} 
+                  {' for '} {getDateRangeDescription()}
+                  {searchQuery && (
+                    <span style={{ 
+                      background: '#fef3c7', 
+                      color: '#92400e', 
+                      padding: '2px 6px', 
+                      borderRadius: '4px', 
+                      fontSize: '12px', 
+                      fontWeight: '600',
+                      marginLeft: '8px'
+                    }}>
+                      matching "{searchQuery}"
+                    </span>
+                  )}
+                  {dateRange !== 'today' && (
+                    <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'normal' }}>
+                      {' '}(filtered by date)
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                  {loading && (
+                    <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                      🔄 Refreshing...
+                    </span>
+                  )}
+                </div>
+              </ResultsInfo>
+
+              {/* Debug Panel - only show in development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  margin: '16px 0',
+                  fontSize: '12px',
+                  color: '#64748b'
+                }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px' }}>🔧 Debug Info:</div>
+                  <div>Date Range: {dateRange} | API Params: {JSON.stringify(getDateRangeParams())}</div>
+                  <div>Search Query: "{searchQuery}" | Selected Employee: {selectedEmployee}</div>
+                  <div>Raw API Results: {liveTrackingData.length} users | Final Display: {filteredScreenshots.length}</div>
+                  <div>Current Page: {currentPage} | Items per page: {itemsPerPage} | Showing: {displayedItems.length}</div>
+                  {searchQuery && (
+                    <div style={{ marginTop: '8px', padding: '8px', background: '#fef3c7', borderRadius: '4px', color: '#92400e' }}>
+                      <strong>Search Active:</strong> Filtering for "{searchQuery}" - {filteredScreenshots.length} matches found
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {loading && (
+                <LoadingContainer>
+                  <CircularProgress />
+                  <div>🔍 Scanning S3 folders for live tracking data...</div>
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                    This may take 30-90 seconds as we scan all user folders
+                  </div>
+                  {loadingProgress > 0 && (
+                    <div style={{ marginTop: '12px', width: '200px' }}>
+                      <div style={{ 
+                        background: '#e5e7eb', 
+                        borderRadius: '4px', 
+                        height: '8px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          background: '#3b82f6', 
+                          height: '100%', 
+                          width: `${loadingProgress}%`,
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                      <div style={{ fontSize: '10px', color: '#666', marginTop: '4px', textAlign: 'center' }}>
+                        {Math.round(loadingProgress)}% - Scanning user folders...
+                      </div>
+                    </div>
+                  )}
+                </LoadingContainer>
+              )}
+
+              {error && (
+                <ErrorMessage>
+                  {error}
+                  <button 
+                    onClick={fetchLiveTrackingData} 
+                    style={{ marginLeft: '10px', fontSize: '12px', padding: '4px 8px', cursor: 'pointer' }}
+                  >
+                    Retry
+                  </button>
+                </ErrorMessage>
+              )}
+
+              {!loading && !error && displayedItems.length === 0 && (
+                <NoDataMessage>
+                  No live tracking data found
+                  <br />
+                  <small>Try adjusting your filters or check if users have recent screenshots in the API</small>
+                </NoDataMessage>
+              )}
+
+              <ResultsInfo>
+                <span>
+                  {t('showing')} {displayedItems.length > 0 ? ((currentPage - 1) * itemsPerPage + 1) : 0}-{Math.min(currentPage * itemsPerPage, filteredScreenshots.length)} {t('of')} {filteredScreenshots.length} {t('results')}
+                </span>
+                <span>{displayedItems.length} {t('itemsOnThisPage')}</span>
+              </ResultsInfo>
+
+              <ScreenshotGrid>
+                {displayedItems.map((item) => (
+                  <ScreenshotCard key={item.id}>
+                    <ScreenshotImage>
+                        {item.hasScreenshot && item.screenshot && item.screenshot !== `Screenshot ${item.id}` ? (
+                          <img 
+                            src={item.screenshot} 
+                            alt={item.task}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                            referrerPolicy="no-referrer"
+                            onLoad={(e) => {
+                              console.log('✅ Image loaded successfully:', item.screenshot);
+                            }}
+                            onError={(e) => {
+                              console.error('❌ Image failed to load:', item.screenshot);
+                              console.error('Error details:', e);
+                              e.target.style.display = 'none';
+                              
+                              // Create a fallback div
+                              const fallbackDiv = document.createElement('div');
+                              fallbackDiv.style.cssText = `
+                                display: flex; 
+                                flex-direction: column; 
+                                align-items: center; 
+                                justify-content: center; 
+                                height: 100%; 
+                                background: #fef2f2; 
+                                color: #dc2626;
+                                padding: 8px;
+                                text-align: center;
+                              `;
+                              fallbackDiv.innerHTML = `
+                                <div style="font-size: 24px; margin-bottom: 8px;">�</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-bottom: 4px;">Image Load Error</div>
+                                <div style="font-size: 8px; opacity: 0.6; word-break: break-all;">
+                                  ${item.screenshot.length > 50 ? item.screenshot.substring(0, 50) + '...' : item.screenshot}
+                                </div>
+                              `;
+                              
+                              // Replace the image with the fallback
+                              if (e.target.parentElement) {
+                                e.target.parentElement.appendChild(fallbackDiv);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100%',
+                            background: '#f3f4f6',
+                            color: '#6b7280',
+                            padding: '8px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
+                            <div style={{ fontSize: '12px', opacity: 0.7, marginBottom: '4px' }}>
+                              {item.hasScreenshot === false ? 'No Screenshot Available' : 'Loading...'}
+                            </div>
+                            {item.screenshot && (
+                              <div style={{ fontSize: '8px', opacity: 0.5, wordBreak: 'break-all' }}>
+                                {item.screenshot.length > 40 ? item.screenshot.substring(0, 40) + '...' : item.screenshot}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </ScreenshotImage>
+                    
+                    {/* Image URL below the screenshot */}
+                    {item.screenshot && (
+                      <div style={{ 
+                        fontSize: '10px', 
+                        color: '#6b7280',
+                        padding: '8px 0 4px 0',
+                        borderBottom: '1px solid #e5e7eb',
+                        marginBottom: '8px',
+                        cursor: 'pointer',
+                        wordBreak: 'break-all',
+                        lineHeight: '1.3'
+                      }}
+                      onClick={() => {
+                        console.log('🔗 Image URL:', item.screenshot);
+                        window.open(item.screenshot, '_blank');
+                      }}
+                      title="Click to open image in new tab"
+                      >
+                        🔗 {item.screenshot}
+                      </div>
+                    )}
+                    
+                    <CardContent>
+                      <TaskHeader>
+                        <TaskName>{item.task}</TaskName>
+                        <StatusBadge status={item.status}>
+                          {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        </StatusBadge>
+                      </TaskHeader>
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {item.profileImage ? (
+                          <img 
+                            src={item.profileImage} 
+                            alt={item.employee}
+                            style={{ width: '16px', height: '16px', borderRadius: '50%' }}
+                          />
+                        ) : (
+                          <span>👤</span>
+                        )}
+                        {item.employee}
+                        {item.isActive && <span style={{ color: '#10b981', fontSize: '10px' }}>●</span>}
+                      </div>
+                      {item.email && (
+                        <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '4px' }}>
+                          📧 {item.email}
+                        </div>
+                      )}
+                      {item.minutesSinceLastScreenshot !== null && (
+                        <div style={{ 
+                          fontSize: '10px', 
+                          marginBottom: '4px',
+                          color: item.minutesSinceLastScreenshot <= 5 ? '#10b981' : 
+                                item.minutesSinceLastScreenshot <= 15 ? '#f59e0b' : '#ef4444',
+                          fontWeight: '500',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <span style={{ fontSize: '8px' }}>
+                            {item.minutesSinceLastScreenshot <= 5 ? '🟢' : 
+                             item.minutesSinceLastScreenshot <= 15 ? '🟡' : '🔴'}
+                          </span>
+                          Last seen: {item.minutesSinceLastScreenshot === 0 ? 'just now' : 
+                                    item.minutesSinceLastScreenshot === 1 ? '1 minute ago' :
+                                    `${item.minutesSinceLastScreenshot} minutes ago`}
+                        </div>
+                      )}
+                      {item.duration && item.duration !== 'N/A' && (
+                        <div style={{ fontSize: '11px', color: '#6366f1', marginBottom: '4px' }}>
+                          ⏱️ Working Time: {item.duration}
+                        </div>
+                      )}
+                      {item.productivity && item.productivity !== 'N/A' && (
+                        <div style={{ fontSize: '11px', color: '#059669', marginBottom: '4px' }}>
+                          📊 Efficiency: {item.productivity}
+                        </div>
+                      )}
+                      {item.screenshotsCount > 0 && (
+                        <div style={{ fontSize: '10px', color: '#8b5cf6', marginBottom: '4px' }}>
+                          📷 {item.screenshotsCount} screenshots
+                        </div>
+                      )}
+                      {item.screenshotFilename && (
+                        <div style={{ fontSize: '9px', color: '#6b7280', marginBottom: '4px', opacity: 0.8 }}>
+                          📁 {item.screenshotFilename}
+                        </div>
+                      )}
+                      {item.screenshotSize && (
+                        <div style={{ fontSize: '9px', color: '#6b7280', marginBottom: '4px', opacity: 0.8 }}>
+                          📊 {(item.screenshotSize / 1024).toFixed(1)} KB
+                        </div>
+                      )}
+                      {item.taskPriority && (
+                        <div style={{ 
+                          fontSize: '10px', 
+                          marginBottom: '4px',
+                          padding: '2px 6px',
+                          borderRadius: '8px',
+                          backgroundColor: item.taskPriority.toLowerCase() === 'high' ? '#fef2f2' : 
+                                         item.taskPriority.toLowerCase() === 'medium' ? '#fef3c7' : '#f0f9ff',
+                          color: item.taskPriority.toLowerCase() === 'high' ? '#dc2626' : 
+                                item.taskPriority.toLowerCase() === 'medium' ? '#d97706' : '#0369a1',
+                          fontWeight: '500'
+                        }}>
+                          🎯 {item.taskPriority} Priority
+                        </div>
+                      )}
+                      {item.location && item.location !== 'Unknown Location' && (
+                        <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>
+                          📍 {item.location}
+                        </div>
+                      )}
+                      {item.lastActivity && item.lastActivity !== 'Unknown' && (
+                        <div style={{ fontSize: '10px', color: '#f59e0b', marginBottom: '4px' }}>
+                          🔄 Last active: {item.lastActivity}
+                        </div>
+                      )}
+                      <TaskMeta>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <TaskTime>📅 {item.fullDate}</TaskTime>
+                          <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                            ⏱️ {item.timeOnly}
+                          </div>
+                        </div>
+                        {item.status && (
+                          <StatusBadge status={item.status} style={{ fontSize: '10px', padding: '2px 6px' }}>
+                            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                          </StatusBadge>
+                        )}
+                      </TaskMeta>
+                    </CardContent>
+                  </ScreenshotCard>
+                ))}
+              </ScreenshotGrid>
+
+              {totalPages > 1 && (
+                <PaginationContainer>
+                  <PaginationButton
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    ← {t('previous')}
+                  </PaginationButton>
+
+                  {generatePageNumbers().map((page, index) => (
+                    <PaginationButton
+                      key={index}
+                      active={page === currentPage}
+                      onClick={() => typeof page === 'number' && handlePageChange(page)}
+                      disabled={page === '...'}
+                    >
+                      {page}
+                    </PaginationButton>
+                  ))}
+
+                  <PaginationButton
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    {t('next')} →
+                  </PaginationButton>
+
+                  <PaginationInfo>
+                    {t('page')} {currentPage} {t('of')} {totalPages}
+                  </PaginationInfo>
+                </PaginationContainer>
+              )}
+            </TrackingCard>
+          </ContentSection>
+        </Container>
+      </LiveTrackingContainer>
+    </DashboardLayout>
+  );
+};
+
+export default LiveTracking;
