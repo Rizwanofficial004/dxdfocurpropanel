@@ -3,43 +3,45 @@ import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ChartsSection } from '../components/charts/ChartsSection';
 import { Container } from '../styles/commonStyles';
-import { theme } from '../styles/theme';
+import { useTheme } from '../context/ThemeContext';
 import { Cards } from '../components/card/StatsCards';
 import ActivityStream from '../components/activity/ActivityStream';
 import FocusTimeline from '../components/foucstimeline/FocusTimeline';
 import AnnouncementTable from '../components/announcement/Announcement';
 
 const DashboardContainer = styled.div`
-  background: ${theme.colors.background};
+  background: ${props => props.theme.colors.background};
   min-height: 100vh;
-  padding: ${theme.spacing.lg} 0;
+  padding: ${props => props.theme.spacing.lg} 0;
 `;
 
 
 const ContentSection = styled.div`
-  margin-bottom: ${theme.spacing.xl};
+  margin-bottom: ${props => props.theme.spacing.xl};
 `;
 
 const Dashboard = () => {
+  const { theme } = useTheme();
+
   return (
     <DashboardLayout>
-      <DashboardContainer>
+      <DashboardContainer theme={theme}>
         <Container>
           {/* For Cards  */}
-          <ContentSection>
+          <ContentSection theme={theme}>
             <Cards />
           </ContentSection>
           {/* For Activity Stream */}
-          <ContentSection>
+          <ContentSection theme={theme}>
             <ActivityStream />
           </ContentSection>
         {/* For FocusTimeline  */}
-            <ContentSection>
+            <ContentSection theme={theme}>
             <FocusTimeline />
           </ContentSection>
 
            {/* For Announcement Table  */}
-          <ContentSection>
+          <ContentSection theme={theme}>
             <AnnouncementTable />
           </ContentSection>
         </Container>

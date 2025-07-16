@@ -1,6 +1,8 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Lazy load components
 const Dashboard = lazy(() =>
@@ -23,6 +25,10 @@ const ThemeDemo = lazy(() =>
   import('./dashboard/pages/ThemeDemo').catch(() => ({ default: FallbackThemeDemo }))
 );
 
+const Settings = lazy(() =>
+  import('./dashboard/pages/Settings').catch(() => ({ default: FallbackSettings }))
+);
+
 const ThemeProvider = lazy(() =>
   import('./dashboard/context/ThemeContext').then(m => ({ default: m.ThemeProvider })).catch(() => ({ default: SimpleThemeProvider }))
 );
@@ -37,6 +43,7 @@ const FallbackLiveTracking = () => <div>Live Tracking failed to load.</div>;
 const FallbackQuickView = () => <div>Quick View failed to load.</div>;
 const FallbackLogin = () => <div>Login failed to load.</div>;
 const FallbackThemeDemo = () => <div>Theme demo failed to load.</div>;
+const FallbackSettings = () => <div>Settings failed to load.</div>;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
 const LoadingSpinner = () => <div>Loading...</div>;
@@ -69,66 +76,81 @@ const AppContainer = styled.div`
 function App() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <LanguageProvider>
-        <ThemeProvider>
-          <GlobalStyle />
-          <AppContainer>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route
-                  path="/login"
-                  element={
-                    <Suspense fallback={<FallbackLogin />}>
-                      <Login />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <Suspense fallback={<FallbackDashboard />}>
-                      <Dashboard />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/dashboard/live-tracking"
-                  element={
-                    <Suspense fallback={<FallbackLiveTracking />}>
-                      <LiveTracking />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/dashboard/quick-view"
-                  element={
-                    <Suspense fallback={<FallbackQuickView />}>
-                      <QuickView />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/dashboard/theme-demo"
-                  element={
-                    <Suspense fallback={<FallbackThemeDemo />}>
-                      <ThemeDemo />
-                    </Suspense>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/login" replace />} />
-              </Routes>
-            </Router>
-          </AppContainer>
-        </ThemeProvider>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <GlobalStyle />
+            <AppContainer>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route
+                    path="/login"
+                    element={
+                      <Suspense fallback={<FallbackLogin />}>
+                        <Login />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackDashboard />}>
+                          <Dashboard />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/live-tracking"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackLiveTracking />}>
+                          <LiveTracking />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/quick-view"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackQuickView />}>
+                          <QuickView />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/theme-demo"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackThemeDemo />}>
+                          <ThemeDemo />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackSettings />}>
+                          <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+              </Router>
+            </AppContainer>
+          </ThemeProvider>
+        </LanguageProvider>
+      </AuthProvider>
     </Suspense>
   );
 }
 
 export default App;
-<LanguageProvider>
-  <ThemeProvider>
-    ...
-  </ThemeProvider>
-</LanguageProvider>

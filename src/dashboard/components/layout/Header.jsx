@@ -586,11 +586,101 @@ const MoonIcon = () => (
 );
 
 export const Header = ({ 
-  userName = "John Smith", 
-  userRole = "Admin",
-  userEmail = "john.smith@company.com",
   greeting
 }) => {
+  // Get user info from sessionStorage/localStorage with better handling
+  let user = null;
+  try {
+    const sessionUser = sessionStorage.getItem('user');
+    const localUser = localStorage.getItem('user');
+    const sessionAdmin = sessionStorage.getItem('admin');
+    const localAdmin = localStorage.getItem('admin');
+    const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    const loginUsername = sessionStorage.getItem('loginUsername') || localStorage.getItem('loginUsername');
+    
+    // Debug: log what's in storage
+    console.log('Session user:', sessionUser);
+    console.log('Local user:', localUser);
+    console.log('Session admin:', sessionAdmin);
+    console.log('Local admin:', localAdmin);
+    console.log('Auth token:', authToken);
+    console.log('Login username:', loginUsername);
+    
+    // Try to parse JSON data first
+    if (sessionUser && sessionUser !== 'null') {
+      try {
+        user = JSON.parse(sessionUser);
+      } catch (e) {
+        // If it's not JSON, treat as plain text
+        if (sessionUser.toLowerCase().includes('admin')) {
+          user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+        }
+      }
+    }
+    
+    if (!user && localUser && localUser !== 'null') {
+      try {
+        user = JSON.parse(localUser);
+      } catch (e) {
+        if (localUser.toLowerCase().includes('admin')) {
+          user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+        }
+      }
+    }
+    
+    if (!user && sessionAdmin && sessionAdmin !== 'null') {
+      try {
+        user = JSON.parse(sessionAdmin);
+      } catch (e) {
+        user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+      }
+    }
+    
+    if (!user && localAdmin && localAdmin !== 'null') {
+      try {
+        user = JSON.parse(localAdmin);
+      } catch (e) {
+        user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+      }
+    }
+    
+    // Check if login username is stored
+    if (!user && loginUsername) {
+      const username = loginUsername.toLowerCase();
+      if (username === 'admin') {
+        user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+      } else {
+        user = { name: loginUsername, role: 'User', email: `${loginUsername}@dds.com` };
+      }
+    }
+    
+    // If user logged in but no proper user data, check if it's admin login
+    if (!user && authToken) {
+      // If there's an auth token but no user data, assume admin login
+      user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+    }
+    
+    // Last resort: check if any storage contains "admin"
+    if (!user && (
+      (sessionUser && sessionUser.toLowerCase().includes('admin')) ||
+      (localUser && localUser.toLowerCase().includes('admin')) ||
+      (sessionAdmin) ||
+      (localAdmin)
+    )) {
+      user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
+    }
+    
+    console.log('Final user object:', user);
+  } catch (e) {
+    console.error('Error parsing user data:', e);
+    user = null;
+  }
+
+  // Dynamic user data - use actual logged in user info
+  const userName = user?.name || user?.username || user?.fullName || "Guest User";
+  const userRole = user?.role || user?.userType || user?.position || "User";
+  const userEmail = user?.email || user?.emailAddress || "user@example.com";
+
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -683,7 +773,12 @@ export const Header = ({
   const handleLogout = () => {
     // Clear any stored authentication data
     localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('admin');
+    localStorage.removeItem('loginUsername');
     sessionStorage.removeItem('user');
+    sessionStorage.removeItem('admin');
+    sessionStorage.removeItem('loginUsername');
     
     // Close dropdown
     setIsProfileOpen(false);
@@ -702,10 +797,10 @@ export const Header = ({
           
           <Logo>
             <LogoIcon></LogoIcon>
-            <LogoText>anez</LogoText>
+            <LogoText>DDS Admin</LogoText>
           </Logo>
           
-          <Greeting>{greeting || `${t('hello')} Thomas 👋`}</Greeting>
+          {/* <Greeting>{greeting || `${t('hello')} Thomas 👋`}</Greeting> */}
         </LeftSection>
 
         <RightSection>

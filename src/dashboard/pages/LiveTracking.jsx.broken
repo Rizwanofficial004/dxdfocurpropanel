@@ -4,7 +4,7 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Container } from '../styles/commonStyles';
 import { useLanguage } from '../context/LanguageContext';
 import { CircularProgress } from '@mui/material';
-import { api } from '../../services/api';
+import axios from 'axios';
 
 const LiveTrackingContainer = styled.div`
   background: ${props => props.theme.colors.background};
@@ -133,32 +133,6 @@ const FilterButton = styled.button`
   &:hover {
     opacity: 0.9;
     transform: translateY(-1px);
-  }
-`;
-
-const RefreshButton = styled.button`
-  padding: 8px 16px;
-  background: ${props => props.theme.colors.success || '#10b981'};
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  &:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
   }
 `;
 
@@ -305,11 +279,11 @@ const ScreenshotImage = styled.div`
   position: relative;
   overflow: hidden;
 
-  /* &::before {
+  &::before {
     content: '📸';
     font-size: 32px;
     margin-bottom: 8px;
-  } */
+  }
 
   &::after {
     content: 'Screenshot Preview';
@@ -464,28 +438,6 @@ const LiveTracking = () => {
     offline: 0,
     totalHours: '0h'
   });
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-
-  // Helper function to get human-readable date range description
-  const getDateRangeDescription = () => {
-    const now = new Date();
-    const dateParams = getDateRangeParams();
-    
-    switch (dateRange) {
-      case 'today':
-        return `Today (${now.toLocaleDateString()})`;
-      case 'this_week':
-        const startOfWeek = new Date(dateParams.start_date);
-        const endOfWeek = new Date(dateParams.end_date);
-        return `This Week (${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()})`;
-      case 'this_month':
-        return `This Month (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})`;
-      case 'this_year':
-        return `This Year (${now.getFullYear()})`;
-      default:
-        return 'Today';
-    }
-  };
 
   // Test image URL accessibility and create proxy URL if needed
   const getImageUrl = (originalUrl) => {
@@ -562,64 +514,12 @@ const LiveTracking = () => {
     );
   };
 
-  // Helper function to get date range for API filtering
-  const getDateRangeParams = () => {
-    const now = new Date();
-    let startDate, endDate;
-    
-    switch (dateRange) {
-      case 'today':
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-        break;
-      case 'this_week':
-        const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
-        startOfWeek.setHours(0, 0, 0, 0);
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        endOfWeek.setHours(23, 59, 59, 999);
-        startDate = startOfWeek;
-        endDate = endOfWeek;
-        break;
-      case 'this_month':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-        break;
-      case 'this_year':
-        startDate = new Date(now.getFullYear(), 0, 1);
-        endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-        break;
-      default:
-        // Default to today
-        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-    }
-    
-    console.log(`📅 Date range calculation for "${dateRange}":`, {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      startLocal: startDate.toLocaleString(),
-      endLocal: endDate.toLocaleString()
-    });
-    
-    return {
-      start_date: startDate.toISOString().split('T')[0],
-      end_date: endDate.toISOString().split('T')[0]
-    };
-  };
-
   // Fetch live tracking data from API
-  const fetchLiveTrackingData = async (forceRefresh = false) => {
+  const fetchLiveTrackingData = async () => {
     try {
       setLoading(true);
       setError('');
       setLoadingProgress(0);
-      
-      // Show refresh message if it's a manual refresh
-      if (forceRefresh) {
-        console.log('🔄 Manual refresh triggered...');
-      }
       
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
@@ -631,19 +531,12 @@ const LiveTracking = () => {
       
       const params = new URLSearchParams();
       params.append('limit', '100'); // Get up to 100 users
-          // Add date range parameters
-    const dateParams = getDateRangeParams();
-    params.append('start_date', dateParams.start_date);
-    params.append('end_date', dateParams.end_date);
-    
-    console.log(`📅 Filtering screenshots for date range: ${getDateRangeDescription()}`);
-    console.log(`📅 API date params:`, dateParams);
       
       const apiUrl = `/api/live-tracking/fast-screenshots/?${params.toString()}`;
       console.log('Fetching live tracking data from:', apiUrl);
       console.log('⏳ Note: This API scans all S3 folders and can take 30-90 seconds to complete...');
       
-      const response = await api.get(apiUrl, {
+      const response = await axios.get(apiUrl, {
         timeout: 180000, // 3 minutes timeout for slow S3 scanning
         headers: {
           'Accept': 'application/json',
@@ -663,18 +556,7 @@ const LiveTracking = () => {
         const users = response.data.data.users;
         const summary = response.data.data.summary;
         
-        console.log(`📊 Total users from API: ${users.length}`);
         console.log(`Successfully fetched ${users.length} users from API`);
-        
-        // Log first few users with their timestamps for debugging
-        if (users.length > 0) {
-          console.log('📅 Sample user timestamps for debugging:');
-          users.slice(0, 5).forEach((user, index) => {
-            const timestamp = user.latest_screenshot?.timestamp;
-            const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : 'No timestamp';
-            console.log(`  ${index + 1}. ${user.display_name || 'Unknown'}: ${formattedTime}`);
-          });
-        }
         
         // Debug: Log a few sample image URLs
         const usersWithImages = users.filter(user => user.latest_screenshot?.url);
@@ -690,126 +572,61 @@ const LiveTracking = () => {
         // Apply client-side filtering based on current filter states
         let filteredUsers = users;
         
-        // Filter by date range (client-side backup filtering)
-        if (dateRange && dateRange !== 'all') {
-          const dateParams = getDateRangeParams();
-          const startDate = new Date(dateParams.start_date);
-          const endDate = new Date(dateParams.end_date);
-          endDate.setHours(23, 59, 59, 999); // Include the entire end day
-          
-          console.log(`🔍 Client-side date filtering: ${dateRange}`);
-          console.log(`📅 Date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
-          
-          filteredUsers = filteredUsers.filter(user => {
-            if (!user.latest_screenshot?.timestamp) {
-              console.log(`⚠️ User ${user.display_name} has no timestamp, excluding from date filter`);
-              return false; // Exclude users without timestamps when date filtering
-            }
-            
-            const screenshotDate = new Date(user.latest_screenshot.timestamp);
-            const isInRange = screenshotDate >= startDate && screenshotDate <= endDate;
-            
-            if (!isInRange) {
-              console.log(`📅 Filtering out ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (outside range)`);
-            } else {
-              console.log(`✅ Including ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (in range)`);
-            }
-            
-            return isInRange;
-          });
-          
-          console.log(`📊 After date filtering: ${filteredUsers.length} users (was ${users.length})`);
-        }
-        
         // Filter by search query
         if (searchQuery.trim()) {
-          console.log(`🔍 Applying search filter for: "${searchQuery}"`);
-          console.log(`📊 Before search filtering: ${filteredUsers.length} users`);
-          
-          const beforeSearch = filteredUsers.length;
-          filteredUsers = filteredUsers.filter(user => {
-            const matchesName = user.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesEmail = user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesUsername = user.username?.toLowerCase().includes(searchQuery.toLowerCase());
-            const matches = matchesName || matchesEmail || matchesUsername;
-            
-            if (matches) {
-              console.log(`✅ Search match: ${user.display_name || user.email || user.username}`);
-            }
-            
-            return matches;
-          });
-          
-          console.log(`📊 After search filtering: ${filteredUsers.length} users (was ${beforeSearch})`);
+          filteredUsers = filteredUsers.filter(user => 
+            user.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.username?.toLowerCase().includes(searchQuery.toLowerCase())
+          );
         }
         
         // Filter by selected employee
         if (selectedEmployee !== 'all') {
-          console.log(`🔍 Filtering by selected employee: "${selectedEmployee}"`);
-          const beforeEmployeeFilter = filteredUsers.length;
-          
-          filteredUsers = filteredUsers.filter(user => {
-            const employeeId = user.email || user.username || user.id || (user.display_name || user.name || user.username || 'Unknown Employee').toLowerCase().replace(/\s+/g, '_');
-            const matches = employeeId === selectedEmployee ||
-                           user.email === selectedEmployee || 
-                           user.username === selectedEmployee ||
-                           user.display_name?.toLowerCase().includes(selectedEmployee.toLowerCase());
-            
-            if (matches) {
-              console.log(`✅ Employee filter match: ${user.display_name || user.email || user.username}`);
-            }
-            
-            return matches;
-          });
-          
-          console.log(`📊 After employee filtering: ${filteredUsers.length} users (was ${beforeEmployeeFilter})`);
+          filteredUsers = filteredUsers.filter(user => 
+            user.email === selectedEmployee || 
+            user.username === selectedEmployee ||
+            user.display_name?.toLowerCase().includes(selectedEmployee.toLowerCase())
+          );
         }
         
         // Filter by status
         if (selectedStatus !== 'all') {
           filteredUsers = filteredUsers.filter(user => {
-            const userStatus = (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase();
+            const userStatus = user.status?.toLowerCase() || (user.is_online ? 'online' : 'offline');
             return userStatus === selectedStatus.toLowerCase();
           });
         }
         
         setLiveTrackingData(filteredUsers);
         
-        // Calculate stats from the summary or user data using screenshot-based status
-        const calculateStatusFromScreenshot = (user) => {
-          if (user.latest_screenshot?.timestamp) {
-            const screenshotDate = new Date(user.latest_screenshot.timestamp);
-            const now = new Date();
-            const timeDiffMinutes = Math.floor((now - screenshotDate) / (1000 * 60));
-            
-            if (timeDiffMinutes <= 5) return 'online';
-            if (timeDiffMinutes <= 15) return 'idle';
-            return 'offline';
-          }
-          return 'offline';
-        };
-        
-        // Calculate stats using screenshot-based status
-        const onlineUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'online').length;
-        const idleUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'idle').length;
-        const offlineUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'offline').length;
-        const usersWithScreenshots = users.filter(user => user.latest_screenshot?.timestamp).length;
-        
-        console.log(`📊 Screenshot-based stats: Online: ${onlineUsers}, Idle: ${idleUsers}, Offline: ${offlineUsers}`);
-        
-        setActivityStats({
-          totalActive: users.length,
-          online: onlineUsers,
-          idle: idleUsers,
-          offline: offlineUsers,
-          totalHours: `${usersWithScreenshots}h`
-        });
+        // Calculate stats from the summary or user data
+        if (summary) {
+          // Use summary data if available
+          setActivityStats({
+            totalActive: summary.total_users_processed || users.length,
+            online: users.filter(user => user.status?.toLowerCase() === 'online' || user.is_online).length,
+            idle: users.filter(user => user.status?.toLowerCase() === 'idle').length,
+            offline: users.filter(user => user.status?.toLowerCase() === 'offline' || !user.is_online).length,
+            totalHours: `${summary.users_with_screenshots || 0}h`
+          });
+        } else {
+          // Calculate stats from user data
+          const online = users.filter(user => user.status?.toLowerCase() === 'online' || user.is_online).length;
+          const idle = users.filter(user => user.status?.toLowerCase() === 'idle').length;
+          const offline = users.filter(user => user.status?.toLowerCase() === 'offline' || !user.is_online).length;
+          
+          setActivityStats({
+            totalActive: users.length,
+            online: online,
+            idle: idle,
+            offline: offline,
+            totalHours: `${users.filter(user => user.latest_screenshot?.has_screenshot).length}h`
+          });
+        }
         
         // Set total count for pagination (use filtered count)
         setTotalCount(filteredUsers.length);
-        
-        // Update last updated time
-        setLastUpdated(new Date());
       } else {
         setLiveTrackingData([]);
         setTotalCount(0);
@@ -822,7 +639,7 @@ const LiveTracking = () => {
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
         setError('⏰ Request timeout: The S3 scan is taking longer than expected (3+ minutes). The API might be processing a large number of folders. Please try again or contact support if this persists.');
       } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        setError('🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on https://dxdtime.ddsolutions.io/api/\n• CORS is properly configured\n• No firewall is blocking the connection');
+        setError('🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on http://127.0.0.1:8000\n• CORS is properly configured\n• No firewall is blocking the connection');
       } else if (err.response) {
         setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
       } else if (err.request) {
@@ -834,13 +651,6 @@ const LiveTracking = () => {
       setLoading(false);
       setLoadingProgress(0);
     }
-  };
-
-  // Manual refresh function
-  const handleRefresh = () => {
-    console.log('🔄 Refreshing live tracking data...');
-    setCurrentPage(1); // Reset to first page
-    fetchLiveTrackingData(true);
   };
 
   // Fetch data when component mounts or filters change
@@ -879,40 +689,12 @@ const LiveTracking = () => {
         .trim();
     }
     
-    // Determine status based on screenshot recency (within last 5 minutes = online)
-    let calculatedStatus = 'offline';
-    let isRecentlyActive = false;
-    let minutesSinceLastScreenshot = null;
-    
-    if (user.latest_screenshot?.timestamp) {
-      const screenshotDate = new Date(user.latest_screenshot.timestamp);
-      const now = new Date();
-      const timeDiffMs = now - screenshotDate;
-      const timeDiffMinutes = Math.floor(timeDiffMs / (1000 * 60));
-      minutesSinceLastScreenshot = timeDiffMinutes;
-      
-      if (timeDiffMinutes <= 5) {
-        calculatedStatus = 'online';
-        isRecentlyActive = true;
-      } else if (timeDiffMinutes <= 15) {
-        calculatedStatus = 'idle';
-      } else {
-        calculatedStatus = 'offline';
-      }
-      
-      console.log(`📊 Status calculation for ${user.display_name}: ${timeDiffMinutes} minutes ago = ${calculatedStatus}`);
-    } else {
-      console.log(`⚠️ No screenshot timestamp for ${user.display_name}, defaulting to offline`);
-    }
-    
     return {
       id: user.id || user.user_id || user.email || index,
       task: taskName,
       time: `${formattedDate} ${formattedTime}`,
       screenshot: getImageUrl(user.latest_screenshot?.url || user.latest_screenshot?.image_url || user.latest_screenshot?.image_path),
-      status: calculatedStatus,
-      originalStatus: (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase(),
-      minutesSinceLastScreenshot: minutesSinceLastScreenshot,
+      status: (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase(),
       employee: user.display_name || user.name || user.username || 'Unknown Employee',
       email: user.email || '',
       department: user.department || 'Unknown Department',
@@ -922,7 +704,7 @@ const LiveTracking = () => {
       location: user.location || 'Unknown Location',
       lastActivity: user.last_activity_time ? new Date(user.last_activity_time).toLocaleString() : 'Unknown',
       screenshotsCount: user.screenshots_count || 0,
-      isActive: isRecentlyActive, // Based on screenshot recency instead of API status
+      isActive: user.is_active || user.is_online || false,
       profileImage: user.profile_image || user.avatar,
       project: user.current_project || 'No Project',
       hasScreenshot: user.latest_screenshot?.has_screenshot || false,
@@ -933,41 +715,11 @@ const LiveTracking = () => {
     };
   };
 
-  // Employee list for filter dropdown - dynamically populated from API data
-  const employees = React.useMemo(() => {
-    const baseEmployees = [{ id: 'all', name: t('allEmployees') || 'All Employees' }];
-    
-    if (liveTrackingData.length > 0) {
-      const uniqueEmployees = liveTrackingData.reduce((acc, user) => {
-        const employeeName = user.display_name || user.name || user.username || 'Unknown Employee';
-        const employeeId = user.email || user.username || user.id || employeeName.toLowerCase().replace(/\s+/g, '_');
-        
-        // Check if employee already exists in the accumulator
-        if (!acc.find(emp => emp.id === employeeId)) {
-          acc.push({
-            id: employeeId,
-            name: employeeName,
-            email: user.email,
-            status: user.status || (user.is_online ? 'online' : 'offline')
-          });
-        }
-        
-        return acc;
-      }, []);
-      
-      // Sort employees alphabetically by name
-      uniqueEmployees.sort((a, b) => a.name.localeCompare(b.name));
-      
-      console.log(`👥 Generated employee list: ${uniqueEmployees.length} employees from API data`);
-      uniqueEmployees.forEach((emp, index) => {
-        console.log(`  ${index + 1}. ${emp.name} (${emp.email || 'no email'}) - ${emp.status}`);
-      });
-      
-      return [...baseEmployees, ...uniqueEmployees];
-    }
-    
-    return baseEmployees;
-  }, [liveTrackingData, t]);
+  // Employee list for filter dropdown (could be fetched from API)
+  const employees = [
+    { id: 'all', name: t('allEmployees') }
+    // Note: Additional employees could be dynamically loaded from API
+  ];
 
   const departments = [
     { id: 'all', name: t('allDepartments') },
@@ -981,12 +733,8 @@ const LiveTracking = () => {
     ? liveTrackingData.map((user, index) => formatTrackingData(user, index))
     : [];
 
-  const totalPages = Math.ceil(filteredScreenshots.length / itemsPerPage);
-  
-  // Apply pagination to the filtered results
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayedItems = filteredScreenshots.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const displayedItems = filteredScreenshots;
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -1037,16 +785,6 @@ const LiveTracking = () => {
                   📍 {t('realTimeActivityStream')}
                   <span style={{ fontSize: '14px', opacity: 0.7 }}>ⓘ</span>
                 </Title>
-                <div style={{ 
-                  fontSize: '11px', 
-                  color: '#6b7280', 
-                  background: '#f8fafc',
-                  padding: '4px 8px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0'
-                }}>
-                  🟢 Online (≤5min) | 🟡 Idle (≤15min) | 🔴 Offline ({'>'}15min)
-                </div>
               </CardHeader>
 
               <ActivityInfo>
@@ -1082,146 +820,68 @@ const LiveTracking = () => {
                   <FilterDropdown 
                     value={selectedEmployee} 
                     onChange={(e) => setSelectedEmployee(e.target.value)}
-                    style={{
-                      background: selectedEmployee !== 'all' ? '#f0f9ff' : undefined,
-                      fontWeight: selectedEmployee !== 'all' ? '600' : 'normal'
-                    }}
                   >
                     {employees.map(emp => (
-                      <option key={emp.id} value={emp.id}>
-                        {emp.id === 'all' ? emp.name : `${emp.name}${emp.email ? ` (${emp.email})` : ''}`}
-                      </option>
+                      <option key={emp.id} value={emp.id}>{emp.name}</option>
                     ))}
                   </FilterDropdown>
 
                   <FilterDropdown 
                     value={dateRange} 
                     onChange={(e) => setDateRange(e.target.value)}
-                    style={{
-                      background: dateRange !== 'today' ? '#fef3c7' : undefined,
-                      fontWeight: dateRange !== 'today' ? '600' : 'normal'
-                    }}
                   >
-                    <option value="today">{t('today') || 'Today'}</option>
-                    <option value="this_week">{t('thisWeek') || 'This Week'}</option>
-                    <option value="this_month">{t('thisMonth') || 'This Month'}</option>
-                    <option value="this_year">This Year</option>
+                    <option value="today">{t('today')}</option>
+                    <option value="week">{t('thisWeek')}</option>
+                    <option value="month">{t('thisMonth')}</option>
+                    <option value="year">This Year</option>
                   </FilterDropdown>
-
-                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                    <SearchInput
-                      type="text"
-                      placeholder={t('searchEmployees') || 'Search employees...'}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{
-                        background: searchQuery ? '#fef3c7' : undefined,
-                        fontWeight: searchQuery ? '600' : 'normal',
-                        paddingRight: searchQuery ? '35px' : '12px'
-                      }}
-                    />
-                    {searchQuery && (
-                      <button
-                        onClick={() => setSearchQuery('')}
-                        style={{
-                          position: 'absolute',
-                          right: '8px',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '16px',
-                          color: '#6b7280',
-                          padding: '2px'
-                        }}
-                        title="Clear search"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
                 </LeftFilters>
 
                 <RightFilters>
-                  <RefreshButton 
-                    onClick={handleRefresh}
+                  <button 
+                    onClick={fetchLiveTrackingData}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#3B82F6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      marginRight: '8px'
+                    }}
                     disabled={loading}
                   >
-                    {loading ? (
-                      <>
-                        <CircularProgress size={16} style={{ color: 'white' }} />
-                        Refreshing...
-                      </>
-                    ) : (
-                      <>
-                        🔄 Refresh
-                      </>
-                    )}
-                  </RefreshButton>
-                  
-                  <ExportButton>
-                    📊 Export
-                  </ExportButton>
+                    {loading ? 'Loading...' : 'Test API'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const testUrl = 'https://ddsfocustime.s3.amazonaws.com/screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_15-13-13_2025-07-01_15-13-13.webp';
+                      const proxiedUrl = getImageUrl(testUrl);
+                      console.log('🧪 Testing image URL:');
+                      console.log('Original:', testUrl);
+                      console.log('Proxied:', proxiedUrl);
+                      
+                      // Try to open the proxied URL in new tab
+                      window.open(proxiedUrl, '_blank');
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#10B981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Test Image
+                  </button>
                 </RightFilters>
            
               </FilterSection>
-
-              {/* Results Info */}
-              <ResultsInfo>
-                <div>
-                  Showing {filteredScreenshots.length} employee{filteredScreenshots.length !== 1 ? 's' : ''} 
-                  {' for '} {getDateRangeDescription()}
-                  {searchQuery && (
-                    <span style={{ 
-                      background: '#fef3c7', 
-                      color: '#92400e', 
-                      padding: '2px 6px', 
-                      borderRadius: '4px', 
-                      fontSize: '12px', 
-                      fontWeight: '600',
-                      marginLeft: '8px'
-                    }}>
-                      matching "{searchQuery}"
-                    </span>
-                  )}
-                  {dateRange !== 'today' && (
-                    <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'normal' }}>
-                      {' '}(filtered by date)
-                    </span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-                  {loading && (
-                    <span style={{ fontSize: '12px', color: '#6b7280' }}>
-                      🔄 Refreshing...
-                    </span>
-                  )}
-                </div>
-              </ResultsInfo>
-
-              {/* Debug Panel - only show in development */}
-              {process.env.NODE_ENV === 'development' && (
-                <div style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  margin: '16px 0',
-                  fontSize: '12px',
-                  color: '#64748b'
-                }}>
-                  <div style={{ fontWeight: '600', marginBottom: '8px' }}>🔧 Debug Info:</div>
-                  <div>Date Range: {dateRange} | API Params: {JSON.stringify(getDateRangeParams())}</div>
-                  <div>Search Query: "{searchQuery}" | Selected Employee: {selectedEmployee}</div>
-                  <div>Raw API Results: {liveTrackingData.length} users | Final Display: {filteredScreenshots.length}</div>
-                  <div>Current Page: {currentPage} | Items per page: {itemsPerPage} | Showing: {displayedItems.length}</div>
-                  {searchQuery && (
-                    <div style={{ marginTop: '8px', padding: '8px', background: '#fef3c7', borderRadius: '4px', color: '#92400e' }}>
-                      <strong>Search Active:</strong> Filtering for "{searchQuery}" - {filteredScreenshots.length} matches found
-                    </div>
-                  )}
-                </div>
-              )}
 
               {loading && (
                 <LoadingContainer>
@@ -1275,7 +935,7 @@ const LiveTracking = () => {
 
               <ResultsInfo>
                 <span>
-                  {t('showing')} {displayedItems.length > 0 ? ((currentPage - 1) * itemsPerPage + 1) : 0}-{Math.min(currentPage * itemsPerPage, filteredScreenshots.length)} {t('of')} {filteredScreenshots.length} {t('results')}
+                  {t('showing')} {displayedItems.length > 0 ? ((currentPage - 1) * itemsPerPage + 1) : 0}-{Math.min(currentPage * itemsPerPage, totalCount)} {t('of')} {totalCount} {t('results')}
                 </span>
                 <span>{displayedItems.length} {t('itemsOnThisPage')}</span>
               </ResultsInfo>
@@ -1283,17 +943,17 @@ const LiveTracking = () => {
               <ScreenshotGrid>
                 {displayedItems.map((item) => (
                   <ScreenshotCard key={item.id}>
-                    <ScreenshotImage>
+                    <div style={{ position: 'relative' }}>
+                      <ScreenshotImage>
                         {item.hasScreenshot && item.screenshot && item.screenshot !== `Screenshot ${item.id}` ? (
-                          <img 
-                            src={item.screenshot} 
+                          <ImageComponent
+                            src={item.screenshot}
                             alt={item.task}
                             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
-                            referrerPolicy="no-referrer"
-                            onLoad={(e) => {
-                              console.log('✅ Image loaded successfully:', item.screenshot);
-                            }}
-                            onError={(e) => {
+                            onLoad={(e) => console.log('✅ Image loaded:', item.screenshot)}
+                            onError={(e) => console.error('❌ Image failed:', item.screenshot)}
+                          />
+                        ) : (
                               console.error('❌ Image failed to load:', item.screenshot);
                               console.error('Error details:', e);
                               e.target.style.display = 'none';
@@ -1349,29 +1009,72 @@ const LiveTracking = () => {
                           </div>
                         )}
                       </ScreenshotImage>
-                    
-                    {/* Image URL below the screenshot */}
-                    {item.screenshot && (
-                      <div style={{ 
-                        fontSize: '10px', 
-                        color: '#6b7280',
-                        padding: '8px 0 4px 0',
-                        borderBottom: '1px solid #e5e7eb',
-                        marginBottom: '8px',
-                        cursor: 'pointer',
-                        wordBreak: 'break-all',
-                        lineHeight: '1.3'
-                      }}
-                      onClick={() => {
-                        console.log('🔗 Image URL:', item.screenshot);
-                        window.open(item.screenshot, '_blank');
-                      }}
-                      title="Click to open image in new tab"
-                      >
-                        🔗 {item.screenshot}
+                      
+                      {/* Date and Task Overlay */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '8px',
+                        left: '8px',
+                        right: '8px',
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        color: 'white',
+                        padding: '8px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        backdropFilter: 'blur(4px)'
+                      }}>
+                        <div style={{ 
+                          fontWeight: '600', 
+                          marginBottom: '2px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          📋 {item.task}
+                        </div>
+                        <div style={{ 
+                          fontSize: '10px', 
+                          opacity: 0.9,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          🕐 {item.time}
+                        </div>
+                        {item.project && item.project !== 'No Project' && (
+                          <div style={{ 
+                            fontSize: '9px', 
+                            opacity: 0.8,
+                            marginTop: '2px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            🎯 {item.project}
+                          </div>
+                        )}
+                        {/* Debug info for image URLs */}
+                        {item.screenshot && (
+                          <div style={{ 
+                            fontSize: '8px', 
+                            opacity: 0.6,
+                            marginTop: '4px',
+                            padding: '2px 4px',
+                            background: 'rgba(255,255,255,0.1)',
+                            borderRadius: '2px',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => {
+                            console.log('🔗 Image URL:', item.screenshot);
+                            window.open(item.screenshot, '_blank');
+                          }}
+                          title="Click to open image in new tab"
+                          >
+                            🔗 Test Image URL
+                          </div>
+                        )}
                       </div>
-                    )}
-                    
+                    </div>
                     <CardContent>
                       <TaskHeader>
                         <TaskName>{item.task}</TaskName>
@@ -1395,26 +1098,6 @@ const LiveTracking = () => {
                       {item.email && (
                         <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '4px' }}>
                           📧 {item.email}
-                        </div>
-                      )}
-                      {item.minutesSinceLastScreenshot !== null && (
-                        <div style={{ 
-                          fontSize: '10px', 
-                          marginBottom: '4px',
-                          color: item.minutesSinceLastScreenshot <= 5 ? '#10b981' : 
-                                item.minutesSinceLastScreenshot <= 15 ? '#f59e0b' : '#ef4444',
-                          fontWeight: '500',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}>
-                          <span style={{ fontSize: '8px' }}>
-                            {item.minutesSinceLastScreenshot <= 5 ? '🟢' : 
-                             item.minutesSinceLastScreenshot <= 15 ? '🟡' : '🔴'}
-                          </span>
-                          Last seen: {item.minutesSinceLastScreenshot === 0 ? 'just now' : 
-                                    item.minutesSinceLastScreenshot === 1 ? '1 minute ago' :
-                                    `${item.minutesSinceLastScreenshot} minutes ago`}
                         </div>
                       )}
                       {item.duration && item.duration !== 'N/A' && (
