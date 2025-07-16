@@ -1,0 +1,543 @@
+{
+	"info": {
+		"_postman_id": "settings-management-apis",
+		"name": "Settings Management APIs",
+		"description": "Complete API collection for testing UI settings, credentials, and application configurations",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "UI Settings",
+			"item": [
+				{
+					"name": "Create/Update UI Settings",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"setting_name\": \"dashboard_theme\",\n  \"font_family\": \"Roboto, sans-serif\",\n  \"font_size\": \"16px\",\n  \"primary_color\": \"#3498db\",\n  \"secondary_color\": \"#2ecc71\",\n  \"background_color\": \"#ffffff\",\n  \"text_color\": \"#2c3e50\",\n  \"theme_mode\": \"light\",\n  \"sidebar_collapsed\": false,\n  \"is_global\": true,\n  \"user_id\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/ui/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"ui",
+								""
+							]
+						},
+						"description": "Create or update UI theme settings"
+					}
+				},
+				{
+					"name": "Get All UI Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/ui/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"ui",
+								""
+							]
+						},
+						"description": "Retrieve all UI settings"
+					}
+				},
+				{
+					"name": "Get Specific UI Setting",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/ui/?setting_name=dashboard_theme",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"ui",
+								""
+							],
+							"query": [
+								{
+									"key": "setting_name",
+									"value": "dashboard_theme"
+								}
+							]
+						},
+						"description": "Get specific UI setting by name"
+					}
+				},
+				{
+					"name": "Get User-Specific UI Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/ui/?user_id=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"ui",
+								""
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Get UI settings for specific user"
+					}
+				}
+			]
+		},
+		{
+			"name": "Credentials",
+			"item": [
+				{
+					"name": "Create OpenAI Credentials",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"openai_production\",\n  \"credential_type\": \"openai\",\n  \"description\": \"Main OpenAI API for dashboard\",\n  \"api_key\": \"sk-1234567890abcdef1234567890abcdef\",\n  \"is_active\": true,\n  \"is_production\": false,\n  \"additional_config\": {\n    \"model\": \"gpt-4\",\n    \"max_tokens\": 4000,\n    \"temperature\": 0.7\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							]
+						},
+						"description": "Create OpenAI API credentials"
+					}
+				},
+				{
+					"name": "Create AWS Credentials",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"aws_s3_production\",\n  \"credential_type\": \"aws\",\n  \"description\": \"AWS S3 for file storage\",\n  \"access_key\": \"AKIAIOSFODNN7EXAMPLE\",\n  \"secret_key\": \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\",\n  \"is_active\": true,\n  \"is_production\": true,\n  \"additional_config\": {\n    \"region\": \"us-east-1\",\n    \"bucket_name\": \"my-app-storage\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							]
+						},
+						"description": "Create AWS credentials for S3 storage"
+					}
+				},
+				{
+					"name": "Create Database Credentials",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"postgres_main\",\n  \"credential_type\": \"database\",\n  \"description\": \"Main PostgreSQL database connection\",\n  \"username\": \"db_user\",\n  \"password\": \"super_secure_password_123\",\n  \"host\": \"localhost\",\n  \"port\": 5432,\n  \"database_name\": \"production_db\",\n  \"is_active\": true,\n  \"is_production\": true,\n  \"additional_config\": {\n    \"ssl_mode\": \"require\",\n    \"pool_size\": 20\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							]
+						},
+						"description": "Create database connection credentials"
+					}
+				},
+				{
+					"name": "Create SMTP Credentials",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"smtp_gmail\",\n  \"credential_type\": \"smtp\",\n  \"description\": \"Gmail SMTP for sending emails\",\n  \"username\": \"admin@dds.com\",\n  \"password\": \"app_specific_password_123\",\n  \"host\": \"smtp.gmail.com\",\n  \"port\": 587,\n  \"is_active\": true,\n  \"is_production\": false,\n  \"additional_config\": {\n    \"use_tls\": true,\n    \"use_ssl\": false\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							]
+						},
+						"description": "Create SMTP email credentials"
+					}
+				},
+				{
+					"name": "Get All Credentials",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							]
+						},
+						"description": "Retrieve all credentials (sensitive data masked)"
+					}
+				},
+				{
+					"name": "Get Specific Credential",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/?name=openai_production",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "openai_production"
+								}
+							]
+						},
+						"description": "Get specific credential by name"
+					}
+				},
+				{
+					"name": "Get Credentials by Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/credentials/?type=openai",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"credentials",
+								""
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "openai"
+								}
+							]
+						},
+						"description": "Get credentials filtered by type"
+					}
+				}
+			]
+		},
+		{
+			"name": "Application Settings",
+			"item": [
+				{
+					"name": "Create String Setting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"key\": \"app_name\",\n  \"value\": \"DDS Focus Time Dashboard\",\n  \"setting_type\": \"string\",\n  \"category\": \"general\",\n  \"description\": \"Application display name\",\n  \"is_public\": true,\n  \"is_editable\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							]
+						},
+						"description": "Create a string application setting"
+					}
+				},
+				{
+					"name": "Create Integer Setting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"key\": \"max_users\",\n  \"value\": \"100\",\n  \"setting_type\": \"integer\",\n  \"category\": \"limits\",\n  \"description\": \"Maximum number of users allowed\",\n  \"is_public\": false,\n  \"is_editable\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							]
+						},
+						"description": "Create an integer application setting"
+					}
+				},
+				{
+					"name": "Create Boolean Setting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"key\": \"maintenance_mode\",\n  \"value\": \"false\",\n  \"setting_type\": \"boolean\",\n  \"category\": \"system\",\n  \"description\": \"Enable maintenance mode\",\n  \"is_public\": true,\n  \"is_editable\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							]
+						},
+						"description": "Create a boolean application setting"
+					}
+				},
+				{
+					"name": "Create JSON Setting",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"key\": \"email_config\",\n  \"value\": \"{\\\"smtp_host\\\": \\\"smtp.gmail.com\\\", \\\"smtp_port\\\": 587, \\\"use_tls\\\": true}\",\n  \"setting_type\": \"json\",\n  \"category\": \"email\",\n  \"description\": \"Email configuration settings\",\n  \"is_public\": false,\n  \"is_editable\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							]
+						},
+						"description": "Create a JSON application setting"
+					}
+				},
+				{
+					"name": "Get All App Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							]
+						},
+						"description": "Retrieve all application settings"
+					}
+				},
+				{
+					"name": "Get Specific App Setting",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/?key=app_name",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "app_name"
+								}
+							]
+						},
+						"description": "Get specific app setting by key"
+					}
+				},
+				{
+					"name": "Get Settings by Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/settings/app/?category=system",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"app",
+								""
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "system"
+								}
+							]
+						},
+						"description": "Get app settings filtered by category"
+					}
+				}
+			]
+		},
+		{
+			"name": "Bulk Operations",
+			"item": [
+				{
+					"name": "Bulk Create Settings",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ui_settings\": [\n    {\n      \"setting_name\": \"mobile_theme\",\n      \"font_family\": \"Arial, sans-serif\",\n      \"font_size\": \"14px\",\n      \"primary_color\": \"#007bff\",\n      \"secondary_color\": \"#6c757d\",\n      \"background_color\": \"#f8f9fa\",\n      \"text_color\": \"#495057\",\n      \"theme_mode\": \"light\",\n      \"sidebar_collapsed\": true,\n      \"is_global\": true\n    }\n  ],\n  \"credentials\": [\n    {\n      \"name\": \"smtp_office365\",\n      \"credential_type\": \"smtp\",\n      \"description\": \"Office 365 SMTP for emails\",\n      \"username\": \"admin@company.com\",\n      \"password\": \"app_password_456\",\n      \"host\": \"smtp.office365.com\",\n      \"port\": 587,\n      \"is_active\": true,\n      \"is_production\": false,\n      \"additional_config\": {\n        \"use_tls\": true,\n        \"use_ssl\": false\n      }\n    }\n  ],\n  \"app_settings\": [\n    {\n      \"key\": \"session_timeout\",\n      \"value\": \"3600\",\n      \"setting_type\": \"integer\",\n      \"category\": \"security\",\n      \"description\": \"Session timeout in seconds\",\n      \"is_public\": false,\n      \"is_editable\": true\n    },\n    {\n      \"key\": \"enable_notifications\",\n      \"value\": \"true\",\n      \"setting_type\": \"boolean\",\n      \"category\": \"general\",\n      \"description\": \"Enable push notifications\",\n      \"is_public\": true,\n      \"is_editable\": true\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/bulk/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"bulk",
+								""
+							]
+						},
+						"description": "Create multiple settings in one request"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}

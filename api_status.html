@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDS Focus Time - API Status</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .endpoint-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .endpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .endpoint-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .endpoint-url {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        
+        .test-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            transition: transform 0.2s ease;
+        }
+        
+        .test-link:hover {
+            transform: scale(1.05);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .method-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .status-unknown { background: #ffc107; }
+        .status-working { background: #28a745; }
+        .status-error { background: #dc3545; }
+        
+        .instructions {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 DDS Focus Time API Status</h1>
+        
+        <div class="instructions">
+            <h3>📋 How to Test:</h3>
+            <p><strong>1. Browser Testing:</strong> Click the "Test in Browser" links below (works for GET requests only)</p>
+            <p><strong>2. Complete Testing:</strong> Run the Python test script: <code>python test_all_apis.py</code></p>
+            <p><strong>3. Postman:</strong> Import the provided Postman collection</p>
+        </div>
+
+        <!-- API Test Endpoint -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-test"></span>
+                <span class="method-badge get">GET</span>
+                API Test Endpoint
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/test/</div>
+            <p>Simple test endpoint to verify API routing is working correctly.</p>
+            <a href="https://dxdtime.ddsolutions.io/api/test/" class="test-link" target="_blank" onclick="updateStatus('test', 'working')">Test in Browser</a>
+            <button class="test-link" onclick="testEndpoint('/api/test/', 'test')">Test with JavaScript</button>
+        </div>
+
+        <!-- Login API -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-login"></span>
+                <span class="method-badge post">POST</span>
+                Login API
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/auth/login/</div>
+            <p>Authenticates users and creates session. Requires JSON body with username and password.</p>
+            <button class="test-link" onclick="testLoginAPI()">Test Login</button>
+        </div>
+
+        <!-- Screenshots API -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-screenshots"></span>
+                <span class="method-badge get">GET</span>
+                <span class="method-badge post">POST</span>
+                Screenshots API
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/screenshots/</div>
+            <p>Retrieve employee screenshots with pagination and filtering options.</p>
+            <a href="https://dxdtime.ddsolutions.io/api/screenshots/" class="test-link" target="_blank" onclick="updateStatus('screenshots', 'working')">Test Basic GET</a>
+            <a href="https://dxdtime.ddsolutions.io/api/screenshots/?limit=5&page=1" class="test-link" target="_blank">Test with Params</a>
+            <button class="test-link" onclick="testEndpoint('/api/screenshots/?limit=5', 'screenshots')">Test with JavaScript</button>
+        </div>
+
+        <!-- Logs API -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-logs"></span>
+                <span class="method-badge get">GET</span>
+                <span class="method-badge post">POST</span>
+                Logs API
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/logs/</div>
+            <p>Retrieve and create activity logs with search and filtering capabilities.</p>
+            <a href="https://dxdtime.ddsolutions.io/api/logs/" class="test-link" target="_blank" onclick="updateStatus('logs', 'working')">Test Basic GET</a>
+            <a href="https://dxdtime.ddsolutions.io/api/logs/?limit=5&page=1" class="test-link" target="_blank">Test with Params</a>
+            <button class="test-link" onclick="testEndpoint('/api/logs/?limit=5', 'logs')">Test with JavaScript</button>
+        </div>
+
+        <!-- Legacy API -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-legacy"></span>
+                <span class="method-badge post">POST</span>
+                Legacy Update Logs API
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/update-log-info/</div>
+            <p>Legacy endpoint for backward compatibility. Accepts log data in JSON format.</p>
+            <button class="test-link" onclick="testLegacyAPI()">Test Legacy API</button>
+        </div>
+
+        <!-- User Screenshots API -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-user-screenshots"></span>
+                <span class="method-badge get">GET</span>
+                User Screenshots API
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/users/{email}/screenshots/</div>
+            <p>Get screenshots for a specific user email with date filtering and pagination.</p>
+            <a href="https://dxdtime.ddsolutions.io/api/users/admin@example.com/screenshots/" class="test-link" target="_blank" onclick="updateStatus('user-screenshots', 'working')">Test for admin@example.com</a>
+            <a href="https://dxdtime.ddsolutions.io/api/users/admin@example.com/screenshots/?limit=5&date=2025-01-15" class="test-link" target="_blank">Test with Date Filter</a>
+            <button class="test-link" onclick="testEndpoint('/api/users/admin@example.com/screenshots/?limit=5', 'user-screenshots')">Test with JavaScript</button>
+        </div>
+
+        <!-- User Logs API -->
+        <div class="endpoint-card">
+            <div class="endpoint-title">
+                <span class="status-indicator status-unknown" id="status-user-logs"></span>
+                <span class="method-badge get">GET</span>
+                User Logs API
+            </div>
+            <div class="endpoint-url">https://dxdtime.ddsolutions.io/api/users/{email}/logs/</div>
+            <p>Get logs for a specific user email with search, date filtering and pagination.</p>
+            <a href="https://dxdtime.ddsolutions.io/api/users/admin@example.com/logs/" class="test-link" target="_blank" onclick="updateStatus('user-logs', 'working')">Test for admin@example.com</a>
+            <a href="https://dxdtime.ddsolutions.io/api/users/admin@example.com/logs/?search=activity&limit=5" class="test-link" target="_blank">Test with Search</a>
+            <button class="test-link" onclick="testEndpoint('/api/users/admin@example.com/logs/?limit=5', 'user-logs')">Test with JavaScript</button>
+        </div>
+
+        <div class="test-results" id="test-results">
+            <h3>Test Results:</h3>
+            <pre id="test-output"></pre>
+        </div>
+
+        <div class="instructions">
+            <h3>🔧 Troubleshooting:</h3>
+            <p><strong>If APIs redirect to /en/index/:</strong> The URL configuration needs to be fixed</p>
+            <p><strong>If you get 404 errors:</strong> Make sure Django server is running on port 8000</p>
+            <p><strong>If authentication fails:</strong> Update credentials in test scripts</p>
+            <p><strong>Server not running?</strong> Run: <code>python manage.py runserver</code></p>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus(endpoint, status) {
+            const indicator = document.getElementById(`status-${endpoint}`);
+            indicator.className = `status-indicator status-${status}`;
+        }
+
+        async function testEndpoint(url, endpointName) {
+            const resultsDiv = document.getElementById('test-results');
+            const outputPre = document.getElementById('test-output');
+            
+            resultsDiv.style.display = 'block';
+            outputPre.textContent = `Testing ${url}...`;
+
+            try {
+                const response = await fetch(`http://localhost:8000${url}`);
+                const data = await response.json();
+                
+                outputPre.textContent = `Status: ${response.status}\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok) {
+                    updateStatus(endpointName, 'working');
+                } else {
+                    updateStatus(endpointName, 'error');
+                }
+            } catch (error) {
+                outputPre.textContent = `Error: ${error.message}`;
+                updateStatus(endpointName, 'error');
+            }
+        }
+
+        async function testLoginAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            const outputPre = document.getElementById('test-output');
+            
+            resultsDiv.style.display = 'block';
+            outputPre.textContent = 'Testing login API...';
+
+            try {
+                const response = await fetch('https://dxdtime.ddsolutions.io/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin@example.com',  // Update this
+                        password: 'admin123'            // Update this
+                    })
+                });
+
+                const data = await response.json();
+                outputPre.textContent = `Status: ${response.status}\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok) {
+                    updateStatus('login', 'working');
+                } else {
+                    updateStatus('login', 'error');
+                }
+            } catch (error) {
+                outputPre.textContent = `Error: ${error.message}`;
+                updateStatus('login', 'error');
+            }
+        }
+
+        async function testLegacyAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            const outputPre = document.getElementById('test-output');
+            
+            resultsDiv.style.display = 'block';
+            outputPre.textContent = 'Testing legacy API...';
+
+            try {
+                const response = await fetch('https://dxdtime.ddsolutions.io/api/update-log-info/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        staffid: 123,
+                        email: 'admin@example.com',
+                        activity: 'test'
+                    })
+                });
+
+                const data = await response.json();
+                outputPre.textContent = `Status: ${response.status}\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok) {
+                    updateStatus('legacy', 'working');
+                } else {
+                    updateStatus('legacy', 'error');
+                }
+            } catch (error) {
+                outputPre.textContent = `Error: ${error.message}`;
+                updateStatus('legacy', 'error');
+            }
+        }
+
+        // Test the API test endpoint on page load
+        window.onload = function() {
+            testEndpoint('/api/test/', 'test');
+        };
+    </script>
+</body>
+</html>

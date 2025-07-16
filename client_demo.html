@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client-Side Dashboard Settings Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: var(--primary-color, #007bff);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .settings-panel {
+            background: var(--background-color, #f8f9fa);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color, #007bff);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color, #6c757d);
+            color: white;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: var(--secondary-color, #343a40);
+            color: white;
+            padding: 20px;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: 60px;
+        }
+        
+        .sidebar-text {
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .sidebar-text {
+            opacity: 0;
+        }
+        
+        .main-content {
+            margin-left: 270px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+        
+        .status-box {
+            background: #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .dark-theme {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+        
+        .dark-theme .settings-panel {
+            background: #34495e;
+            border-color: #576574;
+            color: #ecf0f1;
+        }
+        
+        .dark-theme .status-box {
+            background: #576574;
+            color: #ecf0f1;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <h3>🏠 <span class="sidebar-text">Dashboard</span></h3>
+        <ul style="list-style: none; padding: 0;">
+            <li style="margin: 10px 0;">📊 <span class="sidebar-text">Analytics</span></li>
+            <li style="margin: 10px 0;">👥 <span class="sidebar-text">Users</span></li>
+            <li style="margin: 10px 0;">⚙️ <span class="sidebar-text">Settings</span></li>
+            <li style="margin: 10px 0;">🔐 <span class="sidebar-text">Security</span></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1 data-app-name>Client-Side Settings Demo</h1>
+                <p>This page automatically loads settings from your admin panel APIs</p>
+            </div>
+
+            <div class="settings-panel">
+                <h2>🎨 Current UI Settings</h2>
+                <div id="ui-settings-display" class="loading">Loading UI settings...</div>
+                <button class="btn btn-primary" onclick="refreshUISettings()">🔄 Refresh UI Settings</button>
+            </div>
+
+            <div class="settings-panel">
+                <h2>⚙️ Application Settings</h2>
+                <div id="app-settings-display" class="loading">Loading app settings...</div>
+                <button class="btn btn-secondary" onclick="refreshAppSettings()">🔄 Refresh App Settings</button>
+            </div>
+
+            <div class="settings-panel">
+                <h2>🔐 System Status</h2>
+                <div id="credentials-display" class="loading">Loading system status...</div>
+                <button class="btn btn-primary" onclick="refreshCredentials()">🔄 Refresh Status</button>
+            </div>
+
+            <div class="settings-panel">
+                <h2>🧪 Test Controls</h2>
+                <button class="btn btn-primary" onclick="toggleTheme()">🌓 Toggle Theme</button>
+                <button class="btn btn-secondary" onclick="toggleSidebar()">📁 Toggle Sidebar</button>
+                <button class="btn btn-primary" onclick="refreshAllSettings()">🔄 Refresh All</button>
+                <button class="btn btn-secondary" onclick="simulateAdminUpdate()">🎨 Simulate Admin Update</button>
+            </div>
+
+            <div class="settings-panel">
+                <h2>📊 Real-Time Status</h2>
+                <div id="status-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the dashboard config manager -->
+    <script src="/static/js/dashboard-config-manager.js"></script>
+    
+    <script>
+        // Status logging
+        function logStatus(message, type = 'info') {
+            const statusLog = document.getElementById('status-log');
+            const time = new Date().toLocaleTimeString();
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            statusLog.innerHTML = `<div class="status-box ${statusClass}">[${time}] ${message}</div>` + statusLog.innerHTML;
+            
+            // Keep only last 5 messages
+            const messages = statusLog.children;
+            if (messages.length > 5) {
+                statusLog.removeChild(messages[messages.length - 1]);
+            }
+        }
+
+        // Event listeners for settings updates
+        document.addEventListener('uiSettingsApplied', (event) => {
+            const settings = event.detail;
+            document.getElementById('ui-settings-display').innerHTML = `
+                <div class="status-box">
+                    <strong>Font Family:</strong> ${settings.font_family}<br>
+                    <strong>Font Size:</strong> ${settings.font_size}<br>
+                    <strong>Primary Color:</strong> <span style="background: ${settings.primary_color}; color: white; padding: 2px 8px; border-radius: 4px;">${settings.primary_color}</span><br>
+                    <strong>Secondary Color:</strong> <span style="background: ${settings.secondary_color}; color: white; padding: 2px 8px; border-radius: 4px;">${settings.secondary_color}</span><br>
+                    <strong>Theme Mode:</strong> ${settings.theme_mode}<br>
+                    <strong>Sidebar:</strong> ${settings.sidebar_collapsed ? 'Collapsed' : 'Expanded'}
+                </div>
+            `;
+            logStatus('🎨 UI settings applied successfully!', 'success');
+        });
+
+        document.addEventListener('appSettingsApplied', (event) => {
+            const settings = event.detail;
+            let html = '<div class="status-box">';
+            Object.keys(settings).forEach(key => {
+                html += `<strong>${key}:</strong> ${JSON.stringify(settings[key])}<br>`;
+            });
+            html += '</div>';
+            document.getElementById('app-settings-display').innerHTML = html;
+            logStatus('⚙️ App settings applied successfully!', 'success');
+        });
+
+        document.addEventListener('credentialsApplied', (event) => {
+            const credentials = event.detail;
+            let html = '<div class="status-box">';
+            Object.keys(credentials).forEach(name => {
+                const cred = credentials[name];
+                const statusIcon = cred.active ? '✅' : '❌';
+                html += `${statusIcon} <strong>${name}</strong> (${cred.type}) - ${cred.description}<br>`;
+            });
+            html += '</div>';
+            document.getElementById('credentials-display').innerHTML = html;
+            logStatus('🔐 Credentials status updated!', 'success');
+        });
+
+        // Control functions
+        async function refreshUISettings() {
+            if (window.dashboardConfig) {
+                logStatus('🔄 Refreshing UI settings...');
+                const settings = await window.dashboardConfig.loadUISettings();
+                window.dashboardConfig.applyUISettings(settings);
+            }
+        }
+
+        async function refreshAppSettings() {
+            if (window.dashboardConfig) {
+                logStatus('🔄 Refreshing app settings...');
+                const settings = await window.dashboardConfig.loadAppSettings();
+                window.dashboardConfig.applyAppSettings(settings);
+            }
+        }
+
+        async function refreshCredentials() {
+            if (window.dashboardConfig) {
+                logStatus('🔄 Refreshing credentials...');
+                const credentials = await window.dashboardConfig.loadCredentials();
+                window.dashboardConfig.applyCredentials(credentials);
+            }
+        }
+
+        async function refreshAllSettings() {
+            if (window.dashboardConfig) {
+                logStatus('🔄 Refreshing all settings...');
+                await window.dashboardConfig.refreshSettings();
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+                logStatus('🌞 Switched to light theme');
+            } else {
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                logStatus('🌙 Switched to dark theme');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            logStatus(isCollapsed ? '📁 Sidebar collapsed' : '📂 Sidebar expanded');
+        }
+
+        // Simulate admin panel update
+        async function simulateAdminUpdate() {
+            logStatus('🎨 Simulating admin panel update...');
+            
+            // Simulate updating theme from admin panel
+            try {
+                const response = await fetch('/api/settings/ui/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        setting_name: 'dashboard_theme',
+                        font_family: 'Roboto, sans-serif',
+                        font_size: '18px',
+                        primary_color: '#e74c3c',
+                        secondary_color: '#f39c12',
+                        background_color: '#2c3e50',
+                        text_color: '#ecf0f1',
+                        theme_mode: 'dark',
+                        sidebar_collapsed: true,
+                        is_global: true
+                    })
+                });
+                
+                if (response.ok) {
+                    logStatus('✅ Admin update successful! Refreshing...', 'success');
+                    setTimeout(() => {
+                        refreshAllSettings();
+                    }, 1000);
+                } else {
+                    logStatus('❌ Admin update failed', 'error');
+                }
+            } catch (error) {
+                logStatus('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize status
+        document.addEventListener('DOMContentLoaded', () => {
+            logStatus('🚀 Dashboard client initialized');
+            logStatus('⏳ Waiting for settings from admin panel...');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{
+  "user_email": "amirishaque67@gmail.com",
+  "generation_timestamp": "2025-06-29T14:30:52.928205",
+  "total_screenshots": 1000,
+  "total_time_minutes": 5000,
+  "program_categories": {
+    "Web Browsing": {
+      "name": "Web Browsing",
+      "screenshots": 1000,
+      "time_minutes": 5000,
+      "tasks": [
+        "DSSFocus Pro Admin Panel Task",
+        "DDSFocusPro v1.3"
+      ],
+      "daily_activity": {
+        "2025-06-16": 3,
+        "2025-06-10": 997
+      },
+      "hourly_activity": {
+        "12": 76,
+        "13": 356,
+        "14": 74,
+        "15": 494
+      }
+    }
+  },
+  "daily_breakdown": {
+    "2025-06-16": {
+      "date": "2025-06-16",
+      "screenshots": 3,
+      "time_minutes": 15,
+      "categories": {
+        "Web Browsing": 3
+      }
+    },
+    "2025-06-10": {
+      "date": "2025-06-10",
+      "screenshots": 997,
+      "time_minutes": 4985,
+      "categories": {
+        "Web Browsing": 997
+      }
+    }
+  },
+  "hourly_breakdown": {
+    "12": 76,
+    "13": 356,
+    "14": 74,
+    "15": 494
+  },
+  "productivity_insights": {
+    "most_used_programs": [
+      [
+        "Web Browsing",
+        5000
+      ]
+    ],
+    "peak_hours": [
+      [
+        15,
+        494
+      ],
+      [
+        13,
+        356
+      ],
+      [
+        12,
+        76
+      ],
+      [
+        14,
+        74
+      ]
+    ],
+    "daily_patterns": {},
+    "category_efficiency": {}
+  }
+}

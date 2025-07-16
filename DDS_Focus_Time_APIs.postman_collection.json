@@ -1,0 +1,350 @@
+{
+  "info": {
+    "name": "DDS Focus Time APIs",
+    "description": "Professional APIs for Login, Screenshots, and Logs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "test_email",
+      "value": "test@example.com",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{test_email}}\",\n  \"password\": \"your_password_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", ""]
+            },
+            "description": "Authenticate user and create session"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Screenshots",
+      "item": [
+        {
+          "name": "Get Screenshots (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/screenshots/?email={{test_email}}&limit=10&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["screenshots", ""],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{test_email}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-01-15",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get screenshots with query parameters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Screenshots with Filters (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"date\": \"2025-01-15\",\n  \"limit\": 20,\n  \"page\": 1,\n  \"task_filter\": \"project_work\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/screenshots/",
+              "host": ["{{base_url}}"],
+              "path": ["screenshots", ""]
+            },
+            "description": "Get screenshots with advanced filtering"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Screenshots by Date Range",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"date_range\": {\n    \"start\": \"2025-01-01\",\n    \"end\": \"2025-01-31\"\n  },\n  \"limit\": 50,\n  \"page\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/screenshots/",
+              "host": ["{{base_url}}"],
+              "path": ["screenshots", ""]
+            },
+            "description": "Get screenshots within a date range"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Logs",
+      "item": [
+        {
+          "name": "Get Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/logs/?limit=20&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["logs", ""],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "email",
+                  "value": "{{test_email}}",
+                  "disabled": true
+                },
+                {
+                  "key": "date",
+                  "value": "2025-01-15",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "activity",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get logs with filtering options"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Log",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staffid\": 123,\n  \"email\": \"{{test_email}}\",\n  \"jsonlog\": {\n    \"activity\": \"screenshot_taken\",\n    \"task\": \"Project XYZ\",\n    \"duration\": 3600,\n    \"timestamp\": \"2025-01-15T10:30:00Z\",\n    \"details\": {\n      \"application\": \"VS Code\",\n      \"window_title\": \"main.py - Visual Studio Code\"\n    }\n  },\n  \"date\": \"2025-01-15\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/logs/",
+              "host": ["{{base_url}}"],
+              "path": ["logs", ""]
+            },
+            "description": "Create a new log entry"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs with Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/logs/?search=screenshot&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["logs", ""],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "screenshot"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Search logs by content"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Logs by Staff ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/logs/?staffid=123&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["logs", ""],
+              "query": [
+                {
+                  "key": "staffid",
+                  "value": "123"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get logs filtered by staff ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Invalid Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"invalid@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", ""]
+            },
+            "description": "Test error handling for invalid credentials"
+          },
+          "response": []
+        },
+        {
+          "name": "Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/logs/",
+              "host": ["{{base_url}}"],
+              "path": ["logs", ""]
+            },
+            "description": "Test validation for missing required fields"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Date Format",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"date\": \"invalid-date\",\n  \"limit\": 10,\n  \"page\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/screenshots/",
+              "host": ["{{base_url}}"],
+              "path": ["screenshots", ""]
+            },
+            "description": "Test validation for invalid date format"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Legacy (Backward Compatibility)",
+      "item": [
+        {
+          "name": "Legacy Update Logs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staffid\": 123,\n  \"email\": \"{{test_email}}\",\n  \"activity\": \"legacy_test\",\n  \"timestamp\": \"2025-01-15T10:30:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/update-log-info/",
+              "host": ["{{base_url}}"],
+              "path": ["update-log-info", ""]
+            },
+            "description": "Legacy endpoint for backward compatibility"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
