@@ -421,6 +421,7 @@ const Login = () => {
       } else if (err.response) {
         const { status, data } = err.response;
         console.error('Server error response:', { status, data });
+        console.error('Full error response:', err.response);
         
         switch (status) {
           case 400:
@@ -436,7 +437,9 @@ const Login = () => {
             setError('Too many login attempts. Please try again later.');
             break;
           case 500:
-            setError('Server error. Please try again later.');
+            const serverErrorDetails = data.message || data.detail || data.error || 'Unknown server error';
+            console.error('Server Error Details:', data);
+            setError(`Server error: ${serverErrorDetails}. Please try again later or contact support.`);
             break;
           default:
             setError(data.message || data.detail || 'Login failed. Please try again.');
