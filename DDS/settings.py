@@ -28,14 +28,21 @@ FORCE_SCRIPT_NAME = ''
 # Database connection settings for MySQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("DB_NAME", "default_db_name"),
-        'USER': os.getenv("DB_USER", "root"),
-        'PASSWORD': os.getenv("DB_PASSWORD", ""),
-        'HOST': os.getenv("DB_HOST", "localhost"),
-        'PORT': os.getenv("DB_PORT", "3306"),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# Original MySQL config (commented out until MySQL is available):
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv("DB_NAME", "default_db_name"),
+#         'USER': os.getenv("DB_USER", "root"),
+#         'PASSWORD': os.getenv("DB_PASSWORD", ""),
+#         'HOST': os.getenv("DB_HOST", "localhost"),
+#         'PORT': os.getenv("DB_PORT", "3306"),
+#     }
+# }
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
