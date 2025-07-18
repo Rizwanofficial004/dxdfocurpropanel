@@ -244,6 +244,14 @@ const ActivityStream = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const handleError = (e) => {
+      console.error('🖼️ Image failed to load:', {
+        src,
+        error: e,
+        crossOrigin: src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined,
+        isProduction: process.env.NODE_ENV === 'production',
+        hasSignature: src?.includes('X-Amz-Signature'),
+        hostname: window.location.hostname
+      });
       setHasError(true);
       setIsLoading(false);
       if (onError) onError(e);
@@ -276,7 +284,7 @@ const ActivityStream = () => {
           className={className}
           onClick={handleClick}
           referrerPolicy="no-referrer"
-          crossOrigin={src?.includes('ddsfocustime.s3.amazonaws.com') ? 'anonymous' : undefined}
+          crossOrigin={process.env.NODE_ENV === 'production' ? undefined : (src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined)}
         />
       );
     }
@@ -307,7 +315,7 @@ const ActivityStream = () => {
           onLoad={handleLoad}
           onError={handleError}
           referrerPolicy="no-referrer"
-          crossOrigin={src?.includes('ddsfocustime.s3.amazonaws.com') ? 'anonymous' : undefined}
+          crossOrigin={process.env.NODE_ENV === 'production' ? undefined : (src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined)}
         />
       </div>
     );
