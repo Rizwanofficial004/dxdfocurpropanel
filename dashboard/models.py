@@ -215,3 +215,51 @@ class ApplicationSettings(models.Model):
                 return {}
         else:  # string
             return self.value
+
+
+# ==================== CONFIGURATION SETTINGS MODEL ====================
+
+class ConfigurationSettings(models.Model):
+    """
+    Configuration Settings Model for storing Upload, Database, and AWS configurations
+    """
+    CONFIG_TYPE_CHOICES = [
+        ('upload', 'Upload Configuration'),
+        ('database', 'Database Configuration'),
+        ('aws', 'AWS Configuration'),
+    ]
+    
+    # Basic fields
+    name = models.CharField(max_length=100, unique=True, help_text="Configuration name (e.g., admin_uploaded, http_database)")
+    type = models.CharField(max_length=20, choices=CONFIG_TYPE_CHOICES, help_text="Type of configuration")
+    description = models.TextField(blank=True, null=True, help_text="Description of this configuration")
+    
+    # Configuration data stored as JSON
+    config_data = models.JSONField(default=dict, help_text="Configuration parameters as JSON")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'configuration_settings'
+        ordering = ['-updated_at']
+        verbose_name = 'Configuration Setting'
+        verbose_name_plural = 'Configuration Settings'
+    
+    def __str__(self):
+        return f"{self.name} ({self.get_type_display()})"
+    
+    def get_config_value(self, key, default=None):
+        """Get a specific configuration value by key"""
+        return self.config_data.get(key, default)
+    
+    def set_config_value(self, key, value):
+        """Set a specific configuration value"""
+        self.config_data[key] = value
+        self.save()
+    
+    def update_config_data(self, new_data):
+        """Update multiple configuration values at once"""
+        self.config_data.update(new_data)
+        self.save()

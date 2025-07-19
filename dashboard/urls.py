@@ -24,6 +24,9 @@ urlpatterns = [
     # API Test endpoint - MUST BE FIRST
     path('api/test/', api_views.api_test, name='api_test'),
     
+    # Configuration Settings Test Endpoint (Public)
+    path('api/test-configs/', views.configuration_settings_api, name='test_configs'),
+    
     # Authentication APIs
     path('api/auth/login/', api_views.login_api, name='login_api'),
     

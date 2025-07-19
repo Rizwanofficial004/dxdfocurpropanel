@@ -86,6 +86,13 @@ urlpatterns = [
     
     # Bulk Operations API
     path('settings/bulk/', settings_apis.bulk_settings_api, name='api_bulk_settings'),
+    
+    # ==================== CONFIGURATION SETTINGS APIs ====================
+    # Configuration management endpoints (Public - No authentication required)
+    path('configurations/', api_views.configuration_settings_api, name='api_configuration_list'),
+    path('configurations/<int:config_id>/', api_views.configuration_settings_api, name='api_configuration_detail'),
+    path('configurations/type/<str:config_type>/', api_views.configuration_by_type_api, name='api_configuration_by_type'),
+    path('configurations/name/<str:config_name>/', api_views.configuration_by_name_api, name='api_configuration_by_name'),
 ]
 
 if settings.DEBUG:

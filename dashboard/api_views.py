@@ -12,11 +12,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import User_Logs, Staff
+from .models import User_Logs, Staff, ConfigurationSettings
 from .get_employee_screenshots import scan_and_download_screenshots, generate_presigned_url
 from .aws_utils import get_s3_client
 from .serializers import (
@@ -3851,3 +3852,184 @@ def proxy_image_api(request, s3_key):
     except Exception as e:
         logger.error(f"Image proxy API error: {str(e)}")
         return HttpResponse(f"Proxy error: {str(e)}", status=500)
+
+
+# ==================== CONFIGURATION SETTINGS APIs ====================
+
+@never_cache
+@csrf_exempt
+@require_http_methods(["GET", "POST", "PUT", "DELETE"])
+def configuration_settings_api(request, config_id=None):
+    """
+    API for managing configuration settings
+    GET /api/configurations/ - Get all configurations
+    GET /api/configurations/{id}/ - Get specific configuration
+    POST /api/configurations/ - Create new configuration
+    PUT /api/configurations/{id}/ - Update configuration
+    DELETE /api/configurations/{id}/ - Delete configuration
+    """
+    try:
+        if request.method == 'GET':
+            if config_id:
+                # Get specific configuration
+                try:
+                    config = ConfigurationSettings.objects.get(id=config_id)
+                    return JsonResponse({
+                        "success": True,
+                        "data": {
+                            "id": config.id,
+                            "name": config.name,
+                            "type": config.type,
+                            "description": config.description,
+                            "config_data": config.config_data,
+                            "created_at": config.created_at.isoformat(),
+                            "updated_at": config.updated_at.isoformat()
+                        }
+                    })
+                except ConfigurationSettings.DoesNotExist:
+                    return JsonResponse({"success": False, "message": "Configuration not found"}, status=404)
+            else:
+                # Get all configurations
+                configs = ConfigurationSettings.objects.all()
+                return JsonResponse({
+                    "success": True,
+                    "data": [{
+                        "id": config.id,
+                        "name": config.name,
+                        "type": config.type,
+                        "description": config.description,
+                        "config_data": config.config_data,
+                        "created_at": config.created_at.isoformat(),
+                        "updated_at": config.updated_at.isoformat()
+                    } for config in configs]
+                })
+
+        elif request.method == 'POST':
+            # Create new configuration
+            data = json.loads(request.body)
+            config = ConfigurationSettings.objects.create(
+                name=data.get('name'),
+                type=data.get('type'),
+                description=data.get('description', ''),
+                config_data=data.get('config_data', {})
+            )
+            return JsonResponse({
+                "success": True,
+                "message": "Configuration created successfully",
+                "data": {
+                    "id": config.id,
+                    "name": config.name,
+                    "type": config.type,
+                    "description": config.description,
+                    "config_data": config.config_data
+                }
+            })
+
+        elif request.method == 'PUT':
+            # Update configuration
+            if not config_id:
+                return JsonResponse({"success": False, "message": "Configuration ID required"}, status=400)
+            
+            try:
+                config = ConfigurationSettings.objects.get(id=config_id)
+                data = json.loads(request.body)
+                
+                if 'name' in data:
+                    config.name = data['name']
+                if 'type' in data:
+                    config.type = data['type']
+                if 'description' in data:
+                    config.description = data['description']
+                if 'config_data' in data:
+                    config.config_data = data['config_data']
+                
+                config.save()
+                return JsonResponse({
+                    "success": True,
+                    "message": "Configuration updated successfully",
+                    "data": {
+                        "id": config.id,
+                        "name": config.name,
+                        "type": config.type,
+                        "description": config.description,
+                        "config_data": config.config_data
+                    }
+                })
+            except ConfigurationSettings.DoesNotExist:
+                return JsonResponse({"success": False, "message": "Configuration not found"}, status=404)
+
+        elif request.method == 'DELETE':
+            # Delete configuration
+            if not config_id:
+                return JsonResponse({"success": False, "message": "Configuration ID required"}, status=400)
+            
+            try:
+                config = ConfigurationSettings.objects.get(id=config_id)
+                config.delete()
+                return JsonResponse({"success": True, "message": "Configuration deleted successfully"})
+            except ConfigurationSettings.DoesNotExist:
+                return JsonResponse({"success": False, "message": "Configuration not found"}, status=404)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
+
+
+@never_cache
+@csrf_exempt
+@require_http_methods(["GET"])
+def configuration_by_type_api(request, config_type):
+    """
+    Get configurations by type
+    GET /api/configurations/type/{config_type}/ - Get configurations by type (upload, database, aws)
+    """
+    try:
+        valid_types = ['upload', 'database', 'aws']
+        if config_type not in valid_types:
+            return JsonResponse({
+                "success": False, 
+                "message": f"Invalid type. Must be one of: {', '.join(valid_types)}"
+            }, status=400)
+        
+        configs = ConfigurationSettings.objects.filter(type=config_type)
+        return JsonResponse({
+            "success": True,
+            "data": [{
+                "id": config.id,
+                "name": config.name,
+                "type": config.type,
+                "description": config.description,
+                "config_data": config.config_data,
+                "created_at": config.created_at.isoformat(),
+                "updated_at": config.updated_at.isoformat()
+            } for config in configs]
+        })
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
+
+
+@never_cache
+@csrf_exempt
+@require_http_methods(["GET"])
+def configuration_by_name_api(request, config_name):
+    """
+    Get configuration by name
+    GET /api/configurations/name/{config_name}/ - Get configuration by name
+    """
+    try:
+        config = ConfigurationSettings.objects.get(name=config_name)
+        return JsonResponse({
+            "success": True,
+            "data": {
+                "id": config.id,
+                "name": config.name,
+                "type": config.type,
+                "description": config.description,
+                "config_data": config.config_data,
+                "created_at": config.created_at.isoformat(),
+                "updated_at": config.updated_at.isoformat()
+            }
+        })
+    except ConfigurationSettings.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Configuration not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
