@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import Chatbot from '../chatbot/Chatbot';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -20,6 +21,7 @@ const MainContent = styled.main`
   overflow-x: hidden;
   background: ${props => props.theme.colors.background};
   min-height: calc(100vh - 80px);
+  position: relative;
 `;
 
 export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => {
@@ -30,6 +32,7 @@ export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => 
         <Sidebar />
         <MainContent>
           {children}
+          <Chatbot />
         </MainContent>
       </LayoutBody>
     </LayoutContainer>

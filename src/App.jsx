@@ -29,6 +29,18 @@ const Settings = lazy(() =>
   import('./dashboard/pages/Settings').catch(() => ({ default: FallbackSettings }))
 );
 
+const Attendance = lazy(() =>
+  import('./dashboard/pages/Attandence').catch(() => ({ default: FallbackAttendance }))
+);
+
+const Employees = lazy(() =>
+  import('./dashboard/pages/Employees').catch(() => ({ default: FallbackEmployees }))
+);
+
+const Teams = lazy(() =>
+  import('./dashboard/pages/Teams').catch(() => ({ default: FallbackTeams }))
+);
+
 const ThemeProvider = lazy(() =>
   import('./dashboard/context/ThemeContext').then(m => ({ default: m.ThemeProvider })).catch(() => ({ default: SimpleThemeProvider }))
 );
@@ -44,6 +56,9 @@ const FallbackQuickView = () => <div>Quick View failed to load.</div>;
 const FallbackLogin = () => <div>Login failed to load.</div>;
 const FallbackThemeDemo = () => <div>Theme demo failed to load.</div>;
 const FallbackSettings = () => <div>Settings failed to load.</div>;
+const FallbackAttendance = () => <div>Attendance failed to load.</div>;
+const FallbackEmployees = () => <div>Employees failed to load.</div>;
+const FallbackTeams = () => <div>Teams failed to load.</div>;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
 const LoadingSpinner = () => <div>Loading...</div>;
@@ -138,6 +153,36 @@ function App() {
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackSettings />}>
                           <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/attendence"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackAttendance />}>
+                          <Attendance />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/employees"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackEmployees />}>
+                          <Employees />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/teams"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackTeams />}>
+                          <Teams />
                         </Suspense>
                       </ProtectedRoute>
                     }

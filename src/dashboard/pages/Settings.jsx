@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useTheme } from '../context/ThemeContext';
+import { configurationAPI, uploadConfigAPI, databaseConfigAPI, awsConfigAPI } from '../../services/configurationAPI';
 
 const SettingsContainer = styled.div`
   background: ${props => props.theme.colors.background};
@@ -268,9 +269,21 @@ const Settings = () => {
   const [message, setMessage] = useState('');
   const { theme } = useTheme(); // Add theme hook
 
+  // Configuration states
+  const [configurations, setConfigurations] = useState([]);
+  const [uploadConfigs, setUploadConfigs] = useState([]);
+  const [databaseConfigs, setDatabaseConfigs] = useState([]);
+  const [awsConfigs, setAwsConfigs] = useState([]);
+  const [editingConfig, setEditingConfig] = useState(null);
+  const [newConfigType, setNewConfigType] = useState(null);
+  const [configLoading, setConfigLoading] = useState(false);
+
   const tabs = [
     { id: 'ui', label: 'UI Settings' },
-    { id: 'credentials', label: 'Credentials' }
+    { id: 'credentials', label: 'Credentials' },
+    { id: 'upload', label: 'Upload Configuration' },
+    { id: 'database', label: 'Database Configuration' },
+    { id: 'aws', label: 'AWS Configuration' }
   ];
 
   // Function to send data to settings API
@@ -321,6 +334,87 @@ const Settings = () => {
       setLoading(false);
     }
   }
+
+  // Configuration API functions
+  useEffect(() => {
+    loadConfigurations();
+  }, []);
+
+  const loadConfigurations = async () => {
+    setConfigLoading(true);
+    try {
+      const [uploads, databases, aws] = await Promise.all([
+        uploadConfigAPI.getAll(),
+        databaseConfigAPI.getAll(),
+        awsConfigAPI.getAll()
+      ]);
+      setUploadConfigs(uploads);
+      setDatabaseConfigs(databases);
+      setAwsConfigs(aws);
+    } catch (error) {
+      console.error('Error loading configurations:', error);
+      setMessage('❌ Error loading configurations: ' + error.message);
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
+  const handleCreateConfig = async (type, configData) => {
+    setConfigLoading(true);
+    try {
+      let result;
+      switch (type) {
+        case 'upload':
+          result = await uploadConfigAPI.create(configData);
+          break;
+        case 'database':
+          result = await databaseConfigAPI.create(configData);
+          break;
+        case 'aws':
+          result = await awsConfigAPI.create(configData);
+          break;
+      }
+      setMessage('✅ Configuration created successfully!');
+      setNewConfigType(null);
+      await loadConfigurations();
+    } catch (error) {
+      console.error('Error creating configuration:', error);
+      setMessage('❌ Error creating configuration: ' + error.message);
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
+  const handleUpdateConfig = async (id, configData) => {
+    setConfigLoading(true);
+    try {
+      await configurationAPI.updateConfiguration(id, configData);
+      setMessage('✅ Configuration updated successfully!');
+      setEditingConfig(null);
+      await loadConfigurations();
+    } catch (error) {
+      console.error('Error updating configuration:', error);
+      setMessage('❌ Error updating configuration: ' + error.message);
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
+  const handleDeleteConfig = async (id) => {
+    if (window.confirm('Are you sure you want to delete this configuration?')) {
+      setConfigLoading(true);
+      try {
+        await configurationAPI.deleteConfiguration(id);
+        setMessage('✅ Configuration deleted successfully!');
+        await loadConfigurations();
+      } catch (error) {
+        console.error('Error deleting configuration:', error);
+        setMessage('❌ Error deleting configuration: ' + error.message);
+      } finally {
+        setConfigLoading(false);
+      }
+    }
+  };
 
   const renderUISettings = () => (
     <Section>
@@ -897,12 +991,300 @@ const Settings = () => {
     </div>
   );
 
+  // Upload Configuration Render
+  const renderUploadConfiguration = () => (
+    <Section>
+      <SectionTitle>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>📤 Upload Configuration</span>
+          <ActionButton 
+            onClick={() => setNewConfigType('upload')}
+            className="primary"
+            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+          >
+            + Add Upload Config
+          </ActionButton>
+        </div>
+      </SectionTitle>
+      
+      {configLoading ? (
+        <p style={{ color: theme.colors.text.secondary }}>Loading configurations...</p>
+      ) : (
+        <div style={{ marginBottom: '2rem' }}>
+          {uploadConfigs.length === 0 ? (
+            <p style={{ color: theme.colors.text.secondary, fontStyle: 'italic' }}>
+              No upload configurations found. Click "Add Upload Config" to create one.
+            </p>
+          ) : (
+            uploadConfigs.map((config) => (
+              <div key={config.id} style={{
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                marginBottom: '1rem',
+                background: theme.colors.surface
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                  <div>
+                    <h4 style={{ color: theme.colors.text.primary, fontWeight: '600', marginBottom: '0.5rem' }}>
+                      {config.name}
+                    </h4>
+                    <p style={{ color: theme.colors.text.secondary, fontSize: '0.875rem' }}>
+                      {config.description}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <ActionButton
+                      onClick={() => setEditingConfig(config)}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                    >
+                      ✏️ Edit
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => handleDeleteConfig(config.id)}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderColor: '#ef4444', color: '#ef4444' }}
+                    >
+                      🗑️ Delete
+                    </ActionButton>
+                  </div>
+                </div>
+                <div style={{
+                  background: theme.colors.background,
+                  padding: '1rem',
+                  borderRadius: '0.25rem',
+                  fontSize: '0.75rem',
+                  fontFamily: 'monospace'
+                }}>
+                  <strong>Configuration Data:</strong>
+                  <pre style={{ margin: '0.5rem 0 0 0', whiteSpace: 'pre-wrap' }}>
+                    {JSON.stringify(config.config_data, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {newConfigType === 'upload' && (
+        <UploadConfigForm 
+          onSubmit={(data) => handleCreateConfig('upload', data)}
+          onCancel={() => setNewConfigType(null)}
+          theme={theme}
+        />
+      )}
+      
+      {editingConfig && editingConfig.type === 'upload' && (
+        <EditConfigForm
+          config={editingConfig}
+          onSubmit={(data) => handleUpdateConfig(editingConfig.id, data)}
+          onCancel={() => setEditingConfig(null)}
+          theme={theme}
+        />
+      )}
+    </Section>
+  );
+
+  // Database Configuration Render
+  const renderDatabaseConfiguration = () => (
+    <Section>
+      <SectionTitle>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>🗄️ Database Configuration</span>
+          <ActionButton 
+            onClick={() => setNewConfigType('database')}
+            className="primary"
+            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+          >
+            + Add Database Config
+          </ActionButton>
+        </div>
+      </SectionTitle>
+      
+      {configLoading ? (
+        <p style={{ color: theme.colors.text.secondary }}>Loading configurations...</p>
+      ) : (
+        <div style={{ marginBottom: '2rem' }}>
+          {databaseConfigs.length === 0 ? (
+            <p style={{ color: theme.colors.text.secondary, fontStyle: 'italic' }}>
+              No database configurations found. Click "Add Database Config" to create one.
+            </p>
+          ) : (
+            databaseConfigs.map((config) => (
+              <div key={config.id} style={{
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                marginBottom: '1rem',
+                background: theme.colors.surface
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                  <div>
+                    <h4 style={{ color: theme.colors.text.primary, fontWeight: '600', marginBottom: '0.5rem' }}>
+                      {config.name}
+                    </h4>
+                    <p style={{ color: theme.colors.text.secondary, fontSize: '0.875rem' }}>
+                      {config.description}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <ActionButton
+                      onClick={() => setEditingConfig(config)}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                    >
+                      ✏️ Edit
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => handleDeleteConfig(config.id)}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderColor: '#ef4444', color: '#ef4444' }}
+                    >
+                      🗑️ Delete
+                    </ActionButton>
+                  </div>
+                </div>
+                <div style={{
+                  background: theme.colors.background,
+                  padding: '1rem',
+                  borderRadius: '0.25rem',
+                  fontSize: '0.75rem',
+                  fontFamily: 'monospace'
+                }}>
+                  <strong>Configuration Data:</strong>
+                  <pre style={{ margin: '0.5rem 0 0 0', whiteSpace: 'pre-wrap' }}>
+                    {JSON.stringify(config.config_data, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {newConfigType === 'database' && (
+        <DatabaseConfigForm 
+          onSubmit={(data) => handleCreateConfig('database', data)}
+          onCancel={() => setNewConfigType(null)}
+          theme={theme}
+        />
+      )}
+      
+      {editingConfig && editingConfig.type === 'database' && (
+        <EditConfigForm
+          config={editingConfig}
+          onSubmit={(data) => handleUpdateConfig(editingConfig.id, data)}
+          onCancel={() => setEditingConfig(null)}
+          theme={theme}
+        />
+      )}
+    </Section>
+  );
+
+  // AWS Configuration Render
+  const renderAwsConfiguration = () => (
+    <Section>
+      <SectionTitle>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>☁️ AWS Configuration</span>
+          <ActionButton 
+            onClick={() => setNewConfigType('aws')}
+            className="primary"
+            style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+          >
+            + Add AWS Config
+          </ActionButton>
+        </div>
+      </SectionTitle>
+      
+      {configLoading ? (
+        <p style={{ color: theme.colors.text.secondary }}>Loading configurations...</p>
+      ) : (
+        <div style={{ marginBottom: '2rem' }}>
+          {awsConfigs.length === 0 ? (
+            <p style={{ color: theme.colors.text.secondary, fontStyle: 'italic' }}>
+              No AWS configurations found. Click "Add AWS Config" to create one.
+            </p>
+          ) : (
+            awsConfigs.map((config) => (
+              <div key={config.id} style={{
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                marginBottom: '1rem',
+                background: theme.colors.surface
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                  <div>
+                    <h4 style={{ color: theme.colors.text.primary, fontWeight: '600', marginBottom: '0.5rem' }}>
+                      {config.name}
+                    </h4>
+                    <p style={{ color: theme.colors.text.secondary, fontSize: '0.875rem' }}>
+                      {config.description}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <ActionButton
+                      onClick={() => setEditingConfig(config)}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                    >
+                      ✏️ Edit
+                    </ActionButton>
+                    <ActionButton
+                      onClick={() => handleDeleteConfig(config.id)}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', borderColor: '#ef4444', color: '#ef4444' }}
+                    >
+                      🗑️ Delete
+                    </ActionButton>
+                  </div>
+                </div>
+                <div style={{
+                  background: theme.colors.background,
+                  padding: '1rem',
+                  borderRadius: '0.25rem',
+                  fontSize: '0.75rem',
+                  fontFamily: 'monospace'
+                }}>
+                  <strong>Configuration Data:</strong>
+                  <pre style={{ margin: '0.5rem 0 0 0', whiteSpace: 'pre-wrap' }}>
+                    {JSON.stringify(config.config_data, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {newConfigType === 'aws' && (
+        <AwsConfigForm 
+          onSubmit={(data) => handleCreateConfig('aws', data)}
+          onCancel={() => setNewConfigType(null)}
+          theme={theme}
+        />
+      )}
+      
+      {editingConfig && editingConfig.type === 'aws' && (
+        <EditConfigForm
+          config={editingConfig}
+          onSubmit={(data) => handleUpdateConfig(editingConfig.id, data)}
+          onCancel={() => setEditingConfig(null)}
+          theme={theme}
+        />
+      )}
+    </Section>
+  );
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'ui':
         return renderUISettings();
       case 'credentials':
         return renderCredentialsSettings();
+      case 'upload':
+        return renderUploadConfiguration();
+      case 'database':
+        return renderDatabaseConfiguration();
+      case 'aws':
+        return renderAwsConfiguration();
       default:
         return renderUISettings();
     }
@@ -1030,6 +1412,431 @@ const Settings = () => {
         </ContentContainer>
       </SettingsContainer>
     </DashboardLayout>
+  );
+};
+
+// Form Components for Configuration Management
+const UploadConfigForm = ({ onSubmit, onCancel, theme }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    config_data: {
+      max_file_size: '10MB',
+      allowed_types: ['jpg', 'png', 'pdf'],
+      upload_path: '/uploads/',
+      auto_resize: true
+    }
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <div style={{
+      border: `1px solid ${theme.colors.border}`,
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      background: '#f0f9ff',
+      marginTop: '1rem'
+    }}>
+      <h4 style={{ color: theme.colors.text.primary, marginBottom: '1rem' }}>New Upload Configuration</h4>
+      
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Configuration Name</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              placeholder="e.g., Default Upload Settings"
+              required
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              placeholder="Configuration description"
+              required
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Max File Size</Label>
+            <Input
+              value={formData.config_data.max_file_size}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, max_file_size: e.target.value}
+              })}
+            />
+          </div>
+          <div>
+            <Label>Upload Path</Label>
+            <Input
+              value={formData.config_data.upload_path}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, upload_path: e.target.value}
+              })}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={formData.config_data.auto_resize}
+            onChange={(e) => setFormData({
+              ...formData, 
+              config_data: {...formData.config_data, auto_resize: e.target.checked}
+            })}
+          />
+          <Label>Auto Resize Images</Label>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <ActionButton type="submit" className="primary">Create Configuration</ActionButton>
+          <ActionButton type="button" onClick={onCancel}>Cancel</ActionButton>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+const DatabaseConfigForm = ({ onSubmit, onCancel, theme }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    config_data: {
+      host: 'localhost',
+      port: 5432,
+      database: '',
+      username: '',
+      ssl_enabled: false,
+      connection_timeout: 30
+    }
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <div style={{
+      border: `1px solid ${theme.colors.border}`,
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      background: '#f0fdf4',
+      marginTop: '1rem'
+    }}>
+      <h4 style={{ color: theme.colors.text.primary, marginBottom: '1rem' }}>New Database Configuration</h4>
+      
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Configuration Name</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              placeholder="e.g., Production Database"
+              required
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              placeholder="Configuration description"
+              required
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Host</Label>
+            <Input
+              value={formData.config_data.host}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, host: e.target.value}
+              })}
+            />
+          </div>
+          <div>
+            <Label>Port</Label>
+            <Input
+              type="number"
+              value={formData.config_data.port}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, port: parseInt(e.target.value)}
+              })}
+            />
+          </div>
+          <div>
+            <Label>Database Name</Label>
+            <Input
+              value={formData.config_data.database}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, database: e.target.value}
+              })}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+          <input
+            type="checkbox"
+            checked={formData.config_data.ssl_enabled}
+            onChange={(e) => setFormData({
+              ...formData, 
+              config_data: {...formData.config_data, ssl_enabled: e.target.checked}
+            })}
+          />
+          <Label>Enable SSL</Label>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <ActionButton type="submit" className="primary">Create Configuration</ActionButton>
+          <ActionButton type="button" onClick={onCancel}>Cancel</ActionButton>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+const AwsConfigForm = ({ onSubmit, onCancel, theme }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    config_data: {
+      region: 'us-east-1',
+      bucket_name: '',
+      access_key_id: '',
+      secret_access_key: '',
+      use_ssl: true,
+      cloudfront_enabled: false
+    }
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <div style={{
+      border: `1px solid ${theme.colors.border}`,
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      background: '#fff7ed',
+      marginTop: '1rem'
+    }}>
+      <h4 style={{ color: theme.colors.text.primary, marginBottom: '1rem' }}>New AWS Configuration</h4>
+      
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Configuration Name</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              placeholder="e.g., S3 Storage Config"
+              required
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              placeholder="Configuration description"
+              required
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Region</Label>
+            <select 
+              value={formData.config_data.region}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, region: e.target.value}
+              })}
+              style={{
+                padding: '0.75rem',
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: '0.5rem',
+                width: '100%',
+                background: theme.colors.surface,
+                color: theme.colors.text.primary
+              }}
+            >
+              <option value="us-east-1">US East (N. Virginia)</option>
+              <option value="us-west-2">US West (Oregon)</option>
+              <option value="eu-west-1">Europe (Ireland)</option>
+              <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+            </select>
+          </div>
+          <div>
+            <Label>S3 Bucket Name</Label>
+            <Input
+              value={formData.config_data.bucket_name}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, bucket_name: e.target.value}
+              })}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Access Key ID</Label>
+            <Input
+              type="password"
+              value={formData.config_data.access_key_id}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, access_key_id: e.target.value}
+              })}
+            />
+          </div>
+          <div>
+            <Label>Secret Access Key</Label>
+            <Input
+              type="password"
+              value={formData.config_data.secret_access_key}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, secret_access_key: e.target.value}
+              })}
+            />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="checkbox"
+              checked={formData.config_data.use_ssl}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, use_ssl: e.target.checked}
+              })}
+            />
+            <Label>Use SSL</Label>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="checkbox"
+              checked={formData.config_data.cloudfront_enabled}
+              onChange={(e) => setFormData({
+                ...formData, 
+                config_data: {...formData.config_data, cloudfront_enabled: e.target.checked}
+              })}
+            />
+            <Label>CloudFront CDN</Label>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <ActionButton type="submit" className="primary">Create Configuration</ActionButton>
+          <ActionButton type="button" onClick={onCancel}>Cancel</ActionButton>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+const EditConfigForm = ({ config, onSubmit, onCancel, theme }) => {
+  const [formData, setFormData] = useState({
+    name: config.name,
+    description: config.description,
+    config_data: config.config_data
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  return (
+    <div style={{
+      border: `1px solid ${theme.colors.border}`,
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      background: '#fefce8',
+      marginTop: '1rem'
+    }}>
+      <h4 style={{ color: theme.colors.text.primary, marginBottom: '1rem' }}>
+        Edit Configuration: {config.name}
+      </h4>
+      
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <Label>Configuration Name</Label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              required
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              required
+            />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <Label>Configuration Data (JSON)</Label>
+          <textarea
+            value={JSON.stringify(formData.config_data, null, 2)}
+            onChange={(e) => {
+              try {
+                const parsed = JSON.parse(e.target.value);
+                setFormData({...formData, config_data: parsed});
+              } catch (error) {
+                // Invalid JSON, keep the text as is for user to fix
+              }
+            }}
+            rows={8}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: `1px solid ${theme.colors.border}`,
+              borderRadius: '0.5rem',
+              fontFamily: 'monospace',
+              fontSize: '0.875rem',
+              background: theme.colors.surface,
+              color: theme.colors.text.primary
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <ActionButton type="submit" className="primary">Update Configuration</ActionButton>
+          <ActionButton type="button" onClick={onCancel}>Cancel</ActionButton>
+        </div>
+      </form>
+    </div>
   );
 };
 
