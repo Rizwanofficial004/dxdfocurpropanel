@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Button, TextField, Popover, Box, CircularProgress, Autocomplete } from '@mui/material';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { gsap } from 'gsap';
 import { useTheme } from '../../context/ThemeContext';
 import ImageModal from '../common/ImageModal';
 import {
@@ -162,16 +163,24 @@ const DummyDataSection = ({ backendStatus, theme, isDarkMode }) => (
 );
 
 const ActivityStream = () => {
-  const { isDarkMode, theme } = useTheme();
+  const { isDarkMode, theme } = useTheme(); 
   const [selected, setSelected] = useState(29); // Start with today (last item in 30-day array)
   const [search, setSearch] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [dateRange, setDateRange] = useState([dayjs('2024-06-06'), dayjs('2025-01-01')]);
   
-  // Generate dates for the last 30 days
-  const dates = generateLast30Days();
+  // Generate dates for the last 30 days - moved up before GSAP effects
+  const dates = useMemo(() => generateLast30Days(), []);
   
-  // API related states
+  // GSAP Animation Refs
+  const containerRef = useRef(null);
+  const topBarRef = useRef(null);
+  const cardGridRef = useRef(null);
+  const cardsRef = useRef([]);
+  const foldersRef = useRef([]);
+  const dateItemsRef = useRef([]);
+  
+  // API related states - moved before useEffect hooks
   const [screenshots, setScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -199,19 +208,137 @@ const ActivityStream = () => {
   // Add 3-level navigation states
   const [currentView, setCurrentView] = useState('search'); // 'search', 'folders', 'screenshots'
   const [folders, setFolders] = useState([]);
-  const [loadingFolders, setLoadingFolders] = useState(false);    const [selectedFolder, setSelectedFolder] = useState(null);
-    const [folderScreenshots, setFolderScreenshots] = useState([]);
-    const [loadingFolderScreenshots, setLoadingFolderScreenshots] = useState(false);
-    const [folderPagination, setFolderPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
-    const [verifiedFolderCounts, setVerifiedFolderCounts] = useState({}); // Track actual counts for folders
-    const [showDummyData, setShowDummyData] = useState(false); // Control dummy data display
-    const [perPageLimit, setPerPageLimit] = useState(20); // Default to 20 per page
+  const [loadingFolders, setLoadingFolders] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [folderScreenshots, setFolderScreenshots] = useState([]);
+  const [loadingFolderScreenshots, setLoadingFolderScreenshots] = useState(false);
+  const [folderPagination, setFolderPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
+  const [verifiedFolderCounts, setVerifiedFolderCounts] = useState({}); // Track actual counts for folders
+  const [showDummyData, setShowDummyData] = useState(false); // Control dummy data display
+  const [perPageLimit, setPerPageLimit] = useState(20); // Default to 20 per page
 
   // Image Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState([]);
   const [modalCurrentIndex, setModalCurrentIndex] = useState(0);
+  
+  // GSAP Entrance Animations
+  useEffect(() => {
+    if (containerRef.current) {
+      gsap.set(containerRef.current, {
+        opacity: 0,
+        rotationX: -30,
+        rotationY: 20,
+        z: -200,
+        scale: 0.8
+      });
 
+      gsap.to(containerRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1.5,
+        ease: "back.out(1.7)",
+        delay: 0.2
+      });
+    }
+  }, []);
+
+  // GSAP TopBar Animation
+  useEffect(() => {
+    if (topBarRef.current) {
+      gsap.set(topBarRef.current, {
+        opacity: 0,
+        y: -30,
+        rotationX: -15
+      });
+
+      gsap.to(topBarRef.current, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 1,
+        ease: "power3.out",
+        delay: 0.5
+      });
+    }
+  }, []);
+
+  // GSAP Date Items Animation
+  useEffect(() => {
+    if (dateItemsRef.current.length > 0) {
+      gsap.set(dateItemsRef.current, {
+        opacity: 0,
+        rotationY: 45,
+        z: -100,
+        scale: 0.8
+      });
+
+      gsap.to(dateItemsRef.current, {
+        opacity: 1,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        stagger: 0.1,
+        delay: 0.8
+      });
+    }
+  }, []); // Remove dates dependency since dates array is static
+
+  // GSAP Cards Animation
+  useEffect(() => {
+    if (cardsRef.current.length > 0) {
+      gsap.set(cardsRef.current, {
+        opacity: 0,
+        rotationX: 90,
+        rotationY: 45,
+        z: -200,
+        scale: 0.6
+      });
+
+      gsap.to(cardsRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1.2,
+        ease: "back.out(1.7)",
+        stagger: 0.15,
+        delay: 1.2
+      });
+    }
+  }, [screenshots, folderScreenshots]);
+
+  // GSAP Folders Animation
+  useEffect(() => {
+    if (foldersRef.current.length > 0) {
+      gsap.set(foldersRef.current, {
+        opacity: 0,
+        rotationX: 45,
+        rotationY: 30,
+        z: -150,
+        scale: 0.7
+      });
+
+      gsap.to(foldersRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1,
+        ease: "back.out(1.7)",
+        stagger: 0.12,
+        delay: 1
+      });
+    }
+  }, [folders]);
+  
   // Add image URL processing function (FIXED for direct presigned URLs)
   const getImageUrl = (originalUrl) => {
     // If null/undefined, return a basic image that will show as broken
@@ -537,6 +664,174 @@ const ActivityStream = () => {
 
     checkBackendStatus();
   }, []);
+
+  // GSAP Animation Effects
+  useEffect(() => {
+    // Initial container entrance animation
+    if (containerRef.current) {
+      gsap.set(containerRef.current, {
+        opacity: 0,
+        rotationX: -30,
+        rotationY: 20,
+        z: -200,
+        scale: 0.8
+      });
+
+      gsap.to(containerRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1.5,
+        ease: "back.out(1.7)",
+        delay: 0.2
+      });
+    }
+
+    // Top bar animation
+    if (topBarRef.current) {
+      gsap.set(topBarRef.current, {
+        opacity: 0,
+        y: -50,
+        rotationX: -15
+      });
+
+      gsap.to(topBarRef.current, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 1,
+        ease: "power3.out",
+        delay: 0.5
+      });
+    }
+
+    // Date items staggered animation
+    if (dateItemsRef.current.length > 0) {
+      gsap.set(dateItemsRef.current, {
+        opacity: 0,
+        rotationY: 45,
+        scale: 0.8,
+        z: -100
+      });
+
+      gsap.to(dateItemsRef.current, {
+        opacity: 1,
+        rotationY: 0,
+        scale: 1,
+        z: 0,
+        duration: 0.8,
+        ease: "back.out(2)",
+        stagger: 0.1,
+        delay: 0.8
+      });
+    }
+  }, []);
+
+  // Cards animation when screenshots change
+  useEffect(() => {
+    if (cardsRef.current.length > 0 && screenshots.length > 0) {
+      gsap.set(cardsRef.current, {
+        opacity: 0,
+        rotationX: 90,
+        rotationY: 45,
+        z: -300,
+        scale: 0.6
+      });
+
+      gsap.to(cardsRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1.2,
+        ease: "back.out(1.7)",
+        stagger: 0.15,
+        delay: 0.3
+      });
+
+      // Add hover animations
+      cardsRef.current.forEach((card, index) => {
+        if (card) {
+          card.addEventListener('mouseenter', () => {
+            gsap.to(card, {
+              rotationX: 8,
+              rotationY: 5,
+              y: -12,
+              scale: 1.02,
+              duration: 0.4,
+              ease: "power2.out"
+            });
+          });
+
+          card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+              rotationX: 0,
+              rotationY: 0,
+              y: 0,
+              scale: 1,
+              duration: 0.4,
+              ease: "power2.out"
+            });
+          });
+        }
+      });
+    }
+  }, [screenshots]);
+
+  // Folders animation when folders change
+  useEffect(() => {
+    if (foldersRef.current.length > 0 && folders.length > 0) {
+      gsap.set(foldersRef.current, {
+        opacity: 0,
+        rotationX: 60,
+        rotationY: 30,
+        z: -200,
+        scale: 0.7
+      });
+
+      gsap.to(foldersRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1,
+        ease: "back.out(1.5)",
+        stagger: 0.12,
+        delay: 0.2
+      });
+
+      // Add folder hover animations
+      foldersRef.current.forEach((folder, index) => {
+        if (folder) {
+          folder.addEventListener('mouseenter', () => {
+            gsap.to(folder, {
+              rotationX: 8,
+              rotationY: 5,
+              y: -12,
+              scale: 1.02,
+              duration: 0.4,
+              ease: "power2.out"
+            });
+          });
+
+          folder.addEventListener('mouseleave', () => {
+            gsap.to(folder, {
+              rotationX: 0,
+              rotationY: 0,
+              y: 0,
+              scale: 1,
+              duration: 0.4,
+              ease: "power2.out"
+            });
+          });
+        }
+      });
+    }
+  }, [folders]);
 
   // Fetch search suggestions from API
   const fetchSearchSuggestions = async (query) => {
@@ -1976,7 +2271,14 @@ const ActivityStream = () => {
         
         <FoldersGrid theme={theme} isDarkMode={isDarkMode}>
           {folders.map((folder, index) => (
-            <FolderCard theme={theme} isDarkMode={isDarkMode} key={index} onClick={() => handleFolderClick(folder)}>
+            <FolderCard 
+              ref={el => foldersRef.current[index] = el}
+              theme={theme} 
+              isDarkMode={isDarkMode} 
+              key={index} 
+              onClick={() => handleFolderClick(folder)}
+              index={index}
+            >
               <FolderHeader theme={theme} isDarkMode={isDarkMode}>
                 <FolderIcon>
                   {folder.is_date_folder ? '📅' : '📁'}
@@ -2179,11 +2481,17 @@ const ActivityStream = () => {
           )}
         </PerPageContainer>
         
-        <CardGrid theme={theme} isDarkMode={isDarkMode}>
+        <CardGrid ref={cardGridRef} theme={theme} isDarkMode={isDarkMode}>
           {folderScreenshots.map((screenshot, i) => {
             const formattedData = formatScreenshotData(screenshot, i);
             return (
-              <Card theme={theme} isDarkMode={isDarkMode} key={formattedData.id}>
+              <Card 
+                ref={el => cardsRef.current[i] = el}
+                theme={theme} 
+                isDarkMode={isDarkMode} 
+                key={formattedData.id}
+                index={i}
+              >
                 {/* Use SimpleImageComponent for presigned URLs - they work directly */}
                 <SimpleImageComponent 
                   src={formattedData.image} 
@@ -2281,7 +2589,7 @@ const ActivityStream = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
-        <Container theme={theme} isDarkMode={isDarkMode}>
+        <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
           <Title theme={theme} isDarkMode={isDarkMode}>
             Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>
             
@@ -2290,7 +2598,7 @@ const ActivityStream = () => {
           
           </Title>
           <Username theme={theme} isDarkMode={isDarkMode} style={{marginBottom:'10px'}}>{hasSearched && search ? search : 'Jhone'}</Username>
-          <TopBar theme={theme} isDarkMode={isDarkMode} >
+          <TopBar ref={topBarRef} theme={theme} isDarkMode={isDarkMode} >
           
             <div style={{display:'flex', alignItems:'center',justifyContent:'space-between', width:'100%'}}>
             <DateScrollContainer theme={theme} isDarkMode={isDarkMode} style={{overflow:'hidden'}}>
@@ -2301,11 +2609,13 @@ const ActivityStream = () => {
                 return (
                   <DateItem 
                     key={index} 
+                    ref={el => dateItemsRef.current[index] = el}
                     theme={theme}
                     isDarkMode={isDarkMode}
                     active={index === selected && !isSingleDateActive} 
                     singleDateActive={isSingleDateActive}
                     isToday={date.isToday}
+                    index={index}
                     onClick={() => handleDateSelect(index)}
                   >
                     {date.day} <span>{date.month} {date.year}</span>
@@ -2786,7 +3096,13 @@ const ActivityStream = () => {
                 {screenshots.map((screenshot, i) => {
                   const formattedData = formatScreenshotData(screenshot, i);
                   return (
-                    <Card theme={theme} isDarkMode={isDarkMode} key={formattedData.id}>
+                    <Card 
+                      theme={theme} 
+                      isDarkMode={isDarkMode} 
+                      key={formattedData.id}
+                      ref={el => cardsRef.current[i] = el}
+                      index={i}
+                    >
                       <Img 
                         src={formattedData.image} 
                         alt={formattedData.task}

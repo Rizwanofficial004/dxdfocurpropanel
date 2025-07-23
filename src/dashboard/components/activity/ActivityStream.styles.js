@@ -1,45 +1,184 @@
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+
+// 3D Animation Keyframes
+const containerEntrance = keyframes`
+  0% {
+    transform: perspective(1000px) rotateX(-30deg) rotateY(20deg) translateZ(-200px);
+    opacity: 0;
+    scale: 0.8;
+  }
+  50% {
+    transform: perspective(1000px) rotateX(-15deg) rotateY(10deg) translateZ(-100px);
+    opacity: 0.6;
+    scale: 0.9;
+  }
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px);
+    opacity: 1;
+    scale: 1;
+  }
+`;
+
+const cardFloat = keyframes`
+  0%, 100% {
+    transform: perspective(800px) translateY(0px) rotateX(0deg) rotateY(0deg);
+  }
+  33% {
+    transform: perspective(800px) translateY(-3px) rotateX(1deg) rotateY(0.5deg);
+  }
+  66% {
+    transform: perspective(800px) translateY(-1px) rotateX(-0.5deg) rotateY(-0.5deg);
+  }
+`;
+
+const cardEntrance = keyframes`
+  0% {
+    transform: perspective(1000px) rotateX(90deg) rotateY(45deg) translateZ(-300px);
+    opacity: 0;
+    scale: 0.6;
+  }
+  50% {
+    transform: perspective(1000px) rotateX(45deg) rotateY(20deg) translateZ(-100px);
+    opacity: 0.7;
+    scale: 0.8;
+  }
+  100% {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px);
+    opacity: 1;
+    scale: 1;
+  }
+`;
+
+const folderFloat = keyframes`
+  0%, 100% {
+    transform: perspective(600px) translateY(0px) rotateX(0deg);
+  }
+  50% {
+    transform: perspective(600px) translateY(-5px) rotateX(2deg);
+  }
+`;
+
+const shimmer = keyframes`
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+`;
+
+const dateItemFloat = keyframes`
+  0%, 100% {
+    transform: perspective(400px) translateY(0px) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(400px) translateY(-2px) rotateY(1deg);
+  }
+`;
+
+const buttonPulse = keyframes`
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+`;
 
 export const Wrapper = styled.div`
   font-family: 'Segoe UI', sans-serif;
   background: ${props => {
     if (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') {
-      return 'none';
+      return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
     }
-    return 'transparent';
+    return 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
   }};
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#e5e7eb' : 'inherit'};
   min-height: auto;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  perspective: 1000px;
+  transform-style: preserve-3d;
 `;
 
 export const Container = styled.div`
   background: ${props => {
-    // Check multiple ways dark mode might be indicated
     if (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') {
-      return '#1f2937 !important';
+      return 'linear-gradient(135deg, rgba(31, 41, 55, 0.95), rgba(17, 24, 39, 0.9))';
     }
-    return 'white !important';
+    return 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9))';
   }};
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-    ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
-    : '0 4px 12px rgba(0, 0, 0, 0.05)'};
-  transition: all 0.3s ease;
-  border: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '1px solid #374151' : 'none'};
+  border-radius: 1.5rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  
+  // 3D Glass Morphism Effect
+  backdrop-filter: blur(20px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') 
+      ? 'rgba(55, 65, 81, 0.5)' 
+      : 'rgba(241, 245, 249, 0.5)'
+  };
+  
+  // 3D Box Shadow with multiple layers
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.05);
+  
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#f3f4f6' : '#1f2937'} !important;
   
-  /* Force dark mode styles to override any global CSS */
-  ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') && `
+  // 3D Hover Effects
+  &:hover {
+    transform: perspective(1000px) translateY(-8px) rotateX(2deg) rotateY(1deg);
+    box-shadow: 
+      0 30px 80px rgba(0, 0, 0, 0.15),
+      0 12px 40px rgba(0, 0, 0, 0.12),
+      inset 0 3px 0 rgba(255, 255, 255, 0.15),
+      inset 0 -3px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  // Shimmer effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transition: left 0.8s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
+  
+  // Entrance animation
+  animation: ${css`${containerEntrance} 1s cubic-bezier(0.4, 0, 0.2, 1) both`};
+  
+  /* Enhanced dark mode support */
+  ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') && css`
     * {
       color: #f3f4f6 !important;
     }
     
     input, select, textarea {
-      background: #374151 !important;
+      background: rgba(55, 65, 81, 0.8) !important;
       color: #f3f4f6 !important;
-      border-color: #4b5563 !important;
+      border-color: rgba(75, 85, 99, 0.6) !important;
+      backdrop-filter: blur(10px);
     }
   `}
 `;
@@ -48,162 +187,435 @@ export const TopBar = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 2;
+  transform-style: preserve-3d;
+  
+  // 3D floating animation
+  animation: ${css`${cardFloat} 8s ease-in-out infinite`};
+  animation-delay: 0.2s;
 `;
 
 export const DateScrollContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   max-width: 500px;
   overflow-x: auto;
-  padding: 4px;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(55, 65, 81, 0.3)'
+      : 'rgba(248, 250, 252, 0.7)'
+  };
+  backdrop-filter: blur(10px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(75, 85, 99, 0.4)'
+      : 'rgba(241, 245, 249, 0.4)'
+  };
+  
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(500px) translateY(-2px) rotateX(1deg);
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(55, 65, 81, 0.5)'
+        : 'rgba(248, 250, 252, 0.9)'
+    };
+  }
   
   &::-webkit-scrollbar {
     height: 6px;
   }
   
   &::-webkit-scrollbar-track {
-    background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#374151' : '#f1f1f1'};
-    border-radius: 3px;
+    background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(55, 65, 81, 0.5)' : 'rgba(241, 245, 249, 0.5)'};
+    border-radius: 6px;
   }
   
   &::-webkit-scrollbar-thumb {
-    background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#6b7280' : '#c1c1c1'};
-    border-radius: 3px;
+    background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(107, 114, 128, 0.8)' : 'rgba(193, 193, 193, 0.8)'};
+    border-radius: 6px;
+    transition: all 0.3s ease;
   }
   
   &::-webkit-scrollbar-thumb:hover {
-    background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#9ca3af' : '#a8a8a8'};
+    background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(156, 163, 175, 0.9)' : 'rgba(168, 168, 168, 0.9)'};
   }
 `;
 
 export const Title = styled.h3`
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#f9fafb' : '#111827'};
-  margin-bottom: 20px;
-  transition: color 0.3s ease;
+  margin-bottom: 1.5rem;
+  position: relative;
+  
+  // 3D Text effect
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'linear-gradient(135deg, #f9fafb, #d1d5db)'
+      : 'linear-gradient(135deg, #111827, #4b5563)'
+  };
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  text-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(0, 0, 0, 0.05);
+  
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(500px) rotateX(5deg) scale(1.02);
+    text-shadow: 
+      3px 3px 6px rgba(0, 0, 0, 0.15),
+      0 0 30px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 export const Username = styled.div`
   font-weight: 600;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#60a5fa' : '#0364ff'};
-  font-size: 16px;
+  font-size: 1rem;
   white-space: nowrap;
-  transition: color 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(96, 165, 250, 0.1)'
+      : 'rgba(3, 100, 255, 0.1)'
+  };
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(96, 165, 250, 0.3)'
+      : 'rgba(3, 100, 255, 0.3)'
+  };
+  backdrop-filter: blur(10px);
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(400px) translateY(-2px) rotateX(3deg);
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(96, 165, 250, 0.2)'
+        : 'rgba(3, 100, 255, 0.2)'
+    };
+    box-shadow: 
+      0 8px 20px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
 `;
 
 export const Arrow = styled.div`
   cursor: pointer;
-  font-size: 20px;
-  padding: 4px 10px;
+  font-size: 1.5rem;
+  padding: 0.5rem;
   user-select: none;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#9ca3af' : '#374151'};
-  transition: color 0.3s ease;
+  border-radius: 50%;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(156, 163, 175, 0.1)'
+      : 'rgba(55, 65, 81, 0.1)'
+  };
+  backdrop-filter: blur(10px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(156, 163, 175, 0.2)'
+      : 'rgba(55, 65, 81, 0.2)'
+  };
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
   
   &:hover {
     color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#e5e7eb' : '#111827'};
+    transform: perspective(400px) translateY(-2px) rotateX(5deg) scale(1.1);
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(156, 163, 175, 0.2)'
+        : 'rgba(55, 65, 81, 0.2)'
+    };
+    box-shadow: 
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  
+  &:active {
+    transform: perspective(400px) translateY(0px) rotateX(2deg) scale(0.95);
   }
 `;
 
 export const DateItem = styled.div`
   background: ${props => {
-    if (props.active) return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#3b82f6' : '#0364ff';
-    if (props.singleDateActive) return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#059669' : '#10b981';
-    if (props.isToday) return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#d97706' : '#fbbf24';
-    return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#374151' : '#f1f5f9';
+    if (props.active) return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)' : 'linear-gradient(135deg, #0364ff, #1e40af)';
+    if (props.singleDateActive) return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #10b981, #059669)';
+    if (props.isToday) return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'linear-gradient(135deg, #d97706, #b45309)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+    return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(55, 65, 81, 0.6)' : 'rgba(241, 245, 249, 0.8)';
   }};
   color: ${props => (props.active || props.singleDateActive || props.isToday) 
     ? 'white' 
     : (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#e5e7eb' : '#111827'};
   font-weight: 600;
-  font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  min-width: 55px;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  min-width: 60px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
   position: relative;
+  transform-style: preserve-3d;
+  
+  // Glass morphism effect
+  backdrop-filter: blur(12px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(75, 85, 99, 0.3)'
+      : 'rgba(241, 245, 249, 0.4)'
+  };
+  
+  // 3D Box shadow
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Floating animation
+  animation: ${css`${dateItemFloat} 6s ease-in-out infinite`};
+  animation-delay: ${props => props.index * 0.1}s;
 
   &:hover {
+    transform: perspective(500px) translateY(-4px) rotateX(5deg) rotateY(2deg) scale(1.05);
+    box-shadow: 
+      0 12px 24px rgba(0, 0, 0, 0.15),
+      inset 0 2px 0 rgba(255, 255, 255, 0.3);
     background: ${props => {
       if (props.active || props.singleDateActive || props.isToday) return '';
-      return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#4b5563' : '#e2e8f0';
+      return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(75, 85, 99, 0.8)' : 'rgba(226, 232, 240, 0.9)';
     }};
+  }
+  
+  &:active {
+    transform: perspective(500px) translateY(-2px) rotateX(2deg) scale(0.98);
   }
 
   span {
     display: block;
-    font-size: 10px;
+    font-size: 0.75rem;
     font-weight: 400;
     color: ${props => (props.active || props.singleDateActive || props.isToday) 
-      ? 'white' 
+      ? 'rgba(255, 255, 255, 0.9)' 
       : (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#9ca3af' : '#6b7280'};
+    margin-top: 0.125rem;
   }
 
-  ${props => props.isToday && `
+  ${props => props.isToday && css`
     &::after {
       content: 'Today';
       position: absolute;
-      bottom: -18px;
+      bottom: -20px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 8px;
-      font-weight: 500;
-      color: ${(props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#d97706' : '#fbbf24'};
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: ${(props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#d97706' : '#f59e0b'};
+      background: ${(props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(217, 119, 6, 0.1)' : 'rgba(245, 158, 11, 0.1)'};
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.5rem;
+      backdrop-filter: blur(8px);
     }
   `}
 `;
 
 export const CardGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  padding: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '8px' : '0'};
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 `;
 
 export const Card = styled.div`
-  background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#1f2937' : '#f9fafb'};
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-    ? '0 2px 4px rgba(0,0,0,0.3)' 
-    : '0 2px 4px rgba(0,0,0,0.04)'};
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') 
+      ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.8))'
+      : 'linear-gradient(135deg, rgba(249, 250, 251, 0.9), rgba(255, 255, 255, 0.8))'
+  };
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 800px;
+  
+  // Glass morphism effect
+  backdrop-filter: blur(20px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(55, 65, 81, 0.4)'
+      : 'rgba(241, 245, 249, 0.4)'
+  };
+  
+  // 3D Box shadows
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: all 0.3s ease;
-  border: 1px solid ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#374151' : 'transparent'};
+  
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Floating animation
+  animation: ${css`${cardFloat} 8s ease-in-out infinite`};
+  animation-delay: ${props => (props.index || 0) * 0.1}s;
+  
+  // Entrance animation
+  opacity: 0;
+  transform: perspective(800px) rotateX(90deg) rotateY(45deg) translateZ(-200px);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-      ? '0 4px 8px rgba(0,0,0,0.4)' 
-      : '0 4px 8px rgba(0,0,0,0.08)'};
+    transform: perspective(800px) translateY(-12px) rotateX(8deg) rotateY(5deg) scale(1.02);
+    box-shadow: 
+      0 20px 50px rgba(0, 0, 0, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.12),
+      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  }
+  
+  &:active {
+    transform: perspective(800px) translateY(-8px) rotateX(4deg) rotateY(2deg) scale(0.98);
+  }
+  
+  // Shimmer effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.6s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  &:hover::before {
+    left: 100%;
   }
 `;
 
 export const Img = styled.img`
   width: 100%;
-  height: 120px;
+  height: 140px;
   object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  
+  // 3D image effects
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(55, 65, 81, 0.3)'
+      : 'rgba(241, 245, 249, 0.3)'
+  };
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(500px) rotateX(5deg) rotateY(3deg) scale(1.02);
+    box-shadow: 
+      0 12px 32px rgba(0, 0, 0, 0.15),
+      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  }
 `;
 
 export const TaskName = styled.div`
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 1rem;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#f3f4f6' : '#111827'};
-  margin-bottom: 4px;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  position: relative;
+  
+  // 3D text effect
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'linear-gradient(135deg, #f3f4f6, #d1d5db)'
+      : 'linear-gradient(135deg, #111827, #4b5563)'
+  };
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  text-shadow: 
+    1px 1px 2px rgba(0, 0, 0, 0.1),
+    0 0 10px rgba(0, 0, 0, 0.05);
+  
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: perspective(400px) rotateX(3deg) scale(1.02);
+    text-shadow: 
+      2px 2px 4px rgba(0, 0, 0, 0.15),
+      0 0 15px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 export const TaskTime = styled.div`
-  font-size: 13px;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#9ca3af' : '#6b7280'};
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(156, 163, 175, 0.1)'
+      : 'rgba(107, 114, 128, 0.1)'
+  };
+  backdrop-filter: blur(8px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(156, 163, 175, 0.2)'
+      : 'rgba(107, 114, 128, 0.2)'
+  };
+  
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(300px) translateY(-1px) rotateX(2deg);
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(156, 163, 175, 0.2)'
+        : 'rgba(107, 114, 128, 0.2)'
+    };
+  }
 `;
 
 export const ImageUrl = styled.div`
@@ -371,25 +783,88 @@ export const BreadcrumbSeparator = styled.span`
 
 export const FoldersGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+  perspective: 1200px;
+  transform-style: preserve-3d;
 `;
 
 export const FolderCard = styled.div`
-  background: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#1f2937' : 'white'};
-  border: 2px solid ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#374151' : '#e5e7eb'};
-  border-radius: 8px;
-  padding: 16px;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') 
+      ? 'linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.8))'
+      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.8))'
+  };
+  border: 2px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') 
+      ? 'rgba(55, 65, 81, 0.5)' 
+      : 'rgba(229, 231, 235, 0.5)'
+  };
+  border-radius: 1.5rem;
+  padding: 2rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  
+  // Glass morphism effect
+  backdrop-filter: blur(20px);
+  
+  // 3D shadows
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  // Floating animation
+  animation: ${css`${folderFloat} 10s ease-in-out infinite`};
+  animation-delay: ${props => (props.index || 0) * 0.15}s;
   
   &:hover {
-    border-color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#60a5fa' : '#0364ff'};
-    box-shadow: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-      ? '0 4px 12px rgba(96, 165, 250, 0.2)' 
-      : '0 4px 12px rgba(3, 100, 255, 0.1)'};
-    transform: translateY(-2px);
+    border-color: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') 
+        ? '#60a5fa' 
+        : '#0364ff'
+    };
+    transform: perspective(800px) translateY(-12px) rotateX(8deg) rotateY(5deg) scale(1.02);
+    box-shadow: 
+      0 25px 60px ${props => 
+        (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+          ? 'rgba(96, 165, 250, 0.3)' 
+          : 'rgba(3, 100, 255, 0.2)'
+      },
+      0 12px 32px rgba(0, 0, 0, 0.15),
+      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  }
+  
+  &:active {
+    transform: perspective(800px) translateY(-8px) rotateX(4deg) rotateY(2deg) scale(0.98);
+  }
+  
+  // Shimmer effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.6s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  &:hover::before {
+    left: 100%;
   }
 `;
 
@@ -397,33 +872,111 @@ export const FolderHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
 `;
 
 export const FolderIcon = styled.div`
-  font-size: 24px;
-  margin-right: 12px;
+  font-size: 2rem;
+  margin-right: 1rem;
+  padding: 0.75rem;
+  border-radius: 50%;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(96, 165, 250, 0.2)'
+      : 'rgba(3, 100, 255, 0.1)'
+  };
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(96, 165, 250, 0.3)'
+      : 'rgba(3, 100, 255, 0.2)'
+  };
+  backdrop-filter: blur(10px);
+  
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(400px) rotateY(15deg) rotateX(5deg);
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(96, 165, 250, 0.3)'
+        : 'rgba(3, 100, 255, 0.2)'
+    };
+  }
 `;
 
 export const FolderName = styled.div`
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 1.125rem;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#f3f4f6' : '#111827'};
   flex: 1;
+  position: relative;
+  
+  // 3D text effect
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'linear-gradient(135deg, #f3f4f6, #d1d5db)'
+      : 'linear-gradient(135deg, #111827, #4b5563)'
+  };
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  text-shadow: 
+    1px 1px 2px rgba(0, 0, 0, 0.1),
+    0 0 10px rgba(0, 0, 0, 0.05);
+  
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: perspective(400px) rotateX(3deg) scale(1.02);
+    text-shadow: 
+      2px 2px 4px rgba(0, 0, 0, 0.15),
+      0 0 15px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 export const FolderStats = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 2;
 `;
 
 export const FolderStat = styled.div`
-  font-size: 13px;
+  font-size: 0.875rem;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#9ca3af' : '#6b7280'};
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  background: ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(156, 163, 175, 0.1)'
+      : 'rgba(107, 114, 128, 0.1)'
+  };
+  backdrop-filter: blur(8px);
+  border: 1px solid ${props => 
+    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+      ? 'rgba(156, 163, 175, 0.2)'
+      : 'rgba(107, 114, 128, 0.2)'
+  };
+  
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+  
+  &:hover {
+    transform: perspective(300px) translateY(-1px) rotateX(2deg);
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(156, 163, 175, 0.2)'
+        : 'rgba(107, 114, 128, 0.2)'
+    };
+  }
 `;
 
 export const ViewModeToggle = styled.div`
