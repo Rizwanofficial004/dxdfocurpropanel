@@ -396,13 +396,7 @@ export const Cards = () => {
       change: `↑ 10% ${t('thanLastYear')}`,
       changeType: "positive"
     },
-    {
-      icon: "🏖️",
-      title: t('onLeaveEmployee'),
-      number: "55",
-      change: `↑ 2.15% ${t('thanLastMonth')}`,
-      changeType: "positive"
-    },
+  
     {
       icon: "⚙️",
       title: t('totalProject'),
@@ -417,34 +411,9 @@ export const Cards = () => {
       change: `↓ 5.5% ${t('thanLastMonth')}`,
       changeType: "negative"
     },
-    {
-      icon: "👥",
-      title: t('totalClient'),
-      number: "151",
-      change: `↑ 2.15% ${t('thanLastMonth')}`,
-      changeType: "positive"
-    },
-    {
-      icon: "📈",
-      title: t('totalRevenue'),
-      number: "$55",
-      change: `↑ 2.15% ${t('thanLastMonth')}`,
-      changeType: "positive"
-    },
-    {
-      icon: "💼",
-      title: t('totalJobs'),
-      number: "55",
-      change: `↑ 2.15% ${t('thanLastMonth')}`,
-      changeType: "positive"
-    },
-    {
-      icon: "🎫",
-      title: t('totalTicket'),
-      number: "55",
-      change: `↑ 2.15% ${t('thanLastMonth')}`,
-      changeType: "positive"
-    }
+  
+
+
   ];
 
   return (

@@ -1393,34 +1393,7 @@ const FocusTimeline = () => {
           </CategorySection>
 
           {/* Original Timeline Activities */}
-          <CategorySection>
-            <CategoryTitle>
-              🕒 Recent Activities
-            </CategoryTitle>
-            <Timeline>
-              {activities.filter((act) =>
-                act.title.toLowerCase().includes(search.toLowerCase())
-              ).map((item, index) => (
-                <TimelineItem key={index}>
-                  <Icon>
-                    <i className="fas fa-bag-shopping"></i>
-                  </Icon>
-                  <Content>
-                    <TitleText>{item.title}</TitleText>
-                    <Subtitle dangerouslySetInnerHTML={{ __html: item.subtitle }} />
-                    {item.media.length > 0 && (
-                      <Media>
-                        {item.media.map((src, i) => (
-                          <img key={i} src={src} alt="" />
-                        ))}
-                      </Media>
-                    )}
-                  </Content>
-                  <Badge>{item.time}</Badge>
-                </TimelineItem>
-              ))}
-            </Timeline>
-          </CategorySection>
+     
         </>
       )}
     </Wrapper>

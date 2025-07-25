@@ -2407,47 +2407,7 @@ const ActivityStream = () => {
         {/* Debug Tools for Level 3 Image Loading */}
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
   
-{/*           
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🔍 Opening first presigned URL in new tab...');
-              const firstScreenshot = folderScreenshots.find(s => s.presigned_url);
-              if (firstScreenshot) {
-                console.log('Opening URL:', firstScreenshot.presigned_url);
-                window.open(firstScreenshot.presigned_url, '_blank');
-              } else {
-                console.log('❌ No presigned URL found');
-              }
-            }}
-          >
-            🔗 Open First URL
-          </Button> */}
-          
-          {/* <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-             
-            }}
-          >
-            📊 Data Summary
-          </Button> */}
-          
-          {/* <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🔍 URL DEBUG INFO FOR ALL SCREENSHOTS:');
-              folderScreenshots.forEach((screenshot, index) => {
-                const formattedData = formatScreenshotData(screenshot, index);
-              
-              });
-            }}
-          >
-            🔍 Debug URLs
-          </Button> */}
+
         </div>
         
         {/* Per-page limit selector */}
@@ -2485,7 +2445,8 @@ const ActivityStream = () => {
           {folderScreenshots.map((screenshot, i) => {
             const formattedData = formatScreenshotData(screenshot, i);
             return (
-              <Card 
+         <>
+             <Card 
                 ref={el => cardsRef.current[i] = el}
                 theme={theme} 
                 isDarkMode={isDarkMode} 
@@ -2515,21 +2476,8 @@ const ActivityStream = () => {
                   🔗 Image URL: {formattedData.image || screenshot.presigned_url || screenshot.url || screenshot.s3_key || 'No URL found'}
                 </ImageUrl>
                 
-                {/* Debug: Show actual URL values */}
-                {/* <div style={{ fontSize: '8px', color: '#6b7280', marginTop: '2px', fontFamily: 'monospace', wordBreak: 'break-all', backgroundColor: '#f9fafb', padding: '4px', borderRadius: '2px' }}>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>formattedData.image:</strong> {formattedData.image || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.presigned_url:</strong> {screenshot.presigned_url || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.url:</strong> {screenshot.url || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.s3_key:</strong> {screenshot.s3_key || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.filename:</strong> {screenshot.filename || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>DEBUG TYPE:</strong> {typeof screenshot.presigned_url}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>DEBUG VALUE:</strong> {JSON.stringify(screenshot.presigned_url)}</div>
-                </div> */}
-                
-                {/* Enhanced status badge with WebP info */}
-                {/* <BackendStatusBadge status="connected">
-                  ✅ WebP S3 Screenshot ({screenshot.file_extension || '.webp'})
-                </BackendStatusBadge> */}
+             
+   
                 
                 {/* Additional WebP metadata */}
                 {screenshot.size_mb && (
@@ -2542,7 +2490,8 @@ const ActivityStream = () => {
                     Size: {screenshot.size_mb} MB
                   </div>
                 )}
-              </Card>
+              </Card> 
+         </>
             );
           })}
         </CardGrid>
@@ -2622,7 +2571,7 @@ const ActivityStream = () => {
                   </DateItem>
                 );
               })}
-              <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handleNext}>&gt;</Arrow>
+              <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handleNext}></Arrow>
             </DateScrollContainer>
 
             <Autocomplete
