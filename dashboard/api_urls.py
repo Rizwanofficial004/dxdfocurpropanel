@@ -10,6 +10,8 @@ from . import project_management_apis
 from . import ai_project_categorization_apis
 from . import accurate_project_status_apis
 from . import static_crm_status_apis
+from . import comprehensive_employees_api  # NEW: Import comprehensive employee API
+from .api.enhanced_employees_api import enhanced_employees_api  # NEW: Import enhanced employee API function
 # Import the main modules from the project root
 import sys
 import os
@@ -120,6 +122,14 @@ urlpatterns = [
     path('dashboard/analytics/completed-projects/', dashboard_analytics_apis.completed_projects_api, name='api_completed_projects'),
     path('dashboard/analytics/tasks/', dashboard_analytics_apis.total_tasks_api, name='api_total_tasks'),
     path('dashboard/analytics/summary/', dashboard_analytics_apis.dashboard_summary_api, name='api_dashboard_summary'),
+    
+    # ==================== COMPREHENSIVE EMPLOYEES APIs ====================
+    # NEW: Comprehensive employee management endpoints
+    path('dashboard/employees/comprehensive/', comprehensive_employees_api.comprehensive_employees_api, name='api_comprehensive_employees'),
+    path('dashboard/employees/profile/<str:employee_id>/', comprehensive_employees_api.employee_profile_api, name='api_employee_profile'),
+    
+    # Enhanced Employee API - NEW: CRM + S3 + AI Enhanced
+    path('dashboard/employees/enhanced/', enhanced_employees_api, name='api_enhanced_employees'),
     
     # ==================== PROJECT MANAGEMENT APIs ====================
     # CRM Project management endpoints
