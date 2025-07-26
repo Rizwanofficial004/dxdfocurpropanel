@@ -10,8 +10,20 @@ from . import project_management_apis
 from . import ai_project_categorization_apis
 from . import accurate_project_status_apis
 from . import static_crm_status_apis
-import comprehensive_project_status_api
-import step2_comprehensive_database_api
+# Import the main modules from the project root
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+try:
+    import comprehensive_project_status_api
+except ImportError:
+    comprehensive_project_status_api = None
+try:
+    import step2_comprehensive_database_api
+    HAS_DATABASE_API = True
+except ImportError:
+    step2_comprehensive_database_api = None
+    HAS_DATABASE_API = False
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -133,19 +145,19 @@ urlpatterns = [
     
     # ==================== COMPREHENSIVE PROJECT STATUS API ====================
     # Single comprehensive API with multiple response formats
-    path('projects/status/', comprehensive_project_status_api.comprehensive_project_status_api, name='api_comprehensive_project_status'),
+    # path('projects/status/', comprehensive_project_status_api.comprehensive_project_status_api, name='api_comprehensive_project_status'),
     
     # ==================== COMPREHENSIVE DATABASE API ====================
     # AI-powered comprehensive database search and analytics
-    path('database/comprehensive/', step2_comprehensive_database_api.comprehensive_database_api, name='api_comprehensive_database'),
-    path('database/dashboard/', step2_comprehensive_database_api.quick_dashboard_api, name='api_quick_dashboard'),
-    path('database/projects/', step2_comprehensive_database_api.projects_only_api, name='api_projects_only'),
-    
-    # Legacy compatibility endpoints
-    path('projects/legacy/simple-counts/', comprehensive_project_status_api.simple_dashboard_counts_api, name='api_legacy_simple_counts'),
-    path('projects/legacy/static-status/', comprehensive_project_status_api.static_crm_status_api, name='api_legacy_static_status'),
-    path('projects/legacy/status-breakdown/', comprehensive_project_status_api.crm_status_breakdown_api, name='api_legacy_status_breakdown'),
 ]
+
+# Add database API endpoints if available
+if HAS_DATABASE_API and step2_comprehensive_database_api:
+    urlpatterns += [
+        path('database/comprehensive/', step2_comprehensive_database_api.comprehensive_database_api, name='api_comprehensive_database'),
+        path('database/dashboard/', step2_comprehensive_database_api.quick_dashboard_api, name='api_quick_dashboard'),
+        path('database/projects/', step2_comprehensive_database_api.projects_only_api, name='api_projects_only'),
+    ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
