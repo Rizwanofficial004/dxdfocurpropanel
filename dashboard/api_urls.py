@@ -5,6 +5,13 @@ from .date_based_live_tracking_api import live_tracking_screenshots_by_date_api
 from . import screenshots_search_api
 from . import settings_apis
 from . import enhanced_api_views
+from . import dashboard_analytics_apis
+from . import project_management_apis
+from . import ai_project_categorization_apis
+from . import accurate_project_status_apis
+from . import static_crm_status_apis
+import comprehensive_project_status_api
+import step2_comprehensive_database_api
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -93,6 +100,51 @@ urlpatterns = [
     path('configurations/<int:config_id>/', api_views.configuration_settings_api, name='api_configuration_detail'),
     path('configurations/type/<str:config_type>/', api_views.configuration_by_type_api, name='api_configuration_by_type'),
     path('configurations/name/<str:config_name>/', api_views.configuration_by_name_api, name='api_configuration_by_name'),
+    
+    # ==================== DASHBOARD ANALYTICS APIs ====================
+    # Dashboard metrics endpoints for admin dashboard
+    path('dashboard/analytics/employees/', dashboard_analytics_apis.total_employees_api, name='api_total_employees'),
+    path('dashboard/analytics/projects/', dashboard_analytics_apis.total_projects_api, name='api_total_projects'),
+    path('dashboard/analytics/completed-projects/', dashboard_analytics_apis.completed_projects_api, name='api_completed_projects'),
+    path('dashboard/analytics/tasks/', dashboard_analytics_apis.total_tasks_api, name='api_total_tasks'),
+    path('dashboard/analytics/summary/', dashboard_analytics_apis.dashboard_summary_api, name='api_dashboard_summary'),
+    
+    # ==================== PROJECT MANAGEMENT APIs ====================
+    # CRM Project management endpoints
+    path('projects/', project_management_apis.get_all_projects_api, name='api_get_all_projects'),
+    path('projects/summary/', project_management_apis.get_projects_summary_api, name='api_get_projects_summary'),
+    path('projects/<str:project_id>/', project_management_apis.get_project_by_id_api, name='api_get_project_by_id'),
+    
+    # ==================== AI PROJECT CATEGORIZATION APIs ====================
+    # AI-powered project status categorization using OpenAI
+    path('projects/ai-categorization/', ai_project_categorization_apis.ai_project_categorization_api, name='api_ai_project_categorization'),
+    path('projects/status-summary/', ai_project_categorization_apis.project_status_summary_api, name='api_project_status_summary'),
+    
+    # ==================== ACCURATE PROJECT STATUS APIs ====================
+    # Accurate CRM status mapping to match dashboard exactly
+    path('projects/accurate-status/', accurate_project_status_apis.accurate_project_status_api, name='api_accurate_project_status'),
+    path('projects/dashboard-summary/', accurate_project_status_apis.dashboard_status_summary_api, name='api_dashboard_status_summary'),
+    
+    # ==================== STATIC CRM STATUS APIs ====================
+    # Static CRM database status counts - no dynamic logic, pure database data
+    path('projects/static-status/', static_crm_status_apis.static_crm_status_api, name='api_static_crm_status'),
+    path('projects/simple-counts/', static_crm_status_apis.simple_dashboard_counts_api, name='api_simple_dashboard_counts'),
+    path('projects/status-breakdown/', static_crm_status_apis.crm_status_breakdown_api, name='api_crm_status_breakdown'),
+    
+    # ==================== COMPREHENSIVE PROJECT STATUS API ====================
+    # Single comprehensive API with multiple response formats
+    path('projects/status/', comprehensive_project_status_api.comprehensive_project_status_api, name='api_comprehensive_project_status'),
+    
+    # ==================== COMPREHENSIVE DATABASE API ====================
+    # AI-powered comprehensive database search and analytics
+    path('database/comprehensive/', step2_comprehensive_database_api.comprehensive_database_api, name='api_comprehensive_database'),
+    path('database/dashboard/', step2_comprehensive_database_api.quick_dashboard_api, name='api_quick_dashboard'),
+    path('database/projects/', step2_comprehensive_database_api.projects_only_api, name='api_projects_only'),
+    
+    # Legacy compatibility endpoints
+    path('projects/legacy/simple-counts/', comprehensive_project_status_api.simple_dashboard_counts_api, name='api_legacy_simple_counts'),
+    path('projects/legacy/static-status/', comprehensive_project_status_api.static_crm_status_api, name='api_legacy_static_status'),
+    path('projects/legacy/status-breakdown/', comprehensive_project_status_api.crm_status_breakdown_api, name='api_legacy_status_breakdown'),
 ]
 
 if settings.DEBUG:

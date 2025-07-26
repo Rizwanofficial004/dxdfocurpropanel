@@ -1,0 +1,107 @@
+{
+  "analysis_time": "2025-07-26T13:04:04.526688",
+  "total_projects": 289,
+  "dashboard_targets": {
+    "not_started": 2,
+    "in_progress": 34,
+    "onhold": 4,
+    "cancel": 6,
+    "finished": 243
+  },
+  "crm_status_distribution": {
+    "2": 34,
+    "1": 2,
+    "3": 4,
+    "4": 243,
+    "5": 6
+  },
+  "sample_projects": {
+    "2": [
+      {
+        "id": "326",
+        "name": "Freelancing Project Hunting",
+        "progress": "0"
+      },
+      {
+        "id": "325",
+        "name": "Corpayss Website ",
+        "progress": "0"
+      },
+      {
+        "id": "324",
+        "name": "LeadsHunter",
+        "progress": "0"
+      }
+    ],
+    "1": [
+      {
+        "id": "320",
+        "name": "DDSSolution.io wordpress website",
+        "progress": "0"
+      },
+      {
+        "id": "308",
+        "name": "kariyerask.com/.net",
+        "progress": "0"
+      }
+    ],
+    "3": [
+      {
+        "id": "309",
+        "name": "Ecosse Döner 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi ,Seo Yönetimi ve Web Geliştirme",
+        "progress": "60"
+      },
+      {
+        "id": "302",
+        "name": "DK HAİR LOUNGE 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi ,Seo Yönetimi ve Web Geliştirme",
+        "progress": "0"
+      },
+      {
+        "id": "278",
+        "name": "HMG 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi, Seo Yönetimi ve Web Geliştirme",
+        "progress": "89"
+      }
+    ],
+    "4": [
+      {
+        "id": "296",
+        "name": "FUNKY CAFE & FUNKY MONKEY 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi ,Seo Yönetimi ve Web Geliştirme",
+        "progress": "50"
+      },
+      {
+        "id": "295",
+        "name": "Cyprusnumerology 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi ,Seo Yönetimi ve Web Geliştirme",
+        "progress": "40"
+      },
+      {
+        "id": "292",
+        "name": "Kavaz 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi ,Seo Yönetimi ve Web Geliştirme",
+        "progress": "100"
+      }
+    ],
+    "5": [
+      {
+        "id": "281",
+        "name": "ESEstates 2025 Yılı Genel Grafik, İçerik Üretim ve Sosyal Medya Tasarımı Reklam Yönetimi, Seo Yönetimi ve Web Geliştirme",
+        "progress": "57"
+      },
+      {
+        "id": "255",
+        "name": "Elegance Candle Genel Grafik Tasarım & İçerik Üretimi Kasım 2024",
+        "progress": "0"
+      },
+      {
+        "id": "182",
+        "name": "Op. Dr. Türker Özyiğit Mart 2024 Genel Grafik Tasarım, İçerik Üretim ve Sosyal Medya Yönetimi Tasarım Çalışmaları",
+        "progress": "0"
+      }
+    ]
+  },
+  "current_mapping_results": {
+    "not_started_count": 2,
+    "in_progress_count": 34,
+    "onhold_count": 4,
+    "cancel_count": 6,
+    "finished_count": 243
+  }
+}
