@@ -38,168 +38,76 @@ import {
   StatLabel
 } from '../components/employees/Employees.styles';
 
-// Generate dummy employees data
-const generateEmployeesData = () => {
-  const employees = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@company.com',
-      phone: '+1 (555) 123-4567',
-      jobTitle: 'Senior Frontend Developer',
-      department: 'Engineering',
-      hourlyRate: 85,
-      rating: 4.8,
-      status: 'Active',
-      joinDate: '2022-01-15',
-      location: 'New York, NY'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@company.com',
-      phone: '+1 (555) 234-5678',
-      jobTitle: 'Digital Marketing Manager',
-      department: 'Marketing',
-      hourlyRate: 75,
-      rating: 4.6,
-      status: 'Active',
-      joinDate: '2021-03-22',
-      location: 'Los Angeles, CA'
-    },
-    {
-      id: 3,
-      name: 'Mike Davis',
-      email: 'mike.davis@company.com',
-      phone: '+1 (555) 345-6789',
-      jobTitle: 'Financial Analyst',
-      department: 'Finance',
-      hourlyRate: 70,
-      rating: 4.4,
-      status: 'Active',
-      joinDate: '2021-11-08',
-      location: 'Chicago, IL'
-    },
-    {
-      id: 4,
-      name: 'Emily Wilson',
-      email: 'emily.wilson@company.com',
-      phone: '+1 (555) 456-7890',
-      jobTitle: 'HR Specialist',
-      department: 'Human Resources',
-      hourlyRate: 65,
-      rating: 4.9,
-      status: 'Active',
-      joinDate: '2020-07-12',
-      location: 'Austin, TX'
-    },
-    {
-      id: 5,
-      name: 'David Brown',
-      email: 'david.brown@company.com',
-      phone: '+1 (555) 567-8901',
-      jobTitle: 'Backend Developer',
-      department: 'Engineering',
-      hourlyRate: 80,
-      rating: 4.7,
-      status: 'Active',
-      joinDate: '2021-09-30',
-      location: 'Seattle, WA'
-    },
-    {
-      id: 6,
-      name: 'Lisa Anderson',
-      email: 'lisa.anderson@company.com',
-      phone: '+1 (555) 678-9012',
-      jobTitle: 'DevOps Engineer',
-      department: 'Engineering',
-      hourlyRate: 90,
-      rating: 4.5,
-      status: 'Active',
-      joinDate: '2020-12-03',
-      location: 'San Francisco, CA'
-    },
-    {
-      id: 7,
-      name: 'Tom Wilson',
-      email: 'tom.wilson@company.com',
-      phone: '+1 (555) 789-0123',
-      jobTitle: 'Sales Manager',
-      department: 'Sales',
-      hourlyRate: 72,
-      rating: 4.3,
-      status: 'Active',
-      joinDate: '2019-05-18',
-      location: 'Miami, FL'
-    },
-    {
-      id: 8,
-      name: 'Anna Taylor',
-      email: 'anna.taylor@company.com',
-      phone: '+1 (555) 890-1234',
-      jobTitle: 'Product Designer',
-      department: 'Design',
-      hourlyRate: 78,
-      rating: 4.8,
-      status: 'Active',
-      joinDate: '2022-02-14',
-      location: 'Portland, OR'
-    },
-    {
-      id: 9,
-      name: 'Chris Martin',
-      email: 'chris.martin@company.com',
-      phone: '+1 (555) 901-2345',
-      jobTitle: 'Data Scientist',
-      department: 'Analytics',
-      hourlyRate: 95,
-      rating: 4.9,
-      status: 'Active',
-      joinDate: '2021-08-07',
-      location: 'Boston, MA'
-    },
-    {
-      id: 10,
-      name: 'Jessica Lee',
-      email: 'jessica.lee@company.com',
-      phone: '+1 (555) 012-3456',
-      jobTitle: 'Content Strategist',
-      department: 'Marketing',
-      hourlyRate: 68,
-      rating: 4.6,
-      status: 'Active',
-      joinDate: '2020-10-25',
-      location: 'Denver, CO'
-    },
-    {
-      id: 11,
-      name: 'Robert Garcia',
-      email: 'robert.garcia@company.com',
-      phone: '+1 (555) 123-0456',
-      jobTitle: 'QA Engineer',
-      department: 'Engineering',
-      hourlyRate: 73,
-      rating: 4.4,
-      status: 'Active',
-      joinDate: '2021-06-14',
-      location: 'Phoenix, AZ'
-    },
-    {
-      id: 12,
-      name: 'Amy Rodriguez',
-      email: 'amy.rodriguez@company.com',
-      phone: '+1 (555) 234-1567',
-      jobTitle: 'Business Analyst',
-      department: 'Operations',
-      hourlyRate: 71,
-      rating: 4.7,
-      status: 'Active',
-      joinDate: '2020-04-09',
-      location: 'Atlanta, GA'
+// Fetch REAL employees data from your working API
+const fetchEmployeesFromAPI = async () => {
+  try {
+    console.log('🚀 Fetching REAL employees from your CRM API...');
+    const apiUrl = 'http://127.0.0.1:8000/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed';
+    console.log('📡 API URL:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+      },
+    });
+    
+    console.log('📡 Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-  ];
-
-  return employees;
+    
+    const data = await response.json();
+    console.log('📊 Complete API Response:', data);
+    
+    if (data.success && data.data && data.data.employees && Array.isArray(data.data.employees)) {
+      console.log(`✅ Found ${data.data.employees.length} REAL employees from CRM`);
+      console.log('📋 First employee sample:', data.data.employees[0]);
+      
+      // Transform REAL API data from your CRM system - EXACT field mapping
+      const transformedEmployees = data.data.employees.map((employee, index) => {
+        console.log(`🔄 Processing employee ${index + 1}: ${employee.full_name}`);
+        console.log('Raw employee data:', employee);
+        
+        return {
+          id: employee.id,
+          name: employee.full_name,
+          email: employee.email, // Direct field name from API
+          phone: employee.phone, // Direct field name from API  
+          jobTitle: employee.job_title, // Direct field name from API
+          department: employee.department,
+          hourlyRate: parseFloat(employee.hourly_rate || 0),
+          rating: parseFloat(employee.rating || 0),
+          status: employee.is_active ? 'Active' : 'Inactive',
+          joinDate: employee.join_date,
+          location: employee.location || employee.nation || 'Not specified',
+          avatar: employee.avatar_url && employee.avatar_url !== 'null' && !employee.avatar_url.includes('ui-avatars.com') ? 
+            employee.avatar_url : null,
+          initials: employee.initials || employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase(),
+          staff_id: employee.staff_id,
+          performance_score: parseFloat(employee.performance_score || 0),
+          ai_insights: employee.ai_insights || [],
+          is_logged_in: employee.is_logged_in || false,
+          last_activity: employee.last_activity,
+          currency: employee.currency || 'USD'
+        };
+      });
+      
+      console.log(`🎉 Successfully transformed ${transformedEmployees.length} REAL employees`);
+      console.log('📊 Sample transformed employee:', transformedEmployees[0]);
+      return transformedEmployees;
+      
+    } else {
+      console.error('❌ Invalid API response structure:', data);
+      throw new Error('Invalid API response format');
+    }
+  } catch (error) {
+    console.error('❌ Failed to fetch REAL employee data:', error);
+    throw new Error(`API Error: ${error.message}`);
+  }
 };
 
 // Animated Counter Component
@@ -305,37 +213,78 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
       onMouseLeave={handleMouseLeave}
     >
       <EmployeeAvatar className="employee-avatar">
-        <span>{employee.name.split(' ').map(n => n[0]).join('')}</span>
+        {employee.avatar ? (
+          <img 
+            src={employee.avatar} 
+            alt={employee.name}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              objectFit: 'cover'
+            }}
+            onError={(e) => {
+              // Fallback to initials if image fails to load
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        <span style={{ 
+          display: employee.avatar ? 'none' : 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#6366f1',
+          color: 'white',
+          fontSize: '18px',
+          fontWeight: 'bold'
+        }}>
+          {employee.initials}
+        </span>
       </EmployeeAvatar>
 
       <EmployeeInfo className="employee-info">
         <EmployeeName isDarkMode={isDarkMode}>{employee.name}</EmployeeName>
-        <EmployeeTitle isDarkMode={isDarkMode}>{employee.jobTitle}</EmployeeTitle>
-        <EmployeeEmail isDarkMode={isDarkMode}>{employee.email}</EmployeeEmail>
-        <EmployeeContact isDarkMode={isDarkMode}>{employee.phone}</EmployeeContact>
+        <EmployeeTitle isDarkMode={isDarkMode}>{employee.jobTitle || 'No Title'}</EmployeeTitle>
+        <EmployeeEmail isDarkMode={isDarkMode}>{employee.email || 'No Email'}</EmployeeEmail>
+        <EmployeeContact isDarkMode={isDarkMode}>{employee.phone || 'No Phone'}</EmployeeContact>
       </EmployeeInfo>
 
       <EmployeeDetails>
         <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>Hourly Rate</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>${employee.hourlyRate}/hr</DetailValue>
-        </DetailItem>
-        <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>Department</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>{employee.department}</DetailValue>
-        </DetailItem>
-        <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>Location</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>{employee.location}</DetailValue>
-        </DetailItem>
-        <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>Join Date</DetailLabel>
+          <DetailLabel isDarkMode={isDarkMode}>💰 Hourly Rate</DetailLabel>
           <DetailValue isDarkMode={isDarkMode}>
-            {new Date(employee.joinDate).toLocaleDateString('en-US', { 
+            {employee.hourlyRate > 0 ? `$${employee.hourlyRate.toFixed(2)}/hr` : 'Not Set'}
+          </DetailValue>
+        </DetailItem>
+        <DetailItem isDarkMode={isDarkMode}>
+          <DetailLabel isDarkMode={isDarkMode}>🏢 Department</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode}>{employee.department || 'Not Assigned'}</DetailValue>
+        </DetailItem>
+        <DetailItem isDarkMode={isDarkMode}>
+          <DetailLabel isDarkMode={isDarkMode}>📍 Location</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode}>{employee.location || 'Not Specified'}</DetailValue>
+        </DetailItem>
+        <DetailItem isDarkMode={isDarkMode}>
+          <DetailLabel isDarkMode={isDarkMode}>📅 Join Date</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode}>
+            {employee.joinDate ? new Date(employee.joinDate).toLocaleDateString('en-US', { 
               month: 'short', 
               day: 'numeric', 
               year: 'numeric' 
-            })}
+            }) : 'Not Available'}
+          </DetailValue>
+        </DetailItem>
+        <DetailItem isDarkMode={isDarkMode}>
+          <DetailLabel isDarkMode={isDarkMode}>🆔 Staff ID</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode}>{employee.staff_id || 'No ID'}</DetailValue>
+        </DetailItem>
+        <DetailItem isDarkMode={isDarkMode}>
+          <DetailLabel isDarkMode={isDarkMode}>📊 Performance</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode}>
+            {employee.performance_score ? `${employee.performance_score.toFixed(1)}%` : 'No Data'}
           </DetailValue>
         </DetailItem>
       </EmployeeDetails>
@@ -443,38 +392,77 @@ const Employees = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
 
-  // Generate employees data on component mount
+  // Fetch REAL employees data from API on component mount
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      const dummyData = generateEmployeesData();
-      setEmployeesData(dummyData);
-      setLoading(false);
-    }, 1500);
+    const loadRealEmployees = async () => {
+      setLoading(true);
+      try {
+        console.log('🔄 Loading REAL employee data from your CRM API...');
+        const realEmployeesData = await fetchEmployeesFromAPI();
+        console.log(`🎉 Successfully loaded ${realEmployeesData.length} REAL employees from CRM`);
+        console.log('📋 Real employee names:', realEmployeesData.map(emp => emp.name));
+        setEmployeesData(realEmployeesData);
+      } catch (error) {
+        console.error('❌ Failed to load REAL employee data:', error);
+        alert(`❌ Failed to load employee data: ${error.message}\n\nPlease ensure your Django server is running on port 8000.`);
+        setEmployeesData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRealEmployees();
   }, []);
 
-  // Calculate statistics
+  // Calculate statistics with proper null handling
   const stats = {
-    totalEmployees: employeesData.length,
+    totalEmployees: employeesData.length || 0,
     averageRating: employeesData.length > 0 ? 
-      (employeesData.reduce((sum, emp) => sum + emp.rating, 0) / employeesData.length) : 0,
+      Number((employeesData.reduce((sum, emp) => sum + (emp.rating || 0), 0) / employeesData.length).toFixed(1)) : 0,
     averageHourlyRate: employeesData.length > 0 ? 
-      Math.round(employeesData.reduce((sum, emp) => sum + emp.hourlyRate, 0) / employeesData.length) : 0,
-    departments: new Set(employeesData.map(emp => emp.department)).size
+      Math.round(employeesData.filter(emp => emp.hourlyRate > 0).reduce((sum, emp) => sum + (emp.hourlyRate || 0), 0) / 
+        Math.max(employeesData.filter(emp => emp.hourlyRate > 0).length, 1)) : 0,
+    departments: new Set(employeesData.map(emp => emp.department).filter(dept => dept && dept !== 'null')).size || 0
   };
 
-  // Filter data based on search and filters
+  console.log('📊 Current Statistics:', stats);
+  console.log('📊 Employees Data Length:', employeesData.length);
+  console.log('📊 Sample Employee:', employeesData[0]);
+
+  // Filter data based on search and filters with null checks
   const filteredData = employeesData.filter(employee => {
-    const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         employee.jobTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = departmentFilter === 'All' || employee.department === departmentFilter;
+    if (!employee) return false;
+    
+    const name = employee.name || '';
+    const email = employee.email || '';
+    const jobTitle = employee.jobTitle || '';
+    const department = employee.department || '';
+    
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         jobTitle.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDepartment = departmentFilter === 'All' || department === departmentFilter;
     
     return matchesSearch && matchesDepartment;
   });
 
-  // Get unique departments for filter
-  const departments = ['All', ...new Set(employeesData.map(emp => emp.department))];
+  // Get unique departments for filter (excluding null/undefined)
+  const departments = ['All', ...new Set(employeesData.map(emp => emp.department).filter(dept => dept))];
+
+  const handleRefreshData = async () => {
+    console.log('🔄 Manual refresh requested...');
+    setLoading(true);
+    try {
+      const freshData = await fetchEmployeesFromAPI();
+      setEmployeesData(freshData);
+      alert(`✅ Successfully refreshed! Loaded ${freshData.length} employees from CRM database.`);
+    } catch (error) {
+      console.error('❌ Manual refresh failed:', error);
+      alert(`❌ Refresh failed: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleView = (employeeId) => {
     console.log('View employee:', employeeId);
@@ -501,10 +489,15 @@ const Employees = () => {
           {/* Header Section */}
           <EmployeesHeader>
             <EmployeesTitle isDarkMode={isDarkMode}>
-              👥 Employee Management Dashboard
+              👥 Employee Management Dashboard - REAL DATABASE DATA
             </EmployeesTitle>
             <EmployeesSubtitle isDarkMode={isDarkMode}>
-              Manage your team with comprehensive employee profiles and insights
+              {loading ? 
+                "🔄 Loading real employee data from CRM API..." :
+                employeesData.length > 0 ? 
+                  `📊 Displaying ${employeesData.length} employees from your CRM database (Zahra H, Yunus Katırcı, Mehmet Fatih Önk, Hamza Haseeb, etc.)` :
+                  "❌ No employee data found - Check API connection"
+              }
             </EmployeesSubtitle>
           </EmployeesHeader>
 
@@ -544,7 +537,7 @@ const Employees = () => {
             />
           </StatsSummary>
 
-          {/* Filters */}
+          {/* Filters and Controls */}
           <FilterSection>
             <FilterInput
               type="text"
@@ -564,6 +557,23 @@ const Employees = () => {
                 </option>
               ))}
             </FilterSelect>
+            <button
+              onClick={handleRefreshData}
+              disabled={loading}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                fontSize: '14px',
+                marginLeft: '10px'
+              }}
+            >
+              {loading ? '🔄 Loading...' : '🔄 Refresh Real Data'}
+            </button>
           </FilterSection>
 
           {/* Employees Grid */}
