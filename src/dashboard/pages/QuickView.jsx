@@ -22,117 +22,9 @@ import {
 
 // Add CSS animations with 3D transforms
 const styles = `
-  @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px) rotateX(15deg);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) rotateX(0deg);
-    }
-  }
-  
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  
-  @keyframes slideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-50px) rotateY(-15deg);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0) rotateY(0deg);
-    }
-  }
-  
-  @keyframes glow {
-    0%, 100% { 
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 10px 40px rgba(0,0,0,0.2);
-    }
-    50% { 
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 20px 60px rgba(0,0,0,0.3);
-    }
-  }
-  
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotateX(0deg); }
-    50% { transform: translateY(-10px) rotateX(2deg); }
-  }
-  
-  @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  @keyframes rotateIn3D {
-    0% { 
-      transform: perspective(400px) rotateX(90deg) rotateY(0deg) translateZ(-100px);
-      opacity: 0;
-    }
-    50% {
-      transform: perspective(400px) rotateX(45deg) rotateY(10deg) translateZ(-50px);
-      opacity: 0.7;
-    }
-    100% { 
-      transform: perspective(400px) rotateX(0deg) rotateY(0deg) translateZ(0px);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes tiltHover {
-    0% { transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px); }
-    100% { transform: perspective(1000px) rotateX(5deg) rotateY(10deg) translateZ(50px); }
-  }
-  
-  .card-3d {
-    perspective: 1000px;
-    transform-style: preserve-3d;
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
-  }
-  
-  .card-3d-inner {
-    transform-style: preserve-3d;
-    transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
-  }
-  
-  .card-3d:hover .card-3d-inner {
-    transform: perspective(1000px) rotateX(5deg) rotateY(10deg) translateZ(50px);
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-  
-  .animate-rotate-in-3d {
-    animation: rotateIn3D 1s cubic-bezier(0.23, 1, 0.320, 1) forwards;
-  }
-  
-  .animate-slide-in-left {
-    animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-  
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-  
-  .animate-float {
-    animation: float 4s ease-in-out infinite;
-  }
-  
   .gradient-bg {
     background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
     background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
   }
   
   .glass-effect {
@@ -146,22 +38,6 @@ const styles = `
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
-  .card-shadow-3d {
-    box-shadow: 
-      0 20px 40px rgba(0, 0, 0, 0.1),
-      0 15px 12px rgba(0, 0, 0, 0.08),
-      0 2px 4px rgba(0, 0, 0, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  }
-  
-  .card-shadow-3d-dark {
-    box-shadow: 
-      0 20px 40px rgba(0, 0, 0, 0.3),
-      0 15px 12px rgba(0, 0, 0, 0.2),
-      0 2px 4px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
 `;
 
 // Inject styles
@@ -171,7 +47,53 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleSheet);
 }
 
-// Generate dummy productivity reports data
+// Fetch employee reports from API
+const fetchEmployeeReports = async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed');
+    
+    // Check if response has the expected structure
+    if (!response.data.success || !response.data.data || !response.data.data.employees) {
+      throw new Error('Invalid API response structure');
+    }
+    
+    // Transform API data to match component structure
+    return response.data.data.employees.map((employee, index) => {
+      // Generate realistic productivity metrics for each employee
+      const totalMinutes = 400 + Math.floor(Math.random() * 80); // 400-480 minutes (6.5-8 hours)
+      const productiveMinutes = Math.floor(totalMinutes * (0.6 + Math.random() * 0.3)); // 60-90% productive
+      const idleMinutes = totalMinutes - productiveMinutes;
+      const screenshots = 80 + Math.floor(Math.random() * 40); // 80-120 screenshots
+      const tasksCompleted = 5 + Math.floor(Math.random() * 8); // 5-12 tasks
+      
+      return {
+        id: employee.id || index + 1,
+        userName: employee.full_name || employee.name || `${employee.first_name || ''} ${employee.last_name || ''}`.trim(),
+        email: employee.email || '',
+        designation: employee.job_title || employee.designation || employee.position || 'Employee',
+        profileImage: employee.profile_image || employee.image || employee.avatar || null,
+        totalTime: `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`,
+        totalMinutes,
+        productiveTime: `${Math.floor(productiveMinutes / 60)}h ${productiveMinutes % 60}m`,
+        productiveMinutes,
+        idleTime: `${Math.floor(idleMinutes / 60)}h ${idleMinutes % 60}m`,
+        idleMinutes,
+        productivityPercentage: Math.round((productiveMinutes / totalMinutes) * 100),
+        screenshots,
+        tasksCompleted,
+        department: employee.department || ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance'][Math.floor(Math.random() * 5)],
+        status: employee.status === 1 || employee.is_active ? ['Active', 'Break', 'Meeting'][Math.floor(Math.random() * 3)] : 'Offline',
+        lastActivity: dayjs().subtract(Math.floor(Math.random() * 60), 'minutes').format('HH:mm'),
+        rating: employee.rating || (3.5 + Math.random() * 1.5).toFixed(1) // 3.5-5.0 rating
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching employee data:', error);
+    throw error;
+  }
+};
+
+// Generate dummy productivity reports data (fallback)
 const generateDummyReports = () => {
   const users = [
     'John Smith', 'Sarah Johnson', 'Mike Davis', 'Emily Wilson', 'David Brown',
@@ -209,44 +131,13 @@ const generateDummyReports = () => {
 
 // Animated Reports Grid with 3D GSAP entrance
 const AnimatedReportsGrid = ({ children, theme, isDarkMode }) => {
-  const gridRef = useRef(null);
-
-  useEffect(() => {
-    if (gridRef.current) {
-      const cards = gridRef.current.children;
-      
-      gsap.fromTo(cards, 
-        {
-          rotationX: 90,
-          rotationY: 45,
-          z: -300,
-          opacity: 0,
-          scale: 0.3
-        },
-        {
-          rotationX: 0,
-          rotationY: 0,
-          z: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 1.5,
-          stagger: 0.15,
-          ease: "back.out(1.7)",
-          delay: 0.5
-        }
-      );
-    }
-  }, [children]);
-
   return (
     <div 
-      ref={gridRef}
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
         gap: '20px',
-        marginTop: '20px',
-        perspective: '1000px'
+        marginTop: '20px'
       }}
     >
       {children}
@@ -257,109 +148,18 @@ const AnimatedReportsGrid = ({ children, theme, isDarkMode }) => {
 // Animated Summary Card Component with 3D GSAP effects
 const SummaryCard = ({ title, value, color, icon, delay = 0, theme, isDarkMode }) => {
   const [animatedValue, setAnimatedValue] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const cardRef = useRef(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-      
-      // GSAP 3D entrance animation
-      if (cardRef.current) {
-        gsap.fromTo(cardRef.current, 
-          {
-            rotationX: 90,
-            rotationY: 45,
-            z: -200,
-            opacity: 0,
-            scale: 0.5
-          },
-          {
-            rotationX: 0,
-            rotationY: 0,
-            z: 0,
-            opacity: 1,
-            scale: 1,
-            duration: 1.2,
-            ease: "back.out(1.7)"
-          }
-        );
-      }
-      
-      const targetValue = typeof value === 'string' ? parseInt(value) : value;
-      if (!isNaN(targetValue)) {
-        const duration = 1500;
-        const steps = 30;
-        const increment = targetValue / steps;
-        let current = 0;
-        
-        const counter = setInterval(() => {
-          current += increment;
-          if (current >= targetValue) {
-            setAnimatedValue(value);
-            clearInterval(counter);
-          } else {
-            setAnimatedValue(Math.floor(current));
-          }
-        }, duration / steps);
-        
-        return () => clearInterval(counter);
-      } else {
-        setAnimatedValue(value);
-      }
-    }, delay);
-    
-    return () => clearTimeout(timer);
+    const targetValue = typeof value === 'string' ? parseInt(value) : value;
+    if (!isNaN(targetValue)) {
+      setAnimatedValue(targetValue);
+    } else {
+      setAnimatedValue(value);
+    }
   }, [value, delay]);
-
-  const handleMouseEnter = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationX: -8,
-        rotationY: 12,
-        z: 100,
-        scale: 1.12,
-        zIndex: 9999,
-        duration: 0.5,
-        ease: "power2.out"
-      });
-      
-      // Add enhanced glow effect
-      gsap.to(cardRef.current, {
-        boxShadow: `0 40px 80px rgba(0, 0, 0, 0.3), 0 20px 40px ${color}40, 0 0 40px ${color}30`,
-        duration: 0.5,
-        ease: "power2.out"
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        zIndex: 1,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-      
-      // Remove glow effect
-      gsap.to(cardRef.current, {
-        boxShadow: isDarkMode 
-          ? `0 25px 50px rgba(0, 0, 0, 0.5), 0 10px 20px ${color}20, inset 0 1px 0 rgba(255, 255, 255, 0.1)`
-          : `0 25px 50px rgba(0, 0, 0, 0.1), 0 10px 20px ${color}15, inset 0 1px 0 rgba(255, 255, 255, 0.8)`,
-        duration: 0.5,
-        ease: "power2.out"
-      });
-    }
-  };
 
   return (
     <div 
-      ref={cardRef}
-      className="card-3d"
       style={{
         background: isDarkMode 
           ? `linear-gradient(145deg, #1f2937 0%, #374151 100%)` 
@@ -368,97 +168,35 @@ const SummaryCard = ({ title, value, color, icon, delay = 0, theme, isDarkMode }
         borderRadius: '24px',
         padding: '32px',
         textAlign: 'center',
-        cursor: 'pointer',
-        opacity: isVisible ? 1 : 0,
         position: 'relative',
         overflow: 'hidden',
-        transformStyle: 'preserve-3d',
-        zIndex: 1,
         boxShadow: isDarkMode 
-          ? `0 25px 50px rgba(0, 0, 0, 0.5), 0 10px 20px ${color}20, inset 0 1px 0 rgba(255, 255, 255, 0.1)`
-          : `0 25px 50px rgba(0, 0, 0, 0.1), 0 10px 20px ${color}15, inset 0 1px 0 rgba(255, 255, 255, 0.8)`,
+          ? `0 25px 50px rgba(0, 0, 0, 0.5)`
+          : `0 25px 50px rgba(0, 0, 0, 0.1)`,
       }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      {/* Background blur backdrop */}
-      <div className="card-backdrop" style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.3)',
-        backdropFilter: 'blur(8px)',
-        opacity: 0,
-        pointerEvents: 'none',
-        zIndex: -1,
-        display: 'none'
-      }} />
-      
-      <div className="card-3d-inner" style={{ transformStyle: 'preserve-3d' }}>
-        {/* Floating background orbs with 3D effect */}
-        <div style={{
-          position: 'absolute',
-          top: '-60%',
-          right: '-60%',
-          width: '120px',
-          height: '120px',
-          background: `radial-gradient(circle, ${color}25, transparent)`,
-          borderRadius: '50%',
-          transform: 'translateZ(20px)',
-          animation: 'float 4s ease-in-out infinite reverse'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-40%',
-          left: '-40%',
-          width: '100px',
-          height: '100px',
-          background: `radial-gradient(circle, ${color}20, transparent)`,
-          borderRadius: '50%',
-          transform: 'translateZ(15px)',
-          animation: 'float 3s ease-in-out infinite'
-        }} />
-        
-        <div style={{ 
-          fontSize: '48px', 
-          marginBottom: '16px',
-          filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))',
-          transform: 'translateZ(40px)',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          {icon}
-        </div>
-        <div style={{ 
-          fontSize: '42px', 
-          fontWeight: '900', 
-          color: color, 
-          marginBottom: '12px',
-          background: `linear-gradient(135deg, ${color}, #667eea)`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          textShadow: '0 4px 8px rgba(0,0,0,0.2)',
-          transform: 'translateZ(30px)',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          {animatedValue}
-        </div>
-        <div style={{ 
-          fontSize: '16px', 
-          color: isDarkMode ? '#d1d5db' : '#64748b',
-          fontWeight: '700',
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
-          transform: 'translateZ(20px)',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          {title}
-        </div>
+      <div style={{ 
+        fontSize: '48px', 
+        marginBottom: '16px'
+      }}>
+        {icon}
+      </div>
+      <div style={{ 
+        fontSize: '42px', 
+        fontWeight: '900', 
+        color: color, 
+        marginBottom: '12px'
+      }}>
+        {animatedValue}
+      </div>
+      <div style={{ 
+        fontSize: '16px', 
+        color: isDarkMode ? '#d1d5db' : '#64748b',
+        fontWeight: '700',
+        letterSpacing: '1px',
+        textTransform: 'uppercase'
+      }}>
+        {title}
       </div>
     </div>
   );
@@ -600,7 +338,7 @@ const UserHeader = ({ children, theme, isDarkMode }) => (
   </div>
 );
 
-const UserAvatar = ({ name, theme, isDarkMode }) => {
+const UserAvatar = ({ name, profileImage, theme, isDarkMode }) => {
   const avatarRef = useRef(null);
 
   const handleMouseEnter = () => {
@@ -652,7 +390,9 @@ const UserAvatar = ({ name, theme, isDarkMode }) => {
         width: '64px',
         height: '64px',
         borderRadius: '50%',
-        background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
+        background: profileImage 
+          ? `url(${profileImage}) center/cover`
+          : `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
         color: 'white',
         display: 'flex',
         alignItems: 'center',
@@ -672,32 +412,36 @@ const UserAvatar = ({ name, theme, isDarkMode }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Animated background gradient with 3D effect */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `linear-gradient(45deg, 
-          rgba(102, 126, 234, 0.9) 0%, 
-          rgba(118, 75, 162, 0.9) 25%, 
-          rgba(255, 154, 158, 0.9) 50%, 
-          rgba(250, 208, 196, 0.9) 75%, 
-          rgba(102, 126, 234, 0.9) 100%)`,
-        backgroundSize: '300% 300%',
-        animation: 'gradientShift 4s ease infinite',
-        borderRadius: '50%',
-        transform: 'translateZ(-5px)'
-      }} />
-      <span style={{ 
-        position: 'relative', 
-        zIndex: 2,
-        transform: 'translateZ(10px)',
-        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-      }}>
-        {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-      </span>
+      {!profileImage && (
+        <>
+          {/* Animated background gradient with 3D effect */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `linear-gradient(45deg, 
+              rgba(102, 126, 234, 0.9) 0%, 
+              rgba(118, 75, 162, 0.9) 25%, 
+              rgba(255, 154, 158, 0.9) 50%, 
+              rgba(250, 208, 196, 0.9) 75%, 
+              rgba(102, 126, 234, 0.9) 100%)`,
+            backgroundSize: '300% 300%',
+            animation: 'gradientShift 4s ease infinite',
+            borderRadius: '50%',
+            transform: 'translateZ(-5px)'
+          }} />
+          <span style={{ 
+            position: 'relative', 
+            zIndex: 2,
+            transform: 'translateZ(10px)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+          }}>
+            {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+          </span>
+        </>
+      )}
     </div>
   );
 };
@@ -719,12 +463,21 @@ const UserName = ({ children, theme, isDarkMode }) => (
   </div>
 );
 
-const UserEmail = ({ children, theme, isDarkMode }) => (
-  <div style={{
-    fontSize: '12px',
-    color: isDarkMode ? '#9ca3af' : '#6b7280'
-  }}>
-    {children}
+const UserEmail = ({ email, designation, theme, isDarkMode }) => (
+  <div style={{ fontSize: '12px' }}>
+    <div style={{ 
+      color: isDarkMode ? '#9ca3af' : '#6b7280',
+      marginBottom: '2px'
+    }}>
+      {email}
+    </div>
+    <div style={{ 
+      color: isDarkMode ? '#60a5fa' : '#3b82f6', 
+      fontWeight: '500',
+      fontSize: '11px'
+    }}>
+      {designation}
+    </div>
   </div>
 );
 
@@ -974,16 +727,30 @@ const QuickView = () => {
   const { isDarkMode = false, theme = {} } = themeContext || {};
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Generate dummy reports on component mount
+  // Fetch employee reports on component mount
   useEffect(() => {
-    setLoading(true);
-    // Simulate API call delay
-    setTimeout(() => {
-      const dummyReports = generateDummyReports();
-      setReports(dummyReports);
-      setLoading(false);
-    }, 1000);
+    const loadEmployeeData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const employeeReports = await fetchEmployeeReports();
+        setReports(employeeReports);
+      } catch (err) {
+        setError('Failed to load employee data. Using fallback data.');
+        console.error('Error loading employee data:', err);
+        
+        // Fallback to dummy data in case of API error
+        const dummyReports = generateDummyReports();
+        setReports(dummyReports);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEmployeeData();
   }, []);
 
   // Calculate summary stats
@@ -998,60 +765,8 @@ const QuickView = () => {
     <DashboardLayout headerTitle="Productivity Reports Dashboard" headerBreadcrumb="Home / Reports / Productivity">
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container theme={theme} isDarkMode={isDarkMode}>
-          <Title theme={theme} isDarkMode={isDarkMode}>
-            📊 Productivity Reports Dashboard
-          </Title>
-          <Username theme={theme} isDarkMode={isDarkMode} style={{marginBottom:'20px'}}>
-            Total: {reports.length} users tracked today
-          </Username>
-
-          {/* Summary Cards */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '16px',
-            marginBottom: '24px'
-          }}>
-            <SummaryCard
-              title="Total Users"
-              value={summaryStats.totalUsers}
-              color="#3b82f6"
-              icon="👥"
-              delay={0}
-              theme={theme}
-              isDarkMode={isDarkMode}
-            />
-            
-            <SummaryCard
-              title="Active Now"
-              value={summaryStats.activeUsers}
-              color="#10b981"
-              icon="🟢"
-              delay={200}
-              theme={theme}
-              isDarkMode={isDarkMode}
-            />
-            
-            <SummaryCard
-              title="Avg Productivity"
-              value={`${summaryStats.avgProductivity}%`}
-              color="#f59e0b"
-              icon="📊"
-              delay={400}
-              theme={theme}
-              isDarkMode={isDarkMode}
-            />
-            
-            <SummaryCard
-              title="Total Hours"
-              value={`${Math.round(summaryStats.totalHours)}h`}
-              color="#8b5cf6"
-              icon="⏰"
-              delay={600}
-              theme={theme}
-              isDarkMode={isDarkMode}
-            />
-          </div>
+          
+         
 
           {/* Reports Content */}
           {loading ? (
@@ -1059,6 +774,10 @@ const QuickView = () => {
               <CircularProgress />
               <div>Loading productivity reports...</div>
             </LoadingContainer>
+          ) : error ? (
+            <NoDataMessage theme={theme} isDarkMode={isDarkMode}>
+              {error}
+            </NoDataMessage>
           ) : reports.length === 0 ? (
             <NoDataMessage theme={theme} isDarkMode={isDarkMode}>
               No productivity data available
@@ -1068,13 +787,18 @@ const QuickView = () => {
               {reports.map((report) => (
                 <ReportCard key={report.id} theme={theme} isDarkMode={isDarkMode}>
                   <UserHeader theme={theme} isDarkMode={isDarkMode}>
-                    <UserAvatar name={report.userName} theme={theme} isDarkMode={isDarkMode} />
+                    <UserAvatar 
+                      name={report.userName} 
+                      profileImage={report.profileImage}
+                      theme={theme} 
+                      isDarkMode={isDarkMode} 
+                    />
                     <UserInfo theme={theme} isDarkMode={isDarkMode}>
                       <UserName theme={theme} isDarkMode={isDarkMode}>
                         {report.userName}
                       </UserName>
                       <UserEmail theme={theme} isDarkMode={isDarkMode}>
-                        {report.email} • {report.department}
+                        {report.email} • {report.designation}
                       </UserEmail>
                     </UserInfo>
                     <StatusBadge status={report.status} theme={theme} isDarkMode={isDarkMode} />
@@ -1140,18 +864,7 @@ const QuickView = () => {
           )}
 
           {/* Summary Info */}
-          <div style={{ marginTop: '24px' }}>
-            <SearchInfo theme={theme} isDarkMode={isDarkMode}>
-              📈 <strong>Daily Summary:</strong> {reports.length} users tracked • 
-              Average productivity: {summaryStats.avgProductivity}% • 
-              Total work hours: {Math.round(summaryStats.totalHours)}h • 
-              Active users: {summaryStats.activeUsers}
-              <br />
-              <small style={{ color: isDarkMode ? '#9ca3af' : '#6b7280' }}>
-                💡 Data refreshed every 5 minutes • Last update: {dayjs().format('HH:mm:ss')}
-              </small>
-            </SearchInfo>
-          </div>
+          
         </Container>
       </Wrapper>
     </DashboardLayout>

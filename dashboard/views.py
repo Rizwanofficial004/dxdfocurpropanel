@@ -1,12 +1,103 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+import hashlib
+import secrets
 
 logger = logging.getLogger(__name__)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def login_api(request):
+    """
+    Simple login API that validates credentials and returns user data
+    """
+    try:
+        logger.info("🔐 Login API called")
+        
+        # Parse request data
+        data = json.loads(request.body)
+        username = data.get('username', '').strip()
+        password = data.get('password', '').strip()
+        remember_me = data.get('remember_me', False)
+        
+        logger.info(f"👤 Login attempt for username: {username}")
+        
+        # Basic validation
+        if not username or not password:
+            return JsonResponse({
+                'success': False,
+                'message': 'Username and password are required'
+            }, status=400)
+        
+        # Simple credential validation - you can customize this
+        valid_credentials = {
+            'admin': 'admin123',
+            'Admin': 'admin123',
+            'user': 'user123',
+            'test': 'test123'
+        }
+        
+        # Check credentials
+        if username in valid_credentials and valid_credentials[username] == password:
+            # Generate a simple token
+            token = secrets.token_urlsafe(32)
+            
+            # Create user data
+            user_data = {
+                'user_id': 1,
+                'username': username,
+                'email': f'{username.lower()}@deluxebilisim.com',
+                'first_name': username.title(),
+                'last_name': '',
+                'is_staff': username.lower() == 'admin',
+                'is_superuser': username.lower() == 'admin',
+                'last_login': datetime.now().isoformat(),
+                'date_joined': (datetime.now() - timedelta(days=30)).isoformat()
+            }
+            
+            logger.info(f"✅ Login successful for user: {username}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Login successful',
+                'data': {
+                    'user': user_data,
+                    'access_token': token,
+                    'refresh_token': token + '_refresh',
+                    'token_type': 'Bearer',
+                    'expires_in': 3600 if not remember_me else 86400 * 30
+                },
+                'timestamp': datetime.now().isoformat()
+            })
+            
+        else:
+            logger.warning(f"❌ Invalid credentials for user: {username}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid username or password'
+            }, status=401)
+            
+    except json.JSONDecodeError:
+        logger.error("❌ Invalid JSON in request body")
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
+        
+    except Exception as e:
+        logger.error(f"❌ Login error: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'Internal server error',
+            'error': str(e)
+        }, status=500)
 
 @csrf_exempt
 @require_http_methods(["GET"])

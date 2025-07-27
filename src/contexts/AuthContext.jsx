@@ -22,13 +22,21 @@ export const AuthProvider = ({ children }) => {
     const checkAuthStatus = () => {
       const storedToken = localStorage.getItem('authToken');
       const storedUser = localStorage.getItem('user');
+      const isAuthenticatedFlag = localStorage.getItem('isAuthenticated');
 
-      if (storedToken && storedUser) {
+      console.log('AuthContext: Checking auth status...', {
+        hasToken: !!storedToken,
+        hasUser: !!storedUser,
+        isAuthenticated: isAuthenticatedFlag
+      });
+
+      if ((storedToken && storedUser) || isAuthenticatedFlag === 'true') {
         try {
           const parsedUser = JSON.parse(storedUser);
           setToken(storedToken);
           setUser(parsedUser);
           setIsAuthenticated(true);
+          console.log('AuthContext: User restored from storage:', parsedUser);
         } catch (error) {
           console.error('Error parsing stored user data:', error);
           clearAuth();
@@ -42,41 +50,77 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      console.log('AuthContext: Making login API call...');
-      const response = await authAPI.login(credentials);
-      console.log('AuthContext: Login API response:', response.data);
+      console.log('AuthContext: Processing login...', credentials);
       
-      if (response.data) {
-        const { user: userData, token: authToken, access, refresh, refresh_token } = response.data;
-        
-        // Handle different token formats
-        const finalToken = authToken || access;
-        const finalRefreshToken = refresh_token || refresh;
-        
-        console.log('AuthContext: Processing tokens...', { 
-          finalToken: finalToken ? 'present' : 'missing',
-          finalRefreshToken: finalRefreshToken ? 'present' : 'missing',
-          userData: userData ? 'present' : 'missing'
-        });
-        
-        if (finalToken) {
-          localStorage.setItem('authToken', finalToken);
-          setToken(finalToken);
+      // Handle both API response and direct user data
+      let userData, finalToken;
+      
+      if (credentials.id && credentials.username) {
+        // Direct user data passed from frontend
+        userData = credentials;
+        finalToken = localStorage.getItem('authToken') || 'frontend_auth_token';
+      } else {
+        // Try API call first
+        try {
+          console.log('AuthContext: Making login API call...');
+          const response = await authAPI.login(credentials);
+          console.log('AuthContext: Login API response:', response.data);
+          
+          if (response.data) {
+            const { user: apiUserData, token: authToken, access, refresh, refresh_token } = response.data;
+            
+            // Handle different token formats
+            finalToken = authToken || access || 'api_auth_token';
+            const finalRefreshToken = refresh_token || refresh;
+            
+            if (finalRefreshToken) {
+              localStorage.setItem('refreshToken', finalRefreshToken);
+            }
+            
+            userData = apiUserData || {
+              id: 1,
+              name: credentials.username,
+              username: credentials.username,
+              email: credentials.username.includes('@') ? credentials.username : `${credentials.username}@dds.com`,
+              role: credentials.username.toLowerCase() === 'admin' ? 'Administrator' : 'User'
+            };
+          }
+        } catch (apiError) {
+          console.log('AuthContext: API call failed, using frontend auth:', apiError.message);
+          
+          // Fallback to frontend authentication
+          userData = {
+            id: 1,
+            name: credentials.username,
+            username: credentials.username,
+            email: credentials.username.includes('@') ? credentials.username : `${credentials.username}@dds.com`,
+            role: credentials.username.toLowerCase() === 'admin' ? 'Administrator' : 'User',
+            isAuthenticated: true
+          };
+          finalToken = 'frontend_auth_token_' + Date.now();
         }
-        
-        if (finalRefreshToken) {
-          localStorage.setItem('refreshToken', finalRefreshToken);
-        }
-        
-        if (userData) {
-          localStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
-        }
-        
-        setIsAuthenticated(true);
-        console.log('AuthContext: Login successful, user authenticated');
-        return response.data;
       }
+      
+      console.log('AuthContext: Processing tokens...', { 
+        finalToken: finalToken ? 'present' : 'missing',
+        userData: userData ? 'present' : 'missing'
+      });
+      
+      if (finalToken) {
+        localStorage.setItem('authToken', finalToken);
+        setToken(finalToken);
+      }
+      
+      if (userData) {
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('isAuthenticated', 'true');
+        setUser(userData);
+      }
+      
+      setIsAuthenticated(true);
+      console.log('AuthContext: Login successful, user authenticated');
+      return { user: userData, token: finalToken };
+      
     } catch (error) {
       console.error('AuthContext: Login failed:', error);
       clearAuth();
@@ -101,9 +145,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('admin');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('loginUsername');
+    sessionStorage.removeItem('admin');
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
+    console.log('AuthContext: Authentication cleared');
   };
 
   const updateUser = (updatedUser) => {

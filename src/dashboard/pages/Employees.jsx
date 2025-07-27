@@ -84,8 +84,8 @@ const fetchEmployeesFromAPI = async () => {
           status: employee.is_active ? 'Active' : 'Inactive',
           joinDate: employee.join_date,
           location: employee.location || employee.nation || 'Not specified',
-          avatar: employee.avatar_url && employee.avatar_url !== 'null' && !employee.avatar_url.includes('ui-avatars.com') ? 
-            employee.avatar_url : null,
+          avatar: employee.profile_image && employee.profile_image !== 'null' && employee.profile_image !== '' ? 
+            `https://crm.deluxebilisim.com/uploads/staff_profile_images/${employee.id}/thumb_${employee.profile_image}` : null,
           initials: employee.initials || employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase(),
           staff_id: employee.staff_id,
           performance_score: parseFloat(employee.performance_score || 0),

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Base API configuration
-// Use relative URL to leverage Vite's proxy configuration
-const API_BASE_URL = '/api';
+// Use your local Django server
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
