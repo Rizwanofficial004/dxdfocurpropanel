@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { gsap } from 'gsap';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { buildApiUrl, API_ENDPOINTS } from '../../config/api.js';
 import {
   EmployeesWrapper,
   EmployeesContainer,
@@ -42,7 +43,7 @@ import {
 const fetchEmployeesFromAPI = async () => {
   try {
     console.log('🚀 Fetching REAL employees from your CRM API...');
-    const apiUrl = 'http://127.0.0.1:8000/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed';
+    const apiUrl = buildApiUrl(API_ENDPOINTS.DASHBOARD.EMPLOYEES + '?include_profiles=true&format=detailed');
     console.log('📡 API URL:', apiUrl);
     
     const response = await fetch(apiUrl, {

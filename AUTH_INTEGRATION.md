@@ -1,14 +1,16 @@
 # Authentication System Integration
 
 ## Overview
-This authentication system integrates with the backend API endpoint `https://dxdtime.ddsolutions.io/api/auth/login/` and supports both username and email login.
+This authentication system integrates with backend API endpoints and supports both username and email login. It automatically switches between:
+- **Production**: `http://dxdtime.ddsolutions.io/api/auth/login/`
+- **Local Development**: `http://localhost:8000/api/auth/login/`
 
 ## Features
 
 ### ✅ Login Authentication
 - **Flexible Login**: Supports both username and email authentication
 - **Real-time Validation**: Client-side validation with immediate feedback
-- **API Integration**: Connects to `https://dxdtime.ddsolutions.io/api/auth/login/`
+- **API Integration**: Connects to production (`http://dxdtime.ddsolutions.io/api/auth/login/`) or local (`http://localhost:8000/api/auth/login/`) automatically
 - **Error Handling**: Comprehensive error handling for various scenarios
 - **Remember Me**: Option to save login credentials locally
 - **Loading States**: Visual feedback during authentication process
@@ -26,6 +28,34 @@ This authentication system integrates with the backend API endpoint `https://dxd
 - **Visual Feedback**: Loading spinners, success/error messages
 - **Theme Support**: Integrates with existing theme system
 - **Accessibility**: Proper form labels and validation messages
+
+## Environment Configuration
+
+### API Endpoints
+The system automatically detects the environment and uses the appropriate API endpoint:
+
+#### Production Environment
+- **Base URL**: `http://dxdtime.ddsolutions.io`
+- **Login Endpoint**: `http://dxdtime.ddsolutions.io/api/auth/login/`
+- **Used when**: Running on production server or when `NODE_ENV=production`
+
+#### Local Development Environment  
+- **Base URL**: `http://localhost:8000`
+- **Login Endpoint**: `http://localhost:8000/api/auth/login/`
+- **Used when**: Running on localhost or when `NODE_ENV=development`
+
+### Environment Detection
+```javascript
+const getBaseURL = () => {
+  // Check if running in production
+  if (process.env.NODE_ENV === 'production' || 
+      window.location.hostname !== 'localhost') {
+    return 'http://dxdtime.ddsolutions.io';
+  }
+  // Default to local development
+  return 'http://localhost:8000';
+};
+```
 
 ## API Integration
 
@@ -151,7 +181,23 @@ function MyComponent() {
 - `axios` - HTTP client for API requests
 
 ### Development Server
-The application runs on `http://localhost:5174/` and connects to the API at `https://dxdtime.ddsolutions.io/api/auth/login/`.
+The application runs on `http://localhost:5174/` and automatically connects to:
+- **Local API**: `http://localhost:8000/api/auth/login/` (development)
+- **Production API**: `http://dxdtime.ddsolutions.io/api/auth/login/` (production)
+
+### Environment Variables (Optional)
+You can override the default behavior using environment variables:
+
+```bash
+# For production
+NODE_ENV=production
+
+# For local development
+NODE_ENV=development
+
+# Custom API URL (optional)
+REACT_APP_API_URL=http://custom-api-url.com
+```
 
 ## Testing Credentials
 
@@ -161,12 +207,15 @@ Based on your Postman example:
 
 ## Next Steps
 
-1. **Backend API**: Ensure your backend API is running on `http://localhost:8000`
-2. **CORS Configuration**: Make sure CORS is configured to allow requests from `http://localhost:5174`
-3. **SSL/HTTPS**: Consider implementing HTTPS for production
-4. **Rate Limiting**: Implement proper rate limiting on the backend
-5. **Password Strength**: Add password strength requirements
-6. **Two-Factor Authentication**: Consider adding 2FA for enhanced security
+1. **Backend APIs**: Ensure both APIs are running:
+   - **Production**: `http://dxdtime.ddsolutions.io/api/auth/login/`
+   - **Local**: `http://localhost:8000/api/auth/login/`
+2. **CORS Configuration**: Configure CORS on both servers to allow requests from `http://localhost:5174`
+3. **Environment Variables**: Set up proper environment detection
+4. **SSL/HTTPS**: Consider implementing HTTPS for production
+5. **Rate Limiting**: Implement proper rate limiting on both backends
+6. **Password Strength**: Add password strength requirements
+7. **Two-Factor Authentication**: Consider adding 2FA for enhanced security
 
 ## Troubleshooting
 
@@ -179,14 +228,21 @@ Based on your Postman example:
 
 ### Debug Commands
 ```bash
-# Check if backend is running
-curl https://dxdtime.ddsolutions.io/api/auth/login/
+# Check if production API is running
+curl http://dxdtime.ddsolutions.io/api/auth/login/
+
+# Check if local API is running  
+curl http://localhost:8000/api/auth/login/
 
 # Clear authentication data
 localStorage.clear()
 
 # Check current auth state
 console.log(localStorage.getItem('authToken'))
+
+# Check current environment
+console.log('Environment:', process.env.NODE_ENV)
+console.log('API Base URL:', getBaseURL())
 ```
 
 The authentication system is now fully integrated and ready for use with your backend API!
