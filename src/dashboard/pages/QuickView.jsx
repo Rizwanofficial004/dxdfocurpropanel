@@ -38,6 +38,27 @@ const styles = `
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 `;
 
 // Inject styles
@@ -59,74 +80,42 @@ const fetchEmployeeReports = async () => {
     
     // Transform API data to match component structure
     return response.data.data.employees.map((employee, index) => {
-      // Generate realistic productivity metrics for each employee
-      const totalMinutes = 400 + Math.floor(Math.random() * 80); // 400-480 minutes (6.5-8 hours)
-      const productiveMinutes = Math.floor(totalMinutes * (0.6 + Math.random() * 0.3)); // 60-90% productive
-      const idleMinutes = totalMinutes - productiveMinutes;
-      const screenshots = 80 + Math.floor(Math.random() * 40); // 80-120 screenshots
-      const tasksCompleted = 5 + Math.floor(Math.random() * 8); // 5-12 tasks
+      // Format profile image path - same logic as Employees.jsx
+      const formatProfileImage = (profileImage, staffId) => {
+        if (!profileImage || profileImage === 'null' || profileImage === '') return null;
+        
+        // If already a full URL, return as is
+        if (profileImage.startsWith('http')) return profileImage;
+        
+        // Format as: https://crm.deluxebilisim.com/uploads/staff_profile_images/{staff_id}/thumb_{filename}
+        return `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staffId}/thumb_${profileImage}`;
+      };
       
       return {
         id: employee.id || index + 1,
         userName: employee.full_name || employee.name || `${employee.first_name || ''} ${employee.last_name || ''}`.trim(),
         email: employee.email || '',
         designation: employee.job_title || employee.designation || employee.position || 'Employee',
-        profileImage: employee.profile_image || employee.image || employee.avatar || null,
-        totalTime: `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`,
-        totalMinutes,
-        productiveTime: `${Math.floor(productiveMinutes / 60)}h ${productiveMinutes % 60}m`,
-        productiveMinutes,
-        idleTime: `${Math.floor(idleMinutes / 60)}h ${idleMinutes % 60}m`,
-        idleMinutes,
-        productivityPercentage: Math.round((productiveMinutes / totalMinutes) * 100),
-        screenshots,
-        tasksCompleted,
-        department: employee.department || ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance'][Math.floor(Math.random() * 5)],
-        status: employee.status === 1 || employee.is_active ? ['Active', 'Break', 'Meeting'][Math.floor(Math.random() * 3)] : 'Offline',
-        lastActivity: dayjs().subtract(Math.floor(Math.random() * 60), 'minutes').format('HH:mm'),
-        rating: employee.rating || (3.5 + Math.random() * 1.5).toFixed(1) // 3.5-5.0 rating
+        profileImage: formatProfileImage(employee.profile_image, employee.id),
+        totalTime: employee.total_time || '0h 0m',
+        totalMinutes: employee.total_minutes || 0,
+        productiveTime: employee.productive_time || '0h 0m',
+        productiveMinutes: employee.productive_minutes || 0,
+        idleTime: employee.idle_time || '0h 0m',
+        idleMinutes: employee.idle_minutes || 0,
+        productivityPercentage: employee.productivity_percentage || 0,
+        screenshots: employee.screenshots_count || 0,
+        tasksCompleted: employee.tasks_completed || 0,
+        department: employee.department || 'General',
+        status: employee.status === 1 || employee.is_active ? 'Active' : 'Offline',
+        lastActivity: employee.last_activity ? dayjs(employee.last_activity).format('HH:mm') : 'N/A',
+        rating: employee.rating || '0.0'
       };
     });
   } catch (error) {
     console.error('Error fetching employee data:', error);
     throw error;
   }
-};
-
-// Generate dummy productivity reports data (fallback)
-const generateDummyReports = () => {
-  const users = [
-    'John Smith', 'Sarah Johnson', 'Mike Davis', 'Emily Wilson', 'David Brown',
-    'Lisa Anderson', 'Tom Wilson', 'Anna Taylor', 'Chris Martin', 'Jessica Lee',
-    'Robert Garcia', 'Amy Rodriguez', 'Kevin Miller', 'Rachel Green', 'Daniel White'
-  ];
-
-  return users.map((userName, index) => {
-    const totalMinutes = 400 + Math.floor(Math.random() * 80); // 400-480 minutes (6.5-8 hours)
-    const productiveMinutes = Math.floor(totalMinutes * (0.6 + Math.random() * 0.3)); // 60-90% productive
-    const idleMinutes = totalMinutes - productiveMinutes;
-    const screenshots = 80 + Math.floor(Math.random() * 40); // 80-120 screenshots
-    const tasksCompleted = 5 + Math.floor(Math.random() * 8); // 5-12 tasks
-    
-    return {
-      id: index + 1,
-      userName,
-      email: `${userName.toLowerCase().replace(' ', '.')}@company.com`,
-      totalTime: `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`,
-      totalMinutes,
-      productiveTime: `${Math.floor(productiveMinutes / 60)}h ${productiveMinutes % 60}m`,
-      productiveMinutes,
-      idleTime: `${Math.floor(idleMinutes / 60)}h ${idleMinutes % 60}m`,
-      idleMinutes,
-      productivityPercentage: Math.round((productiveMinutes / totalMinutes) * 100),
-      screenshots,
-      tasksCompleted,
-      department: ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance'][Math.floor(Math.random() * 5)],
-      status: ['Active', 'Break', 'Meeting', 'Offline'][Math.floor(Math.random() * 4)],
-      lastActivity: dayjs().subtract(Math.floor(Math.random() * 60), 'minutes').format('HH:mm'),
-      rating: (3.5 + Math.random() * 1.5).toFixed(1) // 3.5-5.0 rating
-    };
-  });
 };
 
 // Animated Reports Grid with 3D GSAP entrance
@@ -340,6 +329,7 @@ const UserHeader = ({ children, theme, isDarkMode }) => (
 
 const UserAvatar = ({ name, profileImage, theme, isDarkMode }) => {
   const avatarRef = useRef(null);
+  const [imageError, setImageError] = useState(false);
 
   const handleMouseEnter = () => {
     if (avatarRef.current) {
@@ -383,6 +373,19 @@ const UserAvatar = ({ name, profileImage, theme, isDarkMode }) => {
     }
   };
 
+  // Generate initials from name
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
+  const handleImageError = (e) => {
+    // Hide the image and show initials fallback
+    e.target.style.display = 'none';
+    e.target.nextSibling.style.display = 'flex';
+    setImageError(true);
+  };
+
   return (
     <div 
       ref={avatarRef}
@@ -390,9 +393,7 @@ const UserAvatar = ({ name, profileImage, theme, isDarkMode }) => {
         width: '64px',
         height: '64px',
         borderRadius: '50%',
-        background: profileImage 
-          ? `url(${profileImage}) center/cover`
-          : `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
+        background: `linear-gradient(135deg, #667eea 0%, #764ba2 100%)`,
         color: 'white',
         display: 'flex',
         alignItems: 'center',
@@ -412,36 +413,62 @@ const UserAvatar = ({ name, profileImage, theme, isDarkMode }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {!profileImage && (
-        <>
-          {/* Animated background gradient with 3D effect */}
-          <div style={{
+      {/* Profile Image */}
+      {profileImage && (
+        <img 
+          src={profileImage} 
+          alt={name}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            objectFit: 'cover',
             position: 'absolute',
             top: 0,
             left: 0,
-            right: 0,
-            bottom: 0,
-            background: `linear-gradient(45deg, 
-              rgba(102, 126, 234, 0.9) 0%, 
-              rgba(118, 75, 162, 0.9) 25%, 
-              rgba(255, 154, 158, 0.9) 50%, 
-              rgba(250, 208, 196, 0.9) 75%, 
-              rgba(102, 126, 234, 0.9) 100%)`,
-            backgroundSize: '300% 300%',
-            animation: 'gradientShift 4s ease infinite',
-            borderRadius: '50%',
-            transform: 'translateZ(-5px)'
-          }} />
-          <span style={{ 
-            position: 'relative', 
-            zIndex: 2,
-            transform: 'translateZ(10px)',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-          }}>
-            {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-          </span>
-        </>
+            zIndex: 2
+          }}
+          onError={handleImageError}
+        />
       )}
+
+      {/* Initials Fallback */}
+      <span style={{ 
+        display: profileImage && !imageError ? 'none' : 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+        zIndex: 1,
+        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+      }}>
+        {/* Animated background gradient with 3D effect */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `linear-gradient(45deg, 
+            rgba(102, 126, 234, 0.9) 0%, 
+            rgba(118, 75, 162, 0.9) 25%, 
+            rgba(255, 154, 158, 0.9) 50%, 
+            rgba(250, 208, 196, 0.9) 75%, 
+            rgba(102, 126, 234, 0.9) 100%)`,
+          backgroundSize: '300% 300%',
+          animation: 'gradientShift 4s ease infinite',
+          borderRadius: '50%',
+          transform: 'translateZ(-5px)'
+        }} />
+        <span style={{
+          position: 'relative',
+          zIndex: 2,
+          transform: 'translateZ(10px)'
+        }}>
+          {getInitials(name)}
+        </span>
+      </span>
     </div>
   );
 };
@@ -726,8 +753,10 @@ const QuickView = () => {
   const themeContext = useTheme();
   const { isDarkMode = false, theme = {} } = themeContext || {};
   const [reports, setReports] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch employee reports on component mount
   useEffect(() => {
@@ -738,13 +767,12 @@ const QuickView = () => {
       try {
         const employeeReports = await fetchEmployeeReports();
         setReports(employeeReports);
+        setFilteredReports(employeeReports);
       } catch (err) {
-        setError('Failed to load employee data. Using fallback data.');
+        setError('Failed to load employee data from API.');
         console.error('Error loading employee data:', err);
-        
-        // Fallback to dummy data in case of API error
-        const dummyReports = generateDummyReports();
-        setReports(dummyReports);
+        setReports([]);
+        setFilteredReports([]);
       } finally {
         setLoading(false);
       }
@@ -752,6 +780,31 @@ const QuickView = () => {
 
     loadEmployeeData();
   }, []);
+
+  // Handle search functionality
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredReports(reports);
+    } else {
+      const filtered = reports.filter(report => 
+        report.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.department.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredReports(filtered);
+    }
+  }, [searchQuery, reports]);
+
+  // Handle search input change
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
 
   // Calculate summary stats
   const summaryStats = {
@@ -761,12 +814,170 @@ const QuickView = () => {
     totalHours: reports.reduce((sum, r) => sum + r.totalMinutes, 0) / 60
   };
 
+  // Calculate filtered summary stats
+  const filteredSummaryStats = {
+    totalUsers: filteredReports.length,
+    activeUsers: filteredReports.filter(r => r.status === 'Active').length,
+    avgProductivity: filteredReports.length > 0 ? Math.round(filteredReports.reduce((sum, r) => sum + r.productivityPercentage, 0) / filteredReports.length) : 0,
+    totalHours: filteredReports.reduce((sum, r) => sum + r.totalMinutes, 0) / 60
+  };
+
   return (
     <DashboardLayout headerTitle="Productivity Reports Dashboard" headerBreadcrumb="Home / Reports / Productivity">
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container theme={theme} isDarkMode={isDarkMode}>
           
-         
+          {/* Search Bar */}
+          <div style={{
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            background: isDarkMode 
+              ? 'linear-gradient(145deg, #1f2937 0%, #374151 100%)' 
+              : 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+            padding: '20px',
+            borderRadius: '16px',
+            border: `1px solid ${isDarkMode ? '#4b5563' : '#e2e8f0'}`,
+            boxShadow: isDarkMode 
+              ? '0 10px 25px rgba(0, 0, 0, 0.3)' 
+              : '0 10px 25px rgba(0, 0, 0, 0.08)'
+          }}>
+            <div style={{ 
+              position: 'relative', 
+              flex: 1,
+              maxWidth: '400px'
+            }}>
+              <TextField
+                fullWidth
+                placeholder="Search employees by name, email, designation, or department..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  startAdornment: (
+                    <div style={{ 
+                      marginRight: '8px', 
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      🔍
+                    </div>
+                  ),
+                  endAdornment: searchQuery && (
+                    <Button
+                      onClick={clearSearch}
+                      size="small"
+                      style={{
+                        minWidth: 'auto',
+                        padding: '4px 8px',
+                        color: isDarkMode ? '#9ca3af' : '#6b7280',
+                        fontSize: '12px'
+                      }}
+                    >
+                      ✕
+                    </Button>
+                  ),
+                  style: {
+                    backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? '#4b5563' : '#d1d5db'
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: isDarkMode ? '#6b7280' : '#9ca3af'
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#3b82f6'
+                    }
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                    borderRadius: '12px',
+                    '& fieldset': {
+                      borderColor: isDarkMode ? '#4b5563' : '#d1d5db'
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDarkMode ? '#6b7280' : '#9ca3af'
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#3b82f6'
+                    }
+                  },
+                  '& .MuiInputBase-input': {
+                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                    '&::placeholder': {
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      opacity: 1
+                    }
+                  }
+                }}
+              />
+            </div>
+            
+            {/* Search Results Info */}
+            {searchQuery && (
+              <div style={{
+                padding: '8px 16px',
+                background: isDarkMode ? '#374151' : '#f3f4f6',
+                borderRadius: '8px',
+                fontSize: '14px',
+                color: isDarkMode ? '#d1d5db' : '#4b5563',
+                whiteSpace: 'nowrap'
+              }}>
+                {filteredReports.length} of {reports.length} employees
+              </div>
+            )}
+          </div>
+
+          {/* Summary Cards - show filtered stats when searching */}
+          {!loading && !error && reports.length > 0 && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px',
+              marginBottom: '24px'
+            }}>
+              <SummaryCard
+                title="Total Employees"
+                value={searchQuery ? filteredSummaryStats.totalUsers : summaryStats.totalUsers}
+                color="#3b82f6"
+                icon="👥"
+                theme={theme}
+                isDarkMode={isDarkMode}
+              />
+              <SummaryCard
+                title="Active Now"
+                value={searchQuery ? filteredSummaryStats.activeUsers : summaryStats.activeUsers}
+                color="#10b981"
+                icon="🟢"
+                theme={theme}
+                isDarkMode={isDarkMode}
+              />
+              <SummaryCard
+                title="Avg Productivity"
+                value={`${searchQuery ? filteredSummaryStats.avgProductivity : summaryStats.avgProductivity}%`}
+                color="#f59e0b"
+                icon="📊"
+                theme={theme}
+                isDarkMode={isDarkMode}
+              />
+              <SummaryCard
+                title="Total Hours"
+                value={`${Math.round(searchQuery ? filteredSummaryStats.totalHours : summaryStats.totalHours)}h`}
+                color="#8b5cf6"
+                icon="⏰"
+                theme={theme}
+                isDarkMode={isDarkMode}
+              />
+            </div>
+          )}
 
           {/* Reports Content */}
           {loading ? (
@@ -782,9 +993,31 @@ const QuickView = () => {
             <NoDataMessage theme={theme} isDarkMode={isDarkMode}>
               No productivity data available
             </NoDataMessage>
+          ) : filteredReports.length === 0 ? (
+            <NoDataMessage theme={theme} isDarkMode={isDarkMode}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+                <div style={{ fontSize: '18px', marginBottom: '8px' }}>No employees found</div>
+                <div style={{ fontSize: '14px', opacity: 0.7 }}>
+                  Try searching with different keywords or{' '}
+                  <Button
+                    onClick={clearSearch}
+                    style={{
+                      color: '#3b82f6',
+                      textDecoration: 'underline',
+                      padding: 0,
+                      minWidth: 'auto',
+                      fontSize: '14px'
+                    }}
+                  >
+                    clear search
+                  </Button>
+                </div>
+              </div>
+            </NoDataMessage>
           ) : (
             <AnimatedReportsGrid theme={theme} isDarkMode={isDarkMode}>
-              {reports.map((report) => (
+              {filteredReports.map((report) => (
                 <ReportCard key={report.id} theme={theme} isDarkMode={isDarkMode}>
                   <UserHeader theme={theme} isDarkMode={isDarkMode}>
                     <UserAvatar 
