@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { getApiBaseURL, API_ENDPOINTS, buildApiUrl } from '../config/api.js';
 
-// Base API configuration - automatically switches between environments
-const API_BASE_URL = getApiBaseURL();
+// Base API configuration
+// Use proxy for production, direct for development
+const API_BASE_URL = '/api';
 
 // Create axios instance with default configuration
 const apiClient = axios.create({

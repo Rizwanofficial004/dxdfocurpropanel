@@ -95,7 +95,7 @@ const FocusTimeline = () => {
   useEffect(() => {
     const checkBackendStatus = async () => {
       try {
-        const response = await axios.get('https://dxdtime.ddsolutions.io/api/logs/search/?search=test&limit=5', {
+        const response = await axios.get(buildApiUrl(API_ENDPOINTS.LOGS.SEARCH + '?search=test&limit=5'), {
           timeout: 5000
         });
         setBackendStatus('connected');

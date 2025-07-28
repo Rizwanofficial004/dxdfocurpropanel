@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configuration API for Django backend
-const CONFIG_API_BASE = 'http://127.0.0.1:8000/api';
+const CONFIG_API_BASE = '/api';
 
 // Create axios instance for configuration API
 const configClient = axios.create({
