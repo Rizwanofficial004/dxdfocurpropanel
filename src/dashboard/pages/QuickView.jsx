@@ -71,7 +71,7 @@ if (typeof document !== 'undefined') {
 // Fetch employee reports from API
 const fetchEmployeeReports = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed');
+    const response = await axios.get('/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed');
     
     // Check if response has the expected structure
     if (!response.data.success || !response.data.data || !response.data.data.employees) {

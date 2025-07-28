@@ -636,7 +636,7 @@ const ActivityStream = () => {
         let response;
         try {
           // Try a simple health check endpoint first
-          response = await axios.get('http://localhost:8000/health', {
+          response = await axios.get('/health', {
             timeout: 2000
           });
           console.log('✅ Backend health check passed');

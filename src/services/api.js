@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Base API configuration
-// Use your local Django server
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// Use proxy for production, direct for development
+const API_BASE_URL = '/api';
 
 // Create axios instance with default configuration
 const apiClient = axios.create({

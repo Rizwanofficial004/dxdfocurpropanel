@@ -404,7 +404,7 @@ export const Cards = () => {
         console.log('Starting API fetch...');
         
         // Fetch comprehensive database data
-        const comprehensiveResponse = await fetch('http://127.0.0.1:8000/api/database/comprehensive/?format=detailed&include_ai_analysis=true', {
+        const comprehensiveResponse = await fetch('/api/database/comprehensive/?format=detailed&include_ai_analysis=true', {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -420,7 +420,7 @@ export const Cards = () => {
         console.log('Comprehensive data:', comprehensiveData);
         
         // Fetch users count
-        const usersResponse = await fetch('http://127.0.0.1:8000/api/dashboard/analytics/employees/?include_list=true', {
+        const usersResponse = await fetch('/api/dashboard/analytics/employees/?include_list=true', {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
