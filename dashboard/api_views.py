@@ -90,15 +90,32 @@ def api_login_required(view_func):
 @require_http_methods(["POST"])
 def login_api(request):
     """
-    Professional Login API
+    Enhanced Professional Login API
     
     Expected JSON payload:
     {
-        "username": "user@example.com",
-        "password": "userpassword"
+        "username": "Admin",
+        "password": "admin123",
+        "remember_me": true
+    }
+    
+    Response format:
+    {
+        "success": true,
+        "message": "Login successful",
+        "data": {
+            "user": {...},
+            "staff_info": {...},
+            "session_info": {...}
+        }
     }
     """
     try:
+        # Debug logging
+        logger.info(f"Login API called from IP: {request.META.get('REMOTE_ADDR', 'Unknown')}")
+        logger.info(f"Content-Type: {request.content_type}")
+        logger.info(f"Request method: {request.method}")
+        
         # Parse JSON data
         if request.content_type != 'application/json':
             return api_response(
@@ -108,10 +125,12 @@ def login_api(request):
             )
         
         data = json.loads(request.body)
+        logger.info(f"Login attempt for username: {data.get('username', 'N/A')}")
         
         # Validate input using serializer
         validation_errors = LoginSerializer.validate(data)
         if validation_errors:
+            logger.warning(f"Validation errors: {validation_errors}")
             return api_response(
                 success=False,
                 message="Validation failed",
@@ -121,46 +140,219 @@ def login_api(request):
         
         username = data.get('username', '').strip()
         password = data.get('password', '')
+        remember_me = data.get('remember_me', False)
         
-        # Authenticate user
+        # Try to authenticate user by username first, then by email
         user = authenticate(request, username=username, password=password)
+        
+        # If username authentication fails, try email authentication
+        if user is None and '@' in username:
+            try:
+                django_user = User.objects.get(email=username)
+                user = authenticate(request, username=django_user.username, password=password)
+            except User.DoesNotExist:
+                pass
         
         if user is not None:
             if user.is_active:
                 login(request, user)
                 
+                # Set session expiry based on remember_me
+                if remember_me:
+                    request.session.set_expiry(60 * 60 * 24 * 30)  # 30 days
+                else:
+                    request.session.set_expiry(0)  # Browser session
+                
+                # Get staff information
+                staff_info = None
+                try:
+                    staff = Staff.objects.get(email=user.email)
+                    staff_info = {
+                        "staff_id": staff.staffid,
+                        "first_name": staff.firstname,
+                        "last_name": staff.lastname,
+                        "full_name": f"{staff.firstname} {staff.lastname}",
+                        "email": staff.email,
+                        "profile_image": staff.profile_image.url if hasattr(staff, 'profile_image') and staff.profile_image else None
+                    }
+                except Staff.DoesNotExist:
+                    staff_info = {
+                        "staff_id": "N/A",
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "full_name": f"{user.first_name} {user.last_name}".strip() or user.username,
+                        "email": user.email,
+                        "profile_image": None
+                    }
+                
                 # Serialize user data
                 user_data = LoginSerializer.serialize_user(user)
                 
-                logger.info(f"Successful login for user: {username}")
+                # Session information
+                session_info = {
+                    "session_key": request.session.session_key,
+                    "remember_me": remember_me,
+                    "expires_at": request.session.get_expiry_date().isoformat() if request.session.get_expiry_date() else None
+                }
+                
+                logger.info(f"Successful login for user: {username} (ID: {user.id})")
                 
                 return api_response(
                     success=True,
                     message="Login successful",
-                    data={"user": user_data}
+                    data={
+                        "user": user_data,
+                        "staff_info": staff_info,
+                        "session_info": session_info,
+                        "login_timestamp": datetime.now().isoformat()
+                    }
                 )
             else:
+                logger.warning(f"Login attempt for deactivated account: {username}")
                 return api_response(
                     success=False,
-                    message="Account is deactivated",
+                    message="Account is deactivated. Please contact administrator.",
                     status_code=401
                 )
         else:
             logger.warning(f"Failed login attempt for username: {username}")
+            
+            # Check if user exists but password is wrong
+            user_exists = False
+            try:
+                User.objects.get(username=username)
+                user_exists = True
+            except User.DoesNotExist:
+                try:
+                    User.objects.get(email=username)
+                    user_exists = True
+                except User.DoesNotExist:
+                    pass
+            
+            if user_exists:
+                message = "Invalid password. Please check your password and try again."
+            else:
+                message = "User not found. Please check your username/email and try again."
+            
             return api_response(
                 success=False,
-                message="Invalid username or password",
+                message=message,
+                data={
+                    "error_code": "AUTHENTICATION_FAILED",
+                    "username_provided": username,
+                    "user_exists": user_exists
+                },
                 status_code=401
             )
             
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {str(e)}")
         return api_response(
             success=False,
-            message="Invalid JSON format",
+            message="Invalid JSON format. Please check your request body.",
+            data={"error_details": str(e)},
             status_code=400
         )
     except Exception as e:
         logger.error(f"Login API error: {str(e)}")
+        return api_response(
+            success=False,
+            message="Internal server error. Please try again later.",
+            data={"error_type": type(e).__name__},
+            status_code=500
+        )
+
+# ==================== LOGOUT API ====================
+@csrf_exempt
+@require_http_methods(["POST"])
+def logout_api(request):
+    """
+    Professional Logout API
+    
+    Logs out the current user and invalidates their session.
+    """
+    try:
+        if request.user.is_authenticated:
+            username = request.user.username
+            logger.info(f"Logout requested for user: {username}")
+            
+            # Import logout function
+            from django.contrib.auth import logout
+            logout(request)
+            
+            return api_response(
+                success=True,
+                message="Logout successful",
+                data={
+                    "logged_out_user": username,
+                    "logout_timestamp": datetime.now().isoformat()
+                }
+            )
+        else:
+            return api_response(
+                success=False,
+                message="No active session found",
+                status_code=401
+            )
+            
+    except Exception as e:
+        logger.error(f"Logout API error: {str(e)}")
+        return api_response(
+            success=False,
+            message="Internal server error",
+            status_code=500
+        )
+
+# ==================== SESSION STATUS API ====================
+@csrf_exempt
+@require_http_methods(["GET"])
+def session_status_api(request):
+    """
+    Check current session status
+    
+    Returns information about the current authenticated session.
+    """
+    try:
+        if request.user.is_authenticated:
+            # Get staff information
+            staff_info = None
+            try:
+                staff = Staff.objects.get(email=request.user.email)
+                staff_info = {
+                    "staff_id": staff.staffid,
+                    "first_name": staff.firstname,
+                    "last_name": staff.lastname,
+                    "full_name": f"{staff.firstname} {staff.lastname}",
+                }
+            except Staff.DoesNotExist:
+                staff_info = {
+                    "staff_id": "N/A",
+                    "first_name": request.user.first_name,
+                    "last_name": request.user.last_name,
+                    "full_name": f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
+                }
+            
+            return api_response(
+                success=True,
+                message="Session is active",
+                data={
+                    "authenticated": True,
+                    "user": LoginSerializer.serialize_user(request.user),
+                    "staff_info": staff_info,
+                    "session_key": request.session.session_key,
+                    "session_expires": request.session.get_expiry_date().isoformat() if request.session.get_expiry_date() else None
+                }
+            )
+        else:
+            return api_response(
+                success=False,
+                message="No active session",
+                data={"authenticated": False},
+                status_code=401
+            )
+            
+    except Exception as e:
+        logger.error(f"Session status API error: {str(e)}")
         return api_response(
             success=False,
             message="Internal server error",

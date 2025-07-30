@@ -38,6 +38,8 @@ urlpatterns = [
     
     # Professional API Endpoints
     path('auth/login/', api_views.login_api, name='api_login'),
+    path('auth/logout/', api_views.logout_api, name='api_logout'),
+    path('auth/session/', api_views.session_status_api, name='api_session_status'),
     path('screenshots/', api_views.screenshots_api, name='api_screenshots'),
     path('logs/', api_views.logs_api, name='api_logs'),
     
