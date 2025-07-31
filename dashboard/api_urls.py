@@ -49,6 +49,9 @@ urlpatterns = [
     path('screenshots/date-search/', screenshots_search_api.name_date_filter_api, name='api_name_date_filter'),
     path('screenshots/comprehensive-search/', screenshots_search_api.name_all_screenshots_api, name='api_name_all_screenshots'),
     
+    # Presigned URL API (NEW) - Generate secure S3 URLs
+    path('screenshots/presigned-url/<path:s3_path>', api_views.presigned_url_api, name='api_presigned_url'),
+    
     # Google-like Search & Suggestion APIs (NEW)
     path('users/suggestions/', api_views.user_suggestions_api, name='api_user_suggestions'),
     path('users/s3-suggestions/', api_views.s3_user_suggestions_api, name='api_s3_user_suggestions'),

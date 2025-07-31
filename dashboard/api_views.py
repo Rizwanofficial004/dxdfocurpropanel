@@ -4225,3 +4225,63 @@ def configuration_by_name_api(request, config_name):
         return JsonResponse({"success": False, "message": "Configuration not found"}, status=404)
     except Exception as e:
         return JsonResponse({"success": False, "message": f"Error: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def presigned_url_api(request, s3_path):
+    """
+    Generate presigned URL for S3 object access
+    
+    Args:
+        s3_path (str): S3 object path
+        
+    Returns:
+        JsonResponse: Presigned URL with expiration details
+    """
+    try:
+        logger.info(f"🔗 Generating presigned URL for S3 path: {s3_path}")
+        
+        # Validate s3_path
+        if not s3_path or s3_path.strip() == "":
+            return JsonResponse({
+                "success": False,
+                "message": "S3 path is required"
+            }, status=400)
+        
+        # Clean the s3_path (remove leading slashes if present)
+        clean_s3_path = s3_path.lstrip('/')
+        
+        # Generate presigned URL using the existing function
+        presigned_url = generate_presigned_url(clean_s3_path, bucket_name="ddsfocustime", expiration=3600)
+        
+        if presigned_url:
+            logger.info(f"✅ Successfully generated presigned URL for: {clean_s3_path}")
+            return JsonResponse({
+                "success": True,
+                "message": f"Presigned URL generated successfully for {clean_s3_path}",
+                "data": {
+                    "s3_path": clean_s3_path,
+                    "presigned_url": presigned_url,
+                    "expires_in": 3600,
+                    "bucket": "ddsfocustime"
+                },
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            logger.error(f"❌ Failed to generate presigned URL for: {clean_s3_path}")
+            return JsonResponse({
+                "success": False,
+                "message": f"Failed to generate presigned URL for {clean_s3_path}",
+                "data": {},
+                "timestamp": datetime.now().isoformat()
+            }, status=500)
+            
+    except Exception as e:
+        logger.error(f"❌ Error generating presigned URL for {s3_path}: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": f"Error generating presigned URL: {str(e)}",
+            "data": {},
+            "timestamp": datetime.now().isoformat()
+        }, status=500)
