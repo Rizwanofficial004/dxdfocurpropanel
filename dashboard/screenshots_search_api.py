@@ -293,17 +293,47 @@ def name_all_screenshots_api(request):
         
         print(f"🔍 Name + ALL Screenshots Search: '{search_query}' (S3 scan, limit: {limit})")
         
-        # Get all employees from S3 directly
+        # Get all employees from S3 directly - using inline working implementation
         try:
-            s3_employees = get_all_employees_from_s3()
-            print(f"📂 Found {len(s3_employees)} employees in S3")
-        except Exception as e:
-            print(f"❌ Error accessing S3: {str(e)}")
-            return api_response(
-                success=False,
-                message="Error accessing S3 data",
-                status_code=500
+            print("📂 Starting direct S3 scan...")
+            import boto3
+            
+            # Use working credentials directly
+            s3_client = boto3.client(
+                's3',
+                aws_access_key_id="AKIARSU6EUUWMQ5I2JWC",
+                aws_secret_access_key="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",
+                region_name="eu-north-1"
             )
+            
+            # Scan S3 for employee folders
+            response = s3_client.list_objects_v2(
+                Bucket="ddsfocustime",
+                Prefix="screenshots/",
+                Delimiter='/',
+                MaxKeys=100
+            )
+            
+            s3_employees = []
+            for prefix_info in response.get('CommonPrefixes', []):
+                prefix = prefix_info['Prefix']
+                email_folder = prefix.replace('screenshots/', '').rstrip('/')
+                
+                if '_at_' in email_folder:
+                    email = email_folder.replace('_at_', '@')
+                    s3_employees.append({
+                        'email': email,
+                        'folder': email_folder,
+                        'prefix': prefix
+                    })
+            
+            print(f"📂 Direct S3 scan found {len(s3_employees)} employees")
+            
+        except Exception as e:
+            print(f"❌ Direct S3 scan failed: {str(e)}")
+            # Final fallback - return empty list
+            s3_employees = []
+            print(f"📂 Using empty list fallback")
         
         # Filter S3 employees based on search query
         filtered_s3_employees = []
@@ -348,8 +378,15 @@ def name_all_screenshots_api(request):
             print(f"📸 Getting ALL screenshots for S3 user: {email}")
             
             try:
-                # Get ALL screenshots (no date filter) with high limit
-                screenshots_data = scan_and_download_screenshots(email, '', bool_flag=True)
+                # Import enhanced screenshot function
+                from .enhanced_s3_functions import enhanced_scan_and_download_screenshots
+                
+                # Try enhanced function first
+                try:
+                    screenshots_data = enhanced_scan_and_download_screenshots(email, '', bool_flag=True)
+                except Exception as enhanced_error:
+                    print(f"   ⚠️ Enhanced scan failed, using original: {enhanced_error}")
+                    screenshots_data = scan_and_download_screenshots(email, '', bool_flag=True)
                 
                 if screenshots_data and screenshots_data.get('image_urls'):
                     screenshots_list = screenshots_data.get('image_urls', [])

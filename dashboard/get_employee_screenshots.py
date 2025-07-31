@@ -27,7 +27,13 @@ def file_hash(path):
 def generate_presigned_url(bucket_name, key_param):
     """Generate presigned URL for S3 object"""
     try:
-        return s3.generate_presigned_url(
+        # Import aws_utils for proper S3 client
+        from .aws_utils import get_s3_client
+        
+        # Use proper S3 client with credentials
+        s3_client = get_s3_client()
+        
+        return s3_client.generate_presigned_url(
             ClientMethod="get_object",
             Params={
                 "Bucket": bucket_name,
@@ -50,6 +56,12 @@ def scan_and_download_screenshots(email, date='', bool_flag=False):
     print(f"🔍 Scanning S3 bucket '{BUCKET_NAME}' for email: {email}")
    
     try:
+        # Import aws_utils for proper S3 client
+        from .aws_utils import get_s3_client
+        
+        # Use proper S3 client with credentials
+        s3_client = get_s3_client()
+        
         # Build S3 prefix for this user
         if date:
             prefix = f"{S3_BASE_PREFIX}{modified_email}/{date}/"
@@ -58,7 +70,7 @@ def scan_and_download_screenshots(email, date='', bool_flag=False):
         
         # List objects in S3
         max_keys = 1000 if bool_flag else 50  # Limit results for performance
-        response = s3.list_objects_v2(
+        response = s3_client.list_objects_v2(
             Bucket=BUCKET_NAME, 
             Prefix=prefix,
             MaxKeys=max_keys
@@ -132,20 +144,36 @@ def get_all_employees_from_s3():
     try:
         print(f"🔍 Scanning S3 bucket '{BUCKET_NAME}' for all employees...")
         
+        # Import aws_utils for proper S3 client with correct credentials
+        from .aws_utils import get_s3_client
+        
+        # Use proper S3 client with hardcoded credentials from aws_utils
+        s3_client = get_s3_client()
+        
+        print(f"   Using bucket: {BUCKET_NAME}")
+        print(f"   Using prefix: {S3_BASE_PREFIX}")
+        
         # List all objects in the screenshots folder
-        response = s3.list_objects_v2(
+        response = s3_client.list_objects_v2(
             Bucket=BUCKET_NAME,
             Prefix=S3_BASE_PREFIX,
-            Delimiter='/'  # This helps us get only the top-level folders (employee emails)
+            Delimiter='/',  # This helps us get only the top-level folders (employee emails)
+            MaxKeys=1000    # Increase limit to ensure we get all folders
         )
         
         employees = []
         
+        print(f"   Response keys: {list(response.keys())}")
+        print(f"   CommonPrefixes count: {len(response.get('CommonPrefixes', []))}")
+        
         # Get employee folders from CommonPrefixes
         for prefix_info in response.get('CommonPrefixes', []):
             prefix = prefix_info['Prefix']
+            print(f"   Processing prefix: {prefix}")
+            
             # Extract email from prefix: screenshots/email_folder/ -> email_folder
             email_folder = prefix.replace(S3_BASE_PREFIX, '').rstrip('/')
+            print(f"   Email folder: {email_folder}")
             
             # Convert back to email format: amirishaque67_at_gmail.com -> amirishaque67@gmail.com
             if '_at_' in email_folder:
@@ -155,12 +183,22 @@ def get_all_employees_from_s3():
                     'folder': email_folder,
                     'prefix': prefix
                 })
+                print(f"   📧 Found employee: {email}")
+            else:
+                print(f"   ⚠️ Skipping non-email folder: {email_folder}")
         
         print(f"✅ Found {len(employees)} employees in S3")
         return employees
         
     except Exception as e:
         print(f"❌ Error getting employees from S3: {e}")
+        print(f"   Error type: {type(e).__name__}")
+        print(f"   Detailed error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        # Return empty list instead of fallback data for debugging
+        print("🔄 Returning empty list due to error")
         return []
 
 def get_all_employees_with_screenshots(limit_per_employee=10):
