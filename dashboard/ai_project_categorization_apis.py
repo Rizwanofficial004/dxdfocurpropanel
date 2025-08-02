@@ -6,14 +6,14 @@ Uses OpenAI to analyze project names and categorize them into status groups
 
 import requests
 import json
-from openai import OpenAI
+import openai
 from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 # OpenAI Configuration
 OPENAI_API_KEY = "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"
-client = OpenAI(api_key=OPENAI_API_KEY)
+openai.api_key = OPENAI_API_KEY
 
 # CRM Configuration
 CRM_BASE_URL = "https://crm.deluxebilisim.com/api"
@@ -108,8 +108,8 @@ Return a JSON response with this exact structure:
 }}
 """
 
-        # Call OpenAI API with new v1.0+ syntax
-        response = client.chat.completions.create(
+        # Call OpenAI API with v0.28 syntax
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {

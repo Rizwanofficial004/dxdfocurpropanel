@@ -18,7 +18,8 @@ from django.views import View
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import User_Logs, Staff, ConfigurationSettings
-from .get_employee_screenshots import scan_and_download_screenshots, generate_presigned_url
+from .get_employee_screenshots import scan_and_download_screenshots
+from .aws_utils import generate_presigned_url
 from .aws_utils import get_s3_client
 from .serializers import (
     LoginSerializer, 
@@ -4285,3 +4286,601 @@ def presigned_url_api(request, s3_path):
             "data": {},
             "timestamp": datetime.now().isoformat()
         }, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def employee_screenshots_search_api(request):
+    """
+    Search all screenshots for employees from S3 with advanced filtering and pagination
+    
+    Query Parameters:
+    - email: Employee email (optional, if not provided returns all employees)
+    - task_folder: Specific task folder (optional)
+    - page: Page number (default: 1)
+    - limit: Items per page (default: 50, max: 200)
+    - date_from: Filter screenshots from date (YYYY-MM-DD)
+    - date_to: Filter screenshots to date (YYYY-MM-DD)
+    - continuation_token: S3 continuation token for true pagination
+    
+    Returns:
+        JsonResponse: Employee screenshots with pagination
+    """
+    try:
+        # Get query parameters
+        email = request.GET.get('email', '').strip()
+        task_folder = request.GET.get('task_folder', '').strip()
+        page = int(request.GET.get('page', 1))
+        limit = min(int(request.GET.get('limit', 50)), 200)  # Max 200 per page
+        date_from = request.GET.get('date_from', '').strip()
+        date_to = request.GET.get('date_to', '').strip()
+        continuation_token = request.GET.get('continuation_token', '').strip()
+        fast_mode = request.GET.get('fast_mode', 'false').lower() == 'true'  # Skip accurate counting
+        
+        logger.info(f"🔍 Screenshot search - Email: {email}, Task: {task_folder}, Page: {page}")
+        
+        # Validate date format if provided
+        if date_from and not validate_date_format(date_from):
+            return JsonResponse({
+                "success": False,
+                "message": "Invalid date_from format. Use YYYY-MM-DD"
+            }, status=400)
+            
+        if date_to and not validate_date_format(date_to):
+            return JsonResponse({
+                "success": False,
+                "message": "Invalid date_to format. Use YYYY-MM-DD"
+            }, status=400)
+        
+        # Get S3 client
+        s3_client = get_s3_client()
+        bucket_name = "ddsfocustime"
+        
+        if email:
+            # Search for specific employee
+            if not validate_email_format(email):
+                return JsonResponse({
+                    "success": False,
+                    "message": "Invalid email format"
+                }, status=400)
+            
+            # Check if employee exists in database
+            try:
+                staff = Staff.objects.get(email=email)
+            except Staff.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": f"Employee with email {email} not found"
+                }, status=404)
+            
+            # Get screenshots for specific employee
+            result = get_employee_screenshots_paginated(
+                s3_client, bucket_name, email, task_folder, 
+                limit, continuation_token, date_from, date_to
+            )
+            
+            return JsonResponse({
+                "success": True,
+                "message": f"Screenshots retrieved for {email}",
+                "data": {
+                    "employee": {
+                        "email": staff.email,
+                        "name": f"{staff.firstname} {staff.lastname}",
+                        "staff_id": staff.staffid
+                    },
+                    "screenshots": result["screenshots"],
+                    "pagination": {
+                        "current_page": page,
+                        "total_screenshots": result["total_count"],
+                        "screenshots_per_page": limit,
+                        "has_next": result["has_next"],
+                        "continuation_token": result["next_token"],
+                        "task_folder": task_folder or "all_tasks"
+                    },
+                    "filters": {
+                        "date_from": date_from,
+                        "date_to": date_to,
+                        "task_folder": task_folder
+                    }
+                },
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            # Get all employees and their screenshots
+            all_staff = Staff.objects.all().order_by('firstname')
+            employees_data = []
+            
+            for staff in all_staff:
+                try:
+                    if fast_mode:
+                        # Fast mode: just check if folder exists (no counting)
+                        s3_email_folder = staff.email.replace('@', '_at_')
+                        prefix = f"screenshots/{s3_email_folder}/"
+                        
+                        # Quick check if any screenshots exist
+                        response = s3_client.list_objects_v2(
+                            Bucket=bucket_name,
+                            Prefix=prefix,
+                            MaxKeys=1
+                        )
+                        
+                        has_screenshots = response.get('KeyCount', 0) > 0
+                        screenshot_count = 1 if has_screenshots else 0  # Placeholder count
+                    else:
+                        # Accurate mode: get real screenshot count (slower)
+                        screenshot_count = get_employee_total_screenshot_count(
+                            s3_client, bucket_name, staff.email, task_folder, date_from, date_to
+                        )
+                        has_screenshots = screenshot_count > 0
+                    
+                    employees_data.append({
+                        "employee": {
+                            "email": staff.email,
+                            "name": f"{staff.firstname} {staff.lastname}",
+                            "staff_id": staff.staffid
+                        },
+                        "screenshot_count": screenshot_count,
+                        "has_screenshots": has_screenshots,
+                        "fast_mode": fast_mode
+                    })
+                except Exception as e:
+                    logger.warning(f"Error getting screenshots for {staff.email}: {str(e)}")
+                    employees_data.append({
+                        "employee": {
+                            "email": staff.email,
+                            "name": f"{staff.firstname} {staff.lastname}",
+                            "staff_id": staff.staffid
+                        },
+                        "screenshot_count": 0,
+                        "has_screenshots": False,
+                        "error": str(e),
+                        "fast_mode": fast_mode
+                    })
+            
+            # Apply pagination to employees list
+            paginator = Paginator(employees_data, limit)
+            try:
+                page_obj = paginator.page(page)
+            except:
+                page_obj = paginator.page(1)
+            
+            return JsonResponse({
+                "success": True,
+                "message": f"All employees screenshots overview retrieved",
+                "data": {
+                    "employees": list(page_obj),
+                    "pagination": {
+                        "current_page": page_obj.number,
+                        "total_pages": paginator.num_pages,
+                        "total_employees": paginator.count,
+                        "employees_per_page": limit,
+                        "has_next": page_obj.has_next(),
+                        "has_previous": page_obj.has_previous()
+                    },
+                    "filters": {
+                        "date_from": date_from,
+                        "date_to": date_to,
+                        "task_folder": task_folder
+                    }
+                },
+                "timestamp": datetime.now().isoformat()
+            })
+            
+    except Exception as e:
+        logger.error(f"❌ Error in employee screenshots search: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": f"Error searching screenshots: {str(e)}",
+            "data": {},
+            "timestamp": datetime.now().isoformat()
+        }, status=500)
+
+
+def get_employee_total_screenshot_count(s3_client, bucket_name, email, task_folder=None, date_from=None, date_to=None):
+    """
+    Get accurate total screenshot count for an employee (optimized for count only)
+    
+    Args:
+        s3_client: Boto3 S3 client
+        bucket_name: S3 bucket name
+        email: Employee email
+        task_folder: Optional specific task folder
+        date_from: Filter from date
+        date_to: Filter to date
+    
+    Returns:
+        int: Total screenshot count
+    """
+    try:
+        # Convert email to S3 folder format (@ becomes _at_)
+        s3_email_folder = email.replace('@', '_at_')
+        
+        # Build S3 prefix
+        prefix = f"screenshots/{s3_email_folder}/"
+        if task_folder:
+            prefix += f"{task_folder}/"
+        
+        # Use paginator to get all objects efficiently
+        total_count = 0
+        paginator = s3_client.get_paginator('list_objects_v2')
+        page_iterator = paginator.paginate(
+            Bucket=bucket_name,
+            Prefix=prefix
+        )
+        
+        allowed_extensions = ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp')
+        
+        # Count all matching screenshots
+        for page in page_iterator:
+            for obj in page.get("Contents", []):
+                key = obj["Key"]
+                
+                # Filter by file extension
+                if not key.lower().endswith(allowed_extensions):
+                    continue
+                
+                # Apply date filters if provided
+                if date_from or date_to:
+                    file_date = obj["LastModified"]
+                    
+                    if date_from:
+                        try:
+                            from_date = datetime.strptime(date_from, "%Y-%m-%d").date()
+                            if file_date.date() < from_date:
+                                continue
+                        except:
+                            pass
+                    
+                    if date_to:
+                        try:
+                            to_date = datetime.strptime(date_to, "%Y-%m-%d").date()
+                            if file_date.date() > to_date:
+                                continue
+                        except:
+                            pass
+                
+                total_count += 1
+        
+        return total_count
+        
+    except Exception as e:
+        logger.error(f"Error counting screenshots for {email}: {str(e)}")
+        return 0
+
+
+def get_employee_screenshots_paginated(s3_client, bucket_name, email, task_folder=None, 
+                                     limit=50, continuation_token=None, date_from=None, date_to=None):
+    """
+    Get paginated screenshots for an employee from S3
+    
+    Args:
+        s3_client: Boto3 S3 client
+        bucket_name: S3 bucket name
+        email: Employee email
+        task_folder: Optional specific task folder
+        limit: Number of screenshots per page
+        continuation_token: S3 continuation token
+        date_from: Filter from date
+        date_to: Filter to date
+    
+    Returns:
+        dict: Screenshots data with pagination info
+    """
+    try:
+        # Convert email to S3 folder format (@ becomes _at_)
+        s3_email_folder = email.replace('@', '_at_')
+        
+        # Build S3 prefix
+        prefix = f"screenshots/{s3_email_folder}/"
+        if task_folder:
+            prefix += f"{task_folder}/"
+        
+        logger.info(f"🔍 Searching S3 with prefix: {prefix}")
+        
+        # First, get the total count by listing all objects (for accurate count)
+        total_count = 0
+        paginator = s3_client.get_paginator('list_objects_v2')
+        page_iterator = paginator.paginate(
+            Bucket=bucket_name,
+            Prefix=prefix
+        )
+        
+        allowed_extensions = ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp')
+        all_screenshots = []
+        
+        # Collect all screenshots for accurate count and filtering
+        for page in page_iterator:
+            for obj in page.get("Contents", []):
+                key = obj["Key"]
+                
+                # Filter by file extension
+                if not key.lower().endswith(allowed_extensions):
+                    continue
+                
+                # Extract file info
+                file_date = obj["LastModified"]
+                
+                # Apply date filters
+                if date_from:
+                    try:
+                        from_date = datetime.strptime(date_from, "%Y-%m-%d").date()
+                        if file_date.date() < from_date:
+                            continue
+                    except:
+                        pass
+                
+                if date_to:
+                    try:
+                        to_date = datetime.strptime(date_to, "%Y-%m-%d").date()
+                        if file_date.date() > to_date:
+                            continue
+                    except:
+                        pass
+                
+                # Add to all screenshots list
+                all_screenshots.append({
+                    "key": key,
+                    "obj": obj,
+                    "file_date": file_date
+                })
+        
+        # Get total count after filtering
+        total_count = len(all_screenshots)
+        
+        # Sort by last modified (newest first)
+        all_screenshots.sort(key=lambda x: x["file_date"], reverse=True)
+        
+        # Apply pagination to the sorted list
+        start_idx = 0
+        if continuation_token:
+            try:
+                start_idx = int(continuation_token)
+            except:
+                start_idx = 0
+        
+        end_idx = start_idx + limit
+        paginated_screenshots = all_screenshots[start_idx:end_idx]
+        
+        # Process paginated screenshots
+        screenshots = []
+        for item in paginated_screenshots:
+            key = item["key"]
+            obj = item["obj"]
+            
+            # Generate presigned URL
+            try:
+                presigned_url = generate_presigned_url(key, bucket_name, 3600)
+            except:
+                presigned_url = None
+            
+            # Extract task name from path
+            path_parts = key.replace(f"screenshots/{s3_email_folder}/", "").split("/")
+            task_name = path_parts[0] if len(path_parts) > 1 else "root"
+            filename = path_parts[-1]
+            
+            screenshots.append({
+                "key": key,
+                "filename": filename,
+                "task_folder": task_name,
+                "url": presigned_url,
+                "last_modified": item["file_date"].isoformat(),
+                "size": obj["Size"],
+                "size_mb": round(obj["Size"] / (1024 * 1024), 2)
+            })
+        
+        # Calculate next token
+        next_token = None
+        has_next = end_idx < total_count
+        if has_next:
+            next_token = str(end_idx)
+        
+        return {
+            "screenshots": screenshots,
+            "total_count": total_count,
+            "has_next": has_next,
+            "next_token": next_token,
+            "prefix_searched": prefix
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting screenshots for {email}: {str(e)}")
+        return {
+            "screenshots": [],
+            "total_count": 0,
+            "has_next": False,
+            "next_token": None,
+            "error": str(e)
+        }
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def employee_task_folders_api(request):
+    """
+    Get all task folders for all employees or specific employee
+    
+    Query Parameters:
+    - email: Employee email (optional)
+    
+    Returns:
+        JsonResponse: Employee task folders structure
+    """
+    try:
+        email = request.GET.get('email', '').strip()
+        
+        # Get S3 client
+        s3_client = get_s3_client()
+        bucket_name = "ddsfocustime"
+        
+        if email:
+            # Get task folders for specific employee
+            if not validate_email_format(email):
+                return JsonResponse({
+                    "success": False,
+                    "message": "Invalid email format"
+                }, status=400)
+            
+            # Check if employee exists
+            try:
+                staff = Staff.objects.get(email=email)
+            except Staff.DoesNotExist:
+                return JsonResponse({
+                    "success": False,
+                    "message": f"Employee with email {email} not found"
+                }, status=404)
+            
+            task_folders = get_employee_task_folders(s3_client, bucket_name, email)
+            
+            return JsonResponse({
+                "success": True,
+                "message": f"Task folders retrieved for {email}",
+                "data": {
+                    "employee": {
+                        "email": staff.email,
+                        "name": f"{staff.firstname} {staff.lastname}",
+                        "staff_id": staff.staffid
+                    },
+                    "task_folders": task_folders,
+                    "total_folders": len(task_folders)
+                },
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            # Get all employees and their task folders
+            all_staff = Staff.objects.all().order_by('firstname')
+            employees_folders = []
+            
+            for staff in all_staff:
+                try:
+                    task_folders = get_employee_task_folders(s3_client, bucket_name, staff.email)
+                    employees_folders.append({
+                        "employee": {
+                            "email": staff.email,
+                            "name": f"{staff.firstname} {staff.lastname}",
+                            "staff_id": staff.staffid
+                        },
+                        "task_folders": task_folders,
+                        "total_folders": len(task_folders)
+                    })
+                except Exception as e:
+                    logger.warning(f"Error getting task folders for {staff.email}: {str(e)}")
+                    employees_folders.append({
+                        "employee": {
+                            "email": staff.email,
+                            "name": f"{staff.firstname} {staff.lastname}",
+                            "staff_id": staff.staffid
+                        },
+                        "task_folders": [],
+                        "total_folders": 0,
+                        "error": str(e)
+                    })
+            
+            return JsonResponse({
+                "success": True,
+                "message": "All employees task folders retrieved",
+                "data": {
+                    "employees": employees_folders,
+                    "total_employees": len(employees_folders)
+                },
+                "timestamp": datetime.now().isoformat()
+            })
+            
+    except Exception as e:
+        logger.error(f"❌ Error getting employee task folders: {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "message": f"Error getting task folders: {str(e)}",
+            "data": {},
+            "timestamp": datetime.now().isoformat()
+        }, status=500)
+
+
+def get_employee_task_folders(s3_client, bucket_name, email):
+    """
+    Get all task folders for a specific employee
+    
+    Args:
+        s3_client: Boto3 S3 client
+        bucket_name: S3 bucket name
+        email: Employee email
+    
+    Returns:
+        list: Task folders with screenshot counts
+    """
+    try:
+        # Convert email to S3 folder format (@ becomes _at_)
+        s3_email_folder = email.replace('@', '_at_')
+        prefix = f"screenshots/{s3_email_folder}/"
+        
+        logger.info(f"🔍 Getting task folders with prefix: {prefix}")
+        
+        # List all objects with the employee prefix
+        response = s3_client.list_objects_v2(
+            Bucket=bucket_name,
+            Prefix=prefix,
+            Delimiter="/"
+        )
+        
+        task_folders = []
+        
+        # Get folder prefixes (task folders)
+        for folder_info in response.get("CommonPrefixes", []):
+            folder_path = folder_info["Prefix"]
+            folder_name = folder_path.replace(prefix, "").rstrip("/")
+            
+            # Get screenshot count for this folder
+            folder_response = s3_client.list_objects_v2(
+                Bucket=bucket_name,
+                Prefix=folder_path
+            )
+            
+            screenshot_count = 0
+            total_size = 0
+            allowed_extensions = ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp')
+            
+            for obj in folder_response.get("Contents", []):
+                if obj["Key"].lower().endswith(allowed_extensions):
+                    screenshot_count += 1
+                    total_size += obj["Size"]
+            
+            task_folders.append({
+                "folder_name": folder_name,
+                "folder_path": folder_path,
+                "screenshot_count": screenshot_count,
+                "total_size_mb": round(total_size / (1024 * 1024), 2)
+            })
+        
+        # Also check for screenshots directly in the root employee folder
+        root_response = s3_client.list_objects_v2(
+            Bucket=bucket_name,
+            Prefix=prefix,
+            Delimiter="/"
+        )
+        
+        root_screenshots = 0
+        root_size = 0
+        allowed_extensions = ('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp')
+        
+        for obj in root_response.get("Contents", []):
+            key = obj["Key"]
+            # Only count files directly in the employee folder (not in subfolders)
+            if key.count("/") == 2 and key.lower().endswith(allowed_extensions):
+                root_screenshots += 1
+                root_size += obj["Size"]
+        
+        if root_screenshots > 0:
+            task_folders.append({
+                "folder_name": "root",
+                "folder_path": prefix,
+                "screenshot_count": root_screenshots,
+                "total_size_mb": round(root_size / (1024 * 1024), 2)
+            })
+        
+        # Sort by screenshot count (descending)
+        task_folders.sort(key=lambda x: x["screenshot_count"], reverse=True)
+        
+        return task_folders
+        
+    except Exception as e:
+        logger.error(f"Error getting task folders for {email}: {str(e)}")
+        return []

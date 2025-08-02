@@ -52,6 +52,13 @@ urlpatterns = [
     # Presigned URL API (NEW) - Generate secure S3 URLs
     path('screenshots/presigned-url/<path:s3_path>', api_views.presigned_url_api, name='api_presigned_url'),
     
+    # ==================== EMPLOYEE SCREENSHOT SEARCH APIs (NEW) ====================
+    # Comprehensive employee screenshot search with pagination
+    path('employees/screenshots/search/', api_views.employee_screenshots_search_api, name='api_employee_screenshots_search'),
+    
+    # Employee task folders management
+    path('employees/task-folders/', api_views.employee_task_folders_api, name='api_employee_task_folders_all'),
+    
     # Google-like Search & Suggestion APIs (NEW)
     path('users/suggestions/', api_views.user_suggestions_api, name='api_user_suggestions'),
     path('users/s3-suggestions/', api_views.s3_user_suggestions_api, name='api_s3_user_suggestions'),
