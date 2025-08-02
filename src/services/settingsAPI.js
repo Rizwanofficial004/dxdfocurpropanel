@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mockSettingsAPI } from './mockSettingsAPI';
 
 // Settings API configuration
-const SETTINGS_API_BASE = 'https://dxdtime.ddsolutions.io/api/settings';
+const SETTINGS_API_BASE = 'http://localhost:8000api/settings';
 
 // Development mode - set to true to use mock API
 const USE_MOCK_API = true; // Set to false when backend is ready

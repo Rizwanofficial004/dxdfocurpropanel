@@ -53,7 +53,7 @@ const APITester = () => {
   const testDirectFetch = async () => {
     setResult('Testing direct fetch...');
     try {
-      const response = await fetch('https://dxdtime.ddsolutions.io/api/auth/login/', {
+      const response = await fetch('http://localhost:8000api/auth/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ const APITester = () => {
     setResult('Testing with axios...');
     try {
       const axios = await import('axios');
-      const response = await axios.default.post('https://dxdtime.ddsolutions.io/api/auth/login/', {
+      const response = await axios.default.post('http://localhost:8000api/auth/login/', {
         username: 'Admin',
         password: 'admin123'
       });

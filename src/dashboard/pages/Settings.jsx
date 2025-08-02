@@ -1451,7 +1451,7 @@ const Settings = () => {
                   All settings are saved to the backend API and applied in real-time.
                 </p>
                 <div style={{ fontSize: '0.75rem', color: isDarkMode ? '#94a3b8' : '#64748b' }}>
-                  <ApiEndpoint isDarkMode={isDarkMode}><strong>Base URL:</strong> https://dxdtime.ddsolutions.io/api/</ApiEndpoint>
+                  <ApiEndpoint isDarkMode={isDarkMode}><strong>Base URL:</strong> http://localhost:8000api/</ApiEndpoint>
                   <ApiEndpoint isDarkMode={isDarkMode}><strong>UI Endpoint:</strong> /api/settings/ui/</ApiEndpoint>
                   <ApiEndpoint isDarkMode={isDarkMode}><strong>Credentials:</strong> /api/settings/credentials/</ApiEndpoint>
                 </div>

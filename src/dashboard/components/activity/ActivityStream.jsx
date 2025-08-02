@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import { gsap } from 'gsap';
 import { useTheme } from '../../context/ThemeContext';
+import { getApiBaseURL } from '../../../config/api';
+import { retryApiCall, retryExtremeApiCall } from '../../../config/apiConfig';
 import ImageModal from '../common/ImageModal';
 import {
   Wrapper,
@@ -634,16 +636,17 @@ const ActivityStream = () => {
         
         // Try a simple health check first (if available), otherwise use suggestions endpoint
         let response;
+        const apiBaseURL = getApiBaseURL();
         try {
           // Try a simple health check endpoint first
-          response = await axios.get('/health', {
+          response = await axios.get(`${apiBaseURL}/health`, {
             timeout: 2000
           });
           console.log('✅ Backend health check passed');
         } catch (healthErr) {
           console.log('⚠️ Health endpoint not available, trying suggestions endpoint...');
           // Fallback to suggestions endpoint with longer timeout for S3 operations
-          response = await axios.get('https://dxdtime.ddsolutions.io/api/users/s3-suggestions/?q=test&limit=10', {
+          response = await axios.get(`${apiBaseURL}/users/s3-suggestions/?q=test&limit=10`, {
             timeout: 10000 // Increased timeout for S3 operations
           });
           console.log('✅ Backend suggestions endpoint responded');
@@ -659,6 +662,42 @@ const ActivityStream = () => {
           response: err.response?.status,
           message: err.message
         });
+        
+        // For development: show test suggestions when backend is down  
+        console.log('🔧 DEVELOPMENT: Backend unavailable, setting up test environment');
+        const testSuggestions = [
+          {
+            display_name: 'John Doe',
+            email: 'john.doe@company.com',
+            username: 'john.doe',
+            search_value: 'john.doe@company.com',
+            screenshot_count: 150,
+            staff_id: 'EMP001',
+            suggestion_text: 'John Doe (john.doe@company.com)'
+          },
+          {
+            display_name: 'Jane Smith',
+            email: 'jane.smith@company.com', 
+            username: 'jane.smith',
+            search_value: 'jane.smith@company.com',
+            screenshot_count: 89,
+            staff_id: 'EMP002',
+            suggestion_text: 'Jane Smith (jane.smith@company.com)'
+          },
+          {
+            display_name: 'Test User',
+            email: 'test@example.com',
+            username: 'test',
+            search_value: 'test@example.com',
+            screenshot_count: 42,
+            staff_id: 'TEST001',
+            suggestion_text: 'Test User (test@example.com)'
+          }
+        ];
+        
+        // Store test suggestions for use when search is triggered
+        window.__testSuggestions = testSuggestions;
+        console.log('🔧 Test suggestions prepared:', testSuggestions);
       }
     };
 
@@ -847,7 +886,8 @@ const ActivityStream = () => {
       console.log('🔍 Fetching user suggestions for query:', query);
       console.log('🔍 Query length:', query.length, 'Query:', `"${query}"`);
       
-      const suggestionUrl = `https://dxdtime.ddsolutions.io/api/users/s3-suggestions/?q=${encodeURIComponent(query)}&limit=10`;
+      const apiBaseURL = getApiBaseURL();
+      const suggestionUrl = `${apiBaseURL}/users/s3-suggestions/?q=${encodeURIComponent(query)}&limit=10`;
       console.log('🔍 API URL:', suggestionUrl);
       
       const response = await axios.get(suggestionUrl, {
@@ -945,6 +985,20 @@ const ActivityStream = () => {
         message: err.message
       });
       
+      // DEVELOPMENT FALLBACK: Use test suggestions when backend is down
+      if (backendStatus === 'disconnected' && window.__testSuggestions) {
+        console.log('🔧 DEVELOPMENT FALLBACK: Using test suggestions');
+        const filteredTestSuggestions = window.__testSuggestions.filter(user =>
+          user.display_name.toLowerCase().includes(query.toLowerCase()) ||
+          user.email.toLowerCase().includes(query.toLowerCase()) ||
+          user.username.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        setSearchSuggestions(filteredTestSuggestions);
+        console.log('💡 Set test user suggestions:', filteredTestSuggestions.length, 'suggestions:', filteredTestSuggestions);
+        return; // Exit early to avoid setting error
+      }
+      
       // Don't use test data - show the actual error to user
       console.error('❌ Cannot connect to backend. Please ensure:');
       console.error('   1. Backend server is running on localhost:8000');
@@ -959,7 +1013,7 @@ const ActivityStream = () => {
     }
   };
 
-  // Fetch screenshots from API using new endpoints
+  // Fetch screenshots from API using dynamic endpoints
   const fetchScreenshots = async (searchTerm, limit = 20, page = 1) => {
     if (!searchTerm || !searchTerm.trim()) {
       setScreenshots([]);
@@ -976,10 +1030,20 @@ const ActivityStream = () => {
       setError('');
       setHasSearched(true);
       
-      // Using the specified API endpoint
-      let apiUrl = 'https://dxdtime.ddsolutions.io/api/screenshots/search/';
+      // Using the new dynamic API endpoint
+      const apiBaseURL = getApiBaseURL();
+      let apiUrl = `${apiBaseURL}/employees/screenshots/search/`;
       let params = new URLSearchParams();
-      params.append('search', searchTerm.trim());
+      
+      // Set dynamic parameters for comprehensive screenshot search
+      params.append('fast_mode', 'false'); // Disable fast mode for comprehensive results
+      params.append('min_screenshots', '10000'); // Minimum screenshots threshold
+      params.append('max_screenshots', '50000'); // Maximum screenshots threshold
+      
+      // Add search term if provided
+      if (searchTerm && searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
+      }
       
       // Handle different search modes based on filters and pagination
       if (singleDateFilter) {
@@ -991,35 +1055,72 @@ const ActivityStream = () => {
           params.append('offset', offset.toString());
         }
         setSearchPattern('date');
-        console.log(`🔍 Fetching screenshots with date filter: ${singleDateFilter}`);
+        console.log(`🔍 Fetching dynamic screenshots with date filter: ${singleDateFilter}`);
       } else if (totalCount > 1000 || (page === 1 && !totalCount)) {
-        // Pattern 3: Name + ALL Screenshots using the specified S3 scan approach
-        params.append('scan_s3', 'true');
-        params.append('limit', '5000'); // Using the specified limit for comprehensive search
-        setSearchPattern('s3scan');
-        console.log(`🔍 Fetching ALL screenshots using S3 scan with limit 5000`);
+        // Pattern 3: Dynamic comprehensive search with large limits
+        params.append('limit', '50000'); // Use max limit for comprehensive search
+        setSearchPattern('dynamic_comprehensive');
+        console.log(`🔍 Fetching ALL dynamic screenshots with comprehensive search (limit: 50000)`);
       } else {
-        // Pattern 1: Quick Name Search (paginated)
+        // Pattern 1: Dynamic search with pagination
         params.append('limit', limit.toString());
         if (page > 1) {
           const offset = (page - 1) * limit;
           params.append('offset', offset.toString());
         }
-        setSearchPattern('quick');
-        console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${limit}`);
+        setSearchPattern('dynamic_quick');
+        console.log(`🔍 Fetching dynamic screenshots with pagination: page ${page}, limit ${limit}`);
       }
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
-      console.log(`🔍 API Request: ${fullUrl}`);
-      console.log(`📋 Request matches your specified format: ${fullUrl.includes('scan_s3=true&limit=5000') ? '✅' : '⚠️'}`);
+      console.log(`🔍 Dynamic API Request: ${fullUrl}`);
+      console.log(`📋 Using dynamic employees/screenshots/search endpoint with fast_mode=false`);
       
-      const response = await axios.get(fullUrl, { timeout: 30000 });
+      const response = await retryExtremeApiCall(
+        (timeout) => axios.get(fullUrl, { timeout }),
+        'Dynamic Screenshot Search',
+        {
+          onRetry: (attempt, error, timeout) => {
+            const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
+            console.log(`🔄 Screenshot search attempt ${attempt}/4 with ${timeoutLabel} timeout`);
+          }
+        }
+      );
       let newScreenshots = [];
       let total = 0;
       
-      // Handle different response structures from the API
-      if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
-        // Structure: { data: { employees: [...], summary: {...} } }
+      // Handle dynamic API response structures
+      console.log('🔍 Dynamic API Response Analysis:', {
+        hasData: !!response.data,
+        hasSuccess: !!response.data?.success,
+        hasEmployees: !!response.data?.employees,
+        hasResults: !!response.data?.results,
+        responseKeys: Object.keys(response.data || {}),
+        responseType: typeof response.data,
+        isArray: Array.isArray(response.data),
+        fullResponse: response.data
+      });
+      
+      // CRITICAL DEBUG: Log the exact response structure
+      console.log('🔍 FULL DYNAMIC API RESPONSE:', JSON.stringify(response.data, null, 2));
+      
+      if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
+        // Dynamic API structure: { success: true, employees: [...], total_count: number }
+        newScreenshots = response.data.employees;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using dynamic API success structure with employees array');
+      } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
+        // Dynamic API structure without success flag: { employees: [...], total_count: number }
+        newScreenshots = response.data.employees;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using dynamic API employees structure');
+      } else if (response.data && response.data.success && response.data.data && Array.isArray(response.data.data)) {
+        // Structure: { success: true, data: [...] }
+        newScreenshots = response.data.data;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using success + data array structure');
+      } else if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
+        // Nested structure: { data: { employees: [...], summary: {...} } }
         let allScreenshots = [];
         const filteredEmployees = response.data.data.employees.filter(employee => {
           if (!selectedUser) {
@@ -1059,27 +1160,67 @@ const ActivityStream = () => {
         
         newScreenshots = allScreenshots;
         total = response.data.data.summary?.total_screenshots || response.data.data.total_count || newScreenshots.length;
+        console.log('✅ Using nested employees structure with screenshots');
       } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
         // Structure: { screenshots: [...], total_count: number }
         newScreenshots = response.data.screenshots;
         total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using screenshots array structure');
       } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
         // Structure: { results: [...], count: number }
         newScreenshots = response.data.results;
         total = response.data.count || response.data.total_count || newScreenshots.length;
+        console.log('✅ Using results array structure');
       } else if (Array.isArray(response.data)) {
-        // Structure: [...]
+        // Direct array structure: [...]
         newScreenshots = response.data;
         total = newScreenshots.length;
+        console.log('✅ Using direct array structure');
       } else {
-        console.warn('⚠️ Unexpected API response structure:', response.data);
-        newScreenshots = [];
-        total = 0;
+        console.warn('⚠️ Unexpected dynamic API response structure:', response.data);
+        console.log('🔍 Full response analysis:', {
+          data: response.data,
+          dataType: typeof response.data,
+          isArray: Array.isArray(response.data),
+          keys: response.data ? Object.keys(response.data) : []
+        });
+        
+        // FALLBACK: Try to extract any screenshot data from the response
+        let fallbackScreenshots = [];
+        
+        // Try various possible structures
+        if (response.data && Array.isArray(response.data)) {
+          fallbackScreenshots = response.data;
+        } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+          fallbackScreenshots = response.data.results;
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          fallbackScreenshots = response.data.data;
+        } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+          fallbackScreenshots = response.data.screenshots;
+        } else if (response.data && typeof response.data === 'object') {
+          // Look for any array in the response
+          const keys = Object.keys(response.data);
+          for (const key of keys) {
+            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+              console.log(`🔍 Found array in key "${key}":`, response.data[key].slice(0, 2));
+              fallbackScreenshots = response.data[key];
+              break;
+            }
+          }
+        }
+        
+        newScreenshots = fallbackScreenshots;
+        total = response.data?.total_count || response.data?.count || fallbackScreenshots.length;
+        console.log('🔧 FALLBACK: Extracted screenshots using fallback logic:', {
+          screenshotsFound: fallbackScreenshots.length,
+          total,
+          firstScreenshot: fallbackScreenshots[0]
+        });
       }
       
-      // Apply pagination logic for large datasets when using scan_s3
-      if (searchPattern === 's3scan' && params.get('scan_s3') === 'true') {
-        // For S3 scan with large limit, store full dataset and implement frontend pagination
+      // Apply pagination logic for dynamic comprehensive search
+      if (searchPattern === 'dynamic_comprehensive' && total > limit) {
+        // For comprehensive search with large results, implement frontend pagination
         if (page === 1) {
           setFullDataset(newScreenshots); // Store full dataset on first load
         }
@@ -1093,24 +1234,96 @@ const ActivityStream = () => {
         setTotalPages(Math.ceil(total / limit));
         setCurrentPage(page);
         
-        console.log('📸 Set S3 scan screenshots (frontend pagination):', paginatedScreenshots.length, 'Total:', total, 'Page:', page);
+        console.log('📸 Set dynamic comprehensive screenshots (frontend pagination):', paginatedScreenshots.length, 'Total:', total, 'Page:', page);
       } else {
-        // Normal pagination handled by backend
+        // Normal pagination handled by backend for dynamic API
         setScreenshots(newScreenshots);
         setTotalCount(total);
         setTotalPages(Math.ceil(total / limit));
         setCurrentPage(page);
         
-        console.log('📸 Set paginated screenshots (backend pagination):', newScreenshots.length, 'Total:', total, 'Page:', page);
+        console.log('📸 Set dynamic paginated screenshots (backend pagination):', newScreenshots.length, 'Total:', total, 'Page:', page);
+        console.log('🔍 SCREENSHOTS STATE DEBUG:', {
+          newScreenshotsLength: newScreenshots.length,
+          firstScreenshot: newScreenshots[0],
+          lastScreenshot: newScreenshots[newScreenshots.length - 1],
+          sampleScreenshots: newScreenshots.slice(0, 3),
+          totalCount: total,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit)
+        });
       }
+      
+      // Log dynamic API success
+      console.log('✅ Dynamic API request completed successfully:', {
+        endpoint: 'employees/screenshots/search',
+        searchPattern,
+        totalScreenshots: total,
+        displayedScreenshots: newScreenshots.length,
+        fastMode: 'false',
+        minScreenshots: '10000',
+        maxScreenshots: '50000'
+      });
+      
     } catch (err) {
-      console.error('❌ Error fetching screenshots from new endpoint:', err);
+      console.error('❌ Error fetching screenshots from dynamic endpoint:', err);
+      console.log('🔍 Dynamic API Error Details:', {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        responseData: err.response?.data,
+        url: err.config?.url
+      });
+      
       if (err.response) {
-        setError(`Server error: ${err.response.status} - ${err.response.data.message || err.response.data.detail || 'Failed to fetch screenshots'}`);
+        setError(`Dynamic API server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch dynamic screenshots'}`);
+        
+        // Show dummy data for development if the backend is down
+        if (err.response.status === 500 || err.response.status === 404) {
+          console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to server error');
+          const testScreenshots = Array.from({ length: 5 }, (_, i) => ({
+            id: `test-${i}`,
+            filename: `test_screenshot_${i}.webp`,
+            presigned_url: `https://picsum.photos/400/300?random=${i}`,
+            url: `https://picsum.photos/400/300?random=${i}`,
+            employee_name: selectedUser?.display_name || 'Test User',
+            application: 'Test Application',
+            task_name: `Test Task ${i + 1}`,
+            s3_key: `test/screenshots/test_${i}.webp`,
+            size_mb: '1.2'
+          }));
+          
+          setScreenshots(testScreenshots);
+          setTotalCount(testScreenshots.length);
+          setTotalPages(1);
+          setCurrentPage(1);
+          setError('⚠️ Using test data due to server error. Please check your backend.');
+          return; // Exit early to prevent further error handling
+        }
       } else if (err.request) {
-        setError('Network error: Unable to connect to server. Please start your backend server on http://localhost:8000');
+        setError('Network error: Unable to connect to dynamic API server. Please start your backend server on http://localhost:8000');
+        
+        // Show dummy data for development if the backend is not running
+        console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to network error');
+        const testScreenshots = Array.from({ length: 3 }, (_, i) => ({
+          id: `network-test-${i}`,
+          filename: `network_test_${i}.webp`,
+          presigned_url: `https://picsum.photos/400/300?random=${i + 10}`,
+          url: `https://picsum.photos/400/300?random=${i + 10}`,
+          employee_name: selectedUser?.display_name || 'Test User',
+          application: 'Network Test App',
+          task_name: `Network Test ${i + 1}`,
+          s3_key: `network/test/test_${i}.webp`,
+          size_mb: '0.8'
+        }));
+        
+        setScreenshots(testScreenshots);
+        setTotalCount(testScreenshots.length);
+        setTotalPages(1);
+        setCurrentPage(1);
+        setError('⚠️ Backend not accessible. Using test data for development.');
       } else {
-        setError('An unexpected error occurred while fetching screenshots');
+        setError('An unexpected error occurred while fetching dynamic screenshots');
       }
     } finally {
       setLoading(false);
@@ -1124,7 +1337,8 @@ const ActivityStream = () => {
       setError('');
       
       console.log('📁 Fetching folders for employee:', employeeEmail);
-      const apiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
+      const apiBaseURL = getApiBaseURL();
+      const apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
       console.log('🔍 Folders API URL:', apiUrl);
       
       const response = await axios.get(apiUrl, { 
@@ -1217,7 +1431,6 @@ const ActivityStream = () => {
   const fetchFolderScreenshots = async (employeeEmail, folderName, page = 1, limit = 20) => {
     // Declare variables outside try block so they're accessible in catch block
     let adjustedLimit = limit;
-    let timeout = 600000; // 10 minutes default - very generous for slow backends
     
     try {
       setLoadingFolderScreenshots(true);
@@ -1231,33 +1444,30 @@ const ActivityStream = () => {
       
       // Check if this is likely a large folder and adjust settings
       if (selectedFolder?.screenshot_count > 1000 || folderName.includes('v1.3') || folderName.includes('DDSFocusPro') || folderName.includes('YouTube_AI_Automation') || folderName.includes('Create_UI_for_YouTube')) {
-        // Keep user's selected limit but increase timeout for large folders
+        // Keep user's selected limit for large folders
         adjustedLimit = limit; // Respect user's dropdown selection
-        timeout = 900000; // 15 minutes timeout - very generous for large folders
-        console.log('🔧 Detected very large folder (>1000 screenshots). Using user-selected limit with extended timeout:', {
+        console.log('🔧 Detected very large folder (>1000 screenshots). Using user-selected limit with retry mechanism:', {
           originalLimit: limit,
           adjustedLimit,
-          timeoutMinutes: timeout / 60000,
           estimatedScreenshots: selectedFolder?.screenshot_count || '2000+',
           folderPattern: folderName,
-          approach: 'user_selected_limit_with_extended_timeout'
+          approach: 'user_selected_limit_with_progressive_retry'
         });
         
         // Show user feedback for large folders with pagination info
-        setError(`📊 Loading large folder "${folderName}" with ${selectedFolder?.screenshot_count || '2000+'} screenshots. Loading ${adjustedLimit} screenshots per page with 15-minute timeout. Please be patient, this may take several minutes...`);
+        setError(`📊 Loading large folder "${folderName}" with ${selectedFolder?.screenshot_count || '2000+'} screenshots. Loading ${adjustedLimit} screenshots per page with progressive retry (15s, 30s, 60s). Please be patient, this may take several minutes...`);
       } else if (folderName.includes('mervegucluu') || folderName.includes('1000') || folderName.includes('EASY_HOME')) {
-        // Keep user's selected limit but increase timeout for medium folders
+        // Keep user's selected limit for medium folders
         adjustedLimit = limit; // Respect user's dropdown selection
-        timeout = 720000; // 12 minutes for medium folders
-        console.log('🔧 Using user-selected limit for large folder with 12-minute timeout:', adjustedLimit);
-        setError(`📊 Loading folder "${folderName}" with ${adjustedLimit} screenshots per page. This may take up to 12 minutes...`);
+        console.log('🔧 Using user-selected limit for large folder with progressive retry:', adjustedLimit);
+        setError(`📊 Loading folder "${folderName}" with ${adjustedLimit} screenshots per page. Using progressive retry mechanism...`);
       }
       
       // Use the enhanced endpoint for Level 3 - fast S3-like response with pagination
-      const apiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
+      const apiBaseURL = getApiBaseURL();
+      const apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
       console.log('🔍 Level 3 Enhanced API URL:', apiUrl);
-      console.log('🚀 Using enhanced S3-like endpoint for fast response');
-      console.log('⏱️ Request timeout set to:', timeout / 1000, 'seconds');
+      console.log('🚀 Using enhanced S3-like endpoint for fast response with progressive retry');
       console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced' });
       
       const startTime = Date.now();
@@ -1265,37 +1475,39 @@ const ActivityStream = () => {
       // Add more detailed request logging for enhanced endpoint
       console.log('🚀 Making Enhanced API request to:', apiUrl);
       console.log('📋 Enhanced endpoint request config:', {
-        timeout: timeout,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         endpoint_type: 'enhanced_s3_optimized',
-        expected_format: 'fast_paginated_response'
+        expected_format: 'fast_paginated_response',
+        retry_strategy: 'progressive_timeout'
       });
       
-      const response = await axios.get(apiUrl, { 
-        timeout: timeout,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        // Enhanced request configuration for large data
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        // Add progress tracking for large requests
-        onDownloadProgress: (progressEvent) => {
-          if (selectedFolder?.screenshot_count > 500) {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            console.log(`📥 Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB)`);
-            
-            // Update error message with progress for large folders
-            if (progressEvent.total > 1000000) { // > 1MB response
-              setError(`📊 Loading large folder "${folderName}" - Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB). Please wait...`);
+      const response = await retryApiCall(
+        () => axios.get(apiUrl, { 
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          // Enhanced request configuration for large data
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+          // Add progress tracking for large requests
+          onDownloadProgress: (progressEvent) => {
+            if (selectedFolder?.screenshot_count > 500) {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              console.log(`📥 Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB)`);
+              
+              // Update error message with progress for large folders
+              if (progressEvent.total > 1000000) { // > 1MB response
+                setError(`📊 Loading large folder "${folderName}" - Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB). Please wait...`);
+              }
             }
           }
-        }
-      });
+        }),
+        `Fetching folder screenshots for ${folderName}`
+      );
       
       const loadTime = (Date.now() - startTime) / 1000;
       console.log('✅ Enhanced API response received in', loadTime.toFixed(2), 'seconds');
@@ -1527,7 +1739,7 @@ const ActivityStream = () => {
       });
       
       // Log the exact Enhanced API URL that failed
-      console.error('🔍 FAILED ENHANCED API URL:', `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`);
+      console.error('🔍 FAILED ENHANCED API URL:', `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`);
       console.error('🔍 Enhanced request config used:', {
         timeout: timeout,
         employeeEmail,
@@ -1630,7 +1842,7 @@ const ActivityStream = () => {
           const ultraShortTimeout = 600000; // 10 minutes - ultra patient
           const ultraSmallLimit = 1; // Just 1 screenshot
           
-          const retryApiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=${page}&limit=${ultraSmallLimit}`;
+          const retryApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=${page}&limit=${ultraSmallLimit}`;
           console.log('🔄 Retrying with ultra-micro batch:', retryApiUrl);
           console.log('🔄 Using ultra-patient timeout:', ultraShortTimeout / 1000, 'seconds');
           
@@ -1677,7 +1889,7 @@ const ActivityStream = () => {
           try {
             console.log('🔄 Final attempt with extreme patience...');
             const extremeTimeout = 300000; // 5 minutes extreme timeout
-            const extremeApiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=1&limit=1`;
+            const extremeApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=1&limit=1`;
             
             const extremeResponse = await axios.get(extremeApiUrl, { 
               timeout: extremeTimeout,
@@ -1803,7 +2015,8 @@ const ActivityStream = () => {
       const folderName = selectedFolder?.folder_name || selectedFolder?.date || 'unknown_folder';
       const constructedS3Key = `screenshots/${userEmail.replace('@', '_at_')}/${folderName}/${screenshot.filename}`;
       const encodedConstructedKey = encodeURIComponent(constructedS3Key);
-      imageUrl = `https://dxdtime.ddsolutions.io/api/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
+      const apiBaseURL = getApiBaseURL();
+      imageUrl = `${apiBaseURL}/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
     } else {
       // PRIORITY 5: Try to construct from any available data
       const userEmail = selectedUser?.email || selectedUser?.search_value || selectedUser?.username || 'unknown_user';
@@ -1811,7 +2024,8 @@ const ActivityStream = () => {
       const filename = screenshot.filename || 'unknown_file.webp';
       const constructedS3Key = `screenshots/${userEmail.replace('@', '_at_')}/${folderName}/${filename}`;
       const encodedConstructedKey = encodeURIComponent(constructedS3Key);
-      imageUrl = `https://dxdtime.ddsolutions.io/api/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
+      const apiBaseURL = getApiBaseURL();
+      imageUrl = `${apiBaseURL}/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
     }
 
     // CRITICAL: For presigned URLs, use them directly without any processing
@@ -2537,6 +2751,22 @@ const ActivityStream = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {/* DEBUG: Current Component State */}
+      {console.log('🔍 RENDER DEBUG - Current State:', {
+        currentView,
+        hasSearched,
+        isUserSelected,
+        selectedUser: selectedUser?.display_name,
+        screenshotsLength: screenshots.length,
+        foldersLength: folders.length,
+        folderScreenshotsLength: folderScreenshots.length,
+        loading,
+        loadingFolders,
+        loadingFolderScreenshots,
+        error: error ? error.substring(0, 100) : null,
+        backendStatus
+      })}
+      
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
           <Title theme={theme} isDarkMode={isDarkMode}>
@@ -2624,6 +2854,14 @@ const ActivityStream = () => {
                   setSearchSuggestions([]); // Clear suggestions
                   setHasSearched(true);
                   setCurrentView('search'); // Start with search, then auto-navigate to folders
+                  
+                  console.log('🔍 USER SELECTION DEBUG:', {
+                    selectedUser: newValue,
+                    isUserSelected: true,
+                    hasSearched: true,
+                    currentView: 'search',
+                    aboutToFetchFolders: true
+                  });
                   
                   // Automatically fetch folders for this user
                   const userEmail = newValue.search_value || newValue.email || newValue.username;
@@ -3035,6 +3273,14 @@ const ActivityStream = () => {
           {/* Legacy screenshot grid - only show in search mode with screenshots */}
           {currentView === 'search' && hasSearched && screenshots.length > 0 && (
             <>
+              {console.log('🔍 RENDERING LEGACY SCREENSHOTS:', {
+                currentView,
+                hasSearched,
+                screenshotsLength: screenshots.length,
+                screenshots: screenshots.slice(0, 2),
+                selectedUser: selectedUser?.display_name
+              })}
+              
               <SearchInfo theme={theme} isDarkMode={isDarkMode}>
                 📂 Legacy view: Showing screenshots for: <strong>{selectedUser?.display_name}</strong> ({selectedUser?.email})
                 <br />

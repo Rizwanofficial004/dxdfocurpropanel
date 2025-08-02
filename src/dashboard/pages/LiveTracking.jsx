@@ -4,7 +4,7 @@ import { Container } from '../styles/commonStyles';
 import { useLanguage } from '../context/LanguageContext';
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
-import { API_CONFIG, buildLiveTrackingUrl, buildScreenshotProxyUrl } from '../../config/apiConfig';
+import { API_CONFIG, buildLiveTrackingUrl, buildScreenshotProxyUrl, retryExtremeApiCall } from '../../config/apiConfig';
 import ImageModal from '../components/common/ImageModal';
 import {
   LiveTrackingContainer,
@@ -330,17 +330,84 @@ const LiveTracking = () => {
       // Get date range parameters for API
       const dateParams = getDateRangeParams();
       
-      // Build API URL with filters
+      // Build API URL with filters - Request ALL S3 data
       const apiUrl = buildLiveTrackingUrl({
-        limit: 100,
+        limit: 50000, // Increased limit to get all S3 screenshots
         start_date: dateParams.start_date,
         end_date: dateParams.end_date
       });
       
       console.log('Fetching live tracking data from:', apiUrl);
-      console.log('⏳ Note: This API scans all S3 folders and can take 30-90 seconds to complete...');
+      console.log('⏳ Note: This API scans S3 folders. Starting with optimized approach...');
       
-      const response = await axios.get(apiUrl, API_CONFIG.REQUEST_CONFIG);
+      // Try a faster approach first - use fast_mode and reasonable limits
+      let fastApiUrl = apiUrl.replace('limit=50000', 'limit=1000') + '&fast_mode=true';
+      
+      try {
+        console.log('🚀 Trying fast mode with 30s timeout...');
+        setError('🚀 Loading with fast mode (30s timeout)...');
+        
+        const response = await axios.get(fastApiUrl, {
+          ...API_CONFIG.EXTENDED_REQUEST_CONFIG,
+          timeout: 30000 // 30 seconds for fast mode
+        });
+        
+        console.log('✅ Fast mode succeeded!');
+        setError(''); // Clear error on success
+        
+        clearInterval(progressInterval);
+        setLoadingProgress(100);
+        
+        console.log('Live tracking API response:', response.data);
+        
+        // Handle the API response
+        if (response.data && response.data.success && response.data.data && response.data.data.users) {
+          const users = response.data.data.users;
+          const summary = response.data.data.summary;
+          
+          setLiveData(users);
+          setTotalUsers(summary?.total_users || users.length);
+          setActiveUsers(summary?.active_users || users.filter(u => u.status === 'active').length);
+          setTotalScreenshots(summary?.total_screenshots || users.reduce((sum, u) => sum + (u.screenshot_count || 0), 0));
+        } else {
+          console.warn('Unexpected API response structure:', response.data);
+          setError('Received unexpected data format from server');
+        }
+        
+        return; // Exit successfully
+        
+      } catch (fastError) {
+        console.warn('❌ Fast mode failed:', fastError.message);
+        
+        if (fastError.code === 'ECONNABORTED' || fastError.message.includes('timeout')) {
+          console.log('⏳ Fast mode timed out, trying with extreme retry for full scan...');
+          setError('⏳ Fast mode timed out, trying comprehensive S3 scan (this may take several minutes)...');
+        } else {
+          // Non-timeout error, don't retry
+          throw fastError;
+        }
+      }
+      
+      // If fast mode failed, use extreme retry mechanism for comprehensive S3 scanning
+      const response = await retryExtremeApiCall(
+        (timeout) => axios.get(apiUrl, {
+          ...API_CONFIG.EXTREME_REQUEST_CONFIG,
+          timeout
+        }),
+        'S3 Live Tracking Comprehensive Scan',
+        {
+          onRetry: (attempt, error, timeout) => {
+            const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
+            setError(`🔄 Comprehensive S3 scan attempt ${attempt}/4 with ${timeoutLabel} timeout - This scans ALL S3 folders and may take several minutes...`);
+            
+            // Update progress based on attempt
+            if (attempt === 1) setLoadingProgress(25);
+            else if (attempt === 2) setLoadingProgress(50);
+            else if (attempt === 3) setLoadingProgress(75);
+            else setLoadingProgress(85);
+          }
+        }
+      );
       
       clearInterval(progressInterval);
       setLoadingProgress(100);
@@ -509,9 +576,23 @@ const LiveTracking = () => {
       console.error('Error fetching live tracking data:', err);
       
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        setError('⏰ Request timeout: The S3 scan is taking longer than expected (3+ minutes). The API might be processing a large number of folders. Please try again or contact support if this persists.');
+        setError(`⏰ API Timeout: All retry attempts failed (15s, 30s, 60s timeouts tried)
+        
+📊 The S3 scan is taking longer than 60 seconds, which suggests:
+• Large number of employee folders to scan
+• Slow S3 response times
+• Heavy server load
+
+💡 Recommendations:
+• Try again in a few minutes when server load is lower
+• Use a smaller date range to reduce data processing
+• Contact support if this persists regularly
+• Consider using cached data if available`);
       } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        setError(`🌐 Network Error: Unable to connect to the API server. Please ensure:\n• The API server is running on ${API_CONFIG.BASE_URL}\n• CORS is properly configured\n• No firewall is blocking the connection`);
+        setError(`🌐 Network Error: Unable to connect to the API server. Please ensure:
+• The API server is running on ${API_CONFIG.BASE_URL}
+• CORS is properly configured
+• No firewall is blocking the connection`);
       } else if (err.response) {
         setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
       } else if (err.request) {

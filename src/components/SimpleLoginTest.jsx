@@ -12,7 +12,7 @@ const SimpleLoginTest = () => {
     try {
       console.log('Starting test login...');
       
-      const response = await axios.post('https://dxdtime.ddsolutions.io/api/auth/login/', {
+      const response = await axios.post('http://localhost:8000api/auth/login/', {
         username: 'Admin',
         password: 'admin123'
       }, {

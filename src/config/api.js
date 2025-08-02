@@ -11,14 +11,16 @@ export const getApiBaseURL = () => {
     return import.meta.env.VITE_API_URL;
   }
   
-  // Check if running in production
-  if (import.meta.env.PROD || 
-      window.location.hostname !== 'localhost') {
-    return 'http://dxdtime.ddsolutions.io/api';
+  // Force localhost for development (bypass hostname check)
+  if (import.meta.env.DEV || 
+      window.location.hostname === 'localhost' ||
+      window.location.hostname.startsWith('192.168.') ||
+      window.location.hostname.startsWith('127.0.')) {
+    return 'http://localhost:8000/api';
   }
   
-  // Default to local development
-  return 'http://localhost:8000/api';
+  // Production - use remote server
+  return 'http://dxdtime.ddsolutions.io/api';
 };
 
 /**
