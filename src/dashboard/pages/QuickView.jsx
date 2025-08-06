@@ -1644,6 +1644,57 @@ const QuickView = () => {
                 </button>
                 <button
                   onClick={() => {
+                    // Set date range from very beginning to today for ALL TIME data
+                    const newDateRange = {
+                      startDate: '2020-01-01', // Start from early date to capture all data
+                      endDate: dayjs().format('YYYY-MM-DD')
+                    };
+                    setDateRange(newDateRange);
+                    setAnalyticsMode('date-range');
+                    
+                    // Automatically apply the ALL TIME range
+                    (async () => {
+                      setLoading(true);
+                      try {
+                        const employeeReports = await fetchEmployeeReportsWithAnalytics(
+                          true, 
+                          newDateRange.startDate, 
+                          newDateRange.endDate
+                        );
+                        setReports(employeeReports);
+                        setFilteredReports(employeeReports);
+                      } catch (err) {
+                        console.error('Failed to load all-time analytics:', err);
+                        setError(`Failed to load all-time analytics: ${err.message}`);
+                      } finally {
+                        setLoading(false);
+                      }
+                    })();
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: `1px solid ${isDarkMode ? '#dc2626' : '#f87171'}`,
+                    background: isDarkMode ? 'rgba(220, 38, 38, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+                    color: isDarkMode ? '#fca5a5' : '#dc2626',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.background = isDarkMode ? 'rgba(220, 38, 38, 0.2)' : 'rgba(248, 113, 113, 0.2)';
+                    e.target.style.transform = 'scale(1.05)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = isDarkMode ? 'rgba(220, 38, 38, 0.1)' : 'rgba(248, 113, 113, 0.1)';
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                >
+                  🕰️ All Time
+                </button>
+                <button
+                  onClick={() => {
                     setAnalyticsMode('daily');
                     // Refresh with daily analytics
                     (async () => {
@@ -1689,7 +1740,9 @@ const QuickView = () => {
               <strong>Current Filter:</strong> {
                 analyticsMode === 'daily' 
                   ? `📈 Daily Analytics (Today: ${dayjs().format('MMMM DD, YYYY')})`
-                  : `📊 Date Range Analytics (${dayjs(dateRange.startDate).format('MMM DD')} - ${dayjs(dateRange.endDate).format('MMM DD, YYYY')})`
+                  : dateRange.startDate === '2020-01-01'
+                    ? `🕰️ All Time Analytics (From Beginning - ${dayjs(dateRange.endDate).format('MMM DD, YYYY')})`
+                    : `📊 Date Range Analytics (${dayjs(dateRange.startDate).format('MMM DD')} - ${dayjs(dateRange.endDate).format('MMM DD, YYYY')})`
               }
             </div>
           </div>
@@ -1746,7 +1799,10 @@ const QuickView = () => {
               color: isDarkMode ? '#fdba74' : '#9a3412',
               opacity: 0.9
             }}>
-              Showing only employees with actual S3 screenshot data • Count matches S3 bucket exactly ({filteredReports.length} employees)
+              {dateRange.startDate === '2020-01-01' 
+                ? `🕰️ Showing ALL TIME screenshots from S3 • Total accumulated data across all dates • Count: ${filteredReports.length} employees`
+                : `Showing only employees with actual S3 screenshot data • Count matches S3 bucket exactly (${filteredReports.length} employees)`
+              }
             </div>
           </div>
 
