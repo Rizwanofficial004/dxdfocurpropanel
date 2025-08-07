@@ -4,6 +4,7 @@ import { TextField, Autocomplete, CircularProgress, Button, Box } from '@mui/mat
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { buildApiUrl, API_ENDPOINTS } from '../../../config/api.js';
+import { fastAxios, normalAxios, withRetry } from '../../../config/axios.js';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import {
@@ -95,12 +96,40 @@ const FocusTimeline = () => {
   useEffect(() => {
     const checkBackendStatus = async () => {
       try {
-        const response = await axios.get(buildApiUrl(API_ENDPOINTS.LOGS.SEARCH + '?search=test&limit=5'), {
-          timeout: 5000
-        });
+        // First try a simple health check with fast axios
+        let response;
+        try {
+          response = await fastAxios.get(buildApiUrl('/health'));
+          console.log('✅ Backend health check successful');
+          setBackendStatus('connected');
+          return;
+        } catch (healthError) {
+          console.log('⚠️ Health endpoint not available, trying logs endpoint...');
+        }
+
+        // Fallback to logs endpoint with retry logic
+        response = await withRetry(
+          () => normalAxios.get(buildApiUrl(API_ENDPOINTS.LOGS.SEARCH + '?search=test&limit=5')),
+          3, // 3 retries
+          2000 // 2 second delay
+        );
+        console.log('✅ Backend logs endpoint successful');
         setBackendStatus('connected');
       } catch (err) {
-        setBackendStatus('disconnected');
+        console.error('❌ Backend connection failed:', {
+          message: err.message,
+          code: err.code,
+          status: err.response?.status,
+          url: err.config?.url,
+          userMessage: err.userMessage
+        });
+        
+        if (err.code === 'ECONNABORTED') {
+          console.log('⏱️ Request timed out - backend may be slow or processing large S3 data');
+          setBackendStatus('slow'); // New status for slow connections
+        } else {
+          setBackendStatus('disconnected');
+        }
       }
     };
     checkBackendStatus();
@@ -115,9 +144,11 @@ const FocusTimeline = () => {
 
     try {
       setLoadingSuggestions(true);
-      const response = await axios.get(`http://localhost:8000/api/logs/search/?search=${encodeURIComponent(query)}&limit=10`, {
-        timeout: 8000
-      });
+      const response = await withRetry(
+        () => normalAxios.get(`http://localhost:8000/api/logs/search/?search=${encodeURIComponent(query)}&limit=10`),
+        2, // 2 retries for search
+        1000 // 1 second delay
+      );
       
       let suggestions = [];
       

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image URL Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .working {
+            background: #f0fff4;
+            border-color: #22c55e;
+        }
+        .broken {
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+        .image-container {
+            height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .url-display {
+            font-size: 10px;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Image URL Fix Verification</h1>
+        <p>Testing the difference between working and non-working image URL formats</p>
+        
+        <div class="comparison">
+            <div class="test-section working">
+                <h3>✅ WORKING Format (Live Tracking)</h3>
+                <p><strong>Direct S3 Presigned URL</strong></p>
+                <div class="image-container">
+                    <img src="https://ddsfocustime.s3.amazonaws.com/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250807%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250807T105007Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=cdf6b71a8582ca21cc61b19e0c502de821536d5467392cce344ab5e5c486fa7d"
+                         alt="Working S3 Image"
+                         crossOrigin="anonymous"
+                         referrerPolicy="no-referrer"
+                         onload="showSuccess('working')"
+                         onerror="showError('working')">
+                </div>
+                <div class="url-display">
+                    <strong>URL:</strong> https://ddsfocustime.s3.amazonaws.com/screenshots/...X-Amz-Signature=...
+                </div>
+                <div id="working-status" class="status">Loading...</div>
+            </div>
+            
+            <div class="test-section broken">
+                <h3>❌ BROKEN Format (Previous Issue)</h3>
+                <p><strong>Backend Proxy URL</strong></p>
+                <div class="image-container">
+                    <img src="http://localhost:8000/api/screenshots/presigned-url/?s3_key=screenshots%2Fbeyza-donmez-_at_hotmail.com%2FDDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi%2F2025-06-14_02-51-21_2025-06-14_02-51-21.webp"
+                         alt="Broken Backend Proxy"
+                         crossOrigin="anonymous"
+                         referrerPolicy="no-referrer"
+                         onload="showSuccess('broken')"
+                         onerror="showError('broken')">
+                </div>
+                <div class="url-display">
+                    <strong>URL:</strong> http://localhost:8000/api/screenshots/presigned-url/?s3_key=...
+                </div>
+                <div id="broken-status" class="status">Loading...</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3>🔧 Fix Summary</h3>
+            <ul>
+                <li><strong>Problem:</strong> Code was constructing backend proxy URLs instead of using direct S3 presigned URLs</li>
+                <li><strong>Root Cause:</strong> Image processing logic was falling back to <code>getImageUrl()</code> which creates backend URLs</li>
+                <li><strong>Solution:</strong> Modified <code>formatScreenshotData()</code> to prioritize direct S3 presigned URLs</li>
+                <li><strong>Key Change:</strong> Only use URLs that contain <code>ddsfocustime.s3.amazonaws.com</code></li>
+                <li><strong>Result:</strong> Images now load directly from S3 without backend processing</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showSuccess(type) {
+            const statusEl = document.getElementById(type + '-status');
+            statusEl.className = 'status success';
+            statusEl.textContent = '✅ Image loaded successfully!';
+        }
+        
+        function showError(type) {
+            const statusEl = document.getElementById(type + '-status');
+            statusEl.className = 'status error';
+            statusEl.textContent = '❌ Failed to load image';
+        }
+        
+        // Set timeouts for loading detection
+        setTimeout(() => {
+            const workingStatus = document.getElementById('working-status');
+            const brokenStatus = document.getElementById('broken-status');
+            
+            if (workingStatus.textContent === 'Loading...') {
+                workingStatus.className = 'status error';
+                workingStatus.textContent = '⏱️ Image load timeout';
+            }
+            
+            if (brokenStatus.textContent === 'Loading...') {
+                brokenStatus.className = 'status error';
+                brokenStatus.textContent = '⏱️ Image load timeout (expected)';
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

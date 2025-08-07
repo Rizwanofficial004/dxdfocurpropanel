@@ -68,6 +68,7 @@ const LiveTracking = () => {
     totalHours: '0h'
   });
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [dataSource, setDataSource] = useState('unknown'); // Track which API is being used
 
   // Image modal handlers
   const openImageModal = (imageUrl, imageTitle = "Screenshot") => {
@@ -307,7 +308,69 @@ const LiveTracking = () => {
     };
   };
 
-  // Fetch live tracking data from API
+  // Helper function to try Flask API fallback for comprehensive data
+  const fetchComprehensiveScreenshotsData = async () => {
+    try {
+      console.log('🔄 Trying Flask API for comprehensive screenshots data...');
+      const response = await axios.get('http://localhost:5000/api/screenshots/all', {
+        timeout: 60000, // 60 seconds timeout for comprehensive scan
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('✅ Flask API response received:', response.data);
+      
+      if (response.data.status === 'success' && response.data.data && response.data.data.user_counts) {
+        const data = response.data.data;
+        
+        // Transform Flask API data to match LiveTracking format
+        const users = Object.keys(data.user_counts).map((email, index) => {
+          const screenshotCount = data.user_counts[email];
+          const displayName = email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          
+          return {
+            id: index + 1,
+            email: email,
+            username: email.split('@')[0],
+            display_name: displayName,
+            name: displayName,
+            screenshot_count: screenshotCount,
+            latest_screenshot: {
+              timestamp: data.date,
+              url: null, // Flask API doesn't provide individual screenshot URLs
+              has_screenshot: screenshotCount > 0
+            },
+            status: screenshotCount > 0 ? 'active' : 'offline',
+            is_online: screenshotCount > 0,
+            department: 'Unknown Department'
+          };
+        });
+        
+        return {
+          success: true,
+          data: {
+            users: users,
+            summary: {
+              total_users: data.total_users,
+              active_users: users.filter(u => u.screenshot_count > 0).length,
+              total_screenshots: data.total_files
+            }
+          },
+          source: 'flask-comprehensive-api'
+        };
+      }
+      
+      throw new Error('Invalid Flask API response structure');
+      
+    } catch (error) {
+      console.error('❌ Flask API failed:', error.message);
+      throw error;
+    }
+  };
+
+  // Fetch live tracking data from API with fallback support
   const fetchLiveTrackingData = async (forceRefresh = false) => {
     try {
       setLoading(true);
@@ -330,151 +393,204 @@ const LiveTracking = () => {
       // Get date range parameters for API
       const dateParams = getDateRangeParams();
       
-      // Build API URL with filters - Request ALL S3 data
-      const apiUrl = buildLiveTrackingUrl({
-        limit: 50000, // Increased limit to get all S3 screenshots
-        start_date: dateParams.start_date,
-        end_date: dateParams.end_date
-      });
+      let response;
+      let dataSource = 'unknown';
       
-      console.log('Fetching live tracking data from:', apiUrl);
-      console.log('⏳ Note: This API scans S3 folders. Starting with optimized approach...');
-      
-      // Try a faster approach first - use fast_mode and reasonable limits
-      let fastApiUrl = apiUrl.replace('limit=50000', 'limit=1000') + '&fast_mode=true';
-      
+      // Try Django server first (original API)
       try {
-        console.log('🚀 Trying fast mode with 30s timeout...');
-        setError('🚀 Loading with fast mode (30s timeout)...');
-        
-        const response = await axios.get(fastApiUrl, {
-          ...API_CONFIG.EXTENDED_REQUEST_CONFIG,
-          timeout: 30000 // 30 seconds for fast mode
+        // Build API URL with filters - Request ALL S3 data
+        const apiUrl = buildLiveTrackingUrl({
+          limit: 50000, // Increased limit to get all S3 screenshots
+          start_date: dateParams.start_date,
+          end_date: dateParams.end_date
         });
         
-        console.log('✅ Fast mode succeeded!');
-        setError(''); // Clear error on success
+        console.log('🔄 Trying Django API first:', apiUrl);
+        setError('🔄 Connecting to Django API server...');
         
-        clearInterval(progressInterval);
-        setLoadingProgress(100);
+        // Try a faster approach first - use fast_mode and reasonable limits
+        let fastApiUrl = apiUrl.replace('limit=50000', 'limit=1000') + '&fast_mode=true';
         
-        console.log('Live tracking API response:', response.data);
-        
-        // Handle the API response
-        if (response.data && response.data.success && response.data.data && response.data.data.users) {
-          const users = response.data.data.users;
-          const summary = response.data.data.summary;
+        try {
+          console.log('🚀 Trying Django fast mode with 30s timeout...');
+          setError('🚀 Loading with Django fast mode (30s timeout)...');
           
-          setLiveData(users);
-          setTotalUsers(summary?.total_users || users.length);
-          setActiveUsers(summary?.active_users || users.filter(u => u.status === 'active').length);
-          setTotalScreenshots(summary?.total_screenshots || users.reduce((sum, u) => sum + (u.screenshot_count || 0), 0));
-        } else {
-          console.warn('Unexpected API response structure:', response.data);
-          setError('Received unexpected data format from server');
-        }
-        
-        return; // Exit successfully
-        
-      } catch (fastError) {
-        console.warn('❌ Fast mode failed:', fastError.message);
-        
-        if (fastError.code === 'ECONNABORTED' || fastError.message.includes('timeout')) {
-          console.log('⏳ Fast mode timed out, trying with extreme retry for full scan...');
-          setError('⏳ Fast mode timed out, trying comprehensive S3 scan (this may take several minutes)...');
-        } else {
-          // Non-timeout error, don't retry
-          throw fastError;
-        }
-      }
-      
-      // If fast mode failed, use extreme retry mechanism for comprehensive S3 scanning
-      const response = await retryExtremeApiCall(
-        (timeout) => axios.get(apiUrl, {
-          ...API_CONFIG.EXTREME_REQUEST_CONFIG,
-          timeout
-        }),
-        'S3 Live Tracking Comprehensive Scan',
-        {
-          onRetry: (attempt, error, timeout) => {
-            const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
-            setError(`🔄 Comprehensive S3 scan attempt ${attempt}/4 with ${timeoutLabel} timeout - This scans ALL S3 folders and may take several minutes...`);
+          response = await axios.get(fastApiUrl, {
+            ...API_CONFIG.EXTENDED_REQUEST_CONFIG,
+            timeout: 30000 // 30 seconds for fast mode
+          });
+          
+          console.log('✅ Django fast mode succeeded!');
+          setError(''); // Clear error on success
+          dataSource = 'django-fast-mode';
+          
+        } catch (fastError) {
+          console.warn('❌ Django fast mode failed:', fastError.message);
+          
+          if (fastError.code === 'ECONNABORTED' || fastError.message.includes('timeout')) {
+            console.log('⏳ Django fast mode timed out, trying comprehensive scan...');
+            setError('⏳ Django fast mode timed out, trying comprehensive scan...');
             
-            // Update progress based on attempt
-            if (attempt === 1) setLoadingProgress(25);
-            else if (attempt === 2) setLoadingProgress(50);
-            else if (attempt === 3) setLoadingProgress(75);
-            else setLoadingProgress(85);
+            // Use extreme retry mechanism for comprehensive S3 scanning
+            response = await retryExtremeApiCall(
+              (timeout) => axios.get(apiUrl, {
+                ...API_CONFIG.EXTREME_REQUEST_CONFIG,
+                timeout
+              }),
+              'Django S3 Live Tracking Comprehensive Scan',
+              {
+                onRetry: (attempt, error, timeout) => {
+                  const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
+                  setError(`🔄 Django comprehensive scan attempt ${attempt}/4 with ${timeoutLabel} timeout...`);
+                  
+                  // Update progress based on attempt
+                  if (attempt === 1) setLoadingProgress(25);
+                  else if (attempt === 2) setLoadingProgress(50);
+                  else if (attempt === 3) setLoadingProgress(75);
+                  else setLoadingProgress(85);
+                }
+              }
+            );
+            dataSource = 'django-comprehensive';
+            
+          } else {
+            // Non-timeout error, try Flask fallback
+            throw fastError;
           }
         }
-      );
+        
+      } catch (djangoError) {
+        console.warn('❌ Django API completely failed:', djangoError.message);
+        console.log('🔄 Falling back to Flask comprehensive API...');
+        setError('⚠️ Django server unavailable. Trying Flask comprehensive API...');
+        
+        // If date range is not "today", show warning about Flask limitations
+        if (dateRange !== 'today') {
+          setError('⚠️ Django server unavailable. Flask API provides ALL-time data (date filtering may be limited)...');
+        }
+        
+        try {
+          response = await fetchComprehensiveScreenshotsData();
+          dataSource = 'flask-comprehensive';
+          console.log('✅ Flask API succeeded as fallback!');
+          setError(''); // Clear error on success
+          
+        } catch (flaskError) {
+          console.error('❌ Both Django and Flask APIs failed');
+          setError(`❌ Both Django (port 8000) and Flask (port 5000) APIs failed. Please ensure at least one server is running.
+          
+Django Error: ${djangoError.message}
+Flask Error: ${flaskError.message}
+
+💡 To fix this:
+• Start Django server: python manage.py runserver 8000
+• OR start Flask server: python app.py (port 5000)
+• Check if servers are accessible at localhost:8000 or localhost:5000`);
+          throw new Error('All API servers failed');
+        }
+      }
       
       clearInterval(progressInterval);
       setLoadingProgress(100);
       
-      console.log('Live tracking API response:', response.data);
+      console.log(`✅ Live tracking data loaded from: ${dataSource}`);
+      console.log('📊 API response:', response.data || response);
       
-      // Handle the new API response structure
-      if (response.data && response.data.success && response.data.data && response.data.data.users) {
-        const users = response.data.data.users;
-        const summary = response.data.data.summary;
-        
-        console.log(`📊 Total users from API: ${users.length}`);
-        console.log(`Successfully fetched ${users.length} users from API`);
-        
-        // Log first few users with their timestamps for debugging
-        if (users.length > 0) {
-          console.log('📅 Sample user timestamps for debugging:');
-          users.slice(0, 5).forEach((user, index) => {
-            const timestamp = user.latest_screenshot?.timestamp;
-            const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : 'No timestamp';
-            console.log(`  ${index + 1}. ${user.display_name || 'Unknown'}: ${formattedTime}`);
-          });
-        }
-        
-        // Debug: Log a few sample image URLs
-        const usersWithImages = users.filter(user => user.latest_screenshot?.url);
-        if (usersWithImages.length > 0) {
-          console.log('📷 Sample image URLs from API:');
-          usersWithImages.slice(0, 3).forEach((user, index) => {
-            console.log(`  ${index + 1}. ${user.display_name}: ${user.latest_screenshot.url}`);
-          });
+      // Handle both Django and Flask API response structures
+      let users = [];
+      let summary = {};
+      
+      if (dataSource === 'flask-comprehensive') {
+        // Handle Flask API format
+        if (response && response.success && response.data && response.data.users) {
+          users = response.data.users;
+          summary = response.data.summary;
+          console.log(`📊 Flask API: ${users.length} users loaded`);
+          console.log(`🔍 Flask data source: comprehensive S3 scan`);
         } else {
-          console.warn('⚠️ No users with image URLs found in API response');
+          throw new Error('Invalid Flask API response structure');
         }
+      } else {
+        // Handle Django API format
+        if (response.data && response.data.success && response.data.data && response.data.data.users) {
+          users = response.data.data.users;
+          summary = response.data.data.summary;
+          console.log(`📊 Django API: ${users.length} users loaded`);
+        } else {
+          console.warn('Unexpected Django API response structure:', response.data);
+          setError('Received unexpected data format from Django server');
+          return;
+        }
+      }
+      
+      console.log(`📊 Total users from ${dataSource}: ${users.length}`);
+      console.log(`Successfully fetched ${users.length} users from ${dataSource}`);
+      
+      // Log first few users with their timestamps for debugging
+      if (users.length > 0) {
+        console.log('📅 Sample user timestamps for debugging:');
+        users.slice(0, 5).forEach((user, index) => {
+          const timestamp = user.latest_screenshot?.timestamp;
+          const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : 'No timestamp';
+          console.log(`  ${index + 1}. ${user.display_name || 'Unknown'}: ${formattedTime}`);
+        });
+      }
+      
+      // Debug: Log a few sample image URLs (mainly for Django API)
+      const usersWithImages = users.filter(user => user.latest_screenshot?.url);
+      if (usersWithImages.length > 0) {
+        console.log('📷 Sample image URLs from API:');
+        usersWithImages.slice(0, 3).forEach((user, index) => {
+          console.log(`  ${index + 1}. ${user.display_name}: ${user.latest_screenshot.url}`);
+        });
+      } else {
+        if (dataSource.includes('django')) {
+          console.warn('⚠️ No users with image URLs found in Django API response');
+        } else {
+          console.log('ℹ️ Flask API provides screenshot counts but not individual URLs');
+        }
+      }
         
         // Apply client-side filtering based on current filter states
         let filteredUsers = users;
         
-        // Filter by date range (client-side backup filtering)
-        if (dateRange && dateRange !== 'all') {
-          const dateParams = getDateRangeParams();
-          const startDate = new Date(dateParams.start_date);
-          const endDate = new Date(dateParams.end_date);
-          endDate.setHours(23, 59, 59, 999); // Include the entire end day
-          
-          console.log(`🔍 Client-side date filtering: ${dateRange}`);
-          console.log(`📅 Date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
-          
-          filteredUsers = filteredUsers.filter(user => {
-            if (!user.latest_screenshot?.timestamp) {
-              console.log(`⚠️ User ${user.display_name} has no timestamp, excluding from date filter`);
-              return false; // Exclude users without timestamps when date filtering
-            }
+        // For Flask API, date filtering is limited since it provides ALL-time data
+        if (dataSource === 'flask-comprehensive') {
+          console.log('ℹ️ Using Flask comprehensive API - date filtering not available (shows ALL screenshots)');
+          if (dateRange !== 'today') {
+            console.warn(`⚠️ Date range "${dateRange}" requested but Flask API provides ALL-time data`);
+          }
+        } else {
+          // Filter by date range (client-side backup filtering for Django API)
+          if (dateRange && dateRange !== 'all') {
+            const dateParams = getDateRangeParams();
+            const startDate = new Date(dateParams.start_date);
+            const endDate = new Date(dateParams.end_date);
+            endDate.setHours(23, 59, 59, 999); // Include the entire end day
             
-            const screenshotDate = new Date(user.latest_screenshot.timestamp);
-            const isInRange = screenshotDate >= startDate && screenshotDate <= endDate;
+            console.log(`🔍 Client-side date filtering: ${dateRange}`);
+            console.log(`📅 Date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
             
-            if (!isInRange) {
-              console.log(`📅 Filtering out ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (outside range)`);
-            } else {
-              console.log(`✅ Including ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (in range)`);
-            }
+            filteredUsers = filteredUsers.filter(user => {
+              if (!user.latest_screenshot?.timestamp) {
+                console.log(`⚠️ User ${user.display_name} has no timestamp, excluding from date filter`);
+                return false; // Exclude users without timestamps when date filtering
+              }
+              
+              const screenshotDate = new Date(user.latest_screenshot.timestamp);
+              const isInRange = screenshotDate >= startDate && screenshotDate <= endDate;
+              
+              if (!isInRange) {
+                console.log(`📅 Filtering out ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (outside range)`);
+              } else {
+                console.log(`✅ Including ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (in range)`);
+              }
+              
+              return isInRange;
+            });
             
-            return isInRange;
-          });
-          
-          console.log(`📊 After date filtering: ${filteredUsers.length} users (was ${users.length})`);
+            console.log(`📊 After date filtering: ${filteredUsers.length} users (was ${users.length})`);
+          }
         }
         
         // Filter by search query
@@ -530,6 +646,7 @@ const LiveTracking = () => {
         }
         
         setLiveTrackingData(filteredUsers);
+        setDataSource(dataSource); // Update data source state
         
         // Calculate stats from the summary or user data using screenshot-based status
         const calculateStatusFromScreenshot = (user) => {
@@ -566,45 +683,52 @@ const LiveTracking = () => {
         
         // Update last updated time
         setLastUpdated(new Date());
-      } else {
-        setLiveTrackingData([]);
-        setTotalCount(0);
-        setError('No data received from API or invalid response structure');
-      }
-      
-    } catch (err) {
-      console.error('Error fetching live tracking data:', err);
-      
-      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        setError(`⏰ API Timeout: All retry attempts failed (15s, 30s, 60s timeouts tried)
         
-📊 The S3 scan is taking longer than 60 seconds, which suggests:
+      } catch (err) {
+        console.error('Error fetching live tracking data:', err);
+        
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+          setError(`⏰ API Timeout: All retry attempts failed
+        
+📊 The API scan is taking longer than expected, which suggests:
 • Large number of employee folders to scan
-• Slow S3 response times
+• Slow API response times
 • Heavy server load
 
 💡 Recommendations:
 • Try again in a few minutes when server load is lower
 • Use a smaller date range to reduce data processing
-• Contact support if this persists regularly
-• Consider using cached data if available`);
-      } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
-        setError(`🌐 Network Error: Unable to connect to the API server. Please ensure:
-• The API server is running on ${API_CONFIG.BASE_URL}
+• Both Django (port 8000) and Flask (port 5000) APIs attempted
+• Consider waiting for comprehensive scan to complete`);
+        } else if (err.message === 'All API servers failed') {
+          // Error message already set above
+        } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+          setError(`🌐 Network Error: Unable to connect to API servers
+
+Attempted connections:
+• Django API: ${API_CONFIG.BASE_URL} (port 8000)
+• Flask API: http://localhost:5000 (comprehensive data)
+
+Please ensure:
+• At least one API server is running
 • CORS is properly configured
-• No firewall is blocking the connection`);
-      } else if (err.response) {
-        setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
-      } else if (err.request) {
-        setError('📡 Connection error: Request was made but no response received. The API server may be slow or unreachable.');
-      } else {
-        setError(`❌ Unexpected error: ${err.message}`);
+• No firewall is blocking the connections
+
+💡 Quick fix: Start either server:
+• Django: python manage.py runserver 8000
+• Flask: python app.py (runs on port 5000)`);
+        } else if (err.response) {
+          setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
+        } else if (err.request) {
+          setError('📡 Connection error: Request was made but no response received. Both Django and Flask API servers may be slow or unreachable.');
+        } else {
+          setError(`❌ Unexpected error: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingProgress(0);
       }
-    } finally {
-      setLoading(false);
-      setLoadingProgress(0);
-    }
-  };
+    };
 
   // Manual refresh function
   const handleRefresh = () => {
@@ -956,6 +1080,42 @@ const LiveTracking = () => {
            
               </FilterSection>
 
+              {/* Data Source Info Banner */}
+              {dataSource !== 'unknown' && (
+                <div style={{
+                  marginBottom: '16px',
+                  padding: '12px',
+                  background: dataSource === 'flask-comprehensive' 
+                    ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' 
+                    : 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                  borderRadius: '8px',
+                  border: `1px solid ${dataSource === 'flask-comprehensive' ? '#fbbf24' : '#3b82f6'}`,
+                  textAlign: 'center',
+                  fontSize: '13px'
+                }}>
+                  <div style={{
+                    fontWeight: '600',
+                    color: dataSource === 'flask-comprehensive' ? '#92400e' : '#1d4ed8',
+                    marginBottom: '4px'
+                  }}>
+                    {dataSource === 'flask-comprehensive' && '🔄 Flask Comprehensive API (Port 5000)'}
+                    {dataSource.includes('django') && '⚡ Django Live Tracking API (Port 8000)'}
+                  </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: dataSource === 'flask-comprehensive' ? '#78350f' : '#1e40af',
+                    opacity: 0.9
+                  }}>
+                    {dataSource === 'flask-comprehensive' && 
+                      `📊 Showing ALL screenshots from S3 bucket • Date filtering not available • Total: ${filteredScreenshots.length} employees`
+                    }
+                    {dataSource.includes('django') && 
+                      `🕒 Real-time S3 scan with date filtering • ${dataSource.includes('fast') ? 'Fast mode' : 'Comprehensive scan'} • Count: ${filteredScreenshots.length} employees`
+                    }
+                  </div>
+                </div>
+              )}
+
               {/* Results Info */}
               <ResultsInfo>
                 <div>
@@ -974,14 +1134,39 @@ const LiveTracking = () => {
                       matching "{searchQuery}"
                     </span>
                   )}
-                  {dateRange !== 'today' && (
+                  {dateRange !== 'today' && dataSource !== 'flask-comprehensive' && (
                     <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'normal' }}>
                       {' '}(filtered by date)
+                    </span>
+                  )}
+                  {dataSource === 'flask-comprehensive' && dateRange !== 'today' && (
+                    <span style={{ 
+                      fontSize: '11px', 
+                      color: '#dc2626', 
+                      fontWeight: '600',
+                      marginLeft: '8px',
+                      background: '#fee2e2',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      ⚠️ Flask API shows ALL-time data
                     </span>
                   )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                  {dataSource !== 'unknown' && (
+                    <span style={{ 
+                      fontSize: '10px', 
+                      color: dataSource === 'flask-comprehensive' ? '#dc2626' : '#059669',
+                      fontWeight: '500',
+                      background: dataSource === 'flask-comprehensive' ? '#fee2e2' : '#ecfdf5',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      {dataSource === 'flask-comprehensive' ? '🔄 Flask' : '⚡ Django'}
+                    </span>
+                  )}
                   {loading && (
                     <span style={{ fontSize: '12px', color: '#6b7280' }}>
                       🔄 Refreshing...
@@ -1006,6 +1191,18 @@ const LiveTracking = () => {
                   <div>Search Query: "{searchQuery}" | Selected Employee: {selectedEmployee}</div>
                   <div>Raw API Results: {liveTrackingData.length} users | Final Display: {filteredScreenshots.length}</div>
                   <div>Current Page: {currentPage} | Items per page: {itemsPerPage} | Showing: {displayedItems.length}</div>
+                  <div style={{ 
+                    marginTop: '8px', 
+                    padding: '6px', 
+                    background: dataSource === 'flask-comprehensive' ? '#fef3c7' : '#dbeafe', 
+                    borderRadius: '4px', 
+                    color: dataSource === 'flask-comprehensive' ? '#92400e' : '#1d4ed8',
+                    fontWeight: '600'
+                  }}>
+                    <strong>Data Source:</strong> {dataSource} | 
+                    {dataSource === 'flask-comprehensive' && ' Flask API (ALL screenshots) '}
+                    {dataSource.includes('django') && ' Django API (date filtered) '}
+                  </div>
                   {searchQuery && (
                     <div style={{ marginTop: '8px', padding: '8px', background: '#fef3c7', borderRadius: '4px', color: '#92400e' }}>
                       <strong>Search Active:</strong> Filtering for "{searchQuery}" - {filteredScreenshots.length} matches found

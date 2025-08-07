@@ -5,6 +5,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { fastAxios, normalAxios, slowAxios, withRetry } from '../../../config/axios.js';
 import { gsap } from 'gsap';
 import { useTheme } from '../../context/ThemeContext';
 import { getApiBaseURL } from '../../../config/api';
@@ -372,11 +373,13 @@ const ActivityStream = () => {
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    console.log('🖼️ SimpleImageComponent received src:', src);
+
     const handleError = (e) => {
       console.error('🖼️ Image failed to load:', {
         src,
         error: e,
-        crossOrigin: src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined,
+        crossOrigin: src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined,
         isProduction: process.env.NODE_ENV === 'production',
         hasSignature: src?.includes('X-Amz-Signature'),
         hostname: window.location.hostname
@@ -387,6 +390,7 @@ const ActivityStream = () => {
     };
 
     const handleLoad = (e) => {
+      console.log('✅ Image loaded successfully:', src?.substring(0, 80) + '...');
       setHasError(false);
       setIsLoading(false);
       if (onLoad) onLoad(e);
@@ -397,12 +401,12 @@ const ActivityStream = () => {
       if (onClick) onClick(e);
     };
 
-    if (hasError || !src || src === '') {
-      // Show the actual broken image instead of placeholder
+    if (hasError || !src || src === '' || src === 'Not Available' || src === null) {
+      // Show broken image placeholder for invalid sources
       return (
         <img
-          src={src || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
-          alt={alt}
+          src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+          alt={alt || 'Broken image'}
           style={{ 
             ...style, 
             width: '100%', 
@@ -413,7 +417,6 @@ const ActivityStream = () => {
           className={className}
           onClick={handleClick}
           referrerPolicy="no-referrer"
-          crossOrigin={process.env.NODE_ENV === 'production' ? undefined : (src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined)}
         />
       );
     }
@@ -444,7 +447,7 @@ const ActivityStream = () => {
           onLoad={handleLoad}
           onError={handleError}
           referrerPolicy="no-referrer"
-          crossOrigin={process.env.NODE_ENV === 'production' ? undefined : (src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined)}
+          crossOrigin={src?.includes('ddsfocustime.s3.amazonaws.com') ? 'anonymous' : undefined}
         />
       </div>
     );
@@ -639,16 +642,16 @@ const ActivityStream = () => {
         const apiBaseURL = getApiBaseURL();
         try {
           // Try a simple health check endpoint first
-          response = await axios.get(`${apiBaseURL}/health`, {
-            timeout: 2000
-          });
+          response = await fastAxios.get(`${apiBaseURL}/health`);
           console.log('✅ Backend health check passed');
         } catch (healthErr) {
           console.log('⚠️ Health endpoint not available, trying suggestions endpoint...');
-          // Fallback to suggestions endpoint with longer timeout for S3 operations
-          response = await axios.get(`${apiBaseURL}/users/s3-suggestions/?q=test&limit=10`, {
-            timeout: 10000 // Increased timeout for S3 operations
-          });
+          // Fallback to suggestions endpoint with retry logic for S3 operations
+          response = await withRetry(
+            () => slowAxios.get(`${apiBaseURL}/users/s3-suggestions/?q=test&limit=10`),
+            3, // 3 retries
+            2000 // 2 second delay
+          );
           console.log('✅ Backend suggestions endpoint responded');
         }
         
@@ -890,9 +893,11 @@ const ActivityStream = () => {
       const suggestionUrl = `${apiBaseURL}/users/s3-suggestions/?q=${encodeURIComponent(query)}&limit=10`;
       console.log('🔍 API URL:', suggestionUrl);
       
-      const response = await axios.get(suggestionUrl, {
-        timeout: 8000 // Increased timeout for S3 operations
-      });
+      const response = await withRetry(
+        () => normalAxios.get(suggestionUrl),
+        2, // 2 retries for search suggestions
+        1000 // 1 second delay
+      );
       
       console.log('✅ User suggestions response:', response.data);
       console.log('🔍 Response structure check:', {
@@ -1622,10 +1627,14 @@ const ActivityStream = () => {
       
       const processedScreenshots = screenshotsList.map((screenshot, index) => {
         const formatted = formatScreenshotData(screenshot, index);
-        if (index < 2) {
-          console.log(`🖼️ Processing screenshot ${index + 1}:`, {
+        if (index < 3) {
+          console.log(`🖼️ EMERGENCY DEBUG - Processing screenshot ${index + 1}:`, {
             original: screenshot,
-            formatted: formatted
+            formatted: formatted,
+            has_presigned_url: !!screenshot.presigned_url,
+            presigned_url_sample: screenshot.presigned_url?.substring(0, 100),
+            formatted_image: formatted.image,
+            has_formatted_image: !!formatted.image
           });
         }
         return formatted;
@@ -1993,50 +2002,75 @@ const ActivityStream = () => {
     const dateFromFilename = screenshot.filename ? 
       screenshot.filename.split('_')[0] : null;
 
-    // FIXED: Image URL processing - prioritize presigned_url and don't process it
-    let imageUrl = null; // Start with null instead of placeholder
+    // CRITICAL FIX: Use direct presigned URLs only - no backend proxy!
+    let imageUrl = null;
     
+    console.log('🔍 Processing screenshot for image URL:', {
+      hasPresignedUrl: !!screenshot.presigned_url,
+      presignedUrlSample: screenshot.presigned_url?.substring(0, 80) + '...',
+      presignedUrlLength: screenshot.presigned_url?.length,
+      filename: screenshot.filename,
+      s3_key: screenshot.s3_key,
+      urlField: screenshot.url
+    });
+    
+    // EXPANDED CHECK: Be more flexible with S3 URL detection
     if (screenshot.presigned_url && screenshot.presigned_url.trim() !== '') {
-      // PRIORITY 1: Use presigned URL directly - it's already perfect!
-      imageUrl = screenshot.presigned_url.trim();
-    } else if (screenshot.url && screenshot.url.trim() !== '' && screenshot.url.includes('X-Amz-Signature')) {
-      // PRIORITY 2: Use url field if it's a presigned URL
-      imageUrl = screenshot.url.trim();
+      const presignedUrl = screenshot.presigned_url.trim();
+      // Check for S3 domain AND signature
+      if (presignedUrl.includes('s3.amazonaws.com') && presignedUrl.includes('X-Amz-Signature')) {
+        imageUrl = presignedUrl;
+        console.log('✅ Using direct S3 presigned URL (WORKING FORMAT)');
+      } else if (presignedUrl.includes('s3.amazonaws.com')) {
+        imageUrl = presignedUrl;
+        console.log('✅ Using S3 URL without signature check');
+      } else {
+        console.log('❌ presigned_url exists but not S3 format:', presignedUrl);
+      }
     } else if (screenshot.url && screenshot.url.trim() !== '') {
-      // PRIORITY 3: Use url field as fallback
-      imageUrl = screenshot.url.trim();
-    } else if (screenshot.s3_key && screenshot.s3_key.trim() !== '') {
-      // PRIORITY 4: S3 key available but no presigned URL - Backend needs to be updated!
-      // Don't use s3_key as requested - return null to show broken image
-      imageUrl = null;
-    } else if (screenshot.filename && selectedUser) {
-      // PRIORITY 4: Construct S3 URL from filename and user info
-      const userEmail = selectedUser.email || selectedUser.search_value || selectedUser.username;
-      const folderName = selectedFolder?.folder_name || selectedFolder?.date || 'unknown_folder';
-      const constructedS3Key = `screenshots/${userEmail.replace('@', '_at_')}/${folderName}/${screenshot.filename}`;
-      const encodedConstructedKey = encodeURIComponent(constructedS3Key);
-      const apiBaseURL = getApiBaseURL();
-      imageUrl = `${apiBaseURL}/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
+      const urlField = screenshot.url.trim();
+      if (urlField.includes('s3.amazonaws.com')) {
+        imageUrl = urlField;
+        console.log('✅ Using url field as direct S3 URL');
+      } else {
+        console.log('❌ url field exists but not S3 format:', urlField);
+      }
     } else {
-      // PRIORITY 5: Try to construct from any available data
-      const userEmail = selectedUser?.email || selectedUser?.search_value || selectedUser?.username || 'unknown_user';
-      const folderName = selectedFolder?.folder_name || selectedFolder?.date || 'unknown_folder';
-      const filename = screenshot.filename || 'unknown_file.webp';
-      const constructedS3Key = `screenshots/${userEmail.replace('@', '_at_')}/${folderName}/${filename}`;
-      const encodedConstructedKey = encodeURIComponent(constructedS3Key);
-      const apiBaseURL = getApiBaseURL();
-      imageUrl = `${apiBaseURL}/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
+      console.log('❌ No presigned_url or url field found');
+      console.log('🔧 Available data:', {
+        presigned_url: screenshot.presigned_url,
+        url: screenshot.url,
+        s3_key: screenshot.s3_key,
+        filename: screenshot.filename
+      });
     }
 
-    // CRITICAL: For presigned URLs, use them directly without any processing
+    // CRITICAL: Use direct S3 URLs without any processing
     let finalImageUrl;
-    if (imageUrl && imageUrl.includes('X-Amz-Signature')) {
-      // This is a presigned URL - use it directly without processing
+    if (imageUrl && imageUrl.includes('s3.amazonaws.com')) {
+      // This is an S3 URL - use it exactly as is!
       finalImageUrl = imageUrl;
-    } else {
-      // For non-presigned URLs, use getImageUrl processing
+      console.log('✅ Using S3 URL for finalImageUrl (NO PROCESSING)');
+    } else if (imageUrl && imageUrl.includes('X-Amz-Signature')) {
+      // This is any presigned URL - use it directly
+      finalImageUrl = imageUrl;
+      console.log('✅ Using presigned URL directly for finalImageUrl');
+    } else if (imageUrl) {
+      // For non-presigned URLs, process through getImageUrl (legacy)
       finalImageUrl = getImageUrl(imageUrl);
+      console.log('🔧 Processing non-presigned URL through getImageUrl');
+    } else {
+      // No valid URL found
+      finalImageUrl = null;
+      console.log('❌ No valid image URL found');
     }
+    
+    console.log('🎯 Final image URL result:', {
+      imageUrl: imageUrl?.substring(0, 80) + '...',
+      finalImageUrl: finalImageUrl?.substring(0, 80) + '...',
+      isS3: finalImageUrl?.includes('s3.amazonaws.com'),
+      isPresigned: finalImageUrl?.includes('X-Amz-Signature')
+    });
 
     // Enhanced time formatting
     let displayTime = `${9 + index}:00 AM`;
@@ -2080,8 +2114,14 @@ const ActivityStream = () => {
       size_mb: screenshot.size_mb || 'N/A',
       filename: screenshot.filename,
       s3_key: screenshot.s3_key,
-      presigned_url: screenshot.presigned_url || 'Not Available',
-      original_presigned_url: screenshot.presigned_url // Keep the original for debugging
+      presigned_url: screenshot.presigned_url || null, // Don't use 'Not Available' - use null
+      original_presigned_url: screenshot.presigned_url, // Keep the original for debugging
+      debug_image_processing: { // Add debug information
+        imageUrl,
+        finalImageUrl,
+        hasPresignedUrl: !!screenshot.presigned_url,
+        presignedUrlLength: screenshot.presigned_url?.length || 0
+      }
     };
   };
 
