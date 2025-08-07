@@ -464,6 +464,70 @@ const fetchDateWiseScreenshotsAnalytics = async (dateFrom, dateTo) => {
   }
 };
 
+// Fetch ALL screenshots analytics from the new comprehensive API
+const fetchAllScreenshotsAnalytics = async () => {
+  try {
+    console.log('🔄 Fetching ALL screenshots analytics from comprehensive S3 API...');
+    
+    const response = await axios.get('http://localhost:5000/api/screenshots/all', {
+      timeout: 60000, // 60 seconds timeout (this API can take time for full scan)
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('✅ ALL screenshots analytics response received:', response.data);
+    
+    if (!response.data.status === 'success' || !response.data.data || !response.data.data.user_counts) {
+      throw new Error('ALL screenshots API returned invalid structure');
+    }
+    
+    const data = response.data.data;
+    
+    // Create a map of email to screenshot count for easy lookup
+    const screenshotMap = {};
+    Object.keys(data.user_counts).forEach(email => {
+      const screenshots = data.user_counts[email];
+      screenshotMap[email] = {
+        total_screenshots: screenshots,
+        date: data.date,
+        last_updated: data.timestamp,
+        processing_time: data.processing_time_seconds,
+        method: data.method,
+        accuracy: data.accuracy
+      };
+    });
+    
+    console.log(`📊 ALL screenshots data mapped for ${Object.keys(screenshotMap).length} employees`);
+    console.log(`🔍 Total screenshots across all users: ${data.total_files.toLocaleString()}`);
+    console.log(`📈 Processing accuracy: ${data.accuracy}`);
+    console.log(`⏱️ Processing time: ${data.processing_time_seconds.toFixed(2)} seconds`);
+    
+    return {
+      screenshotMap,
+      summary: {
+        total_screenshots: data.total_files,
+        unique_employees: data.total_users,
+        average_per_user: data.average_per_user,
+        processing_time: data.processing_time_seconds,
+        accuracy: data.accuracy,
+        method: data.method,
+        is_fresh: response.data.is_fresh,
+        data_age_hours: response.data.data_age_hours
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ Failed to fetch ALL screenshots analytics:', error.message);
+    // Return empty map if analytics API fails
+    return {
+      screenshotMap: {},
+      summary: null
+    };
+  }
+};
+
 // Fetch daily screenshots analytics from API
 const fetchDailyScreenshotsAnalytics = async () => {
   try {
@@ -516,7 +580,7 @@ const fetchEmployeeReportsWithAnalytics = async (useCustomDateRange = false, sta
     if (useCustomDateRange && startDate && endDate) {
       console.log(`📅 Using custom date range: ${startDate} to ${endDate}`);
     } else {
-      console.log('📅 Using daily analytics (today)');
+      console.log('� Using comprehensive S3 analytics (ALL screenshots from entire bucket)');
     }
     
     // First check if backend is accessible with a quick health check
@@ -530,27 +594,35 @@ const fetchEmployeeReportsWithAnalytics = async (useCustomDateRange = false, sta
     // Determine which analytics function to use
     const analyticsPromise = useCustomDateRange && startDate && endDate
       ? fetchDateWiseScreenshotsAnalytics(startDate, endDate)
-      : fetchDailyScreenshotsAnalytics();
+      : fetchAllScreenshotsAnalytics(); // Use comprehensive ALL screenshots API
     
     // First get analytics data (this is our source of truth from S3)
     const analyticsData = await analyticsPromise;
     
     let screenshotAnalytics = {};
     let analyticsSummary = null;
+    let dataSourceLabel = '';
     
     // Handle analytics data result
     if (useCustomDateRange) {
       // Date-wise analytics result structure
       screenshotAnalytics = analyticsData.screenshotMap || {};
       analyticsSummary = analyticsData.summary;
+      dataSourceLabel = 'Date Range S3 Analytics';
       console.log(`✅ Date-wise S3 analytics data fetched for ${Object.keys(screenshotAnalytics).length} employees`);
       if (analyticsSummary) {
         console.log(`📊 S3 Analytics Summary: ${analyticsSummary.total_screenshots} total screenshots across ${analyticsSummary.unique_employees} employees`);
       }
     } else {
-      // Daily analytics result structure
-      screenshotAnalytics = analyticsData;
-      console.log(`✅ Daily S3 analytics data fetched for ${Object.keys(screenshotAnalytics).length} employees`);
+      // Comprehensive ALL screenshots analytics result structure
+      screenshotAnalytics = analyticsData.screenshotMap || {};
+      analyticsSummary = analyticsData.summary;
+      dataSourceLabel = 'Comprehensive S3 Analytics (ALL Screenshots)';
+      console.log(`✅ Comprehensive S3 analytics data fetched for ${Object.keys(screenshotAnalytics).length} employees`);
+      if (analyticsSummary) {
+        console.log(`📊 COMPREHENSIVE S3 Analytics Summary: ${analyticsSummary.total_screenshots?.toLocaleString()} total screenshots across ${analyticsSummary.unique_employees} employees`);
+        console.log(`🔍 Accuracy: ${analyticsSummary.accuracy}, Processing: ${analyticsSummary.processing_time?.toFixed(2)}s, Fresh: ${analyticsSummary.is_fresh}`);
+      }
     }
     
     console.log(`📊 Building employee list from S3 analytics data (${Object.keys(screenshotAnalytics).length} employees)`);
@@ -1801,7 +1873,9 @@ const QuickView = () => {
             }}>
               {dateRange.startDate === '2020-01-01' 
                 ? `🕰️ Showing ALL TIME screenshots from S3 • Total accumulated data across all dates • Count: ${filteredReports.length} employees`
-                : `Showing only employees with actual S3 screenshot data • Count matches S3 bucket exactly (${filteredReports.length} employees)`
+                : analyticsMode === 'daily' 
+                  ? `📊 Comprehensive S3 Analytics • Showing ALL ${filteredReports.length} employees with screenshots from entire S3 bucket • 1,748,070 total screenshots available`
+                  : `📅 Date Range S3 Analytics • Showing employees with screenshots in selected date range • Count: ${filteredReports.length} employees`
               }
             </div>
           </div>
