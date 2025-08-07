@@ -395,59 +395,240 @@ const ActivityStream = () => {
     }
   }, [folders]);
   
-  // Add image URL processing function (FIXED for direct presigned URLs)
-  const getImageUrl = (originalUrl) => {
-    // If null/undefined, return a basic image that will show as broken
-    if (!originalUrl) {
+  // Add image URL processing function (OPTIMIZED for your perfect API response)
+  const getImageUrl = (screenshot) => {
+    // Handle screenshot object with multiple URL fields
+    if (!screenshot) {
       return '';
     }
     
-    // CRITICAL FIX: If it's a presigned S3 URL, use it DIRECTLY without ANY processing
-    if (originalUrl.includes('ddsfocustime.s3.amazonaws.com') && originalUrl.includes('X-Amz-Signature')) {
-      return originalUrl; // Use presigned URL AS-IS - don't modify it!
+    // If screenshot is a string (direct URL), handle it
+    if (typeof screenshot === 'string') {
+      return screenshot;
     }
     
-    // If it's a presigned S3 URL with alternate format, use it DIRECTLY
-    if (originalUrl.includes('ddsfocustime.s3.') && originalUrl.includes('X-Amz-Signature')) {
-      return originalUrl; // Use presigned URL AS-IS - don't modify it!
+    console.log('🔍 Processing screenshot URL:', {
+      id: screenshot?.id,
+      filename: screenshot?.filename,
+      hasPresignedUrl: !!screenshot?.presigned_url,
+      hasS3Key: !!screenshot?.s3_key,
+      hasUrl: !!screenshot?.url
+    });
+    
+    // 🚀 PRIORITY OPTIMIZED FOR YOUR API: presigned_url first for immediate display!
+    
+    // 1. Direct presigned URL (IMMEDIATE DISPLAY - your API has perfect presigned URLs!)
+    if (screenshot.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+      console.log('✅ Using presigned_url (IMMEDIATE DISPLAY):', screenshot.presigned_url.substring(0, 100) + '...');
+      return screenshot.presigned_url;
     }
     
-    // For backend URLs, return as-is
-    if (originalUrl.includes('localhost:8000')) {
-      return originalUrl;
+    // 2. Use localhost proxy for s3_key as backup
+    if (screenshot.s3_key) {
+      const apiBaseURL = getApiBaseURL(); // This should return 'http://localhost:8000/api'
+      // Ensure proper URL encoding for the s3_key path
+      const encodedS3Key = encodeURIComponent(screenshot.s3_key).replace(/%2F/g, '/');
+      const proxyUrl = `${apiBaseURL}/proxy/screenshots/${encodedS3Key}`;
+      console.log('🔄 Using localhost proxy for s3_key (backup):', proxyUrl);
+      console.log('📝 S3 Key:', screenshot.s3_key);
+      console.log('📝 Encoded S3 Key:', encodedS3Key);
+      return proxyUrl;
     }
     
-    // For other URLs, return as-is
-    return originalUrl;
+    // 3. Check url field for presigned URL
+    if (screenshot.url && screenshot.url.includes('X-Amz-Signature')) {
+      console.log('✅ Using url field with signature:', screenshot.url.substring(0, 100) + '...');
+      return screenshot.url;
+    }
+    
+    // 4. Use any available URL field as direct URL
+    if (screenshot.url) {
+      console.log('✅ Using direct url field:', screenshot.url);
+      return screenshot.url;
+    }
+    
+    // 5. Fallback to any available URL field
+    const fallbackUrl = screenshot.image_url || screenshot.thumbnail_url || screenshot.src || '';
+    console.log('⚠️ Using fallback URL:', fallbackUrl);
+    return fallbackUrl;
   };
 
-  // Create a robust image component (ENHANCED - better debugging and S3 detection)
-  const SimpleImageComponent = ({ src, alt, style, onLoad, onError, className, onClick }) => {
+  // Download screenshot function (ENHANCED for proxy URLs)
+  const downloadScreenshot = async (screenshot) => {
+    try {
+      console.log('📥 Starting download for screenshot:', {
+        id: screenshot?.id,
+        filename: screenshot?.filename,
+        hasPresignedUrl: !!screenshot?.presigned_url,
+        hasS3Key: !!screenshot?.s3_key
+      });
+
+      const imageUrl = getImageUrl(screenshot);
+      if (!imageUrl) {
+        alert('❌ No valid image URL found for download');
+        return;
+      }
+
+      // Get filename for download (extract just the filename from path)
+      let filename = screenshot?.filename || screenshot?.name || `screenshot_${screenshot?.id || Date.now()}.webp`;
+      
+      // If filename is a full path, extract just the filename
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+      }
+      
+      console.log('📥 Downloading from URL:', imageUrl);
+      console.log('📥 Saving as filename:', filename);
+
+      // For backend proxy URLs (your current setup)
+      if (imageUrl.includes('/api/proxy/screenshot/')) {
+        console.log('📥 Using backend proxy download method');
+        
+        const response = await fetch(imageUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'image/*',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Backend proxy failed: ${response.status} ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        
+        // Create download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        console.log('✅ Backend proxy download completed successfully');
+      }
+      // For presigned URLs, download directly
+      else if (imageUrl.includes('X-Amz-Signature')) {
+        console.log('📥 Using direct S3 presigned URL download method');
+        
+        const response = await fetch(imageUrl, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Accept': 'image/*',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`S3 download failed: ${response.status} ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        
+        // Create download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        console.log('✅ S3 presigned URL download completed successfully');
+      }
+      // For any other URLs, use simple link approach
+      else {
+        console.log('📥 Using simple link download method');
+        
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = filename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('✅ Simple link download initiated');
+      }
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        background: #10b981; color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      successMsg.textContent = `✅ Downloaded: ${filename}`;
+      document.body.appendChild(successMsg);
+      setTimeout(() => {
+        if (document.body.contains(successMsg)) {
+          document.body.removeChild(successMsg);
+        }
+      }, 3000);
+
+    } catch (error) {
+      console.error('❌ Download failed:', error);
+      
+      // Show error message
+      const errorMsg = document.createElement('div');
+      errorMsg.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        background: #ef4444; color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      errorMsg.textContent = `❌ Download failed: ${error.message}`;
+      document.body.appendChild(errorMsg);
+      setTimeout(() => {
+        if (document.body.contains(errorMsg)) {
+          document.body.removeChild(errorMsg);
+        }
+      }, 5000);
+    }
+  };
+
+  // Create a robust image component (ENHANCED for backend proxy URLs)
+  const SimpleImageComponent = ({ screenshot, alt, style, onLoad, onError, className, onClick }) => {
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentUrl, setCurrentUrl] = useState('');
 
-    console.log('🖼️ SimpleImageComponent rendering with src:', {
-      src: src?.substring(0, 100) + '...',
-      srcLength: src?.length,
-      isS3: src?.includes('s3.amazonaws.com'),
-      hasSignature: src?.includes('X-Amz-Signature'),
-      domain: src?.includes('ddsfocustime.s3.amazonaws.com') ? 'ddsfocustime S3' : 'Other'
-    });
+    // Get the best available image URL
+    useEffect(() => {
+      const url = getImageUrl(screenshot);
+      setCurrentUrl(url);
+      console.log('🖼️ SimpleImageComponent URL resolved:', {
+        screenshotId: screenshot?.id,
+        filename: screenshot?.filename,
+        url: url,
+        urlLength: url?.length,
+        isProxy: url?.includes('/api/proxy/screenshot/'),
+        isS3: url?.includes('s3.amazonaws.com'),
+        hasSignature: url?.includes('X-Amz-Signature')
+      });
+    }, [screenshot]);
 
     const handleError = (e) => {
       console.error('🖼️ Image failed to load:', {
-        src: src?.substring(0, 100) + '...',
-        fullSrc: src,
+        screenshotId: screenshot?.id,
+        filename: screenshot?.filename,
+        currentUrl: currentUrl,
         errorType: e.target ? 'IMG_ELEMENT_ERROR' : 'REACT_ERROR',
         errorCode: e.target ? e.target.error?.code : 'unknown',
-        naturalWidth: e.target?.naturalWidth,
-        naturalHeight: e.target?.naturalHeight,
-        isS3: src?.includes('s3.amazonaws.com'),
-        hasSignature: src?.includes('X-Amz-Signature'),
-        srcLength: src?.length,
-        hostname: window.location.hostname,
-        crossOrigin: src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined
+        status: e.target ? e.target.status : 'unknown',
+        networkState: e.target ? e.target.networkState : 'unknown'
       });
+      
+      // For proxy URLs, let's try to provide more helpful error info
+      if (currentUrl?.includes('/api/proxy/screenshot/')) {
+        console.error('🔍 Proxy URL failed. Checking if backend is accessible...');
+        // You could add a fallback here to try direct S3 URL if available
+      }
+      
       setHasError(true);
       setIsLoading(false);
       if (onError) onError(e);
@@ -455,12 +636,11 @@ const ActivityStream = () => {
 
     const handleLoad = (e) => {
       console.log('✅ Image loaded successfully:', {
-        src: src?.substring(0, 100) + '...',
+        screenshotId: screenshot?.id,
+        filename: screenshot?.filename,
         naturalWidth: e.target.naturalWidth,
         naturalHeight: e.target.naturalHeight,
-        isS3: src?.includes('s3.amazonaws.com'),
-        hasSignature: src?.includes('X-Amz-Signature'),
-        loadTime: 'immediate'
+        currentUrl: currentUrl?.includes('/api/proxy/screenshot/') ? 'Backend Proxy' : 'Direct URL'
       });
       setHasError(false);
       setIsLoading(false);
@@ -468,13 +648,15 @@ const ActivityStream = () => {
     };
 
     const handleClick = (e) => {
-      console.log('🖼️ SimpleImageComponent clicked!', { src: src?.substring(0, 50) + '...', alt });
+      console.log('🖼️ Image clicked!', { 
+        screenshotId: screenshot?.id, 
+        filename: screenshot?.filename 
+      });
       if (onClick) onClick(e);
     };
 
-    // Show error placeholder if no valid src
-    if (!src || src === '' || src === 'null' || src === 'undefined' || src === 'Not Available' || src === null) {
-      console.log('❌ No valid src provided to SimpleImageComponent:', src);
+    // Show error placeholder if no valid URL
+    if (!currentUrl || currentUrl === '' || currentUrl === 'null' || currentUrl === 'undefined') {
       return (
         <div
           style={{ 
@@ -486,20 +668,24 @@ const ActivityStream = () => {
             color: '#6b7280',
             fontSize: '12px',
             border: '1px dashed #d1d5db',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            cursor: 'pointer'
           }}
           className={className}
           onClick={handleClick}
         >
-          <div>No Image URL</div>
-          <div style={{ fontSize: '10px', marginTop: '4px', opacity: 0.7 }}>
-            {src || 'null/undefined'}
+          <div>📷</div>
+          <div style={{ fontSize: '10px', marginTop: '4px' }}>
+            {screenshot?.filename || 'No Image'}
+          </div>
+          <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
+            No URL Available
           </div>
         </div>
       );
     }
 
-    // Show error state for failed loads but still try to display the broken image
+    // Show error state for failed loads
     if (hasError) {
       return (
         <div
@@ -513,38 +699,30 @@ const ActivityStream = () => {
             fontSize: '12px',
             border: '1px solid #fecaca',
             flexDirection: 'column',
-            position: 'relative'
+            cursor: 'pointer'
           }}
           className={className}
           onClick={handleClick}
         >
-          {/* Still show the broken image behind the error */}
-          <img
-            src={src}
-            alt={alt}
-            style={{ 
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'cover',
-              opacity: 0.1,
-              filter: 'grayscale(100%)'
-            }}
-            referrerPolicy="no-referrer"
-            crossOrigin={src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined}
-          />
-          <div style={{ position: 'relative', zIndex: 1 }}>Image Load Failed</div>
-          <div style={{ fontSize: '10px', marginTop: '4px', opacity: 0.7, position: 'relative', zIndex: 1 }}>
-            {src?.substring(0, 50)}...
+          <div>❌</div>
+          <div style={{ fontSize: '10px', marginTop: '4px' }}>
+            Load Failed
           </div>
+          <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
+            {currentUrl?.includes('/api/proxy/') ? 'Proxy Error' : 
+             screenshot?.filename?.substring(0, 20) + '...' || 'Unknown'}
+          </div>
+          {currentUrl?.includes('/api/proxy/') && (
+            <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
+              Check Django server
+            </div>
+          )}
         </div>
       );
     }
 
     return (
-      <div style={{ position: 'relative', ...style }} className={className} onClick={handleClick}>
+      <div style={{ position: 'relative', ...style }} className={className}>
         {isLoading && (
           <div style={{
             position: 'absolute',
@@ -564,13 +742,27 @@ const ActivityStream = () => {
           </div>
         )}
         <img
-          src={src}
-          alt={alt}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          src={currentUrl}
+          alt={alt || screenshot?.filename || 'Screenshot'}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease'
+          }}
           onLoad={handleLoad}
           onError={handleError}
-          referrerPolicy="no-referrer"
-          crossOrigin={src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined}
+          onClick={handleClick}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'scale(1.02)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'scale(1)';
+          }}
+          // For proxy URLs, we don't need CORS headers
+          referrerPolicy={currentUrl?.includes('/api/proxy/') ? undefined : "no-referrer"}
+          crossOrigin={currentUrl?.includes('s3.amazonaws.com') ? "anonymous" : undefined}
         />
       </div>
     );
@@ -2831,6 +3023,32 @@ const ActivityStream = () => {
 
   // Render folder screenshots view
   const renderFolderScreenshotsView = () => {
+    // 🚀 MAJOR DEBUG TEST: Verify this function is being called
+    console.log('🚀🚀🚀 FOLDER SCREENSHOTS VIEW IS RENDERING 🚀🚀🚀');
+    console.log('📊 folderScreenshots array:', folderScreenshots);
+    console.log('📊 folderScreenshots length:', folderScreenshots?.length || 0);
+    console.log('📊 currentView:', currentView);
+    console.log('📊 loadingFolderScreenshots:', loadingFolderScreenshots);
+    
+    // 🎯 LIVE IMAGE DISPLAY TEST: Check if we have presigned URLs like LiveTracking
+    if (folderScreenshots?.length > 0) {
+      console.log('🎯 LIVE IMAGE DISPLAY TEST - Sample screenshot data:');
+      const firstScreenshot = folderScreenshots[0];
+      console.log('  📸 First screenshot:', {
+        id: firstScreenshot?.id,
+        filename: firstScreenshot?.filename,
+        has_presigned_url: !!firstScreenshot?.presigned_url,
+        presigned_url_preview: firstScreenshot?.presigned_url?.substring(0, 120) + '...',
+        has_s3_key: !!firstScreenshot?.s3_key,
+        s3_key: firstScreenshot?.s3_key,
+        generated_url: getImageUrl(firstScreenshot)?.substring(0, 120) + '...'
+      });
+      console.log('  🚀 URL Priority Order Test:', {
+        step1_presigned_check: firstScreenshot?.presigned_url && firstScreenshot.presigned_url.includes('X-Amz-Signature') ? '✅ PASS' : '❌ FAIL',
+        step2_s3key_backup: firstScreenshot?.s3_key ? '✅ Available' : '❌ Not Available',
+        final_url_generated: !!getImageUrl(firstScreenshot) ? '✅ URL Generated' : '❌ No URL Generated'
+      });
+    }
 
     if (loadingFolderScreenshots) {
       console.log('📀 Showing loading state for folder screenshots');
@@ -2897,8 +3115,128 @@ const ActivityStream = () => {
           )}
         </SearchInfo>
         
-        {/* Enhanced Debug Tools for Image Testing */}
-        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Enhanced Debug Tools and Download Options */}
+        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Bulk Download Button */}
+          <Button
+            variant="contained"
+            size="small"
+            onClick={async () => {
+              if (folderScreenshots.length === 0) {
+                alert('No screenshots to download');
+                return;
+              }
+
+              const confirmDownload = window.confirm(
+                `Download all ${folderScreenshots.length} screenshots from this folder?\n\n` +
+                `This will download them one by one to your Downloads folder.`
+              );
+
+              if (!confirmDownload) return;
+
+              console.log('📥 Starting bulk download of', folderScreenshots.length, 'screenshots');
+              
+              let downloaded = 0;
+              let failed = 0;
+
+              // Show progress indicator
+              const progressDiv = document.createElement('div');
+              progressDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: #3b82f6; color: white; padding: 12px 16px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px;
+              `;
+              progressDiv.innerHTML = `📥 Downloading... 0/${folderScreenshots.length}`;
+              document.body.appendChild(progressDiv);
+
+              for (let i = 0; i < folderScreenshots.length; i++) {
+                try {
+                  progressDiv.innerHTML = `📥 Downloading... ${i + 1}/${folderScreenshots.length}`;
+                  await downloadScreenshot(folderScreenshots[i]);
+                  downloaded++;
+                  
+                  // Small delay to prevent overwhelming the browser/server
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                  console.error('❌ Failed to download screenshot', i, ':', error);
+                  failed++;
+                }
+              }
+
+              document.body.removeChild(progressDiv);
+
+              // Show completion message
+              const resultDiv = document.createElement('div');
+              resultDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: ${failed === 0 ? '#10b981' : '#f59e0b'}; color: white; padding: 12px 16px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              `;
+              resultDiv.innerHTML = `✅ Downloaded: ${downloaded}, Failed: ${failed}`;
+              document.body.appendChild(resultDiv);
+              setTimeout(() => document.body.removeChild(resultDiv), 5000);
+            }}
+            style={{
+              backgroundColor: '#10b981',
+              color: 'white',
+              fontSize: '12px',
+              padding: '6px 12px',
+              fontWeight: '600'
+            }}
+          >
+            📥 Download All ({folderScreenshots.length})
+          </Button>
+
+          {/* 🚀 NEW: Test Live Image Display */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🚀 TESTING LIVE IMAGE DISPLAY WITH YOUR PERFECT API DATA!');
+              console.log('📊 Your API provides perfect presigned URLs, testing them now...');
+              
+              if (folderScreenshots.length > 0) {
+                const firstScreenshot = folderScreenshots[0];
+                console.log('🔍 First screenshot data:', {
+                  id: firstScreenshot.id,
+                  filename: firstScreenshot.filename,
+                  presigned_url: firstScreenshot.presigned_url?.substring(0, 100) + '...',
+                  s3_key: firstScreenshot.s3_key
+                });
+                
+                // Test the presigned URL directly
+                const testImg = new Image();
+                testImg.crossOrigin = 'anonymous';
+                testImg.onload = () => {
+                  console.log('✅ LIVE DISPLAY WORKS! Image loaded successfully:', {
+                    size: `${testImg.naturalWidth}x${testImg.naturalHeight}`,
+                    filename: firstScreenshot.filename
+                  });
+                  alert(`🚀 LIVE DISPLAY SUCCESS!\n\nImage: ${firstScreenshot.filename}\nSize: ${testImg.naturalWidth}x${testImg.naturalHeight}\n\nYour images should now display immediately!`);
+                };
+                testImg.onerror = (e) => {
+                  console.error('❌ Live display test failed:', e);
+                  alert('❌ Live display test failed. Check console for details.');
+                };
+                testImg.src = firstScreenshot.presigned_url;
+              } else {
+                alert('❌ No screenshots available to test');
+              }
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#22c55e',
+              color: 'white',
+              border: 'none',
+              fontWeight: '600'
+            }}
+          >
+            🚀 Test Live Display
+          </Button>
+
           {/* TEST: Log actual API response data */}
           <Button
             variant="outlined"
@@ -2945,42 +3283,128 @@ const ActivityStream = () => {
             🚀 Test API Data
           </Button>
 
-          {/* Test sample presigned URL from your Postman response */}
+          {/* Test your specific proxy URL format */}
           <Button
             variant="outlined"
             size="small"
             onClick={() => {
-              console.log('🔧 DEBUG: Testing sample presigned URL from Postman');
-              const testUrl = 'https://ddsfocustime.s3.amazonaws.com/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250807%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250807T120444Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=b89206e0d4c1e18c50907e3a29e1b27496673a8a18122c8de86e4eee03201a27';
+              console.log('� Testing your specific proxy URL format...');
+              const testProxyUrl = 'http://localhost:8000/api/proxy/screenshots/mohsinabbass688630_at_gmail.com/dxdglobal.com_&_deluxebilisim.com_genel_d%C3%BCzenlemeler_/2025-08-07_17-55-04_2025-08-07_17-55-04.webp';
+              
+              console.log('🔍 Test URL:', testProxyUrl);
               
               // Test if URL is accessible
-              console.log('🔍 Testing URL:', testUrl.substring(0, 100) + '...');
+              const img = new Image();
+              img.onload = () => {
+                console.log('✅ Proxy URL loads successfully:', {
+                  width: img.naturalWidth,
+                  height: img.naturalHeight,
+                  size: `${img.naturalWidth}x${img.naturalHeight}`,
+                  url: testProxyUrl
+                });
+                alert(`✅ Proxy URL works! Image size: ${img.naturalWidth}x${img.naturalHeight}`);
+              };
+              img.onerror = (e) => {
+                console.error('❌ Proxy URL failed to load:', e);
+                console.error('❌ Error details:', {
+                  type: e.type,
+                  target: e.target,
+                  currentSrc: e.target.currentSrc
+                });
+                alert('❌ Proxy URL failed to load. Check console and ensure Django server is running on port 8000.');
+              };
+              img.src = testProxyUrl;
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#8b5cf6',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔧 Test Proxy URL
+          </Button>
+
+          {/* Test presigned URL from your actual API response */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔧 DEBUG: Testing your actual API presigned URL');
+              const testUrl = 'https://ddsfocustime.s3.amazonaws.com/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250807%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250807T141550Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=c245697580a7fbf612e1e2fa35435f3b62eee398a3c900fdb7ed77a11b9e0618';
+              
+              // Test if URL is accessible
+              console.log('🔍 Testing your actual presigned URL:', testUrl.substring(0, 100) + '...');
               const img = new Image();
               img.crossOrigin = 'anonymous';
               img.onload = () => {
-                console.log('✅ Sample image loaded successfully:', {
+                console.log('✅ Your presigned URL works perfectly:', {
                   width: img.naturalWidth,
                   height: img.naturalHeight,
                   size: `${img.naturalWidth}x${img.naturalHeight}`,
                   url: testUrl.substring(0, 100) + '...'
                 });
-                alert(`✅ Sample image loaded successfully! Size: ${img.naturalWidth}x${img.naturalHeight}`);
+                alert(`✅ Your presigned URL works! Image size: ${img.naturalWidth}x${img.naturalHeight}\n\nNow screenshots should display correctly!`);
               };
               img.onerror = (e) => {
-                console.error('❌ Sample image failed to load:', e);
-                alert('❌ Sample image failed to load. Check console for details.');
+                console.error('❌ Your presigned URL failed to load:', e);
+                alert('❌ Your presigned URL failed to load. Check console for details.');
               };
               img.src = testUrl;
             }}
             style={{ 
               fontSize: '11px',
               padding: '4px 8px',
-              backgroundColor: '#06b6d4',
+              backgroundColor: '#22c55e',
               color: 'white',
               border: 'none'
             }}
           >
-            🔧 Test Sample S3 URL
+            ✅ Test Your API URL
+          </Button>
+
+          {/* Test the corrected proxy URL format with screenshots/ */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔧 DEBUG: Testing CORRECTED proxy URL format');
+              const testProxyUrl = 'http://localhost:8000/api/proxy/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Yılı_Ocak_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp';
+              
+              console.log('🔍 Testing corrected proxy URL:', testProxyUrl);
+              
+              // Test if URL is accessible
+              const img = new Image();
+              img.onload = () => {
+                console.log('✅ CORRECTED Proxy URL works!:', {
+                  width: img.naturalWidth,
+                  height: img.naturalHeight,
+                  size: `${img.naturalWidth}x${img.naturalHeight}`,
+                  url: testProxyUrl
+                });
+                alert(`✅ FIXED! Proxy URL works now! Image size: ${img.naturalWidth}x${img.naturalHeight}\n\nThe issue was the missing 's' in 'screenshots'!`);
+              };
+              img.onerror = (e) => {
+                console.error('❌ Corrected proxy URL still failed:', e);
+                console.error('❌ Error details:', {
+                  type: e.type,
+                  target: e.target,
+                  currentSrc: e.target.currentSrc
+                });
+                alert('❌ Corrected proxy URL still failed. Check Django server and endpoint configuration.');
+              };
+              img.src = testProxyUrl;
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#f97316',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔧 Test Fixed Proxy
           </Button>
 
           {/* Test current folder screenshots URLs */}
@@ -3044,6 +3468,52 @@ const ActivityStream = () => {
               🔍 Test Current URLs ({folderScreenshots.length})
             </Button>
           )}
+
+          {/* LOG S3 KEYS from API Response */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔑 S3 KEYS ANALYSIS - Based on your API response:');
+              console.log('📊 Total screenshots in current view:', folderScreenshots.length);
+              
+              folderScreenshots.forEach((screenshot, index) => {
+                console.log(`\n🔑 Screenshot ${index + 1}/${folderScreenshots.length}:`);
+                console.log('├── ID:', screenshot?.id || 'No ID');
+                console.log('├── Filename:', screenshot?.filename || 'No filename');
+                console.log('├── S3 Key:', screenshot?.s3_key || '❌ NO S3 KEY');
+                console.log('├── Has Presigned URL:', !!screenshot?.presigned_url);
+                console.log('├── Generated URL:', getImageUrl(screenshot)?.substring(0, 80) + '...');
+                
+                if (screenshot?.s3_key) {
+                  const proxyUrl = `http://localhost:8000/api/proxy/screenshots/${encodeURIComponent(screenshot.s3_key).replace(/%2F/g, '/')}`;
+                  console.log('├── Proxy URL would be:', proxyUrl);
+                } else {
+                  console.log('├── ⚠️ Cannot generate proxy URL - no S3 key');
+                }
+                console.log('└──────────────────────────────────────');
+              });
+              
+              // Summary
+              const withS3Key = folderScreenshots.filter(s => s.s3_key).length;
+              const withoutS3Key = folderScreenshots.filter(s => !s.s3_key).length;
+              console.log('\n📈 SUMMARY:');
+              console.log(`✅ Screenshots with S3 key: ${withS3Key}`);
+              console.log(`❌ Screenshots without S3 key: ${withoutS3Key}`);
+              console.log(`📊 Percentage with S3 key: ${((withS3Key / folderScreenshots.length) * 100).toFixed(1)}%`);
+              
+              alert(`🔑 S3 Keys Analysis Complete!\n\n✅ With S3 key: ${withS3Key}\n❌ Without S3 key: ${withoutS3Key}\n\nCheck console for detailed S3 key analysis.`);
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔑 Log S3 Keys ({folderScreenshots.length})
+          </Button>
 
           {/* S3 KEY SPECIFIC DEBUG BUTTON */}
           {folderScreenshots.length > 0 && (
@@ -3192,65 +3662,204 @@ const ActivityStream = () => {
           {folderScreenshots.map((screenshot, i) => {
             const formattedData = formatScreenshotData(screenshot, i);
             return (
-         <>
-             <Card 
+              <Card 
                 ref={el => cardsRef.current[i] = el}
                 theme={theme} 
                 isDarkMode={isDarkMode} 
                 key={formattedData.id}
                 index={i}
+                style={{ position: 'relative' }}
               >
-                {/* Use SimpleImageComponent for presigned URLs - they work directly */}
-                <SimpleImageComponent 
-                  src={formattedData.image} 
-                  alt={formattedData.task}
-                  crossOrigin="anonymous"
-                  style={{
-                    width: '100%',
-                    height: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '6px',
-                    marginBottom: '10px',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => handleImageClick(screenshot, i)}
-                />
+                {/* Download button overlay */}
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  zIndex: 10,
+                  display: 'flex',
+                  gap: '4px'
+                }}>
+                  {/* Download button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadScreenshot(screenshot);
+                    }}
+                    style={{
+                      background: 'rgba(34, 197, 94, 0.9)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(34, 197, 94, 1)';
+                      e.target.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(34, 197, 94, 0.9)';
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    title={`Download ${screenshot?.filename || 'screenshot'}`}
+                  >
+                    📥
+                  </button>
+                  
+                  {/* Full screen button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImageClick(screenshot, i);
+                    }}
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.9)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(59, 130, 246, 1)';
+                      e.target.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(59, 130, 246, 0.9)';
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    title="View full screen"
+                  >
+                    🔍
+                  </button>
+                </div>
+
+                {/* Enhanced SimpleImageComponent for screenshot objects */}
+                <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '6px' }}>
+                  <SimpleImageComponent 
+                    screenshot={screenshot}
+                    alt={formattedData.task}
+                    style={{
+                      width: '100%',
+                      height: '120px',
+                      objectFit: 'cover',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease'
+                    }}
+                    onClick={() => {
+                      console.log('🖼️ Screenshot card clicked:', {
+                        id: screenshot?.id,
+                        filename: screenshot?.filename,
+                        timestamp: screenshot?.timestamp,
+                        presignedUrl: screenshot?.presigned_url?.substring(0, 100) + '...'
+                      });
+                      handleImageClick(screenshot, i);
+                    }}
+                    onMouseEnter={(e) => {
+                      if (e.target.tagName === 'IMG') {
+                        e.target.style.transform = 'scale(1.05)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (e.target.tagName === 'IMG') {
+                        e.target.style.transform = 'scale(1)';
+                      }
+                    }}
+                  />
+                  
+                  {/* Image info overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '0',
+                    right: '0',
+                    background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                    color: 'white',
+                    padding: '8px',
+                    fontSize: '10px'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '2px' }}>
+                      {screenshot?.filename?.split('/').pop()?.substring(0, 25) || 'Screenshot'}
+                      {screenshot?.filename?.length > 25 && '...'}
+                    </div>
+                    <div style={{ opacity: 0.8, fontSize: '9px' }}>
+                      {screenshot?.timestamp && 
+                        new Date(screenshot.timestamp).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      }
+                      {screenshot?.size_mb && ` • ${screenshot.size_mb} MB`}
+                    </div>
+                  </div>
+                </div>
+                
                 <TaskName theme={theme} isDarkMode={isDarkMode}>{formattedData.task}</TaskName>
                 <TaskTime theme={theme} isDarkMode={isDarkMode}>{formattedData.time}</TaskTime>
                 
-                {/* Display the actual image URL being used - ENHANCED DEBUG */}
-                <ImageUrl theme={theme} isDarkMode={isDarkMode}>
-                  🔗 Formatted: {formattedData.image ? formattedData.image.substring(0, 80) + '...' : 'NULL'}
-                  <br />
-                  🔗 Raw presigned: {formattedData.presigned_url ? formattedData.presigned_url.substring(0, 80) + '...' : 'NULL'}
-                  <br />
-                  🔗 Raw url: {screenshot.url || 'NULL'}
-                  <br />
-                  � S3 key (formatted): {formattedData.s3_key ? formattedData.s3_key.substring(0, 50) + '...' : '❌ NULL'}
-                  <br />
-                  � S3 key (original): {screenshot.s3_key ? screenshot.s3_key.substring(0, 50) + '...' : '❌ NULL'}
-                  <br />
-                  🔍 S3 Debug: {formattedData.s3_key_debug_info ? 
-                    `Type: ${formattedData.s3_key_debug_info.s3_key_type}, Length: ${formattedData.s3_key_debug_info.s3_key_length}, Exists: ${formattedData.s3_key_debug_info.s3_key_exists}` : 
-                    'No debug info'}
-                </ImageUrl>
-                
-             
-   
-                
-                {/* Additional WebP metadata */}
-                {screenshot.size_mb && (
-                  <div style={{
-                    fontSize: '9px',
-                    color: '#9ca3af',
-                    marginTop: '2px',
-                    textAlign: 'center'
-                  }}>
-                    Size: {screenshot.size_mb} MB
+                {/* Enhanced URL display for debugging with S3 key logging */}
+                <ImageUrl theme={theme} isDarkMode={isDarkMode} style={{ fontSize: '8px', maxHeight: '60px', overflow: 'hidden' }}>
+                  {(() => {
+                    // TEST: Verify this function is actually being called
+                    console.log(`🚀 RENDER TEST: Processing screenshot ${i + 1}/${folderScreenshots.length}`);
+                    console.log(`🚀 Screenshot object exists:`, !!screenshot);
+                    
+                    // Console log the S3 key for each screenshot
+                    console.log(`🔑 Screenshot ${i + 1} S3 Key:`, screenshot?.s3_key || 'No S3 key');
+                    console.log(`📸 Screenshot ${i + 1} Data:`, {
+                      id: screenshot?.id,
+                      filename: screenshot?.filename,
+                      s3_key: screenshot?.s3_key,
+                      has_presigned_url: !!screenshot?.presigned_url,
+                      presigned_url_preview: screenshot?.presigned_url?.substring(0, 100) + '...'
+                    });
+                    
+                    // Use same logic as getImageUrl to determine URL status
+                    if (screenshot?.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+                      return '✅ S3 Direct (LIVE!)';
+                    } else if (screenshot?.s3_key) {
+                      return '🔄 Proxy (Backup)';
+                    } else if (screenshot?.url && screenshot.url.includes('X-Amz-Signature')) {
+                      return '🔄 S3 Direct (URL Field)';
+                    } else if (screenshot?.url) {
+                      return '🔗 Direct URL';
+                    } else if (screenshot?.image_url || screenshot?.thumbnail_url || screenshot?.src) {
+                      return '🔗 Fallback URL';
+                    } else {
+                      return '❌ No URL';
+                    }
+                  })()}
+                  {screenshot?.filename && (
+                    <div style={{ marginTop: '2px', opacity: 0.7 }}>
+                      📄 {screenshot.filename.split('/').pop()}
+                    </div>
+                  )}
+                  {screenshot?.s3_key && (
+                    <div style={{ marginTop: '2px', opacity: 0.6, fontSize: '6px', wordBreak: 'break-all' }}>
+                      🔑 S3: {screenshot.s3_key.split('/').slice(-2).join('/')}
+                    </div>
+                  )}
+                  <div style={{ marginTop: '2px', opacity: 0.5, fontSize: '7px' }}>
+                    {getImageUrl(screenshot) ? `🔗 ${getImageUrl(screenshot).substring(0, 30)}...` : '⚠️ No URL generated'}
                   </div>
-                )}
-              </Card> 
-         </>
+                </ImageUrl>
+              </Card>
             );
           })}
         </CardGrid>
@@ -3842,20 +4451,82 @@ const ActivityStream = () => {
                       key={formattedData.id}
                       ref={el => cardsRef.current[i] = el}
                       index={i}
+                      style={{ position: 'relative' }}
                     >
-                      <Img 
-                        src={formattedData.image} 
-                        alt={formattedData.task}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleImageClick(screenshot, i)}
-                        onError={(e) => {
-                          // Don't replace with placeholder - let the browser show the broken image
-                          console.log('❌ Image failed to load but keeping original URL:', e.target.src);
-                        }}
-                      />
+                      {/* Download and view buttons */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        zIndex: 10,
+                        display: 'flex',
+                        gap: '4px'
+                      }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadScreenshot(screenshot);
+                          }}
+                          style={{
+                            background: 'rgba(34, 197, 94, 0.9)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                          }}
+                          title={`Download ${screenshot?.filename || 'screenshot'}`}
+                        >
+                          📥
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleImageClick(screenshot, i);
+                          }}
+                          style={{
+                            background: 'rgba(59, 130, 246, 0.9)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                          }}
+                          title="View full screen"
+                        >
+                          🔍
+                        </button>
+                      </div>
+
+                      {/* Use enhanced SimpleImageComponent */}
+                      <div style={{ 
+                        position: 'relative', 
+                        overflow: 'hidden', 
+                        borderRadius: '6px',
+                        marginBottom: '10px'
+                      }}>
+                        <SimpleImageComponent
+                          screenshot={screenshot}
+                          alt={formattedData.task}
+                          style={{ 
+                            width: '100%',
+                            height: '120px',
+                            objectFit: 'cover',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleImageClick(screenshot, i)}
+                        />
+                      </div>
+                      
                       <TaskName theme={theme} isDarkMode={isDarkMode}>{formattedData.task}</TaskName>
                       <TaskTime theme={theme} isDarkMode={isDarkMode}>{formattedData.time}</TaskTime>
-                      <ImageUrl theme={theme} isDarkMode={isDarkMode}>🔗 {formattedData.image}</ImageUrl>
+                      <ImageUrl theme={theme} isDarkMode={isDarkMode} style={{ fontSize: '10px' }}>
+                        {screenshot?.presigned_url ? '✅ S3 Direct' : screenshot?.s3_key ? '🔄 Proxy' : '❌ No URL'}
+                      </ImageUrl>
                       <BackendStatusBadge theme={theme} isDarkMode={isDarkMode} status={backendStatus}>
                         {backendStatus === 'connected' ? '✅ Live Data' : 
                          backendStatus === 'disconnected' ? '🔌 Backend Offline' : 
