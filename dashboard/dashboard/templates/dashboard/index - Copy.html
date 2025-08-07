@@ -1,0 +1,1522 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #222;
+}
+
+.logo img {
+    height: 30px;
+}
+
+.menu-toggle {
+    background-color: #1e73ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: transparent !important;
+}
+
+.sidebar-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #bbb;
+    text-decoration: none;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.sidebar-item.active {
+    color: white;
+    background-color: rgba(30, 115, 255, 0.1);
+    border-left: 3px solid #1e73ff;
+}
+
+.sidebar-item:hover {
+    background-color: #1a1a1a;
+}
+
+.sidebar-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.new-badge {
+    position: absolute;
+    right: 15px;
+    background-color: #1e73ff;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-actions .time {
+    color: #999;
+    font-size: 12px;
+}
+
+.user-actions button {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.user-actions .avatar {
+    width: 30px;
+    height: 30px;
+    background-color: #1e73ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Cards */
+.card {
+    background-color: #1d232c;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.status-cards {
+    display: flex;
+    gap: 15px;
+}
+
+.status-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.date-picker {
+    background-color: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+}
+
+/* Status content */
+.status-content {
+    display: flex;
+    justify-content: space-between;
+    height: 150px;
+}
+
+.status-chart {
+    position: relative;
+    width: 50%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.status-chart::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    height: 100px;
+    width: 1px;
+    margin-top: -50px;
+    background: #2d2d2d;
+}
+
+.status-chart svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.status-chart .chart-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e73ff;
+}
+
+.status-list {
+    display: flex;
+    flex-direction: row;
+    gap: 0px 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-left: 50px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-item-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.metrics {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e73ff;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #999;
+}
+
+.metric-sub {
+    font-size: 14px;
+    color: #ccc;
+}
+
+/* Timeline section */
+.timeline-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 10px 0px 10px 0px;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timeline-date-selector {
+    display: flex;
+    gap: 5px;
+}
+
+.date-button {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.date-button.active {
+    background-color: #1e73ff;
+    color: white;
+}
+
+.refresh-button {
+    background-color: transparent;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Screenshots */
+.screenshots {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.screenshot {
+    border: 1px solid #2d2d2d;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    max-width: 238px;
+    width: 100%;
+    height: 166px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.screenshot:hover{
+cursor: pointer;
+}
+
+.screenshot img {
+    object-fit: cover;
+}
+
+.screenshot-time {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+}
+
+/* Search and timeline */
+.search-timeline {
+    display: flex;
+    gap: 15px;
+}
+
+.search-card {
+    width: 250px;
+}
+
+.search-input {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 8px 12px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.search-result {
+      border: 1px solid #ffffff21 !important;
+    color: #9f9f9f;
+    box-shadow: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all .5s ease-in-out;
+    text-align: left;
+        margin-bottom: 10px;
+            font-style: normal;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+
+
+.search-result:hover {
+    border: 1px solid #0560FC !important;
+}
+
+/* Detailed timeline */
+.detailed-timeline {
+    flex-grow: 1;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.timeline-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.timeline-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #999;
+}
+
+.timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.timeline-table th {
+    text-align: left;
+    padding: 10px;
+    color: #999;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.timeline-entry {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30px;
+    margin-right: 10px;
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #1e73ff;
+    border-radius: 50%;
+}
+
+.timeline-line {
+    width: 2px;
+    background-color: #333;
+    flex-grow: 1;
+    margin: 5px 0;
+}
+
+.timeline-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.timeline-info {
+    flex-grow: 1;
+    background-color: #222;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.activity-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.activity-details {
+    font-size: 12px;
+    color: #999;
+}
+
+.activity-stats {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* For pie chart */
+.pie-segment {
+    transition: all 0.3s;
+}
+
+.pie-segment:hover {
+    opacity: 0.8;
+}
+
+/* Worktime spread */
+.spread-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.spread-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.spread-percent {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.work-value { color: #2ecc71; }
+.meeting-value { color: #3498db; }
+.break-value { color: #f39c12; }
+.idle-value { color: #e74c3c; }
+
+/* Footer elements */
+.footer-buttons {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-button {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: #1e73ff;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #1e73ff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+}
+.loader {
+    text-align: center;
+    font-weight: bold;
+    color: #1e73ff;
+    padding: 2rem;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    padding: 2rem;
+}
+
+.search-result.highlight {
+    background-color: #1e73ff !important;
+    color: white !important;
+    transition: background 0.3s ease;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  .latest-screenshots {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .latest-screenshot-item {
+    width: 130px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    padding: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  
+  .latest-screenshot-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+.status-list {
+    display: flex;
+    flex-direction: row;
+    gap: 0px 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-left: 50px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 117px;
+  left: 0;
+  right: 0;
+  width: 75%;
+  height: auto;
+  margin: 0 auto;
+  background-color: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: flex-start;
+  padding: 78px 37px;
+  box-shadow: 0 10px 30px rgb(55 50 50 / 60%);
+  /* Center horizontally, top at 117px, height auto */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  max-width: 700px;
+  max-height: 80vh;
+  border-radius: 8px;
+  object-fit: contain;
+  animation: zoomIn 0.3s ease;
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  color: white;
+  font-size: 35px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10001;
+}
+
+.prev, .next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+  z-index: 10001;
+}
+
+.prev { left: 20px; }
+.next { right: 20px; }
+
+.prev:hover, .next:hover {
+  color: #1e73ff;
+}
+
+
+
+
+
+
+
+
+
+
+
+.add-user-btn {
+  margin-top: 10px;
+  background-color: #1e73ff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: white;
+  width: 100%;
+  cursor: pointer;
+}.custom-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-modal-content {
+  background: #1d232c;
+  padding: 20px;
+  border-radius: 8px;
+  width: 350px;
+  position: relative;
+  animation: fadeInUp 0.4s ease;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-modal-content h3 {
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.custom-modal-content input,
+.custom-modal-content select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: white;
+}
+
+.custom-modal-content button {
+  background-color: #1e73ff;
+  border: none;
+  padding: 10px 12px;
+  width: 100%;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.add-user-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background-color: #1e73ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.custom-modal .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+}
+
+
+
+  </style>
+
+  
+<div class="status-cards">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- CURRENT STATUS CARD -->
+<!-- CURRENT STATUS CARD -->
+<div class="card status-card">
+    <div class="card-header">
+        <div class="card-title"><i>📊</i><span>{% trans "CURRENT STATUS test" %}</span></div>
+    </div>
+    <div class="status-content">
+        <div class="status-chart">
+            <svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#333" stroke-width="10" />
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#1e73ff" stroke-width="10"
+                        stroke-dashoffset="-45" />
+            </svg>
+            <div class="chart-value">{{ status_counts.Working }}</div>
+        </div>
+        <div class="status-list">
+            <div class="status-item">
+                <div class="status-item-color" style="background-color: #2ecc71;"></div>
+                <span>{{ status_counts.Working }} {% trans "At Work" %}</span>
+            </div>
+            <div class="status-item">
+                <div class="status-item-color" style="background-color: #3498db;"></div>
+                <span>{{ status_counts.at_break }} {% trans "At Break" %}</span>
+            </div>
+            <div class="status-item">
+                <div class="status-item-color" style="background-color: #f39c12;"></div>
+                <span>{{ status_counts.Idle }} {% trans "Idle" %}</span>
+            </div>
+            <div class="status-item">
+                <div class="status-item-color" style="background-color: #95a5a6;"></div>
+                <span>{{ status_counts.Off }} {% trans "Off" %}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- COMPANY AVERAGE CARD -->
+  <div class="card status-card">
+    <div class="card-header">
+      <div class="card-title"><i>🏢</i><span>{% trans "COMPANY AVERAGE" %}</span></div>
+      <button class="date-picker">{{ current_date }}</button>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-icon">⏱️</div>
+        <div class="metric-value">{{ company_avg.breaks_per_day }}</div>
+        <div class="metric-label">{% trans "DAILY BREAKS 30 D AVG" %}</div>
+        <div class="metric-sub">{% trans "Avg" %} {{ company_avg.avg_break_duration }} {% trans "Minutes/Break" %}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-icon">👥</div>
+        <div class="metric-value">{{ company_avg.meetings_per_day }}</div>
+        <div class="metric-label">{% trans "MEETINGS 30 D AVG" %}</div>
+        <div class="metric-sub">{% trans "Avg" %} {{ company_avg.avg_meeting_duration }} {% trans "Minutes/Meeting" %}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-icon">⚖️</div>
+        <div class="metric-label">{% trans "WORK TIME SPREAD" %}</div>
+        <div class="spread-values">
+          <div class="spread-value"><div class="spread-percent work-value">{{ company_avg.spread.work }}%</div><div class="metric-sub">{% trans "At Work" %}</div></div>
+          <div class="spread-value"><div class="spread-percent meeting-value">{{ company_avg.spread.meeting }}%</div><div class="metric-sub">{% trans "Meetings" %}</div></div>
+          <div class="spread-value"><div class="spread-percent break-value">{{ company_avg.spread.break }}%</div><div class="metric-sub">{% trans "Breaks" %}</div></div>
+          <div class="spread-value"><div class="spread-percent idle-value">{{ company_avg.spread.idle }}%</div><div class="metric-sub">{% trans "Idle" %}</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE SECTION -->
+<div class="timeline-section card">
+  <div class="timeline-header">
+    <div class="card-title"><span>{% trans "Real Time Activity Stream" %}</span></div>
+    <div class="timeline-date-selector">
+      {% for date in available_dates %}
+        <button class="date-button {% if date == selected_date %}active{% endif %}">{{ date }}</button>
+      {% endfor %}
+      <button class="refresh-button">{% trans "REFRESH" %}</button>
+    </div>
+  </div>
+
+<div class="screenshots">
+
+    <div class="screenshot" data-src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/72940-apps-review-windows-8-review-hello-start-screen-image1-pdlwty4gub.jpg">
+      <img src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/72940-apps-review-windows-8-review-hello-start-screen-image1-pdlwty4gub.jpg" alt="Screenshot" width="100%">
+      <div class="screenshot-time">10:00 pm</div>
+    </div>
+
+     <div class="screenshot" data-src="https://media.istockphoto.com/id/1326353127/photo/estate-agent-showround.webp?a=1&b=1&s=612x612&w=0&k=20&c=GnHFeCdEKF-LKoVU7yP38XxJoo0-IOwrIRarwzDZqd8=">
+      <img src="https://media.istockphoto.com/id/1326353127/photo/estate-agent-showround.webp?a=1&b=1&s=612x612&w=0&k=20&c=GnHFeCdEKF-LKoVU7yP38XxJoo0-IOwrIRarwzDZqd8=" alt="Screenshot" width="100%">
+      <div class="screenshot-time">10:00 pm</div>
+    </div>
+
+     <div class="screenshot" data-src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/72940-apps-review-windows-8-review-hello-start-screen-image1-pdlwty4gub.jpg">
+      <img src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/72940-apps-review-windows-8-review-hello-start-screen-image1-pdlwty4gub.jpg" alt="Screenshot" width="100%">
+      <div class="screenshot-time">10:00 pm</div>
+    </div>
+
+     <div class="screenshot" data-src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/72940-apps-review-windows-8-review-hello-start-screen-image1-pdlwty4gub.jpg">
+      <img src="https://static1.pocketlintimages.com/wordpress/wp-content/uploads/wm/72940-apps-review-windows-8-review-hello-start-screen-image1-pdlwty4gub.jpg" alt="Screenshot" width="100%">
+      <div class="screenshot-time">10:00 pm</div>
+    </div>
+
+     <div class="screenshot" data-src="https://images.unsplash.com/photo-1591439657848-9f4b9ce436b9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8ZGlzcGxheXxlbnwwfHwwfHx8MA%3D%3D">
+      <img src="https://images.unsplash.com/photo-1591439657848-9f4b9ce436b9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8ZGlzcGxheXxlbnwwfHwwfHx8MA%3D%3D" alt="Screenshot" width="100%">
+      <div class="screenshot-time">10:00 pm</div>
+    </div>
+
+     <div class="screenshot" data-src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZGlzcGxheXxlbnwwfHwwfHx8MA%3D%3D">
+      <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8ZGlzcGxheXxlbnwwfHwwfHx8MA%3D%3D" alt="Screenshot" width="100%">
+      <div class="screenshot-time">10:00 pm</div>
+    </div>
+
+</div>
+
+
+
+
+
+</div>
+<!-- Screenshot Modal -->
+<div id="imageModal" class="modal" onclick="closeModal(event)">
+  <span class="close" onclick="closeModal(event)">&times;</span>
+  <img class="modal-content" id="modalImage">
+
+  <!-- Arrows -->
+  <a class="prev" onclick="showPrev(event)">&#10094;</a>
+  <a class="next" onclick="showNext(event)">&#10095;</a>
+</div>
+
+
+<!-- SEARCH AND DETAILED TIMELINE -->
+<div class="search-timeline">
+  <div class="card search-card">
+    <input type="text" class="search-input" placeholder="Search employees..." autocomplete="off">
+    <div class="search-results"></div>
+    <button class="add-user-btn" onclick="openAddUserModal()">+ Add User</button>
+  </div>
+<!-- Add User Modal -->
+<div id="addUserModal" class="custom-modal">
+  <div class="custom-modal-content animated">
+    <span class="close" onclick="closeAddUserModal()">&times;</span>
+    <h3>Add New Staff Member</h3>
+    <form id="addUserForm">
+      <input type="text" name="firstname" placeholder="Full Name *" required>
+      <input type="email" name="email" placeholder="Email *" required>
+      <input type="password" name="password" placeholder="Password *" required>
+      <input type="text" name="phonenumber" placeholder="Phone Number">
+      <input type="text" name="facebook" placeholder="Facebook URL">
+      <input type="text" name="linkedin" placeholder="LinkedIn URL">
+      <input type="text" name="skype" placeholder="Skype ID">
+      <input type="text" name="hourly_rate" placeholder="Hourly Rate (Optional)">
+      <input type="text" name="email_signature" placeholder="Email Signature">
+      <input type="text" name="default_language" placeholder="Default Language (e.g., en)">
+      <input type="text" name="direction" placeholder="Text Direction (ltr/rtl)">
+      <select name="send_welcome_email">
+        <option value="">Send Welcome Email?</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+      <input type="text" name="departments" placeholder="Department IDs (comma separated)">
+      <button type="submit">Save Staff</button>
+    </form>
+  </div>
+</div>
+
+
+  
+<div class="card detailed-timeline">
+  <div class="timeline-header">
+    <h3>{% trans "Focus Timeline" %}</h3>
+  </div>
+
+  <table class="timeline-table">
+    <thead>
+      <tr>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Task" %}</th>
+        <th>{% trans "Duration" %}</th>
+        <th>{% trans "Email" %}</th>
+        <th>{% trans "Phone" %}</th>
+      </tr>
+    </thead>
+    <tbody id="timeline-body"></tbody>
+  </table>
+</div>
+
+
+
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.querySelector(".search-input");
+  const searchResultsContainer = document.querySelector(".search-results");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.querySelector(".search-input");
+  const resultsContainer = document.querySelector(".search-results");
+
+  let employees = [];
+  let currentIndex = -1;
+
+  // Load static JSON file
+  fetch("{% static 'data/cached_staff_status.json' %}")
+    .then(res => res.json())
+    .then(data => {
+      employees = data.filter(emp => emp.name && emp.name.trim() !== "");
+    })
+    .catch(err => {
+      resultsContainer.innerHTML = "<div class='error'>Unable to load employee data.</div>";
+      console.error("Failed to load JSON:", err);
+    });
+
+  // Function to highlight matching part
+  function highlight(text, query) {
+    const regex = new RegExp(`(${query})`, "gi");
+    return text.replace(regex, "<strong>$1</strong>");
+  }
+
+  function renderResults(query) {
+    resultsContainer.innerHTML = "";
+    currentIndex = -1;
+
+    if (!query) return;
+
+    const matches = employees.filter(emp =>
+      emp.name.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 10); // Show top 10
+
+    if (matches.length === 0) {
+      resultsContainer.innerHTML = "<div class='error'>No matches found.</div>";
+      return;
+    }
+
+    matches.forEach((emp, i) => {
+      const div = document.createElement("div");
+      div.className = "search-result";
+      div.innerHTML = highlight(`${emp.name} – ${emp.status}`, query);
+
+
+
+
+div.addEventListener("click", () => {
+  searchInput.value = emp.name;
+  resultsContainer.innerHTML = "";
+  renderTimelineRow(emp); // 👈 make sure this is called
+});
+
+
+
+
+      resultsContainer.appendChild(div);
+    });
+  }
+
+  // Handle typing
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
+    renderResults(query);
+  });
+
+  // Keyboard nav
+  searchInput.addEventListener("keydown", (e) => {
+    const items = Array.from(resultsContainer.querySelectorAll(".search-result"));
+
+    if (e.key === "ArrowDown") {
+      currentIndex = (currentIndex + 1) % items.length;
+      items.forEach((el, i) => el.classList.toggle("active", i === currentIndex));
+    } else if (e.key === "ArrowUp") {
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+      items.forEach((el, i) => el.classList.toggle("active", i === currentIndex));
+    } else if (e.key === "Enter" && currentIndex >= 0) {
+      items[currentIndex].click();
+    }
+  });
+});
+
+
+
+
+
+
+
+
+});
+
+
+
+
+
+
+
+
+
+let screenshotUrls = [];
+let currentIndex = 0;
+
+document.addEventListener("DOMContentLoaded", function () {
+  const screenshotElements = document.querySelectorAll(".screenshot");
+  screenshotElements.forEach((el, index) => {
+    const src = el.getAttribute("data-src") || el.querySelector("img")?.src;
+    screenshotUrls.push(src);
+
+    el.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openModal(index);
+    });
+  });
+});
+
+function openModal(index) {
+  currentIndex = index;
+  const modal = document.getElementById("imageModal");
+  const modalImg = document.getElementById("modalImage");
+  modal.style.display = "flex";
+  modalImg.src = screenshotUrls[currentIndex];
+}
+
+function closeModal(event) {
+  // prevent clicking image or arrow from closing
+  if (event && (event.target.id === "modalImage" || event.target.classList.contains("prev") || event.target.classList.contains("next"))) return;
+  document.getElementById("imageModal").style.display = "none";
+}
+
+function showPrev(event) {
+  event.stopPropagation();
+  currentIndex = (currentIndex - 1 + screenshotUrls.length) % screenshotUrls.length;
+  document.getElementById("modalImage").src = screenshotUrls[currentIndex];
+}
+
+function showNext(event) {
+  event.stopPropagation();
+  currentIndex = (currentIndex + 1) % screenshotUrls.length;
+  document.getElementById("modalImage").src = screenshotUrls[currentIndex];
+}
+
+document.addEventListener("keydown", function (event) {
+  const modal = document.getElementById("imageModal");
+  if (modal.style.display !== "flex") return;
+  if (event.key === "Escape") {
+    closeModal();
+  } else if (event.key === "ArrowLeft") {
+    showPrev(event);
+  } else if (event.key === "ArrowRight") {
+    showNext(event);
+  }
+});
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+ $(document).ready(function () {
+
+ 
+  const searchInput = document.querySelector(".search-input");
+  const resultsContainer = document.querySelector(".search-results");
+  const tbody = document.getElementById("timeline-body");
+  let employees = [];
+  let currentIndex = -1;
+  const keyword = searchInput.value.trim();
+
+    // Only search if something is typed
+   
+  // Load JSON and render initial suggestions
+ 
+  fetch(`/en/api/staff-status/?keyword=${keyword}`)
+    .then(res => res.json())
+    .then(data => {
+    
+     employees = data
+      .map(emp => {
+        const fullName = `${emp.firstname || ''} ${emp.lastname || ''}`.trim();
+
+        return {
+          ...emp,
+          ['name']: fullName,  // add new field
+        };
+      })
+      .filter(emp => {
+        const fullName = emp['name'];
+        return fullName && fullName !== "—";
+      });
+      renderResults();
+    })
+    .catch(err => {
+      alert(err);
+      console.error("Failed to load JSON:", err);
+      resultsContainer.innerHTML = "<div class='error'>Unable to load employee data.</div>";
+    });
+    
+  function listSepcificUserInformation(user_id, date = new Date()){
+    fetch(`/en/api/user-information/?keyword=${user_id}&date=${date}`)
+     .then(res => res.json())
+      .then(data => {
+      // employees = data.filter(emp => emp.name && emp.name.trim() !== "—");
+      // renderResults();
+    })
+    .catch(err => {
+      console.error("Failed to load JSON:", err);
+      resultsContainer.innerHTML = "<div class='error'>Unable to load employee data.</div>";
+    });
+  }
+  function highlight(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, "gi");
+    return text.replace(regex, "<strong>$1</strong>");
+  }
+
+  function secondsToHMS(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return `${h}h ${m}m`;
+  }
+
+
+
+
+
+function renderTimelineRow(emp) {
+  const tbody = document.getElementById("timeline-body");
+  tbody.innerHTML = ""; // Clear previous content
+
+  const durationSec = emp.end_time && emp.start_time ? Number(emp.end_time) - Number(emp.start_time) : 0;
+  const duration = secondsToHMS(durationSec);
+  const taskDisplay = emp.task && emp.task.trim() !== "—" ? emp.task : "Not Available";
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${emp.name}</td>
+    <td>${taskDisplay}</td>
+    <td>${duration}</td>
+    <td>${emp.email}</td>
+    <td>${emp.phone}</td>
+  `;
+  tbody.appendChild(tr);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  function renderResults(query = "") {
+    resultsContainer.innerHTML = "";
+    const seen = new Set();
+
+    const matches = employees.filter(emp => {
+      const name = emp.name.toLowerCase();
+      if (!name.includes(query.toLowerCase()) || seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    }).slice(0, 10);
+
+    if (matches.length === 0) {
+      resultsContainer.innerHTML = "<div class='error'>No matches found.</div>";
+      return;
+    }
+
+    matches.forEach((emp, index) => {
+      const div = document.createElement("div");
+      div.className = "search-result";
+      div.innerHTML = highlight(`${emp.name}`, query);
+
+      div.addEventListener("click", () => {
+        searchInput.value = emp.name;
+        listSepcificUserInformation(emp.staffid)
+        resultsContainer.innerHTML = "";
+        renderTimelineRow(emp);
+      });
+
+      resultsContainer.appendChild(div);
+    });
+  }
+
+  searchInput.addEventListener("input", e => {
+    renderResults(e.target.value.trim());
+  });
+
+  searchInput.addEventListener("keydown", e => {
+    const items = Array.from(resultsContainer.querySelectorAll(".search-result"));
+    if (!items.length) return;
+
+    if (e.key === "ArrowDown") {
+      currentIndex = (currentIndex + 1) % items.length;
+    } else if (e.key === "ArrowUp") {
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+    } else if (e.key === "Enter" && currentIndex >= 0) {
+      items[currentIndex].click();
+      return;
+    }
+
+    items.forEach((el, i) => el.classList.toggle("active", i === currentIndex));
+  });
+});
+
+
+
+
+
+
+
+
+
+
+function openAddUserModal() {
+  document.getElementById("addUserModal").style.display = "flex";
+}
+
+function closeAddUserModal() {
+  document.getElementById("addUserModal").style.display = "none";
+}
+
+// Handle form submission
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("addUserForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const newUser = {
+      id: Date.now().toString(),
+      name: formData.get("name"),
+      email: formData.get("email"),
+      phone: formData.get("phone"),
+      status: formData.get("status"),
+      start_time: "",
+      end_time: "",
+      task: "—"
+    };
+
+    // Optionally: send this to backend here
+    alert("User added:\n" + JSON.stringify(newUser, null, 2));
+
+    // Close modal
+    closeAddUserModal();
+    this.reset();
+  });
+});
+
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,166 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-14 15:00+0300\n"
+"PO-Revision-Date: 2025-05-14 15:30+0300\n"
+"Last-Translator: Deniz Üstündağ <you@example.com>\n"
+"Language-Team: Türkçe\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: dashboard/templates/dashboard/live_tracking.html:5
+msgid "Tracking"
+msgstr "Takip"
+
+msgid "All"
+msgstr "Hepsi"
+
+msgid "Active"
+msgstr "Aktif"
+
+msgid "Meeting"
+msgstr "Toplantı"
+
+msgid "Break"
+msgstr "Mola"
+
+msgid "Idle"
+msgstr "Boşta"
+
+msgid "Offline"
+msgstr "Çevrimdışı"
+
+msgid "All Time"
+msgstr "Tüm Zamanlar"
+
+msgid "Today"
+msgstr "Bugün"
+
+msgid "Last 7 Days"
+msgstr "Son 7 Gün"
+
+msgid "Last 15 Days"
+msgstr "Son 15 Gün"
+
+msgid "Last 30 Days"
+msgstr "Son 30 Gün"
+
+msgid "Last 2 Months"
+msgstr "Son 2 Ay"
+
+msgid "Last 6 Months"
+msgstr "Son 6 Ay"
+
+msgid "Last 1 Year"
+msgstr "Son 1 Yıl"
+
+msgid "REFRESH"
+msgstr "YENİLE"
+
+msgid "Search employees..."
+msgstr "Çalışanları ara..."
+
+msgid "No Screenshots Available"
+msgstr "Ekran görüntüsü bulunamadı"
+
+msgid "Sign In"
+msgstr "Giriş Yap"
+
+msgid "Username"
+msgstr "Kullanıcı Adı"
+
+msgid "Password"
+msgstr "Şifre"
+
+msgid "Remember me"
+msgstr "Beni Hatırla"
+
+msgid "Log In"
+msgstr "Giriş"
+
+msgid "Forgot your password?"
+msgstr "Şifrenizi mi unuttunuz?"
+
+msgid "Create an account"
+msgstr "Hesap Oluştur"
+
+msgid "Logout"
+msgstr "Çıkış"
+
+msgid "CURRENT STATUS"
+msgstr "GÜNCEL DURUM"
+
+msgid "COMPANY AVERAGE"
+msgstr "ŞİRKET ORTALAMASI"
+
+msgid "At Work"
+msgstr "Çalışıyor"
+
+msgid "In Meeting"
+msgstr "Toplantıda"
+
+msgid "At Break"
+msgstr "Molada"
+
+
+msgid "Off"
+msgstr "Kapalı"
+
+msgid "DAILY BREAKS 30 D AVG"
+msgstr "GÜNLÜK MOLALAR 30G ORT"
+
+msgid "MEETINGS 30 D AVG"
+msgstr "TOPLANTILAR 30G ORT"
+
+msgid "Avg"
+msgstr "Ort"
+
+msgid "Minutes/Break"
+msgstr "Dakika/Mola"
+
+msgid "Minutes/Meeting"
+msgstr "Dakika/Toplantı"
+
+msgid "WORK TIME SPREAD"
+msgstr "İŞ ZAMANI DAĞILIMI"
+
+msgid "Breaks"
+msgstr "Molalar"
+
+msgid "Meetings"
+msgstr "Toplantılar"
+
+msgid "Focus Timeline V-1"
+msgstr "Odak Zaman Çizelgesi V-1"
+
+msgid "Focus Timeline"
+msgstr "Odak Zaman Çizelgesi"
+
+msgid "Switches"
+msgstr "Geçişler"
+
+msgid "Duration"
+msgstr "Süre"
+
+msgid "EXPORT CSV"
+msgstr "CSV DIŞA AKTAR"
+
+msgid "Start"
+msgstr "Başlangıç"
+
+msgid "Project"
+msgstr "Proje"
+
+msgid "Task"
+msgstr "Görev"
+
+msgid "Score"
+msgstr "Puan"
+
+msgid "Activity"
+msgstr "Aktivite"
+

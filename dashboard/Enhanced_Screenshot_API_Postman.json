@@ -1,0 +1,199 @@
+{
+	"info": {
+		"_postman_id": "enhanced-screenshot-api",
+		"name": "Enhanced Screenshot API - Intervals & Analysis",
+		"description": "Test screenshot intervals, detailed counts, and analysis patterns",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "📖 Enhanced API Documentation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": ["{{base_url}}"],
+					"path": [""]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📊 Get All Screenshot Counts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/all",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "all"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🎯 Search User - Beyza (Basic)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/beyza",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "beyza"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "⏱️ Beyza - Screenshot Intervals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/beyza-donmez-@hotmail.com/intervals",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "beyza-donmez-@hotmail.com", "intervals"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📈 Beyza - Detailed Analysis",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/beyza-donmez-@hotmail.com/details",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "beyza-donmez-@hotmail.com", "details"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "⏱️ Amir - Screenshot Intervals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/amir/intervals",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "amir", "intervals"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📈 Tugba - Detailed Analysis",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/tugba/details",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "tugba", "details"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🏆 Top 10 Users (Enhanced)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/top",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "top"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🏆 Top 5 Users (Enhanced)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/top/5",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "top", "5"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "⚙️ Service Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/status",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "status"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📈 Enhanced Statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/stats",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "stats"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "💚 Enhanced Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": ["{{base_url}}"],
+					"path": ["health"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🔍 Search Any User - Intervals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/{{user_email}}/intervals",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "{{user_email}}", "intervals"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📊 Search Any User - Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/{{user_email}}/details",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "{{user_email}}", "details"]
+				}
+			},
+			"response": []
+		}
+	]
+}

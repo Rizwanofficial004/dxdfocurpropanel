@@ -1,0 +1,295 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusRO - Productivity Dashboard</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="{% static 'css/light-mode.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+</head>
+<script>
+  (function () {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+      document.documentElement.classList.remove("light-theme");
+    } else {
+      document.documentElement.classList.add("light-theme");
+    }
+  })();
+</script>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-container">
+
+            <!-- Left -->
+            <div class="header-left">
+                <!-- <div class="logo">
+          <i class="fas fa-bullseye"></i>
+          <span class="logo-text">FOCUS</span>
+          <span class="logo-badge">RO</span>
+        </div> -->
+                <!-- <button class="menu-toggle" id="menuToggle">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button> -->
+            </div>
+
+            <!-- Center -->
+            <!-- <div class="header-center">
+        <div class="notification-banner">
+          <div class="banner-content">
+            <i class="fas fa-lightbulb"></i>
+            <span class="banner-text">
+              Kindly pay the unpaid invoices to continue using FocusRO to improve your company's productivity
+            </span>
+            <button class="pay-now-btn">PAY NOW</button>
+          </div>
+          <button class="banner-close" id="bannerClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div> -->
+
+            <!-- Right -->
+            <div class="header-right">
+                <div class="header-controls role="  aria-label="Top Navigation Controls">
+                    <!-- <button class="control-btn settings-btn" title="Settings" title="Settings" aria-label="Settings"><i
+                            class="fas fa-cog"></i></button> -->
+                    <button class="control-btn theme-toggle" id="themeToggle" title="Toggle Theme"
+                        aria-label="Toggle Theme"><i class="fas fa-moon"></i></button>
+
+                    <div class="location-info"><i class="fas fa-map-marker-alt"></i><span
+                            class="location-text">Europe/Istanbul GMT +03:00</span></div>
+
+                    <div class="language-selector">
+                        <button class="language-btn" id="languageBtn" aria-haspopup="true" aria-expanded="false"
+                            aria-label="Select Language">
+
+                            <span class="flag-icon">🇬🇧</span>
+                            <span class="language-text" data-translatable>English</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-option" data-lang="en"><span class="flag-icon">🇬🇧</span><span
+                                    data-translatable>English</span></div>
+                            <div class="language-option" data-lang="tr"><span class="flag-icon">🇹🇷</span><span
+                                    data-translatable>Türkçe</span></div>
+                            <div class="language-option" data-lang="de"><span class="flag-icon">🇩🇪</span><span
+                                    data-translatable>Deutsch</span></div>
+                            <div class="language-option" data-lang="fr"><span class="flag-icon">🇫🇷</span><span
+                                    data-translatable>Français</span></div>
+                        </div>
+                    </div>
+
+                    <button class="control-btn docs-btn" title="Documentation" aria-label="Documentation"><span
+                            class="docs-text" data-translatable>DOCS</span></button>
+                    <button class="control-btn maximize-btn" id="maximizeBtn" title="Maximize"
+                        aria-label="Toggle Fullscreen"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <!-- <main class="main-content">
+    <div class="content-placeholder">
+      <h1>Welcome to FocusRO</h1>
+      <p>Your productivity dashboard is ready to use.</p>
+    </div>
+  </main> -->
+
+    <!-- JAVASCRIPT -->
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const themeToggle = document.getElementById('themeToggle');
+        const languageBtn = document.getElementById('languageBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        const bannerClose = document.getElementById('bannerClose');
+        const maximizeBtn = document.getElementById('maximizeBtn');
+        const notificationBanner = document.querySelector('.notification-banner');
+        const payNowBtn = document.querySelector('.pay-now-btn');
+
+        let isMenuOpen = false;
+        let isLanguageDropdownOpen = false;
+        let isDarkTheme = true;
+        let isFullscreen = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeEventListeners();
+        });
+
+        function initializeEventListeners() {
+            menuToggle?.addEventListener('click', toggleMenu);
+            themeToggle?.addEventListener('click', toggleTheme);
+            languageBtn?.addEventListener('click', toggleLanguageDropdown);
+            document.querySelectorAll('.language-option').forEach(option => option.addEventListener('click', selectLanguage));
+            bannerClose?.addEventListener('click', closeBanner);
+            payNowBtn?.addEventListener('click', handlePayNow);
+            maximizeBtn?.addEventListener('click', toggleFullscreen);
+            document.querySelector('.settings-btn')?.addEventListener('click', openSettings);
+            document.querySelector('.docs-btn')?.addEventListener('click', openDocs);
+            document.addEventListener('click', handleOutsideClick);
+            document.addEventListener('keydown', handleKeyboard);
+            document.querySelector('.logo')?.addEventListener('click', handleLogoClick);
+        }
+
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            menuToggle.classList.toggle('active', isMenuOpen);
+            console.log('Menu toggled:', isMenuOpen);
+        }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.documentElement.classList.toggle('light-theme', !isDarkTheme);
+            themeToggle.classList.toggle('active', !isDarkTheme);
+            const icon = themeToggle.querySelector('i');
+            icon.className = isDarkTheme ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
+            console.log('Theme changed to:', isDarkTheme ? 'dark' : 'light');
+        }
+
+        function toggleLanguageDropdown(e) {
+            e.stopPropagation();
+            isLanguageDropdownOpen = !isLanguageDropdownOpen;
+            languageDropdown.classList.toggle('active', isLanguageDropdownOpen);
+            languageBtn.classList.toggle('active', isLanguageDropdownOpen);
+        }
+
+        function selectLanguage(e) {
+            e.preventDefault(); // 🛑 prevent page refresh
+            const langCode = e.currentTarget.dataset.lang;
+            const flagIcon = e.currentTarget.querySelector('.flag-icon').textContent;
+            const langName = e.currentTarget.querySelector('span:last-child').textContent;
+            document.querySelector('.language-btn .flag-icon').textContent = flagIcon;
+            document.querySelector('.language-btn .language-text').textContent = langName;
+            isLanguageDropdownOpen = false;
+            languageDropdown.classList.remove('active');
+            languageBtn.classList.remove('active');
+            localStorage.setItem('language', langCode);
+            translatePageTo(langCode);
+
+        }
+
+        function closeBanner() {
+            notificationBanner.style.animation = 'slideOut 0.5s ease-out forwards';
+            setTimeout(() => {
+                notificationBanner.style.display = 'none';
+            }, 500);
+        }
+
+        function handlePayNow() {
+            payNowBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => { payNowBtn.style.transform = 'scale(1)'; }, 150);
+            alert("Redirecting to payment...");
+        }
+
+        function toggleFullscreen() {
+            if (!isFullscreen) {
+                document.documentElement.requestFullscreen?.();
+                maximizeBtn.querySelector('i').className = 'fas fa-compress';
+            } else {
+                document.exitFullscreen?.();
+                maximizeBtn.querySelector('i').className = 'fas fa-expand';
+            }
+            isFullscreen = !isFullscreen;
+        }
+
+        function openSettings() {
+            console.log('Opening settings...');
+        }
+
+        function openDocs() {
+            console.log('Opening documentation...');
+            window.open('https://docs.focusro.com', '_blank');
+        }
+
+        function handleLogoClick() {
+            console.log('Logo clicked - navigating to dashboard...');
+            window.location.href = '/dashboard';
+        }
+
+        function handleOutsideClick(e) {
+            if (!languageDropdown.contains(e.target) && !languageBtn.contains(e.target)) {
+                languageDropdown.classList.remove('active');
+                languageBtn.classList.remove('active');
+                isLanguageDropdownOpen = false;
+            }
+        }
+
+        function handleKeyboard(e) {
+            if (e.key === 'Escape' && isLanguageDropdownOpen) {
+                languageDropdown.classList.remove('active');
+                languageBtn.classList.remove('active');
+                isLanguageDropdownOpen = false;
+            }
+        }
+
+// 🌗 Auto-set theme based on time unless user overrides
+const storedTheme = localStorage.getItem("theme");
+
+if (!storedTheme) {
+  const currentHour = new Date().getHours();
+  const autoTheme = currentHour >= 7 && currentHour < 19 ? "light" : "dark";
+  document.documentElement.classList.toggle("light-theme", autoTheme === "light");
+  themeToggle.classList.toggle("active", autoTheme === "light");
+  themeToggle.querySelector('i').className = autoTheme === "light" ? 'fas fa-sun' : 'fas fa-moon';
+} else {
+  const isUserLight = storedTheme === "light";
+  document.documentElement.classList.toggle("light-theme", isUserLight);
+  themeToggle.classList.toggle("active", isUserLight);
+  themeToggle.querySelector('i').className = isUserLight ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+
+        async function translatePageTo(langCode) {
+            const elements = document.querySelectorAll('[data-translatable]');
+
+            for (const el of elements) {
+                const originalText = el.textContent.trim();
+
+                const res = await fetch('/translate/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: originalText, lang: langCode })
+                });
+
+                const data = await res.json();
+                if (data.translated) el.textContent = data.translated;
+            }
+        }
+
+
+
+
+        // 🌍 Auto-detect and display current timezone/location
+document.addEventListener('DOMContentLoaded', () => {
+  const locationSpan = document.querySelector('.location-text');
+  if (locationSpan) {
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const offsetMinutes = new Date().getTimezoneOffset();
+      const offsetHours = Math.floor(-offsetMinutes / 60);
+      const offsetFormatted = `GMT ${offsetHours >= 0 ? '+' : ''}${offsetHours}`;
+
+      locationSpan.textContent = `${timeZone} ${offsetFormatted}`;
+    } catch (error) {
+      console.warn("Could not detect timezone:", error);
+    }
+  }
+});
+    </script>
+</body>
+
+</html>

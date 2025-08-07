@@ -1,0 +1,823 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background-color: #111;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #222;
+}
+
+.logo {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #222;
+}
+
+.logo img {
+    height: 30px;
+}
+
+.menu-toggle {
+    background-color: #1e73ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.sidebar-item {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #bbb;
+    text-decoration: none;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.sidebar-item.active {
+    color: white;
+    background-color: rgba(30, 115, 255, 0.1);
+    border-left: 3px solid #1e73ff;
+}
+
+.sidebar-item:hover {
+    background-color: #1a1a1a;
+}
+
+.sidebar-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.new-badge {
+    position: absolute;
+    right: 15px;
+    background-color: #1e73ff;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-actions .time {
+    color: #999;
+    font-size: 12px;
+}
+
+.user-actions button {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.user-actions .avatar {
+    width: 30px;
+    height: 30px;
+    background-color: #1e73ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Cards */
+.card {
+    background-color: #1d232c;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.status-cards {
+    display: flex;
+    gap: 15px;
+}
+
+.status-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.date-picker {
+    background-color: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+}
+
+/* Status content */
+.status-content {
+    display: flex;
+    justify-content: space-between;
+    height: 150px;
+}
+
+.status-chart {
+    position: relative;
+    width: 50%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.status-chart::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    height: 100px;
+    width: 1px;
+    margin-top: -50px;
+    background: #2d2d2d;
+}
+
+.status-chart svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.status-chart .chart-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e73ff;
+}
+
+.status-list {
+    display: flex;
+    flex-direction: row;
+    gap: 0px 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-left: 50px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-item-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.metrics {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1e73ff;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #999;
+}
+
+.metric-sub {
+    font-size: 14px;
+    color: #ccc;
+}
+
+/* Timeline section */
+.timeline-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 10px 0px 10px 0px;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timeline-date-selector {
+    display: flex;
+    gap: 5px;
+}
+
+.date-button {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.date-button.active {
+    background-color: #1e73ff;
+    color: white;
+}
+
+.refresh-button {
+    background-color: transparent;
+    border: 1px solid #444;
+    border-radius: 4px;
+    color: #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Screenshots */
+.screenshots {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.screenshot {
+    border: 1px solid #2d2d2d;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    max-width: 238px;
+    width: 100%;
+    height: 166px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.screenshot:hover{
+cursor: pointer;
+}
+
+.screenshot img {
+    width: 200px;
+    height: 120px;
+    object-fit: cover;
+}
+
+.screenshot-time {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+}
+
+/* Search and timeline */
+.search-timeline {
+    display: flex;
+    gap: 15px;
+}
+
+.search-card {
+    width: 250px;
+}
+
+.search-input {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 8px 12px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.search-result {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.search-result:hover {
+    background-color: #333;
+}
+
+.search-result.active {
+    background-color: #1e73ff;
+}
+
+/* Detailed timeline */
+.detailed-timeline {
+    flex-grow: 1;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.timeline-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.timeline-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #999;
+}
+
+.timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.timeline-table th {
+    text-align: left;
+    padding: 10px;
+    color: #999;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.timeline-entry {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30px;
+    margin-right: 10px;
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    background-color: #1e73ff;
+    border-radius: 50%;
+}
+
+.timeline-line {
+    width: 2px;
+    background-color: #333;
+    flex-grow: 1;
+    margin: 5px 0;
+}
+
+.timeline-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.timeline-info {
+    flex-grow: 1;
+    background-color: #222;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.activity-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.activity-details {
+    font-size: 12px;
+    color: #999;
+}
+
+.activity-stats {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* For pie chart */
+.pie-segment {
+    transition: all 0.3s;
+}
+
+.pie-segment:hover {
+    opacity: 0.8;
+}
+
+/* Worktime spread */
+.spread-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.spread-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.spread-percent {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.work-value { color: #2ecc71; }
+.meeting-value { color: #3498db; }
+.break-value { color: #f39c12; }
+.idle-value { color: #e74c3c; }
+
+/* Footer elements */
+.footer-buttons {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-button {
+    background-color: #222;
+    border: none;
+    border-radius: 4px;
+    color: #1e73ff;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #1e73ff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+}
+.loader {
+    text-align: center;
+    font-weight: bold;
+    color: #1e73ff;
+    padding: 2rem;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    padding: 2rem;
+}
+
+.search-result.highlight {
+    background-color: #1e73ff !important;
+    color: white !important;
+    transition: background 0.3s ease;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  .latest-screenshots {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .latest-screenshot-item {
+    width: 130px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    padding: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  
+  .latest-screenshot-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+.status-list {
+    display: flex;
+    flex-direction: row;
+    gap: 0px 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-left: 50px;
+}
+  </style>
+<div class="status-cards">
+  <!-- CURRENT STATUS CARD -->
+  <div class="card status-card">
+    <div class="card-header">
+      <div class="card-title"><i>📊</i><span>{% trans "CURRENT STATUS" %}</span></div>
+    </div>
+    <div class="status-content">
+      <div class="status-chart">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="60" fill="none" stroke="#333" stroke-width="10" />
+          <circle cx="75" cy="75" r="60" fill="none" stroke="#1e73ff" stroke-width="10"
+                  stroke-dasharray="{{ status_counts.at_work|default:0|add:status_counts.in_meeting|default:0|add:status_counts.at_break|default:0|add:status_counts.idle|default:0|add:status_counts.off|default:0 }} 315"
+                  stroke-dashoffset="-45" />
+        </svg>
+        <div class="chart-value">{{ status_counts.at_work }}</div>
+      </div>
+      <div class="status-list">
+        <div class="status-item"><div class="status-item-color" style="background-color: #2ecc71;"></div><span>{{ status_counts.at_work }} {% trans "At Work" %}</span></div>
+        <div class="status-item"><div class="status-item-color" style="background-color: #3498db;"></div><span>{{ status_counts.in_meeting }} {% trans "In Meeting" %}</span></div>
+        <div class="status-item"><div class="status-item-color" style="background-color: #f39c12;"></div><span>{{ status_counts.at_break }} {% trans "At Break" %}</span></div>
+        <div class="status-item"><div class="status-item-color" style="background-color: #e74c3c;"></div><span>{{ status_counts.idle }} {% trans "Idle" %}</span></div>
+        <div class="status-item"><div class="status-item-color" style="background-color: #95a5a6;"></div><span>{{ status_counts.off }} {% trans "Off" %}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPANY AVERAGE CARD -->
+  <div class="card status-card">
+    <div class="card-header">
+      <div class="card-title"><i>🏢</i><span>{% trans "COMPANY AVERAGE" %}</span></div>
+      <button class="date-picker">{{ current_date }}</button>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-icon">⏱️</div>
+        <div class="metric-value">{{ company_avg.breaks_per_day }}</div>
+        <div class="metric-label">{% trans "DAILY BREAKS 30 D AVG" %}</div>
+        <div class="metric-sub">{% trans "Avg" %} {{ company_avg.avg_break_duration }} {% trans "Minutes/Break" %}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-icon">👥</div>
+        <div class="metric-value">{{ company_avg.meetings_per_day }}</div>
+        <div class="metric-label">{% trans "MEETINGS 30 D AVG" %}</div>
+        <div class="metric-sub">{% trans "Avg" %} {{ company_avg.avg_meeting_duration }} {% trans "Minutes/Meeting" %}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-icon">⚖️</div>
+        <div class="metric-label">{% trans "WORK TIME SPREAD" %}</div>
+        <div class="spread-values">
+          <div class="spread-value"><div class="spread-percent work-value">{{ company_avg.spread.work }}%</div><div class="metric-sub">{% trans "At Work" %}</div></div>
+          <div class="spread-value"><div class="spread-percent meeting-value">{{ company_avg.spread.meeting }}%</div><div class="metric-sub">{% trans "Meetings" %}</div></div>
+          <div class="spread-value"><div class="spread-percent break-value">{{ company_avg.spread.break }}%</div><div class="metric-sub">{% trans "Breaks" %}</div></div>
+          <div class="spread-value"><div class="spread-percent idle-value">{{ company_avg.spread.idle }}%</div><div class="metric-sub">{% trans "Idle" %}</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE SECTION -->
+<div class="timeline-section card">
+  <div class="timeline-header">
+    <div class="card-title"><span>{% trans "Real Time Activity Stream" %}</span></div>
+    <div class="timeline-date-selector">
+      {% for date in available_dates %}
+        <button class="date-button {% if date == selected_date %}active{% endif %}">{{ date }}</button>
+      {% endfor %}
+      <button class="refresh-button">{% trans "REFRESH" %}</button>
+    </div>
+  </div>
+
+  <div class="screenshots">
+    {% for screenshot in screenshots %}
+      <div class="screenshot">
+        <img src="{% static 'images/test2.jpg' %}" alt="Fallback Screenshot">
+        <div class="screenshot-time">{{ screenshot.time }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- SEARCH AND DETAILED TIMELINE -->
+<div class="search-timeline">
+  <div class="card search-card">
+    <input type="text" class="search-input" placeholder="{% trans 'Search employees...' %}">
+    <div class="search-results"></div>
+  </div>
+
+  <div class="card detailed-timeline">
+    <div class="timeline-header">
+      <h3>{% trans "Focus Timeline" %}</h3>
+      <div class="timeline-stats">
+        <div class="timeline-stat"><div class="stat-value">{{ timeline_stats.total_switches }}</div><div class="stat-label">{% trans "Switches" %}</div></div>
+        <div class="timeline-stat"><div class="stat-value">{{ timeline_stats.total_duration }}</div><div class="stat-label">{% trans "Duration" %}</div></div>
+      </div>
+      <button class="refresh-button">{% trans "EXPORT CSV" %}</button>
+    </div>
+
+    <table class="timeline-table">
+      <thead><tr>
+        <th>{% trans "Start" %}</th>
+        <th>{% trans "Project" %}</th>
+        <th>{% trans "Task" %}</th>
+        <th>{% trans "Duration" %}</th>
+        <th>{% trans "Score" %}</th>
+        <th>{% trans "Activity" %}</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const searchInput = document.querySelector(".search-input");
+  const searchResultsContainer = document.querySelector(".search-results");
+
+  function updateResults(query = "") {
+    searchResultsContainer.innerHTML = "Loading...";
+    fetch(`/search-employee-names/?q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        const matches = data.matches || [];
+        searchResultsContainer.innerHTML = "";
+
+        matches.forEach((entry, index) => {
+          const btn = document.createElement("button");
+          btn.className = "search-result" + (index === 0 ? " active" : "");
+          btn.textContent = entry;
+
+          btn.addEventListener("click", function () {
+            document.querySelectorAll(".search-result").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            const parts = entry.split("–");
+            const staffId = parts[1] ? parts[1].trim() : null;
+            if (!staffId) return;
+
+            fetch(`/api/user-timeline/?staffid=${staffId}`)
+              .then(res => res.json())
+              .then(data => {
+                const table = document.querySelector(".timeline-table");
+                let tbody = table.querySelector("tbody");
+                if (tbody) tbody.remove(); // Clear old data
+
+                tbody = document.createElement("tbody");
+
+                (data.entries || []).forEach(entry => {
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                    <td>${entry.start_time}</td>
+                    <td>${entry.project_name}</td>
+                    <td>${entry.task_name}</td>
+                    <td>${entry.duration}</td>
+                    <td>${entry.score || "—"}</td>
+                    <td>${entry.activity_type || "—"}</td>
+                  `;
+                  tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+              });
+          });
+
+          searchResultsContainer.appendChild(btn);
+        });
+      });
+  }
+
+  updateResults(); // Load default suggestions
+  searchInput.addEventListener("input", function () {
+    updateResults(this.value.trim());
+  });
+});
+</script>
+{% endblock %}

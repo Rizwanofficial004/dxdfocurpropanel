@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Fix Test - Employee API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .employee-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 CORS Fix Test - Employee API</h1>
+        <p>This page tests the CORS proxy solution for accessing the employee API.</p>
+        
+        <div>
+            <button class="test-button" onclick="testOriginalAPI()">
+                Test Original API (Will Fail with CORS)
+            </button>
+            <button class="test-button" onclick="testProxyAPI()">
+                Test Proxy API (Should Work!)
+            </button>
+            <button class="test-button" onclick="clearResults()">
+                Clear Results
+            </button>
+        </div>
+
+        <div id="results"></div>
+        <div id="employees"></div>
+    </div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+        const employeesDiv = document.getElementById('employees');
+
+        function logResult(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = `results ${isError ? 'error' : 'success'}`;
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+            employeesDiv.innerHTML = '';
+        }
+
+        async function testOriginalAPI() {
+            logResult('🔄 Testing original API (expected to fail with CORS error)...');
+            
+            try {
+                const response = await fetch('http://dxdtime.ddsolutions.io/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed');
+                const data = await response.json();
+                logResult('✅ Original API worked! Data received: ' + JSON.stringify(data).substring(0, 200) + '...');
+                displayEmployees(data);
+            } catch (error) {
+                logResult('❌ Original API failed (CORS error): ' + error.message, true);
+            }
+        }
+
+        async function testProxyAPI() {
+            logResult('🔄 Testing proxy API (should work)...');
+            
+            try {
+                // Use the local proxy server
+                const response = await fetch('http://192.168.0.161:5000/api/dashboard/employees/enhanced/?include_profiles=true&format=detailed');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                logResult('✅ Proxy API worked! Received ' + (data.results ? data.results.length : 'unknown') + ' employees');
+                displayEmployees(data);
+                
+            } catch (error) {
+                logResult('❌ Proxy API failed: ' + error.message, true);
+            }
+        }
+
+        function displayEmployees(data) {
+            employeesDiv.innerHTML = '<h2>👥 Employee Data:</h2>';
+            
+            if (data.results && Array.isArray(data.results)) {
+                data.results.forEach(employee => {
+                    const card = document.createElement('div');
+                    card.className = 'employee-card';
+                    card.innerHTML = `
+                        <strong>${employee.name || 'Unknown'}</strong><br>
+                        📧 ${employee.email || 'No email'}<br>
+                        🆔 ${employee.staff_id || 'No ID'}<br>
+                        🏢 ${employee.department || 'No department'}<br>
+                        📸 Screenshots: ${employee.total_screenshots || 0}<br>
+                        📁 Folders: ${employee.total_folders || 0}
+                    `;
+                    employeesDiv.appendChild(card);
+                });
+            } else {
+                employeesDiv.innerHTML += '<p>No employee data found or invalid format</p>';
+            }
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            logResult('🚀 Page loaded. Ready to test CORS fix!');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{
+  "total_users_found": 2,
+  "users_list": [
+    "amirishaque67@gmail.com",
+    "haseebcodejourney@gmail.com"
+  ],
+  "folder_structures": {
+    "screenshots/": {
+      "objects_count": 200,
+      "users_found": 1,
+      "sample_keys": [
+        "screenshots/",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.3/2025-06-16_15-44-33_2025-06-16_15-44-32.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.3/2025-06-16_15-44-42_2025-06-16_15-44-41.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.3/2025-06-16_15-44-56_2025-06-16_15-44-56.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_14-59-32_2025-07-01_14-59-32.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_14-59-41_2025-07-01_14-59-41.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_14-59-49_2025-07-01_14-59-49.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_14-59-57_2025-07-01_14-59-57.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_15-00-06_2025-07-01_15-00-06.webp",
+        "screenshots/amirishaque67_at_gmail.com/DDSFocusPro_v1.4/2025-07-01_15-00-14_2025-07-01_15-00-14.webp"
+      ],
+      "users_list": [
+        "amirishaque67@gmail.com"
+      ]
+    },
+    "users/": {
+      "objects_count": 0,
+      "users_found": 0,
+      "sample_keys": [],
+      "users_list": []
+    },
+    "data/": {
+      "objects_count": 0,
+      "users_found": 0,
+      "sample_keys": [],
+      "users_list": []
+    },
+    "user_data/": {
+      "objects_count": 0,
+      "users_found": 0,
+      "sample_keys": [],
+      "users_list": []
+    },
+    "user_screenshots/": {
+      "objects_count": 0,
+      "users_found": 0,
+      "sample_keys": [],
+      "users_list": []
+    },
+    "": {
+      "objects_count": 200,
+      "users_found": 2,
+      "sample_keys": [
+        "logs/amirishaque67_at_gmail.com/--_Select_a_Task_--/2025-07-02_16-50-01_tmp2da5m5tr.json",
+        "logs/amirishaque67_at_gmail.com/--_Select_a_Task_--/2025-07-02_17-22-38_--_Select_a_Task_--_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/--_Select_a_Task_--/2025-07-02_17-22-48_--_Select_a_Task_--_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/--_Select_a_Task_--/2025-07-02_17-29-19_--_Select_a_Task_--_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/--_Select_a_Task_--/2025-07-02_17-29-29_--_Select_a_Task_--_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/DDSFocusPro_v1_4/2025-07-02_16-46-58_DDSFocusPro_v1_4_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/DDSFocusPro_v1_4/2025-07-02_16-47-01_DDSFocusPro_v1_4_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/DDSFocusPro_v1_4/2025-07-02_16-47-04_DDSFocusPro_v1_4_program_summary.json",
+        "logs/amirishaque67_at_gmail.com/DDSFocusPro_v1_4/2025-07-02_16-47-08_DDSFocusPro_v1_4_program_raw.json",
+        "logs/amirishaque67_at_gmail.com/DDSFocusPro_v1_4/2025-07-02_16-47-11_DDSFocusPro_v1_4_program_raw.json"
+      ],
+      "users_list": [
+        "amirishaque67@gmail.com",
+        "haseebcodejourney@gmail.com"
+      ]
+    }
+  },
+  "best_prefix": "",
+  "exploration_summary": "Found 2 users across different prefixes"
+}

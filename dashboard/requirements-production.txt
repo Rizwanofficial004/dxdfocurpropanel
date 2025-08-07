@@ -1,0 +1,41 @@
+# Production Requirements for DDS Focus Time API
+# Django and Core
+Django>=4.2.0,<5.0
+djangorestframework>=3.14.0
+
+# Database
+psycopg2-binary>=2.9.0  # PostgreSQL (recommended for production)
+# mysqlclient>=2.1.0    # MySQL (alternative)
+
+# Web Server
+gunicorn>=21.0.0
+whitenoise>=6.5.0       # Static file serving
+
+# AWS Services
+boto3>=1.26.0
+botocore>=1.29.0
+
+# Environment and Configuration
+python-decouple>=3.8
+django-environ>=0.10.0
+
+# Security and Performance
+django-cors-headers>=4.0.0
+django-security>=0.16.0
+django-ratelimit>=4.0.0
+
+# Monitoring and Logging
+sentry-sdk>=1.28.0      # Error tracking
+django-debug-toolbar>=4.1.0  # Development only
+
+# Task Queue (if using Celery)
+celery>=5.3.0
+redis>=4.5.0            # Redis as message broker
+
+# Image Processing (if needed)
+Pillow>=10.0.0
+
+# Utilities
+requests>=2.31.0
+python-dateutil>=2.8.0
+pytz>=2023.3
