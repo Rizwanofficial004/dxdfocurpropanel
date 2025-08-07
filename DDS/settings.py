@@ -140,6 +140,20 @@ USE_TZ = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# AWS S3 Configuration (CRITICAL for screenshot API)
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', 'AKIARSU6EUUWMQ5I2JWC')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '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')
+AWS_REGION = os.getenv('AWS_REGION', 'eu-north-1')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'ddsfocustime')
+
+# S3 Configuration
+AWS_S3_REGION_NAME = AWS_REGION
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY_SSL = True
+
 import os
 
 BASE_PATH_LOG = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
