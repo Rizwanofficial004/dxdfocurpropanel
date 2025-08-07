@@ -415,35 +415,33 @@ const ActivityStream = () => {
       hasUrl: !!screenshot?.url
     });
     
-    // 🚀 PRIORITY OPTIMIZED FOR YOUR API: presigned_url first for immediate display!
+    // 🚀 PRIORITY OPTIMIZED FOR YOUR PROXY: use backend proxy first for reliable image loading!
     
-    // 1. Direct presigned URL (IMMEDIATE DISPLAY - your API has perfect presigned URLs!)
-    if (screenshot.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
-      console.log('✅ Using presigned_url (IMMEDIATE DISPLAY):', screenshot.presigned_url.substring(0, 100) + '...');
-      return screenshot.presigned_url;
-    }
-    
-    // 2. Use localhost proxy for s3_key as backup
-    if (screenshot.s3_key) {
-      const apiBaseURL = getApiBaseURL(); // This should return 'http://localhost:8000/api'
-      // Ensure proper URL encoding for the s3_key path
-      const encodedS3Key = encodeURIComponent(screenshot.s3_key).replace(/%2F/g, '/');
-      const proxyUrl = `${apiBaseURL}/proxy/screenshots/${encodedS3Key}`;
-      console.log('🔄 Using localhost proxy for s3_key (backup):', proxyUrl);
-      console.log('📝 S3 Key:', screenshot.s3_key);
-      console.log('📝 Encoded S3 Key:', encodedS3Key);
-      return proxyUrl;
-    }
-    
-    // 3. Check url field for presigned URL
+    // 1. Try direct presigned URL FIRST (since backend proxy might not be configured)
     if (screenshot.url && screenshot.url.includes('X-Amz-Signature')) {
-      console.log('✅ Using url field with signature:', screenshot.url.substring(0, 100) + '...');
+      console.log('✅ Using direct S3 URL (PRIORITY METHOD):', screenshot.url.substring(0, 100) + '...');
       return screenshot.url;
     }
     
-    // 4. Use any available URL field as direct URL
+    // 2. Try presigned_url field
+    if (screenshot.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+      console.log('✅ Using presigned_url field:', screenshot.presigned_url.substring(0, 100) + '...');
+      return screenshot.presigned_url;
+    }
+    
+    // 3. Use backend proxy for s3_key/key (backup method - if proxy is configured)
+    const s3Key = screenshot.key || screenshot.s3_key;
+    if (s3Key) {
+      // Use your backend proxy for image loading - BACKEND PROXY FORMAT
+      const proxyUrl = `http://localhost:8000/api/proxy/screenshot/${s3Key}`;
+      console.log('⚠️ Using backend proxy (BACKUP METHOD - check if configured):', proxyUrl);
+      console.log('📝 S3 Key:', s3Key);
+      return proxyUrl;
+    }
+    
+    // 4. Use any available URL field as direct URL (even without signature)
     if (screenshot.url) {
-      console.log('✅ Using direct url field:', screenshot.url);
+      console.log('✅ Using direct url field (no signature check):', screenshot.url.substring(0, 100) + '...');
       return screenshot.url;
     }
     
@@ -481,7 +479,7 @@ const ActivityStream = () => {
       console.log('📥 Saving as filename:', filename);
 
       // For backend proxy URLs (your current setup)
-      if (imageUrl.includes('/api/proxy/screenshot/')) {
+      if (imageUrl.includes('localhost:8000/api/proxy/screenshot/')) {
         console.log('📥 Using backend proxy download method');
         
         const response = await fetch(imageUrl, {
@@ -604,12 +602,36 @@ const ActivityStream = () => {
       console.log('🖼️ SimpleImageComponent URL resolved:', {
         screenshotId: screenshot?.id,
         filename: screenshot?.filename,
-        url: url,
+        originalApiUrl: screenshot?.url, // This should be the presigned URL from API
+        originalApiKey: screenshot?.key || screenshot?.s3_key,
+        resolvedUrl: url,
         urlLength: url?.length,
-        isProxy: url?.includes('/api/proxy/screenshot/'),
-        isS3: url?.includes('s3.amazonaws.com'),
-        hasSignature: url?.includes('X-Amz-Signature')
+        isBackendProxy: url?.includes('http://localhost:8000/api/proxy/screenshot/'),
+        isS3Direct: url?.includes('s3.amazonaws.com'),
+        hasSignature: url?.includes('X-Amz-Signature'),
+        urlPreview: url?.substring(0, 150) + '...',
+        proxyMethod: url?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'BACKEND_PROXY' : 'DIRECT_S3'
       });
+      
+      console.log('🔥 TESTING URL DIRECTLY:', url);
+      console.log('🔥 URL IS VALID?', url && url !== '' && url !== 'null' && url !== 'undefined');
+      console.log('🔥 SCREENSHOT OBJECT:', screenshot);
+      
+      // Additional debugging for the specific case
+      if (!url || url === '') {
+        console.error('🚨 NO URL RESOLVED! Debugging screenshot object:', {
+          screenshot: screenshot,
+          screenshotKeys: screenshot ? Object.keys(screenshot) : 'null',
+          hasUrl: !!screenshot?.url,
+          hasPresignedUrl: !!screenshot?.presigned_url,
+          hasKey: !!screenshot?.key,
+          hasS3Key: !!screenshot?.s3_key,
+          urlValue: screenshot?.url,
+          presignedUrlValue: screenshot?.presigned_url,
+          keyValue: screenshot?.key,
+          s3KeyValue: screenshot?.s3_key
+        });
+      }
     }, [screenshot]);
 
     const handleError = (e) => {
@@ -623,10 +645,26 @@ const ActivityStream = () => {
         networkState: e.target ? e.target.networkState : 'unknown'
       });
       
-      // For proxy URLs, let's try to provide more helpful error info
-      if (currentUrl?.includes('/api/proxy/screenshot/')) {
-        console.error('🔍 Proxy URL failed. Checking if backend is accessible...');
-        // You could add a fallback here to try direct S3 URL if available
+      // For backend proxy URLs, try to fall back to direct URL if available
+      if (currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/')) {
+        console.error('🔍 Backend proxy URL failed. Trying fallback to direct S3 URL...');
+        console.error('🔍 Backend proxy URL that failed:', currentUrl);
+        
+        // Try to fall back to direct URL if available
+        const directUrl = screenshot?.url || screenshot?.presigned_url;
+        if (directUrl && directUrl.includes('X-Amz-Signature')) {
+          console.log('🔄 Attempting fallback to direct S3 URL:', directUrl.substring(0, 100) + '...');
+          setCurrentUrl(directUrl);
+          setHasError(false); // Reset error state to try again
+          setIsLoading(true); // Set loading state for the retry
+          return; // Don't set error yet, let the fallback try
+        } else if (directUrl) {
+          console.log('🔄 Attempting fallback to direct URL (no signature):', directUrl.substring(0, 100) + '...');
+          setCurrentUrl(directUrl);
+          setHasError(false); // Reset error state to try again
+          setIsLoading(true); // Set loading state for the retry
+          return; // Don't set error yet, let the fallback try
+        }
       }
       
       setHasError(true);
@@ -640,7 +678,9 @@ const ActivityStream = () => {
         filename: screenshot?.filename,
         naturalWidth: e.target.naturalWidth,
         naturalHeight: e.target.naturalHeight,
-        currentUrl: currentUrl?.includes('/api/proxy/screenshot/') ? 'Backend Proxy' : 'Direct URL'
+        currentUrl: currentUrl,
+        loadMethod: currentUrl?.includes('localhost:8000/api/proxy/screenshot/') ? 'BACKEND_PROXY' : 'DIRECT_S3',
+        urlPreview: currentUrl?.substring(0, 150) + '...'
       });
       setHasError(false);
       setIsLoading(false);
@@ -655,8 +695,9 @@ const ActivityStream = () => {
       if (onClick) onClick(e);
     };
 
-    // Show error placeholder if no valid URL
+    // Show error placeholder if no valid URL - ONLY for truly invalid URLs
     if (!currentUrl || currentUrl === '' || currentUrl === 'null' || currentUrl === 'undefined') {
+      console.log('📷 No valid URL available, showing placeholder for:', screenshot?.filename);
       return (
         <div
           style={{ 
@@ -685,6 +726,8 @@ const ActivityStream = () => {
       );
     }
 
+    console.log('🖼️ Valid URL found, attempting to display image:', currentUrl);
+
     // Show error state for failed loads
     if (hasError) {
       return (
@@ -709,12 +752,12 @@ const ActivityStream = () => {
             Load Failed
           </div>
           <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
-            {currentUrl?.includes('/api/proxy/') ? 'Proxy Error' : 
+            {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'Backend Proxy Error' : 
              screenshot?.filename?.substring(0, 20) + '...' || 'Unknown'}
           </div>
-          {currentUrl?.includes('/api/proxy/') && (
+          {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') && (
             <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
-              Check Django server
+              Check backend server on port 8000
             </div>
           )}
         </div>
@@ -749,7 +792,8 @@ const ActivityStream = () => {
             height: '100%', 
             objectFit: 'cover',
             cursor: 'pointer',
-            transition: 'transform 0.2s ease'
+            transition: 'transform 0.2s ease',
+            display: hasError ? 'none' : 'block'
           }}
           onLoad={handleLoad}
           onError={handleError}
@@ -760,10 +804,42 @@ const ActivityStream = () => {
           onMouseLeave={(e) => {
             e.target.style.transform = 'scale(1)';
           }}
-          // For proxy URLs, we don't need CORS headers
-          referrerPolicy={currentUrl?.includes('/api/proxy/') ? undefined : "no-referrer"}
+          referrerPolicy={currentUrl?.includes('localhost:5175') ? undefined : "no-referrer"}
           crossOrigin={currentUrl?.includes('s3.amazonaws.com') ? "anonymous" : undefined}
         />
+        {hasError && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fef2f2',
+            color: '#dc2626',
+            fontSize: '12px',
+            border: '1px solid #fecaca',
+            flexDirection: 'column',
+            cursor: 'pointer'
+          }}
+          onClick={handleClick}>
+            <div>❌</div>
+            <div style={{ fontSize: '10px', marginTop: '4px' }}>
+              Load Failed
+            </div>
+            <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
+              {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'Backend Proxy Error' : 
+               screenshot?.filename?.substring(0, 20) + '...' || 'Unknown'}
+            </div>
+            {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') && (
+              <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
+                Check backend server on port 8000
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -898,13 +974,46 @@ const ActivityStream = () => {
     }
 
     return (
-      <SimpleImageComponent 
+      <img
         src={finalSrc}
-        alt={alt}
-        style={style}
-        onLoad={onLoad}
-        onError={onError}
+        alt={alt || 'Screenshot'}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover',
+          cursor: 'pointer',
+          transition: 'transform 0.2s ease',
+          ...style
+        }}
         className={className}
+        onLoad={(e) => {
+          console.log('✅ Image loaded successfully:', {
+            src: finalSrc,
+            naturalWidth: e.target.naturalWidth,
+            naturalHeight: e.target.naturalHeight,
+            isBackendProxy: finalSrc?.includes('http://localhost:8000/api/proxy/'),
+            urlType: finalSrc?.includes('http://localhost:8000/api/proxy/') ? 'BACKEND_PROXY' : 'DIRECT_URL'
+          });
+          if (onLoad) onLoad(e);
+        }}
+        onError={(e) => {
+          console.error('🖼️ Image failed to load:', {
+            src: finalSrc,
+            errorType: 'IMG_ELEMENT_ERROR',
+            naturalWidth: e.target.naturalWidth,
+            naturalHeight: e.target.naturalHeight,
+            isBackendProxy: finalSrc?.includes('http://localhost:8000/api/proxy/')
+          });
+          if (onError) onError(e);
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.02)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+        }}
+        referrerPolicy={finalSrc?.includes('/api/proxy/') ? undefined : "no-referrer"}
+        crossOrigin={finalSrc?.includes('s3.amazonaws.com') ? "anonymous" : undefined}
       />
     );
   };
@@ -1333,8 +1442,123 @@ const ActivityStream = () => {
     }
   };
 
+  // Progressive loading helper for large datasets
+  const fetchScreenshotsProgressive = async (searchTerm, targetLimit = 1000) => {
+    console.log(`📊 PROGRESSIVE LOADING: Starting for ${searchTerm}, target: ${targetLimit}`);
+    
+    let allScreenshots = [];
+    let currentPage = 1;
+    const chunkSize = 500; // Smaller chunks to avoid timeout
+    let hasMore = true;
+    let totalFromAPI = 0;
+    
+    // Update UI to show progressive loading
+    setError('');
+    setHasSearched(true);
+    setSearchPattern('progressive');
+    
+    while (hasMore && allScreenshots.length < targetLimit) {
+      try {
+        console.log(`📊 Loading chunk ${currentPage}, size: ${chunkSize}, loaded so far: ${allScreenshots.length}`);
+        
+        const apiBaseURL = getApiBaseURL();
+        const apiUrl = `${apiBaseURL}/employees/screenshots/search/`;
+        const params = new URLSearchParams();
+        
+        // Optimized parameters for chunk loading
+        params.append('fast_mode', 'true'); // Enable fast mode for chunks
+        params.append('search', searchTerm.trim());
+        params.append('limit', chunkSize.toString());
+        params.append('offset', ((currentPage - 1) * chunkSize).toString());
+        
+        if (singleDateFilter) {
+          params.append('date', singleDateFilter);
+        }
+        
+        const fullUrl = `${apiUrl}?${params.toString()}`;
+        console.log(`📊 Chunk ${currentPage} URL: ${fullUrl}`);
+        
+        // Extended timeout per chunk for large datasets
+        const response = await axios.get(fullUrl, { 
+          timeout: 1800000, // 30 minutes timeout per chunk
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        
+        let chunkScreenshots = [];
+        let chunkTotal = 0;
+        
+        // Parse response - same logic as original but for chunks
+        if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
+          chunkScreenshots = response.data.employees;
+          chunkTotal = response.data.total_count || response.data.count || 0;
+        } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
+          chunkScreenshots = response.data.employees;
+          chunkTotal = response.data.total_count || response.data.count || 0;
+        } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+          chunkScreenshots = response.data.results;
+          chunkTotal = response.data.count || response.data.total_count || 0;
+        } else if (Array.isArray(response.data)) {
+          chunkScreenshots = response.data;
+          chunkTotal = response.data.length;
+        }
+        
+        // Store total from first response
+        if (currentPage === 1) {
+          totalFromAPI = chunkTotal;
+          setTotalCount(chunkTotal);
+          console.log(`📊 Total count from API: ${chunkTotal}`);
+        }
+        
+        // Add chunk to results
+        allScreenshots = [...allScreenshots, ...chunkScreenshots];
+        
+        // Update UI with progressive results
+        setScreenshots([...allScreenshots]);
+        setCurrentPage(1); // Always show page 1 for progressive loading
+        setTotalPages(Math.ceil(allScreenshots.length / 20)); // 20 per page for display
+        
+        console.log(`📊 Chunk ${currentPage} complete: +${chunkScreenshots.length} (total: ${allScreenshots.length}/${totalFromAPI})`);
+        
+        // Check if we should continue
+        hasMore = chunkScreenshots.length === chunkSize && allScreenshots.length < totalFromAPI && allScreenshots.length < targetLimit;
+        currentPage++;
+        
+        // Small delay between chunks to prevent overwhelming the server
+        if (hasMore) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+      } catch (chunkError) {
+        console.error(`❌ Error loading chunk ${currentPage}:`, chunkError);
+        
+        // If it's a timeout, try smaller chunks
+        if (chunkError.code === 'ECONNABORTED' && chunkSize > 100) {
+          console.log(`⚠️ Timeout detected after 30 minutes, will try smaller chunks`);
+          setError(`Loaded ${allScreenshots.length} screenshots. Server timeout after 30 minutes - trying smaller chunks...`);
+          break; // Exit loop and return what we have
+        } else {
+          setError(`Progressive loading error at chunk ${currentPage}: ${chunkError.message}. Loaded ${allScreenshots.length} screenshots.`);
+          break;
+        }
+      }
+    }
+    
+    console.log(`📊 PROGRESSIVE LOADING COMPLETE: ${allScreenshots.length} screenshots loaded`);
+    setFullDataset(allScreenshots);
+    setLoading(false);
+    
+    return {
+      screenshots: allScreenshots,
+      total: Math.max(totalFromAPI, allScreenshots.length),
+      loaded: allScreenshots.length
+    };
+  };
+
   // Fetch screenshots from API using dynamic endpoints
-  const fetchScreenshots = async (searchTerm, limit = 20, page = 1) => {
+  const fetchScreenshots = async (searchTerm, limit = 20, page = 1, useProgressive = false) => {
     if (!searchTerm || !searchTerm.trim()) {
       setScreenshots([]);
       setHasSearched(false);
@@ -1345,6 +1569,14 @@ const ActivityStream = () => {
       setSearchPattern('quick');
       return;
     }
+
+    // For large datasets, use progressive loading
+    if (useProgressive || totalCount > 2000) {
+      console.log(`📊 Using progressive loading for large dataset (${totalCount || 'unknown'} total)`);
+      setLoading(true);
+      return await fetchScreenshotsProgressive(searchTerm, 5000); // Load up to 5000 in chunks
+    }
+    
     try {
       setLoading(true);
       setError('');
@@ -1355,49 +1587,42 @@ const ActivityStream = () => {
       let apiUrl = `${apiBaseURL}/employees/screenshots/search/`;
       let params = new URLSearchParams();
       
-      // Set dynamic parameters for comprehensive screenshot search
-      params.append('fast_mode', 'false'); // Disable fast mode for comprehensive results
-      params.append('min_screenshots', '10000'); // Minimum screenshots threshold
-      params.append('max_screenshots', '50000'); // Maximum screenshots threshold
+      // Set optimized parameters - no more huge limits
+      params.append('fast_mode', 'true'); // Enable fast mode by default
       
       // Add search term if provided
       if (searchTerm && searchTerm.trim()) {
         params.append('search', searchTerm.trim());
       }
       
-      // Handle different search modes based on filters and pagination
+      // Handle different search modes with reasonable limits
       if (singleDateFilter) {
         // Pattern 2: Name + Date Filter
         params.append('date', singleDateFilter);
-        params.append('limit', limit.toString());
+        params.append('limit', Math.min(limit, 1000).toString()); // Cap at 1000
         if (page > 1) {
           const offset = (page - 1) * limit;
           params.append('offset', offset.toString());
         }
         setSearchPattern('date');
-        console.log(`🔍 Fetching dynamic screenshots with date filter: ${singleDateFilter}`);
-      } else if (totalCount > 1000 || (page === 1 && !totalCount)) {
-        // Pattern 3: Dynamic comprehensive search with large limits
-        params.append('limit', '50000'); // Use max limit for comprehensive search
-        setSearchPattern('dynamic_comprehensive');
-        console.log(`🔍 Fetching ALL dynamic screenshots with comprehensive search (limit: 50000)`);
+        console.log(`🔍 Fetching screenshots with date filter: ${singleDateFilter}`);
       } else {
-        // Pattern 1: Dynamic search with pagination
-        params.append('limit', limit.toString());
+        // Always use reasonable pagination - no more 50k limits
+        const safeLimit = Math.min(limit, 1000); // Never exceed 1000 per request
+        params.append('limit', safeLimit.toString());
         if (page > 1) {
-          const offset = (page - 1) * limit;
+          const offset = (page - 1) * safeLimit;
           params.append('offset', offset.toString());
         }
-        setSearchPattern('dynamic_quick');
-        console.log(`🔍 Fetching dynamic screenshots with pagination: page ${page}, limit ${limit}`);
+        setSearchPattern('paginated');
+        console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${safeLimit}`);
       }
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
-      console.log(`🔍 Dynamic API Request: ${fullUrl}`);
-      console.log(`📋 Using dynamic employees/screenshots/search endpoint with fast_mode=false`);
+      console.log(`🔍 API Request: ${fullUrl}`);
       
       const response = await axios.get(fullUrl, { 
-        timeout: 30000, // 30 second timeout
+        timeout: 1800000, // 30 minutes timeout for large datasets
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -1586,14 +1811,20 @@ const ActivityStream = () => {
       console.error('❌ Error fetching screenshots from dynamic endpoint:', err);
       console.log('🔍 Dynamic API Error Details:', {
         message: err.message,
+        code: err.code,
         status: err.response?.status,
         statusText: err.response?.statusText,
         responseData: err.response?.data,
-        url: err.config?.url
+        url: err.config?.url,
+        isTimeout: err.code === 'ECONNABORTED'
       });
       
-      if (err.response) {
-        setError(`Dynamic API server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch dynamic screenshots'}`);
+      // Handle timeout errors specifically
+      if (err.code === 'ECONNABORTED') {
+        const timeoutSeconds = err.config?.timeout ? err.config.timeout / 1000 : 'unknown';
+        setError(`⏱️ Request timeout after ${timeoutSeconds} seconds. The dataset is too large for a single request. Try "Load in Chunks" option below for better performance.`);
+      } else if (err.response) {
+        setError(`API server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch screenshots'}`);
         
         // Show dummy data for development if the backend is down
         if (err.response.status === 500 || err.response.status === 404) {
@@ -1618,7 +1849,7 @@ const ActivityStream = () => {
           return; // Exit early to prevent further error handling
         }
       } else if (err.request) {
-        setError('Network error: Unable to connect to dynamic API server. Please start your backend server on http://localhost:8000');
+        setError('Network error: Unable to connect to API server. Please start your backend server on http://localhost:8000');
         
         // Show dummy data for development if the backend is not running
         console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to network error');
@@ -1640,7 +1871,7 @@ const ActivityStream = () => {
         setCurrentPage(1);
         setError('⚠️ Backend not accessible. Using test data for development.');
       } else {
-        setError('An unexpected error occurred while fetching dynamic screenshots');
+        setError('An unexpected error occurred while fetching screenshots');
       }
     } finally {
       setLoading(false);
@@ -1659,7 +1890,7 @@ const ActivityStream = () => {
       console.log('🔍 Folders API URL:', apiUrl);
       
       const response = await axios.get(apiUrl, { 
-        timeout: 15000,
+        timeout: 1800000, // 30 minutes timeout for folders API
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -1802,7 +2033,7 @@ const ActivityStream = () => {
       });
       
       const response = await axios.get(apiUrl, { 
-        timeout: 60000, // 60 second timeout for folder screenshots
+        timeout: 1800000, // 30 minutes timeout for folder screenshots
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -1823,6 +2054,12 @@ const ActivityStream = () => {
           }
         }
       });
+
+      // 🤣 USER REQUESTED DEBUG - Console API result with "haha" message
+      console.log('haha - API RESULT:', response);
+      console.log('haha - API DATA:', response.data);
+      console.log('haha - API STATUS:', response.status);
+      console.log('haha - FULL RESPONSE OBJECT:', JSON.stringify(response.data, null, 2));
       
       const loadTime = (Date.now() - startTime) / 1000;
       console.log('✅ Enhanced API response received in', loadTime.toFixed(2), 'seconds');
@@ -1947,7 +2184,11 @@ const ActivityStream = () => {
             has_formatted_image: !!formatted.image
           });
         }
-        return formatted;
+        // Preserve original API data alongside formatted data for dynamic display
+        return {
+          ...formatted,
+          originalData: screenshot  // Keep the original API response data
+        };
       });
       
       console.log('✅ Processed enhanced screenshots:', {
@@ -2099,7 +2340,7 @@ const ActivityStream = () => {
           try {
             console.log('🔄 Retrying API call with patient timeout...');
             const retryResponse = await axios.get(apiUrl, { 
-              timeout: 900000, // 15 minutes for retry - very patient
+              timeout: 1800000, // 30 minutes for retry - very patient
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -2158,7 +2399,7 @@ const ActivityStream = () => {
         
         try {
           // Try again with just 1 screenshot and ultra-short timeout
-          const ultraShortTimeout = 600000; // 10 minutes - ultra patient
+          const ultraShortTimeout = 1800000; // 30 minutes - ultra patient
           const ultraSmallLimit = 1; // Just 1 screenshot
           
           const retryApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=${page}&limit=${ultraSmallLimit}`;
@@ -2207,7 +2448,7 @@ const ActivityStream = () => {
           // Try one final time with extreme settings
           try {
             console.log('🔄 Final attempt with extreme patience...');
-            const extremeTimeout = 300000; // 5 minutes extreme timeout
+            const extremeTimeout = 1800000; // 30 minutes extreme timeout
             const extremeApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=1&limit=1`;
             
             const extremeResponse = await axios.get(extremeApiUrl, { 
@@ -2358,8 +2599,8 @@ const ActivityStream = () => {
     const debuggedS3Key = debugS3KeyExtraction(screenshot);
     console.log('🔑 S3 KEY DEBUG RESULT:', debuggedS3Key);
     
-    // Extract the actual S3 key value (not the debug object)
-    const actualS3Key = screenshot?.s3_key || null;
+    // Extract the actual S3 key value - Handle both field names
+    const actualS3Key = screenshot?.key || screenshot?.s3_key || null;
     console.log('🔑 ACTUAL S3 KEY VALUE:', actualS3Key);
 
     // EMERGENCY: Check if screenshot object is being passed correctly
@@ -2387,7 +2628,7 @@ const ActivityStream = () => {
     const emergencyTestResult = debugImageUrlExtraction(screenshot);
     console.log('🚨 EMERGENCY DEBUG RESULT (debug only):', emergencyTestResult);
 
-    // Extract time from API response or filename
+    // Extract time from API response or filename - Handle both field names
     let timeFromFilename = null;
     if (screenshot.time_display) {
       // Use API provided time display (e.g., "02:42 AM")
@@ -2397,11 +2638,14 @@ const ActivityStream = () => {
       timeFromFilename = screenshot.filename.split('_')[1]?.replace(/-/g, ':');
     }
     
-    // Extract date from timestamp or filename
+    // Extract date from timestamp or last_modified or filename - Handle both field names
     let dateFromFilename = null;
     if (screenshot.timestamp) {
       // Use timestamp from API (e.g., "2025-06-14T02:42:30Z")
       dateFromFilename = screenshot.timestamp.split('T')[0];
+    } else if (screenshot.last_modified) {
+      // Use last_modified from API (e.g., "2025-06-13T23:51:26+00:00")
+      dateFromFilename = screenshot.last_modified.split('T')[0];
     } else if (screenshot.filename) {
       // Fallback to extracting from filename
       dateFromFilename = screenshot.filename.split('_')[0];
@@ -2417,12 +2661,15 @@ const ActivityStream = () => {
       presignedUrlLength: screenshot.presigned_url?.length
     });
     
-    // Use presigned_url directly - this is the correct approach
+    // Try presigned_url first, then url field from API response
     if (screenshot?.presigned_url && typeof screenshot.presigned_url === 'string' && screenshot.presigned_url.trim() !== '') {
       finalImageUrl = screenshot.presigned_url.trim();
       console.log('✅ SUCCESS: Using presigned_url from API:', finalImageUrl.substring(0, 100) + '...');
+    } else if (screenshot?.url && typeof screenshot.url === 'string' && screenshot.url.trim() !== '') {
+      finalImageUrl = screenshot.url.trim();
+      console.log('✅ SUCCESS: Using url from API:', finalImageUrl.substring(0, 100) + '...');
     } else {
-      console.log('❌ ERROR: No valid presigned_url in API response');
+      console.log('❌ ERROR: No valid presigned_url or url in API response');
       finalImageUrl = null;
     }
     
@@ -2471,6 +2718,15 @@ const ActivityStream = () => {
     if (screenshot.window_title && screenshot.window_title !== screenshot.filename) {
       applicationName = screenshot.window_title;
     }
+    
+    // DEBUGGING APPLICATION DATA
+    console.log('🔧 Application Debug:', {
+      raw_application: screenshot.application,
+      raw_window_title: screenshot.window_title,
+      final_application: applicationName,
+      has_application: !!screenshot.application,
+      has_window_title: !!screenshot.window_title
+    });
 
     // Task name from API or folder
     let taskName = applicationName;
@@ -2481,7 +2737,7 @@ const ActivityStream = () => {
     }
 
     const resultObject = {
-      id: screenshot.id || screenshot.s3_key || `screenshot-${index}-${Date.now()}`,
+      id: screenshot.id || screenshot.key || screenshot.s3_key || `screenshot-${index}-${Date.now()}`,
       task: taskName,
       time: displayTime,
       image: finalImageUrl, // Use the final URL exactly as from API
@@ -2491,11 +2747,11 @@ const ActivityStream = () => {
       file_extension: screenshot.file_extension || '.webp',
       size_mb: screenshot.size_mb || 'N/A',
       filename: screenshot.filename,
-      s3_key: actualS3Key, // Use the actual S3 key value, not debug object
-      presigned_url: screenshot.presigned_url || null,
-      original_presigned_url: screenshot.presigned_url, // Keep the original for debugging
-      timestamp: screenshot.timestamp,
-      size_bytes: screenshot.size_bytes,
+      s3_key: screenshot.key || screenshot.s3_key || actualS3Key, // Handle both field names
+      presigned_url: screenshot.url || screenshot.presigned_url || null, // Handle both field names
+      original_presigned_url: screenshot.url || screenshot.presigned_url, // Keep the original for debugging
+      timestamp: screenshot.last_modified || screenshot.timestamp, // Handle both field names
+      size_bytes: screenshot.size || screenshot.size_bytes, // Handle both field names
       // S3 KEY SPECIFIC DEBUGGING DATA
       s3_key_debug_info: {
         original_s3_key: screenshot.s3_key,
@@ -3660,7 +3916,8 @@ const ActivityStream = () => {
         
         <CardGrid ref={cardGridRef} theme={theme} isDarkMode={isDarkMode}>
           {folderScreenshots.map((screenshot, i) => {
-            const formattedData = formatScreenshotData(screenshot, i);
+            const formattedData = screenshot; // Use the already formatted data
+            const originalApiData = screenshot.originalData || screenshot; // Access original API data
             return (
               <Card 
                 ref={el => cardsRef.current[i] = el}
@@ -3683,7 +3940,7 @@ const ActivityStream = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      downloadScreenshot(screenshot);
+                      downloadScreenshot(originalApiData); // Use original API data for download
                     }}
                     style={{
                       background: 'rgba(34, 197, 94, 0.9)',
@@ -3708,7 +3965,7 @@ const ActivityStream = () => {
                       e.target.style.background = 'rgba(34, 197, 94, 0.9)';
                       e.target.style.transform = 'scale(1)';
                     }}
-                    title={`Download ${screenshot?.filename || 'screenshot'}`}
+                    title={`Download ${originalApiData?.filename || 'screenshot'}`}
                   >
                     📥
                   </button>
@@ -3717,7 +3974,7 @@ const ActivityStream = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleImageClick(screenshot, i);
+                      handleImageClick(originalApiData, i); // Use original API data for full screen
                     }}
                     style={{
                       background: 'rgba(59, 130, 246, 0.9)',
@@ -3751,7 +4008,7 @@ const ActivityStream = () => {
                 {/* Enhanced SimpleImageComponent for screenshot objects */}
                 <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '6px' }}>
                   <SimpleImageComponent 
-                    screenshot={screenshot}
+                    screenshot={originalApiData} // Use original API data for image display
                     alt={formattedData.task}
                     style={{
                       width: '100%',
@@ -3762,12 +4019,12 @@ const ActivityStream = () => {
                     }}
                     onClick={() => {
                       console.log('🖼️ Screenshot card clicked:', {
-                        id: screenshot?.id,
-                        filename: screenshot?.filename,
-                        timestamp: screenshot?.timestamp,
-                        presignedUrl: screenshot?.presigned_url?.substring(0, 100) + '...'
+                        id: originalApiData?.id,
+                        filename: originalApiData?.filename,
+                        timestamp: originalApiData?.timestamp,
+                        presignedUrl: originalApiData?.presigned_url?.substring(0, 100) + '...'
                       });
-                      handleImageClick(screenshot, i);
+                      handleImageClick(originalApiData, i); // Use original API data
                     }}
                     onMouseEnter={(e) => {
                       if (e.target.tagName === 'IMG') {
@@ -3793,19 +4050,19 @@ const ActivityStream = () => {
                     fontSize: '10px'
                   }}>
                     <div style={{ fontWeight: '600', marginBottom: '2px' }}>
-                      {screenshot?.filename?.split('/').pop()?.substring(0, 25) || 'Screenshot'}
-                      {screenshot?.filename?.length > 25 && '...'}
+                      {originalApiData?.filename?.split('/').pop()?.substring(0, 25) || 'Screenshot'}
+                      {originalApiData?.filename?.length > 25 && '...'}
                     </div>
                     <div style={{ opacity: 0.8, fontSize: '9px' }}>
-                      {screenshot?.timestamp && 
-                        new Date(screenshot.timestamp).toLocaleDateString('en-US', {
+                      {originalApiData?.timestamp && 
+                        new Date(originalApiData.timestamp).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
                         })
                       }
-                      {screenshot?.size_mb && ` • ${screenshot.size_mb} MB`}
+                      {originalApiData?.size_mb && ` • ${originalApiData.size_mb} MB`}
                     </div>
                   </div>
                 </div>
@@ -3813,52 +4070,287 @@ const ActivityStream = () => {
                 <TaskName theme={theme} isDarkMode={isDarkMode}>{formattedData.task}</TaskName>
                 <TaskTime theme={theme} isDarkMode={isDarkMode}>{formattedData.time}</TaskTime>
                 
-                {/* Enhanced URL display for debugging with S3 key logging */}
-                <ImageUrl theme={theme} isDarkMode={isDarkMode} style={{ fontSize: '8px', maxHeight: '60px', overflow: 'hidden' }}>
-                  {(() => {
-                    // TEST: Verify this function is actually being called
-                    console.log(`🚀 RENDER TEST: Processing screenshot ${i + 1}/${folderScreenshots.length}`);
-                    console.log(`🚀 Screenshot object exists:`, !!screenshot);
-                    
-                    // Console log the S3 key for each screenshot
-                    console.log(`🔑 Screenshot ${i + 1} S3 Key:`, screenshot?.s3_key || 'No S3 key');
-                    console.log(`📸 Screenshot ${i + 1} Data:`, {
-                      id: screenshot?.id,
-                      filename: screenshot?.filename,
-                      s3_key: screenshot?.s3_key,
-                      has_presigned_url: !!screenshot?.presigned_url,
-                      presigned_url_preview: screenshot?.presigned_url?.substring(0, 100) + '...'
-                    });
-                    
-                    // Use same logic as getImageUrl to determine URL status
-                    if (screenshot?.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
-                      return '✅ S3 Direct (LIVE!)';
-                    } else if (screenshot?.s3_key) {
-                      return '🔄 Proxy (Backup)';
-                    } else if (screenshot?.url && screenshot.url.includes('X-Amz-Signature')) {
-                      return '🔄 S3 Direct (URL Field)';
-                    } else if (screenshot?.url) {
-                      return '🔗 Direct URL';
-                    } else if (screenshot?.image_url || screenshot?.thumbnail_url || screenshot?.src) {
-                      return '🔗 Fallback URL';
-                    } else {
-                      return '❌ No URL';
-                    }
-                  })()}
-                  {screenshot?.filename && (
-                    <div style={{ marginTop: '2px', opacity: 0.7 }}>
-                      📄 {screenshot.filename.split('/').pop()}
-                    </div>
-                  )}
-                  {screenshot?.s3_key && (
-                    <div style={{ marginTop: '2px', opacity: 0.6, fontSize: '6px', wordBreak: 'break-all' }}>
-                      🔑 S3: {screenshot.s3_key.split('/').slice(-2).join('/')}
-                    </div>
-                  )}
-                  <div style={{ marginTop: '2px', opacity: 0.5, fontSize: '7px' }}>
-                    {getImageUrl(screenshot) ? `🔗 ${getImageUrl(screenshot).substring(0, 30)}...` : '⚠️ No URL generated'}
+                {/* 🚀 COMPREHENSIVE API DATA DISPLAY - Shows all data from your API response */}
+                <div style={{ 
+                  fontSize: '9px', 
+                  padding: '8px', 
+                  backgroundColor: isDarkMode ? '#1f2937' : '#f8fafc',
+                  borderRadius: '6px',
+                  marginTop: '8px',
+                  border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
+                  lineHeight: '1.3'
+                }}>
+                  {/* Header with status */}
+                  <div style={{ 
+                    fontWeight: '600', 
+                    marginBottom: '6px',
+                    color: originalApiData?.presigned_url?.includes('X-Amz-Signature') ? '#10b981' : '#f59e0b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    {(() => {
+                      // Console log the S3 key for each screenshot
+                      console.log(`🔑 Screenshot ${i + 1} S3 Key:`, originalApiData?.s3_key || 'No S3 key');
+                      console.log(`📸 Screenshot ${i + 1} Data:`, {
+                        id: originalApiData?.id,
+                        filename: originalApiData?.filename,
+                        s3_key: originalApiData?.s3_key,
+                        has_presigned_url: !!originalApiData?.presigned_url,
+                        presigned_url_preview: originalApiData?.presigned_url?.substring(0, 100) + '...'
+                      });
+                      
+                      // Use same logic as getImageUrl to determine URL status
+                      if (originalApiData?.presigned_url && originalApiData.presigned_url.includes('X-Amz-Signature')) {
+                        return '✅ S3 Direct (LIVE!)';
+                      } else if (originalApiData?.s3_key) {
+                        return '🔄 Proxy (Backup)';
+                      } else if (originalApiData?.url && originalApiData.url.includes('X-Amz-Signature')) {
+                        return '🔄 S3 Direct (URL Field)';
+                      } else if (originalApiData?.url) {
+                        return '🔗 Direct URL';
+                      } else if (originalApiData?.image_url || originalApiData?.thumbnail_url || originalApiData?.src) {
+                        return '🔗 Fallback URL';
+                      } else {
+                        return '❌ No URL';
+                      }
+                    })()}
+                    <span style={{ fontSize: '8px', opacity: 0.7 }}>#{i + 1}</span>
                   </div>
-                </ImageUrl>
+                  
+                  {/* 📊 Core API Data */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📊 Core Data:</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px', fontSize: '8px', paddingLeft: '8px' }}>
+                      <div><span style={{ opacity: 0.7 }}>🆔 ID:</span> <span style={{ fontFamily: 'monospace', color: '#3b82f6' }}>{originalApiData?.id || 'N/A'}</span></div>
+                      <div><span style={{ opacity: 0.7 }}>📄 Extension:</span> <span style={{ color: '#10b981' }}>{originalApiData?.file_extension || 'N/A'}</span></div>
+                      <div><span style={{ opacity: 0.7 }}>📏 Size:</span> <span style={{ color: '#f59e0b' }}>{originalApiData?.size_mb ? `${originalApiData.size_mb} MB` : 'N/A'}</span></div>
+                      <div><span style={{ opacity: 0.7 }}>🔢 Bytes:</span> <span style={{ fontFamily: 'monospace', fontSize: '7px' }}>{originalApiData?.size_bytes ? `${originalApiData.size_bytes.toLocaleString()}` : 'N/A'}</span></div>
+                    </div>
+                  </div>
+                  
+                  {/* 📅 Time & Date Info */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📅 Time Information:</div>
+                    <div style={{ fontSize: '8px', paddingLeft: '8px' }}>
+                      <div><span style={{ opacity: 0.7 }}>� Display:</span> {screenshot?.time_display || 'N/A'}</div>
+                      <div><span style={{ opacity: 0.7 }}>📅 Timestamp:</span> {screenshot?.timestamp || 'N/A'}</div>
+                      <div><span style={{ opacity: 0.7 }}>🔄 Modified:</span> {screenshot?.last_modified || 'N/A'}</div>
+                    </div>
+                  </div>
+                  
+                  {/* 💻 Application Info */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>💻 Application:</div>
+                    <div style={{ fontSize: '8px', paddingLeft: '8px' }}>
+                      <div><span style={{ opacity: 0.7 }}>📱 App:</span> {screenshot?.application || 'Unknown'}</div>
+                      <div style={{ opacity: 0.7, wordBreak: 'break-all' }}>🪟 Title: {screenshot?.window_title || 'N/A'}</div>
+                    </div>
+                  </div>
+                  
+                  {/* 📂 File Information */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📂 File Details:</div>
+                    <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
+                      <div style={{ 
+                        marginBottom: '3px', 
+                        padding: '3px 6px', 
+                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+                        borderRadius: '4px',
+                        border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#6366f1', marginBottom: '1px' }}>📄 Filename:</div>
+                        <div style={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: '6px', 
+                          wordBreak: 'break-all', 
+                          color: isDarkMode ? '#94a3b8' : '#475569',
+                          lineHeight: '1.2'
+                        }}>
+                          {screenshot?.filename || 'N/A'}
+                        </div>
+                      </div>
+                      <div style={{ 
+                        marginBottom: '2px', 
+                        padding: '3px 6px', 
+                        backgroundColor: isDarkMode ? '#1e1b2e' : '#fefcf4',
+                        borderRadius: '4px',
+                        border: `1px solid ${isDarkMode ? '#2d1b69' : '#fbbf24'}`
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#f59e0b', marginBottom: '1px' }}>🔑 S3 Key:</div>
+                        <div style={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: '6px', 
+                          wordBreak: 'break-all', 
+                          color: isDarkMode ? '#fbbf24' : '#92400e',
+                          lineHeight: '1.2'
+                        }}>
+                          {screenshot?.s3_key || 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 🔗 URLs Section */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>🔗 URLs:</div>
+                    <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
+                      {screenshot?.presigned_url && (
+                        <div style={{ 
+                          marginBottom: '3px', 
+                          padding: '4px 6px', 
+                          backgroundColor: '#ecfdf5', 
+                          borderRadius: '4px',
+                          border: '2px solid #10b981',
+                          boxShadow: '0 1px 3px rgba(16, 185, 129, 0.1)'
+                        }}>
+                          <div style={{ 
+                            color: '#10b981', 
+                            fontWeight: '700', 
+                            marginBottom: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            ✅ PRESIGNED URL (LIVE!)
+                            <span style={{ 
+                              fontSize: '6px', 
+                              padding: '1px 4px', 
+                              backgroundColor: '#10b981', 
+                              color: 'white', 
+                              borderRadius: '2px' 
+                            }}>
+                              ACTIVE
+                            </span>
+                          </div>
+                          <div style={{ 
+                            fontFamily: 'monospace', 
+                            fontSize: '6px', 
+                            wordBreak: 'break-all', 
+                            color: '#065f46',
+                            lineHeight: '1.2',
+                            backgroundColor: '#f0fdf4',
+                            padding: '2px 4px',
+                            borderRadius: '2px',
+                            border: '1px solid #bbf7d0'
+                          }}>
+                            {screenshot.presigned_url.length > 120 ? 
+                              screenshot.presigned_url.substring(0, 120) + '...' : 
+                              screenshot.presigned_url
+                            }
+                          </div>
+                          <div style={{ 
+                            fontSize: '6px', 
+                            color: '#10b981', 
+                            marginTop: '2px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <span>🏃 Direct S3 Access</span>
+                            <span style={{ opacity: 0.7 }}>
+                              {screenshot.presigned_url.includes('X-Amz-Expires') ? 
+                                '⏰ Expires: ' + (screenshot.presigned_url.match(/X-Amz-Expires=(\d+)/) ? 
+                                  Math.floor(parseInt(screenshot.presigned_url.match(/X-Amz-Expires=(\d+)/)[1]) / 3600) + 'h' : 
+                                  '2h'
+                                ) : 
+                                '⏰ 2h'
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {screenshot?.thumbnail_url && (
+                        <div style={{ 
+                          marginBottom: '2px',
+                          padding: '2px 4px',
+                          backgroundColor: '#fef3c7',
+                          borderRadius: '3px',
+                          border: '1px solid #f59e0b'
+                        }}>
+                          <span style={{ color: '#f59e0b', fontWeight: '600' }}>🖼️ Thumbnail:</span>
+                          <div style={{ fontFamily: 'monospace', fontSize: '6px', wordBreak: 'break-all', color: '#92400e' }}>
+                            {screenshot.thumbnail_url}
+                          </div>
+                        </div>
+                      )}
+                      <div style={{ 
+                        marginTop: '3px', 
+                        padding: '3px 6px', 
+                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+                        borderRadius: '4px',
+                        border: `1px solid ${isDarkMode ? '#334155' : '#cbd5e1'}`
+                      }}>
+                        <div style={{ color: '#3b82f6', fontWeight: '600', marginBottom: '1px' }}>🛠️ Generated URL:</div>
+                        <div style={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: '6px', 
+                          wordBreak: 'break-all', 
+                          color: isDarkMode ? '#94a3b8' : '#475569',
+                          lineHeight: '1.2'
+                        }}>
+                          {getImageUrl(screenshot) ? 
+                            (getImageUrl(screenshot).length > 120 ? 
+                              getImageUrl(screenshot).substring(0, 120) + '...' : 
+                              getImageUrl(screenshot)
+                            ) : '⚠️ No URL generated'
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 🏷️ Additional Fields */}
+                  {Object.keys(screenshot || {}).filter(key => 
+                    !['id', 'filename', 's3_key', 'presigned_url', 'timestamp', 'time_display', 
+                      'application', 'window_title', 'size_bytes', 'size_mb', 'last_modified', 
+                      'file_extension', 'thumbnail_url'].includes(key)
+                  ).length > 0 && (
+                    <div>
+                      <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>🏷️ Additional Data:</div>
+                      <div style={{ fontSize: '7px', paddingLeft: '8px', maxHeight: '40px', overflow: 'auto' }}>
+                        {Object.entries(screenshot || {})
+                          .filter(([key]) => 
+                            !['id', 'filename', 's3_key', 'presigned_url', 'timestamp', 'time_display', 
+                              'application', 'window_title', 'size_bytes', 'size_mb', 'last_modified', 
+                              'file_extension', 'thumbnail_url'].includes(key)
+                          )
+                          .map(([key, value]) => (
+                            <div key={key} style={{ marginBottom: '1px' }}>
+                              <span style={{ opacity: 0.7 }}>{key}:</span> {String(value) || 'null'}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 🔍 JSON View Button */}
+                  <div style={{ 
+                    marginTop: '6px', 
+                    paddingTop: '6px', 
+                    borderTop: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}` 
+                  }}>
+                    <button
+                      onClick={() => {
+                        console.log(`🔍 Full API Data for Screenshot ${i + 1}:`, screenshot);
+                        alert(`🔍 Full API data logged to console for screenshot ${i + 1}\n\nCheck browser console for complete object details.`);
+                      }}
+                      style={{
+                        fontSize: '7px',
+                        padding: '2px 6px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                        fontWeight: '500'
+                      }}
+                    >
+                      🔍 View Full JSON Data
+                    </button>
+                  </div>
+                </div>
               </Card>
             );
           })}
@@ -3957,6 +4449,118 @@ const ActivityStream = () => {
               })}
               <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handleNext}></Arrow>
             </DateScrollContainer>
+
+            {/* TEST API BUTTON - Remove after debugging */}
+            <button 
+              onClick={async () => {
+                console.log('🧪 TEST API: Starting comprehensive API test...');
+                try {
+                  // Test the exact endpoint you're using in Postman
+                  const response = await fetch('http://localhost:8000/api/screenshots/employee/hasebcodejourney@gmail.com/folders/');
+                  const data = await response.json();
+                  console.log('🧪 FOLDERS API RESULT:', data);
+                  console.log('🧪 API STRUCTURE CHECK:', {
+                    hasSuccess: !!data.success,
+                    hasData: !!data.data,
+                    hasTaskFolders: !!data.data?.task_folders,
+                    taskFoldersLength: data.data?.task_folders?.length || 0,
+                    firstFolder: data.data?.task_folders?.[0]
+                  });
+                  
+                  // Now test screenshots endpoint for a specific folder
+                  if (data.data?.task_folders?.[0]) {
+                    const firstFolder = data.data.task_folders[0];
+                    console.log('🧪 Testing screenshots for first folder:', firstFolder.folder_name);
+                    
+                    const screenshotsUrl = `http://localhost:8000/api/screenshots/employee_folder_screenshots/?employee_email=hasebcodejourney@gmail.com&folder_name=${encodeURIComponent(firstFolder.folder_name)}&page=1&page_size=5`;
+                    console.log('🧪 Screenshots API URL:', screenshotsUrl);
+                    
+                    try {
+                      const screenshotsResponse = await fetch(screenshotsUrl);
+                      const screenshotsData = await screenshotsResponse.json();
+                      console.log('🧪 SCREENSHOTS API RESULT:', screenshotsData);
+                      console.log('🧪 FIRST SCREENSHOT:', screenshotsData.results?.[0]);
+                      
+                      if (screenshotsData.results?.[0]) {
+                        const firstScreenshot = screenshotsData.results[0];
+                        console.log('🧪 SCREENSHOT FIELDS:', {
+                          url: firstScreenshot.url,
+                          presigned_url: firstScreenshot.presigned_url,
+                          s3_key: firstScreenshot.s3_key,
+                          key: firstScreenshot.key,
+                          filename: firstScreenshot.filename,
+                          application: firstScreenshot.application,
+                          window_title: firstScreenshot.window_title
+                        });
+                        
+                        // Test image URL generation
+                        const testUrl = getImageUrl(firstScreenshot);
+                        console.log('🧪 GENERATED URL:', testUrl);
+                        
+                        // Test if the URL works by trying to fetch it
+                        if (testUrl) {
+                          console.log('🧪 Testing URL accessibility:', testUrl);
+                          try {
+                            const testResponse = await fetch(testUrl, { method: 'HEAD' });
+                            console.log('🧪 URL TEST RESULT:', {
+                              status: testResponse.status,
+                              statusText: testResponse.statusText,
+                              contentType: testResponse.headers.get('content-type'),
+                              contentLength: testResponse.headers.get('content-length'),
+                              accessible: testResponse.ok
+                            });
+                            
+                            if (testResponse.ok) {
+                              console.log('✅ URL is accessible - images should load!');
+                            } else {
+                              console.log('❌ URL failed:', testResponse.status, testResponse.statusText);
+                            }
+                          } catch (urlError) {
+                            console.log('❌ URL test failed:', urlError.message);
+                            
+                            // If backend proxy fails, test direct S3 URL
+                            if (testUrl.includes('localhost:8000/api/proxy/screenshot/')) {
+                              const directUrl = firstScreenshot?.url || firstScreenshot?.presigned_url;
+                              if (directUrl) {
+                                console.log('🧪 Testing direct S3 URL as fallback:', directUrl.substring(0, 100) + '...');
+                                try {
+                                  const s3Response = await fetch(directUrl, { method: 'HEAD' });
+                                  console.log('🧪 DIRECT S3 URL TEST:', {
+                                    status: s3Response.status,
+                                    accessible: s3Response.ok
+                                  });
+                                  if (s3Response.ok) {
+                                    console.log('✅ Direct S3 URL works! Backend proxy issue confirmed.');
+                                  }
+                                } catch (s3Error) {
+                                  console.log('❌ Direct S3 URL also failed:', s3Error.message);
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } catch (screenshotsError) {
+                      console.error('🧪 Screenshots API ERROR:', screenshotsError);
+                    }
+                  }
+                } catch (error) {
+                  console.error('🧪 TEST API ERROR:', error);
+                }
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                marginLeft: '10px'
+              }}
+            >
+              🧪 Test API
+            </button>
 
             <Autocomplete
               freeSolo
@@ -4324,6 +4928,51 @@ const ActivityStream = () => {
             <SearchInfo theme={theme} isDarkMode={isDarkMode}>
               🔍 Showing folders for: <strong>{selectedUser.display_name}</strong> ({selectedUser.email})
               {selectedUser.screenshot_count && ` - ${selectedUser.screenshot_count} screenshots available`}
+              
+              {/* Show progressive loading option for users with large datasets */}
+              {selectedUser.screenshot_count && selectedUser.screenshot_count > 5000 && (
+                <div style={{ marginTop: '8px', fontSize: '12px' }}>
+                  💡 <strong>Large dataset detected ({selectedUser.screenshot_count} screenshots)</strong>
+                  <div style={{ marginTop: '4px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => {
+                        const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                        console.log('🚀 User requested progressive loading for large dataset');
+                        fetchScreenshots(searchTerm, 500, 1, true);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      📊 Load in Chunks (Recommended)
+                    </button>
+                    <button
+                      onClick={() => {
+                        const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                        console.log('🎯 User requested small sample first');
+                        fetchScreenshots(searchTerm, 200, 1);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        backgroundColor: '#f59e0b',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🎯 Load 200 First
+                    </button>
+                  </div>
+                </div>
+              )}
             </SearchInfo>
           )}
 
@@ -4377,8 +5026,14 @@ const ActivityStream = () => {
               <div>
                 {loadingFolders ? `Loading folders for ${selectedUser?.display_name}...` :
                  loadingFolderScreenshots ? `Loading screenshots from ${selectedFolder?.folder_name}...` :
+                 searchPattern === 'progressive' ? `Progressive loading in chunks... (${screenshots.length} loaded so far)` :
                  isUserSelected && selectedUser ? `Loading screenshots for ${selectedUser.display_name}...` :
                  `Loading screenshots for ${search}...`}
+                {searchPattern === 'progressive' && (
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                    💡 Loading large dataset in small chunks to avoid timeouts
+                  </div>
+                )}
               </div>
             </LoadingContainer>
           )}
@@ -4387,26 +5042,66 @@ const ActivityStream = () => {
           {error && (
             <ErrorMessage>
               {error}
-              <Button 
-                onClick={() => {
-                  if (currentView === 'folders' && selectedUser) {
-                    const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    fetchEmployeeFolders(userEmail);
-                  } else if (currentView === 'screenshots' && selectedUser && selectedFolder) {
-                    const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-                    fetchFolderScreenshots(userEmail, folderName, 1, 12);
-                  } else if (isUserSelected && selectedUser) {
-                    const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    fetchScreenshots(searchTerm, 20, 1);
-                  } else {
-                    fetchScreenshots(search.trim(), 20, 1);
-                  }
-                }} 
-                style={{ marginLeft: '10px', fontSize: '12px' }}
-              >
-                Retry
-              </Button>
+              <div style={{ marginTop: '10px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <Button 
+                  onClick={() => {
+                    if (currentView === 'folders' && selectedUser) {
+                      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      fetchEmployeeFolders(userEmail);
+                    } else if (currentView === 'screenshots' && selectedUser && selectedFolder) {
+                      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+                      fetchFolderScreenshots(userEmail, folderName, 1, 12);
+                    } else if (isUserSelected && selectedUser) {
+                      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      fetchScreenshots(searchTerm, 20, 1);
+                    } else {
+                      fetchScreenshots(search.trim(), 20, 1);
+                    }
+                  }} 
+                  style={{ fontSize: '12px' }}
+                >
+                  🔄 Retry
+                </Button>
+
+                {/* Progressive loading option for timeout errors */}
+                {error.includes('timeout') && isUserSelected && selectedUser && (
+                  <Button 
+                    onClick={() => {
+                      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      console.log('🚀 Starting progressive loading for large dataset...');
+                      fetchScreenshots(searchTerm, 500, 1, true); // Enable progressive loading
+                    }} 
+                    style={{ 
+                      fontSize: '12px', 
+                      backgroundColor: '#10b981', 
+                      color: 'white',
+                      border: 'none'
+                    }}
+                  >
+                    📊 Load in Chunks
+                  </Button>
+                )}
+
+                {/* Alternative: Try smaller dataset first */}
+                {error.includes('timeout') && isUserSelected && selectedUser && (
+                  <Button 
+                    onClick={() => {
+                      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      console.log('🔍 Trying with smaller limit to avoid timeout...');
+                      fetchScreenshots(searchTerm, 100, 1); // Smaller limit
+                    }} 
+                    style={{ 
+                      fontSize: '12px', 
+                      backgroundColor: '#f59e0b', 
+                      color: 'white',
+                      border: 'none'
+                    }}
+                  >
+                    🎯 Load 100 First
+                  </Button>
+                )}
+              </div>
             </ErrorMessage>
           )}
 
