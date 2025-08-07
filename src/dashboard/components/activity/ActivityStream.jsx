@@ -172,6 +172,59 @@ const ActivityStream = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [dateRange, setDateRange] = useState([dayjs('2024-06-06'), dayjs('2025-01-01')]);
   
+  // EMERGENCY DEBUG FUNCTION FOR PRESIGNED URLS
+  const debugImageUrlExtraction = (testData) => {
+    console.log('🚨 EMERGENCY DEBUG - Testing URL extraction with:', testData);
+    
+    // Test S3 key extraction first
+    console.log('🔍 S3 Key extraction test:');
+    console.log('  - testData.s3_key:', testData.s3_key);
+    console.log('  - typeof s3_key:', typeof testData.s3_key);
+    console.log('  - s3_key length:', testData.s3_key?.length);
+    console.log('  - s3_key exists:', !!testData.s3_key);
+    
+    // Test direct presigned URL access
+    console.log('🔍 Direct access test:');
+    console.log('  - testData.presigned_url:', testData.presigned_url);
+    console.log('  - typeof:', typeof testData.presigned_url);
+    console.log('  - length:', testData.presigned_url?.length);
+    console.log('  - trim():', testData.presigned_url?.trim());
+    console.log('  - trim() !== "":', testData.presigned_url?.trim() !== '');
+    
+    // Test all important fields
+    console.log('🔍 All important fields test:');
+    console.log('  - id:', testData.id);
+    console.log('  - filename:', testData.filename);
+    console.log('  - timestamp:', testData.timestamp);
+    console.log('  - time_display:', testData.time_display);
+    console.log('  - application:', testData.application);
+    console.log('  - window_title:', testData.window_title);
+    console.log('  - size_bytes:', testData.size_bytes);
+    console.log('  - size_mb:', testData.size_mb);
+    console.log('  - file_extension:', testData.file_extension);
+    
+    // Test conditional logic step by step
+    if (testData.presigned_url) {
+      console.log('✅ presigned_url exists');
+      if (typeof testData.presigned_url === 'string') {
+        console.log('✅ presigned_url is string');
+        if (testData.presigned_url.trim() !== '') {
+          console.log('✅ presigned_url is not empty after trim');
+          console.log('✅ SHOULD USE:', testData.presigned_url.trim());
+          return testData.presigned_url.trim();
+        } else {
+          console.log('❌ presigned_url is empty after trim');
+        }
+      } else {
+        console.log('❌ presigned_url is not string, type:', typeof testData.presigned_url);
+      }
+    } else {
+      console.log('❌ presigned_url does not exist');
+    }
+    
+    return null;
+  };
+  
   // Generate dates for the last 30 days - moved up before GSAP effects
   const dates = useMemo(() => generateLast30Days(), []);
   
@@ -368,21 +421,32 @@ const ActivityStream = () => {
     return originalUrl;
   };
 
-  // Create a robust image component (FIXED - no complex processing needed)
+  // Create a robust image component (ENHANCED - better debugging and S3 detection)
   const SimpleImageComponent = ({ src, alt, style, onLoad, onError, className, onClick }) => {
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    console.log('🖼️ SimpleImageComponent received src:', src);
+    console.log('🖼️ SimpleImageComponent rendering with src:', {
+      src: src?.substring(0, 100) + '...',
+      srcLength: src?.length,
+      isS3: src?.includes('s3.amazonaws.com'),
+      hasSignature: src?.includes('X-Amz-Signature'),
+      domain: src?.includes('ddsfocustime.s3.amazonaws.com') ? 'ddsfocustime S3' : 'Other'
+    });
 
     const handleError = (e) => {
       console.error('🖼️ Image failed to load:', {
-        src,
-        error: e,
-        crossOrigin: src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined,
-        isProduction: process.env.NODE_ENV === 'production',
+        src: src?.substring(0, 100) + '...',
+        fullSrc: src,
+        errorType: e.target ? 'IMG_ELEMENT_ERROR' : 'REACT_ERROR',
+        errorCode: e.target ? e.target.error?.code : 'unknown',
+        naturalWidth: e.target?.naturalWidth,
+        naturalHeight: e.target?.naturalHeight,
+        isS3: src?.includes('s3.amazonaws.com'),
         hasSignature: src?.includes('X-Amz-Signature'),
-        hostname: window.location.hostname
+        srcLength: src?.length,
+        hostname: window.location.hostname,
+        crossOrigin: src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined
       });
       setHasError(true);
       setIsLoading(false);
@@ -390,34 +454,92 @@ const ActivityStream = () => {
     };
 
     const handleLoad = (e) => {
-      console.log('✅ Image loaded successfully:', src?.substring(0, 80) + '...');
+      console.log('✅ Image loaded successfully:', {
+        src: src?.substring(0, 100) + '...',
+        naturalWidth: e.target.naturalWidth,
+        naturalHeight: e.target.naturalHeight,
+        isS3: src?.includes('s3.amazonaws.com'),
+        hasSignature: src?.includes('X-Amz-Signature'),
+        loadTime: 'immediate'
+      });
       setHasError(false);
       setIsLoading(false);
       if (onLoad) onLoad(e);
     };
 
     const handleClick = (e) => {
-      console.log('🖼️ SimpleImageComponent clicked!', { src, alt });
+      console.log('🖼️ SimpleImageComponent clicked!', { src: src?.substring(0, 50) + '...', alt });
       if (onClick) onClick(e);
     };
 
-    if (hasError || !src || src === '' || src === 'Not Available' || src === null) {
-      // Show broken image placeholder for invalid sources
+    // Show error placeholder if no valid src
+    if (!src || src === '' || src === 'null' || src === 'undefined' || src === 'Not Available' || src === null) {
+      console.log('❌ No valid src provided to SimpleImageComponent:', src);
       return (
-        <img
-          src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-          alt={alt || 'Broken image'}
+        <div
           style={{ 
             ...style, 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover',
-            filter: 'grayscale(100%) opacity(0.5)' // Make broken images visible but dimmed
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#f3f4f6',
+            color: '#6b7280',
+            fontSize: '12px',
+            border: '1px dashed #d1d5db',
+            flexDirection: 'column'
           }}
           className={className}
           onClick={handleClick}
-          referrerPolicy="no-referrer"
-        />
+        >
+          <div>No Image URL</div>
+          <div style={{ fontSize: '10px', marginTop: '4px', opacity: 0.7 }}>
+            {src || 'null/undefined'}
+          </div>
+        </div>
+      );
+    }
+
+    // Show error state for failed loads but still try to display the broken image
+    if (hasError) {
+      return (
+        <div
+          style={{ 
+            ...style, 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fef2f2',
+            color: '#dc2626',
+            fontSize: '12px',
+            border: '1px solid #fecaca',
+            flexDirection: 'column',
+            position: 'relative'
+          }}
+          className={className}
+          onClick={handleClick}
+        >
+          {/* Still show the broken image behind the error */}
+          <img
+            src={src}
+            alt={alt}
+            style={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover',
+              opacity: 0.1,
+              filter: 'grayscale(100%)'
+            }}
+            referrerPolicy="no-referrer"
+            crossOrigin={src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined}
+          />
+          <div style={{ position: 'relative', zIndex: 1 }}>Image Load Failed</div>
+          <div style={{ fontSize: '10px', marginTop: '4px', opacity: 0.7, position: 'relative', zIndex: 1 }}>
+            {src?.substring(0, 50)}...
+          </div>
+        </div>
       );
     }
 
@@ -433,9 +555,10 @@ const ActivityStream = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(255, 255, 255, 0.8)',
+            background: 'rgba(255, 255, 255, 0.9)',
             fontSize: '10px',
-            color: '#6b7280'
+            color: '#6b7280',
+            zIndex: 1
           }}>
             Loading...
           </div>
@@ -447,7 +570,7 @@ const ActivityStream = () => {
           onLoad={handleLoad}
           onError={handleError}
           referrerPolicy="no-referrer"
-          crossOrigin={src?.includes('ddsfocustime.s3.amazonaws.com') ? 'anonymous' : undefined}
+          crossOrigin={src?.includes('s3.amazonaws.com') ? 'anonymous' : undefined}
         />
       </div>
     );
@@ -1081,16 +1204,13 @@ const ActivityStream = () => {
       console.log(`🔍 Dynamic API Request: ${fullUrl}`);
       console.log(`📋 Using dynamic employees/screenshots/search endpoint with fast_mode=false`);
       
-      const response = await retryExtremeApiCall(
-        (timeout) => axios.get(fullUrl, { timeout }),
-        'Dynamic Screenshot Search',
-        {
-          onRetry: (attempt, error, timeout) => {
-            const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
-            console.log(`🔄 Screenshot search attempt ${attempt}/4 with ${timeoutLabel} timeout`);
-          }
+      const response = await axios.get(fullUrl, { 
+        timeout: 30000, // 30 second timeout
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-      );
+      });
       let newScreenshots = [];
       let total = 0;
       
@@ -1489,30 +1609,28 @@ const ActivityStream = () => {
         retry_strategy: 'progressive_timeout'
       });
       
-      const response = await retryApiCall(
-        () => axios.get(apiUrl, { 
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          // Enhanced request configuration for large data
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity,
-          // Add progress tracking for large requests
-          onDownloadProgress: (progressEvent) => {
-            if (selectedFolder?.screenshot_count > 500) {
-              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-              console.log(`📥 Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB)`);
-              
-              // Update error message with progress for large folders
-              if (progressEvent.total > 1000000) { // > 1MB response
-                setError(`📊 Loading large folder "${folderName}" - Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB). Please wait...`);
-              }
+      const response = await axios.get(apiUrl, { 
+        timeout: 60000, // 60 second timeout for folder screenshots
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        // Enhanced request configuration for large data
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+        // Add progress tracking for large requests
+        onDownloadProgress: (progressEvent) => {
+          if (selectedFolder?.screenshot_count > 500) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log(`📥 Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB)`);
+            
+            // Update error message with progress for large folders
+            if (progressEvent.total > 1000000) { // > 1MB response
+              setError(`📊 Loading large folder "${folderName}" - Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB). Please wait...`);
             }
           }
-        }),
-        `Fetching folder screenshots for ${folderName}`
-      );
+        }
+      });
       
       const loadTime = (Date.now() - startTime) / 1000;
       console.log('✅ Enhanced API response received in', loadTime.toFixed(2), 'seconds');
@@ -1992,109 +2110,177 @@ const ActivityStream = () => {
     return () => clearTimeout(timer);
   }, [search, isUserSelected]);
 
-  // Format screenshot data for display (FIXED version)
+  // S3 KEY SPECIFIC DEBUGGING FUNCTION
+  const debugS3KeyExtraction = (screenshot) => {
+    console.log('🔑 S3 KEY DEBUGGING - Raw screenshot object:', screenshot);
+    console.log('🔑 S3 KEY DEBUGGING - Detailed analysis:', {
+      hasS3Key: 's3_key' in screenshot,
+      s3KeyValue: screenshot.s3_key,
+      s3KeyType: typeof screenshot.s3_key,
+      s3KeyLength: screenshot.s3_key ? screenshot.s3_key.length : 0,
+      s3KeyIsString: typeof screenshot.s3_key === 'string',
+      s3KeyIsEmpty: screenshot.s3_key === '',
+      s3KeyIsNull: screenshot.s3_key === null,
+      s3KeyIsUndefined: screenshot.s3_key === undefined,
+      allObjectKeys: Object.keys(screenshot),
+      s3KeyInKeys: Object.keys(screenshot).includes('s3_key')
+    });
+    
+    // Test direct access
+    const directS3Key = screenshot['s3_key'];
+    console.log('🔑 S3 KEY DEBUGGING - Direct access test:', {
+      directAccess: directS3Key,
+      directAccessType: typeof directS3Key,
+      directAccessLength: directS3Key ? directS3Key.length : 0
+    });
+    
+    return screenshot.s3_key;
+  };
+
+  // Format screenshot data for display (ULTRA ENHANCED DEBUGGING VERSION)
   const formatScreenshotData = (screenshot, index) => {
-    // Extract time from filename
-    const timeFromFilename = screenshot.filename ? 
-      screenshot.filename.split('_')[1]?.replace(/-/g, ':') : null;
-    
-    // Extract date from filename
-    const dateFromFilename = screenshot.filename ? 
-      screenshot.filename.split('_')[0] : null;
-
-    // CRITICAL FIX: Use direct presigned URLs only - no backend proxy!
-    let imageUrl = null;
-    
-    console.log('🔍 Processing screenshot for image URL:', {
-      hasPresignedUrl: !!screenshot.presigned_url,
-      presignedUrlSample: screenshot.presigned_url?.substring(0, 80) + '...',
-      presignedUrlLength: screenshot.presigned_url?.length,
-      filename: screenshot.filename,
-      s3_key: screenshot.s3_key,
-      urlField: screenshot.url
+    console.log('🔧 🚨 ULTRA DEBUGGING - Full screenshot object received:', screenshot);
+    console.log('🔧 🚨 ULTRA DEBUGGING - Processing screenshot data:', {
+      index,
+      screenshot_is_object: typeof screenshot === 'object',
+      screenshot_is_null: screenshot === null,
+      screenshot_is_undefined: screenshot === undefined,
+      screenshot_keys: screenshot ? Object.keys(screenshot) : 'NO_KEYS',
+      filename: screenshot?.filename,
+      hasPresignedUrl: !!screenshot?.presigned_url,
+      presignedUrlValue: screenshot?.presigned_url,
+      presignedUrlType: typeof screenshot?.presigned_url,
+      presignedUrlLength: screenshot?.presigned_url?.length,
+      presignedUrlPreview: screenshot?.presigned_url?.substring(0, 100) + '...',
+      s3Key: screenshot?.s3_key,
+      timestamp: screenshot?.timestamp,
+      application: screenshot?.application,
+      timeDisplay: screenshot?.time_display,
+      id: screenshot?.id,
+      size_bytes: screenshot?.size_bytes,
+      window_title: screenshot?.window_title
     });
+
+    // CALL S3 KEY DEBUGGING FUNCTION
+    console.log('🔑 CALLING S3 KEY DEBUG FUNCTION FOR INDEX:', index);
+    const debuggedS3Key = debugS3KeyExtraction(screenshot);
+    console.log('🔑 S3 KEY DEBUG RESULT:', debuggedS3Key);
     
-    // EXPANDED CHECK: Be more flexible with S3 URL detection
-    if (screenshot.presigned_url && screenshot.presigned_url.trim() !== '') {
-      const presignedUrl = screenshot.presigned_url.trim();
-      // Check for S3 domain AND signature
-      if (presignedUrl.includes('s3.amazonaws.com') && presignedUrl.includes('X-Amz-Signature')) {
-        imageUrl = presignedUrl;
-        console.log('✅ Using direct S3 presigned URL (WORKING FORMAT)');
-      } else if (presignedUrl.includes('s3.amazonaws.com')) {
-        imageUrl = presignedUrl;
-        console.log('✅ Using S3 URL without signature check');
-      } else {
-        console.log('❌ presigned_url exists but not S3 format:', presignedUrl);
-      }
-    } else if (screenshot.url && screenshot.url.trim() !== '') {
-      const urlField = screenshot.url.trim();
-      if (urlField.includes('s3.amazonaws.com')) {
-        imageUrl = urlField;
-        console.log('✅ Using url field as direct S3 URL');
-      } else {
-        console.log('❌ url field exists but not S3 format:', urlField);
-      }
-    } else {
-      console.log('❌ No presigned_url or url field found');
-      console.log('🔧 Available data:', {
-        presigned_url: screenshot.presigned_url,
-        url: screenshot.url,
-        s3_key: screenshot.s3_key,
-        filename: screenshot.filename
+    // Extract the actual S3 key value (not the debug object)
+    const actualS3Key = screenshot?.s3_key || null;
+    console.log('🔑 ACTUAL S3 KEY VALUE:', actualS3Key);
+
+    // EMERGENCY: Check if screenshot object is being passed correctly
+    if (!screenshot || typeof screenshot !== 'object') {
+      console.error('❌ CRITICAL ERROR: Invalid screenshot object passed to formatScreenshotData!', {
+        screenshot,
+        type: typeof screenshot,
+        isNull: screenshot === null,
+        isUndefined: screenshot === undefined
       });
+      return {
+        id: `error-screenshot-${index}`,
+        task: 'ERROR: Invalid Data',
+        time: 'N/A',
+        image: null,
+        application: 'Error',
+        user: 'Unknown',
+        date: 'Unknown',
+        error: 'Invalid screenshot object'
+      };
     }
 
-    // CRITICAL: Use direct S3 URLs without any processing
-    let finalImageUrl;
-    if (imageUrl && imageUrl.includes('s3.amazonaws.com')) {
-      // This is an S3 URL - use it exactly as is!
-      finalImageUrl = imageUrl;
-      console.log('✅ Using S3 URL for finalImageUrl (NO PROCESSING)');
-    } else if (imageUrl && imageUrl.includes('X-Amz-Signature')) {
-      // This is any presigned URL - use it directly
-      finalImageUrl = imageUrl;
-      console.log('✅ Using presigned URL directly for finalImageUrl');
-    } else if (imageUrl) {
-      // For non-presigned URLs, process through getImageUrl (legacy)
-      finalImageUrl = getImageUrl(imageUrl);
-      console.log('🔧 Processing non-presigned URL through getImageUrl');
-    } else {
-      // No valid URL found
-      finalImageUrl = null;
-      console.log('❌ No valid image URL found');
+    // DEBUG INFO - Keep debug functions but don't use their return values for processing
+    console.log('🚨 CALLING EMERGENCY DEBUG FUNCTION (for debug only)');
+    const emergencyTestResult = debugImageUrlExtraction(screenshot);
+    console.log('🚨 EMERGENCY DEBUG RESULT (debug only):', emergencyTestResult);
+
+    // Extract time from API response or filename
+    let timeFromFilename = null;
+    if (screenshot.time_display) {
+      // Use API provided time display (e.g., "02:42 AM")
+      timeFromFilename = screenshot.time_display;
+    } else if (screenshot.filename) {
+      // Fallback to extracting from filename
+      timeFromFilename = screenshot.filename.split('_')[1]?.replace(/-/g, ':');
     }
     
-    console.log('🎯 Final image URL result:', {
-      imageUrl: imageUrl?.substring(0, 80) + '...',
-      finalImageUrl: finalImageUrl?.substring(0, 80) + '...',
-      isS3: finalImageUrl?.includes('s3.amazonaws.com'),
-      isPresigned: finalImageUrl?.includes('X-Amz-Signature')
+    // Extract date from timestamp or filename
+    let dateFromFilename = null;
+    if (screenshot.timestamp) {
+      // Use timestamp from API (e.g., "2025-06-14T02:42:30Z")
+      dateFromFilename = screenshot.timestamp.split('T')[0];
+    } else if (screenshot.filename) {
+      // Fallback to extracting from filename
+      dateFromFilename = screenshot.filename.split('_')[0];
+    }
+
+    // EMERGENCY SIMPLIFIED URL EXTRACTION - Use debug function result
+    let finalImageUrl = null; // Initialize as null, use presigned_url directly
+    
+    console.log('� EXTRACTING IMAGE URL FROM API DATA:', {
+      hasPresignedUrl: !!screenshot.presigned_url,
+      presignedUrlValue: screenshot.presigned_url,
+      presignedUrlType: typeof screenshot.presigned_url,
+      presignedUrlLength: screenshot.presigned_url?.length
+    });
+    
+    // Use presigned_url directly - this is the correct approach
+    if (screenshot?.presigned_url && typeof screenshot.presigned_url === 'string' && screenshot.presigned_url.trim() !== '') {
+      finalImageUrl = screenshot.presigned_url.trim();
+      console.log('✅ SUCCESS: Using presigned_url from API:', finalImageUrl.substring(0, 100) + '...');
+    } else {
+      console.log('❌ ERROR: No valid presigned_url in API response');
+      finalImageUrl = null;
+    }
+    
+    console.log('�️ Image URL Processing:', {
+      hasPresignedUrl: !!screenshot.presigned_url,
+      presignedUrlLength: screenshot.presigned_url?.length,
+      hasSignature: screenshot.presigned_url?.includes('X-Amz-Signature'),
+      s3Domain: screenshot.presigned_url?.includes('ddsfocustime.s3.amazonaws.com')
+    });
+    
+    // SKIP DUPLICATE URL PROCESSING - finalImageUrl already set above
+
+    console.log('🎯 FINAL RESULT - Image URL Processing:', {
+      finalImageUrl: finalImageUrl,
+      finalImageUrlPreview: finalImageUrl ? finalImageUrl.substring(0, 100) + '...' : 'NULL',
+      isPresigned: finalImageUrl?.includes('X-Amz-Signature'),
+      domain: finalImageUrl?.includes('ddsfocustime.s3.amazonaws.com') ? 'S3' : 'Other',
+      isValidURL: !!finalImageUrl && finalImageUrl.length > 0,
+      originalPresignedUrl: screenshot?.presigned_url
     });
 
-    // Enhanced time formatting
+    // Enhanced time formatting using API data
     let displayTime = `${9 + index}:00 AM`;
     if (timeFromFilename) {
-      const [hours, minutes] = timeFromFilename.split(':');
-      const hour24 = parseInt(hours);
-      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-      const ampm = hour24 >= 12 ? 'PM' : 'AM';
-      displayTime = `${hour12}:${minutes} ${ampm}`;
+      if (timeFromFilename.includes('AM') || timeFromFilename.includes('PM')) {
+        // Already formatted time from API (e.g., "02:42 AM")
+        displayTime = timeFromFilename;
+      } else {
+        // Parse raw time format (e.g., "02:42:30")
+        const [hours, minutes] = timeFromFilename.split(':');
+        const hour24 = parseInt(hours);
+        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+        const ampm = hour24 >= 12 ? 'PM' : 'AM';
+        displayTime = `${hour12}:${minutes} ${ampm}`;
+      }
     }
 
-    // Enhanced date formatting
+    // Enhanced date formatting using API data
     let displayDate = 'Unknown';
     if (dateFromFilename) {
       displayDate = dayjs(dateFromFilename).format('MMM DD, YYYY');
     }
 
-    // Application name
+    // Application name from API
     let applicationName = screenshot.application || 'Unknown Application';
     if (screenshot.window_title && screenshot.window_title !== screenshot.filename) {
       applicationName = screenshot.window_title;
     }
 
-    // Task name
+    // Task name from API or folder
     let taskName = applicationName;
     if (screenshot.task_name) {
       taskName = screenshot.task_name;
@@ -2102,27 +2288,80 @@ const ActivityStream = () => {
       taskName = selectedFolder.folder_name.replace(/_/g, ' ');
     }
 
-    return {
-      id: screenshot.s3_key || screenshot.id || `screenshot-${index}-${Date.now()}`,
+    const resultObject = {
+      id: screenshot.id || screenshot.s3_key || `screenshot-${index}-${Date.now()}`,
       task: taskName,
       time: displayTime,
-      image: finalImageUrl, // Use the final URL
+      image: finalImageUrl, // Use the final URL exactly as from API
       application: applicationName,
       user: screenshot.employee_name || selectedUser?.display_name || 'Unknown User',
       date: displayDate,
       file_extension: screenshot.file_extension || '.webp',
       size_mb: screenshot.size_mb || 'N/A',
       filename: screenshot.filename,
-      s3_key: screenshot.s3_key,
-      presigned_url: screenshot.presigned_url || null, // Don't use 'Not Available' - use null
+      s3_key: actualS3Key, // Use the actual S3 key value, not debug object
+      presigned_url: screenshot.presigned_url || null,
       original_presigned_url: screenshot.presigned_url, // Keep the original for debugging
-      debug_image_processing: { // Add debug information
-        imageUrl,
-        finalImageUrl,
-        hasPresignedUrl: !!screenshot.presigned_url,
-        presignedUrlLength: screenshot.presigned_url?.length || 0
+      timestamp: screenshot.timestamp,
+      size_bytes: screenshot.size_bytes,
+      // S3 KEY SPECIFIC DEBUGGING DATA
+      s3_key_debug_info: {
+        original_s3_key: screenshot.s3_key,
+        debugged_s3_key: debuggedS3Key,
+        actual_s3_key_used: actualS3Key,
+        s3_key_type: typeof screenshot.s3_key,
+        s3_key_length: screenshot.s3_key ? screenshot.s3_key.length : 0,
+        s3_key_exists: !!screenshot.s3_key,
+        extraction_successful: actualS3Key === screenshot.s3_key
       }
     };
+
+    console.log('🎯 RETURNING FORMATTED DATA:', {
+      index,
+      hasImageURL: !!resultObject.image,
+      imageURL: resultObject.image,
+      imageURLPreview: resultObject.image ? resultObject.image.substring(0, 100) + '...' : 'NULL',
+      taskName: resultObject.task,
+      emergencyDebugWorked: emergencyTestResult === resultObject.image,
+      originalPresignedUrl: screenshot.presigned_url,
+      // S3 KEY SPECIFIC DEBUGGING
+      hasS3Key: !!screenshot.s3_key,
+      s3KeyValue: screenshot.s3_key,
+      s3KeyType: typeof screenshot.s3_key,
+      s3KeyLength: screenshot.s3_key?.length,
+      resultS3Key: resultObject.s3_key,
+      s3KeyMatch: screenshot.s3_key === resultObject.s3_key,
+      debuggedS3Key: debuggedS3Key,
+      s3KeyDebugInfo: resultObject.s3_key_debug_info,
+      resultObject: resultObject
+    });
+
+    // FINAL VALIDATION CHECK
+    if (!resultObject.image) {
+      console.error('🚨 CRITICAL: Returning object with NULL image URL!', {
+        emergencyResult: emergencyTestResult,
+        originalPresignedUrl: screenshot.presigned_url,
+        allObjectKeys: Object.keys(screenshot),
+        screenshotObject: screenshot
+      });
+    } else {
+      console.log('✅ SUCCESS: Returning object with valid image URL:', resultObject.image.substring(0, 50) + '...');
+    }
+
+    // S3 KEY VALIDATION CHECK
+    if (!resultObject.s3_key) {
+      console.error('🔑 S3 KEY ERROR: Returning object with NULL S3 key!', {
+        originalS3Key: screenshot.s3_key,
+        debuggedS3Key: debuggedS3Key,
+        s3KeyDebugInfo: resultObject.s3_key_debug_info,
+        screenshotKeys: Object.keys(screenshot),
+        screenshotObject: screenshot
+      });
+    } else {
+      console.log('✅ S3 KEY SUCCESS: Returning object with valid S3 key:', resultObject.s3_key.substring(0, 50) + '...');
+    }
+
+    return resultObject;
   };
 
   const handlePrev = () => {
@@ -2442,7 +2681,7 @@ const ActivityStream = () => {
   };
 
   const handleFolderPageChange = (page) => {
-    if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return;
+    if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return; return;
     
     console.log('📄 Folder page change requested:', {
       fromPage: folderPagination.page,
@@ -2658,10 +2897,264 @@ const ActivityStream = () => {
           )}
         </SearchInfo>
         
-        {/* Debug Tools for Level 3 Image Loading */}
+        {/* Enhanced Debug Tools for Image Testing */}
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-  
+          {/* TEST: Log actual API response data */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🚀 RAW API RESPONSE TEST:');
+              console.log('📊 folderScreenshots array length:', folderScreenshots.length);
+              console.log('📊 folderScreenshots array:', folderScreenshots);
+              
+              if (folderScreenshots.length > 0) {
+                console.log('🔍 First screenshot RAW data:', folderScreenshots[0]);
+                console.log('🔍 First screenshot keys:', Object.keys(folderScreenshots[0]));
+                console.log('🔍 First screenshot presigned_url:', folderScreenshots[0]?.presigned_url);
+                console.log('🔍 First screenshot presigned_url type:', typeof folderScreenshots[0]?.presigned_url);
+                
+                // Test formatScreenshotData with first screenshot
+                console.log('🧪 Testing formatScreenshotData with first screenshot:');
+                const testResult = formatScreenshotData(folderScreenshots[0], 0);
+                console.log('🧪 formatScreenshotData result:', testResult);
+                console.log('🧪 testResult.image:', testResult.image);
+                
+                // Test if the URL works
+                if (testResult.image) {
+                  console.log('🌐 Testing if formatted URL loads...');
+                  const img = new Image();
+                  img.onload = () => console.log('✅ Formatted URL loads successfully');
+                  img.onerror = () => console.log('❌ Formatted URL failed to load');
+                  img.src = testResult.image;
+                } else {
+                  console.log('❌ No image URL in formatted result');
+                }
+              }
+              
+              alert('📊 API Response test logged to console. Check browser console for details.');
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🚀 Test API Data
+          </Button>
 
+          {/* Test sample presigned URL from your Postman response */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔧 DEBUG: Testing sample presigned URL from Postman');
+              const testUrl = 'https://ddsfocustime.s3.amazonaws.com/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250807%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250807T120444Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=b89206e0d4c1e18c50907e3a29e1b27496673a8a18122c8de86e4eee03201a27';
+              
+              // Test if URL is accessible
+              console.log('🔍 Testing URL:', testUrl.substring(0, 100) + '...');
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = () => {
+                console.log('✅ Sample image loaded successfully:', {
+                  width: img.naturalWidth,
+                  height: img.naturalHeight,
+                  size: `${img.naturalWidth}x${img.naturalHeight}`,
+                  url: testUrl.substring(0, 100) + '...'
+                });
+                alert(`✅ Sample image loaded successfully! Size: ${img.naturalWidth}x${img.naturalHeight}`);
+              };
+              img.onerror = (e) => {
+                console.error('❌ Sample image failed to load:', e);
+                alert('❌ Sample image failed to load. Check console for details.');
+              };
+              img.src = testUrl;
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#06b6d4',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔧 Test Sample S3 URL
+          </Button>
+
+          {/* Test current folder screenshots URLs */}
+          {folderScreenshots.length > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                console.log('🔧 DEBUG: Testing current folder screenshot URLs');
+                console.log(`Found ${folderScreenshots.length} screenshots to test`);
+                
+                folderScreenshots.slice(0, 5).forEach((screenshot, index) => {
+                  console.log(`\n🔍 Testing Screenshot ${index + 1}:`);
+                  console.log('Raw data:', {
+                    filename: screenshot.filename,
+                    presigned_url: screenshot.presigned_url?.substring(0, 100) + '...',
+                    url: screenshot.url,
+                    s3_key: screenshot.s3_key
+                  });
+                  
+                  const formattedData = formatScreenshotData(screenshot, index);
+                  console.log('Formatted data:', {
+                    image: formattedData.image?.substring(0, 100) + '...',
+                    task: formattedData.task,
+                    time: formattedData.time
+                  });
+                  
+                  // Test the URL
+                  if (formattedData.image) {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                      console.log(`✅ Screenshot ${index + 1} loaded successfully:`, {
+                        size: `${img.naturalWidth}x${img.naturalHeight}`,
+                        filename: screenshot.filename
+                      });
+                    };
+                    img.onerror = (e) => {
+                      console.error(`❌ Screenshot ${index + 1} failed to load:`, {
+                        filename: screenshot.filename,
+                        url: formattedData.image?.substring(0, 100) + '...',
+                        error: e
+                      });
+                    };
+                    img.src = formattedData.image;
+                  } else {
+                    console.error(`❌ No image URL for screenshot ${index + 1}`);
+                  }
+                });
+                
+                alert(`🔧 Testing first ${Math.min(5, folderScreenshots.length)} screenshot URLs. Check console for results.`);
+              }}
+              style={{ 
+                fontSize: '11px',
+                padding: '4px 8px',
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              🔍 Test Current URLs ({folderScreenshots.length})
+            </Button>
+          )}
+
+          {/* S3 KEY SPECIFIC DEBUG BUTTON */}
+          {folderScreenshots.length > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                console.log('🔑 S3 KEY ANALYSIS - Starting comprehensive S3 key debugging...');
+                console.log('🔑 Total screenshots to analyze:', folderScreenshots.length);
+                
+                folderScreenshots.forEach((screenshot, index) => {
+                  console.log(`🔑 S3 KEY ANALYSIS [${index + 1}/${folderScreenshots.length}]:`);
+                  console.log('🔑 Raw screenshot object:', screenshot);
+                  console.log('🔑 S3 key analysis:', {
+                    hasS3KeyProperty: 's3_key' in screenshot,
+                    s3KeyValue: screenshot.s3_key,
+                    s3KeyType: typeof screenshot.s3_key,
+                    s3KeyLength: screenshot.s3_key ? screenshot.s3_key.length : 0,
+                    isString: typeof screenshot.s3_key === 'string',
+                    isEmpty: screenshot.s3_key === '',
+                    isNull: screenshot.s3_key === null,
+                    isUndefined: screenshot.s3_key === undefined,
+                    filename: screenshot.filename,
+                    id: screenshot.id
+                  });
+                  
+                  // Test formatScreenshotData function
+                  const formattedData = formatScreenshotData(screenshot, index);
+                  console.log('🔑 Formatted data S3 key:', formattedData.s3_key);
+                  console.log('🔑 S3 debug info:', formattedData.s3_key_debug_info);
+                });
+                
+                // Summary
+                const s3KeyCount = folderScreenshots.filter(s => s.s3_key).length;
+                const nullS3KeyCount = folderScreenshots.filter(s => !s.s3_key).length;
+                console.log('🔑 S3 KEY SUMMARY:', {
+                  totalScreenshots: folderScreenshots.length,
+                  screenshotsWithS3Key: s3KeyCount,
+                  screenshotsWithoutS3Key: nullS3KeyCount,
+                  percentageWithS3Key: ((s3KeyCount / folderScreenshots.length) * 100).toFixed(1) + '%'
+                });
+                
+                alert(`🔑 S3 Key Analysis Complete!\n✅ With S3 key: ${s3KeyCount}\n❌ Without S3 key: ${nullS3KeyCount}\nCheck console for detailed analysis.`);
+              }}
+              style={{ 
+                fontSize: '11px',
+                padding: '4px 8px',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              🔑 Analyze S3 Keys ({folderScreenshots.length})
+            </Button>
+          )}
+          
+          {/* Open first image URL in new tab */}
+          {folderScreenshots.length > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                const firstScreenshot = folderScreenshots[0];
+                const formattedData = formatScreenshotData(firstScreenshot, 0);
+                console.log('🌐 Opening first image URL in new tab:', formattedData.image);
+                
+                if (formattedData.image) {
+                  window.open(formattedData.image, '_blank');
+                } else {
+                  alert('❌ No image URL to open!');
+                }
+              }}
+              style={{ 
+                fontSize: '11px',
+                padding: '4px 8px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              🌐 Open First Image URL
+            </Button>
+          )}
+          
+          {/* Debug: Log all screenshot URLs button */}
+          {folderScreenshots.length > 0 && (
+            <button
+              onClick={() => {
+                console.log('🔍 All screenshot URLs:');
+                folderScreenshots.forEach((screenshot, index) => {
+                  const formattedData = formatScreenshotData(screenshot, index);
+                  console.log(`Screenshot ${index}:`, {
+                    original: screenshot,
+                    formatted: formattedData,
+                    image: formattedData.image
+                  });
+                });
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              🔍 Log All URLs
+            </button>
+          )}
         </div>
         
         {/* Per-page limit selector */}
@@ -2725,9 +3218,21 @@ const ActivityStream = () => {
                 <TaskName theme={theme} isDarkMode={isDarkMode}>{formattedData.task}</TaskName>
                 <TaskTime theme={theme} isDarkMode={isDarkMode}>{formattedData.time}</TaskTime>
                 
-                {/* Display the actual image URL being used */}
+                {/* Display the actual image URL being used - ENHANCED DEBUG */}
                 <ImageUrl theme={theme} isDarkMode={isDarkMode}>
-                  🔗 Image URL: {formattedData.image || screenshot.presigned_url || screenshot.url || screenshot.s3_key || 'No URL found'}
+                  🔗 Formatted: {formattedData.image ? formattedData.image.substring(0, 80) + '...' : 'NULL'}
+                  <br />
+                  🔗 Raw presigned: {formattedData.presigned_url ? formattedData.presigned_url.substring(0, 80) + '...' : 'NULL'}
+                  <br />
+                  🔗 Raw url: {screenshot.url || 'NULL'}
+                  <br />
+                  � S3 key (formatted): {formattedData.s3_key ? formattedData.s3_key.substring(0, 50) + '...' : '❌ NULL'}
+                  <br />
+                  � S3 key (original): {screenshot.s3_key ? screenshot.s3_key.substring(0, 50) + '...' : '❌ NULL'}
+                  <br />
+                  🔍 S3 Debug: {formattedData.s3_key_debug_info ? 
+                    `Type: ${formattedData.s3_key_debug_info.s3_key_type}, Length: ${formattedData.s3_key_debug_info.s3_key_length}, Exists: ${formattedData.s3_key_debug_info.s3_key_exists}` : 
+                    'No debug info'}
                 </ImageUrl>
                 
              
