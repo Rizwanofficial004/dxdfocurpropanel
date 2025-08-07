@@ -54,6 +54,18 @@ import {
   ButtonContainer
 } from './ActivityStream.styles';
 
+// Helper function to check if URL is using backend proxy
+const isBackendProxyUrl = (url) => {
+  if (!url) return false;
+  const baseUrl = getApiBaseURL();
+  return url.includes(`${baseUrl}/proxy/screenshot/`) || url.includes('/api/proxy/screenshot/');
+};
+
+// Helper function to get current backend URL
+const getCurrentBackendUrl = () => {
+  return getApiBaseURL().replace('/api', '');
+};
+
 // Generate 30 days from current date backwards
 const generateLast30Days = () => {
   const days = [];
@@ -433,7 +445,7 @@ const ActivityStream = () => {
     const s3Key = screenshot.key || screenshot.s3_key;
     if (s3Key) {
       // Use your backend proxy for image loading - BACKEND PROXY FORMAT
-      const proxyUrl = `http://localhost:8000/api/proxy/screenshot/${s3Key}`;
+      const proxyUrl = `${getApiBaseURL()}/proxy/screenshot/${s3Key}`;
       console.log('⚠️ Using backend proxy (BACKUP METHOD - check if configured):', proxyUrl);
       console.log('📝 S3 Key:', s3Key);
       return proxyUrl;

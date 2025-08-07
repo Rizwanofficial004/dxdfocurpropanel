@@ -19,8 +19,8 @@ export const getApiBaseURL = () => {
     return 'http://localhost:8000/api';
   }
   
-  // Production - use remote server
-  return 'http://dxdtime.ddsolutions.io/api';
+  // Production - use secure HTTPS remote server
+  return 'https://dxdtime.ddsolutions.io/api';
 };
 
 /**
