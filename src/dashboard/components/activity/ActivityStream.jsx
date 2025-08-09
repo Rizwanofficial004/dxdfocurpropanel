@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Button, TextField, Popover, Box, CircularProgress, Autocomplete } from '@mui/material';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { fastAxios, normalAxios, slowAxios, withRetry } from '../../../config/axios.js';
@@ -182,7 +183,6 @@ const ActivityStream = () => {
   const [selected, setSelected] = useState(29); // Start with today (last item in 30-day array)
   const [search, setSearch] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
-  const [dateRange, setDateRange] = useState([dayjs('2024-06-06'), dayjs('2025-01-01')]);
   
   // EMERGENCY DEBUG FUNCTION FOR PRESIGNED URLS
   const debugImageUrlExtraction = (testData) => {
@@ -257,6 +257,9 @@ const ActivityStream = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  
+  // Date filter states
+  const [dateRange, setDateRange] = useState([null, null]);
   const [isDateFilterActive, setIsDateFilterActive] = useState(false);
   const [singleDateFilter, setSingleDateFilter] = useState(null);
   
@@ -336,76 +339,123 @@ const ActivityStream = () => {
 
   // GSAP Date Items Animation
   useEffect(() => {
-    if (dateItemsRef.current.length > 0) {
-      gsap.set(dateItemsRef.current, {
-        opacity: 0,
-        rotationY: 45,
-        z: -100,
-        scale: 0.8
-      });
+    try {
+      if (dateItemsRef.current && Array.isArray(dateItemsRef.current) && dateItemsRef.current.length > 0) {
+        // Filter out null/undefined elements before animating
+        const validDateItems = dateItemsRef.current.filter(item => item !== null && item !== undefined);
+        
+        if (validDateItems.length > 0) {
+          gsap.set(validDateItems, {
+            opacity: 0,
+            rotationY: 45,
+            z: -100,
+            scale: 0.8
+          });
 
-      gsap.to(dateItemsRef.current, {
-        opacity: 1,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 0.8,
-        ease: "back.out(1.7)",
-        stagger: 0.1,
-        delay: 0.8
-      });
+          gsap.to(validDateItems, {
+            opacity: 1,
+            rotationY: 0,
+            z: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: "back.out(1.7)",
+            stagger: 0.1,
+            delay: 0.8
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('GSAP Date Items Animation Error:', error);
     }
   }, []); // Remove dates dependency since dates array is static
 
   // GSAP Cards Animation
   useEffect(() => {
-    if (cardsRef.current.length > 0) {
-      gsap.set(cardsRef.current, {
-        opacity: 0,
-        rotationX: 90,
-        rotationY: 45,
-        z: -200,
-        scale: 0.6
-      });
+    try {
+      if (cardsRef.current && Array.isArray(cardsRef.current) && cardsRef.current.length > 0) {
+        // Filter out null/undefined elements before animating
+        const validCards = cardsRef.current.filter(card => card !== null && card !== undefined);
+        
+        if (validCards.length > 0) {
+          gsap.set(validCards, {
+            opacity: 0,
+            rotationX: 90,
+            rotationY: 45,
+            z: -200,
+            scale: 0.6
+          });
 
-      gsap.to(cardsRef.current, {
-        opacity: 1,
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 1.2,
-        ease: "back.out(1.7)",
-        stagger: 0.15,
-        delay: 1.2
-      });
+          gsap.to(validCards, {
+            opacity: 1,
+            rotationX: 0,
+            rotationY: 0,
+            z: 0,
+            scale: 1,
+            duration: 1.2,
+            ease: "back.out(1.7)",
+            stagger: 0.15,
+            delay: 1.2
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('GSAP Cards Animation Error:', error);
     }
   }, [screenshots, folderScreenshots]);
 
   // GSAP Folders Animation
   useEffect(() => {
-    if (foldersRef.current.length > 0) {
-      gsap.set(foldersRef.current, {
-        opacity: 0,
-        rotationX: 45,
-        rotationY: 30,
-        z: -150,
-        scale: 0.7
-      });
+    try {
+      if (foldersRef.current && Array.isArray(foldersRef.current) && foldersRef.current.length > 0) {
+        // Filter out null/undefined elements before animating
+        const validFolders = foldersRef.current.filter(folder => folder !== null && folder !== undefined);
+        
+        if (validFolders.length > 0) {
+          gsap.set(validFolders, {
+            opacity: 0,
+            rotationX: 45,
+            rotationY: 30,
+            z: -150,
+            scale: 0.7
+          });
 
-      gsap.to(foldersRef.current, {
-        opacity: 1,
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 1,
-        ease: "back.out(1.7)",
-        stagger: 0.12,
-        delay: 1
-      });
+          gsap.to(validFolders, {
+            opacity: 1,
+            rotationX: 0,
+            rotationY: 0,
+            z: 0,
+            scale: 1,
+            duration: 1,
+            ease: "back.out(1.7)",
+            stagger: 0.12,
+            delay: 1
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('GSAP Folders Animation Error:', error);
     }
   }, [folders]);
+
+  // Keyboard navigation - ESC key for back navigation
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        if (currentView === 'screenshots') {
+          event.preventDefault();
+          handleBackToFolders();
+        } else if (currentView === 'folders') {
+          event.preventDefault();
+          handleBackToSearch();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentView]);
   
   // Add image URL processing function (OPTIMIZED for your perfect API response)
   const getImageUrl = (screenshot) => {
@@ -1186,128 +1236,143 @@ const ActivityStream = () => {
     }
 
     // Date items staggered animation
-    if (dateItemsRef.current.length > 0) {
-      gsap.set(dateItemsRef.current, {
-        opacity: 0,
-        rotationY: 45,
-        scale: 0.8,
-        z: -100
-      });
+    if (dateItemsRef.current && Array.isArray(dateItemsRef.current) && dateItemsRef.current.length > 0) {
+      // Filter out null/undefined elements before animating
+      const validDateItems = dateItemsRef.current.filter(item => item !== null && item !== undefined);
+      
+      if (validDateItems.length > 0) {
+        gsap.set(validDateItems, {
+          opacity: 0,
+          rotationY: 45,
+          scale: 0.8,
+          z: -100
+        });
 
-      gsap.to(dateItemsRef.current, {
-        opacity: 1,
-        rotationY: 0,
-        scale: 1,
-        z: 0,
-        duration: 0.8,
-        ease: "back.out(2)",
-        stagger: 0.1,
-        delay: 0.8
-      });
+        gsap.to(validDateItems, {
+          opacity: 1,
+          rotationY: 0,
+          scale: 1,
+          z: 0,
+          duration: 0.8,
+          ease: "back.out(2)",
+          stagger: 0.1,
+          delay: 0.8
+        });
+      }
     }
   }, []);
 
   // Cards animation when screenshots change
   useEffect(() => {
-    if (cardsRef.current.length > 0 && screenshots.length > 0) {
-      gsap.set(cardsRef.current, {
-        opacity: 0,
-        rotationX: 90,
-        rotationY: 45,
-        z: -300,
-        scale: 0.6
-      });
+    if (cardsRef.current && Array.isArray(cardsRef.current) && cardsRef.current.length > 0 && screenshots.length > 0) {
+      // Filter out null/undefined elements before animating
+      const validCards = cardsRef.current.filter(card => card !== null && card !== undefined);
+      
+      if (validCards.length > 0) {
+        gsap.set(validCards, {
+          opacity: 0,
+          rotationX: 90,
+          rotationY: 45,
+          z: -300,
+          scale: 0.6
+        });
 
-      gsap.to(cardsRef.current, {
-        opacity: 1,
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 1.2,
-        ease: "back.out(1.7)",
-        stagger: 0.15,
-        delay: 0.3
-      });
+        gsap.to(validCards, {
+          opacity: 1,
+          rotationX: 0,
+          rotationY: 0,
+          z: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: "back.out(1.7)",
+          stagger: 0.15,
+          delay: 0.3
+        });
 
-      // Add hover animations
-      cardsRef.current.forEach((card, index) => {
-        if (card) {
-          card.addEventListener('mouseenter', () => {
-            gsap.to(card, {
-              rotationX: 8,
-              rotationY: 5,
-              y: -12,
-              scale: 1.02,
-              duration: 0.4,
-              ease: "power2.out"
+        // Add hover animations
+        validCards.forEach((card, index) => {
+          if (card) {
+            card.addEventListener('mouseenter', () => {
+              gsap.to(card, {
+                rotationX: 8,
+                rotationY: 5,
+                y: -12,
+                scale: 1.02,
+                duration: 0.4,
+                ease: "power2.out"
+              });
             });
-          });
 
-          card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-              rotationX: 0,
-              rotationY: 0,
-              y: 0,
-              scale: 1,
-              duration: 0.4,
-              ease: "power2.out"
+            card.addEventListener('mouseleave', () => {
+              gsap.to(card, {
+                rotationX: 0,
+                rotationY: 0,
+                y: 0,
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out"
+              });
             });
-          });
-        }
-      });
+          }
+        });
+      }
     }
   }, [screenshots]);
 
   // Folders animation when folders change
   useEffect(() => {
-    if (foldersRef.current.length > 0 && folders.length > 0) {
-      gsap.set(foldersRef.current, {
-        opacity: 0,
-        rotationX: 60,
-        rotationY: 30,
-        z: -200,
-        scale: 0.7
-      });
+    if (foldersRef.current && Array.isArray(foldersRef.current) && foldersRef.current.length > 0 && folders.length > 0) {
+      // Filter out null/undefined elements before animating
+      const validFolders = foldersRef.current.filter(folder => folder !== null && folder !== undefined);
+      
+      if (validFolders.length > 0) {
+        gsap.set(validFolders, {
+          opacity: 0,
+          rotationX: 60,
+          rotationY: 30,
+          z: -200,
+          scale: 0.7
+        });
 
-      gsap.to(foldersRef.current, {
-        opacity: 1,
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 1,
-        ease: "back.out(1.5)",
-        stagger: 0.12,
-        delay: 0.2
-      });
+        gsap.to(validFolders, {
+          opacity: 1,
+          rotationX: 0,
+          rotationY: 0,
+          z: 0,
+          scale: 1,
+          duration: 1,
+          ease: "back.out(1.5)",
+          stagger: 0.12,
+          delay: 0.2
+        });
 
-      // Add folder hover animations
-      foldersRef.current.forEach((folder, index) => {
-        if (folder) {
-          folder.addEventListener('mouseenter', () => {
-            gsap.to(folder, {
-              rotationX: 8,
-              rotationY: 5,
-              y: -12,
-              scale: 1.02,
-              duration: 0.4,
-              ease: "power2.out"
+        // Add folder hover animations
+        validFolders.forEach((folder, index) => {
+          if (folder) {
+            folder.addEventListener('mouseenter', () => {
+              gsap.to(folder, {
+                rotationX: 8,
+                rotationY: 5,
+                y: -12,
+                scale: 1.02,
+                duration: 0.4,
+                ease: "power2.out"
+              });
             });
-          });
 
-          folder.addEventListener('mouseleave', () => {
-            gsap.to(folder, {
-              rotationX: 0,
-              rotationY: 0,
-              y: 0,
-              scale: 1,
-              duration: 0.4,
-              ease: "power2.out"
+            folder.addEventListener('mouseleave', () => {
+              gsap.to(folder, {
+                rotationX: 0,
+                rotationY: 0,
+                y: 0,
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out"
+              });
             });
-          });
-        }
-      });
+          }
+        });
+      }
     }
   }, [folders]);
 
@@ -1483,10 +1548,6 @@ const ActivityStream = () => {
         params.append('limit', chunkSize.toString());
         params.append('offset', ((currentPage - 1) * chunkSize).toString());
         
-        if (singleDateFilter) {
-          params.append('date', singleDateFilter);
-        }
-        
         const fullUrl = `${apiUrl}?${params.toString()}`;
         console.log(`📊 Chunk ${currentPage} URL: ${fullUrl}`);
         
@@ -1607,28 +1668,30 @@ const ActivityStream = () => {
         params.append('search', searchTerm.trim());
       }
       
-      // Handle different search modes with reasonable limits
+      // Handle date filtering
       if (singleDateFilter) {
-        // Pattern 2: Name + Date Filter
+        // Single date filter
         params.append('date', singleDateFilter);
-        params.append('limit', Math.min(limit, 1000).toString()); // Cap at 1000
-        if (page > 1) {
-          const offset = (page - 1) * limit;
-          params.append('offset', offset.toString());
-        }
-        setSearchPattern('date');
-        console.log(`🔍 Fetching screenshots with date filter: ${singleDateFilter}`);
-      } else {
-        // Always use reasonable pagination - no more 50k limits
-        const safeLimit = Math.min(limit, 1000); // Never exceed 1000 per request
-        params.append('limit', safeLimit.toString());
-        if (page > 1) {
-          const offset = (page - 1) * safeLimit;
-          params.append('offset', offset.toString());
-        }
-        setSearchPattern('paginated');
-        console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${safeLimit}`);
+        console.log(`🗓️ Applying single date filter: ${singleDateFilter}`);
+      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        // Date range filter
+        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+        console.log(`🗓️ Applying date range filter: ${startDate} to ${endDate}`);
       }
+      
+      // Handle different search modes with reasonable limits
+      // Always use reasonable pagination - no more 50k limits
+      const safeLimit = Math.min(limit, 1000); // Never exceed 1000 per request
+      params.append('limit', safeLimit.toString());
+      if (page > 1) {
+        const offset = (page - 1) * safeLimit;
+        params.append('offset', offset.toString());
+      }
+      setSearchPattern('paginated');
+      console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${safeLimit}`);
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
       console.log(`🔍 API Request: ${fullUrl}`);
@@ -2025,10 +2088,22 @@ const ActivityStream = () => {
       
       // Use the enhanced endpoint for Level 3 - fast S3-like response with pagination
       const apiBaseURL = getApiBaseURL();
-      const apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
-      console.log('🔍 Level 3 Enhanced API URL:', apiUrl);
+      let apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
+      
+      // Add date filtering parameters if active
+      if (singleDateFilter) {
+        apiUrl += `&date=${singleDateFilter}`;
+        console.log(`🗓️ Adding single date filter to folder screenshots: ${singleDateFilter}`);
+      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
+        apiUrl += `&start_date=${startDate}&end_date=${endDate}`;
+        console.log(`�️ Adding date range filter to folder screenshots: ${startDate} to ${endDate}`);
+      }
+      
+      console.log('�🔍 Level 3 Enhanced API URL:', apiUrl);
       console.log('🚀 Using enhanced S3-like endpoint for fast response with progressive retry');
-      console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced' });
+      console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced', dateFilter: singleDateFilter || (isDateFilterActive ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none') });
       
       const startTime = Date.now();
       
@@ -2540,7 +2615,7 @@ const ActivityStream = () => {
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timer);
-  }, [search, singleDateFilter, isUserSelected, selectedUser]);
+  }, [search, isUserSelected, selectedUser, singleDateFilter, isDateFilterActive, dateRange]);
 
   // Handle search suggestions with debounce (only when no user is selected)
   useEffect(() => {
@@ -2945,55 +3020,98 @@ const ActivityStream = () => {
     }
   };
 
-  // Handle single date selection
-  const handleDateSelect = (dateIndex) => {
-    setSelected(dateIndex);
-    const selectedDate = dates[dateIndex];
-    
-    // Clear range filter when single date is selected
-    setIsDateFilterActive(false);
-    setSingleDateFilter(selectedDate.fullDate);
-    
-    if (isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
-    }
-  };
-
   // Handle quick search (normal mode) - simplified since we only have one mode now
   const handleQuickSearch = () => {
+    // Clear any date filters
     setIsDateFilterActive(false);
+    setDateRange([null, null]);
     setSingleDateFilter(null);
     
-    if (isUserSelected && selectedUser) {
+    if (currentView === 'search' && isUserSelected && selectedUser) {
       setCurrentPage(1);
       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
       fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
     }
   };
 
-  // Handle date filter application
+  // Date filter handlers
+  const handleDateRangeChange = (newValue) => {
+    setDateRange(newValue);
+  };
+
   const handleDateFilterApply = () => {
-    setIsDateFilterActive(true);
-    setSingleDateFilter(null); // Clear single date filter
-    setAnchorEl(null);
-    if (isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
+    if (dateRange[0] && dateRange[1]) {
+      setIsDateFilterActive(true);
+      setSingleDateFilter(null); // Clear single date filter
+      
+      if (currentView === 'search' && isUserSelected && selectedUser) {
+        setCurrentPage(1);
+        const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+        fetchScreenshots(searchTerm, 20, 1);
+      } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+        setFolderPagination(prev => ({ ...prev, page: 1 }));
+        const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+        const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+        fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+      }
     }
   };
 
-  // Handle date filter clear
   const handleDateFilterClear = () => {
     setIsDateFilterActive(false);
+    setDateRange([null, null]);
     setSingleDateFilter(null);
-    setDateRange([dayjs('2024-06-06'), dayjs('2025-01-01')]);
-    if (isUserSelected && selectedUser) {
+    
+    if (currentView === 'search' && isUserSelected && selectedUser) {
       setCurrentPage(1);
       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
       fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+    }
+  };
+
+  const handleSingleDateSelect = (dateIndex) => {
+    const selectedDate = dates[dateIndex];
+    setSingleDateFilter(selectedDate.fullDate);
+    setIsDateFilterActive(false); // Clear range filter
+    setDateRange([null, null]);
+    
+    if (currentView === 'search' && isUserSelected && selectedUser) {
+      setCurrentPage(1);
+      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+    }
+  };
+
+  // Helper function to apply date filter based on current view
+  const applyDateFilter = (startDate, endDate) => {
+    setDateRange([startDate, endDate]);
+    setIsDateFilterActive(true);
+    setSingleDateFilter(null);
+    
+    if (currentView === 'search' && isUserSelected && selectedUser) {
+      setCurrentPage(1);
+      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
     }
   };
 
@@ -3185,6 +3303,67 @@ const ActivityStream = () => {
           </>
         )}
       </BreadcrumbContainer>
+    );
+  };
+
+  // Render back button navigation
+  const renderBackButton = () => {
+    if (currentView === 'search') return null;
+    
+    const getBackHandler = () => {
+      if (currentView === 'folders') return handleBackToSearch;
+      if (currentView === 'screenshots') return handleBackToFolders;
+      return null;
+    };
+
+    const getBackLabel = () => {
+      if (currentView === 'folders') return '← Back to Search';
+      if (currentView === 'screenshots') return '← Back to Folders';
+      return '';
+    };
+
+    const handler = getBackHandler();
+    const label = getBackLabel();
+
+    if (!handler) return null;
+
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '16px',
+        padding: '8px 0'
+      }}>
+        <button
+          onClick={handler}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-1px)';
+            e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>←</span>
+          {label}
+        </button>
+      </div>
     );
   };
 
@@ -4427,40 +4606,17 @@ const ActivityStream = () => {
       
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
-          <Title theme={theme} isDarkMode={isDarkMode}>
-            Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>
-            
+          <Title theme={theme} isDarkMode={isDarkMode}>Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>         
             {/* Backend Connection Status */}
-   
-          
           </Title>
           <Username theme={theme} isDarkMode={isDarkMode} style={{marginBottom:'10px'}}>{hasSearched && search ? search : 'Jhone'}</Username>
           <TopBar ref={topBarRef} theme={theme} isDarkMode={isDarkMode} >
           
+          
             <div style={{display:'flex', alignItems:'center',justifyContent:'space-between', width:'100%'}}>
-            <DateScrollContainer theme={theme} isDarkMode={isDarkMode} style={{overflow:'hidden'}}>
-              <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handlePrev}>&lt;</Arrow>
-              {dates.map((date, index) => {
-                const isSingleDateActive = singleDateFilter === date.fullDate;
-                
-                return (
-                  <DateItem 
-                    key={index} 
-                    ref={el => dateItemsRef.current[index] = el}
-                    theme={theme}
-                    isDarkMode={isDarkMode}
-                    active={index === selected && !isSingleDateActive} 
-                    singleDateActive={isSingleDateActive}
-                    isToday={date.isToday}
-                    index={index}
-                    onClick={() => handleDateSelect(index)}
-                  >
-                    {date.day} <span>{date.month} {date.year}</span>
-                  </DateItem>
-                );
-              })}
-              <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handleNext}></Arrow>
-            </DateScrollContainer>
+
+    
+    
 
             {/* TEST API BUTTON - Remove after debugging */}
             <button 
@@ -4854,86 +5010,10 @@ const ActivityStream = () => {
        
      </div>
   
-
-            {/* Show All Screenshots button - only show when there are active filters and a search term */}
-            {search && (singleDateFilter) && (
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setSingleDateFilter(null);
-                  setCurrentPage(1);
-                  if (isUserSelected && selectedUser) {
-                    const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    fetchScreenshots(searchTerm, 20, 1, false, false);
-                  }
-                }}
-                style={{ 
-                  textTransform: 'none', 
-                  fontWeight: 500,
-                  borderColor: '#0364ff',
-                  color: '#0364ff',
-                  '&:hover': {
-                    backgroundColor: '#f0f9ff'
-                  }
-                }}
-              >
-                📷 Show All Screenshots
-              </Button>
-            )}
-
-            {(singleDateFilter) && search && (
-              <Button
-                variant="outlined"
-                onClick={handleDateFilterClear}
-                style={{ 
-                  color: '#059669',
-                  borderColor: '#059669',
-                  textTransform: 'none', 
-                  fontWeight: 500 
-                }}
-              >
-                📷 Clear Date Filter
-              </Button>
-            )}
-
-            <Popover
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={() => setAnchorEl(null)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            >
-              <Box p={2} style={{ minWidth: '400px' }}>
-                <div style={{ marginBottom: '16px', fontWeight: '600', fontSize: '14px' }}>
-                  Filter Screenshots by Date Range
-                </div>
-                <DateRangePicker
-                  value={dateRange}
-                  onChange={(newValue) => setDateRange(newValue)}
-                  localeText={{ start: 'From', end: 'To' }}
-                />
-                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                  {(isDateFilterActive || singleDateFilter) && (
-                    <Button
-                      variant="outlined"
-                      onClick={handleDateFilterClear}
-                      style={{ fontSize: '12px', padding: '6px 12px' }}
-                    >
-                      Clear All Filters
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    onClick={handleDateFilterApply}
-                    style={{ fontSize: '12px', padding: '6px 12px', backgroundColor: '#0364ff' }}
-                  >
-                    Apply Date Range Filter
-                  </Button>
-                </div>
-              </Box>
-            </Popover>
           </TopBar>
 
           {renderBreadcrumb()}
+          {renderBackButton()}
 
           {/* Show view-specific info messages */}
           {currentView === 'search' && isUserSelected && selectedUser && (
@@ -4986,6 +5066,223 @@ const ActivityStream = () => {
                 </div>
               )}
             </SearchInfo>
+          )}
+
+          {/* Date Filter Section - Show when user is selected and we have screenshots or are searching */}
+          {((currentView === 'search' && isUserSelected && selectedUser && (hasSearched || screenshots.length > 0)) ||
+            (currentView === 'screenshots' && selectedFolder && folderScreenshots.length > 0)) && (
+            <Box sx={{ 
+              margin: '16px 0',
+              padding: '16px',
+              backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+              borderRadius: '8px',
+              border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '12px' 
+              }}>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '600',
+                  color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                  marginBottom: '8px'
+                }}>
+                  📅 Date Filter
+                </div>
+
+                {/* Date Range Picker */}
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <DateRangePicker
+                    slots={{ field: SingleInputDateRangeField }}
+                    slotProps={{
+                      field: { 
+                        placeholder: 'Select date range...',
+                        size: 'small',
+                        sx: { 
+                          minWidth: '250px',
+                          '& .MuiInputBase-root': {
+                            backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                            color: isDarkMode ? '#f3f4f6' : '#1f2937'
+                          }
+                        }
+                      }
+                    }}
+                    value={dateRange}
+                    onChange={handleDateRangeChange}
+                    format="YYYY-MM-DD"
+                  />
+                  
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={handleDateFilterApply}
+                    disabled={!dateRange[0] || !dateRange[1]}
+                    sx={{
+                      backgroundColor: '#10b981',
+                      '&:hover': { backgroundColor: '#059669' },
+                      '&:disabled': { backgroundColor: '#9ca3af' }
+                    }}
+                  >
+                    Apply Filter
+                  </Button>
+
+                  {(isDateFilterActive || singleDateFilter) && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleDateFilterClear}
+                      sx={{
+                        borderColor: '#ef4444',
+                        color: '#ef4444',
+                        '&:hover': { 
+                          borderColor: '#dc2626',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                        }
+                      }}
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="text"
+                    size="small"
+                    onClick={handleQuickSearch}
+                    sx={{
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        backgroundColor: isDarkMode ? 'rgba(156, 163, 175, 0.1)' : 'rgba(107, 114, 128, 0.1)'
+                      }
+                    }}
+                  >
+                    Show All Screenshots
+                  </Button>
+                </div>
+
+                {/* Quick Date Presets */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  flexWrap: 'wrap',
+                  marginTop: '8px'
+                }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: isDarkMode ? '#9ca3af' : '#6b7280',
+                    alignSelf: 'center',
+                    marginRight: '8px'
+                  }}>
+                    Quick filters:
+                  </div>
+                  
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      applyDateFilter(today, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Today
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const yesterday = dayjs().subtract(1, 'day');
+                      applyDateFilter(yesterday, yesterday);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Yesterday
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      const weekAgo = today.subtract(7, 'days');
+                      applyDateFilter(weekAgo, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Last 7 days
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      const monthAgo = today.subtract(30, 'days');
+                      applyDateFilter(monthAgo, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Last 30 days
+                  </Button>
+                </div>
+
+                {/* Active Filter Display */}
+                {(isDateFilterActive || singleDateFilter) && (
+                  <div style={{ 
+                    padding: '8px 12px',
+                    backgroundColor: isDarkMode ? '#1f2937' : '#eff6ff',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    color: isDarkMode ? '#93c5fd' : '#1d4ed8',
+                    border: `1px solid ${isDarkMode ? '#3b82f6' : '#bfdbfe'}`
+                  }}>
+                    {singleDateFilter ? (
+                      <>🗓️ Filtered by date: <strong>{singleDateFilter}</strong></>
+                    ) : isDateFilterActive ? (
+                      <>🗓️ Filtered from <strong>{dayjs(dateRange[0]).format('YYYY-MM-DD')}</strong> to <strong>{dayjs(dateRange[1]).format('YYYY-MM-DD')}</strong></>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            </Box>
           )}
 
           {currentView === 'search' && search && !isUserSelected && searchSuggestions.length > 0 && (
