@@ -3039,6 +3039,88 @@ const ActivityStream = () => {
     }
   };
 
+  // Utility function to extract date from filename
+  const extractDateFromFilename = (filename) => {
+    if (!filename) return null;
+    
+    // Try to match common screenshot filename patterns:
+    // YYYY-MM-DD_HH-MM-SS format
+    const datePattern = /(\d{4}-\d{2}-\d{2})/;
+    const match = filename.match(datePattern);
+    
+    if (match) {
+      return dayjs(match[1]);
+    }
+    
+    return null;
+  };
+
+  // Utility function to extract date from timestamp
+  const extractDateFromTimestamp = (timestamp) => {
+    if (!timestamp) return null;
+    
+    try {
+      // Handle different timestamp formats
+      if (timestamp.includes('T')) {
+        // ISO format: "2025-06-14T02:42:30Z" or "2025-06-13T23:51:26+00:00"
+        return dayjs(timestamp);
+      } else {
+        // Simple date format: "2025-06-14"
+        return dayjs(timestamp);
+      }
+    } catch (error) {
+      console.log('Error parsing timestamp:', timestamp, error);
+      return null;
+    }
+  };
+
+  // Function to filter screenshots by date
+  const filterScreenshotsByDate = (screenshots) => {
+    if (!screenshots || screenshots.length === 0) return screenshots;
+    
+    // If no date filter is active, return all screenshots
+    if (!isDateFilterActive && !singleDateFilter) {
+      return screenshots;
+    }
+    
+    return screenshots.filter(screenshot => {
+      let screenshotDate = null;
+      
+      // Try to extract date from multiple sources
+      if (screenshot.timestamp) {
+        screenshotDate = extractDateFromTimestamp(screenshot.timestamp);
+      } else if (screenshot.last_modified) {
+        screenshotDate = extractDateFromTimestamp(screenshot.last_modified);
+      } else if (screenshot.filename) {
+        screenshotDate = extractDateFromFilename(screenshot.filename);
+      }
+      
+      if (!screenshotDate) {
+        console.log('Could not extract date from screenshot:', screenshot);
+        return false; // Exclude screenshots where we can't determine the date
+      }
+      
+      // Apply single date filter
+      if (singleDateFilter) {
+        const filterDate = dayjs(singleDateFilter);
+        const isSameDay = screenshotDate.format('YYYY-MM-DD') === filterDate.format('YYYY-MM-DD');
+        console.log(`🗓️ Single date filter - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Filter: ${filterDate.format('YYYY-MM-DD')}, Match: ${isSameDay}`);
+        return isSameDay;
+      }
+      
+      // Apply date range filter
+      if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        const startDate = dayjs(dateRange[0]);
+        const endDate = dayjs(dateRange[1]);
+        const isInRange = screenshotDate.isBetween(startDate, endDate, 'day', '[]'); // inclusive on both ends
+        console.log(`🗓️ Date range filter - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Range: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}, Match: ${isInRange}`);
+        return isInRange;
+      }
+      
+      return true;
+    });
+  };
+
   // Date filter handlers
   const handleDateRangeChange = (newValue) => {
     setDateRange(newValue);
@@ -3049,16 +3131,10 @@ const ActivityStream = () => {
       setIsDateFilterActive(true);
       setSingleDateFilter(null); // Clear single date filter
       
-      if (currentView === 'search' && isUserSelected && selectedUser) {
-        setCurrentPage(1);
-        const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-        fetchScreenshots(searchTerm, 20, 1);
-      } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
-        setFolderPagination(prev => ({ ...prev, page: 1 }));
-        const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-        const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-        fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
-      }
+      console.log(`🗓️ Applied date range filter: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`);
+      
+      // Note: For folder screenshots view, we'll apply filtering locally
+      // The date filtering will happen in the render section using filterScreenshotsByDate
     }
   };
 
@@ -3067,16 +3143,10 @@ const ActivityStream = () => {
     setDateRange([null, null]);
     setSingleDateFilter(null);
     
-    if (currentView === 'search' && isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
-    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
-      setFolderPagination(prev => ({ ...prev, page: 1 }));
-      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
-    }
+    console.log('🗓️ Cleared all date filters');
+    
+    // Note: For folder screenshots view, we'll apply filtering locally
+    // The date filtering will happen in the render section using filterScreenshotsByDate
   };
 
   const handleSingleDateSelect = (dateIndex) => {
@@ -3085,16 +3155,10 @@ const ActivityStream = () => {
     setIsDateFilterActive(false); // Clear range filter
     setDateRange([null, null]);
     
-    if (currentView === 'search' && isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
-    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
-      setFolderPagination(prev => ({ ...prev, page: 1 }));
-      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
-    }
+    console.log(`🗓️ Applied single date filter: ${selectedDate.fullDate}`);
+    
+    // Note: For folder screenshots view, we'll apply filtering locally
+    // The date filtering will happen in the render section using filterScreenshotsByDate
   };
 
   // Helper function to apply date filter based on current view
@@ -4106,14 +4170,20 @@ const ActivityStream = () => {
         </PerPageContainer>
         
         <CardGrid ref={cardGridRef} theme={theme} isDarkMode={isDarkMode}>
-          {folderScreenshots.map((screenshot, i) => {
-            const formattedData = screenshot; // Use the already formatted data
-            const originalApiData = screenshot.originalData || screenshot; // Access original API data
-            return (
-              <Card 
-                ref={el => cardsRef.current[i] = el}
-                theme={theme} 
-                isDarkMode={isDarkMode} 
+          {(() => {
+            // Apply date filtering to screenshots
+            const filteredScreenshots = filterScreenshotsByDate(folderScreenshots);
+            
+            console.log(`🗓️ Date filtering applied: ${folderScreenshots.length} total → ${filteredScreenshots.length} filtered`);
+            
+            return filteredScreenshots.map((screenshot, i) => {
+              const formattedData = screenshot; // Use the already formatted data
+              const originalApiData = screenshot.originalData || screenshot; // Access original API data
+              return (
+                <Card 
+                  ref={el => cardsRef.current[i] = el}
+                  theme={theme} 
+                  isDarkMode={isDarkMode} 
                 key={formattedData.id}
                 index={i}
                 style={{ position: 'relative' }}
@@ -4196,17 +4266,31 @@ const ActivityStream = () => {
                   </button>
                 </div>
 
-                {/* Enhanced SimpleImageComponent for screenshot objects */}
+                {/* Direct image display with proper URL handling */}
                 <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '6px' }}>
-                  <SimpleImageComponent 
-                    screenshot={originalApiData} // Use original API data for image display
-                    alt={formattedData.task}
+                  <img
+                    src={(() => {
+                      // Priority order for image URLs
+                      if (originalApiData?.presigned_url && originalApiData.presigned_url.includes('X-Amz-Signature')) {
+                        return originalApiData.presigned_url;
+                      } else if (originalApiData?.url && originalApiData.url.includes('X-Amz-Signature')) {
+                        return originalApiData.url;
+                      } else if (originalApiData?.s3_key) {
+                        return `http://localhost:8000/api/proxy/screenshots/${originalApiData.s3_key}`;
+                      } else if (originalApiData?.url) {
+                        return originalApiData.url;
+                      } else {
+                        return 'https://via.placeholder.com/300x120/f3f4f6/6b7280?text=No+Image';
+                      }
+                    })()}
+                    alt={originalApiData?.filename?.split('/').pop() || 'Screenshot'}
                     style={{
                       width: '100%',
                       height: '120px',
                       objectFit: 'cover',
                       cursor: 'pointer',
-                      transition: 'transform 0.2s ease'
+                      transition: 'transform 0.2s ease',
+                      backgroundColor: '#f3f4f6'
                     }}
                     onClick={() => {
                       console.log('🖼️ Screenshot card clicked:', {
@@ -4215,17 +4299,30 @@ const ActivityStream = () => {
                         timestamp: originalApiData?.timestamp,
                         presignedUrl: originalApiData?.presigned_url?.substring(0, 100) + '...'
                       });
-                      handleImageClick(originalApiData, i); // Use original API data
+                      handleImageClick(originalApiData, i);
                     }}
                     onMouseEnter={(e) => {
-                      if (e.target.tagName === 'IMG') {
-                        e.target.style.transform = 'scale(1.05)';
-                      }
+                      e.target.style.transform = 'scale(1.05)';
                     }}
                     onMouseLeave={(e) => {
-                      if (e.target.tagName === 'IMG') {
-                        e.target.style.transform = 'scale(1)';
-                      }
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    onError={(e) => {
+                      console.error('❌ Image failed to load:', {
+                        src: e.target.src,
+                        filename: originalApiData?.filename,
+                        id: originalApiData?.id
+                      });
+                      // Fallback to placeholder
+                      e.target.src = 'https://via.placeholder.com/300x120/ef4444/ffffff?text=Load+Failed';
+                    }}
+                    onLoad={(e) => {
+                      console.log('✅ Image loaded successfully:', {
+                        src: e.target.src.substring(0, 100) + '...',
+                        naturalWidth: e.target.naturalWidth,
+                        naturalHeight: e.target.naturalHeight,
+                        filename: originalApiData?.filename
+                      });
                     }}
                   />
                   
@@ -4480,12 +4577,25 @@ const ActivityStream = () => {
                           color: isDarkMode ? '#94a3b8' : '#475569',
                           lineHeight: '1.2'
                         }}>
-                          {getImageUrl(screenshot) ? 
-                            (getImageUrl(screenshot).length > 120 ? 
-                              getImageUrl(screenshot).substring(0, 120) + '...' : 
-                              getImageUrl(screenshot)
-                            ) : '⚠️ No URL generated'
-                          }
+                          {(() => {
+                            // Generate URL using same logic as image display
+                            let generatedUrl = '';
+                            if (screenshot?.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+                              generatedUrl = screenshot.presigned_url;
+                            } else if (screenshot?.url && screenshot.url.includes('X-Amz-Signature')) {
+                              generatedUrl = screenshot.url;
+                            } else if (screenshot?.s3_key) {
+                              generatedUrl = `http://localhost:8000/api/proxy/screenshots/${screenshot.s3_key}`;
+                            } else if (screenshot?.url) {
+                              generatedUrl = screenshot.url;
+                            } else {
+                              generatedUrl = '⚠️ No URL available';
+                            }
+                            
+                            return generatedUrl.length > 120 ? 
+                              generatedUrl.substring(0, 120) + '...' : 
+                              generatedUrl;
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -4544,7 +4654,8 @@ const ActivityStream = () => {
                 </div>
               </Card>
             );
-          })}
+            });
+          })()}
         </CardGrid>
 
         {folderPagination.totalPages > 1 && (
