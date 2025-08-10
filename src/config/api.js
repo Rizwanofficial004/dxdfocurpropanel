@@ -11,16 +11,20 @@ export const getApiBaseURL = () => {
     return import.meta.env.VITE_API_URL;
   }
   
-  // Force localhost for development (bypass hostname check)
+  // Force production URL for Live Tracking API
+  // Always use the production server for now since local development server is not running
+  console.log('🌐 Using production API server: https://dxdtime.ddsolutions.io/api');
+  return 'https://dxdtime.ddsolutions.io/api';
+  
+  // Commented out localhost check - uncomment when local server is needed
+  /*
   if (import.meta.env.DEV || 
       window.location.hostname === 'localhost' ||
       window.location.hostname.startsWith('192.168.') ||
       window.location.hostname.startsWith('127.0.')) {
     return 'http://localhost:8000/api';
   }
-  
-  // Production - use secure HTTPS remote server
-  return 'https://dxdtime.ddsolutions.io/api';
+  */
 };
 
 /**

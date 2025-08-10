@@ -70,6 +70,32 @@ const LiveTracking = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [dataSource, setDataSource] = useState('unknown'); // Track which API is being used
 
+  // Test Live Tracking API endpoint
+  const testLiveTrackingAPI = async () => {
+    try {
+      console.log('🧪 Testing Live Tracking API...');
+      console.log('📡 API Base URL:', API_CONFIG.BASE_URL);
+      console.log('🎯 Full API URL: https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/');
+      
+      const testUrl = buildLiveTrackingUrl({ limit: 1 });
+      console.log('🔗 Built URL:', testUrl);
+      
+      const response = await axios.get(testUrl, {
+        ...API_CONFIG.LIGHT_REQUEST_CONFIG
+      });
+      
+      console.log('✅ Live Tracking API test successful:', response.status);
+      console.log('📊 Response data:', response.data);
+      setError('✅ API test successful! Live Tracking endpoint is working.');
+      return true;
+    } catch (error) {
+      console.error('❌ Live Tracking API test failed:', error.message);
+      console.error('🔍 Error details:', error);
+      setError(`❌ API test failed: ${error.message}. Check if https://dxdtime.ddsolutions.io is accessible.`);
+      return false;
+    }
+  };
+
   // Image modal handlers
   const openImageModal = (imageUrl, imageTitle = "Screenshot") => {
     console.log('🖼️ Opening image modal for:', imageUrl);
@@ -396,7 +422,7 @@ const LiveTracking = () => {
       let response;
       let dataSource = 'unknown';
       
-      // Try Django server first (original API)
+      // Try Live Tracking API - https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/
       try {
         // Build API URL with filters - Request ALL S3 data
         const apiUrl = buildLiveTrackingUrl({
@@ -405,31 +431,34 @@ const LiveTracking = () => {
           end_date: dateParams.end_date
         });
         
-        console.log('🔄 Trying Django API first:', apiUrl);
-        setError('🔄 Connecting to Django API server...');
+        console.log('🔄 Trying Live Tracking API (https://dxdtime.ddsolutions.io):', apiUrl);
+        console.log('📡 API Base URL:', API_CONFIG.BASE_URL);
+        console.log('🎯 Live Tracking Endpoint:', API_CONFIG.ENDPOINTS.LIVE_TRACKING);
+        setError('🔄 Connecting to Live Tracking API server...');
         
         // Try a faster approach first - use fast_mode and reasonable limits
         let fastApiUrl = apiUrl.replace('limit=50000', 'limit=1000') + '&fast_mode=true';
         
         try {
-          console.log('🚀 Trying Django fast mode with 30s timeout...');
-          setError('🚀 Loading with Django fast mode (30s timeout)...');
+          console.log('🚀 Trying Live Tracking fast mode with 30s timeout...');
+          console.log('📈 Fast API URL:', fastApiUrl);
+          setError('🚀 Loading with Live Tracking fast mode (30s timeout)...');
           
           response = await axios.get(fastApiUrl, {
             ...API_CONFIG.EXTENDED_REQUEST_CONFIG,
             timeout: 30000 // 30 seconds for fast mode
           });
           
-          console.log('✅ Django fast mode succeeded!');
+          console.log('✅ Live Tracking fast mode succeeded!');
           setError(''); // Clear error on success
-          dataSource = 'django-fast-mode';
+          dataSource = 'live-tracking-fast-mode';
           
         } catch (fastError) {
-          console.warn('❌ Django fast mode failed:', fastError.message);
+          console.warn('❌ Live Tracking fast mode failed:', fastError.message);
           
           if (fastError.code === 'ECONNABORTED' || fastError.message.includes('timeout')) {
-            console.log('⏳ Django fast mode timed out, trying comprehensive scan...');
-            setError('⏳ Django fast mode timed out, trying comprehensive scan...');
+            console.log('⏳ Live Tracking fast mode timed out, trying comprehensive scan...');
+            setError('⏳ Live Tracking fast mode timed out, trying comprehensive scan...');
             
             // Use extreme retry mechanism for comprehensive S3 scanning
             response = await retryExtremeApiCall(
@@ -437,11 +466,11 @@ const LiveTracking = () => {
                 ...API_CONFIG.EXTREME_REQUEST_CONFIG,
                 timeout
               }),
-              'Django S3 Live Tracking Comprehensive Scan',
+              'Live Tracking S3 Comprehensive Scan',
               {
                 onRetry: (attempt, error, timeout) => {
                   const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
-                  setError(`🔄 Django comprehensive scan attempt ${attempt}/4 with ${timeoutLabel} timeout...`);
+                  setError(`🔄 Live Tracking comprehensive scan attempt ${attempt}/4 with ${timeoutLabel} timeout...`);
                   
                   // Update progress based on attempt
                   if (attempt === 1) setLoadingProgress(25);
@@ -451,7 +480,8 @@ const LiveTracking = () => {
                 }
               }
             );
-            dataSource = 'django-comprehensive';
+            dataSource = 'live-tracking-comprehensive';
+            console.log('✅ Live Tracking comprehensive scan succeeded!');
             
           } else {
             // Non-timeout error, try Flask fallback
@@ -459,10 +489,10 @@ const LiveTracking = () => {
           }
         }
         
-      } catch (djangoError) {
-        console.warn('❌ Django API completely failed:', djangoError.message);
+      } catch (liveTrackingError) {
+        console.warn('❌ Live Tracking API completely failed:', liveTrackingError.message);
         console.log('🔄 Falling back to Flask comprehensive API...');
-        setError('⚠️ Django server unavailable. Trying Flask comprehensive API...');
+        setError('⚠️ Live Tracking server unavailable. Trying Flask comprehensive API...');
         
         // If date range is not "today", show warning about Flask limitations
         if (dateRange !== 'today') {
@@ -476,16 +506,16 @@ const LiveTracking = () => {
           setError(''); // Clear error on success
           
         } catch (flaskError) {
-          console.error('❌ Both Django and Flask APIs failed');
-          setError(`❌ Both Django (port 8000) and Flask (port 5000) APIs failed. Please ensure at least one server is running.
+          console.error('❌ Both Live Tracking and Flask APIs failed');
+          setError(`❌ Both Live Tracking API and Flask API failed. Please ensure at least one server is running.
           
-Django Error: ${djangoError.message}
+Live Tracking Error: ${liveTrackingError.message}
 Flask Error: ${flaskError.message}
 
 💡 To fix this:
-• Start Django server: python manage.py runserver 8000
+• Check Live Tracking API: https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/
 • OR start Flask server: python app.py (port 5000)
-• Check if servers are accessible at localhost:8000 or localhost:5000`);
+• Verify API servers are accessible`);
           throw new Error('All API servers failed');
         }
       }
@@ -706,17 +736,18 @@ Flask Error: ${flaskError.message}
           setError(`🌐 Network Error: Unable to connect to API servers
 
 Attempted connections:
-• Django API: ${API_CONFIG.BASE_URL} (port 8000)
+• Live Tracking API: https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/
 • Flask API: http://localhost:5000 (comprehensive data)
 
 Please ensure:
-• At least one API server is running
+• Production API server (https://dxdtime.ddsolutions.io) is accessible
 • CORS is properly configured
 • No firewall is blocking the connections
+• Internet connection is stable
 
-💡 Quick fix: Start either server:
-• Django: python manage.py runserver 8000
-• Flask: python app.py (runs on port 5000)`);
+💡 Quick fix:
+• Check if https://dxdtime.ddsolutions.io is accessible in your browser
+• Try the "Test API" button to verify connectivity`);
         } else if (err.response) {
           setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
         } else if (err.request) {
@@ -739,6 +770,16 @@ Please ensure:
 
   // Fetch data when component mounts or filters change
   useEffect(() => {
+    // Test Live Tracking API on component mount
+    if (currentPage === 1) {
+      console.log('🚀 Live Tracking Component Initialized');
+      console.log('📡 API Base URL:', API_CONFIG.BASE_URL);
+      console.log('🎯 Live Tracking Endpoint:', API_CONFIG.ENDPOINTS.LIVE_TRACKING);
+      console.log('🔗 Full API URL:', `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LIVE_TRACKING}`);
+      
+      testLiveTrackingAPI();
+    }
+
     const timer = setTimeout(() => {
       fetchLiveTrackingData();
     }, 300); // 300ms debounce for search
@@ -1071,6 +1112,14 @@ Please ensure:
                         🔄 Refresh
                       </>
                     )}
+                  </RefreshButton>
+
+                  <RefreshButton 
+                    onClick={testLiveTrackingAPI}
+                    disabled={loading}
+                    style={{ backgroundColor: '#28a745', marginLeft: '8px' }}
+                  >
+                    🧪 Test API
                   </RefreshButton>
                   
                   <ExportButton>
