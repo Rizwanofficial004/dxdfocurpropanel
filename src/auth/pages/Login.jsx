@@ -84,6 +84,24 @@ const Subtitle = styled.p`
   font-size: 14px;
 `;
 
+const DemoNotice = styled.div`
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 15px;
+  }
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -338,63 +356,46 @@ const Login = () => {
     }
     
     setIsLoading(true);
-    console.log('=== LOGIN ATTEMPT STARTED ===');
-
-    // Add a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.log('=== LOGIN TIMEOUT REACHED ===');
-      setIsLoading(false);
-      setError('Request timeout. Please check if your backend server is running on https://dxdtime.ddsolutions.io/api/');
-    }, 10000); // 10 second timeout
+    console.log('=== LOGIN ATTEMPT STARTED (BYPASS MODE) ===');
 
     try {
-      console.log('Attempting login with:', {
+      console.log('Bypassing authentication - accepting any credentials:', {
         username: formData.username,
         password: '***',
         remember_me: formData.rememberMe
       });
 
-      // Use the consistent API service
-      const { authAPI } = await import('../../services/api');
-      console.log('Making API call through authAPI...');
-      
-      const response = await authAPI.login({
+      // Create mock successful response for any username/password
+      const mockUserData = {
+        name: formData.username,
         username: formData.username,
-        password: formData.password,
-        remember_me: formData.rememberMe
-      });
-
-      console.log('API call successful:', response.data);
-      clearTimeout(timeoutId);
-      
-      // Store user data in sessionStorage for the header to access
-      const username = formData.username;
-      const userData = {
-        name: username,
-        username: username,
-        role: username.toLowerCase() === 'admin' ? 'Administrator' : 'User',
-        email: username.toLowerCase() === 'admin' ? 'admin@dds.com' : `${username}@dds.com`
+        role: formData.username.toLowerCase() === 'admin' ? 'Administrator' : 'User',
+        email: formData.username.includes('@') ? formData.username : `${formData.username}@dds.com`,
+        user_id: Math.floor(Math.random() * 1000) + 1,
+        is_staff: true,
+        is_superuser: formData.username.toLowerCase() === 'admin'
       };
       
       // Store user data in multiple ways to ensure header can access it
-      sessionStorage.setItem('user', JSON.stringify(userData));
-      sessionStorage.setItem('loginUsername', username);
+      sessionStorage.setItem('user', JSON.stringify(mockUserData));
+      sessionStorage.setItem('loginUsername', formData.username);
       
       // If admin, also store in admin key
-      if (username.toLowerCase() === 'admin') {
-        sessionStorage.setItem('admin', JSON.stringify(userData));
+      if (formData.username.toLowerCase() === 'admin') {
+        sessionStorage.setItem('admin', JSON.stringify(mockUserData));
       }
       
-      console.log('Stored user data:', userData);
+      console.log('Stored mock user data:', mockUserData);
       
-      // If direct call works, then use AuthContext
+      // Use AuthContext with mock data
       await login({
         username: formData.username,
         password: formData.password,
-        remember_me: formData.rememberMe
+        remember_me: formData.rememberMe,
+        mockUser: mockUserData
       });
 
-      console.log('Login successful');
+      console.log('Mock login successful');
       setSuccess('Login successful! Redirecting...');
       
       // Store remember me preference
@@ -410,51 +411,17 @@ const Login = () => {
       const from = location.state?.from?.pathname || '/dashboard';
       setTimeout(() => {
         navigate(from, { replace: true });
-      }, 1500);
+      }, 1000); // Shorter delay since we're not waiting for API
       
     } catch (err) {
-      clearTimeout(timeoutId);
       console.error('=== LOGIN ERROR ===', err);
+      // Even if there's an error, we'll allow the login in bypass mode
+      setSuccess('Login successful! Redirecting...');
       
-      if (err.code === 'ECONNABORTED') {
-        setError('Request timeout. Please check your connection and try again.');
-      } else if (err.response) {
-        const { status, data } = err.response;
-        console.error('Server error response:', { status, data });
-        console.error('Full error response:', err.response);
-        
-        switch (status) {
-          case 400:
-            setError(data.message || data.detail || 'Invalid username/email or password format.');
-            break;
-          case 401:
-            setError('Invalid username/email or password. Please try again.');
-            break;
-          case 403:
-            setError('Account is blocked or requires verification.');
-            break;
-          case 429:
-            setError('Too many login attempts. Please try again later.');
-            break;
-          case 500:
-            const serverErrorDetails = data.message || data.detail || data.error || 'Unknown server error';
-            console.error('Server Error Details:', data);
-            setError(`Server error: ${serverErrorDetails}. Please try again later or contact support.`);
-            break;
-          default:
-            setError(data.message || data.detail || 'Login failed. Please try again.');
-        }
-        
-        if (data.errors) {
-          setValidationErrors(data.errors);
-        }
-      } else if (err.request) {
-        console.error('Network error:', err.request);
-        setError('Unable to connect to server. Please check your internet connection and ensure the backend is running on https://dxdtime.ddsolutions.io/api/');
-      } else {
-        console.error('Unexpected error:', err.message);
-        setError('An unexpected error occurred. Please try again.');
-      }
+      const from = location.state?.from?.pathname || '/dashboard';
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 1000);
     } finally {
       console.log('=== LOGIN ATTEMPT FINISHED ===');
       setIsLoading(false);
@@ -495,6 +462,11 @@ const Login = () => {
           <Title>{t('welcome')}</Title>
           <Subtitle>{t('subtitle')}</Subtitle>
         </LogoSection>
+
+        <DemoNotice>
+          <strong>🎉 Demo Mode Active</strong>
+          You can login with any username and password!
+        </DemoNotice>
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
