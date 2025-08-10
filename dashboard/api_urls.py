@@ -7,10 +7,14 @@ from . import settings_apis
 from . import enhanced_api_views
 from django.conf import settings
 from django.conf.urls.static import static
+from s3_screenshots_users_api import s3_screenshots_users_api
 
 urlpatterns = [
     # Test endpoint
     path('test/', api_views.api_test, name='api_test'),
+    
+    # S3 Screenshots Users API - Get all users with screenshots in S3
+    path('screenshots/users/', s3_screenshots_users_api, name='api_s3_screenshots_users'),
     
     # Screenshot Proxy Endpoint (for CORS and authentication issues)
     path('proxy/screenshot/<path:screenshot_path>', api_views.screenshot_proxy, name='api_screenshot_proxy'),
