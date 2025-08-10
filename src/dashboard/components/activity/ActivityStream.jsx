@@ -258,10 +258,11 @@ const ActivityStream = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   
-  // Date filter states
+  // Date filter states with force update mechanism
   const [dateRange, setDateRange] = useState([null, null]);
   const [isDateFilterActive, setIsDateFilterActive] = useState(false);
   const [singleDateFilter, setSingleDateFilter] = useState(null);
+  const [filterUpdateTrigger, setFilterUpdateTrigger] = useState(0); // Force re-render trigger
   
   // Search suggestions states
   const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -282,6 +283,7 @@ const ActivityStream = () => {
   const [loadingFolders, setLoadingFolders] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [folderScreenshots, setFolderScreenshots] = useState([]);
+  const [filteredFolderScreenshots, setFilteredFolderScreenshots] = useState([]); // NEW: Filtered screenshots
   const [loadingFolderScreenshots, setLoadingFolderScreenshots] = useState(false);
   const [folderPagination, setFolderPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
   const [verifiedFolderCounts, setVerifiedFolderCounts] = useState({}); // Track actual counts for folders
@@ -456,6 +458,43 @@ const ActivityStream = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [currentView]);
+
+  // Auto-apply date filtering when screenshots or filter settings change
+  useEffect(() => {
+    console.log('🔄 AUTO-FILTERING TRIGGERED');
+    console.log('🔄 Trigger sources:', {
+      folderScreenshotsCount: folderScreenshots.length,
+      isDateFilterActive,
+      singleDateFilter,
+      dateRange: [
+        dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
+        dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
+      ],
+      filterUpdateTrigger
+    });
+    
+    if (folderScreenshots.length === 0) {
+      console.log('🔄 No folder screenshots, clearing filtered array');
+      setFilteredFolderScreenshots([]);
+      return;
+    }
+    
+    // Check if any filter is active
+    const hasDateRangeFilter = isDateFilterActive && dateRange[0] && dateRange[1];
+    const hasSingleDateFilter = singleDateFilter && singleDateFilter.trim() !== '';
+    
+    if (!hasDateRangeFilter && !hasSingleDateFilter) {
+      console.log('🔄 No filter active, showing all screenshots');
+      setFilteredFolderScreenshots(folderScreenshots);
+      return;
+    }
+    
+    // Apply filtering
+    const filtered = filterScreenshotsByDate(folderScreenshots);
+    console.log(`🔄 AUTO-FILTER RESULT: ${folderScreenshots.length} → ${filtered.length}`);
+    setFilteredFolderScreenshots(filtered);
+    
+  }, [folderScreenshots, isDateFilterActive, singleDateFilter, dateRange, filterUpdateTrigger]);
   
   // Add image URL processing function (OPTIMIZED for your perfect API response)
   const getImageUrl = (screenshot) => {
@@ -3039,102 +3078,351 @@ const ActivityStream = () => {
     }
   };
 
+  // Debug function to test date filtering logic (accessible in console)
+  window.testDateFiltering = (testRange = ['2025-06-21', '2025-06-22']) => {
+    console.log('🧪 ===== TESTING DATE FILTERING LOGIC =====');
+    
+    const testData = [
+      { id: 1, filename: '2025-06-18_14-06-29_2025', timestamp: '2025-06-18T14:06:29+00:00' },
+      { id: 2, filename: '2025-06-21_10-30-45_2025', timestamp: '2025-06-21T10:30:45+00:00' },
+      { id: 3, filename: '2025-06-22_16-45-12_2025', timestamp: '2025-06-22T16:45:12+00:00' },
+      { id: 4, filename: '2025-06-16_11-08-03_2025', timestamp: '2025-06-16T11:08:03+00:00' },
+      { id: 5, filename: '2025-06-28_13-54-54_2025', timestamp: '2025-06-28T13:54:54+00:00' }
+    ];
+    
+    console.log(`🗓️ Test date range: ${testRange[0]} to ${testRange[1]}`);
+    
+    const startDate = dayjs(testRange[0]);
+    const endDate = dayjs(testRange[1]);
+    
+    testData.forEach(item => {
+      console.log(`\n📸 Testing item ${item.id}:`);
+      console.log(`  - filename: ${item.filename}`);
+      console.log(`  - timestamp: ${item.timestamp}`);
+      
+      // Test timestamp extraction
+      const dateFromTimestamp = extractDateFromTimestamp(item.timestamp);
+      console.log(`  - Date from timestamp: ${dateFromTimestamp ? dateFromTimestamp.format('YYYY-MM-DD') : 'FAILED'}`);
+      
+      // Test filename extraction
+      const dateFromFilename = extractDateFromFilename(item.filename);
+      console.log(`  - Date from filename: ${dateFromFilename ? dateFromFilename.format('YYYY-MM-DD') : 'FAILED'}`);
+      
+      // Test filtering logic
+      const extractedDate = dateFromTimestamp || dateFromFilename;
+      if (extractedDate) {
+        const isInRange = extractedDate.isBetween(startDate, endDate, 'day', '[]');
+        console.log(`  - Range check: ${extractedDate.format('YYYY-MM-DD')} between ${startDate.format('YYYY-MM-DD')} and ${endDate.format('YYYY-MM-DD')} = ${isInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
+      } else {
+        console.log(`  - Range check: ❌ NO DATE EXTRACTED`);
+      }
+    });
+    
+    console.log('🧪 ===== TEST COMPLETE =====');
+  };
+
   // Utility function to extract date from filename
   const extractDateFromFilename = (filename) => {
-    if (!filename) return null;
-    
-    // Try to match common screenshot filename patterns:
-    // YYYY-MM-DD_HH-MM-SS format
-    const datePattern = /(\d{4}-\d{2}-\d{2})/;
-    const match = filename.match(datePattern);
-    
-    if (match) {
-      return dayjs(match[1]);
+    if (!filename) {
+      console.log(`🔍 No filename provided`);
+      return null;
     }
     
+    console.log(`🔍 === EXTRACTING DATE FROM FILENAME ===`);
+    console.log(`🔍 Input filename: "${filename}"`);
+    
+    // Try to match common screenshot filename patterns:
+    // 1. YYYY-MM-DD_HH-MM-SS_YYYY format (like "2025-06-28_13-54-54_2025")
+    // 2. YYYY-MM-DD_HH-MM-SS format
+    // 3. YYYY-MM-DD format
+    // 4. YYYYMMDD format
+    // 5. DD-MM-YYYY format
+    const patterns = [
+      { name: 'YYYY-MM-DD_HH-MM-SS_YYYY', regex: /(\d{4}-\d{2}-\d{2})_\d{2}-\d{2}-\d{2}_\d{4}/ },
+      { name: 'YYYY-MM-DD_HH-MM-SS', regex: /(\d{4}-\d{2}-\d{2})_\d{2}-\d{2}-\d{2}/ },
+      { name: 'YYYY-MM-DD', regex: /(\d{4}-\d{2}-\d{2})/ },
+      { name: 'YYYYMMDD', regex: /(\d{4})(\d{2})(\d{2})/ },
+      { name: 'DD-MM-YYYY', regex: /(\d{2})-(\d{2})-(\d{4})/ }
+    ];
+    
+    for (let i = 0; i < patterns.length; i++) {
+      const pattern = patterns[i];
+      console.log(`🔍 Trying pattern "${pattern.name}": ${pattern.regex}`);
+      
+      const match = filename.match(pattern.regex);
+      
+      if (match) {
+        console.log(`✅ Pattern "${pattern.name}" matched:`, match);
+        
+        let dateStr;
+        if (i === 0 || i === 1 || i === 2) {
+          // YYYY-MM-DD format (patterns 0, 1, and 2)
+          dateStr = match[1];
+        } else if (i === 3) {
+          // YYYYMMDD format (pattern 3)
+          dateStr = `${match[1]}-${match[2]}-${match[3]}`;
+        } else if (i === 4) {
+          // DD-MM-YYYY format (pattern 4)
+          dateStr = `${match[3]}-${match[2]}-${match[1]}`;
+        }
+        
+        console.log(`🔍 Constructed date string: "${dateStr}"`);
+        
+        const parsedDate = dayjs(dateStr);
+        if (parsedDate.isValid()) {
+          console.log(`✅ Successfully extracted and parsed date: ${dateStr} -> ${parsedDate.format('YYYY-MM-DD')}`);
+          return parsedDate;
+        } else {
+          console.log(`❌ Date string "${dateStr}" is not valid`);
+        }
+      } else {
+        console.log(`❌ Pattern "${pattern.name}" did not match`);
+      }
+    }
+    
+    console.log(`❌ Could not extract date from filename: ${filename}`);
     return null;
   };
 
-  // Utility function to extract date from timestamp
+  // Utility function to extract date from timestamp - ENHANCED FOR TIMESTAMP PRIORITY
   const extractDateFromTimestamp = (timestamp) => {
-    if (!timestamp) return null;
+    if (!timestamp) {
+      console.log(`🔍 No timestamp provided`);
+      return null;
+    }
+    
+    console.log(`🔍 === EXTRACTING DATE FROM TIMESTAMP ===`);
+    console.log(`🔍 Input timestamp: "${timestamp}"`);
     
     try {
-      // Handle different timestamp formats
-      if (timestamp.includes('T')) {
-        // ISO format: "2025-06-14T02:42:30Z" or "2025-06-13T23:51:26+00:00"
-        return dayjs(timestamp);
+      let parsedDate;
+      
+      // Handle ISO format with timezone: "2025-06-16T11:08:03+00:00"
+      if (timestamp.includes('T') && (timestamp.includes('+') || timestamp.includes('Z'))) {
+        parsedDate = dayjs(timestamp);
+        console.log(`🔍 Parsing as ISO format with timezone`);
+      }
+      // Handle ISO format: "2025-06-14T02:42:30Z"
+      else if (timestamp.includes('T')) {
+        parsedDate = dayjs(timestamp);
+        console.log(`🔍 Parsing as ISO format`);
+      } 
+      // Handle format with space: "2025-06-14 02:42:30"
+      else if (timestamp.includes(' ')) {
+        parsedDate = dayjs(timestamp);
+        console.log(`🔍 Parsing as space-separated format`);
+      } 
+      // Handle simple date format: "2025-06-14"
+      else if (timestamp.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        parsedDate = dayjs(timestamp);
+        console.log(`🔍 Parsing as simple date format`);
+      } 
+      // Handle Unix timestamp (10 digits - seconds)
+      else if (timestamp.match(/^\d{10}$/)) {
+        parsedDate = dayjs.unix(parseInt(timestamp));
+        console.log(`🔍 Parsing as Unix timestamp (seconds)`);
+      } 
+      // Handle Unix timestamp (13 digits - milliseconds)
+      else if (timestamp.match(/^\d{13}$/)) {
+        parsedDate = dayjs(parseInt(timestamp));
+        console.log(`🔍 Parsing as Unix timestamp (milliseconds)`);
+      } 
+      // Try parsing as-is
+      else {
+        parsedDate = dayjs(timestamp);
+        console.log(`🔍 Parsing as-is (fallback)`);
+      }
+      
+      if (parsedDate.isValid()) {
+        console.log(`✅ Successfully parsed timestamp: ${timestamp} -> ${parsedDate.format('YYYY-MM-DD HH:mm:ss')}`);
+        return parsedDate;
       } else {
-        // Simple date format: "2025-06-14"
-        return dayjs(timestamp);
+        console.log(`❌ Invalid date from timestamp: ${timestamp}`);
+        return null;
       }
     } catch (error) {
-      console.log('Error parsing timestamp:', timestamp, error);
+      console.log(`❌ Error parsing timestamp: ${timestamp}`, error);
       return null;
     }
   };
 
-  // Function to filter screenshots by date
+  // Function to filter screenshots by date - ENHANCED VERSION
   const filterScreenshotsByDate = (screenshots) => {
-    if (!screenshots || screenshots.length === 0) return screenshots;
+    console.log('🗓️ ===== FILTER FUNCTION CALLED =====');
+    console.log('🗓️ Function parameters:', {
+      screenshotsCount: screenshots?.length || 0,
+      isDateFilterActive,
+      singleDateFilter,
+      dateRange: [
+        dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
+        dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
+      ],
+      filterUpdateTrigger
+    });
     
-    // If no date filter is active, return all screenshots
-    if (!isDateFilterActive && !singleDateFilter) {
+    if (!screenshots || screenshots.length === 0) {
+      console.log('🗓️ No screenshots to filter, returning empty array');
       return screenshots;
     }
     
-    return screenshots.filter(screenshot => {
+    // ENHANCED CHECK: Only return all if ABSOLUTELY no filter is set
+    const hasDateRangeFilter = isDateFilterActive && dateRange[0] && dateRange[1];
+    const hasSingleDateFilter = singleDateFilter && singleDateFilter.trim() !== '';
+    
+    if (!hasDateRangeFilter && !hasSingleDateFilter) {
+      console.log('🗓️ ❌ NO VALID DATE FILTER - returning all screenshots unchanged');
+      console.log('🗓️ Filter check details:', { 
+        isDateFilterActive, 
+        hasDateRange: !!(dateRange[0] && dateRange[1]),
+        singleDateFilter,
+        hasDateRangeFilter,
+        hasSingleDateFilter 
+      });
+      return screenshots;
+    }
+    
+    console.log('🗓️ ✅ VALID DATE FILTER DETECTED - proceeding with filtering');
+    
+    const filteredResults = screenshots.filter((screenshot, index) => {
       let screenshotDate = null;
       
-      // Try to extract date from multiple sources
+      // Only show first 5 for debugging to avoid spam
+      if (index < 5) {
+        console.log(`\n🔍 === Processing screenshot ${index + 1}/${screenshots.length} ===`);
+        console.log(`  - ID: ${screenshot.id}`);
+        console.log(`  - filename: ${screenshot.filename}`);
+        console.log(`  - timestamp: ${screenshot.timestamp}`);
+      }
+      
+      // PRIORITY 1: Try to extract date from timestamp FIRST (this is the most reliable)
       if (screenshot.timestamp) {
         screenshotDate = extractDateFromTimestamp(screenshot.timestamp);
-      } else if (screenshot.last_modified) {
+        if (index < 5) console.log(`  - ✅ Date from timestamp: ${screenshotDate ? screenshotDate.format('YYYY-MM-DD') : 'FAILED'}`);
+        
+        // If we successfully got a date from timestamp, use it immediately
+        if (screenshotDate) {
+          // Apply single date filter
+          if (hasSingleDateFilter) {
+            const filterDate = dayjs(singleDateFilter);
+            const isSameDay = screenshotDate.format('YYYY-MM-DD') === filterDate.format('YYYY-MM-DD');
+            if (index < 5) console.log(`  🗓️ Single date filter (timestamp) - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Filter: ${filterDate.format('YYYY-MM-DD')}, Match: ${isSameDay ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
+            return isSameDay;
+          }
+          
+          // Apply date range filter
+          if (hasDateRangeFilter) {
+            const startDate = dayjs(dateRange[0]);
+            const endDate = dayjs(dateRange[1]);
+            const isInRange = screenshotDate.isBetween(startDate, endDate, 'day', '[]'); // inclusive on both ends
+            if (index < 5) console.log(`  🗓️ Date range filter (timestamp) - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Range: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}, Match: ${isInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
+            return isInRange;
+          }
+        }
+      }
+      
+      // FALLBACK: Only try other sources if timestamp failed
+      if (!screenshotDate && screenshot.last_modified) {
         screenshotDate = extractDateFromTimestamp(screenshot.last_modified);
-      } else if (screenshot.filename) {
+        if (index < 5) console.log(`  - ⚠️ Fallback to last_modified: ${screenshotDate ? screenshotDate.format('YYYY-MM-DD') : 'FAILED'}`);
+      } 
+      
+      if (!screenshotDate && screenshot.filename) {
         screenshotDate = extractDateFromFilename(screenshot.filename);
+        if (index < 5) console.log(`  - ⚠️ Fallback to filename: ${screenshotDate ? screenshotDate.format('YYYY-MM-DD') : 'FAILED'}`);
       }
       
       if (!screenshotDate) {
-        console.log('Could not extract date from screenshot:', screenshot);
+        if (index < 5) console.log(`  ❌ EXCLUDING: Could not extract date from any source`);
         return false; // Exclude screenshots where we can't determine the date
       }
       
-      // Apply single date filter
-      if (singleDateFilter) {
+      // Apply filtering for fallback dates
+      if (hasSingleDateFilter) {
         const filterDate = dayjs(singleDateFilter);
         const isSameDay = screenshotDate.format('YYYY-MM-DD') === filterDate.format('YYYY-MM-DD');
-        console.log(`🗓️ Single date filter - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Filter: ${filterDate.format('YYYY-MM-DD')}, Match: ${isSameDay}`);
+        if (index < 5) console.log(`  🗓️ Single date filter (fallback) - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Filter: ${filterDate.format('YYYY-MM-DD')}, Match: ${isSameDay ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
         return isSameDay;
       }
       
-      // Apply date range filter
-      if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+      if (hasDateRangeFilter) {
         const startDate = dayjs(dateRange[0]);
         const endDate = dayjs(dateRange[1]);
         const isInRange = screenshotDate.isBetween(startDate, endDate, 'day', '[]'); // inclusive on both ends
-        console.log(`🗓️ Date range filter - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Range: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}, Match: ${isInRange}`);
+        if (index < 5) console.log(`  🗓️ Date range filter (fallback) - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Range: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}, Match: ${isInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
         return isInRange;
       }
       
-      return true;
+      if (index < 5) console.log(`  ⚠️ No filter condition met, defaulting to exclude`);
+      return false; // Default to exclude if no valid filter
     });
+    
+    console.log(`🗓️ ======= FILTERING COMPLETE =======`);
+    console.log(`🗓️ Results: ${screenshots.length} total → ${filteredResults.length} filtered`);
+    
+    return filteredResults;
   };
 
   // Date filter handlers
   const handleDateRangeChange = (newValue) => {
+    console.log('🗓️ Date range changed:', newValue);
     setDateRange(newValue);
+    
+    // Auto-activate filter when both dates are selected
+    if (newValue && newValue[0] && newValue[1]) {
+      console.log(`🗓️ ===== AUTO-APPLYING DATE RANGE FILTER =====`);
+      console.log(`🗓️ Date range: ${dayjs(newValue[0]).format('YYYY-MM-DD')} to ${dayjs(newValue[1]).format('YYYY-MM-DD')}`);
+      
+      // Set the filter states
+      setIsDateFilterActive(true);
+      setSingleDateFilter(null); // Clear single date filter
+      
+      // Force a re-render
+      setFilterUpdateTrigger(prev => prev + 1);
+    } else {
+      // Clear filter if date range is incomplete
+      setIsDateFilterActive(false);
+    }
   };
 
   const handleDateFilterApply = () => {
     if (dateRange[0] && dateRange[1]) {
+      console.log(`🗓️ ===== APPLYING DATE RANGE FILTER =====`);
+      console.log(`🗓️ Date range: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`);
+      
+      // Set the filter states
       setIsDateFilterActive(true);
       setSingleDateFilter(null); // Clear single date filter
       
-      console.log(`🗓️ Applied date range filter: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`);
+      // Force a re-render
+      setFilterUpdateTrigger(prev => prev + 1);
       
-      // Note: For folder screenshots view, we'll apply filtering locally
-      // The date filtering will happen in the render section using filterScreenshotsByDate
+      console.log(`🗓️ Filter activated - isDateFilterActive: true`);
+      
+      // Test the date extraction logic with some sample filenames
+      const testFilenames = [
+        '2025-06-18_14-06-29_2025',
+        '2025-06-21_10-30-45_2025',
+        '2025-06-22_16-45-12_2025',
+        '2025-06-28_13-54-54_2025'
+      ];
+      
+      console.log(`🧪 Testing date extraction on sample filenames:`);
+      testFilenames.forEach(filename => {
+        const extractedDate = extractDateFromFilename(filename);
+        const startDate = dayjs(dateRange[0]);
+        const endDate = dayjs(dateRange[1]);
+        const isInRange = extractedDate ? extractedDate.isBetween(startDate, endDate, 'day', '[]') : false;
+        console.log(`  📁 ${filename} -> ${extractedDate ? extractedDate.format('YYYY-MM-DD') : 'FAILED'} -> ${isInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
+      });
+      
+      // Test with actual timestamp
+      console.log(`🧪 Testing timestamp extraction:`);
+      const testTimestamp = '2025-06-16T11:08:03+00:00';
+      const extractedFromTimestamp = extractDateFromTimestamp(testTimestamp);
+      const startDate = dayjs(dateRange[0]);
+      const endDate = dayjs(dateRange[1]);
+      const isTimestampInRange = extractedFromTimestamp ? extractedFromTimestamp.isBetween(startDate, endDate, 'day', '[]') : false;
+      console.log(`  📅 ${testTimestamp} -> ${extractedFromTimestamp ? extractedFromTimestamp.format('YYYY-MM-DD') : 'FAILED'} -> ${isTimestampInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
     }
   };
 
@@ -3142,11 +3430,9 @@ const ActivityStream = () => {
     setIsDateFilterActive(false);
     setDateRange([null, null]);
     setSingleDateFilter(null);
+    setFilterUpdateTrigger(prev => prev + 1); // Force re-render
     
     console.log('🗓️ Cleared all date filters');
-    
-    // Note: For folder screenshots view, we'll apply filtering locally
-    // The date filtering will happen in the render section using filterScreenshotsByDate
   };
 
   const handleSingleDateSelect = (dateIndex) => {
@@ -3447,8 +3733,8 @@ const ActivityStream = () => {
     };
 
     const getBackLabel = () => {
-      if (currentView === 'folders') return '← Back to Search';
-      if (currentView === 'screenshots') return '← Back to Folders';
+      if (currentView === 'folders') return 'Back to Search';
+      if (currentView === 'screenshots') return 'Back to Folders';
       return '';
     };
 
@@ -3520,7 +3806,7 @@ const ActivityStream = () => {
 
     return (
       <>
-        <SearchInfo theme={theme} isDarkMode={isDarkMode}>
+        {/* <SearchInfo theme={theme} isDarkMode={isDarkMode}>
           📁 Found <strong>{folders.length}</strong> folder{folders.length === 1 ? '' : 's'} for <strong>{selectedUser?.display_name}</strong>
           <br />
           <small>
@@ -3529,7 +3815,7 @@ const ActivityStream = () => {
               ' Date folders (📅) and task folders (📁) available.'
             }
           </small>
-        </SearchInfo>
+        </SearchInfo> */}
         
         <FoldersGrid theme={theme} isDarkMode={isDarkMode}>
           {folders.map((folder, index) => (
@@ -3600,13 +3886,7 @@ const ActivityStream = () => {
 
   // Render folder screenshots view
   const renderFolderScreenshotsView = () => {
-    // 🚀 MAJOR DEBUG TEST: Verify this function is being called
-    console.log('🚀🚀🚀 FOLDER SCREENSHOTS VIEW IS RENDERING 🚀🚀🚀');
-    console.log('📊 folderScreenshots array:', folderScreenshots);
-    console.log('📊 folderScreenshots length:', folderScreenshots?.length || 0);
-    console.log('📊 currentView:', currentView);
-    console.log('📊 loadingFolderScreenshots:', loadingFolderScreenshots);
-    
+
     // 🎯 LIVE IMAGE DISPLAY TEST: Check if we have presigned URLs like LiveTracking
     if (folderScreenshots?.length > 0) {
       console.log('🎯 LIVE IMAGE DISPLAY TEST - Sample screenshot data:');
@@ -3620,11 +3900,7 @@ const ActivityStream = () => {
         s3_key: firstScreenshot?.s3_key,
         generated_url: getImageUrl(firstScreenshot)?.substring(0, 120) + '...'
       });
-      console.log('  🚀 URL Priority Order Test:', {
-        step1_presigned_check: firstScreenshot?.presigned_url && firstScreenshot.presigned_url.includes('X-Amz-Signature') ? '✅ PASS' : '❌ FAIL',
-        step2_s3key_backup: firstScreenshot?.s3_key ? '✅ Available' : '❌ Not Available',
-        final_url_generated: !!getImageUrl(firstScreenshot) ? '✅ URL Generated' : '❌ No URL Generated'
-      });
+
     }
 
     if (loadingFolderScreenshots) {
@@ -3669,7 +3945,16 @@ const ActivityStream = () => {
     return (
       <>
         <SearchInfo theme={theme} isDarkMode={isDarkMode}>
-          📸 Showing <strong>{folderScreenshots.length}</strong> of <strong>{folderPagination.totalCount}</strong> screenshots from folder <strong>{selectedFolder?.folder_name}</strong> (Page {folderPagination.page} of {folderPagination.totalPages}, {perPageLimit} per page)
+          📸 Showing <strong>{filteredFolderScreenshots.length}</strong> of <strong>{folderScreenshots.length}</strong> screenshots from folder <strong>{selectedFolder?.folder_name}</strong> 
+          {(isDateFilterActive || singleDateFilter) && (
+            <span style={{ color: '#10b981', fontWeight: '500' }}>
+              {' '}(filtered by date)
+            </span>
+          )}
+          <br />
+          <small>
+            Total in folder: {folderPagination.totalCount} | Page {folderPagination.page} of {folderPagination.totalPages} | {perPageLimit} per page
+          </small>
           {selectedFolder && selectedFolder.screenshot_count !== folderPagination.totalCount && (
             <>
               <br />
@@ -3693,514 +3978,11 @@ const ActivityStream = () => {
         
         {/* Enhanced Debug Tools and Download Options */}
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-          {/* Bulk Download Button */}
-          <Button
-            variant="contained"
-            size="small"
-            onClick={async () => {
-              if (folderScreenshots.length === 0) {
-                alert('No screenshots to download');
-                return;
-              }
+      
 
-              const confirmDownload = window.confirm(
-                `Download all ${folderScreenshots.length} screenshots from this folder?\n\n` +
-                `This will download them one by one to your Downloads folder.`
-              );
-
-              if (!confirmDownload) return;
-
-              console.log('📥 Starting bulk download of', folderScreenshots.length, 'screenshots');
-              
-              let downloaded = 0;
-              let failed = 0;
-
-              // Show progress indicator
-              const progressDiv = document.createElement('div');
-              progressDiv.style.cssText = `
-                position: fixed; top: 20px; right: 20px; z-index: 10000;
-                background: #3b82f6; color: white; padding: 12px 16px;
-                border-radius: 8px; font-size: 14px; font-weight: 500;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px;
-              `;
-              progressDiv.innerHTML = `📥 Downloading... 0/${folderScreenshots.length}`;
-              document.body.appendChild(progressDiv);
-
-              for (let i = 0; i < folderScreenshots.length; i++) {
-                try {
-                  progressDiv.innerHTML = `📥 Downloading... ${i + 1}/${folderScreenshots.length}`;
-                  await downloadScreenshot(folderScreenshots[i]);
-                  downloaded++;
-                  
-                  // Small delay to prevent overwhelming the browser/server
-                  await new Promise(resolve => setTimeout(resolve, 500));
-                } catch (error) {
-                  console.error('❌ Failed to download screenshot', i, ':', error);
-                  failed++;
-                }
-              }
-
-              document.body.removeChild(progressDiv);
-
-              // Show completion message
-              const resultDiv = document.createElement('div');
-              resultDiv.style.cssText = `
-                position: fixed; top: 20px; right: 20px; z-index: 10000;
-                background: ${failed === 0 ? '#10b981' : '#f59e0b'}; color: white; padding: 12px 16px;
-                border-radius: 8px; font-size: 14px; font-weight: 500;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-              `;
-              resultDiv.innerHTML = `✅ Downloaded: ${downloaded}, Failed: ${failed}`;
-              document.body.appendChild(resultDiv);
-              setTimeout(() => document.body.removeChild(resultDiv), 5000);
-            }}
-            style={{
-              backgroundColor: '#10b981',
-              color: 'white',
-              fontSize: '12px',
-              padding: '6px 12px',
-              fontWeight: '600'
-            }}
-          >
-            📥 Download All ({folderScreenshots.length})
-          </Button>
-
-          {/* 🚀 NEW: Test Live Image Display */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🚀 TESTING LIVE IMAGE DISPLAY WITH YOUR PERFECT API DATA!');
-              console.log('📊 Your API provides perfect presigned URLs, testing them now...');
-              
-              if (folderScreenshots.length > 0) {
-                const firstScreenshot = folderScreenshots[0];
-                console.log('🔍 First screenshot data:', {
-                  id: firstScreenshot.id,
-                  filename: firstScreenshot.filename,
-                  presigned_url: firstScreenshot.presigned_url?.substring(0, 100) + '...',
-                  s3_key: firstScreenshot.s3_key
-                });
-                
-                // Test the presigned URL directly
-                const testImg = new Image();
-                testImg.crossOrigin = 'anonymous';
-                testImg.onload = () => {
-                  console.log('✅ LIVE DISPLAY WORKS! Image loaded successfully:', {
-                    size: `${testImg.naturalWidth}x${testImg.naturalHeight}`,
-                    filename: firstScreenshot.filename
-                  });
-                  alert(`🚀 LIVE DISPLAY SUCCESS!\n\nImage: ${firstScreenshot.filename}\nSize: ${testImg.naturalWidth}x${testImg.naturalHeight}\n\nYour images should now display immediately!`);
-                };
-                testImg.onerror = (e) => {
-                  console.error('❌ Live display test failed:', e);
-                  alert('❌ Live display test failed. Check console for details.');
-                };
-                testImg.src = firstScreenshot.presigned_url;
-              } else {
-                alert('❌ No screenshots available to test');
-              }
-            }}
-            style={{ 
-              fontSize: '11px',
-              padding: '4px 8px',
-              backgroundColor: '#22c55e',
-              color: 'white',
-              border: 'none',
-              fontWeight: '600'
-            }}
-          >
-            🚀 Test Live Display
-          </Button>
-
-          {/* TEST: Log actual API response data */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🚀 RAW API RESPONSE TEST:');
-              console.log('📊 folderScreenshots array length:', folderScreenshots.length);
-              console.log('📊 folderScreenshots array:', folderScreenshots);
-              
-              if (folderScreenshots.length > 0) {
-                console.log('🔍 First screenshot RAW data:', folderScreenshots[0]);
-                console.log('🔍 First screenshot keys:', Object.keys(folderScreenshots[0]));
-                console.log('🔍 First screenshot presigned_url:', folderScreenshots[0]?.presigned_url);
-                console.log('🔍 First screenshot presigned_url type:', typeof folderScreenshots[0]?.presigned_url);
-                
-                // Test formatScreenshotData with first screenshot
-                console.log('🧪 Testing formatScreenshotData with first screenshot:');
-                const testResult = formatScreenshotData(folderScreenshots[0], 0);
-                console.log('🧪 formatScreenshotData result:', testResult);
-                console.log('🧪 testResult.image:', testResult.image);
-                
-                // Test if the URL works
-                if (testResult.image) {
-                  console.log('🌐 Testing if formatted URL loads...');
-                  const img = new Image();
-                  img.onload = () => console.log('✅ Formatted URL loads successfully');
-                  img.onerror = () => console.log('❌ Formatted URL failed to load');
-                  img.src = testResult.image;
-                } else {
-                  console.log('❌ No image URL in formatted result');
-                }
-              }
-              
-              alert('📊 API Response test logged to console. Check browser console for details.');
-            }}
-            style={{ 
-              fontSize: '11px',
-              padding: '4px 8px',
-              backgroundColor: '#ef4444',
-              color: 'white',
-              border: 'none'
-            }}
-          >
-            🚀 Test API Data
-          </Button>
-
-          {/* Test your specific proxy URL format */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('� Testing your specific proxy URL format...');
-              const testProxyUrl = 'http://localhost:8000/api/proxy/screenshots/mohsinabbass688630_at_gmail.com/dxdglobal.com_&_deluxebilisim.com_genel_d%C3%BCzenlemeler_/2025-08-07_17-55-04_2025-08-07_17-55-04.webp';
-              
-              console.log('🔍 Test URL:', testProxyUrl);
-              
-              // Test if URL is accessible
-              const img = new Image();
-              img.onload = () => {
-                console.log('✅ Proxy URL loads successfully:', {
-                  width: img.naturalWidth,
-                  height: img.naturalHeight,
-                  size: `${img.naturalWidth}x${img.naturalHeight}`,
-                  url: testProxyUrl
-                });
-                alert(`✅ Proxy URL works! Image size: ${img.naturalWidth}x${img.naturalHeight}`);
-              };
-              img.onerror = (e) => {
-                console.error('❌ Proxy URL failed to load:', e);
-                console.error('❌ Error details:', {
-                  type: e.type,
-                  target: e.target,
-                  currentSrc: e.target.currentSrc
-                });
-                alert('❌ Proxy URL failed to load. Check console and ensure Django server is running on port 8000.');
-              };
-              img.src = testProxyUrl;
-            }}
-            style={{ 
-              fontSize: '11px',
-              padding: '4px 8px',
-              backgroundColor: '#8b5cf6',
-              color: 'white',
-              border: 'none'
-            }}
-          >
-            🔧 Test Proxy URL
-          </Button>
-
-          {/* Test presigned URL from your actual API response */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🔧 DEBUG: Testing your actual API presigned URL');
-              const testUrl = 'https://ddsfocustime.s3.amazonaws.com/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250807%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250807T141550Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=c245697580a7fbf612e1e2fa35435f3b62eee398a3c900fdb7ed77a11b9e0618';
-              
-              // Test if URL is accessible
-              console.log('🔍 Testing your actual presigned URL:', testUrl.substring(0, 100) + '...');
-              const img = new Image();
-              img.crossOrigin = 'anonymous';
-              img.onload = () => {
-                console.log('✅ Your presigned URL works perfectly:', {
-                  width: img.naturalWidth,
-                  height: img.naturalHeight,
-                  size: `${img.naturalWidth}x${img.naturalHeight}`,
-                  url: testUrl.substring(0, 100) + '...'
-                });
-                alert(`✅ Your presigned URL works! Image size: ${img.naturalWidth}x${img.naturalHeight}\n\nNow screenshots should display correctly!`);
-              };
-              img.onerror = (e) => {
-                console.error('❌ Your presigned URL failed to load:', e);
-                alert('❌ Your presigned URL failed to load. Check console for details.');
-              };
-              img.src = testUrl;
-            }}
-            style={{ 
-              fontSize: '11px',
-              padding: '4px 8px',
-              backgroundColor: '#22c55e',
-              color: 'white',
-              border: 'none'
-            }}
-          >
-            ✅ Test Your API URL
-          </Button>
-
-          {/* Test the corrected proxy URL format with screenshots/ */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🔧 DEBUG: Testing CORRECTED proxy URL format');
-              const testProxyUrl = 'http://localhost:8000/api/proxy/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Yılı_Ocak_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp';
-              
-              console.log('🔍 Testing corrected proxy URL:', testProxyUrl);
-              
-              // Test if URL is accessible
-              const img = new Image();
-              img.onload = () => {
-                console.log('✅ CORRECTED Proxy URL works!:', {
-                  width: img.naturalWidth,
-                  height: img.naturalHeight,
-                  size: `${img.naturalWidth}x${img.naturalHeight}`,
-                  url: testProxyUrl
-                });
-                alert(`✅ FIXED! Proxy URL works now! Image size: ${img.naturalWidth}x${img.naturalHeight}\n\nThe issue was the missing 's' in 'screenshots'!`);
-              };
-              img.onerror = (e) => {
-                console.error('❌ Corrected proxy URL still failed:', e);
-                console.error('❌ Error details:', {
-                  type: e.type,
-                  target: e.target,
-                  currentSrc: e.target.currentSrc
-                });
-                alert('❌ Corrected proxy URL still failed. Check Django server and endpoint configuration.');
-              };
-              img.src = testProxyUrl;
-            }}
-            style={{ 
-              fontSize: '11px',
-              padding: '4px 8px',
-              backgroundColor: '#f97316',
-              color: 'white',
-              border: 'none'
-            }}
-          >
-            🔧 Test Fixed Proxy
-          </Button>
-
-          {/* Test current folder screenshots URLs */}
-          {folderScreenshots.length > 0 && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                console.log('🔧 DEBUG: Testing current folder screenshot URLs');
-                console.log(`Found ${folderScreenshots.length} screenshots to test`);
-                
-                folderScreenshots.slice(0, 5).forEach((screenshot, index) => {
-                  console.log(`\n🔍 Testing Screenshot ${index + 1}:`);
-                  console.log('Raw data:', {
-                    filename: screenshot.filename,
-                    presigned_url: screenshot.presigned_url?.substring(0, 100) + '...',
-                    url: screenshot.url,
-                    s3_key: screenshot.s3_key
-                  });
-                  
-                  const formattedData = formatScreenshotData(screenshot, index);
-                  console.log('Formatted data:', {
-                    image: formattedData.image?.substring(0, 100) + '...',
-                    task: formattedData.task,
-                    time: formattedData.time
-                  });
-                  
-                  // Test the URL
-                  if (formattedData.image) {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.onload = () => {
-                      console.log(`✅ Screenshot ${index + 1} loaded successfully:`, {
-                        size: `${img.naturalWidth}x${img.naturalHeight}`,
-                        filename: screenshot.filename
-                      });
-                    };
-                    img.onerror = (e) => {
-                      console.error(`❌ Screenshot ${index + 1} failed to load:`, {
-                        filename: screenshot.filename,
-                        url: formattedData.image?.substring(0, 100) + '...',
-                        error: e
-                      });
-                    };
-                    img.src = formattedData.image;
-                  } else {
-                    console.error(`❌ No image URL for screenshot ${index + 1}`);
-                  }
-                });
-                
-                alert(`🔧 Testing first ${Math.min(5, folderScreenshots.length)} screenshot URLs. Check console for results.`);
-              }}
-              style={{ 
-                fontSize: '11px',
-                padding: '4px 8px',
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                border: 'none'
-              }}
-            >
-              🔍 Test Current URLs ({folderScreenshots.length})
-            </Button>
-          )}
-
-          {/* LOG S3 KEYS from API Response */}
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              console.log('🔑 S3 KEYS ANALYSIS - Based on your API response:');
-              console.log('📊 Total screenshots in current view:', folderScreenshots.length);
-              
-              folderScreenshots.forEach((screenshot, index) => {
-                console.log(`\n🔑 Screenshot ${index + 1}/${folderScreenshots.length}:`);
-                console.log('├── ID:', screenshot?.id || 'No ID');
-                console.log('├── Filename:', screenshot?.filename || 'No filename');
-                console.log('├── S3 Key:', screenshot?.s3_key || '❌ NO S3 KEY');
-                console.log('├── Has Presigned URL:', !!screenshot?.presigned_url);
-                console.log('├── Generated URL:', getImageUrl(screenshot)?.substring(0, 80) + '...');
-                
-                if (screenshot?.s3_key) {
-                  const proxyUrl = `http://localhost:8000/api/proxy/screenshots/${encodeURIComponent(screenshot.s3_key).replace(/%2F/g, '/')}`;
-                  console.log('├── Proxy URL would be:', proxyUrl);
-                } else {
-                  console.log('├── ⚠️ Cannot generate proxy URL - no S3 key');
-                }
-                console.log('└──────────────────────────────────────');
-              });
-              
-              // Summary
-              const withS3Key = folderScreenshots.filter(s => s.s3_key).length;
-              const withoutS3Key = folderScreenshots.filter(s => !s.s3_key).length;
-              console.log('\n📈 SUMMARY:');
-              console.log(`✅ Screenshots with S3 key: ${withS3Key}`);
-              console.log(`❌ Screenshots without S3 key: ${withoutS3Key}`);
-              console.log(`📊 Percentage with S3 key: ${((withS3Key / folderScreenshots.length) * 100).toFixed(1)}%`);
-              
-              alert(`🔑 S3 Keys Analysis Complete!\n\n✅ With S3 key: ${withS3Key}\n❌ Without S3 key: ${withoutS3Key}\n\nCheck console for detailed S3 key analysis.`);
-            }}
-            style={{ 
-              fontSize: '11px',
-              padding: '4px 8px',
-              backgroundColor: '#10b981',
-              color: 'white',
-              border: 'none'
-            }}
-          >
-            🔑 Log S3 Keys ({folderScreenshots.length})
-          </Button>
-
-          {/* S3 KEY SPECIFIC DEBUG BUTTON */}
-          {folderScreenshots.length > 0 && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                console.log('🔑 S3 KEY ANALYSIS - Starting comprehensive S3 key debugging...');
-                console.log('🔑 Total screenshots to analyze:', folderScreenshots.length);
-                
-                folderScreenshots.forEach((screenshot, index) => {
-                  console.log(`🔑 S3 KEY ANALYSIS [${index + 1}/${folderScreenshots.length}]:`);
-                  console.log('🔑 Raw screenshot object:', screenshot);
-                  console.log('🔑 S3 key analysis:', {
-                    hasS3KeyProperty: 's3_key' in screenshot,
-                    s3KeyValue: screenshot.s3_key,
-                    s3KeyType: typeof screenshot.s3_key,
-                    s3KeyLength: screenshot.s3_key ? screenshot.s3_key.length : 0,
-                    isString: typeof screenshot.s3_key === 'string',
-                    isEmpty: screenshot.s3_key === '',
-                    isNull: screenshot.s3_key === null,
-                    isUndefined: screenshot.s3_key === undefined,
-                    filename: screenshot.filename,
-                    id: screenshot.id
-                  });
-                  
-                  // Test formatScreenshotData function
-                  const formattedData = formatScreenshotData(screenshot, index);
-                  console.log('🔑 Formatted data S3 key:', formattedData.s3_key);
-                  console.log('🔑 S3 debug info:', formattedData.s3_key_debug_info);
-                });
-                
-                // Summary
-                const s3KeyCount = folderScreenshots.filter(s => s.s3_key).length;
-                const nullS3KeyCount = folderScreenshots.filter(s => !s.s3_key).length;
-                console.log('🔑 S3 KEY SUMMARY:', {
-                  totalScreenshots: folderScreenshots.length,
-                  screenshotsWithS3Key: s3KeyCount,
-                  screenshotsWithoutS3Key: nullS3KeyCount,
-                  percentageWithS3Key: ((s3KeyCount / folderScreenshots.length) * 100).toFixed(1) + '%'
-                });
-                
-                alert(`🔑 S3 Key Analysis Complete!\n✅ With S3 key: ${s3KeyCount}\n❌ Without S3 key: ${nullS3KeyCount}\nCheck console for detailed analysis.`);
-              }}
-              style={{ 
-                fontSize: '11px',
-                padding: '4px 8px',
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none'
-              }}
-            >
-              🔑 Analyze S3 Keys ({folderScreenshots.length})
-            </Button>
-          )}
+   
           
-          {/* Open first image URL in new tab */}
-          {folderScreenshots.length > 0 && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                const firstScreenshot = folderScreenshots[0];
-                const formattedData = formatScreenshotData(firstScreenshot, 0);
-                console.log('🌐 Opening first image URL in new tab:', formattedData.image);
-                
-                if (formattedData.image) {
-                  window.open(formattedData.image, '_blank');
-                } else {
-                  alert('❌ No image URL to open!');
-                }
-              }}
-              style={{ 
-                fontSize: '11px',
-                padding: '4px 8px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none'
-              }}
-            >
-              🌐 Open First Image URL
-            </Button>
-          )}
-          
-          {/* Debug: Log all screenshot URLs button */}
-          {folderScreenshots.length > 0 && (
-            <button
-              onClick={() => {
-                console.log('🔍 All screenshot URLs:');
-                folderScreenshots.forEach((screenshot, index) => {
-                  const formattedData = formatScreenshotData(screenshot, index);
-                  console.log(`Screenshot ${index}:`, {
-                    original: screenshot,
-                    formatted: formattedData,
-                    image: formattedData.image
-                  });
-                });
-              }}
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              🔍 Log All URLs
-            </button>
-          )}
+    
         </div>
         
         {/* Per-page limit selector */}
@@ -4236,12 +4018,21 @@ const ActivityStream = () => {
         
         <CardGrid ref={cardGridRef} theme={theme} isDarkMode={isDarkMode}>
           {(() => {
-            // Apply date filtering to screenshots
-            const filteredScreenshots = filterScreenshotsByDate(folderScreenshots);
+            // Use pre-filtered screenshots from useEffect
+            console.log(`🗓️ ===== RENDERING FOLDER SCREENSHOTS =====`);
+            console.log(`🗓️ Using pre-filtered screenshots:`);
+            console.log(`🗓️ Original count: ${folderScreenshots.length}`);
+            console.log(`🗓️ Filtered count: ${filteredFolderScreenshots.length}`);
+            console.log(`🗓️ Filter state:`, {
+              isDateFilterActive,
+              singleDateFilter,
+              dateRange: [
+                dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
+                dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
+              ]
+            });
             
-            console.log(`🗓️ Date filtering applied: ${folderScreenshots.length} total → ${filteredScreenshots.length} filtered`);
-            
-            return filteredScreenshots.map((screenshot, i) => {
+            return filteredFolderScreenshots.map((screenshot, i) => {
               const formattedData = screenshot; // Use the already formatted data
               const originalApiData = screenshot.originalData || screenshot; // Access original API data
               return (
@@ -5180,7 +4971,7 @@ const ActivityStream = () => {
                   color: isDarkMode ? '#f3f4f6' : '#1f2937',
                   marginBottom: '8px'
                 }}>
-                  📅 Date Filter
+                  📅 Please add date range
                 </div>
 
                 {/* Date Range Picker */}
@@ -5237,6 +5028,66 @@ const ActivityStream = () => {
                     </Button>
                   )}
 
+                  {/* Date Filter Status Indicator */}
+                  {(isDateFilterActive || singleDateFilter) && (
+                    <div style={{
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: isDarkMode ? '#065f46' : '#d1fae5',
+                      color: isDarkMode ? '#34d399' : '#065f46',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      border: `1px solid ${isDarkMode ? '#34d399' : '#10b981'}`
+                    }}>
+                      {singleDateFilter ? (
+                        `📅 Filtering by: ${dayjs(singleDateFilter).format('YYYY-MM-DD')}`
+                      ) : isDateFilterActive && dateRange[0] && dateRange[1] ? (
+                        `📅 Range: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`
+                      ) : (
+                        '📅 Date filter active'
+                      )}
+                    </div>
+                  )}
+
+                  {/* Debug Button */}
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      console.log('🐛 ===== DEBUG INFO =====');
+                      console.log('🐛 Filter States:', {
+                        isDateFilterActive,
+                        dateRange: [
+                          dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
+                          dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
+                        ],
+                        singleDateFilter,
+                        filterUpdateTrigger
+                      });
+                      console.log('🐛 Screenshot Data (first 3):');
+                      folderScreenshots.slice(0, 3).forEach((screenshot, i) => {
+                        console.log(`  Screenshot ${i + 1}:`, {
+                          id: screenshot.id,
+                          filename: screenshot.filename,
+                          timestamp: screenshot.timestamp,
+                          last_modified: screenshot.last_modified,
+                          extractedDate: extractDateFromTimestamp(screenshot.timestamp)?.format('YYYY-MM-DD') || 'FAILED'
+                        });
+                      });
+                      console.log(`🐛 Total screenshots: ${folderScreenshots.length}`);
+                      console.log(`🐛 Filtered screenshots: ${filteredFolderScreenshots.length}`);
+                    }}
+                    sx={{
+                      borderColor: '#8b5cf6',
+                      color: '#8b5cf6',
+                      '&:hover': { 
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)'
+                      }
+                    }}
+                  >
+                    🐛 Debug Info
+                  </Button>
                   <Button
                     variant="text"
                     size="small"
@@ -5537,7 +5388,13 @@ const ActivityStream = () => {
               </SearchInfo>
               
               <CardGrid theme={theme} isDarkMode={isDarkMode}>
-                {screenshots.map((screenshot, i) => {
+                {(() => {
+                  // Apply date filtering to screenshots
+                  const filteredScreenshots = filterScreenshotsByDate(screenshots);
+                  
+                  console.log(`🗓️ Main screenshots date filtering applied: ${screenshots.length} total → ${filteredScreenshots.length} filtered`);
+                  
+                  return filteredScreenshots.map((screenshot, i) => {
                   const formattedData = formatScreenshotData(screenshot, i);
                   return (
                     <Card 
@@ -5629,7 +5486,8 @@ const ActivityStream = () => {
                       </BackendStatusBadge>
                     </Card>
                   );
-                })}
+                }); // End of map
+              })()}
               </CardGrid>
 
               {renderPagination()}
