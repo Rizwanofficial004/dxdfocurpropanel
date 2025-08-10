@@ -1,0 +1,3403 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load i18n %}
+{% block head %}
+<script src="{% static 'js/translate.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	.main {
+		box-sizing: border-box;
+		width: 100%;
+		overflow: hidden;
+	}
+
+	body {
+		background-color: #000;
+		color: #fff;
+		min-height: 100vh;
+		display: flex;
+	}
+
+	/* Sidebar */
+	/* .sidebar {
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+} */
+
+	.logo {
+		padding: 15px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		border-bottom: 1px solid #222;
+	}
+
+	.logo img {
+		height: 30px;
+	}
+
+	.menu-toggle {
+		background-color: #1e73ff;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		width: 30px;
+		height: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+	}
+
+	.sidebar-menu {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		background: transparent !important;
+	}
+
+	.sidebar-item {
+		padding: 12px 15px;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		color: #bbb;
+		text-decoration: none;
+		transition: all 0.2s;
+		position: relative;
+	}
+
+	.sidebar-item.active {
+		color: white;
+		background-color: rgba(30, 115, 255, 0.1);
+		border-left: 3px solid #1e73ff;
+	}
+
+	.sidebar-item:hover {
+		background-color: #1a1a1a;
+	}
+
+	.sidebar-item i {
+		width: 20px;
+		text-align: center;
+	}
+
+	.new-badge {
+		position: absolute;
+		right: 15px;
+		background-color: #1e73ff;
+		color: white;
+		font-size: 10px;
+		padding: 2px 6px;
+		border-radius: 10px;
+	}
+
+	/* Main Content */
+	.main-content {
+		flex-grow: 1;
+		padding: 15px;
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+		overflow: hidden;
+	}
+
+	/* Header */
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 15px;
+	}
+
+	.user-actions {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.user-actions .time {
+		color: #999;
+		font-size: 12px;
+	}
+
+	.user-actions button {
+		background-color: #222;
+		border: none;
+		border-radius: 4px;
+		color: #fff;
+		padding: 5px 10px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
+	.user-actions .avatar {
+		width: 30px;
+		height: 30px;
+		background-color: #1e73ff;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: white;
+	}
+
+	/* Cards */
+	.card {
+		background-color: #1d232c;
+		border-radius: 8px;
+		padding: 15px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.status-cards {
+		display: flex;
+		gap: 15px;
+
+	}
+
+	.status-card {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.card-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 15px;
+	}
+
+	.card-title {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-weight: 500;
+	}
+
+	.date-picker {
+		background-color: transparent;
+		border: none;
+		color: #999;
+		cursor: pointer;
+	}
+
+	/* Status content */
+	.status-content {
+		display: flex;
+		justify-content: space-between;
+		height: 150px;
+	}
+
+	.status-chart {
+		position: relative;
+		width: 50%;
+		height: 150px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.status-chart::after {
+		content: "";
+		position: absolute;
+		right: 0;
+		top: 50%;
+		height: 100px;
+		width: 1px;
+		margin-top: -50px;
+		background: #2d2d2d;
+	}
+
+	.status-chart svg {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+	}
+
+	.status-chart .chart-value {
+		font-size: 24px;
+		font-weight: bold;
+		color: #1e73ff;
+	}
+
+	.status-list {
+		display: flex;
+		flex-direction: row;
+		gap: 0px 20px;
+		justify-content: center;
+		flex-wrap: wrap;
+		padding-left: 50px;
+	}
+
+	.status-item {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.status-item-color {
+		width: 12px;
+		height: 12px;
+		border-radius: 2px;
+	}
+
+	.metrics {
+		display: flex;
+		justify-content: space-between;
+		flex-grow: 1;
+	}
+
+	.metric {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 0 15px;
+	}
+
+	.metric-value {
+		font-size: 24px;
+		font-weight: bold;
+		color: #1e73ff;
+	}
+
+	.metric-label {
+		font-size: 12px;
+		color: #999;
+	}
+
+	.metric-sub {
+		font-size: 14px;
+		color: #ccc;
+	}
+
+	/* Timeline section */
+	.timeline-section {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+		margin: 10px 0px 10px 0px;
+	}
+
+	.timeline-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.timeline-date-selector {
+		display: flex;
+		gap: 5px;
+	}
+
+	.date-button {
+		background-color: #222;
+		border: none;
+		border-radius: 4px;
+		color: #ccc;
+		padding: 5px 10px;
+		cursor: pointer;
+		font-size: 12px;
+	}
+
+	.date-button.active {
+		background-color: #1e73ff;
+		color: white;
+	}
+
+	.refresh-button {
+		background-color: transparent;
+		border: 1px solid #444;
+		border-radius: 4px;
+		color: #ccc;
+		padding: 5px 10px;
+		cursor: pointer;
+		font-size: 12px;
+	}
+
+	/* Screenshots */
+	.screenshots {
+		display: flex;
+		gap: 10px;
+		overflow-x: auto;
+		padding-bottom: 10px;
+	}
+
+	.screenshot {
+		border: 1px solid #2d2d2d;
+		border-radius: 4px;
+		overflow: hidden;
+		position: relative;
+		max-width: 238px;
+		width: 100%;
+		height: 166px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.screenshot:hover {
+		cursor: pointer;
+	}
+
+	.screenshot img {
+		object-fit: cover;
+	}
+
+	.screenshot-time {
+		position: absolute;
+		top: 5px;
+		left: 5px;
+		background-color: rgba(0, 0, 0, 0.7);
+		color: white;
+		padding: 2px 6px;
+		border-radius: 10px;
+		font-size: 10px;
+	}
+
+	/* Search and timeline */
+	.search-timeline {
+		display: flex;
+		gap: 15px;
+		margin: 0px 15px;
+	}
+
+	.search-timeline .card {
+		margin-top: 0px;
+	}
+
+	.search-card {
+		width: 250px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.search-input {
+		background-color: #222;
+		border: none;
+		border-radius: 4px;
+		color: white;
+		padding: 8px 12px;
+		width: 100%;
+		margin-bottom: 10px;
+	}
+
+	.search-results {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	.search-result {
+		border: 1px solid #ffffff21 !important;
+		color: #9f9f9f;
+		box-shadow: none;
+		padding: 10px 15px;
+		cursor: pointer;
+		border-radius: 6px;
+		transition: all .5s ease-in-out;
+		text-align: left;
+		margin-bottom: 10px;
+		font-style: normal;
+		font-size: 12px;
+		line-height: 1.8;
+	}
+
+
+
+	.search-result:hover {
+		border: 1px solid #0560FC !important;
+	}
+
+	/* Detailed timeline */
+	.detailed-timeline {
+		flex-grow: 1;
+	}
+
+	.timeline-header {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 15px;
+	}
+
+	.timeline-stats {
+		display: flex;
+		gap: 15px;
+	}
+
+	.timeline-stat {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.stat-value {
+		font-size: 18px;
+		font-weight: bold;
+	}
+
+	.stat-label {
+		font-size: 12px;
+		color: #999;
+	}
+
+	.timeline-table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.timeline-table th {
+		text-align: left;
+		padding: 10px;
+		color: #999;
+		font-weight: normal;
+		font-size: 12px;
+	}
+
+	.timeline-entry {
+		display: flex;
+		margin-bottom: 15px;
+	}
+
+	.timeline-marker {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 30px;
+		margin-right: 10px;
+	}
+
+	.timeline-dot {
+		width: 12px;
+		height: 12px;
+		background-color: #1e73ff;
+		border-radius: 50%;
+	}
+
+	.timeline-line {
+		width: 2px;
+		background-color: #333;
+		flex-grow: 1;
+		margin: 5px 0;
+	}
+
+	.timeline-time {
+		font-size: 12px;
+		color: #999;
+	}
+
+	.timeline-info {
+		flex-grow: 1;
+		background-color: #222;
+		border-radius: 4px;
+		padding: 10px;
+	}
+
+	.activity-title {
+		font-weight: bold;
+		margin-bottom: 5px;
+	}
+
+	.activity-details {
+		font-size: 12px;
+		color: #999;
+	}
+
+	.activity-stats {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	/* For pie chart */
+	.pie-segment {
+		transition: all 0.3s;
+	}
+
+	.pie-segment:hover {
+		opacity: 0.8;
+	}
+
+	/* Worktime spread */
+	.spread-values {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 10px;
+	}
+
+	.spread-value {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.spread-percent {
+		font-size: 18px;
+		font-weight: bold;
+	}
+
+	.work-value {
+		color: #2ecc71;
+	}
+
+	.meeting-value {
+		color: #3498db;
+	}
+
+	.break-value {
+		color: #f39c12;
+	}
+
+	.idle-value {
+		color: #e74c3c;
+	}
+
+	/* Footer elements */
+	.footer-buttons {
+		position: fixed;
+		bottom: 20px;
+		left: 20px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.footer-button {
+		background-color: #222;
+		border: none;
+		border-radius: 4px;
+		color: #1e73ff;
+		padding: 8px 12px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		font-size: 12px;
+	}
+
+	.chat-button {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background-color: #1e73ff;
+		border: none;
+		border-radius: 50%;
+		width: 50px;
+		height: 50px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		color: white;
+		font-size: 20px;
+	}
+
+	.loader {
+		text-align: center;
+		font-weight: bold;
+		color: #1e73ff;
+		padding: 2rem;
+	}
+
+	.error {
+		color: red;
+		text-align: center;
+		padding: 2rem;
+	}
+
+	.search-result.highlight {
+		background-color: #1e73ff !important;
+		color: white !important;
+		transition: background 0.3s ease;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	.latest-screenshots {
+		display: flex;
+		gap: 12px;
+		padding: 12px;
+		flex-wrap: wrap;
+	}
+
+	.latest-screenshot-item {
+		width: 130px;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		background: #fff;
+		padding: 6px;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+		text-align: center;
+	}
+
+	.latest-screenshot-item img {
+		width: 100%;
+		height: auto;
+		border-radius: 6px;
+		object-fit: cover;
+	}
+
+	.status-list {
+		display: flex;
+		flex-direction: row;
+		gap: 0px 20px;
+		justify-content: center;
+		flex-wrap: wrap;
+		padding-left: 50px;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	.modal {
+		display: none;
+		position: fixed;
+		z-index: 9999;
+		top: 117px;
+		left: 0;
+		right: 0;
+		width: 75%;
+		height: auto;
+		margin: 0 auto;
+		background-color: rgba(0, 0, 0, 0.68);
+		backdrop-filter: blur(4px);
+		justify-content: center;
+		align-items: flex-start;
+		padding: 78px 37px;
+		box-shadow: 0 10px 30px rgb(55 50 50 / 60%);
+		/* Center horizontally, top at 117px, height auto */
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+
+		to {
+			opacity: 1;
+		}
+	}
+
+	.modal-content {
+		max-width: 700px;
+		max-height: 80vh;
+		border-radius: 8px;
+		object-fit: contain;
+		animation: zoomIn 0.3s ease;
+	}
+
+	.close {
+		position: absolute;
+		top: 20px;
+		right: 40px;
+		color: white;
+		font-size: 35px;
+		font-weight: bold;
+		cursor: pointer;
+		z-index: 10001;
+	}
+
+	.prev,
+	.next {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		color: white;
+		font-size: 40px;
+		font-weight: bold;
+		padding: 10px;
+		cursor: pointer;
+		user-select: none;
+		transition: 0.2s;
+		z-index: 10001;
+	}
+
+	.prev {
+		left: 20px;
+	}
+
+	.next {
+		right: 20px;
+	}
+
+	.prev:hover,
+	.next:hover {
+		color: #1e73ff;
+	}
+
+
+
+
+
+
+
+
+
+
+
+	.add-user-btn {
+		margin-top: 10px;
+		background-color: #1e73ff;
+		border: none;
+		border-radius: 4px;
+		padding: 8px 12px;
+		color: white;
+		width: 100%;
+		cursor: pointer;
+	}
+
+	.custom-modal {
+		display: none;
+		position: fixed;
+		z-index: 9999;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.7);
+		justify-content: center;
+		align-items: center;
+	}
+
+	.custom-modal-content {
+		background: #1d232c;
+		padding: 20px;
+		border-radius: 8px;
+		width: 350px;
+		position: relative;
+		animation: fadeInUp 0.4s ease;
+		box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+	}
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.custom-modal-content h3 {
+		color: #fff;
+		margin-bottom: 15px;
+	}
+
+	.custom-modal-content input,
+	.custom-modal-content select {
+		width: 100%;
+		margin-bottom: 10px;
+		padding: 8px 12px;
+		background: #2d2d2d;
+		border: 1px solid #444;
+		border-radius: 4px;
+		color: white;
+	}
+
+	.custom-modal-content button {
+		background-color: #1e73ff;
+		border: none;
+		padding: 10px 12px;
+		width: 100%;
+		color: white;
+		font-weight: bold;
+		cursor: pointer;
+		border-radius: 4px;
+	}
+
+	.add-user-btn {
+		margin-top: 12px;
+		width: 100%;
+		padding: 10px;
+		background-color: #1e73ff;
+		color: white;
+		border: none;
+		border-radius: 4px;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	.custom-modal .close {
+		position: absolute;
+		top: 10px;
+		right: 15px;
+		font-size: 24px;
+		color: #fff;
+		cursor: pointer;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/* ========== HEADER STYLES ========== */
+	.activity-title-section {
+		margin-top: 30px;
+		margin-bottom: 30px;
+	}
+
+	.activity-stream-wrapper {
+		background-color: #1d232c;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 16px;
+
+		overflow: hidden;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.header-stream {
+		padding: 12px 20px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		/* border-bottom: 1px solid #333; */
+		justify-content: space-between;
+    width: 100%;
+	}
+
+	.header-stream-wrapper{
+		width: 100%;
+		
+	}
+
+	.header-left {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+	}
+
+	.header-right {
+		display: flex;
+		gap: 30px;
+	}
+
+	.title {
+		font-size: 16px;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 10px;
+	}
+
+	.info-icon {
+		width: 16px;
+		height: 16px;
+		border: 1px solid #666;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 12px;
+		color: #666;
+	}
+
+	.user-info {
+		color: #4a9eff;
+		font-weight: 500;
+		text-transform: uppercase;
+		font-size: 14px;
+	}
+
+	/* ========== NAVIGATION ========== */
+	.time-nav {
+		display: flex;
+		overflow-x: auto;
+		scroll-behavior: smooth;
+		gap: 8px;
+		padding-bottom: 5px;
+		scrollbar-width: none;
+		/* Firefox */
+		-ms-overflow-style: none;
+		/* Internet Explorer 10+ */
+	}
+
+	.time-nav::-webkit-scrollbar {
+		display: none;
+		/* Chrome, Safari, Opera */
+	}
+
+
+	.nav-arrow {
+		background: none;
+		border: none;
+		color: #666;
+		font-size: 18px;
+		cursor: pointer;
+		padding: 4px 8px;
+		border-radius: 4px;
+		transition: color 0.2s;
+	}
+
+	.nav-arrow:hover {
+		color: #999;
+	}
+
+	.time-slot {
+		padding: 6px 12px;
+		margin: 0 2px;
+		background: #333;
+		border-radius: 4px;
+		font-size: 12px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.time-slot:hover {
+		background: #444;
+	}
+
+	.time-slot.active {
+		background: #4a9eff;
+	}
+
+	.time-slot.active:hover {
+		background: #5aa8ff;
+	}
+
+	.refresh-btn {
+		background: #4a9eff;
+		border: none;
+		color: white;
+		padding: 8px 16px;
+		border-radius: 6px;
+		font-size: 12px;
+		font-weight: 600;
+		text-transform: uppercase;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.refresh-btn:hover {
+		background: #5aa8ff;
+	}
+
+	/* ========== ACTIVITY STREAM ========== */
+	.activity-stream {
+		display: flex;
+		gap: 20px;
+		padding: 10px 15px;
+		overflow-x: auto;
+		min-height: auto;
+		
+	}
+
+	.activity-card {
+		flex-shrink: 0;
+		width: 250px;
+		background: #2a2a2a;
+		border-radius: 8px;
+		overflow: hidden;
+		border: 1px solid #333;
+		position: relative;
+	}
+
+	.card-header {
+		padding: 8px 12px;
+		background: #333;
+		font-size: 12px;
+		color: #ccc;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.status-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: #4a9eff;
+	}
+
+	.card-content {
+		height: auto;
+		background: #1a1a1a;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* ========== BROWSER MOCKUP ========== */
+	.browser-mockup {
+		width: 90%;
+		height: 90%;
+		background: white;
+		border-radius: 4px;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.browser-header {
+		height: 20px;
+		background: #f0f0f0;
+		display: flex;
+		align-items: center;
+		padding: 0 8px;
+		gap: 4px;
+	}
+
+	.browser-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+	}
+
+	.red {
+		background: #ff5f57;
+	}
+
+	.yellow {
+		background: #ffbd2e;
+	}
+
+	.green {
+		background: #28ca42;
+	}
+
+	.browser-content {
+		padding: 12px;
+		height: calc(100% - 20px);
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.content-line {
+		height: 4px;
+		background: #e0e0e0;
+		border-radius: 2px;
+	}
+
+	.content-line.short {
+		width: 60%;
+	}
+
+	.content-line.medium {
+		width: 80%;
+	}
+
+	.content-line.long {
+		width: 100%;
+	}
+
+	/* ========== VS CODE MOCKUP ========== */
+	.vs-code-mockup {
+		background: #1e1e1e;
+		color: #d4d4d4;
+		font-family: 'Monaco', 'Consolas', monospace;
+	}
+
+	.vs-code-content {
+		padding: 12px;
+		font-size: 10px;
+		line-height: 1.4;
+	}
+
+	.code-line {
+		margin-bottom: 2px;
+	}
+
+	/* ========== BLUE POPUP ========== */
+	.blue-popup {
+		background: linear-gradient(135deg, #4a9eff, #2980b9);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+		text-align: center;
+		color: white;
+	}
+
+	.popup-icon {
+		width: 40px;
+		height: 40px;
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 12px;
+		font-size: 20px;
+	}
+
+	.popup-title {
+		font-weight: bold;
+		font-size: 14px;
+		margin-bottom: 8px;
+	}
+
+	.popup-subtitle {
+		font-size: 11px;
+		opacity: 0.9;
+		line-height: 1.3;
+	}
+
+	/* ========== GREEN CONTENT CARD ========== */
+	.green-content {
+		background: linear-gradient(135deg, #27ae60, #2ecc71);
+		padding: 20px;
+		color: white;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	.chart-mockup {
+		width: 100%;
+		height: 60px;
+		display: flex;
+		align-items: end;
+		gap: 3px;
+		margin-top: 12px;
+	}
+
+	.chart-bar {
+		background: rgba(255, 255, 255, 0.8);
+		width: 8px;
+		border-radius: 2px 2px 0 0;
+	}
+
+	/* ========== FIGMA MOCKUP ========== */
+	.figma-mockup {
+		background: #f8f8f8;
+		padding: 12px;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 8px;
+	}
+
+	.figma-frame {
+		aspect-ratio: 1;
+		border-radius: 4px;
+		border: 2px solid #e0e0e0;
+	}
+
+	.frame-1 {
+		background: #ff6b6b;
+	}
+
+	.frame-2 {
+		background: #4ecdc4;
+	}
+
+	.frame-3 {
+		background: #45b7d1;
+	}
+
+	.frame-4 {
+		background: #96ceb4;
+	}
+
+	.frame-5 {
+		background: #ffeaa7;
+	}
+
+	.frame-6 {
+		background: #dda0dd;
+	}
+
+	.frame-7 {
+		background: #98d8c8;
+	}
+
+	.frame-8 {
+		background: #f7dc6f;
+	}
+
+	/* ========== TERMINAL MOCKUP ========== */
+	.terminal-mockup {
+		background: #0d1117;
+		color: #c9d1d9;
+		font-family: 'Monaco', 'Consolas', monospace;
+		padding: 12px;
+		font-size: 10px;
+	}
+
+	.terminal-line {
+		margin-bottom: 4px;
+		opacity: 0.8;
+	}
+
+	.terminal-prompt {
+		color: #7c3aed;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	.FocusTimeline-wrapper {
+
+		width: 100%;
+		margin: 0 auto;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 15px;
+		height: calc(100vh - 40px);
+	}
+
+	.panel {
+		background: #1d232c;
+		backdrop-filter: blur(10px);
+		border-radius: 16px;
+		padding: 24px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		transition: all 0.3s ease;
+		overflow: hidden;
+	}
+
+	.panel:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.panel-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 32px;
+	}
+
+	.panel-title {
+		font-size: 24px;
+		font-weight: 600;
+		color: #ffffff;
+	}
+
+	.lock-icon {
+		width: 24px;
+		height: 24px;
+		background: #4A90E2;
+		border-radius: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.lock-icon:hover {
+		background: #5BA0F2;
+		transform: scale(1.1);
+	}
+
+	/* Timeline Styles */
+	.timeline {
+		position: relative;
+		padding-left: 40px;
+	}
+
+	.timeline::before {
+		content: '';
+		position: absolute;
+		left: 20px;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: linear-gradient(to bottom, #4A90E2, #357ABD);
+	}
+
+	.timeline-item {
+		position: relative;
+		margin-bottom: 24px;
+		padding: 16px 20px;
+		background: rgba(255, 255, 255, 0.05);
+		border-radius: 12px;
+		border-left: 3px solid transparent;
+		transition: all 0.3s ease;
+		cursor: pointer;
+	}
+
+	.timeline-item:hover {
+		background: rgba(255, 255, 255, 0.1);
+		border-left-color: #4A90E2;
+		transform: translateX(8px);
+	}
+
+	.timeline-item::before {
+		content: '';
+		position: absolute;
+		left: -32px;
+		top: 20px;
+		width: 12px;
+		height: 12px;
+		background: #4A90E2;
+		border-radius: 50%;
+		border: 3px solid #1a1a2e;
+		transition: all 0.3s ease;
+	}
+
+	.timeline-item:hover::before {
+		background: #5BA0F2;
+		transform: scale(1.3);
+		box-shadow: 0 0 20px rgba(74, 144, 226, 0.5);
+	}
+
+	.timeline-time {
+		font-size: 12px;
+		color: #888;
+		margin-bottom: 4px;
+	}
+
+	.timeline-title {
+		font-size: 16px;
+		font-weight: 600;
+		color: #ffffff;
+		margin-bottom: 4px;
+	}
+
+	.timeline-subtitle {
+		font-size: 14px;
+		color: #aaa;
+	}
+
+	.timeline-duration {
+		position: absolute;
+		right: 16px;
+		top: 16px;
+		font-size: 12px;
+		color: #888;
+		background: rgba(255, 255, 255, 0.1);
+		padding: 4px 8px;
+		border-radius: 12px;
+	}
+
+	/* Focus Share Styles */
+	.focus-share-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 24px;
+	}
+
+	.stats {
+		display: flex;
+		gap: 32px;
+		margin-bottom: 32px;
+	}
+
+	.stat {
+		text-align: center;
+	}
+
+	.stat-number {
+		font-size: 32px;
+		font-weight: 700;
+		color: #4A90E2;
+		display: block;
+		transition: all 0.3s ease;
+	}
+
+	.stat-label {
+		font-size: 14px;
+		color: #888;
+		margin-top: 4px;
+	}
+
+	.stat:hover .stat-number {
+		color: #5BA0F2;
+		transform: scale(1.1);
+	}
+
+	.table-header {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 16px;
+		padding: 16px 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		margin-bottom: 16px;
+	}
+
+	.table-header-cell {
+		font-size: 14px;
+		color: #888;
+		font-weight: 500;
+	}
+
+	.table-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		gap: 16px;
+		padding: 16px 0;
+		border-radius: 8px;
+		transition: all 0.3s ease;
+		cursor: pointer;
+	}
+
+	.table-row:hover {
+		background: rgba(255, 255, 255, 0.05);
+		transform: translateX(4px);
+	}
+
+	.table-cell {
+		font-size: 14px;
+		color: #ffffff;
+	}
+
+	.table-cell.switches {
+		background: rgba(255, 255, 255, 0.1);
+		padding: 8px 12px;
+		border-radius: 20px;
+		text-align: center;
+		max-width: fit-content;
+		transition: all 0.3s ease;
+	}
+
+	.table-cell.switches:hover {
+		background: rgba(74, 144, 226, 0.3);
+	}
+
+	.table-cell.duration {
+		color: #888;
+	}
+
+	.table-cell.activity {
+		color: #4A90E2;
+		text-decoration: none;
+		transition: all 0.3s ease;
+	}
+
+	.table-cell.activity:hover {
+		color: #5BA0F2;
+		text-decoration: underline;
+	}
+
+	/* Responsive Design */
+	@media (max-width: 1024px) {
+		.container {
+			grid-template-columns: 1fr;
+			gap: 20px;
+			height: auto;
+		}
+
+		.panel {
+			padding: 20px;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.stats {
+			flex-direction: column;
+			gap: 16px;
+		}
+
+		.table-header,
+		.table-row {
+			grid-template-columns: 1fr;
+			gap: 8px;
+		}
+
+		.timeline {
+			padding-left: 30px;
+		}
+	}
+
+	/* Animations */
+	@keyframes slideInLeft {
+		from {
+			opacity: 0;
+			transform: translateX(-50px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes slideInRight {
+		from {
+			opacity: 0;
+			transform: translateX(50px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	.panel:nth-child(1) {
+		animation: slideInLeft 0.6s ease-out;
+	}
+
+	.panel:nth-child(2) {
+		animation: slideInRight 0.6s ease-out;
+	}
+
+	.timeline-item {
+		animation: slideInLeft 0.4s ease-out;
+	}
+
+	.timeline-item:nth-child(2) {
+		animation-delay: 0.1s;
+	}
+
+	.timeline-item:nth-child(3) {
+		animation-delay: 0.2s;
+	}
+
+	.timeline-item:nth-child(4) {
+		animation-delay: 0.3s;
+	}
+
+	.timeline-item:nth-child(5) {
+		animation-delay: 0.4s;
+	}
+
+	.timeline-item:nth-child(6) {
+		animation-delay: 0.5s;
+	}
+
+	.timeline-item:nth-child(7) {
+		animation-delay: 0.6s;
+	}
+
+	/* Focus indicator */
+	.focus-indicator {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		width: 8px;
+		height: 8px;
+		background: #4A90E2;
+		border-radius: 50%;
+		animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+
+		0%,
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+
+		50% {
+			opacity: 0.5;
+			transform: scale(1.2);
+		}
+	}
+</style>
+
+<!-- SPINNER STYLES -->
+<style>
+	.time-nav-wrapper {
+		display: flex;
+		align-items: center;
+		overflow: hidden;
+		max-width: 400px;
+	}
+
+	.time-nav {
+		display: flex;
+		overflow-x: auto;
+		scroll-behavior: smooth;
+		gap: 8px;
+	}
+
+	.time-slot {
+		min-width: 80px;
+		padding: 8px 12px;
+		background: #333;
+		color: #fff;
+		border-radius: 6px;
+		cursor: pointer;
+		text-align: center;
+		white-space: nowrap;
+	}
+
+	.time-slot.active {
+		background: #4a9eff;
+	}
+
+	.nav-arrow {
+		background: none;
+		border: none;
+		color: #fff;
+		font-size: 20px;
+		padding: 0 8px;
+		cursor: pointer;
+	}
+
+	.spinner {
+		border: 4px solid #444;
+		border-top: 4px solid #4a9eff;
+		border-radius: 50%;
+		width: 40px;
+		height: 40px;
+		animation: spin 1s linear infinite;
+		margin: 30px auto;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+	.f-wrapper{
+		width: 80%;
+
+	}
+	.activity-wrapper{
+		width: 100%;
+		justify-content: center;
+	}
+</style>
+
+<div class="status-cards">
+	<!-- CURRENT STATUS CARD -->
+	<div class="card status-card">
+		<!-- Header -->
+		<div class="card-header">
+			<div class="card-title">
+				<i>📊</i>
+				<span>{% trans "CURRENT STATUS" %}</span>
+			</div>
+		</div>
+
+		<!-- Content -->
+		<div class="status-content">
+
+			<!-- Chart -->
+			<div class="status-chart">
+				<svg width="150" height="150" viewBox="0 0 150 150">
+					<circle cx="75" cy="75" r="60" fill="none" stroke="#333" stroke-width="10"></circle>
+					<circle cx="75" cy="75" r="60" fill="none" stroke="#1e73ff" stroke-width="10" stroke-dashoffset="-45">
+					</circle>
+				</svg>
+				<div class="chart-value">{{ status_counts.at_work }}</div>
+			</div>
+
+			<!-- Status Breakdown -->
+			<div class="status-list">
+				<div class="status-item">
+					<div class="status-item-color" style="background-color: #2ecc71;"></div>
+					<span>{{ status_counts.at_work }} {% trans "At Work" %}</span>
+				</div>
+				<div class="status-item">
+					<div class="status-item-color" style="background-color: #3498db;"></div>
+					<span>{{ status_counts.at_break }} {% trans "At Break" %}</span>
+				</div>
+				<div class="status-item">
+					<div class="status-item-color" style="background-color: #f39c12;"></div>
+					<span>{{ status_counts.idle }} {% trans "Idle" %}</span>
+				</div>
+				<div class="status-item">
+					<div class="status-item-color" style="background-color: #95a5a6;"></div>
+					<span>{{ status_counts.off }} {% trans "Off" %}</span>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- COMPANY AVERAGE CARD -->
+	<div class="card status-card">
+		<!-- Card Header -->
+		<div class="card-header">
+			<div class="card-title">
+				<i>🏢</i>
+				<span>{% trans "COMPANY AVERAGE" %}</span>
+			</div>
+			<button class="date-picker">{{ current_date }}</button>
+		</div>
+
+		<!-- Card Content -->
+		<div class="metrics">
+
+			<!-- Daily Breaks -->
+			<div class="metric">
+				<div class="metric-icon">⏱</div>
+				<div class="metric-value">{{ company_avg.breaks_per_day }}</div>
+				<div class="metric-label">{% trans "DAILY BREAKS 30 D AVG" %}</div>
+				<div class="metric-sub">
+					{% trans "Avg" %} {{ company_avg.avg_break_duration }} {% trans "Minutes/Break" %}
+				</div>
+			</div>
+
+			<!-- Meetings -->
+			<div class="metric">
+				<div class="metric-icon">👥</div>
+				<div class="metric-value">{{ company_avg.meetings_per_day }}</div>
+				<div class="metric-label">{% trans "MEETINGS 30 D AVG" %}</div>
+				<div class="metric-sub">
+					{% trans "Avg" %} {{ company_avg.avg_meeting_duration }} {% trans "Minutes/Meeting" %}
+				</div>
+			</div>
+
+			<!-- Work Time Spread -->
+			<div class="metric">
+				<div class="metric-icon">⚖</div>
+				<div class="metric-label">{% trans "WORK TIME SPREAD" %}</div>
+
+				<div class="spread-values">
+					<!-- At Work -->
+					<div class="spread-value">
+						<div class="spread-percent work-value">{{ company_avg.spread.work }}%</div>
+						<div class="metric-sub">{% trans "At Work" %}</div>
+					</div>
+
+					<!-- Meetings -->
+					<div class="spread-value">
+						<div class="spread-percent meeting-value">{{ company_avg.spread.meeting }}%</div>
+						<div class="metric-sub">{% trans "Meetings" %}</div>
+					</div>
+
+					<!-- Breaks -->
+					<div class="spread-value">
+						<div class="spread-percent break-value">{{ company_avg.spread.break }}%</div>
+						<div class="metric-sub">{% trans "Breaks" %}</div>
+					</div>
+
+					<!-- Idle -->
+					<div class="spread-value">
+						<div class="spread-percent idle-value">{{ company_avg.spread.idle }}%</div>
+						<div class="metric-sub">{% trans "Idle" %}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Title Section -->
+<!-- SECTION -->
+<section class="activity-title-section">
+	<!-- Title -->
+	<div class="title">
+		Real Time Activity Stream
+		<div class="info-icon">i</div>
+	</div>
+
+	<div class="activity-stream-wrapper">
+		<!-- HEADER -->
+		<header class="header-stream">
+			<div class="header-left">
+				<div class="user-info">ATAKAN IZZET KAHRAMAN</div>
+			</div>
+
+			<div class="header-right">
+				<div class="time-nav-wrapper">
+					<button class="nav-arrow" id="prevArrow">‹</button>
+					<nav class="time-nav" id="timeNav">
+
+						{% for date in date_slots %}
+						<div class="time-slot {% if forloop.first %}active{% endif %}" data-date="{{ date }}">
+							{{ date|date:"d M" | upper }}
+						</div>
+						{% endfor %}
+					</nav>
+					<button class="nav-arrow" id="nextArrow">›</button>
+				</div>
+				{# <button class="refresh-btn">REFRESH</button> #}
+			</div>
+		</header>
+
+		<!-- ACTIVITY STREAM -->
+		<div class="activity-wrapper">
+			<main class="activity-stream" id="activityStreamContainer">
+				<!-- Filled dynamically -->
+			</main>
+		</div>
+	</div>
+</section>
+<!-- Screenshot Modal -->
+<div id="imageModal" class="modal" onclick="closeModal(event)">
+	<span class="close" onclick="closeModal(event)">&times;</span>
+	<img class="modal-content" id="modalImage">
+
+	<!-- Arrows -->
+	<a class="prev" onclick="showPrev(event)">&#10094;</a>
+	<a class="next" onclick="showNext(event)">&#10095;</a>
+</div>
+<!-- SEARCH AND DETAILED TIMELINE -->
+<div class="search-timeline">
+	<div class="card search-card">
+		<input type="text" class="search-input" placeholder="Search employees..." autocomplete="off" />
+		<div class="search-results"></div>
+		<!-- <button class="add-user-btn" onclick="openAddUserModal()">+ Add User</button> -->
+	</div>
+	<!-- Add User Modal -->
+	<div id="addUserModal" class="custom-modal">
+		<div class="custom-modal-content animated">
+			<span class="close" onclick="closeAddUserModal()">&times;</span>
+			<h3>Add New Staff Member</h3>
+			<form id="addUserForm">
+				<input type="text" name="firstname" placeholder="Full Name *" required>
+				<input type="email" name="email" placeholder="Email *" required>
+				<input type="password" name="password" placeholder="Password *" required>
+				<input type="text" name="phonenumber" placeholder="Phone Number">
+				<input type="text" name="facebook" placeholder="Facebook URL">
+				<input type="text" name="linkedin" placeholder="LinkedIn URL">
+				<input type="text" name="skype" placeholder="Skype ID">
+				<input type="text" name="hourly_rate" placeholder="Hourly Rate (Optional)">
+				<input type="text" name="email_signature" placeholder="Email Signature">
+				<input type="text" name="default_language" placeholder="Default Language (e.g., en)">
+				<input type="text" name="direction" placeholder="Text Direction (ltr/rtl)">
+				<select name="send_welcome_email">
+					<option value="">Send Welcome Email?</option>
+					<option value="yes">Yes</option>
+					<option value="no">No</option>
+				</select>
+				<input type="text" name="departments" placeholder="Department IDs (comma separated)">
+				<button type="submit">Save Staff</button>
+			</form>
+		</div>
+	</div>
+	<div class="f-wrapper">
+		<!-- Focus Timeline Panel -->
+<div class="panel">
+  <div class="panel-header">
+    <h2 class="panel-title">Focus Timeline</h2>
+  </div>
+  <div class="timeline" id="timeline-container">
+    <!-- JS will wipe and inject here -->
+    <div class="timeline-loading">
+      <div style="text-align: center; padding: 20px; color: #999;">
+        <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
+        <p>No timeline data available</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+		<!-- Focus Share Panel -->
+<!-- <div class="panel">
+			<div class="panel-header">
+				<h2 class="panel-title">Focus Share</h2>
+				<div class="lock-icon">🔒</div>
+			</div>
+
+			<div class="stats">
+				<div class="stat">
+					<span class="stat-number">43</span>
+					<div class="stat-label">Switches</div>
+				</div>
+				<div class="stat">
+					<span class="stat-number">4h 12m</span>
+					<div class="stat-label">Duration</div>
+				</div>
+			</div>
+
+			<div class="table-header">
+				<div class="table-header-cell">Switches</div>
+				<div class="table-header-cell">Duration</div>
+				<div class="table-header-cell">Activity</div>
+			</div>
+
+			<div class="table-row" onclick="selectTableRow(this)">
+				<div class="table-cell switches">16</div>
+				<div class="table-cell duration">0h 6m 52s</div>
+				<div class="table-cell activity">Google Chrome</div>
+			</div>
+
+			<div class="table-row" onclick="selectTableRow(this)">
+				<div class="table-cell switches">26</div>
+				<div class="table-cell duration">0h 5m 37s</div>
+				<div class="table-cell activity">Notepad.exe</div>
+			</div>
+
+			<div class="table-row" onclick="selectTableRow(this)">
+				<div class="table-cell switches">1</div>
+				<div class="table-cell duration">0h 0m 1s</div>
+				<div class="table-cell activity">FocusRO</div>
+			</div>
+		</div>
+	</div>
+</div> -->
+
+
+
+
+
+
+
+<!-- This is Js  -->
+
+<script>
+	// Function to highlight matching part
+	let matches = [];
+	function highlight(text, query) {
+		const regex = new RegExp((`${query}`), "gi");
+		return text.replace(regex, "<strong>$1</strong>");
+	}
+
+	// Timeline item selection
+	function selectTimelineItem(item) {
+		// Remove active class from all items
+		document.querySelectorAll('.timeline-item').forEach(el => {
+			el.classList.remove('active');
+			el.style.background = 'rgba(255, 255, 255, 0.05)';
+			el.style.borderLeftColor = 'transparent';
+		});
+
+		// Add active class to clicked item
+		item.classList.add('active');
+		item.style.background = 'rgba(74, 144, 226, 0.2)';
+		item.style.borderLeftColor = '#4A90E2';
+
+		// Add ripple effect
+		const ripple = document.createElement('div');
+		ripple.style.position = 'absolute';
+		ripple.style.left = '0';
+		ripple.style.top = '0';
+		ripple.style.width = '100%';
+		ripple.style.height = '100%';
+		ripple.style.background = 'rgba(74, 144, 226, 0.1)';
+		ripple.style.borderRadius = '12px';
+		ripple.style.animation = 'ripple 0.6s ease-out';
+		ripple.style.pointerEvents = 'none';
+
+		item.style.position = 'relative';
+		item.appendChild(ripple);
+
+		setTimeout(() => {
+			ripple.remove();
+		}, 600);
+	}
+	function listSepcificUserInformation(user_id, date = new Date()) {
+		// Format date properly before sending to backend
+		const formattedDate = formatDateForBackend(date);
+		const streamContainer = document.getElementById("activityStreamContainer");
+
+		// Show loading spinner
+		streamContainer.innerHTML = '<div class="spinner"></div>';
+
+		console.log(`Fetching screenshots for ${user_id} on date: ${formattedDate}`);
+
+		// Add date to API URL to ensure proper filtering
+		fetch(`/en/api/user-information/?keyword=${user_id}&date=${formattedDate}`)
+			.then(res => {
+				if (!res.ok) {
+					throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+				}
+				return res.json();
+			})
+			.then(data => {
+				try {
+					let array = data.screen_shot || [];
+					streamContainer.innerHTML = '';
+
+					// Debug to see what fields are available
+					if (array.length > 0) {
+						console.log("Screenshot data sample:", array[0]);
+					}
+
+					if (array.length === 0) {
+						// Show better message with specific date info
+						const readableDate = new Date(formattedDate).toLocaleDateString('en-US', {
+							month: 'long',
+							day: 'numeric',
+							year: 'numeric'
+						});
+
+						streamContainer.innerHTML = `
+            <div style="text-align: center; padding: 30px; color: #999;">
+              <div style="font-size: 48px; margin-bottom: 15px;">📷</div>
+              <p style="color: white; font-size: 16px;">No screenshots available for ${user_id} on ${readableDate}</p>
+              <p style="color: #777; font-size: 13px; margin-top: 10px;">Try selecting a different date or user.</p>
+            </div>`;
+						return;
+					}
+
+					// Update the UI to show what day we're viewing
+					const readableDate = new Date(formattedDate).toLocaleDateString('en-US', {
+						weekday: 'long',
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					});
+
+					// Add a header to show what day we're viewing with screenshot count
+					streamContainer.innerHTML = `
+          <div style="width:100%; padding:10px 15px; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h3 style="color:#4a9eff; margin:0; font-size:14px;">Viewing screenshots for ${readableDate}</h3>
+              <span style="color:#999; font-size:12px;">${array.length} screenshots found</span>
+            </div>
+            <div class="date-badge" style="background:#1e73ff; color:white; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:bold;">
+              ${formattedDate}
+            </div>
+          </div>
+        `;
+
+					// Initialize arrays to store screenshot data for modal
+					window.screenshotUrls = [];
+					window.screenshotTasks = [];
+					window.screenshotTimestamps = [];
+					window.screenshotApplications = [];
+
+					// Add a header to show what day we're viewing with screenshot count and task filter
+					streamContainer.innerHTML = `
+          <div style="width:100%; padding:10px 15px; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>
+              <h3 style="color:#4a9eff; margin:0; font-size:14px;">Viewing screenshots for ${readableDate}</h3>
+              <span style="color:#999; font-size:12px;">${array.length} screenshots found</span>
+            </div>
+            <div class="date-badge" style="background:#1e73ff; color:white; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:bold;">
+              ${formattedDate}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="text" id="taskFilter" placeholder="Filter by task name..." 
+                style="flex:1; padding:8px 12px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; background:rgba(255,255,255,0.1); color:white; font-size:12px;"
+                onkeyup="filterScreenshotsByTask()">
+              <button onclick="clearTaskFilter()" 
+                style="padding:8px 12px; border:none; border-radius:6px; background:#666; color:white; font-size:12px; cursor:pointer;">
+                Clear
+              </button>
+            </div>
+          </div>
+        `;
+
+					// Layout screenshots in a simple grid without grouping
+					
+
+					// Render each screenshot with its task name prominently displayed
+					array.forEach((item, index) => {
+						// Extract task name (default to "Unknown task")
+						let taskName = "Unknown task";
+
+						// Try all possible property paths for task name
+						if (item.task) {
+							taskName = item.task;
+						} else if (item.title) {
+							taskName = item.title;
+						} else if (item.window_title) {
+							taskName = item.window_title;
+						} else if (item.application_name) {
+							taskName = item.application_name;
+						} else if (item.task_name) {
+							taskName = item.task_name;
+						} else if (item.application) {
+							taskName = item.application;
+						} else if (item.name) {
+							taskName = item.name;
+						}
+
+						// Store data for modal view
+						window.screenshotUrls.push(item.image_url);
+						window.screenshotTasks.push(taskName);
+						window.screenshotTimestamps.push(item.time || "Unknown time");
+						window.screenshotApplications.push("");
+
+						// Create card with prominent task label - matching the image style
+						const card = `
+            <article class="activity-card" onclick="openModal(${index})" style="width: 238px; cursor:pointer; transition:all 0.3s ease;">
+              <div class="card-header" style="position:relative; padding:6px 12px; background:#333;">
+                <div class="status-dot"></div> 
+                <span style="font-size:12px; color:#ccc;">${formatTimestamp(item.time || "Unknown time")}</span>
+              </div>
+              <div style="position:relative; height:166px; overflow:hidden; background:#1a1a1a;">
+                <img src="${item.image_url}" alt="Activity Screenshot" 
+                  style="width:100%; height:100%; object-fit:cover;"
+                  onerror="this.onerror=null; this.src='{% static 'images/no-screenshot.png' %}'; this.style.opacity='0.5';">
+              </div>
+              <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:white; padding:12px; text-align:center;">
+                <div style="font-size:14px; font-weight:normal;">${taskName}</div>
+              </div>
+            </article>`;
+
+						// Add card to the container
+						streamContainer.insertAdjacentHTML("beforeend", card);
+					});
+
+					// Close the container
+					
+
+					// Add hover effects to screenshot cards
+					document.querySelectorAll('.activity-card').forEach(card => {
+						card.addEventListener('mouseenter', () => {
+							card.style.transform = 'translateY(-5px)';
+							card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.2)';
+						});
+
+						card.addEventListener('mouseleave', () => {
+							card.style.transform = 'translateY(0)';
+							card.style.boxShadow = 'none';
+						});
+					});
+
+					// Store URLs for modal viewing (legacy variable, keep for compatibility)
+					screenshotUrls = window.screenshotUrls;
+
+					// Store the original array for filtering
+					window.originalScreenshots = array;
+
+					// Load timeline data for the selected user
+					loadUserTimeline(user_id, date);
+
+				} catch (err) {
+					console.error("Failed to process screenshots:", err);
+					streamContainer.innerHTML = `
+          <div style="text-align: center; padding: 30px; color: #999;">
+            <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+            <p style="color: white; font-size: 16px;">Error loading screenshots</p>
+            <p style="color: #777; font-size: 13px; margin-top: 10px;">${err.message}</p>
+          </div>`;
+				}
+			})
+			.catch(err => {
+				console.error("Failed to load screenshots:", err);
+				streamContainer.innerHTML = `
+        <div style="text-align: center; padding: 30px; color: #999;">
+          <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+          <p style="color: white; font-size: 16px;">Error connecting to server</p>
+          <p style="color: #777; font-size: 13px; margin-top: 10px;">${err.message}</p>
+        </div>`;
+			});
+	}
+	// Table row selection
+	function selectTableRow(row) {
+		// Remove active class from all rows
+		document.querySelectorAll('.table-row').forEach(el => {
+			el.classList.remove('active');
+			el.style.background = 'transparent';
+		});
+
+		// Add active class to clicked row
+		row.classList.add('active');
+		row.style.background = 'rgba(74, 144, 226, 0.1)';
+
+		// Animate the switches badge
+		const switchesCell = row.querySelector('.switches');
+		switchesCell.style.transform = 'scale(1.1)';
+		switchesCell.style.background = 'rgba(74, 144, 226, 0.4)';
+
+		setTimeout(() => {
+			switchesCell.style.transform = 'scale(1)';
+			switchesCell.style.background = 'rgba(255, 255, 255, 0.1)';
+		}, 200);
+	}
+
+	// Add ripple animation keyframes
+	const style = document.createElement('style');
+	style.textContent = `
+            @keyframes ripple {
+                0% {
+                    opacity: 0.5;
+                    transform: scale(0.8);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(1.1);
+                }
+            }
+        `;
+	document.head.appendChild(style);
+
+	// Add smooth scrolling behavior
+	document.querySelectorAll('.timeline-item, .table-row').forEach(item => {
+		item.addEventListener('mouseenter', function () {
+			this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+		});
+	});
+	// Update time dynamically (optional)
+	function updateActiveTime() {
+		const now = new Date();
+		const timeString = now.toLocaleTimeString('en-US', {
+			hour12: true,
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+
+		const activeItem = document.querySelector('.timeline-item .focus-indicator');
+		if (activeItem && activeItem.parentElement) {
+			const timeElement = activeItem.parentElement.querySelector('.timeline-time');
+			if (timeElement) {
+				timeElement.textContent = timeString;
+			}
+		}
+	}
+
+	// Update every minute
+	setInterval(updateActiveTime, 60000);
+
+	// Add keyboard navigation
+	document.addEventListener('keydown', function (e) {
+		if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+			e.preventDefault();
+			const items = document.querySelectorAll('.timeline-item');
+			const activeItem = document.querySelector('.timeline-item.active');
+
+			if (!activeItem) {
+				selectTimelineItem(items[0]);
+				return;
+			}
+
+			const currentIndex = Array.from(items).indexOf(activeItem);
+			let nextIndex;
+
+			if (e.key === 'ArrowDown') {
+				nextIndex = (currentIndex + 1) % items.length;
+			} else {
+				nextIndex = (currentIndex - 1 + items.length) % items.length;
+			}
+
+			selectTimelineItem(items[nextIndex]);
+			items[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+	});
+	$(document).ready(function () {
+
+		const searchInput = document.querySelector(".search-input");
+
+
+		let employees = [];
+		let currentIndex = -1;
+		const keyword = searchInput.value.trim();
+		// Load static JSON file
+		fetch(`/en/api/staff-status/?keyword=${keyword}`)
+			.then(res => res.json())
+			.then(data => {
+				employees = data
+					.map(emp => {
+						const fullName = `${emp.firstname || ''} ${emp.lastname || ''}`.trim();
+
+						return {
+							...emp,
+							['name']: fullName,  // add new field
+						};
+					})
+					.filter(emp => {
+						const fullName = emp['name'];
+						return fullName && fullName !== "—";
+					});
+				renderResults();
+			}).catch(err => {
+				resultsContainer.innerHTML = "<div class='error'>Unable to load employee data.</div>";
+				// console.error("Failed to load JSON:", err);
+			});
+
+		// function renderTimelineRow(emp) {
+		//   const tbody = document.getElementById("timeline-body");
+		//   tbody.innerHTML = ""; // Clear previous content
+
+		//   const durationSec = emp.end_time && emp.start_time ? Number(emp.end_time) - Number(emp.start_time) : 0;
+		//   const duration = secondsToHMS(durationSec);
+		//   const taskDisplay = emp.task && emp.task.trim() !== "—" ? emp.task : "Not Available";
+
+		//   const tr = document.createElement("tr");
+		//   tr.innerHTML = `
+		//     <td>${emp.name}</td>
+		//     <td>${taskDisplay}</td>
+		//     <td>${duration}</td>
+		//     <td>${emp.email}</td>
+		//     <td>${emp.phone}</td>
+		//   `;
+		//   tbody.appendChild(tr);
+		// }
+
+		const resultsContainer = document.querySelector(".search-results");
+		function renderResults(query = "") {
+			resultsContainer.innerHTML = "";
+			const seen = new Set();
+
+			matches = employees.filter(emp => {
+				const name = emp.name.toLowerCase();
+				if (!name.includes(query.toLowerCase()) || seen.has(name)) return false;
+				seen.add(name);
+				return true;
+			}).slice(0, 10);
+
+			if (matches.length === 0) {
+				resultsContainer.innerHTML = "<div class='error'>No matches found.</div>";
+				return;
+			}
+
+			matches.forEach((emp, index) => {
+				const div = document.createElement("div");
+				div.className = "search-result";
+				div.innerHTML = emp.name;
+				div.addEventListener("click", () => {
+					searchInput.value = emp.name;
+					resultsContainer.innerHTML = "";
+					$('.user-info').html(emp.name);
+					const activeDate = document.querySelector(".time-slot.active").dataset.date;
+					listSepcificUserInformation(emp.email, activeDate)
+					// renderTimelineRow(emp);
+				});
+				resultsContainer.appendChild(div);
+			});
+
+
+
+		}
+		$('.time-slot').on("click", function () {
+			// Get the newly active date
+			const activeDate = $(this).data('date');
+
+			// Update UI to show which date is active
+			$('.time-slot').removeClass('active');
+			$(this).addClass('active');
+
+			// Show loading animation for better UX
+			$('#activityStreamContainer').html('<div class="spinner"></div>');
+
+			// Only try to load data if we have a selected employee
+			if (matches && matches.length > 0) {
+				$('.user-info').html(matches[0].name || "SELECT AN EMPLOYEE");
+				listSepcificUserInformation(matches[0].email, activeDate);
+			} else {
+				$('#activityStreamContainer').html('<div style="text-align: center; padding: 30px; color: #999;"><p style="color: white; font-size: 16px;">Please select an employee first</p></div>');
+			}
+		});
+
+		//   function renderResults(query) {
+		//     resultsContainer.innerHTML = "";
+		//     currentIndex = -1;
+
+		//     if (!query) return;
+
+		//     const matches = employees.filter(emp =>
+		//       emp.name.toLowerCase().includes(query.toLowerCase())
+		//     ).slice(0, 10); // Show top 10
+
+		//     if (matches.length === 0) {
+		//       resultsContainer.innerHTML = "<div class='error'>No matches found.</div>";
+		//       return;
+		//     }
+
+		//     matches.forEach((emp, i) => {
+		//       const div = document.createElement("div");
+		//       div.className = "search-result";
+		//       div.innerHTML = highlight(${emp.name} – ${emp.status}, query);
+
+
+
+
+		// div.addEventListener("click", () => {
+		//   searchInput.value = emp.name;
+		//   resultsContainer.innerHTML = "";
+		//   renderTimelineRow(emp); // 👈 make sure this is called
+		// });
+
+
+
+
+		//       resultsContainer.appendChild(div);
+		//     });
+		//   }
+
+		// Handle typing
+		searchInput.addEventListener("input", (e) => {
+			const query = e.target.value.trim();
+			renderResults(query);
+		});
+
+		// Keyboard nav
+		searchInput.addEventListener("keydown", (e) => {
+			const items = Array.from(resultsContainer.querySelectorAll(".search-result"));
+
+			if (e.key === "ArrowDown") {
+				currentIndex = (currentIndex + 1) % items.length;
+				items.forEach((el, i) => el.classList.toggle("active", i === currentIndex));
+			} else if (e.key === "ArrowUp") {
+				currentIndex = (currentIndex - 1 + items.length) % items.length;
+				items.forEach((el, i) => el.classList.toggle("active", i === currentIndex));
+			} else if (e.key === "Enter" && currentIndex >= 0) {
+				items[currentIndex].click();
+			}
+		});
+	});
+
+
+
+
+
+
+
+
+
+
+
+
+
+	let screenshotUrls = [];
+	let currentIndex = 0;
+
+	document.addEventListener("DOMContentLoaded", function () {
+		const screenshotElements = document.querySelectorAll(".screenshot");
+		screenshotElements.forEach((el, index) => {
+			const src = el.getAttribute("data-src") || el.querySelector("img")?.src;
+			screenshotUrls.push(src);
+
+			el.addEventListener("click", function (e) {
+				e.stopPropagation();
+				openModal(index);
+			});
+		});
+	});
+
+	function openModal(index) {
+		currentIndex = index;
+		const modal = document.getElementById("imageModal");
+		const modalImg = document.getElementById("modalImage");
+
+		// Set the image source
+		modal.style.display = "flex";
+		modalImg.src = window.screenshotUrls[currentIndex];
+
+		// Add task and timestamp display in the modal
+		let infoDiv = document.getElementById("modalInfo");
+		if (!infoDiv) {
+			infoDiv = document.createElement("div");
+			infoDiv.id = "modalInfo";
+			infoDiv.style.position = "absolute";
+			infoDiv.style.bottom = "20px";
+			infoDiv.style.left = "50%";
+			infoDiv.style.transform = "translateX(-50%)";
+			infoDiv.style.background = "rgba(0,0,0,0.85)";
+			infoDiv.style.color = "white";
+			infoDiv.style.padding = "15px 20px";
+			infoDiv.style.borderRadius = "8px";
+			infoDiv.style.maxWidth = "80%";
+			infoDiv.style.minWidth = "300px";
+			infoDiv.style.boxShadow = "0 4px 15px rgba(0,0,0,0.5)";
+			infoDiv.style.transition = "opacity 0.3s ease";
+			modal.appendChild(infoDiv);
+		}
+
+		// Display task name and timestamp with better formatting
+		const taskName = window.screenshotTasks[currentIndex] || "Unknown task";
+		const timestamp = window.screenshotTimestamps[currentIndex] || "";
+		const appName = window.screenshotApplications?.[currentIndex] || "";
+
+		infoDiv.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="background:#1e73ff; color:white; font-size:10px; font-weight:bold; padding:3px 8px; border-radius:12px; text-transform:uppercase;">
+          TASK
+        </div>
+        <div style="font-size:12px; color:#ccc;">
+          ${timestamp}
+        </div>
+      </div>
+    </div>
+    <div style="font-size:18px; font-weight:bold; color:white; margin-bottom:10px; line-height:1.3; text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+      ${taskName}
+    </div>
+    <div style="margin-top:10px; font-size:12px; color:#999; display:flex; justify-content:space-between;">
+      <div><span style="color:#4a9eff;">${appName}</span></div>
+      <div>${timestamp}</div>
+    </div>
+  `;
+
+		// Apply entrance animation
+		infoDiv.style.opacity = "0";
+		setTimeout(() => {
+			infoDiv.style.opacity = "1";
+		}, 100);
+	}
+
+	function closeModal(event) {
+		// prevent clicking image or arrow from closing
+		if (event && (event.target.id === "modalImage" || event.target.classList.contains("prev") || event.target.classList.contains("next"))) return;
+		document.getElementById("imageModal").style.display = "none";
+	}
+
+	function showPrev(event) {
+		event.stopPropagation();
+		currentIndex = (currentIndex - 1 + screenshotUrls.length) % screenshotUrls.length;
+
+		// Update image
+
+		const modalImg = document.getElementById("modalImage");
+		modalImg.src = screenshotUrls[currentIndex];
+
+		// Update task info
+		const infoDiv = document.getElementById("modalInfo");
+		if (infoDiv) {
+			const taskName = window.screenshotTasks[currentIndex] || "Unknown task";
+			const timestamp = window.screenshotTimestamps[currentIndex] || "";
+			const appName = window.screenshotApplications?.[currentIndex] || "";
+
+			// Fade out
+			infoDiv.style.opacity = "0";
+
+			// Update content after slight delay
+			setTimeout(() => {
+				infoDiv.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="background:#1e73ff; color:white; font-size:10px; font-weight:bold; padding:3px 8px; border-radius:12px; text-transform:uppercase;">
+              TASK
+            </div>
+            <div style="font-size:12px; color:#ccc;">
+              ${timestamp}
+            </div>
+          </div>
+        </div>
+        <div style="font-size:18px; font-weight:bold; color:white; margin-bottom:10px; line-height:1.3; text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+          ${taskName}
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:#999; display:flex; justify-content:space-between;">
+          <div><span style="color:#4a9eff;">${appName}</span></div>
+          <div>${timestamp}</div>
+        </div>
+      `;
+
+				// Fade in
+				infoDiv.style.opacity = "1";
+			}, 150);
+		}
+	}
+
+	function showNext(event) {
+		event.stopPropagation();
+		currentIndex = (currentIndex + 1) % screenshotUrls.length;
+
+		// Update image
+		const modalImg = document.getElementById("modalImage");
+		modalImg.src = screenshotUrls[currentIndex];
+
+		// Update task info
+		const infoDiv = document.getElementById("modalInfo");
+		if (infoDiv) {
+			const taskName = window.screenshotTasks[currentIndex] || "Unknown task";
+			const timestamp = window.screenshotTimestamps[currentIndex] || "";
+			const appName = window.screenshotApplications?.[currentIndex] || "";
+
+			// Fade out
+			infoDiv.style.opacity = "0";
+
+			// Update content after slight delay
+			setTimeout(() => {
+				infoDiv.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="background:#1e73ff; color:white; font-size:10px; font-weight:bold; padding:3px 8px; border-radius:12px; text-transform:uppercase;">
+              TASK
+            </div>
+            <div style="font-size:12px; color:#ccc;">
+              ${timestamp}
+            </div>
+          </div>
+        </div>
+        <div style="font-size:18px; font-weight:bold; color:white; margin-bottom:10px; line-height:1.3; text-shadow:0 1px 2px rgba(0,0,0,0.3);">
+          ${taskName}
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:#999; display:flex; justify-content:space-between;">
+          <div><span style="color:#4a9eff;">${appName}</span></div>
+          <div>${timestamp}</div>
+        </div>
+      `;
+
+				// Fade in
+				infoDiv.style.opacity = "1";
+			}, 150);
+		}
+	}
+
+	document.addEventListener("keydown", function (event) {
+		const modal = document.getElementById("imageModal");
+		if (modal.style.display !== "flex") return;
+		if (event.key === "Escape") {
+			closeModal();
+		} else if (event.key === "ArrowLeft") {
+			showPrev(event);
+		} else if (event.key === "ArrowRight") {
+			showNext(event);
+		}
+	});
+
+	function openAddUserModal() {
+		document.getElementById("addUserModal").style.display = "flex";
+	}
+
+	function closeAddUserModal() {
+		document.getElementById("addUserModal").style.display = "none";
+	}
+
+	// Handle form submission
+	document.addEventListener("DOMContentLoaded", function () {
+		document.getElementById("addUserForm")?.addEventListener("submit", function (e) {
+			e.preventDefault();
+			const formData = new FormData(this);
+			const newUser = {
+				id: Date.now().toString(),
+				name: formData.get("firstname"),
+				email: formData.get("email"),
+				phone: formData.get("phonenumber"),
+				status: "Active",
+				start_time: "",
+				end_time: "",
+				task: "—"
+			};
+
+			// Optionally: send this to backend here
+			alert("User added:\n" + JSON.stringify(newUser, null, 2));
+
+			// Close modal
+			closeAddUserModal();
+			this.reset();
+		});
+	});
+
+	document.addEventListener("DOMContentLoaded", function () {
+		const streamContainer = document.getElementById("activityStreamContainer");
+
+		// Refresh Button
+		document.querySelector(".refresh-btn").addEventListener("click", () => {
+			const activeDate = document.querySelector(".time-slot.active").dataset.date;
+			// loadActivityStream(activeDate);
+			//  const activeDate = document.querySelector(".time-slot.active").dataset.date;
+
+			(matches[0].email && activeDate) ? listSepcificUserInformation(matches[0].email, activeDate) : resultsContainer.innerHTML = "<div class='error'>No matches found.</div>"; return;
+
+		});
+
+		// Time-slot Date Click
+		document.querySelectorAll(".time-slot").forEach(slot => {
+			slot.addEventListener("click", () => {
+				document.querySelectorAll(".time-slot").forEach(s => s.classList.remove("active"));
+				slot.classList.add("active");
+				// loadActivityStream(slot.dataset.date);
+			});
+		});
+
+		// Load Activity Stream
+		// function loadActivityStream(date) {
+		//     fetch(`/api/activity-stream/?date=${date}`)
+		//         .then(res => res.json())
+		//         .then(data => {
+		//             streamContainer.innerHTML = "";
+		//             data.activities.forEach(activity => {
+		//                 const card = `
+		//                 <article class="activity-card">
+		//                     <div class="card-header">
+		//                         <div class="status-dot"></div>
+		//                         ${activity.time}
+		//                     </div>
+		//                     <div class="card-content">
+		//                         <img src="${activity.image_url}" alt="Activity" style="width: 100%; height: auto; display: block;">
+		//                     </div>
+		//                 </article>`;
+		//                 streamContainer.insertAdjacentHTML("beforeend", card);
+		//             });
+		//         })
+		//         .catch(err => {
+		//             console.error("Error loading stream:" );
+		//         });
+		// }
+
+		// Initial Load
+		// const defaultDate = document.querySelector(".time-slot.active").dataset.date;
+		// loadActivityStream(defaultDate);
+	});
+	document.addEventListener("DOMContentLoaded", () => {
+		const streamContainer = document.getElementById("activityStreamContainer");
+		const timeNav = document.getElementById("timeNav");
+
+		// Time-slot Date Click - update this handler to ensure it properly filters
+		document.querySelectorAll(".time-slot").forEach(slot => {
+			slot.addEventListener("click", () => {
+				document.querySelectorAll(".time-slot").forEach(s => s.classList.remove("active"));
+				slot.classList.add("active");
+
+				// Get the selected date
+				const selectedDate = slot.dataset.date;
+
+				// If we have an employee selected, filter by the new date
+				if (matches && matches.length > 0) {
+					$('.user-info').html(matches[0].name || "SELECT AN EMPLOYEE");
+					listSepcificUserInformation(matches[0].email, selectedDate);
+				}
+			});
+		});
+
+		document.querySelector(".refresh-btn").addEventListener("click", () => {
+			const activeDate = document.querySelector(".time-slot.active").dataset.date;
+			// loadActivityStream(activeDate);
+		});
+
+		// Arrows scroll nav
+		document.getElementById("prevArrow").addEventListener("click", () => {
+			timeNav.scrollBy({ left: -150, behavior: 'smooth' });
+		});
+		document.getElementById("nextArrow").addEventListener("click", () => {
+			timeNav.scrollBy({ left: 150, behavior: 'smooth' });
+		});
+
+		// Initial load
+		const defaultDate = document.querySelector(".time-slot.active").dataset.date;
+
+		// Auto-select first employee when page loads
+		setTimeout(() => {
+			if (matches && matches.length > 0) {
+				const activeDate = document.querySelector(".time-slot.active").dataset.date;
+				if (activeDate && matches[0].email) {
+					$('.user-info').html(matches[0].name || "SELECT AN EMPLOYEE");
+					listSepcificUserInformation(matches[0].email, activeDate);
+				}
+			}
+		}, 2000); // Give time for the API call to complete
+	});
+
+	// Helper function to format dates properly for the backend
+	function formatDateForBackend(dateStr) {
+		try {
+			// If it's already a Date object
+			if (dateStr instanceof Date) {
+				return dateStr.toISOString().split('T')[0]; // YYYY-MM-DD format
+			}
+
+			// If it already looks like a YYYY-MM-DD format
+			if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+				return dateStr; // Already in correct format
+			}
+
+			// Handle Turkish month names and other date formats
+			const turkishMonths = {
+				'Ocak': '01', 'Şubat': '02', 'Mart': '03', 'Nisan': '04',
+				'Mayıs': '05', 'Haziran': '06', 'Temmuz': '07', 'Ağustos': '08',
+				'Eylül': '09', 'Ekim': '10', 'Kasım': '11', 'Aralık': '12',
+				// English month abbreviations
+				'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+				'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+				'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+			};
+
+			// Check if this is day month year format (like "25 JUN" or "25 Haziran 2024")
+			if (typeof dateStr === 'string') {
+				const parts = dateStr.trim().split(' ');
+
+				// Handle formats like "25 JUN" or "25 JUN 2024"
+				if (parts.length >= 2) {
+					const day = parts[0].padStart(2, '0');
+					const monthName = parts[1];
+					const year = parts.length >= 3 ? parts[2] : new Date().getFullYear().toString();
+
+					// Try to match month name
+					if (turkishMonths[monthName]) {
+						return `${year}-${turkishMonths[monthName]}-${day}`;
+					}
+				}
+			}
+
+			// Try to parse as date object and convert
+			const date = new Date(dateStr);
+			if (!isNaN(date.getTime())) {
+				return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+			}
+
+			console.log("Could not parse date:", dateStr);
+			// If all else fails, just return the original string
+			return dateStr;
+		} catch (e) {
+			console.error("Date parsing error:", e);
+			return dateStr; // Return original as fallback
+		}
+	}
+
+	// Format timestamps for display
+	function formatTimestamp(timestamp) {
+		try {
+			if (!timestamp) return "Unknown time";
+
+			// Return the timestamp exactly as it is, as shown in the image
+			return timestamp;
+		} catch (e) {
+			return timestamp; // Return original as fallback
+		}
+	}
+
+	// Filter screenshots by task name
+	function filterScreenshotsByTask() {
+		const filterValue = document.getElementById('taskFilter').value.toLowerCase();
+		const streamContainer = document.getElementById("activityStreamContainer");
+
+		if (!window.originalScreenshots) {
+			console.log("No original screenshots available for filtering");
+			return;
+		}
+
+		// Filter the original screenshots
+		const filteredScreenshots = window.originalScreenshots.filter(item => {
+			let taskName = "Unknown task";
+
+			// Try all possible property paths for task name
+			if (item.task) {
+				taskName = item.task;
+			} else if (item.title) {
+				taskName = item.title;
+			} else if (item.window_title) {
+				taskName = item.window_title;
+			} else if (item.application_name) {
+				taskName = item.application_name;
+			} else if (item.task_name) {
+				taskName = item.task_name;
+			} else if (item.application) {
+				taskName = item.application;
+			} else if (item.name) {
+				taskName = item.name;
+			}
+
+			return taskName.toLowerCase().includes(filterValue);
+		});
+
+		// Clear the current display
+		const currentHeader = streamContainer.querySelector('div[style*="border-bottom"]');
+		streamContainer.innerHTML = '';
+		if (currentHeader) {
+			streamContainer.appendChild(currentHeader);
+		}
+
+		// Update the count in the header
+		const countSpan = streamContainer.querySelector('span[style*="color:#999"]');
+		if (countSpan) {
+			countSpan.textContent = `${filteredScreenshots.length} screenshots found`;
+		}
+
+		// Re-render the filtered screenshots
+		if (filteredScreenshots.length === 0) {
+			streamContainer.insertAdjacentHTML("beforeend", `
+      <div style="text-align: center; padding: 30px; color: #999;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🔍</div>
+        <p style="color: white; font-size: 16px;">No tasks match "${filterValue}"</p>
+        <p style="color: #777; font-size: 13px; margin-top: 10px;">Try a different search term.</p>
+      </div>
+    `);
+			return;
+		}
+
+		// Layout screenshots in a grid
+		streamContainer.insertAdjacentHTML("beforeend", `<div style="display: flex; flex-wrap: wrap; gap: 15px;">`);
+
+		// Reset arrays for modal
+		window.screenshotUrls = [];
+		window.screenshotTasks = [];
+		window.screenshotTimestamps = [];
+		window.screenshotApplications = [];
+
+		// Render each filtered screenshot
+		filteredScreenshots.forEach((item, index) => {
+			let taskName = "Unknown task";
+
+			// Try all possible property paths for task name
+			if (item.task) {
+				taskName = item.task;
+			} else if (item.title) {
+				taskName = item.title;
+			} else if (item.window_title) {
+				taskName = item.window_title;
+			} else if (item.application_name) {
+				taskName = item.application_name;
+			} else if (item.task_name) {
+				taskName = item.task_name;
+			} else if (item.application) {
+				taskName = item.application;
+			} else if (item.name) {
+				taskName = item.name;
+			}
+
+			// Store data for modal view
+			window.screenshotUrls.push(item.image_url);
+			window.screenshotTasks.push(taskName);
+			window.screenshotTimestamps.push(item.time || "Unknown time");
+			window.screenshotApplications.push("");
+
+			// Create card with prominent task label
+			const card = `
+      <article class="activity-card" onclick="openModal(${index})" style="width: 238px; cursor:pointer; transition:all 0.3s ease;">
+        <div class="card-header" style="position:relative; padding:6px 12px; background:#333;">
+          <div class="status-dot"></div> 
+          <span style="font-size:12px; color:#ccc;">${formatTimestamp(item.time || "Unknown time")}</span>
+        </div>
+        <div style="position:relative; height:166px; overflow:hidden; background:#1a1a1a;">
+          <img src="${item.image_url}" alt="Activity Screenshot" 
+            style="width:100%; height:100%; object-fit:cover;"
+            onerror="this.onerror=null; this.src='{% static 'images/no-screenshot.png' %}'; this.style.opacity='0.5';">
+        </div>
+        <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.7); color:white; padding:12px; text-align:center;">
+          <div style="font-size:14px; font-weight:normal;">${taskName}</div>
+        </div>
+      </article>`;
+
+			// Add card to the container
+			streamContainer.insertAdjacentHTML("beforeend", card);
+		});
+
+		// Close the container
+		streamContainer.insertAdjacentHTML("beforeend", `</div>`);
+
+		// Add hover effects to screenshot cards
+		document.querySelectorAll('.activity-card').forEach(card => {
+			card.addEventListener('mouseenter', () => {
+				card.style.transform = 'translateY(-5px)';
+				card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.2)';
+			});
+
+			card.addEventListener('mouseleave', () => {
+				card.style.transform = 'translateY(0)';
+				card.style.boxShadow = 'none';
+			});
+		});
+
+		// Update legacy variable
+		screenshotUrls = window.screenshotUrls;
+	}
+
+	// Clear task filter
+	function clearTaskFilter() {
+		const filterInput = document.getElementById('taskFilter');
+		if (filterInput) {
+			filterInput.value = '';
+			filterScreenshotsByTask(); // This will show all screenshots
+		}
+	}
+
+	// Load user timeline data from S3 logs
+	function loadUserTimeline(userEmail, date = new Date()) {
+		const timelineContainer = document.getElementById('timeline-container');
+
+		// Show loading state
+		timelineContainer.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #999;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+                    <p style="color: #777; font-size: 14px;">Loading timeline data...</p>
+                </div>
+            `;
+
+		console.log(`Loading timeline for ${userEmail} (all time)`);
+
+		// Fetch timeline data from new API (no date parameter - shows all time)
+		fetch(`/en/api/user-timeline-summary/?user=${encodeURIComponent(userEmail)}`)
+			.then(res => {
+				if (!res.ok) {
+					throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+				}
+				return res.json();
+			})
+			.then(data => {
+				if (!data || (!data.categories && !data.programs)) {
+					throw new Error('No timeline data found');
+				}
+
+				const categories = data.categories || {};
+				const programs = data.programs || {};
+
+				// Clear container
+				timelineContainer.innerHTML = '';
+
+				// If no data, show empty state
+				if (Object.keys(categories).length === 0 && Object.keys(programs).length === 0) {
+					timelineContainer.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: #999;">
+                                <div style="font-size: 24px; margin-bottom: 10px;">📊</div>
+                                <p style="color: #777; font-size: 14px;">No timeline data available</p>
+                                <p style="color: #555; font-size: 12px; margin-top: 5px;">This user has no activity logs</p>
+                            </div>
+                        `;
+					return;
+				}
+
+				// Create timeline items from categories and programs
+				let timelineItems = [];
+
+				// Add category items first (higher priority)
+				Object.entries(categories).forEach(([category, duration], index) => {
+					timelineItems.push({
+						time: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+						title: category,
+						subtitle: `${category} Activity`,
+						duration: duration,
+						isCategory: true,
+						priority: 1
+					});
+				});
+
+				// Add program items
+				Object.entries(programs).forEach(([program, duration], index) => {
+					timelineItems.push({
+						time: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}`,
+						title: program,
+						subtitle: `${program} - Active`,
+						duration: duration,
+						isCategory: false,
+						priority: 2
+					});
+				});
+
+				// Sort by priority (categories first) and then by duration (longer first)
+				timelineItems.sort((a, b) => {
+					if (a.priority !== b.priority) {
+						return a.priority - b.priority;
+					}
+					// Extract minutes from duration string for sorting
+					const aMinutes = parseFloat(a.duration.replace(' mins', ''));
+					const bMinutes = parseFloat(b.duration.replace(' mins', ''));
+					return bMinutes - aMinutes;
+				});
+
+				// Show ALL items (no limit)
+				// timelineItems = timelineItems.slice(0, 10); // REMOVED THIS LINE
+
+				// Generate timeline HTML
+				timelineItems.forEach((item, index) => {
+					const timelineItem = `
+                            <div class="timeline-item" onclick="selectTimelineItem(this)">
+                                <div class="timeline-time">${item.time}</div>
+                                <div class="timeline-title">${item.title}</div>
+                                <div class="timeline-subtitle">${item.subtitle}</div>
+                                <div class="timeline-duration">${item.duration}</div>
+                                ${index === 0 ? '<div class="focus-indicator"></div>' : ''}
+                            </div>
+                        `;
+					timelineContainer.insertAdjacentHTML('beforeend', timelineItem);
+				});
+
+				// Add summary info at the top
+				const totalCategories = Object.keys(categories).length;
+				const totalPrograms = Object.keys(programs).length;
+				const totalItems = timelineItems.length;
+
+				// Calculate total time
+				let totalMinutes = 0;
+				Object.values(categories).forEach(duration => {
+					totalMinutes += parseFloat(duration.replace(' mins', ''));
+				});
+				Object.values(programs).forEach(duration => {
+					totalMinutes += parseFloat(duration.replace(' mins', ''));
+				});
+
+				const totalHours = Math.floor(totalMinutes / 60);
+				const remainingMinutes = totalMinutes % 60;
+				const totalTimeStr = totalHours > 0 ? `${totalHours}h ${remainingMinutes}m` : `${remainingMinutes}m`;
+
+				// Add summary header
+				const summaryHeader = `
+                        <div style="padding: 15px; background: rgba(74, 144, 226, 0.1); border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #4A90E2;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="color: #4A90E2; font-weight: bold; font-size: 14px;">📊 All-Time Activity Summary</span>
+                                <span style="color: #999; font-size: 12px;">All Time</span>
+                            </div>
+                            <div style="display: flex; gap: 20px; font-size: 12px; color: #ccc;">
+                                <span>📁 ${totalCategories} Categories</span>
+                                <span>⚙️ ${totalPrograms} Programs</span>
+                                <span>⏱️ ${totalTimeStr} Total</span>
+                                <span>📈 ${totalItems} Activities</span>
+                            </div>
+                        </div>
+                    `;
+
+				// Insert summary at the beginning
+				timelineContainer.insertAdjacentHTML('afterbegin', summaryHeader);
+
+				// Add hover effects
+				document.querySelectorAll('.timeline-item').forEach(item => {
+					item.addEventListener('mouseenter', () => {
+						item.style.transform = 'translateX(5px)';
+					});
+
+					item.addEventListener('mouseleave', () => {
+						item.style.transform = 'translateX(0)';
+					});
+				});
+
+				console.log(`Timeline loaded: ${timelineItems.length} items`);
+			})
+			.catch(err => {
+				console.error("Failed to load timeline:", err);
+				timelineContainer.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #999;">
+                            <div style="font-size: 24px; margin-bottom: 10px;">⚠️</div>
+                            <p style="color: #777; font-size: 14px;">Error loading timeline</p>
+                            <p style="color: #555; font-size: 12px; margin-top: 5px;">${err.message}</p>
+                        </div>
+                    `;
+			});
+	}
+
+	// Load user program summary data
+	function loadUserProgramSummary(userEmail, dateRange = 'all') {
+		const programSummaryContainer = document.getElementById('program-summary-container');
+		
+		if (!programSummaryContainer) {
+			console.error('Program summary container not found');
+			return;
+		}
+
+		// Show loading state
+		programSummaryContainer.innerHTML = `
+			<div style="text-align: center; padding: 20px; color: #999;">
+				<div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+				<p style="color: #777; font-size: 14px;">Loading program summary...</p>
+			</div>
+		`;
+
+		console.log(`Loading program summary for ${userEmail} (${dateRange})`);
+
+		// Fetch program summary data from new API
+		fetch(`/en/api/user-program-summary/?user=${encodeURIComponent(userEmail)}&date_range=${dateRange}`)
+			.then(res => {
+				if (!res.ok) {
+					throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+				}
+				return res.json();
+			})
+			.then(data => {
+				if (!data.status) {
+					throw new Error(data.message || 'Failed to load program summary');
+				}
+
+				const summaryData = data.data;
+				const categories = summaryData.categories || {};
+				const programs = summaryData.programs || {};
+				const totalTime = summaryData.total_time || '0 mins';
+				const activitySummary = summaryData.activity_summary || 'No activity recorded';
+				const topPrograms = summaryData.top_programs || [];
+				const topCategories = summaryData.top_categories || [];
+
+				// Clear container
+				programSummaryContainer.innerHTML = '';
+
+				// If no data, show empty state
+				if (Object.keys(categories).length === 0 && Object.keys(programs).length === 0) {
+					programSummaryContainer.innerHTML = `
+						<div style="text-align: center; padding: 20px; color: #999;">
+							<div style="font-size: 24px; margin-bottom: 10px;">📊</div>
+							<p style="color: #777; font-size: 14px;">No program summary data available</p>
+							<p style="color: #555; font-size: 12px; margin-top: 5px;">This user has no program activity logs</p>
+						</div>
+					`;
+					return;
+				}
+
+				// Create program summary HTML
+				const summaryHTML = `
+					<div style="padding: 15px; background: rgba(30, 115, 255, 0.1); border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #1e73ff;">
+						<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+							<span style="color: #1e73ff; font-weight: bold; font-size: 14px;">📊 Program Summary</span>
+							<span style="color: #999; font-size: 12px;">${dateRange.charAt(0).toUpperCase() + dateRange.slice(1)}</span>
+						</div>
+						<div style="font-size: 12px; color: #ccc; margin-bottom: 10px;">
+							${activitySummary}
+						</div>
+						<div style="display: flex; gap: 20px; font-size: 12px; color: #ccc;">
+							<span>⏱️ ${totalTime} Total</span>
+							<span>📁 ${Object.keys(categories).length} Categories</span>
+							<span>⚙️ ${Object.keys(programs).length} Programs</span>
+						</div>
+					</div>
+				`;
+
+				// Add top categories section
+				let categoriesHTML = '';
+				if (topCategories.length > 0) {
+					categoriesHTML = `
+						<div style="margin-bottom: 20px;">
+							<h4 style="color: #1e73ff; margin-bottom: 10px; font-size: 14px;">🏆 Top Categories</h4>
+							<div style="display: flex; flex-direction: column; gap: 8px;">
+								${topCategories.map(cat => `
+									<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+										<span style="color: #ccc; font-size: 12px;">${cat.name}</span>
+										<span style="color: #1e73ff; font-size: 12px; font-weight: bold;">${cat.time}</span>
+									</div>
+								`).join('')}
+							</div>
+						</div>
+					`;
+				}
+
+				// Add top programs section
+				let programsHTML = '';
+				if (topPrograms.length > 0) {
+					programsHTML = `
+						<div style="margin-bottom: 20px;">
+							<h4 style="color: #1e73ff; margin-bottom: 10px; font-size: 14px;">⚙️ Top Programs</h4>
+							<div style="display: flex; flex-direction: column; gap: 8px;">
+								${topPrograms.map(prog => `
+									<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+										<span style="color: #ccc; font-size: 12px;">${prog.name}</span>
+										<span style="color: #1e73ff; font-size: 12px; font-weight: bold;">${prog.time}</span>
+									</div>
+								`).join('')}
+							</div>
+						</div>
+					`;
+				}
+
+				// Combine all sections
+				programSummaryContainer.innerHTML = summaryHTML + categoriesHTML + programsHTML;
+
+				console.log(`Program summary loaded for ${userEmail}`);
+			})
+			.catch(err => {
+				console.error("Failed to load program summary:", err);
+				programSummaryContainer.innerHTML = `
+					<div style="text-align: center; padding: 20px; color: #999;">
+						<div style="font-size: 24px; margin-bottom: 10px;">⚠️</div>
+						<p style="color: #777; font-size: 14px;">Error loading program summary</p>
+						<p style="color: #555; font-size: 12px; margin-top: 5px;">${err.message}</p>
+					</div>
+				`;
+			});
+	}
+
+	// Enhanced user selection function that loads both timeline and program summary
+	function selectUserAndLoadData(userEmail) {
+		// Load timeline data
+		loadUserTimeline(userEmail);
+		
+		// Load program summary data
+		loadUserProgramSummary(userEmail, 'all');
+		
+		// Update user info display
+		$('.user-info').html(userEmail || "SELECT AN EMPLOYEE");
+	}
+</script>
+{% endblock %}

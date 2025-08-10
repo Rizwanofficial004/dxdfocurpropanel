@@ -1,0 +1,160 @@
+{
+	"info": {
+		"_postman_id": "screenshot-api-instant",
+		"name": "Screenshot API - Instant Responses",
+		"description": "Test instant screenshot counting APIs with Postman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "📖 API Documentation",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": ["{{base_url}}"],
+					"path": [""]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📊 Get All Screenshot Counts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/all",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "all"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🎯 Search User - Beyza",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/beyza",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "beyza"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🔍 Search User - Amir",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/amir",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "amir"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🔍 Search User - Tugba",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/user/tugba",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "user", "tugba"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🏆 Top 10 Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/top",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "top"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🏆 Top 5 Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/top/5",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "top", "5"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "🏆 Top 20 Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/top/20",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "top", "20"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "⚙️ Service Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/status",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "status"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "📈 Summary Statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/screenshots/stats",
+					"host": ["{{base_url}}"],
+					"path": ["api", "screenshots", "stats"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "💚 Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": ["{{base_url}}"],
+					"path": ["health"]
+				}
+			},
+			"response": []
+		}
+	]
+}

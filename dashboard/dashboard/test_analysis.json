@@ -1,0 +1,165 @@
+{
+  "extraction_info": {
+    "timestamp": "2025-06-29T14:28:07.350275",
+    "bucket_name": "ddsfocustime",
+    "total_objects": 10,
+    "total_users": 0,
+    "total_categories": 9,
+    "date_range": {
+      "earliest": null,
+      "latest": null
+    }
+  },
+  "users": {},
+  "program_categories": {
+    "Web Browsing": {
+      "name": "Web Browsing",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Development": {
+      "name": "Development",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Design & Graphics": {
+      "name": "Design & Graphics",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Communication": {
+      "name": "Communication",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Productivity": {
+      "name": "Productivity",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Entertainment": {
+      "name": "Entertainment",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Social Media": {
+      "name": "Social Media",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "System & Tools": {
+      "name": "System & Tools",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    },
+    "Unknown": {
+      "name": "Unknown",
+      "total_screenshots": 0,
+      "total_time_minutes": 0,
+      "users": [],
+      "daily_activity": {},
+      "hourly_activity": {},
+      "tasks": [],
+      "first_activity": null,
+      "last_activity": null
+    }
+  },
+  "daily_analysis": {},
+  "time_distribution": {
+    "by_category": {},
+    "by_user": {},
+    "by_hour": {},
+    "by_day_of_week": {}
+  },
+  "productivity_insights": {
+    "most_productive_categories": [
+      [
+        "Web Browsing",
+        0
+      ],
+      [
+        "Development",
+        0
+      ],
+      [
+        "Design & Graphics",
+        0
+      ],
+      [
+        "Communication",
+        0
+      ],
+      [
+        "Productivity",
+        0
+      ],
+      [
+        "Entertainment",
+        0
+      ],
+      [
+        "Social Media",
+        0
+      ],
+      [
+        "System & Tools",
+        0
+      ],
+      [
+        "Unknown",
+        0
+      ]
+    ],
+    "most_productive_users": [],
+    "peak_productivity_hours": [],
+    "category_transitions": {}
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "user_email": "haseebcodejourney@gmail.com",
+  "generation_timestamp": "2025-06-29T15:47:44.535902",
+  "total_screenshots": 676,
+  "total_time_minutes": 3380,
+  "program_categories": {
+    "Web Browsing": {
+      "name": "Web Browsing",
+      "screenshots": 626,
+      "time_minutes": 3130,
+      "tasks": [
+        "Create UI for YouTube AI Automation ",
+        "2025 YILI HAZİRAN DDS MARKETING"
+      ],
+      "daily_activity": {
+        "2025-06-21": 116,
+        "2025-06-28": 296,
+        "2025-06-16": 4,
+        "2025-06-22": 4,
+        "2025-06-23": 2,
+        "2025-06-24": 47,
+        "2025-06-26": 9,
+        "2025-06-27": 148
+      },
+      "hourly_activity": {
+        "6": 50,
+        "7": 74,
+        "10": 296,
+        "11": 51,
+        "13": 11,
+        "23": 3,
+        "12": 1,
+        "21": 14,
+        "17": 9,
+        "8": 28,
+        "9": 89
+      }
+    },
+    "Productivity": {
+      "name": "Productivity",
+      "screenshots": 50,
+      "time_minutes": 250,
+      "tasks": [
+        "AI SASS Product Wordpress Website"
+      ],
+      "daily_activity": {
+        "2025-06-28": 50
+      },
+      "hourly_activity": {
+        "14": 50
+      }
+    }
+  },
+  "daily_breakdown": {
+    "2025-06-21": {
+      "date": "2025-06-21",
+      "screenshots": 116,
+      "time_minutes": 580,
+      "categories": {
+        "Web Browsing": 116
+      }
+    },
+    "2025-06-28": {
+      "date": "2025-06-28",
+      "screenshots": 346,
+      "time_minutes": 1730,
+      "categories": {
+        "Web Browsing": 296,
+        "Productivity": 50
+      }
+    },
+    "2025-06-16": {
+      "date": "2025-06-16",
+      "screenshots": 4,
+      "time_minutes": 20,
+      "categories": {
+        "Web Browsing": 4
+      }
+    },
+    "2025-06-22": {
+      "date": "2025-06-22",
+      "screenshots": 4,
+      "time_minutes": 20,
+      "categories": {
+        "Web Browsing": 4
+      }
+    },
+    "2025-06-23": {
+      "date": "2025-06-23",
+      "screenshots": 2,
+      "time_minutes": 10,
+      "categories": {
+        "Web Browsing": 2
+      }
+    },
+    "2025-06-24": {
+      "date": "2025-06-24",
+      "screenshots": 47,
+      "time_minutes": 235,
+      "categories": {
+        "Web Browsing": 47
+      }
+    },
+    "2025-06-26": {
+      "date": "2025-06-26",
+      "screenshots": 9,
+      "time_minutes": 45,
+      "categories": {
+        "Web Browsing": 9
+      }
+    },
+    "2025-06-27": {
+      "date": "2025-06-27",
+      "screenshots": 148,
+      "time_minutes": 740,
+      "categories": {
+        "Web Browsing": 148
+      }
+    }
+  },
+  "hourly_breakdown": {
+    "6": 50,
+    "7": 74,
+    "10": 296,
+    "14": 50,
+    "11": 51,
+    "13": 11,
+    "23": 3,
+    "12": 1,
+    "21": 14,
+    "17": 9,
+    "8": 28,
+    "9": 89
+  },
+  "productivity_insights": {
+    "most_used_programs": [
+      [
+        "Web Browsing",
+        3130
+      ],
+      [
+        "Productivity",
+        250
+      ]
+    ],
+    "peak_hours": [
+      [
+        10,
+        296
+      ],
+      [
+        9,
+        89
+      ],
+      [
+        7,
+        74
+      ],
+      [
+        11,
+        51
+      ],
+      [
+        6,
+        50
+      ]
+    ],
+    "daily_patterns": {},
+    "category_efficiency": {}
+  }
+}

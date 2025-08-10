@@ -1,0 +1,52 @@
+# Systemd service file for DDS Focus Time API
+# Save this as /etc/systemd/system/dxdtime.service
+
+[Unit]
+Description=DDS Focus Time API (Gunicorn)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+RuntimeDirectory=gunicorn
+WorkingDirectory=/var/www/dxdtime
+Environment="PATH=/var/www/dxdtime/venv/bin"
+ExecStart=/var/www/dxdtime/venv/bin/gunicorn --config gunicorn.conf.py DDS.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/dxdtime
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+
+# Commands to install and manage this service:
+#
+# sudo cp dxdtime.service /etc/systemd/system/
+# sudo systemctl daemon-reload
+# sudo systemctl enable dxdtime.service
+# sudo systemctl start dxdtime.service
+# sudo systemctl status dxdtime.service
+#
+# View logs:
+# sudo journalctl -u dxdtime.service -f
+#
+# Restart service:
+# sudo systemctl restart dxdtime.service

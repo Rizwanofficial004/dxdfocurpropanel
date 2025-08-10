@@ -1,0 +1,652 @@
+[
+  {
+    "id": "1",
+    "name": "Ahter Sağlam",
+    "status": "Working",
+    "email": "ahtersaglam@hotmail.com",
+    "phone": "+90 545 911 09 12",
+    "task": "—",
+    "start_time": "1632468337",
+    "end_time": "1632474131"
+  },
+  {
+    "id": "1",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1638786633",
+    "end_time": "1638789425"
+  },
+  {
+    "id": "29",
+    "name": "Başak Bostancıoğlu",
+    "status": "Break",
+    "email": "basakbostancioglu@gmail.com",
+    "phone": "+90 554 429 2069",
+    "task": "—",
+    "start_time": "1644162826",
+    "end_time": "1644164495"
+  },
+  {
+    "id": "37",
+    "name": "Hamza Haseeb",
+    "status": "Working",
+    "email": "haseebcodejourney@gmail.com",
+    "phone": "+90 548 831 2137",
+    "task": "—",
+    "start_time": "1651656420",
+    "end_time": "1651662000"
+  },
+  {
+    "id": "39",
+    "name": "Alper Turnalı",
+    "status": "Working",
+    "email": "alpertrnl4@gmail.com",
+    "phone": "+90 554 239 27 18",
+    "task": "—",
+    "start_time": "1652173650",
+    "end_time": "1652180481"
+  },
+  {
+    "id": "56",
+    "name": "Ahmet Hocaoğlu",
+    "status": "Working",
+    "email": "hocaogllu@gmail.com",
+    "phone": "+905305564887",
+    "task": "—",
+    "start_time": "1679930340",
+    "end_time": "1679935560"
+  },
+  {
+    "id": "73",
+    "name": "Habibe Gülin Ceylan",
+    "status": "Working",
+    "email": "gulinsosyalmedya@gmail.com",
+    "phone": "+905335039735",
+    "task": "—",
+    "start_time": "1686069326",
+    "end_time": "1686087309"
+  },
+  {
+    "id": "77",
+    "name": "Elif Uğurlu",
+    "status": "Working",
+    "email": "eliff.ugrl@gmail.com",
+    "phone": "+905447718800",
+    "task": "—",
+    "start_time": "1686687767",
+    "end_time": "1686700114"
+  },
+  {
+    "id": "85",
+    "name": "Deniz Üstündağ",
+    "status": "Working",
+    "email": "deniz@deluxebilisim.com",
+    "phone": "905488591559",
+    "task": "—",
+    "start_time": "1690969859",
+    "end_time": "1690975018"
+  },
+  {
+    "id": "86",
+    "name": "Çağrı Sayan",
+    "status": "Working",
+    "email": "cgrsayan@gmail.com",
+    "phone": "+90 551 104 7086",
+    "task": "—",
+    "start_time": "1691141123",
+    "end_time": "1691165814"
+  },
+  {
+    "id": "152",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1691178652",
+    "end_time": "1691180942"
+  },
+  {
+    "id": "94",
+    "name": "Begüm Damla Şen",
+    "status": "Working",
+    "email": "begumdamlasen@gmail.com",
+    "phone": "+905453994271",
+    "task": "—",
+    "start_time": "1691854026",
+    "end_time": "1691855882"
+  },
+  {
+    "id": "94",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1696084751",
+    "end_time": "1696086450"
+  },
+  {
+    "id": "100",
+    "name": "Melisa Bozkurt",
+    "status": "Break",
+    "email": "Melisaaa_2015@outlook.com",
+    "phone": "+905301007495",
+    "task": "—",
+    "start_time": "1697456402",
+    "end_time": "1697457553"
+  },
+  {
+    "id": "105",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1699019636",
+    "end_time": "1699024318"
+  },
+  {
+    "id": "107",
+    "name": "Mete Taşoğlu",
+    "status": "Idle",
+    "email": "mttasoglu@gmail.com",
+    "phone": "+905424211070",
+    "task": "—",
+    "start_time": "1700046836",
+    "end_time": "1700046937"
+  },
+  {
+    "id": "86",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1710760143",
+    "end_time": "1710761565"
+  },
+  {
+    "id": "117",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1718973728",
+    "end_time": "1718978483"
+  },
+  {
+    "id": "122",
+    "name": "Furkan Aydın",
+    "status": "Working",
+    "email": "frknaydinresmi@gmail.com",
+    "phone": "+905380611224",
+    "task": "—",
+    "start_time": "1719435860",
+    "end_time": "1719447961"
+  },
+  {
+    "id": "125",
+    "name": "—",
+    "status": "Idle",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1720805441",
+    "end_time": "1720805455"
+  },
+  {
+    "id": "107",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1723704534",
+    "end_time": "1723710248"
+  },
+  {
+    "id": "131",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1725717406",
+    "end_time": "1725743962"
+  },
+  {
+    "id": "133",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1726322452",
+    "end_time": "1726324466"
+  },
+  {
+    "id": "56",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1727962936",
+    "end_time": "1727968212"
+  },
+  {
+    "id": "135",
+    "name": "Tuğba Çalıkoğlu",
+    "status": "Working",
+    "email": "tugbacalik84@gmail.com",
+    "phone": "+905313504024",
+    "task": "—",
+    "start_time": "1728041674",
+    "end_time": "1728049003"
+  },
+  {
+    "id": "137",
+    "name": "Hamza Haseeb",
+    "status": "Working",
+    "email": "haseebcodejourney@gmail.com",
+    "phone": "+90 548 831 2137",
+    "task": "—",
+    "start_time": "1729672940",
+    "end_time": "1729685422"
+  },
+  {
+    "id": "138",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1730214779",
+    "end_time": "1730222865"
+  },
+  {
+    "id": "140",
+    "name": "Yasemin Ayhan",
+    "status": "Break",
+    "email": "yaseminayhan1406@gmail.com",
+    "phone": "+90 5343998918",
+    "task": "—",
+    "start_time": "1730706991",
+    "end_time": "1730707305"
+  },
+  {
+    "id": "141",
+    "name": "Yusuf Keçici",
+    "status": "Working",
+    "email": "ysfkcc141@gmail.com",
+    "phone": "+905426460426",
+    "task": "—",
+    "start_time": "1730715238",
+    "end_time": "1730725131"
+  },
+  {
+    "id": "145",
+    "name": "Tuğba Çalıkoğlu",
+    "status": "Working",
+    "email": "tugbacalik84@gmail.com",
+    "phone": "+905313504024",
+    "task": "—",
+    "start_time": "1731068407",
+    "end_time": "1731074667"
+  },
+  {
+    "id": "144",
+    "name": "—",
+    "status": "Idle",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1731181775",
+    "end_time": "1731181780"
+  },
+  {
+    "id": "142",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1731184385",
+    "end_time": "1731190108"
+  },
+  {
+    "id": "146",
+    "name": "Yunus Katırcı",
+    "status": "Working",
+    "email": "yunussemrekatirci@gmail.com",
+    "phone": "+905531463314",
+    "task": "—",
+    "start_time": "1732172526",
+    "end_time": "1732185749"
+  },
+  {
+    "id": "147",
+    "name": "—",
+    "status": "Idle",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1732194324",
+    "end_time": "1732194407"
+  },
+  {
+    "id": "149",
+    "name": "Samet Uğur Aslan",
+    "status": "Break",
+    "email": "samet.uguraslan@gmail.com",
+    "phone": "+90 543 635 1499",
+    "task": "—",
+    "start_time": "1734348038",
+    "end_time": "1734349569"
+  },
+  {
+    "id": "150",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1734645242",
+    "end_time": "1734649729"
+  },
+  {
+    "id": "151",
+    "name": "Fıratcan Özçakar",
+    "status": "Break",
+    "email": "f.ozcakar@gmail.com",
+    "phone": "+905492251515",
+    "task": "—",
+    "start_time": "1735337646",
+    "end_time": "1735339283"
+  },
+  {
+    "id": "153",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1735940040",
+    "end_time": "1735941540"
+  },
+  {
+    "id": "155",
+    "name": "Deniz Üstündağ",
+    "status": "Working",
+    "email": "deniz@deluxebilisim.com",
+    "phone": "905488591559",
+    "task": "—",
+    "start_time": "1736167307",
+    "end_time": "1736170377"
+  },
+  {
+    "id": "156",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1736269528",
+    "end_time": "1736281217"
+  },
+  {
+    "id": "159",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1738238880",
+    "end_time": "1738241160"
+  },
+  {
+    "id": "157",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1738255331",
+    "end_time": "1738260402"
+  },
+  {
+    "id": "160",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1738394400",
+    "end_time": "1738401600"
+  },
+  {
+    "id": "164",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1738657277",
+    "end_time": "1738666723"
+  },
+  {
+    "id": "163",
+    "name": "—",
+    "status": "Idle",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1738838760",
+    "end_time": "1738838820"
+  },
+  {
+    "id": "162",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1738879968",
+    "end_time": "1738881337"
+  },
+  {
+    "id": "166",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1739952615",
+    "end_time": "1739953795"
+  },
+  {
+    "id": "167",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1739963197",
+    "end_time": "1739969634"
+  },
+  {
+    "id": "175",
+    "name": "Tuğba Çalıkoğlu",
+    "status": "Working",
+    "email": "tugbacalik84@gmail.com",
+    "phone": "+905313504024",
+    "task": "—",
+    "start_time": "1740153156",
+    "end_time": "1740159198"
+  },
+  {
+    "id": "179",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1741000740",
+    "end_time": "1741002660"
+  },
+  {
+    "id": "180",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1741286520",
+    "end_time": "1741287180"
+  },
+  {
+    "id": "183",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1741328040",
+    "end_time": "1741334880"
+  },
+  {
+    "id": "184",
+    "name": "Çağla Şahar",
+    "status": "Working",
+    "email": "cagla.shr@gmail.com",
+    "phone": "+905523431849",
+    "task": "—",
+    "start_time": "1741875060",
+    "end_time": "1741877880"
+  },
+  {
+    "id": "161",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1742024823",
+    "end_time": "1742027654"
+  },
+  {
+    "id": "181",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1742119980",
+    "end_time": "1742125659"
+  },
+  {
+    "id": "145",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1742230805",
+    "end_time": "1742231153"
+  },
+  {
+    "id": "146",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1742628904",
+    "end_time": "1742629931"
+  },
+  {
+    "id": "187",
+    "name": "Jahed Sabbir",
+    "status": "Working",
+    "email": "jahed.sabbir.bd@gmail.com",
+    "phone": "+880 1872-345844",
+    "task": "—",
+    "start_time": "1743147388",
+    "end_time": "1743157598"
+  },
+  {
+    "id": "189",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1743746889",
+    "end_time": "1743748613"
+  },
+  {
+    "id": "190",
+    "name": "Rabia Tosun",
+    "status": "Working",
+    "email": "rabiatsun1903@gmail.com",
+    "phone": "+905536978488",
+    "task": "—",
+    "start_time": "0",
+    "end_time": "1744575000"
+  },
+  {
+    "id": "191",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1744805256",
+    "end_time": "1744807348"
+  },
+  {
+    "id": "192",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1745346029",
+    "end_time": "1745349893"
+  },
+  {
+    "id": "193",
+    "name": "—",
+    "status": "Break",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1745390760",
+    "end_time": "1745391960"
+  },
+  {
+    "id": "199",
+    "name": "—",
+    "status": "Working",
+    "email": "",
+    "phone": "",
+    "task": "—",
+    "start_time": "1745928181",
+    "end_time": "1745930739"
+  },
+  {
+    "id": "188",
+    "name": "Elif Uğurlu",
+    "status": "Idle",
+    "email": "eliff.ugrl@gmail.com",
+    "phone": "+905447718800",
+    "task": "—",
+    "start_time": "1746437161",
+    "end_time": "1746437220"
+  }
+]

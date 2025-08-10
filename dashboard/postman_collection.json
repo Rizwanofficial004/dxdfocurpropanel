@@ -1,0 +1,519 @@
+{
+  "info": {
+    "name": "Django Live Tracking API",
+    "description": "Complete API collection for Django Live Tracking System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "api_base",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. API Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/test/",
+          "host": ["{{api_base}}"],
+          "path": ["test", ""]
+        },
+        "description": "Test if API is working"
+      }
+    },
+    {
+      "name": "2. Login API",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{api_base}}/auth/login/",
+          "host": ["{{api_base}}"],
+          "path": ["auth", "login", ""]
+        }
+      }
+    },
+    {
+      "name": "3. Live Tracking API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""]
+        },
+        "description": "Get real-time employee tracking data"
+      }
+    },
+    {
+      "name": "4. Live Tracking - Filter by Name",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?name=amir&limit=10",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "name",
+              "value": "amir"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "Filter employees by name (partial match)"
+      }
+    },
+    {
+      "name": "5. Live Tracking - Today's Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?date_range=today",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "today"
+            }
+          ]
+        },
+        "description": "Get today's employee tracking data"
+      }
+    },
+    {
+      "name": "6. Live Tracking - This Week",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?date_range=week",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "week"
+            }
+          ]
+        },
+        "description": "Get this week's employee tracking data"
+      }
+    },
+    {
+      "name": "7. Live Tracking - This Month",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?date_range=month",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "month"
+            }
+          ]
+        },
+        "description": "Get this month's employee tracking data"
+      }
+    },
+    {
+      "name": "8. Live Tracking - Last 3 Months",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?date_range=3months",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "3months"
+            }
+          ]
+        },
+        "description": "Get last 3 months employee tracking data"
+      }
+    },
+    {
+      "name": "9. Live Tracking - Combined Filters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?name=amir&date_range=today&status=Online&limit=5",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "name",
+              "value": "amir"
+            },
+            {
+              "key": "date_range",
+              "value": "today"
+            },
+            {
+              "key": "status",
+              "value": "Online"
+            },
+            {
+              "key": "limit",
+              "value": "5"
+            }
+          ]
+        },
+        "description": "Combine name, date range, and status filters"
+      }
+    },
+    {
+      "name": "10. Live Tracking - Filter Online",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/?status=Online&limit=10",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", ""],
+          "query": [
+            {
+              "key": "status",
+              "value": "Online"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "11. Employee Details by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/employee/DEN001/",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", "employee", "DEN001", ""]
+        }
+      }
+    },
+    {
+      "name": "12. Employee Details by Email",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/live-tracking/employee/deniz@dxdglobal.com/",
+          "host": ["{{api_base}}"],
+          "path": ["live-tracking", "employee", "deniz@dxdglobal.com", ""]
+        }
+      }
+    },
+    {
+      "name": "13. User Search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/users/search/?q=amir&limit=5",
+          "host": ["{{api_base}}"],
+          "path": ["users", "search", ""],
+          "query": [
+            {
+              "key": "q",
+              "value": "amir"
+            },
+            {
+              "key": "limit",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "14. User Suggestions",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/users/suggestions/?q=am&limit=3",
+          "host": ["{{api_base}}"],
+          "path": ["users", "suggestions", ""],
+          "query": [
+            {
+              "key": "q",
+              "value": "am"
+            },
+            {
+              "key": "limit",
+              "value": "3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "15. Screenshots API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/screenshots/?limit=10",
+          "host": ["{{api_base}}"],
+          "path": ["screenshots", ""],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "16. User Screenshots",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/users/amirishaque67@gmail.com/screenshots/",
+          "host": ["{{api_base}}"],
+          "path": ["users", "amirishaque67@gmail.com", "screenshots", ""]
+        }
+      }
+    },
+    {
+      "name": "17. Logs API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/logs/?limit=10",
+          "host": ["{{api_base}}"],
+          "path": ["logs", ""],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "18. User Logs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/users/amirishaque67@gmail.com/logs/",
+          "host": ["{{api_base}}"],
+          "path": ["users", "amirishaque67@gmail.com", "logs", ""]
+        }
+      }
+    },
+    {
+      "name": "19. Dashboard Data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/dashboard/data/",
+          "host": ["{{api_base}}"],
+          "path": ["dashboard", "data", ""]
+        }
+      }
+    },
+    {
+      "name": "20. Employee Cards API (Frontend)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""]
+        },
+        "description": "Get employee cards for frontend dashboard"
+      }
+    },
+    {
+      "name": "21. Employee Cards - All Employees Today",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/?employee_filter=all&date_range=today&limit=10",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""],
+          "query": [
+            {
+              "key": "employee_filter",
+              "value": "all"
+            },
+            {
+              "key": "date_range",
+              "value": "today"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "description": "All employees for today"
+      }
+    },
+    {
+      "name": "22. Employee Cards - This Week",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/?date_range=week",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "week"
+            }
+          ]
+        },
+        "description": "Employee cards for this week"
+      }
+    },
+    {
+      "name": "23. Employee Cards - This Month",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/?date_range=month",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "month"
+            }
+          ]
+        },
+        "description": "Employee cards for this month"
+      }
+    },
+    {
+      "name": "24. Employee Cards - This Year",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/?date_range=year",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""],
+          "query": [
+            {
+              "key": "date_range",
+              "value": "year"
+            }
+          ]
+        },
+        "description": "Employee cards for this year"
+      }
+    },
+    {
+      "name": "25. Employee Cards - Search by Name",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/?search_name=amir&date_range=week",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""],
+          "query": [
+            {
+              "key": "search_name",
+              "value": "amir"
+            },
+            {
+              "key": "date_range",
+              "value": "week"
+            }
+          ]
+        },
+        "description": "Search employee by name with date range"
+      }
+    },
+    {
+      "name": "26. Employee Cards - Combined Filters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_base}}/employee-cards/?employee_filter=all&date_range=today&search_name=developer&status=Online&limit=5&page=1",
+          "host": ["{{api_base}}"],
+          "path": ["employee-cards", ""],
+          "query": [
+            {
+              "key": "employee_filter",
+              "value": "all"
+            },
+            {
+              "key": "date_range",
+              "value": "today"
+            },
+            {
+              "key": "search_name",
+              "value": "developer"
+            },
+            {
+              "key": "status",
+              "value": "Online"
+            },
+            {
+              "key": "limit",
+              "value": "5"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        },
+        "description": "All filters combined with pagination"
+      }
+    }
+  ]
+}

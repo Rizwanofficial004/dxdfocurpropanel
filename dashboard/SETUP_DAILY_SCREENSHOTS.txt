@@ -1,0 +1,47 @@
+
+DAILY SCREENSHOT COUNTER SETUP (No Date Filter)
+===============================================
+
+## What this does:
+- Counts ALL screenshots in s3://ddsfocustime/screenshots/
+- No date filtering - gives total counts per user
+- Fast execution (typically under 30 seconds)
+- Creates daily_screenshot_counts.json for your API
+
+## Scheduling Options:
+
+### Windows Task Scheduler:
+1. Open Task Scheduler
+2. Create Basic Task: "Daily Screenshot Count"
+3. Trigger: Daily at 6:00 AM
+4. Action: Start a program
+   - Program: C:\Users\DDS\Desktop\New folder\run_daily_screenshots.bat
+   OR
+   - Program: powershell.exe
+   - Arguments: -File "C:\Users\DDS\Desktop\New folder\run_daily_screenshots.ps1"
+
+### Linux Crontab:
+0 6 * * * cd C:\Users\DDS\Desktop\New folder && python direct_screenshot_counter.py >> cron.log 2>&1
+
+## Files Generated Daily:
+- daily_screenshot_counts.json (API consumption)
+- screenshot_archive_YYYY-MM-DD.json (daily backup)
+- user_totals_YYYY-MM-DD.csv (human readable)
+
+## Your Django API Integration:
+Update your API to read from: daily_screenshot_counts.json
+
+Example Django code:
+```python
+import json
+def get_daily_screenshots():
+    try:
+        with open('daily_screenshot_counts.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {"error": "Daily counts not available"}
+```
+
+## Testing:
+Run manually: python direct_screenshot_counter.py
+Check logs: daily_screenshot_cron.log
