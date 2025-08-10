@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Autocomplete, CircularProgress, Button, Box } from '@mui/material';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { buildApiUrl, API_ENDPOINTS } from '../../../config/api.js';
+import { fastAxios, normalAxios, withRetry } from '../../../config/axios.js';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import {
@@ -94,12 +96,40 @@ const FocusTimeline = () => {
   useEffect(() => {
     const checkBackendStatus = async () => {
       try {
-        const response = await axios.get('https://dxdtime.ddsolutions.io/api/logs/search/?search=test&limit=5', {
-          timeout: 5000
-        });
+        // First try a simple health check with fast axios
+        let response;
+        try {
+          response = await fastAxios.get(buildApiUrl('/health'));
+          console.log('✅ Backend health check successful');
+          setBackendStatus('connected');
+          return;
+        } catch (healthError) {
+          console.log('⚠️ Health endpoint not available, trying logs endpoint...');
+        }
+
+        // Fallback to logs endpoint with retry logic
+        response = await withRetry(
+          () => normalAxios.get(buildApiUrl(API_ENDPOINTS.LOGS.SEARCH + '?search=test&limit=5')),
+          3, // 3 retries
+          2000 // 2 second delay
+        );
+        console.log('✅ Backend logs endpoint successful');
         setBackendStatus('connected');
       } catch (err) {
-        setBackendStatus('disconnected');
+        console.error('❌ Backend connection failed:', {
+          message: err.message,
+          code: err.code,
+          status: err.response?.status,
+          url: err.config?.url,
+          userMessage: err.userMessage
+        });
+        
+        if (err.code === 'ECONNABORTED') {
+          console.log('⏱️ Request timed out - backend may be slow or processing large S3 data');
+          setBackendStatus('slow'); // New status for slow connections
+        } else {
+          setBackendStatus('disconnected');
+        }
       }
     };
     checkBackendStatus();
@@ -114,9 +144,11 @@ const FocusTimeline = () => {
 
     try {
       setLoadingSuggestions(true);
-      const response = await axios.get(`https://dxdtime.ddsolutions.io/api/logs/search/?search=${encodeURIComponent(query)}&limit=10`, {
-        timeout: 8000
-      });
+      const response = await withRetry(
+        () => normalAxios.get(`http://localhost:8000/api/logs/search/?search=${encodeURIComponent(query)}&limit=10`),
+        2, // 2 retries for search
+        1000 // 1 second delay
+      );
       
       let suggestions = [];
       
@@ -244,7 +276,7 @@ const FocusTimeline = () => {
       // If it's a project folder, fetch files from the API
       if (task.type === 'project_folder' && user.email && task.name) {
         try {
-          const response = await axios.get(`https://dxdtime.ddsolutions.io/api/logs/files/?email=${encodeURIComponent(user.email)}&date=${encodeURIComponent(task.name)}&limit=20`, {
+          const response = await axios.get(`http://localhost:8000/api/logs/files/?email=${encodeURIComponent(user.email)}&date=${encodeURIComponent(task.name)}&limit=20`, {
             timeout: 8000
           });
           
@@ -377,7 +409,7 @@ const FocusTimeline = () => {
       if (!jsonData) {
         try {
           const apiResponse = await axios.get(
-            `https://dxdtime.ddsolutions.io/api/logs/file-content/?email=${encodeURIComponent(selectedUser?.email)}&file_path=${encodeURIComponent(file.path)}`,
+            `http://localhost:8000/api/logs/file-content/?email=${encodeURIComponent(selectedUser?.email)}&file_path=${encodeURIComponent(file.path)}`,
             { timeout: 8000 }
           );
           if (apiResponse.data?.success && apiResponse.data?.content) {
@@ -488,7 +520,7 @@ const FocusTimeline = () => {
       if (file.type === 'file') {
         // Try to fetch actual activity logs from API
         try {
-          const response = await axios.get(`https://dxdtime.ddsolutions.io/api/logs/activity/?email=${encodeURIComponent(user.email)}&file_path=${encodeURIComponent(file.path)}&limit=50`, {
+          const response = await axios.get(`http://localhost:8000/api/logs/activity/?email=${encodeURIComponent(user.email)}&file_path=${encodeURIComponent(file.path)}&limit=50`, {
             timeout: 8000
           });
           
@@ -1069,7 +1101,7 @@ const FocusTimeline = () => {
         <SearchInfo theme={theme} isDarkMode={isDarkMode}>
           {backendStatus === 'disconnected' ? (
             <>
-              ❌ <strong>Backend Server Not Running</strong> - Using test data for demonstration (Expected: https://dxdtime.ddsolutions.io/api/logs/search/)
+              ❌ <strong>Backend Server Not Running</strong> - Using test data for demonstration (Expected: http://localhost:8000api/logs/search/)
             </>
           ) : (
             <>
@@ -1393,34 +1425,7 @@ const FocusTimeline = () => {
           </CategorySection>
 
           {/* Original Timeline Activities */}
-          <CategorySection>
-            <CategoryTitle>
-              🕒 Recent Activities
-            </CategoryTitle>
-            <Timeline>
-              {activities.filter((act) =>
-                act.title.toLowerCase().includes(search.toLowerCase())
-              ).map((item, index) => (
-                <TimelineItem key={index}>
-                  <Icon>
-                    <i className="fas fa-bag-shopping"></i>
-                  </Icon>
-                  <Content>
-                    <TitleText>{item.title}</TitleText>
-                    <Subtitle dangerouslySetInnerHTML={{ __html: item.subtitle }} />
-                    {item.media.length > 0 && (
-                      <Media>
-                        {item.media.map((src, i) => (
-                          <img key={i} src={src} alt="" />
-                        ))}
-                      </Media>
-                    )}
-                  </Content>
-                  <Badge>{item.time}</Badge>
-                </TimelineItem>
-              ))}
-            </Timeline>
-          </CategorySection>
+     
         </>
       )}
     </Wrapper>

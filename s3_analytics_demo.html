@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 User Analytics API Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .controls h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .results {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .results-body {
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .summary-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .summary-card p {
+            opacity: 0.9;
+        }
+        
+        .user-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .user-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .folders-list {
+            margin-top: 10px;
+        }
+        
+        .folder-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-offline {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 S3 User Analytics API Demo</h1>
+            <p>Real-time analytics from S3 bucket - User tasks and screenshot counts</p>
+        </div>
+        
+        <div class="controls">
+            <h2>🎯 API Endpoints</h2>
+            
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="loadBucketOverview()">
+                    📊 Bucket Overview
+                </button>
+                <button class="btn btn-primary" onclick="loadAllUsers()">
+                    👥 All Users Analytics
+                </button>
+                <button class="btn btn-secondary" onclick="loadUsersWithFilter()">
+                    🔍 Users (Min 100 Screenshots)
+                </button>
+                <button class="btn btn-success" onclick="showRawJSON()">
+                    📋 Show Raw JSON
+                </button>
+            </div>
+            
+            <div class="input-group">
+                <input type="email" id="userEmail" placeholder="Enter user email (e.g., haseebcodejourney@gmail.com)" style="flex: 1;">
+                <button class="btn btn-primary" onclick="loadUserDetails()">
+                    👤 Get User Details
+                </button>
+            </div>
+        </div>
+        
+        <div class="results">
+            <div class="results-header">
+                <h3 id="resultsTitle">Welcome to S3 Analytics API</h3>
+                <div>
+                    <span id="statusBadge" class="status-badge status-offline">Not Connected</span>
+                    <span id="executionTime" style="margin-left: 10px; color: #6c757d;"></span>
+                </div>
+            </div>
+            <div class="results-body" id="resultsBody">
+                <div style="text-align: center; padding: 40px; color: #6c757d;">
+                    <h3>🚀 Ready to explore S3 data!</h3>
+                    <p>Click any button above to start analyzing your S3 bucket data.</p>
+                    <br>
+                    <p><strong>Available APIs:</strong></p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li><strong>Bucket Overview:</strong> High-level statistics and insights</li>
+                        <li><strong>User Analytics:</strong> Complete list with tasks and screenshot counts</li>
+                        <li><strong>User Details:</strong> Detailed information for specific users</li>
+                        <li><strong>Filtering:</strong> Filter by screenshot count, user name, etc.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:9000';
+        let showRawJsonMode = false;
+        
+        function showLoading(title = 'Loading...') {
+            document.getElementById('resultsTitle').textContent = title;
+            document.getElementById('statusBadge').textContent = 'Loading...';
+            document.getElementById('statusBadge').className = 'status-badge status-offline';
+            document.getElementById('executionTime').textContent = '';
+            
+            document.getElementById('resultsBody').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Scanning S3 bucket for user data...</p>
+                    <small>This may take a few seconds to analyze all files</small>
+                </div>
+            `;
+        }
+        
+        function showError(message, title = 'Error') {
+            document.getElementById('resultsTitle').textContent = title;
+            document.getElementById('statusBadge').textContent = 'Error';
+            document.getElementById('statusBadge').className = 'status-badge status-offline';
+            
+            document.getElementById('resultsBody').innerHTML = `
+                <div class="error">
+                    <h4>❌ ${title}</h4>
+                    <p>${message}</p>
+                    <br>
+                    <p><strong>Troubleshooting:</strong></p>
+                    <ul>
+                        <li>Make sure the API server is running on port 9000</li>
+                        <li>Check that S3 credentials are configured correctly</li>
+                        <li>Verify network connectivity</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function updateStatus(success, executionTime = null) {
+            const badge = document.getElementById('statusBadge');
+            const timeEl = document.getElementById('executionTime');
+            
+            if (success) {
+                badge.textContent = 'Connected';
+                badge.className = 'status-badge status-online';
+            } else {
+                badge.textContent = 'Error';
+                badge.className = 'status-badge status-offline';
+            }
+            
+            if (executionTime) {
+                timeEl.textContent = `⏱️ ${executionTime}s`;
+            }
+        }
+        
+        async function apiCall(endpoint, title) {
+            showLoading(title);
+            
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus(true, data.execution_time_seconds);
+                    return data;
+                } else {
+                    updateStatus(false);
+                    showError(data.error || 'Unknown API error', title);
+                    return null;
+                }
+            } catch (error) {
+                updateStatus(false);
+                showError(`Network error: ${error.message}`, title);
+                return null;
+            }
+        }
+        
+        function renderSummaryCards(summary) {
+            return `
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>${summary.total_users}</h3>
+                        <p>Total Users</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>${summary.total_screenshots.toLocaleString()}</h3>
+                        <p>Total Screenshots</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>${summary.total_folders}</h3>
+                        <p>Total Folders</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>${summary.total_size_mb.toLocaleString()} MB</h3>
+                        <p>Total Size</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderUserCard(user) {
+            const foldersHtml = user.folders_list ? 
+                user.folders_list.slice(0, 10).map(folder => 
+                    `<span class="folder-tag">${folder.folder_name} (${folder.screenshot_count})</span>`
+                ).join('') : '';
+            
+            const moreText = user.folders_list && user.folders_list.length > 10 ? 
+                `<span class="folder-tag">+${user.folders_list.length - 10} more</span>` : '';
+            
+            return `
+                <div class="user-card">
+                    <h4>📧 ${user.email}</h4>
+                    <div class="user-stats">
+                        <div class="stat">
+                            <div class="stat-value">${user.total_screenshots.toLocaleString()}</div>
+                            <div class="stat-label">Screenshots</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${user.total_folders}</div>
+                            <div class="stat-label">Folders</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${user.total_size_mb} MB</div>
+                            <div class="stat-label">Total Size</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${user.last_activity_humanized || 'N/A'}</div>
+                            <div class="stat-label">Last Activity</div>
+                        </div>
+                    </div>
+                    ${foldersHtml ? `
+                        <div class="folders-list">
+                            <strong>📁 Task Folders:</strong><br>
+                            ${foldersHtml}${moreText}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        async function loadBucketOverview() {
+            const data = await apiCall('/api/s3/bucket-overview/', 'Bucket Overview');
+            if (!data) return;
+            
+            document.getElementById('resultsTitle').textContent = `📊 Bucket Overview - ${data.bucket_info.bucket_name}`;
+            
+            if (showRawJsonMode) {
+                document.getElementById('resultsBody').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                return;
+            }
+            
+            const insightsHtml = data.insights ? `
+                <h3>🏆 Top Performers</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h4>📸 Most Screenshots</h4>
+                        ${data.insights.top_users_by_screenshots.map((user, i) => 
+                            `<div>${i+1}. ${user.email} - ${user.total_screenshots.toLocaleString()} screenshots</div>`
+                        ).join('')}
+                    </div>
+                    <div>
+                        <h4>📁 Most Folders</h4>
+                        ${data.insights.top_users_by_folders.map((user, i) => 
+                            `<div>${i+1}. ${user.email} - ${user.total_folders} folders</div>`
+                        ).join('')}
+                    </div>
+                    <div>
+                        <h4>🕒 Recent Activity</h4>
+                        ${data.insights.most_recent_activity.map((user, i) => 
+                            `<div>${i+1}. ${user.email} - ${user.last_activity_humanized}</div>`
+                        ).join('')}
+                    </div>
+                </div>
+            ` : '';
+            
+            document.getElementById('resultsBody').innerHTML = `
+                ${renderSummaryCards(data.summary)}
+                ${insightsHtml}
+                <div class="success">
+                    ✅ Scanned ${data.bucket_info.total_objects_scanned.toLocaleString()} objects in ${data.bucket_info.execution_time_seconds}s
+                </div>
+            `;
+        }
+        
+        async function loadAllUsers() {
+            const data = await apiCall('/api/s3/user-analytics/', 'All Users Analytics');
+            if (!data) return;
+            
+            document.getElementById('resultsTitle').textContent = `👥 All Users (${data.users.length})`;
+            
+            if (showRawJsonMode) {
+                document.getElementById('resultsBody').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                return;
+            }
+            
+            const usersHtml = data.users.map(user => renderUserCard(user)).join('');
+            
+            document.getElementById('resultsBody').innerHTML = `
+                ${renderSummaryCards(data.summary)}
+                <h3>📋 User List</h3>
+                ${usersHtml}
+            `;
+        }
+        
+        async function loadUsersWithFilter() {
+            const data = await apiCall('/api/s3/user-analytics/?min_screenshots=100&limit=10', 'Filtered Users (Min 100 Screenshots)');
+            if (!data) return;
+            
+            document.getElementById('resultsTitle').textContent = `🔍 Filtered Users (${data.users.length})`;
+            
+            if (showRawJsonMode) {
+                document.getElementById('resultsBody').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                return;
+            }
+            
+            const usersHtml = data.users.map(user => renderUserCard(user)).join('');
+            
+            document.getElementById('resultsBody').innerHTML = `
+                <div class="success">
+                    🔍 Filter Applied: Users with at least 100 screenshots (showing top 10)
+                </div>
+                ${usersHtml}
+            `;
+        }
+        
+        async function loadUserDetails() {
+            const email = document.getElementById('userEmail').value.trim();
+            if (!email) {
+                showError('Please enter a user email address', 'Missing Email');
+                return;
+            }
+            
+            const data = await apiCall(`/api/s3/user-details/?email=${encodeURIComponent(email)}`, `User Details - ${email}`);
+            if (!data) return;
+            
+            document.getElementById('resultsTitle').textContent = `👤 ${data.user.email}`;
+            
+            if (showRawJsonMode) {
+                document.getElementById('resultsBody').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                return;
+            }
+            
+            const user = data.user;
+            const insights = data.insights;
+            
+            const foldersHtml = user.folders_list.map(folder => `
+                <div class="user-card">
+                    <h4>📁 ${folder.folder_name}</h4>
+                    <div class="user-stats">
+                        <div class="stat">
+                            <div class="stat-value">${folder.screenshot_count}</div>
+                            <div class="stat-label">Screenshots</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${(folder.total_size_bytes / (1024*1024)).toFixed(2)} MB</div>
+                            <div class="stat-label">Size</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${new Date(folder.last_modified).toLocaleDateString()}</div>
+                            <div class="stat-label">Last Modified</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('resultsBody').innerHTML = `
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>${user.total_screenshots.toLocaleString()}</h3>
+                        <p>Total Screenshots</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>${user.total_folders}</h3>
+                        <p>Task Folders</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>${user.total_size_mb} MB</h3>
+                        <p>Total Size</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>${user.last_activity_humanized}</h3>
+                        <p>Last Activity</p>
+                    </div>
+                </div>
+                
+                <div class="success">
+                    💡 <strong>Insights:</strong> 
+                    Most active folder: ${insights.most_active_folder} | 
+                    Avg screenshots per folder: ${insights.avg_screenshots_per_folder} | 
+                    Avg size per screenshot: ${insights.avg_size_per_screenshot_kb} KB
+                </div>
+                
+                <h3>📁 Task Folders (${user.total_folders})</h3>
+                ${foldersHtml}
+            `;
+        }
+        
+        function showRawJSON() {
+            showRawJsonMode = !showRawJsonMode;
+            const btn = event.target;
+            btn.textContent = showRawJsonMode ? '📊 Show Formatted' : '📋 Show Raw JSON';
+            btn.className = showRawJsonMode ? 'btn btn-secondary' : 'btn btn-success';
+        }
+        
+        // Load bucket overview on page load
+        window.addEventListener('load', () => {
+            setTimeout(loadBucketOverview, 1000);
+        });
+    </script>
+</body>
+</html>

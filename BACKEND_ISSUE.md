@@ -2,7 +2,7 @@
 
 ## 🚨 **ISSUE IDENTIFIED**: Backend server is not running on `http://localhost:8000`
 
-The login is hanging because the frontend is trying to connect to `https://dxdtime.ddsolutions.io/api/auth/login/` but there's no server responding at that address.
+The login is hanging because the frontend is trying to connect to `http://localhost:8000api/auth/login/` but there's no server responding at that address.
 
 ## ✅ **Solutions**:
 
@@ -33,7 +33,7 @@ I can create a temporary mock backend for testing the frontend.
    ```
 
 2. **Test the API endpoint manually**:
-   - Open https://dxdtime.ddsolutions.io/api/auth/login/ in browser
+   - Open http://localhost:8000api/auth/login/ in browser
    - Should show some response (even an error is fine)
 
 3. **Check your backend logs** for any errors

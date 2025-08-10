@@ -22,3 +22,140 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django migration files
+*/migrations/*.py
+*/migrations/*.pyc
+*/migrations/__pycache__/
+
+# SQLite database
+*.sqlite3
+
+# Environment variables
+.env
+
+# VSCode settings
+.vscode/
+
+# macOS junk
+.DS_Store
+
+# Log files
+# *.log
+
+# Local settings
+settings_local.py
+
+# pip environment
+venv/
+env/
+ENV/
+.venv/
+.python-version
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# PyCharm
+.idea/
+
+# Static and media files (optional - only if generated in development)
+staticfiles/
+media/
+
+# Node modules (if using frontend like React with Django)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+.early.coverage

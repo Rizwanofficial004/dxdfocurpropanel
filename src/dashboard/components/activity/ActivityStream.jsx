@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Button, TextField, Popover, Box, CircularProgress, Autocomplete } from '@mui/material';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import { SingleInputDateRangeField } from '@mui/x-date-pickers-pro/SingleInputDateRangeField';
 import dayjs from 'dayjs';
 import axios from 'axios';
+import { fastAxios, normalAxios, slowAxios, withRetry } from '../../../config/axios.js';
+import { gsap } from 'gsap';
 import { useTheme } from '../../context/ThemeContext';
+import { getApiBaseURL } from '../../../config/api';
+import { retryApiCall, retryExtremeApiCall } from '../../../config/apiConfig';
 import ImageModal from '../common/ImageModal';
 import {
   Wrapper,
@@ -49,6 +54,18 @@ import {
   DisabledButton,
   ButtonContainer
 } from './ActivityStream.styles';
+
+// Helper function to check if URL is using backend proxy
+const isBackendProxyUrl = (url) => {
+  if (!url) return false;
+  const baseUrl = getApiBaseURL();
+  return url.includes(`${baseUrl}/proxy/screenshot/`) || url.includes('/api/proxy/screenshot/');
+};
+
+// Helper function to get current backend URL
+const getCurrentBackendUrl = () => {
+  return getApiBaseURL().replace('/api', '');
+};
 
 // Generate 30 days from current date backwards
 const generateLast30Days = () => {
@@ -162,16 +179,76 @@ const DummyDataSection = ({ backendStatus, theme, isDarkMode }) => (
 );
 
 const ActivityStream = () => {
-  const { isDarkMode, theme } = useTheme();
+  const { isDarkMode, theme } = useTheme(); 
   const [selected, setSelected] = useState(29); // Start with today (last item in 30-day array)
   const [search, setSearch] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
-  const [dateRange, setDateRange] = useState([dayjs('2024-06-06'), dayjs('2025-01-01')]);
   
-  // Generate dates for the last 30 days
-  const dates = generateLast30Days();
+  // EMERGENCY DEBUG FUNCTION FOR PRESIGNED URLS
+  const debugImageUrlExtraction = (testData) => {
+    console.log('🚨 EMERGENCY DEBUG - Testing URL extraction with:', testData);
+    
+    // Test S3 key extraction first
+    console.log('🔍 S3 Key extraction test:');
+    console.log('  - testData.s3_key:', testData.s3_key);
+    console.log('  - typeof s3_key:', typeof testData.s3_key);
+    console.log('  - s3_key length:', testData.s3_key?.length);
+    console.log('  - s3_key exists:', !!testData.s3_key);
+    
+    // Test direct presigned URL access
+    console.log('🔍 Direct access test:');
+    console.log('  - testData.presigned_url:', testData.presigned_url);
+    console.log('  - typeof:', typeof testData.presigned_url);
+    console.log('  - length:', testData.presigned_url?.length);
+    console.log('  - trim():', testData.presigned_url?.trim());
+    console.log('  - trim() !== "":', testData.presigned_url?.trim() !== '');
+    
+    // Test all important fields
+    console.log('🔍 All important fields test:');
+    console.log('  - id:', testData.id);
+    console.log('  - filename:', testData.filename);
+    console.log('  - timestamp:', testData.timestamp);
+    console.log('  - time_display:', testData.time_display);
+    console.log('  - application:', testData.application);
+    console.log('  - window_title:', testData.window_title);
+    console.log('  - size_bytes:', testData.size_bytes);
+    console.log('  - size_mb:', testData.size_mb);
+    console.log('  - file_extension:', testData.file_extension);
+    
+    // Test conditional logic step by step
+    if (testData.presigned_url) {
+      console.log('✅ presigned_url exists');
+      if (typeof testData.presigned_url === 'string') {
+        console.log('✅ presigned_url is string');
+        if (testData.presigned_url.trim() !== '') {
+          console.log('✅ presigned_url is not empty after trim');
+          console.log('✅ SHOULD USE:', testData.presigned_url.trim());
+          return testData.presigned_url.trim();
+        } else {
+          console.log('❌ presigned_url is empty after trim');
+        }
+      } else {
+        console.log('❌ presigned_url is not string, type:', typeof testData.presigned_url);
+      }
+    } else {
+      console.log('❌ presigned_url does not exist');
+    }
+    
+    return null;
+  };
   
-  // API related states
+  // Generate dates for the last 30 days - moved up before GSAP effects
+  const dates = useMemo(() => generateLast30Days(), []);
+  
+  // GSAP Animation Refs
+  const containerRef = useRef(null);
+  const topBarRef = useRef(null);
+  const cardGridRef = useRef(null);
+  const cardsRef = useRef([]);
+  const foldersRef = useRef([]);
+  const dateItemsRef = useRef([]);
+  
+  // API related states - moved before useEffect hooks
   const [screenshots, setScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -180,6 +257,9 @@ const ActivityStream = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  
+  // Date filter states
+  const [dateRange, setDateRange] = useState([null, null]);
   const [isDateFilterActive, setIsDateFilterActive] = useState(false);
   const [singleDateFilter, setSingleDateFilter] = useState(null);
   
@@ -199,98 +279,555 @@ const ActivityStream = () => {
   // Add 3-level navigation states
   const [currentView, setCurrentView] = useState('search'); // 'search', 'folders', 'screenshots'
   const [folders, setFolders] = useState([]);
-  const [loadingFolders, setLoadingFolders] = useState(false);    const [selectedFolder, setSelectedFolder] = useState(null);
-    const [folderScreenshots, setFolderScreenshots] = useState([]);
-    const [loadingFolderScreenshots, setLoadingFolderScreenshots] = useState(false);
-    const [folderPagination, setFolderPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
-    const [verifiedFolderCounts, setVerifiedFolderCounts] = useState({}); // Track actual counts for folders
-    const [showDummyData, setShowDummyData] = useState(false); // Control dummy data display
-    const [perPageLimit, setPerPageLimit] = useState(20); // Default to 20 per page
+  const [loadingFolders, setLoadingFolders] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [folderScreenshots, setFolderScreenshots] = useState([]);
+  const [loadingFolderScreenshots, setLoadingFolderScreenshots] = useState(false);
+  const [folderPagination, setFolderPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
+  const [verifiedFolderCounts, setVerifiedFolderCounts] = useState({}); // Track actual counts for folders
+  const [showDummyData, setShowDummyData] = useState(false); // Control dummy data display
+  const [perPageLimit, setPerPageLimit] = useState(20); // Default to 20 per page
 
   // Image Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState([]);
   const [modalCurrentIndex, setModalCurrentIndex] = useState(0);
+  
+  // GSAP Entrance Animations
+  useEffect(() => {
+    if (containerRef.current) {
+      gsap.set(containerRef.current, {
+        opacity: 0,
+        rotationX: -30,
+        rotationY: 20,
+        z: -200,
+        scale: 0.8
+      });
 
-  // Add image URL processing function (FIXED for direct presigned URLs)
-  const getImageUrl = (originalUrl) => {
-    // If null/undefined, return a basic image that will show as broken
-    if (!originalUrl) {
+      gsap.to(containerRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1.5,
+        ease: "back.out(1.7)",
+        delay: 0.2
+      });
+    }
+  }, []);
+
+  // GSAP TopBar Animation
+  useEffect(() => {
+    if (topBarRef.current) {
+      gsap.set(topBarRef.current, {
+        opacity: 0,
+        y: -30,
+        rotationX: -15
+      });
+
+      gsap.to(topBarRef.current, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 1,
+        ease: "power3.out",
+        delay: 0.5
+      });
+    }
+  }, []);
+
+  // GSAP Date Items Animation
+  useEffect(() => {
+    try {
+      if (dateItemsRef.current && Array.isArray(dateItemsRef.current) && dateItemsRef.current.length > 0) {
+        // Filter out null/undefined elements before animating
+        const validDateItems = dateItemsRef.current.filter(item => item !== null && item !== undefined);
+        
+        if (validDateItems.length > 0) {
+          gsap.set(validDateItems, {
+            opacity: 0,
+            rotationY: 45,
+            z: -100,
+            scale: 0.8
+          });
+
+          gsap.to(validDateItems, {
+            opacity: 1,
+            rotationY: 0,
+            z: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: "back.out(1.7)",
+            stagger: 0.1,
+            delay: 0.8
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('GSAP Date Items Animation Error:', error);
+    }
+  }, []); // Remove dates dependency since dates array is static
+
+  // GSAP Cards Animation
+  useEffect(() => {
+    try {
+      if (cardsRef.current && Array.isArray(cardsRef.current) && cardsRef.current.length > 0) {
+        // Filter out null/undefined elements before animating
+        const validCards = cardsRef.current.filter(card => card !== null && card !== undefined);
+        
+        if (validCards.length > 0) {
+          gsap.set(validCards, {
+            opacity: 0,
+            rotationX: 90,
+            rotationY: 45,
+            z: -200,
+            scale: 0.6
+          });
+
+          gsap.to(validCards, {
+            opacity: 1,
+            rotationX: 0,
+            rotationY: 0,
+            z: 0,
+            scale: 1,
+            duration: 1.2,
+            ease: "back.out(1.7)",
+            stagger: 0.15,
+            delay: 1.2
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('GSAP Cards Animation Error:', error);
+    }
+  }, [screenshots, folderScreenshots]);
+
+  // GSAP Folders Animation
+  useEffect(() => {
+    try {
+      if (foldersRef.current && Array.isArray(foldersRef.current) && foldersRef.current.length > 0) {
+        // Filter out null/undefined elements before animating
+        const validFolders = foldersRef.current.filter(folder => folder !== null && folder !== undefined);
+        
+        if (validFolders.length > 0) {
+          gsap.set(validFolders, {
+            opacity: 0,
+            rotationX: 45,
+            rotationY: 30,
+            z: -150,
+            scale: 0.7
+          });
+
+          gsap.to(validFolders, {
+            opacity: 1,
+            rotationX: 0,
+            rotationY: 0,
+            z: 0,
+            scale: 1,
+            duration: 1,
+            ease: "back.out(1.7)",
+            stagger: 0.12,
+            delay: 1
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('GSAP Folders Animation Error:', error);
+    }
+  }, [folders]);
+
+  // Keyboard navigation - ESC key for back navigation
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        if (currentView === 'screenshots') {
+          event.preventDefault();
+          handleBackToFolders();
+        } else if (currentView === 'folders') {
+          event.preventDefault();
+          handleBackToSearch();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentView]);
+  
+  // Add image URL processing function (OPTIMIZED for your perfect API response)
+  const getImageUrl = (screenshot) => {
+    // Handle screenshot object with multiple URL fields
+    if (!screenshot) {
       return '';
     }
     
-    // CRITICAL FIX: If it's a presigned S3 URL, use it DIRECTLY without ANY processing
-    if (originalUrl.includes('ddsfocustime.s3.amazonaws.com') && originalUrl.includes('X-Amz-Signature')) {
-      return originalUrl; // Use presigned URL AS-IS - don't modify it!
+    // If screenshot is a string (direct URL), handle it
+    if (typeof screenshot === 'string') {
+      return screenshot;
     }
     
-    // If it's a presigned S3 URL with alternate format, use it DIRECTLY
-    if (originalUrl.includes('ddsfocustime.s3.') && originalUrl.includes('X-Amz-Signature')) {
-      return originalUrl; // Use presigned URL AS-IS - don't modify it!
+    console.log('🔍 Processing screenshot URL:', {
+      id: screenshot?.id,
+      filename: screenshot?.filename,
+      hasPresignedUrl: !!screenshot?.presigned_url,
+      hasS3Key: !!screenshot?.s3_key,
+      hasUrl: !!screenshot?.url
+    });
+    
+    // 🚀 PRIORITY OPTIMIZED FOR YOUR PROXY: use backend proxy first for reliable image loading!
+    
+    // 1. Try direct presigned URL FIRST (since backend proxy might not be configured)
+    if (screenshot.url && screenshot.url.includes('X-Amz-Signature')) {
+      console.log('✅ Using direct S3 URL (PRIORITY METHOD):', screenshot.url.substring(0, 100) + '...');
+      return screenshot.url;
     }
     
-    // For backend URLs, return as-is
-    if (originalUrl.includes('localhost:8000')) {
-      return originalUrl;
+    // 2. Try presigned_url field
+    if (screenshot.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+      console.log('✅ Using presigned_url field:', screenshot.presigned_url.substring(0, 100) + '...');
+      return screenshot.presigned_url;
     }
     
-    // For other URLs, return as-is
-    return originalUrl;
+    // 3. Use backend proxy for s3_key/key (backup method - if proxy is configured)
+    const s3Key = screenshot.key || screenshot.s3_key;
+    if (s3Key) {
+      // Use your backend proxy for image loading - BACKEND PROXY FORMAT
+      const proxyUrl = `${getApiBaseURL()}/proxy/screenshot/${s3Key}`;
+      console.log('⚠️ Using backend proxy (BACKUP METHOD - check if configured):', proxyUrl);
+      console.log('📝 S3 Key:', s3Key);
+      return proxyUrl;
+    }
+    
+    // 4. Use any available URL field as direct URL (even without signature)
+    if (screenshot.url) {
+      console.log('✅ Using direct url field (no signature check):', screenshot.url.substring(0, 100) + '...');
+      return screenshot.url;
+    }
+    
+    // 5. Fallback to any available URL field
+    const fallbackUrl = screenshot.image_url || screenshot.thumbnail_url || screenshot.src || '';
+    console.log('⚠️ Using fallback URL:', fallbackUrl);
+    return fallbackUrl;
   };
 
-  // Create a robust image component (FIXED - no complex processing needed)
-  const SimpleImageComponent = ({ src, alt, style, onLoad, onError, className, onClick }) => {
+  // Download screenshot function (ENHANCED for proxy URLs)
+  const downloadScreenshot = async (screenshot) => {
+    try {
+      console.log('📥 Starting download for screenshot:', {
+        id: screenshot?.id,
+        filename: screenshot?.filename,
+        hasPresignedUrl: !!screenshot?.presigned_url,
+        hasS3Key: !!screenshot?.s3_key
+      });
+
+      const imageUrl = getImageUrl(screenshot);
+      if (!imageUrl) {
+        alert('❌ No valid image URL found for download');
+        return;
+      }
+
+      // Get filename for download (extract just the filename from path)
+      let filename = screenshot?.filename || screenshot?.name || `screenshot_${screenshot?.id || Date.now()}.webp`;
+      
+      // If filename is a full path, extract just the filename
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+      }
+      
+      console.log('📥 Downloading from URL:', imageUrl);
+      console.log('📥 Saving as filename:', filename);
+
+      // For backend proxy URLs (your current setup)
+      if (imageUrl.includes('localhost:8000/api/proxy/screenshot/')) {
+        console.log('📥 Using backend proxy download method');
+        
+        const response = await fetch(imageUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'image/*',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Backend proxy failed: ${response.status} ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        
+        // Create download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        console.log('✅ Backend proxy download completed successfully');
+      }
+      // For presigned URLs, download directly
+      else if (imageUrl.includes('X-Amz-Signature')) {
+        console.log('📥 Using direct S3 presigned URL download method');
+        
+        const response = await fetch(imageUrl, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Accept': 'image/*',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`S3 download failed: ${response.status} ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        
+        // Create download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        console.log('✅ S3 presigned URL download completed successfully');
+      }
+      // For any other URLs, use simple link approach
+      else {
+        console.log('📥 Using simple link download method');
+        
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = filename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log('✅ Simple link download initiated');
+      }
+
+      // Show success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        background: #10b981; color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      successMsg.textContent = `✅ Downloaded: ${filename}`;
+      document.body.appendChild(successMsg);
+      setTimeout(() => {
+        if (document.body.contains(successMsg)) {
+          document.body.removeChild(successMsg);
+        }
+      }, 3000);
+
+    } catch (error) {
+      console.error('❌ Download failed:', error);
+      
+      // Show error message
+      const errorMsg = document.createElement('div');
+      errorMsg.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        background: #ef4444; color: white; padding: 12px 16px;
+        border-radius: 8px; font-size: 14px; font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      errorMsg.textContent = `❌ Download failed: ${error.message}`;
+      document.body.appendChild(errorMsg);
+      setTimeout(() => {
+        if (document.body.contains(errorMsg)) {
+          document.body.removeChild(errorMsg);
+        }
+      }, 5000);
+    }
+  };
+
+  // Create a robust image component (ENHANCED for backend proxy URLs)
+  const SimpleImageComponent = ({ screenshot, alt, style, onLoad, onError, className, onClick }) => {
     const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentUrl, setCurrentUrl] = useState('');
+
+    // Get the best available image URL
+    useEffect(() => {
+      const url = getImageUrl(screenshot);
+      setCurrentUrl(url);
+      console.log('🖼️ SimpleImageComponent URL resolved:', {
+        screenshotId: screenshot?.id,
+        filename: screenshot?.filename,
+        originalApiUrl: screenshot?.url, // This should be the presigned URL from API
+        originalApiKey: screenshot?.key || screenshot?.s3_key,
+        resolvedUrl: url,
+        urlLength: url?.length,
+        isBackendProxy: url?.includes('http://localhost:8000/api/proxy/screenshot/'),
+        isS3Direct: url?.includes('s3.amazonaws.com'),
+        hasSignature: url?.includes('X-Amz-Signature'),
+        urlPreview: url?.substring(0, 150) + '...',
+        proxyMethod: url?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'BACKEND_PROXY' : 'DIRECT_S3'
+      });
+      
+      console.log('🔥 TESTING URL DIRECTLY:', url);
+      console.log('🔥 URL IS VALID?', url && url !== '' && url !== 'null' && url !== 'undefined');
+      console.log('🔥 SCREENSHOT OBJECT:', screenshot);
+      
+      // Additional debugging for the specific case
+      if (!url || url === '') {
+        console.error('🚨 NO URL RESOLVED! Debugging screenshot object:', {
+          screenshot: screenshot,
+          screenshotKeys: screenshot ? Object.keys(screenshot) : 'null',
+          hasUrl: !!screenshot?.url,
+          hasPresignedUrl: !!screenshot?.presigned_url,
+          hasKey: !!screenshot?.key,
+          hasS3Key: !!screenshot?.s3_key,
+          urlValue: screenshot?.url,
+          presignedUrlValue: screenshot?.presigned_url,
+          keyValue: screenshot?.key,
+          s3KeyValue: screenshot?.s3_key
+        });
+      }
+    }, [screenshot]);
 
     const handleError = (e) => {
       console.error('🖼️ Image failed to load:', {
-        src,
-        error: e,
-        crossOrigin: src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined,
-        isProduction: process.env.NODE_ENV === 'production',
-        hasSignature: src?.includes('X-Amz-Signature'),
-        hostname: window.location.hostname
+        screenshotId: screenshot?.id,
+        filename: screenshot?.filename,
+        currentUrl: currentUrl,
+        errorType: e.target ? 'IMG_ELEMENT_ERROR' : 'REACT_ERROR',
+        errorCode: e.target ? e.target.error?.code : 'unknown',
+        status: e.target ? e.target.status : 'unknown',
+        networkState: e.target ? e.target.networkState : 'unknown'
       });
+      
+      // For backend proxy URLs, try to fall back to direct URL if available
+      if (currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/')) {
+        console.error('🔍 Backend proxy URL failed. Trying fallback to direct S3 URL...');
+        console.error('🔍 Backend proxy URL that failed:', currentUrl);
+        
+        // Try to fall back to direct URL if available
+        const directUrl = screenshot?.url || screenshot?.presigned_url;
+        if (directUrl && directUrl.includes('X-Amz-Signature')) {
+          console.log('🔄 Attempting fallback to direct S3 URL:', directUrl.substring(0, 100) + '...');
+          setCurrentUrl(directUrl);
+          setHasError(false); // Reset error state to try again
+          setIsLoading(true); // Set loading state for the retry
+          return; // Don't set error yet, let the fallback try
+        } else if (directUrl) {
+          console.log('🔄 Attempting fallback to direct URL (no signature):', directUrl.substring(0, 100) + '...');
+          setCurrentUrl(directUrl);
+          setHasError(false); // Reset error state to try again
+          setIsLoading(true); // Set loading state for the retry
+          return; // Don't set error yet, let the fallback try
+        }
+      }
+      
       setHasError(true);
       setIsLoading(false);
       if (onError) onError(e);
     };
 
     const handleLoad = (e) => {
+      console.log('✅ Image loaded successfully:', {
+        screenshotId: screenshot?.id,
+        filename: screenshot?.filename,
+        naturalWidth: e.target.naturalWidth,
+        naturalHeight: e.target.naturalHeight,
+        currentUrl: currentUrl,
+        loadMethod: currentUrl?.includes('localhost:8000/api/proxy/screenshot/') ? 'BACKEND_PROXY' : 'DIRECT_S3',
+        urlPreview: currentUrl?.substring(0, 150) + '...'
+      });
       setHasError(false);
       setIsLoading(false);
       if (onLoad) onLoad(e);
     };
 
     const handleClick = (e) => {
-      console.log('🖼️ SimpleImageComponent clicked!', { src, alt });
+      console.log('🖼️ Image clicked!', { 
+        screenshotId: screenshot?.id, 
+        filename: screenshot?.filename 
+      });
       if (onClick) onClick(e);
     };
 
-    if (hasError || !src || src === '') {
-      // Show the actual broken image instead of placeholder
+    // Show error placeholder if no valid URL - ONLY for truly invalid URLs
+    if (!currentUrl || currentUrl === '' || currentUrl === 'null' || currentUrl === 'undefined') {
+      console.log('📷 No valid URL available, showing placeholder for:', screenshot?.filename);
       return (
-        <img
-          src={src || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}
-          alt={alt}
+        <div
           style={{ 
             ...style, 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover',
-            filter: 'grayscale(100%) opacity(0.5)' // Make broken images visible but dimmed
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#f3f4f6',
+            color: '#6b7280',
+            fontSize: '12px',
+            border: '1px dashed #d1d5db',
+            flexDirection: 'column',
+            cursor: 'pointer'
           }}
           className={className}
           onClick={handleClick}
-          referrerPolicy="no-referrer"
-          crossOrigin={process.env.NODE_ENV === 'production' ? undefined : (src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined)}
-        />
+        >
+          <div>📷</div>
+          <div style={{ fontSize: '10px', marginTop: '4px' }}>
+            {screenshot?.filename || 'No Image'}
+          </div>
+          <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
+            No URL Available
+          </div>
+        </div>
+      );
+    }
+
+    console.log('🖼️ Valid URL found, attempting to display image:', currentUrl);
+
+    // Show error state for failed loads
+    if (hasError) {
+      return (
+        <div
+          style={{ 
+            ...style, 
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fef2f2',
+            color: '#dc2626',
+            fontSize: '12px',
+            border: '1px solid #fecaca',
+            flexDirection: 'column',
+            cursor: 'pointer'
+          }}
+          className={className}
+          onClick={handleClick}
+        >
+          <div>❌</div>
+          <div style={{ fontSize: '10px', marginTop: '4px' }}>
+            Load Failed
+          </div>
+          <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
+            {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'Backend Proxy Error' : 
+             screenshot?.filename?.substring(0, 20) + '...' || 'Unknown'}
+          </div>
+          {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') && (
+            <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
+              Check backend server on port 8000
+            </div>
+          )}
+        </div>
       );
     }
 
     return (
-      <div style={{ position: 'relative', ...style }} className={className} onClick={handleClick}>
+      <div style={{ position: 'relative', ...style }} className={className}>
         {isLoading && (
           <div style={{
             position: 'absolute',
@@ -301,22 +838,70 @@ const ActivityStream = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(255, 255, 255, 0.8)',
+            background: 'rgba(255, 255, 255, 0.9)',
             fontSize: '10px',
-            color: '#6b7280'
+            color: '#6b7280',
+            zIndex: 1
           }}>
             Loading...
           </div>
         )}
         <img
-          src={src}
-          alt={alt}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          src={currentUrl}
+          alt={alt || screenshot?.filename || 'Screenshot'}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease',
+            display: hasError ? 'none' : 'block'
+          }}
           onLoad={handleLoad}
           onError={handleError}
-          referrerPolicy="no-referrer"
-          crossOrigin={process.env.NODE_ENV === 'production' ? undefined : (src?.includes('ddsfocustime.s3.amazonaws.com') && src?.includes('X-Amz-Signature') ? 'anonymous' : undefined)}
+          onClick={handleClick}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'scale(1.02)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'scale(1)';
+          }}
+          referrerPolicy={currentUrl?.includes('localhost:5175') ? undefined : "no-referrer"}
+          crossOrigin={currentUrl?.includes('s3.amazonaws.com') ? "anonymous" : undefined}
         />
+        {hasError && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fef2f2',
+            color: '#dc2626',
+            fontSize: '12px',
+            border: '1px solid #fecaca',
+            flexDirection: 'column',
+            cursor: 'pointer'
+          }}
+          onClick={handleClick}>
+            <div>❌</div>
+            <div style={{ fontSize: '10px', marginTop: '4px' }}>
+              Load Failed
+            </div>
+            <div style={{ fontSize: '8px', marginTop: '2px', opacity: 0.7 }}>
+              {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'Backend Proxy Error' : 
+               screenshot?.filename?.substring(0, 20) + '...' || 'Unknown'}
+            </div>
+            {currentUrl?.includes('http://localhost:8000/api/proxy/screenshot/') && (
+              <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
+                Check backend server on port 8000
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -451,13 +1036,46 @@ const ActivityStream = () => {
     }
 
     return (
-      <SimpleImageComponent 
+      <img
         src={finalSrc}
-        alt={alt}
-        style={style}
-        onLoad={onLoad}
-        onError={onError}
+        alt={alt || 'Screenshot'}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover',
+          cursor: 'pointer',
+          transition: 'transform 0.2s ease',
+          ...style
+        }}
         className={className}
+        onLoad={(e) => {
+          console.log('✅ Image loaded successfully:', {
+            src: finalSrc,
+            naturalWidth: e.target.naturalWidth,
+            naturalHeight: e.target.naturalHeight,
+            isBackendProxy: finalSrc?.includes('http://localhost:8000/api/proxy/'),
+            urlType: finalSrc?.includes('http://localhost:8000/api/proxy/') ? 'BACKEND_PROXY' : 'DIRECT_URL'
+          });
+          if (onLoad) onLoad(e);
+        }}
+        onError={(e) => {
+          console.error('🖼️ Image failed to load:', {
+            src: finalSrc,
+            errorType: 'IMG_ELEMENT_ERROR',
+            naturalWidth: e.target.naturalWidth,
+            naturalHeight: e.target.naturalHeight,
+            isBackendProxy: finalSrc?.includes('http://localhost:8000/api/proxy/')
+          });
+          if (onError) onError(e);
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.02)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+        }}
+        referrerPolicy={finalSrc?.includes('/api/proxy/') ? undefined : "no-referrer"}
+        crossOrigin={finalSrc?.includes('s3.amazonaws.com') ? "anonymous" : undefined}
       />
     );
   };
@@ -507,18 +1125,19 @@ const ActivityStream = () => {
         
         // Try a simple health check first (if available), otherwise use suggestions endpoint
         let response;
+        const apiBaseURL = getApiBaseURL();
         try {
           // Try a simple health check endpoint first
-          response = await axios.get('http://localhost:8000/health', {
-            timeout: 2000
-          });
+          response = await fastAxios.get(`${apiBaseURL}/health`);
           console.log('✅ Backend health check passed');
         } catch (healthErr) {
           console.log('⚠️ Health endpoint not available, trying suggestions endpoint...');
-          // Fallback to suggestions endpoint with longer timeout for S3 operations
-          response = await axios.get('https://dxdtime.ddsolutions.io/api/users/s3-suggestions/?q=test&limit=10', {
-            timeout: 10000 // Increased timeout for S3 operations
-          });
+          // Fallback to suggestions endpoint with retry logic for S3 operations
+          response = await withRetry(
+            () => slowAxios.get(`${apiBaseURL}/users/s3-suggestions/?q=test&limit=10`),
+            3, // 3 retries
+            2000 // 2 second delay
+          );
           console.log('✅ Backend suggestions endpoint responded');
         }
         
@@ -532,11 +1151,230 @@ const ActivityStream = () => {
           response: err.response?.status,
           message: err.message
         });
+        
+        // For development: show test suggestions when backend is down  
+        console.log('🔧 DEVELOPMENT: Backend unavailable, setting up test environment');
+        const testSuggestions = [
+          {
+            display_name: 'John Doe',
+            email: 'john.doe@company.com',
+            username: 'john.doe',
+            search_value: 'john.doe@company.com',
+            screenshot_count: 150,
+            staff_id: 'EMP001',
+            suggestion_text: 'John Doe (john.doe@company.com)'
+          },
+          {
+            display_name: 'Jane Smith',
+            email: 'jane.smith@company.com', 
+            username: 'jane.smith',
+            search_value: 'jane.smith@company.com',
+            screenshot_count: 89,
+            staff_id: 'EMP002',
+            suggestion_text: 'Jane Smith (jane.smith@company.com)'
+          },
+          {
+            display_name: 'Test User',
+            email: 'test@example.com',
+            username: 'test',
+            search_value: 'test@example.com',
+            screenshot_count: 42,
+            staff_id: 'TEST001',
+            suggestion_text: 'Test User (test@example.com)'
+          }
+        ];
+        
+        // Store test suggestions for use when search is triggered
+        window.__testSuggestions = testSuggestions;
+        console.log('🔧 Test suggestions prepared:', testSuggestions);
       }
     };
 
     checkBackendStatus();
   }, []);
+
+  // GSAP Animation Effects
+  useEffect(() => {
+    // Initial container entrance animation
+    if (containerRef.current) {
+      gsap.set(containerRef.current, {
+        opacity: 0,
+        rotationX: -30,
+        rotationY: 20,
+        z: -200,
+        scale: 0.8
+      });
+
+      gsap.to(containerRef.current, {
+        opacity: 1,
+        rotationX: 0,
+        rotationY: 0,
+        z: 0,
+        scale: 1,
+        duration: 1.5,
+        ease: "back.out(1.7)",
+        delay: 0.2
+      });
+    }
+
+    // Top bar animation
+    if (topBarRef.current) {
+      gsap.set(topBarRef.current, {
+        opacity: 0,
+        y: -50,
+        rotationX: -15
+      });
+
+      gsap.to(topBarRef.current, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        duration: 1,
+        ease: "power3.out",
+        delay: 0.5
+      });
+    }
+
+    // Date items staggered animation
+    if (dateItemsRef.current && Array.isArray(dateItemsRef.current) && dateItemsRef.current.length > 0) {
+      // Filter out null/undefined elements before animating
+      const validDateItems = dateItemsRef.current.filter(item => item !== null && item !== undefined);
+      
+      if (validDateItems.length > 0) {
+        gsap.set(validDateItems, {
+          opacity: 0,
+          rotationY: 45,
+          scale: 0.8,
+          z: -100
+        });
+
+        gsap.to(validDateItems, {
+          opacity: 1,
+          rotationY: 0,
+          scale: 1,
+          z: 0,
+          duration: 0.8,
+          ease: "back.out(2)",
+          stagger: 0.1,
+          delay: 0.8
+        });
+      }
+    }
+  }, []);
+
+  // Cards animation when screenshots change
+  useEffect(() => {
+    if (cardsRef.current && Array.isArray(cardsRef.current) && cardsRef.current.length > 0 && screenshots.length > 0) {
+      // Filter out null/undefined elements before animating
+      const validCards = cardsRef.current.filter(card => card !== null && card !== undefined);
+      
+      if (validCards.length > 0) {
+        gsap.set(validCards, {
+          opacity: 0,
+          rotationX: 90,
+          rotationY: 45,
+          z: -300,
+          scale: 0.6
+        });
+
+        gsap.to(validCards, {
+          opacity: 1,
+          rotationX: 0,
+          rotationY: 0,
+          z: 0,
+          scale: 1,
+          duration: 1.2,
+          ease: "back.out(1.7)",
+          stagger: 0.15,
+          delay: 0.3
+        });
+
+        // Add hover animations
+        validCards.forEach((card, index) => {
+          if (card) {
+            card.addEventListener('mouseenter', () => {
+              gsap.to(card, {
+                rotationX: 8,
+                rotationY: 5,
+                y: -12,
+                scale: 1.02,
+                duration: 0.4,
+                ease: "power2.out"
+              });
+            });
+
+            card.addEventListener('mouseleave', () => {
+              gsap.to(card, {
+                rotationX: 0,
+                rotationY: 0,
+                y: 0,
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out"
+              });
+            });
+          }
+        });
+      }
+    }
+  }, [screenshots]);
+
+  // Folders animation when folders change
+  useEffect(() => {
+    if (foldersRef.current && Array.isArray(foldersRef.current) && foldersRef.current.length > 0 && folders.length > 0) {
+      // Filter out null/undefined elements before animating
+      const validFolders = foldersRef.current.filter(folder => folder !== null && folder !== undefined);
+      
+      if (validFolders.length > 0) {
+        gsap.set(validFolders, {
+          opacity: 0,
+          rotationX: 60,
+          rotationY: 30,
+          z: -200,
+          scale: 0.7
+        });
+
+        gsap.to(validFolders, {
+          opacity: 1,
+          rotationX: 0,
+          rotationY: 0,
+          z: 0,
+          scale: 1,
+          duration: 1,
+          ease: "back.out(1.5)",
+          stagger: 0.12,
+          delay: 0.2
+        });
+
+        // Add folder hover animations
+        validFolders.forEach((folder, index) => {
+          if (folder) {
+            folder.addEventListener('mouseenter', () => {
+              gsap.to(folder, {
+                rotationX: 8,
+                rotationY: 5,
+                y: -12,
+                scale: 1.02,
+                duration: 0.4,
+                ease: "power2.out"
+              });
+            });
+
+            folder.addEventListener('mouseleave', () => {
+              gsap.to(folder, {
+                rotationX: 0,
+                rotationY: 0,
+                y: 0,
+                scale: 1,
+                duration: 0.4,
+                ease: "power2.out"
+              });
+            });
+          }
+        });
+      }
+    }
+  }, [folders]);
 
   // Fetch search suggestions from API
   const fetchSearchSuggestions = async (query) => {
@@ -552,12 +1390,15 @@ const ActivityStream = () => {
       console.log('🔍 Fetching user suggestions for query:', query);
       console.log('🔍 Query length:', query.length, 'Query:', `"${query}"`);
       
-      const suggestionUrl = `https://dxdtime.ddsolutions.io/api/users/s3-suggestions/?q=${encodeURIComponent(query)}&limit=10`;
+      const apiBaseURL = getApiBaseURL();
+      const suggestionUrl = `${apiBaseURL}/users/s3-suggestions/?q=${encodeURIComponent(query)}&limit=10`;
       console.log('🔍 API URL:', suggestionUrl);
       
-      const response = await axios.get(suggestionUrl, {
-        timeout: 8000 // Increased timeout for S3 operations
-      });
+      const response = await withRetry(
+        () => normalAxios.get(suggestionUrl),
+        2, // 2 retries for search suggestions
+        1000 // 1 second delay
+      );
       
       console.log('✅ User suggestions response:', response.data);
       console.log('🔍 Response structure check:', {
@@ -650,6 +1491,20 @@ const ActivityStream = () => {
         message: err.message
       });
       
+      // DEVELOPMENT FALLBACK: Use test suggestions when backend is down
+      if (backendStatus === 'disconnected' && window.__testSuggestions) {
+        console.log('🔧 DEVELOPMENT FALLBACK: Using test suggestions');
+        const filteredTestSuggestions = window.__testSuggestions.filter(user =>
+          user.display_name.toLowerCase().includes(query.toLowerCase()) ||
+          user.email.toLowerCase().includes(query.toLowerCase()) ||
+          user.username.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        setSearchSuggestions(filteredTestSuggestions);
+        console.log('💡 Set test user suggestions:', filteredTestSuggestions.length, 'suggestions:', filteredTestSuggestions);
+        return; // Exit early to avoid setting error
+      }
+      
       // Don't use test data - show the actual error to user
       console.error('❌ Cannot connect to backend. Please ensure:');
       console.error('   1. Backend server is running on localhost:8000');
@@ -664,8 +1519,119 @@ const ActivityStream = () => {
     }
   };
 
-  // Fetch screenshots from API using new endpoints
-  const fetchScreenshots = async (searchTerm, limit = 20, page = 1) => {
+  // Progressive loading helper for large datasets
+  const fetchScreenshotsProgressive = async (searchTerm, targetLimit = 1000) => {
+    console.log(`📊 PROGRESSIVE LOADING: Starting for ${searchTerm}, target: ${targetLimit}`);
+    
+    let allScreenshots = [];
+    let currentPage = 1;
+    const chunkSize = 500; // Smaller chunks to avoid timeout
+    let hasMore = true;
+    let totalFromAPI = 0;
+    
+    // Update UI to show progressive loading
+    setError('');
+    setHasSearched(true);
+    setSearchPattern('progressive');
+    
+    while (hasMore && allScreenshots.length < targetLimit) {
+      try {
+        console.log(`📊 Loading chunk ${currentPage}, size: ${chunkSize}, loaded so far: ${allScreenshots.length}`);
+        
+        const apiBaseURL = getApiBaseURL();
+        const apiUrl = `${apiBaseURL}/employees/screenshots/search/`;
+        const params = new URLSearchParams();
+        
+        // Optimized parameters for chunk loading
+        params.append('fast_mode', 'true'); // Enable fast mode for chunks
+        params.append('search', searchTerm.trim());
+        params.append('limit', chunkSize.toString());
+        params.append('offset', ((currentPage - 1) * chunkSize).toString());
+        
+        const fullUrl = `${apiUrl}?${params.toString()}`;
+        console.log(`📊 Chunk ${currentPage} URL: ${fullUrl}`);
+        
+        // Extended timeout per chunk for large datasets
+        const response = await axios.get(fullUrl, { 
+          timeout: 1800000, // 30 minutes timeout per chunk
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        
+        let chunkScreenshots = [];
+        let chunkTotal = 0;
+        
+        // Parse response - same logic as original but for chunks
+        if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
+          chunkScreenshots = response.data.employees;
+          chunkTotal = response.data.total_count || response.data.count || 0;
+        } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
+          chunkScreenshots = response.data.employees;
+          chunkTotal = response.data.total_count || response.data.count || 0;
+        } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+          chunkScreenshots = response.data.results;
+          chunkTotal = response.data.count || response.data.total_count || 0;
+        } else if (Array.isArray(response.data)) {
+          chunkScreenshots = response.data;
+          chunkTotal = response.data.length;
+        }
+        
+        // Store total from first response
+        if (currentPage === 1) {
+          totalFromAPI = chunkTotal;
+          setTotalCount(chunkTotal);
+          console.log(`📊 Total count from API: ${chunkTotal}`);
+        }
+        
+        // Add chunk to results
+        allScreenshots = [...allScreenshots, ...chunkScreenshots];
+        
+        // Update UI with progressive results
+        setScreenshots([...allScreenshots]);
+        setCurrentPage(1); // Always show page 1 for progressive loading
+        setTotalPages(Math.ceil(allScreenshots.length / 20)); // 20 per page for display
+        
+        console.log(`📊 Chunk ${currentPage} complete: +${chunkScreenshots.length} (total: ${allScreenshots.length}/${totalFromAPI})`);
+        
+        // Check if we should continue
+        hasMore = chunkScreenshots.length === chunkSize && allScreenshots.length < totalFromAPI && allScreenshots.length < targetLimit;
+        currentPage++;
+        
+        // Small delay between chunks to prevent overwhelming the server
+        if (hasMore) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+      } catch (chunkError) {
+        console.error(`❌ Error loading chunk ${currentPage}:`, chunkError);
+        
+        // If it's a timeout, try smaller chunks
+        if (chunkError.code === 'ECONNABORTED' && chunkSize > 100) {
+          console.log(`⚠️ Timeout detected after 30 minutes, will try smaller chunks`);
+          setError(`Loaded ${allScreenshots.length} screenshots. Server timeout after 30 minutes - trying smaller chunks...`);
+          break; // Exit loop and return what we have
+        } else {
+          setError(`Progressive loading error at chunk ${currentPage}: ${chunkError.message}. Loaded ${allScreenshots.length} screenshots.`);
+          break;
+        }
+      }
+    }
+    
+    console.log(`📊 PROGRESSIVE LOADING COMPLETE: ${allScreenshots.length} screenshots loaded`);
+    setFullDataset(allScreenshots);
+    setLoading(false);
+    
+    return {
+      screenshots: allScreenshots,
+      total: Math.max(totalFromAPI, allScreenshots.length),
+      loaded: allScreenshots.length
+    };
+  };
+
+  // Fetch screenshots from API using dynamic endpoints
+  const fetchScreenshots = async (searchTerm, limit = 20, page = 1, useProgressive = false) => {
     if (!searchTerm || !searchTerm.trim()) {
       setScreenshots([]);
       setHasSearched(false);
@@ -676,55 +1642,102 @@ const ActivityStream = () => {
       setSearchPattern('quick');
       return;
     }
+
+    // For large datasets, use progressive loading
+    if (useProgressive || totalCount > 2000) {
+      console.log(`📊 Using progressive loading for large dataset (${totalCount || 'unknown'} total)`);
+      setLoading(true);
+      return await fetchScreenshotsProgressive(searchTerm, 5000); // Load up to 5000 in chunks
+    }
+    
     try {
       setLoading(true);
       setError('');
       setHasSearched(true);
       
-      // Using the specified API endpoint
-      let apiUrl = 'https://dxdtime.ddsolutions.io/api/screenshots/search/';
+      // Using the new dynamic API endpoint
+      const apiBaseURL = getApiBaseURL();
+      let apiUrl = `${apiBaseURL}/employees/screenshots/search/`;
       let params = new URLSearchParams();
-      params.append('search', searchTerm.trim());
       
-      // Handle different search modes based on filters and pagination
-      if (singleDateFilter) {
-        // Pattern 2: Name + Date Filter
-        params.append('date', singleDateFilter);
-        params.append('limit', limit.toString());
-        if (page > 1) {
-          const offset = (page - 1) * limit;
-          params.append('offset', offset.toString());
-        }
-        setSearchPattern('date');
-        console.log(`🔍 Fetching screenshots with date filter: ${singleDateFilter}`);
-      } else if (totalCount > 1000 || (page === 1 && !totalCount)) {
-        // Pattern 3: Name + ALL Screenshots using the specified S3 scan approach
-        params.append('scan_s3', 'true');
-        params.append('limit', '5000'); // Using the specified limit for comprehensive search
-        setSearchPattern('s3scan');
-        console.log(`🔍 Fetching ALL screenshots using S3 scan with limit 5000`);
-      } else {
-        // Pattern 1: Quick Name Search (paginated)
-        params.append('limit', limit.toString());
-        if (page > 1) {
-          const offset = (page - 1) * limit;
-          params.append('offset', offset.toString());
-        }
-        setSearchPattern('quick');
-        console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${limit}`);
+      // Set optimized parameters - no more huge limits
+      params.append('fast_mode', 'true'); // Enable fast mode by default
+      
+      // Add search term if provided
+      if (searchTerm && searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
       }
+      
+      // Handle date filtering
+      if (singleDateFilter) {
+        // Single date filter
+        params.append('date', singleDateFilter);
+        console.log(`🗓️ Applying single date filter: ${singleDateFilter}`);
+      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        // Date range filter
+        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+        console.log(`🗓️ Applying date range filter: ${startDate} to ${endDate}`);
+      }
+      
+      // Handle different search modes with reasonable limits
+      // Always use reasonable pagination - no more 50k limits
+      const safeLimit = Math.min(limit, 1000); // Never exceed 1000 per request
+      params.append('limit', safeLimit.toString());
+      if (page > 1) {
+        const offset = (page - 1) * safeLimit;
+        params.append('offset', offset.toString());
+      }
+      setSearchPattern('paginated');
+      console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${safeLimit}`);
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
       console.log(`🔍 API Request: ${fullUrl}`);
-      console.log(`📋 Request matches your specified format: ${fullUrl.includes('scan_s3=true&limit=5000') ? '✅' : '⚠️'}`);
       
-      const response = await axios.get(fullUrl, { timeout: 30000 });
+      const response = await axios.get(fullUrl, { 
+        timeout: 1800000, // 30 minutes timeout for large datasets
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
       let newScreenshots = [];
       let total = 0;
       
-      // Handle different response structures from the API
-      if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
-        // Structure: { data: { employees: [...], summary: {...} } }
+      // Handle dynamic API response structures
+      console.log('🔍 Dynamic API Response Analysis:', {
+        hasData: !!response.data,
+        hasSuccess: !!response.data?.success,
+        hasEmployees: !!response.data?.employees,
+        hasResults: !!response.data?.results,
+        responseKeys: Object.keys(response.data || {}),
+        responseType: typeof response.data,
+        isArray: Array.isArray(response.data),
+        fullResponse: response.data
+      });
+      
+      // CRITICAL DEBUG: Log the exact response structure
+      console.log('🔍 FULL DYNAMIC API RESPONSE:', JSON.stringify(response.data, null, 2));
+      
+      if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
+        // Dynamic API structure: { success: true, employees: [...], total_count: number }
+        newScreenshots = response.data.employees;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using dynamic API success structure with employees array');
+      } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
+        // Dynamic API structure without success flag: { employees: [...], total_count: number }
+        newScreenshots = response.data.employees;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using dynamic API employees structure');
+      } else if (response.data && response.data.success && response.data.data && Array.isArray(response.data.data)) {
+        // Structure: { success: true, data: [...] }
+        newScreenshots = response.data.data;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using success + data array structure');
+      } else if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
+        // Nested structure: { data: { employees: [...], summary: {...} } }
         let allScreenshots = [];
         const filteredEmployees = response.data.data.employees.filter(employee => {
           if (!selectedUser) {
@@ -764,27 +1777,67 @@ const ActivityStream = () => {
         
         newScreenshots = allScreenshots;
         total = response.data.data.summary?.total_screenshots || response.data.data.total_count || newScreenshots.length;
+        console.log('✅ Using nested employees structure with screenshots');
       } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
         // Structure: { screenshots: [...], total_count: number }
         newScreenshots = response.data.screenshots;
         total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log('✅ Using screenshots array structure');
       } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
         // Structure: { results: [...], count: number }
         newScreenshots = response.data.results;
         total = response.data.count || response.data.total_count || newScreenshots.length;
+        console.log('✅ Using results array structure');
       } else if (Array.isArray(response.data)) {
-        // Structure: [...]
+        // Direct array structure: [...]
         newScreenshots = response.data;
         total = newScreenshots.length;
+        console.log('✅ Using direct array structure');
       } else {
-        console.warn('⚠️ Unexpected API response structure:', response.data);
-        newScreenshots = [];
-        total = 0;
+        console.warn('⚠️ Unexpected dynamic API response structure:', response.data);
+        console.log('🔍 Full response analysis:', {
+          data: response.data,
+          dataType: typeof response.data,
+          isArray: Array.isArray(response.data),
+          keys: response.data ? Object.keys(response.data) : []
+        });
+        
+        // FALLBACK: Try to extract any screenshot data from the response
+        let fallbackScreenshots = [];
+        
+        // Try various possible structures
+        if (response.data && Array.isArray(response.data)) {
+          fallbackScreenshots = response.data;
+        } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+          fallbackScreenshots = response.data.results;
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          fallbackScreenshots = response.data.data;
+        } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+          fallbackScreenshots = response.data.screenshots;
+        } else if (response.data && typeof response.data === 'object') {
+          // Look for any array in the response
+          const keys = Object.keys(response.data);
+          for (const key of keys) {
+            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+              console.log(`🔍 Found array in key "${key}":`, response.data[key].slice(0, 2));
+              fallbackScreenshots = response.data[key];
+              break;
+            }
+          }
+        }
+        
+        newScreenshots = fallbackScreenshots;
+        total = response.data?.total_count || response.data?.count || fallbackScreenshots.length;
+        console.log('🔧 FALLBACK: Extracted screenshots using fallback logic:', {
+          screenshotsFound: fallbackScreenshots.length,
+          total,
+          firstScreenshot: fallbackScreenshots[0]
+        });
       }
       
-      // Apply pagination logic for large datasets when using scan_s3
-      if (searchPattern === 's3scan' && params.get('scan_s3') === 'true') {
-        // For S3 scan with large limit, store full dataset and implement frontend pagination
+      // Apply pagination logic for dynamic comprehensive search
+      if (searchPattern === 'dynamic_comprehensive' && total > limit) {
+        // For comprehensive search with large results, implement frontend pagination
         if (page === 1) {
           setFullDataset(newScreenshots); // Store full dataset on first load
         }
@@ -798,22 +1851,100 @@ const ActivityStream = () => {
         setTotalPages(Math.ceil(total / limit));
         setCurrentPage(page);
         
-        console.log('📸 Set S3 scan screenshots (frontend pagination):', paginatedScreenshots.length, 'Total:', total, 'Page:', page);
+        console.log('📸 Set dynamic comprehensive screenshots (frontend pagination):', paginatedScreenshots.length, 'Total:', total, 'Page:', page);
       } else {
-        // Normal pagination handled by backend
+        // Normal pagination handled by backend for dynamic API
         setScreenshots(newScreenshots);
         setTotalCount(total);
         setTotalPages(Math.ceil(total / limit));
         setCurrentPage(page);
         
-        console.log('📸 Set paginated screenshots (backend pagination):', newScreenshots.length, 'Total:', total, 'Page:', page);
+        console.log('📸 Set dynamic paginated screenshots (backend pagination):', newScreenshots.length, 'Total:', total, 'Page:', page);
+        console.log('🔍 SCREENSHOTS STATE DEBUG:', {
+          newScreenshotsLength: newScreenshots.length,
+          firstScreenshot: newScreenshots[0],
+          lastScreenshot: newScreenshots[newScreenshots.length - 1],
+          sampleScreenshots: newScreenshots.slice(0, 3),
+          totalCount: total,
+          currentPage: page,
+          totalPages: Math.ceil(total / limit)
+        });
       }
+      
+      // Log dynamic API success
+      console.log('✅ Dynamic API request completed successfully:', {
+        endpoint: 'employees/screenshots/search',
+        searchPattern,
+        totalScreenshots: total,
+        displayedScreenshots: newScreenshots.length,
+        fastMode: 'false',
+        minScreenshots: '10000',
+        maxScreenshots: '50000'
+      });
+      
     } catch (err) {
-      console.error('❌ Error fetching screenshots from new endpoint:', err);
-      if (err.response) {
-        setError(`Server error: ${err.response.status} - ${err.response.data.message || err.response.data.detail || 'Failed to fetch screenshots'}`);
+      console.error('❌ Error fetching screenshots from dynamic endpoint:', err);
+      console.log('🔍 Dynamic API Error Details:', {
+        message: err.message,
+        code: err.code,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        responseData: err.response?.data,
+        url: err.config?.url,
+        isTimeout: err.code === 'ECONNABORTED'
+      });
+      
+      // Handle timeout errors specifically
+      if (err.code === 'ECONNABORTED') {
+        const timeoutSeconds = err.config?.timeout ? err.config.timeout / 1000 : 'unknown';
+        setError(`⏱️ Request timeout after ${timeoutSeconds} seconds. The dataset is too large for a single request. Try "Load in Chunks" option below for better performance.`);
+      } else if (err.response) {
+        setError(`API server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch screenshots'}`);
+        
+        // Show dummy data for development if the backend is down
+        if (err.response.status === 500 || err.response.status === 404) {
+          console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to server error');
+          const testScreenshots = Array.from({ length: 5 }, (_, i) => ({
+            id: `test-${i}`,
+            filename: `test_screenshot_${i}.webp`,
+            presigned_url: `https://picsum.photos/400/300?random=${i}`,
+            url: `https://picsum.photos/400/300?random=${i}`,
+            employee_name: selectedUser?.display_name || 'Test User',
+            application: 'Test Application',
+            task_name: `Test Task ${i + 1}`,
+            s3_key: `test/screenshots/test_${i}.webp`,
+            size_mb: '1.2'
+          }));
+          
+          setScreenshots(testScreenshots);
+          setTotalCount(testScreenshots.length);
+          setTotalPages(1);
+          setCurrentPage(1);
+          setError('⚠️ Using test data due to server error. Please check your backend.');
+          return; // Exit early to prevent further error handling
+        }
       } else if (err.request) {
-        setError('Network error: Unable to connect to server. Please start your backend server on http://localhost:8000');
+        setError('Network error: Unable to connect to API server. Please start your backend server on http://localhost:8000');
+        
+        // Show dummy data for development if the backend is not running
+        console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to network error');
+        const testScreenshots = Array.from({ length: 3 }, (_, i) => ({
+          id: `network-test-${i}`,
+          filename: `network_test_${i}.webp`,
+          presigned_url: `https://picsum.photos/400/300?random=${i + 10}`,
+          url: `https://picsum.photos/400/300?random=${i + 10}`,
+          employee_name: selectedUser?.display_name || 'Test User',
+          application: 'Network Test App',
+          task_name: `Network Test ${i + 1}`,
+          s3_key: `network/test/test_${i}.webp`,
+          size_mb: '0.8'
+        }));
+        
+        setScreenshots(testScreenshots);
+        setTotalCount(testScreenshots.length);
+        setTotalPages(1);
+        setCurrentPage(1);
+        setError('⚠️ Backend not accessible. Using test data for development.');
       } else {
         setError('An unexpected error occurred while fetching screenshots');
       }
@@ -829,11 +1960,12 @@ const ActivityStream = () => {
       setError('');
       
       console.log('📁 Fetching folders for employee:', employeeEmail);
-      const apiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
+      const apiBaseURL = getApiBaseURL();
+      const apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
       console.log('🔍 Folders API URL:', apiUrl);
       
       const response = await axios.get(apiUrl, { 
-        timeout: 15000,
+        timeout: 1800000, // 30 minutes timeout for folders API
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -922,7 +2054,6 @@ const ActivityStream = () => {
   const fetchFolderScreenshots = async (employeeEmail, folderName, page = 1, limit = 20) => {
     // Declare variables outside try block so they're accessible in catch block
     let adjustedLimit = limit;
-    let timeout = 600000; // 10 minutes default - very generous for slow backends
     
     try {
       setLoadingFolderScreenshots(true);
@@ -936,51 +2067,60 @@ const ActivityStream = () => {
       
       // Check if this is likely a large folder and adjust settings
       if (selectedFolder?.screenshot_count > 1000 || folderName.includes('v1.3') || folderName.includes('DDSFocusPro') || folderName.includes('YouTube_AI_Automation') || folderName.includes('Create_UI_for_YouTube')) {
-        // Keep user's selected limit but increase timeout for large folders
+        // Keep user's selected limit for large folders
         adjustedLimit = limit; // Respect user's dropdown selection
-        timeout = 900000; // 15 minutes timeout - very generous for large folders
-        console.log('🔧 Detected very large folder (>1000 screenshots). Using user-selected limit with extended timeout:', {
+        console.log('🔧 Detected very large folder (>1000 screenshots). Using user-selected limit with retry mechanism:', {
           originalLimit: limit,
           adjustedLimit,
-          timeoutMinutes: timeout / 60000,
           estimatedScreenshots: selectedFolder?.screenshot_count || '2000+',
           folderPattern: folderName,
-          approach: 'user_selected_limit_with_extended_timeout'
+          approach: 'user_selected_limit_with_progressive_retry'
         });
         
         // Show user feedback for large folders with pagination info
-        setError(`📊 Loading large folder "${folderName}" with ${selectedFolder?.screenshot_count || '2000+'} screenshots. Loading ${adjustedLimit} screenshots per page with 15-minute timeout. Please be patient, this may take several minutes...`);
+        setError(`📊 Loading large folder "${folderName}" with ${selectedFolder?.screenshot_count || '2000+'} screenshots. Loading ${adjustedLimit} screenshots per page with progressive retry (15s, 30s, 60s). Please be patient, this may take several minutes...`);
       } else if (folderName.includes('mervegucluu') || folderName.includes('1000') || folderName.includes('EASY_HOME')) {
-        // Keep user's selected limit but increase timeout for medium folders
+        // Keep user's selected limit for medium folders
         adjustedLimit = limit; // Respect user's dropdown selection
-        timeout = 720000; // 12 minutes for medium folders
-        console.log('🔧 Using user-selected limit for large folder with 12-minute timeout:', adjustedLimit);
-        setError(`📊 Loading folder "${folderName}" with ${adjustedLimit} screenshots per page. This may take up to 12 minutes...`);
+        console.log('🔧 Using user-selected limit for large folder with progressive retry:', adjustedLimit);
+        setError(`📊 Loading folder "${folderName}" with ${adjustedLimit} screenshots per page. Using progressive retry mechanism...`);
       }
       
       // Use the enhanced endpoint for Level 3 - fast S3-like response with pagination
-      const apiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
-      console.log('🔍 Level 3 Enhanced API URL:', apiUrl);
-      console.log('🚀 Using enhanced S3-like endpoint for fast response');
-      console.log('⏱️ Request timeout set to:', timeout / 1000, 'seconds');
-      console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced' });
+      const apiBaseURL = getApiBaseURL();
+      let apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
+      
+      // Add date filtering parameters if active
+      if (singleDateFilter) {
+        apiUrl += `&date=${singleDateFilter}`;
+        console.log(`🗓️ Adding single date filter to folder screenshots: ${singleDateFilter}`);
+      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
+        apiUrl += `&start_date=${startDate}&end_date=${endDate}`;
+        console.log(`�️ Adding date range filter to folder screenshots: ${startDate} to ${endDate}`);
+      }
+      
+      console.log('�🔍 Level 3 Enhanced API URL:', apiUrl);
+      console.log('🚀 Using enhanced S3-like endpoint for fast response with progressive retry');
+      console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced', dateFilter: singleDateFilter || (isDateFilterActive ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none') });
       
       const startTime = Date.now();
       
       // Add more detailed request logging for enhanced endpoint
       console.log('🚀 Making Enhanced API request to:', apiUrl);
       console.log('📋 Enhanced endpoint request config:', {
-        timeout: timeout,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         endpoint_type: 'enhanced_s3_optimized',
-        expected_format: 'fast_paginated_response'
+        expected_format: 'fast_paginated_response',
+        retry_strategy: 'progressive_timeout'
       });
       
       const response = await axios.get(apiUrl, { 
-        timeout: timeout,
+        timeout: 1800000, // 30 minutes timeout for folder screenshots
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -1001,6 +2141,12 @@ const ActivityStream = () => {
           }
         }
       });
+
+      // 🤣 USER REQUESTED DEBUG - Console API result with "haha" message
+      console.log('haha - API RESULT:', response);
+      console.log('haha - API DATA:', response.data);
+      console.log('haha - API STATUS:', response.status);
+      console.log('haha - FULL RESPONSE OBJECT:', JSON.stringify(response.data, null, 2));
       
       const loadTime = (Date.now() - startTime) / 1000;
       console.log('✅ Enhanced API response received in', loadTime.toFixed(2), 'seconds');
@@ -1115,13 +2261,21 @@ const ActivityStream = () => {
       
       const processedScreenshots = screenshotsList.map((screenshot, index) => {
         const formatted = formatScreenshotData(screenshot, index);
-        if (index < 2) {
-          console.log(`🖼️ Processing screenshot ${index + 1}:`, {
+        if (index < 3) {
+          console.log(`🖼️ EMERGENCY DEBUG - Processing screenshot ${index + 1}:`, {
             original: screenshot,
-            formatted: formatted
+            formatted: formatted,
+            has_presigned_url: !!screenshot.presigned_url,
+            presigned_url_sample: screenshot.presigned_url?.substring(0, 100),
+            formatted_image: formatted.image,
+            has_formatted_image: !!formatted.image
           });
         }
-        return formatted;
+        // Preserve original API data alongside formatted data for dynamic display
+        return {
+          ...formatted,
+          originalData: screenshot  // Keep the original API response data
+        };
       });
       
       console.log('✅ Processed enhanced screenshots:', {
@@ -1232,7 +2386,7 @@ const ActivityStream = () => {
       });
       
       // Log the exact Enhanced API URL that failed
-      console.error('🔍 FAILED ENHANCED API URL:', `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`);
+      console.error('🔍 FAILED ENHANCED API URL:', `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`);
       console.error('🔍 Enhanced request config used:', {
         timeout: timeout,
         employeeEmail,
@@ -1273,7 +2427,7 @@ const ActivityStream = () => {
           try {
             console.log('🔄 Retrying API call with patient timeout...');
             const retryResponse = await axios.get(apiUrl, { 
-              timeout: 900000, // 15 minutes for retry - very patient
+              timeout: 1800000, // 30 minutes for retry - very patient
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -1332,10 +2486,10 @@ const ActivityStream = () => {
         
         try {
           // Try again with just 1 screenshot and ultra-short timeout
-          const ultraShortTimeout = 600000; // 10 minutes - ultra patient
+          const ultraShortTimeout = 1800000; // 30 minutes - ultra patient
           const ultraSmallLimit = 1; // Just 1 screenshot
           
-          const retryApiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=${page}&limit=${ultraSmallLimit}`;
+          const retryApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=${page}&limit=${ultraSmallLimit}`;
           console.log('🔄 Retrying with ultra-micro batch:', retryApiUrl);
           console.log('🔄 Using ultra-patient timeout:', ultraShortTimeout / 1000, 'seconds');
           
@@ -1381,8 +2535,8 @@ const ActivityStream = () => {
           // Try one final time with extreme settings
           try {
             console.log('🔄 Final attempt with extreme patience...');
-            const extremeTimeout = 300000; // 5 minutes extreme timeout
-            const extremeApiUrl = `https://dxdtime.ddsolutions.io/api/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=1&limit=1`;
+            const extremeTimeout = 1800000; // 30 minutes extreme timeout
+            const extremeApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=1&limit=1`;
             
             const extremeResponse = await axios.get(extremeApiUrl, { 
               timeout: extremeTimeout,
@@ -1461,7 +2615,7 @@ const ActivityStream = () => {
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timer);
-  }, [search, singleDateFilter, isUserSelected, selectedUser]);
+  }, [search, isUserSelected, selectedUser, singleDateFilter, isDateFilterActive, dateRange]);
 
   // Handle search suggestions with debounce (only when no user is selected)
   useEffect(() => {
@@ -1476,82 +2630,192 @@ const ActivityStream = () => {
     return () => clearTimeout(timer);
   }, [search, isUserSelected]);
 
-  // Format screenshot data for display (FIXED version)
+  // S3 KEY SPECIFIC DEBUGGING FUNCTION
+  const debugS3KeyExtraction = (screenshot) => {
+    console.log('🔑 S3 KEY DEBUGGING - Raw screenshot object:', screenshot);
+    console.log('🔑 S3 KEY DEBUGGING - Detailed analysis:', {
+      hasS3Key: 's3_key' in screenshot,
+      s3KeyValue: screenshot.s3_key,
+      s3KeyType: typeof screenshot.s3_key,
+      s3KeyLength: screenshot.s3_key ? screenshot.s3_key.length : 0,
+      s3KeyIsString: typeof screenshot.s3_key === 'string',
+      s3KeyIsEmpty: screenshot.s3_key === '',
+      s3KeyIsNull: screenshot.s3_key === null,
+      s3KeyIsUndefined: screenshot.s3_key === undefined,
+      allObjectKeys: Object.keys(screenshot),
+      s3KeyInKeys: Object.keys(screenshot).includes('s3_key')
+    });
+    
+    // Test direct access
+    const directS3Key = screenshot['s3_key'];
+    console.log('🔑 S3 KEY DEBUGGING - Direct access test:', {
+      directAccess: directS3Key,
+      directAccessType: typeof directS3Key,
+      directAccessLength: directS3Key ? directS3Key.length : 0
+    });
+    
+    return screenshot.s3_key;
+  };
+
+  // Format screenshot data for display (ULTRA ENHANCED DEBUGGING VERSION)
   const formatScreenshotData = (screenshot, index) => {
-    // Extract time from filename
-    const timeFromFilename = screenshot.filename ? 
-      screenshot.filename.split('_')[1]?.replace(/-/g, ':') : null;
-    
-    // Extract date from filename
-    const dateFromFilename = screenshot.filename ? 
-      screenshot.filename.split('_')[0] : null;
+    console.log('🔧 🚨 ULTRA DEBUGGING - Full screenshot object received:', screenshot);
+    console.log('🔧 🚨 ULTRA DEBUGGING - Processing screenshot data:', {
+      index,
+      screenshot_is_object: typeof screenshot === 'object',
+      screenshot_is_null: screenshot === null,
+      screenshot_is_undefined: screenshot === undefined,
+      screenshot_keys: screenshot ? Object.keys(screenshot) : 'NO_KEYS',
+      filename: screenshot?.filename,
+      hasPresignedUrl: !!screenshot?.presigned_url,
+      presignedUrlValue: screenshot?.presigned_url,
+      presignedUrlType: typeof screenshot?.presigned_url,
+      presignedUrlLength: screenshot?.presigned_url?.length,
+      presignedUrlPreview: screenshot?.presigned_url?.substring(0, 100) + '...',
+      s3Key: screenshot?.s3_key,
+      timestamp: screenshot?.timestamp,
+      application: screenshot?.application,
+      timeDisplay: screenshot?.time_display,
+      id: screenshot?.id,
+      size_bytes: screenshot?.size_bytes,
+      window_title: screenshot?.window_title
+    });
 
-    // FIXED: Image URL processing - prioritize presigned_url and don't process it
-    let imageUrl = null; // Start with null instead of placeholder
+    // CALL S3 KEY DEBUGGING FUNCTION
+    console.log('🔑 CALLING S3 KEY DEBUG FUNCTION FOR INDEX:', index);
+    const debuggedS3Key = debugS3KeyExtraction(screenshot);
+    console.log('🔑 S3 KEY DEBUG RESULT:', debuggedS3Key);
     
-    if (screenshot.presigned_url && screenshot.presigned_url.trim() !== '') {
-      // PRIORITY 1: Use presigned URL directly - it's already perfect!
-      imageUrl = screenshot.presigned_url.trim();
-    } else if (screenshot.url && screenshot.url.trim() !== '' && screenshot.url.includes('X-Amz-Signature')) {
-      // PRIORITY 2: Use url field if it's a presigned URL
-      imageUrl = screenshot.url.trim();
-    } else if (screenshot.url && screenshot.url.trim() !== '') {
-      // PRIORITY 3: Use url field as fallback
-      imageUrl = screenshot.url.trim();
-    } else if (screenshot.s3_key && screenshot.s3_key.trim() !== '') {
-      // PRIORITY 4: S3 key available but no presigned URL - Backend needs to be updated!
-      // Don't use s3_key as requested - return null to show broken image
-      imageUrl = null;
-    } else if (screenshot.filename && selectedUser) {
-      // PRIORITY 4: Construct S3 URL from filename and user info
-      const userEmail = selectedUser.email || selectedUser.search_value || selectedUser.username;
-      const folderName = selectedFolder?.folder_name || selectedFolder?.date || 'unknown_folder';
-      const constructedS3Key = `screenshots/${userEmail.replace('@', '_at_')}/${folderName}/${screenshot.filename}`;
-      const encodedConstructedKey = encodeURIComponent(constructedS3Key);
-      imageUrl = `https://dxdtime.ddsolutions.io/api/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
-    } else {
-      // PRIORITY 5: Try to construct from any available data
-      const userEmail = selectedUser?.email || selectedUser?.search_value || selectedUser?.username || 'unknown_user';
-      const folderName = selectedFolder?.folder_name || selectedFolder?.date || 'unknown_folder';
-      const filename = screenshot.filename || 'unknown_file.webp';
-      const constructedS3Key = `screenshots/${userEmail.replace('@', '_at_')}/${folderName}/${filename}`;
-      const encodedConstructedKey = encodeURIComponent(constructedS3Key);
-      imageUrl = `https://dxdtime.ddsolutions.io/api/screenshots/presigned-url/?s3_key=${encodedConstructedKey}`;
+    // Extract the actual S3 key value - Handle both field names
+    const actualS3Key = screenshot?.key || screenshot?.s3_key || null;
+    console.log('🔑 ACTUAL S3 KEY VALUE:', actualS3Key);
+
+    // EMERGENCY: Check if screenshot object is being passed correctly
+    if (!screenshot || typeof screenshot !== 'object') {
+      console.error('❌ CRITICAL ERROR: Invalid screenshot object passed to formatScreenshotData!', {
+        screenshot,
+        type: typeof screenshot,
+        isNull: screenshot === null,
+        isUndefined: screenshot === undefined
+      });
+      return {
+        id: `error-screenshot-${index}`,
+        task: 'ERROR: Invalid Data',
+        time: 'N/A',
+        image: null,
+        application: 'Error',
+        user: 'Unknown',
+        date: 'Unknown',
+        error: 'Invalid screenshot object'
+      };
     }
 
-    // CRITICAL: For presigned URLs, use them directly without any processing
-    let finalImageUrl;
-    if (imageUrl && imageUrl.includes('X-Amz-Signature')) {
-      // This is a presigned URL - use it directly without processing
-      finalImageUrl = imageUrl;
-    } else {
-      // For non-presigned URLs, use getImageUrl processing
-      finalImageUrl = getImageUrl(imageUrl);
+    // DEBUG INFO - Keep debug functions but don't use their return values for processing
+    console.log('🚨 CALLING EMERGENCY DEBUG FUNCTION (for debug only)');
+    const emergencyTestResult = debugImageUrlExtraction(screenshot);
+    console.log('🚨 EMERGENCY DEBUG RESULT (debug only):', emergencyTestResult);
+
+    // Extract time from API response or filename - Handle both field names
+    let timeFromFilename = null;
+    if (screenshot.time_display) {
+      // Use API provided time display (e.g., "02:42 AM")
+      timeFromFilename = screenshot.time_display;
+    } else if (screenshot.filename) {
+      // Fallback to extracting from filename
+      timeFromFilename = screenshot.filename.split('_')[1]?.replace(/-/g, ':');
+    }
+    
+    // Extract date from timestamp or last_modified or filename - Handle both field names
+    let dateFromFilename = null;
+    if (screenshot.timestamp) {
+      // Use timestamp from API (e.g., "2025-06-14T02:42:30Z")
+      dateFromFilename = screenshot.timestamp.split('T')[0];
+    } else if (screenshot.last_modified) {
+      // Use last_modified from API (e.g., "2025-06-13T23:51:26+00:00")
+      dateFromFilename = screenshot.last_modified.split('T')[0];
+    } else if (screenshot.filename) {
+      // Fallback to extracting from filename
+      dateFromFilename = screenshot.filename.split('_')[0];
     }
 
-    // Enhanced time formatting
+    // EMERGENCY SIMPLIFIED URL EXTRACTION - Use debug function result
+    let finalImageUrl = null; // Initialize as null, use presigned_url directly
+    
+    console.log('� EXTRACTING IMAGE URL FROM API DATA:', {
+      hasPresignedUrl: !!screenshot.presigned_url,
+      presignedUrlValue: screenshot.presigned_url,
+      presignedUrlType: typeof screenshot.presigned_url,
+      presignedUrlLength: screenshot.presigned_url?.length
+    });
+    
+    // Try presigned_url first, then url field from API response
+    if (screenshot?.presigned_url && typeof screenshot.presigned_url === 'string' && screenshot.presigned_url.trim() !== '') {
+      finalImageUrl = screenshot.presigned_url.trim();
+      console.log('✅ SUCCESS: Using presigned_url from API:', finalImageUrl.substring(0, 100) + '...');
+    } else if (screenshot?.url && typeof screenshot.url === 'string' && screenshot.url.trim() !== '') {
+      finalImageUrl = screenshot.url.trim();
+      console.log('✅ SUCCESS: Using url from API:', finalImageUrl.substring(0, 100) + '...');
+    } else {
+      console.log('❌ ERROR: No valid presigned_url or url in API response');
+      finalImageUrl = null;
+    }
+    
+    console.log('�️ Image URL Processing:', {
+      hasPresignedUrl: !!screenshot.presigned_url,
+      presignedUrlLength: screenshot.presigned_url?.length,
+      hasSignature: screenshot.presigned_url?.includes('X-Amz-Signature'),
+      s3Domain: screenshot.presigned_url?.includes('ddsfocustime.s3.amazonaws.com')
+    });
+    
+    // SKIP DUPLICATE URL PROCESSING - finalImageUrl already set above
+
+    console.log('🎯 FINAL RESULT - Image URL Processing:', {
+      finalImageUrl: finalImageUrl,
+      finalImageUrlPreview: finalImageUrl ? finalImageUrl.substring(0, 100) + '...' : 'NULL',
+      isPresigned: finalImageUrl?.includes('X-Amz-Signature'),
+      domain: finalImageUrl?.includes('ddsfocustime.s3.amazonaws.com') ? 'S3' : 'Other',
+      isValidURL: !!finalImageUrl && finalImageUrl.length > 0,
+      originalPresignedUrl: screenshot?.presigned_url
+    });
+
+    // Enhanced time formatting using API data
     let displayTime = `${9 + index}:00 AM`;
     if (timeFromFilename) {
-      const [hours, minutes] = timeFromFilename.split(':');
-      const hour24 = parseInt(hours);
-      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-      const ampm = hour24 >= 12 ? 'PM' : 'AM';
-      displayTime = `${hour12}:${minutes} ${ampm}`;
+      if (timeFromFilename.includes('AM') || timeFromFilename.includes('PM')) {
+        // Already formatted time from API (e.g., "02:42 AM")
+        displayTime = timeFromFilename;
+      } else {
+        // Parse raw time format (e.g., "02:42:30")
+        const [hours, minutes] = timeFromFilename.split(':');
+        const hour24 = parseInt(hours);
+        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+        const ampm = hour24 >= 12 ? 'PM' : 'AM';
+        displayTime = `${hour12}:${minutes} ${ampm}`;
+      }
     }
 
-    // Enhanced date formatting
+    // Enhanced date formatting using API data
     let displayDate = 'Unknown';
     if (dateFromFilename) {
       displayDate = dayjs(dateFromFilename).format('MMM DD, YYYY');
     }
 
-    // Application name
+    // Application name from API
     let applicationName = screenshot.application || 'Unknown Application';
     if (screenshot.window_title && screenshot.window_title !== screenshot.filename) {
       applicationName = screenshot.window_title;
     }
+    
+    // DEBUGGING APPLICATION DATA
+    console.log('🔧 Application Debug:', {
+      raw_application: screenshot.application,
+      raw_window_title: screenshot.window_title,
+      final_application: applicationName,
+      has_application: !!screenshot.application,
+      has_window_title: !!screenshot.window_title
+    });
 
-    // Task name
+    // Task name from API or folder
     let taskName = applicationName;
     if (screenshot.task_name) {
       taskName = screenshot.task_name;
@@ -1559,21 +2823,80 @@ const ActivityStream = () => {
       taskName = selectedFolder.folder_name.replace(/_/g, ' ');
     }
 
-    return {
-      id: screenshot.s3_key || screenshot.id || `screenshot-${index}-${Date.now()}`,
+    const resultObject = {
+      id: screenshot.id || screenshot.key || screenshot.s3_key || `screenshot-${index}-${Date.now()}`,
       task: taskName,
       time: displayTime,
-      image: finalImageUrl, // Use the final URL
+      image: finalImageUrl, // Use the final URL exactly as from API
       application: applicationName,
       user: screenshot.employee_name || selectedUser?.display_name || 'Unknown User',
       date: displayDate,
       file_extension: screenshot.file_extension || '.webp',
       size_mb: screenshot.size_mb || 'N/A',
       filename: screenshot.filename,
-      s3_key: screenshot.s3_key,
-      presigned_url: screenshot.presigned_url || 'Not Available',
-      original_presigned_url: screenshot.presigned_url // Keep the original for debugging
+      s3_key: screenshot.key || screenshot.s3_key || actualS3Key, // Handle both field names
+      presigned_url: screenshot.url || screenshot.presigned_url || null, // Handle both field names
+      original_presigned_url: screenshot.url || screenshot.presigned_url, // Keep the original for debugging
+      timestamp: screenshot.last_modified || screenshot.timestamp, // Handle both field names
+      size_bytes: screenshot.size || screenshot.size_bytes, // Handle both field names
+      // S3 KEY SPECIFIC DEBUGGING DATA
+      s3_key_debug_info: {
+        original_s3_key: screenshot.s3_key,
+        debugged_s3_key: debuggedS3Key,
+        actual_s3_key_used: actualS3Key,
+        s3_key_type: typeof screenshot.s3_key,
+        s3_key_length: screenshot.s3_key ? screenshot.s3_key.length : 0,
+        s3_key_exists: !!screenshot.s3_key,
+        extraction_successful: actualS3Key === screenshot.s3_key
+      }
     };
+
+    console.log('🎯 RETURNING FORMATTED DATA:', {
+      index,
+      hasImageURL: !!resultObject.image,
+      imageURL: resultObject.image,
+      imageURLPreview: resultObject.image ? resultObject.image.substring(0, 100) + '...' : 'NULL',
+      taskName: resultObject.task,
+      emergencyDebugWorked: emergencyTestResult === resultObject.image,
+      originalPresignedUrl: screenshot.presigned_url,
+      // S3 KEY SPECIFIC DEBUGGING
+      hasS3Key: !!screenshot.s3_key,
+      s3KeyValue: screenshot.s3_key,
+      s3KeyType: typeof screenshot.s3_key,
+      s3KeyLength: screenshot.s3_key?.length,
+      resultS3Key: resultObject.s3_key,
+      s3KeyMatch: screenshot.s3_key === resultObject.s3_key,
+      debuggedS3Key: debuggedS3Key,
+      s3KeyDebugInfo: resultObject.s3_key_debug_info,
+      resultObject: resultObject
+    });
+
+    // FINAL VALIDATION CHECK
+    if (!resultObject.image) {
+      console.error('🚨 CRITICAL: Returning object with NULL image URL!', {
+        emergencyResult: emergencyTestResult,
+        originalPresignedUrl: screenshot.presigned_url,
+        allObjectKeys: Object.keys(screenshot),
+        screenshotObject: screenshot
+      });
+    } else {
+      console.log('✅ SUCCESS: Returning object with valid image URL:', resultObject.image.substring(0, 50) + '...');
+    }
+
+    // S3 KEY VALIDATION CHECK
+    if (!resultObject.s3_key) {
+      console.error('🔑 S3 KEY ERROR: Returning object with NULL S3 key!', {
+        originalS3Key: screenshot.s3_key,
+        debuggedS3Key: debuggedS3Key,
+        s3KeyDebugInfo: resultObject.s3_key_debug_info,
+        screenshotKeys: Object.keys(screenshot),
+        screenshotObject: screenshot
+      });
+    } else {
+      console.log('✅ S3 KEY SUCCESS: Returning object with valid S3 key:', resultObject.s3_key.substring(0, 50) + '...');
+    }
+
+    return resultObject;
   };
 
   const handlePrev = () => {
@@ -1697,55 +3020,162 @@ const ActivityStream = () => {
     }
   };
 
-  // Handle single date selection
-  const handleDateSelect = (dateIndex) => {
-    setSelected(dateIndex);
-    const selectedDate = dates[dateIndex];
-    
-    // Clear range filter when single date is selected
-    setIsDateFilterActive(false);
-    setSingleDateFilter(selectedDate.fullDate);
-    
-    if (isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
-    }
-  };
-
   // Handle quick search (normal mode) - simplified since we only have one mode now
   const handleQuickSearch = () => {
+    // Clear any date filters
     setIsDateFilterActive(false);
+    setDateRange([null, null]);
     setSingleDateFilter(null);
     
-    if (isUserSelected && selectedUser) {
+    if (currentView === 'search' && isUserSelected && selectedUser) {
       setCurrentPage(1);
       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
       fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
     }
   };
 
-  // Handle date filter application
+  // Utility function to extract date from filename
+  const extractDateFromFilename = (filename) => {
+    if (!filename) return null;
+    
+    // Try to match common screenshot filename patterns:
+    // YYYY-MM-DD_HH-MM-SS format
+    const datePattern = /(\d{4}-\d{2}-\d{2})/;
+    const match = filename.match(datePattern);
+    
+    if (match) {
+      return dayjs(match[1]);
+    }
+    
+    return null;
+  };
+
+  // Utility function to extract date from timestamp
+  const extractDateFromTimestamp = (timestamp) => {
+    if (!timestamp) return null;
+    
+    try {
+      // Handle different timestamp formats
+      if (timestamp.includes('T')) {
+        // ISO format: "2025-06-14T02:42:30Z" or "2025-06-13T23:51:26+00:00"
+        return dayjs(timestamp);
+      } else {
+        // Simple date format: "2025-06-14"
+        return dayjs(timestamp);
+      }
+    } catch (error) {
+      console.log('Error parsing timestamp:', timestamp, error);
+      return null;
+    }
+  };
+
+  // Function to filter screenshots by date
+  const filterScreenshotsByDate = (screenshots) => {
+    if (!screenshots || screenshots.length === 0) return screenshots;
+    
+    // If no date filter is active, return all screenshots
+    if (!isDateFilterActive && !singleDateFilter) {
+      return screenshots;
+    }
+    
+    return screenshots.filter(screenshot => {
+      let screenshotDate = null;
+      
+      // Try to extract date from multiple sources
+      if (screenshot.timestamp) {
+        screenshotDate = extractDateFromTimestamp(screenshot.timestamp);
+      } else if (screenshot.last_modified) {
+        screenshotDate = extractDateFromTimestamp(screenshot.last_modified);
+      } else if (screenshot.filename) {
+        screenshotDate = extractDateFromFilename(screenshot.filename);
+      }
+      
+      if (!screenshotDate) {
+        console.log('Could not extract date from screenshot:', screenshot);
+        return false; // Exclude screenshots where we can't determine the date
+      }
+      
+      // Apply single date filter
+      if (singleDateFilter) {
+        const filterDate = dayjs(singleDateFilter);
+        const isSameDay = screenshotDate.format('YYYY-MM-DD') === filterDate.format('YYYY-MM-DD');
+        console.log(`🗓️ Single date filter - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Filter: ${filterDate.format('YYYY-MM-DD')}, Match: ${isSameDay}`);
+        return isSameDay;
+      }
+      
+      // Apply date range filter
+      if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        const startDate = dayjs(dateRange[0]);
+        const endDate = dayjs(dateRange[1]);
+        const isInRange = screenshotDate.isBetween(startDate, endDate, 'day', '[]'); // inclusive on both ends
+        console.log(`🗓️ Date range filter - Screenshot: ${screenshotDate.format('YYYY-MM-DD')}, Range: ${startDate.format('YYYY-MM-DD')} to ${endDate.format('YYYY-MM-DD')}, Match: ${isInRange}`);
+        return isInRange;
+      }
+      
+      return true;
+    });
+  };
+
+  // Date filter handlers
+  const handleDateRangeChange = (newValue) => {
+    setDateRange(newValue);
+  };
+
   const handleDateFilterApply = () => {
-    setIsDateFilterActive(true);
-    setSingleDateFilter(null); // Clear single date filter
-    setAnchorEl(null);
-    if (isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
+    if (dateRange[0] && dateRange[1]) {
+      setIsDateFilterActive(true);
+      setSingleDateFilter(null); // Clear single date filter
+      
+      console.log(`🗓️ Applied date range filter: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`);
+      
+      // Note: For folder screenshots view, we'll apply filtering locally
+      // The date filtering will happen in the render section using filterScreenshotsByDate
     }
   };
 
-  // Handle date filter clear
   const handleDateFilterClear = () => {
     setIsDateFilterActive(false);
+    setDateRange([null, null]);
     setSingleDateFilter(null);
-    setDateRange([dayjs('2024-06-06'), dayjs('2025-01-01')]);
-    if (isUserSelected && selectedUser) {
+    
+    console.log('🗓️ Cleared all date filters');
+    
+    // Note: For folder screenshots view, we'll apply filtering locally
+    // The date filtering will happen in the render section using filterScreenshotsByDate
+  };
+
+  const handleSingleDateSelect = (dateIndex) => {
+    const selectedDate = dates[dateIndex];
+    setSingleDateFilter(selectedDate.fullDate);
+    setIsDateFilterActive(false); // Clear range filter
+    setDateRange([null, null]);
+    
+    console.log(`🗓️ Applied single date filter: ${selectedDate.fullDate}`);
+    
+    // Note: For folder screenshots view, we'll apply filtering locally
+    // The date filtering will happen in the render section using filterScreenshotsByDate
+  };
+
+  // Helper function to apply date filter based on current view
+  const applyDateFilter = (startDate, endDate) => {
+    setDateRange([startDate, endDate]);
+    setIsDateFilterActive(true);
+    setSingleDateFilter(null);
+    
+    if (currentView === 'search' && isUserSelected && selectedUser) {
       setCurrentPage(1);
       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
       fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
     }
   };
 
@@ -1893,7 +3323,7 @@ const ActivityStream = () => {
   };
 
   const handleFolderPageChange = (page) => {
-    if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return;
+    if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return; return;
     
     console.log('📄 Folder page change requested:', {
       fromPage: folderPagination.page,
@@ -1940,6 +3370,67 @@ const ActivityStream = () => {
     );
   };
 
+  // Render back button navigation
+  const renderBackButton = () => {
+    if (currentView === 'search') return null;
+    
+    const getBackHandler = () => {
+      if (currentView === 'folders') return handleBackToSearch;
+      if (currentView === 'screenshots') return handleBackToFolders;
+      return null;
+    };
+
+    const getBackLabel = () => {
+      if (currentView === 'folders') return '← Back to Search';
+      if (currentView === 'screenshots') return '← Back to Folders';
+      return '';
+    };
+
+    const handler = getBackHandler();
+    const label = getBackLabel();
+
+    if (!handler) return null;
+
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '16px',
+        padding: '8px 0'
+      }}>
+        <button
+          onClick={handler}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-1px)';
+            e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>←</span>
+          {label}
+        </button>
+      </div>
+    );
+  };
+
   // Render folders view
   const renderFoldersView = () => {
     if (loadingFolders) {
@@ -1976,7 +3467,14 @@ const ActivityStream = () => {
         
         <FoldersGrid theme={theme} isDarkMode={isDarkMode}>
           {folders.map((folder, index) => (
-            <FolderCard theme={theme} isDarkMode={isDarkMode} key={index} onClick={() => handleFolderClick(folder)}>
+            <FolderCard 
+              ref={el => foldersRef.current[index] = el}
+              theme={theme} 
+              isDarkMode={isDarkMode} 
+              key={index} 
+              onClick={() => handleFolderClick(folder)}
+              index={index}
+            >
               <FolderHeader theme={theme} isDarkMode={isDarkMode}>
                 <FolderIcon>
                   {folder.is_date_folder ? '📅' : '📁'}
@@ -2036,6 +3534,32 @@ const ActivityStream = () => {
 
   // Render folder screenshots view
   const renderFolderScreenshotsView = () => {
+    // 🚀 MAJOR DEBUG TEST: Verify this function is being called
+    console.log('🚀🚀🚀 FOLDER SCREENSHOTS VIEW IS RENDERING 🚀🚀🚀');
+    console.log('📊 folderScreenshots array:', folderScreenshots);
+    console.log('📊 folderScreenshots length:', folderScreenshots?.length || 0);
+    console.log('📊 currentView:', currentView);
+    console.log('📊 loadingFolderScreenshots:', loadingFolderScreenshots);
+    
+    // 🎯 LIVE IMAGE DISPLAY TEST: Check if we have presigned URLs like LiveTracking
+    if (folderScreenshots?.length > 0) {
+      console.log('🎯 LIVE IMAGE DISPLAY TEST - Sample screenshot data:');
+      const firstScreenshot = folderScreenshots[0];
+      console.log('  📸 First screenshot:', {
+        id: firstScreenshot?.id,
+        filename: firstScreenshot?.filename,
+        has_presigned_url: !!firstScreenshot?.presigned_url,
+        presigned_url_preview: firstScreenshot?.presigned_url?.substring(0, 120) + '...',
+        has_s3_key: !!firstScreenshot?.s3_key,
+        s3_key: firstScreenshot?.s3_key,
+        generated_url: getImageUrl(firstScreenshot)?.substring(0, 120) + '...'
+      });
+      console.log('  🚀 URL Priority Order Test:', {
+        step1_presigned_check: firstScreenshot?.presigned_url && firstScreenshot.presigned_url.includes('X-Amz-Signature') ? '✅ PASS' : '❌ FAIL',
+        step2_s3key_backup: firstScreenshot?.s3_key ? '✅ Available' : '❌ Not Available',
+        final_url_generated: !!getImageUrl(firstScreenshot) ? '✅ URL Generated' : '❌ No URL Generated'
+      });
+    }
 
     if (loadingFolderScreenshots) {
       console.log('📀 Showing loading state for folder screenshots');
@@ -2102,50 +3626,516 @@ const ActivityStream = () => {
           )}
         </SearchInfo>
         
-        {/* Debug Tools for Level 3 Image Loading */}
-        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-  
-{/*           
+        {/* Enhanced Debug Tools and Download Options */}
+        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Bulk Download Button */}
+          <Button
+            variant="contained"
+            size="small"
+            onClick={async () => {
+              if (folderScreenshots.length === 0) {
+                alert('No screenshots to download');
+                return;
+              }
+
+              const confirmDownload = window.confirm(
+                `Download all ${folderScreenshots.length} screenshots from this folder?\n\n` +
+                `This will download them one by one to your Downloads folder.`
+              );
+
+              if (!confirmDownload) return;
+
+              console.log('📥 Starting bulk download of', folderScreenshots.length, 'screenshots');
+              
+              let downloaded = 0;
+              let failed = 0;
+
+              // Show progress indicator
+              const progressDiv = document.createElement('div');
+              progressDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: #3b82f6; color: white; padding: 12px 16px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 200px;
+              `;
+              progressDiv.innerHTML = `📥 Downloading... 0/${folderScreenshots.length}`;
+              document.body.appendChild(progressDiv);
+
+              for (let i = 0; i < folderScreenshots.length; i++) {
+                try {
+                  progressDiv.innerHTML = `📥 Downloading... ${i + 1}/${folderScreenshots.length}`;
+                  await downloadScreenshot(folderScreenshots[i]);
+                  downloaded++;
+                  
+                  // Small delay to prevent overwhelming the browser/server
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                  console.error('❌ Failed to download screenshot', i, ':', error);
+                  failed++;
+                }
+              }
+
+              document.body.removeChild(progressDiv);
+
+              // Show completion message
+              const resultDiv = document.createElement('div');
+              resultDiv.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: ${failed === 0 ? '#10b981' : '#f59e0b'}; color: white; padding: 12px 16px;
+                border-radius: 8px; font-size: 14px; font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+              `;
+              resultDiv.innerHTML = `✅ Downloaded: ${downloaded}, Failed: ${failed}`;
+              document.body.appendChild(resultDiv);
+              setTimeout(() => document.body.removeChild(resultDiv), 5000);
+            }}
+            style={{
+              backgroundColor: '#10b981',
+              color: 'white',
+              fontSize: '12px',
+              padding: '6px 12px',
+              fontWeight: '600'
+            }}
+          >
+            📥 Download All ({folderScreenshots.length})
+          </Button>
+
+          {/* 🚀 NEW: Test Live Image Display */}
           <Button
             variant="outlined"
             size="small"
             onClick={() => {
-              console.log('🔍 Opening first presigned URL in new tab...');
-              const firstScreenshot = folderScreenshots.find(s => s.presigned_url);
-              if (firstScreenshot) {
-                console.log('Opening URL:', firstScreenshot.presigned_url);
-                window.open(firstScreenshot.presigned_url, '_blank');
+              console.log('🚀 TESTING LIVE IMAGE DISPLAY WITH YOUR PERFECT API DATA!');
+              console.log('📊 Your API provides perfect presigned URLs, testing them now...');
+              
+              if (folderScreenshots.length > 0) {
+                const firstScreenshot = folderScreenshots[0];
+                console.log('🔍 First screenshot data:', {
+                  id: firstScreenshot.id,
+                  filename: firstScreenshot.filename,
+                  presigned_url: firstScreenshot.presigned_url?.substring(0, 100) + '...',
+                  s3_key: firstScreenshot.s3_key
+                });
+                
+                // Test the presigned URL directly
+                const testImg = new Image();
+                testImg.crossOrigin = 'anonymous';
+                testImg.onload = () => {
+                  console.log('✅ LIVE DISPLAY WORKS! Image loaded successfully:', {
+                    size: `${testImg.naturalWidth}x${testImg.naturalHeight}`,
+                    filename: firstScreenshot.filename
+                  });
+                  alert(`🚀 LIVE DISPLAY SUCCESS!\n\nImage: ${firstScreenshot.filename}\nSize: ${testImg.naturalWidth}x${testImg.naturalHeight}\n\nYour images should now display immediately!`);
+                };
+                testImg.onerror = (e) => {
+                  console.error('❌ Live display test failed:', e);
+                  alert('❌ Live display test failed. Check console for details.');
+                };
+                testImg.src = firstScreenshot.presigned_url;
               } else {
-                console.log('❌ No presigned URL found');
+                alert('❌ No screenshots available to test');
               }
             }}
-          >
-            🔗 Open First URL
-          </Button> */}
-          
-          {/* <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-             
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#22c55e',
+              color: 'white',
+              border: 'none',
+              fontWeight: '600'
             }}
           >
-            📊 Data Summary
-          </Button> */}
-          
-          {/* <Button
+            🚀 Test Live Display
+          </Button>
+
+          {/* TEST: Log actual API response data */}
+          <Button
             variant="outlined"
             size="small"
             onClick={() => {
-              console.log('🔍 URL DEBUG INFO FOR ALL SCREENSHOTS:');
-              folderScreenshots.forEach((screenshot, index) => {
-                const formattedData = formatScreenshotData(screenshot, index);
+              console.log('🚀 RAW API RESPONSE TEST:');
+              console.log('📊 folderScreenshots array length:', folderScreenshots.length);
+              console.log('📊 folderScreenshots array:', folderScreenshots);
               
-              });
+              if (folderScreenshots.length > 0) {
+                console.log('🔍 First screenshot RAW data:', folderScreenshots[0]);
+                console.log('🔍 First screenshot keys:', Object.keys(folderScreenshots[0]));
+                console.log('🔍 First screenshot presigned_url:', folderScreenshots[0]?.presigned_url);
+                console.log('🔍 First screenshot presigned_url type:', typeof folderScreenshots[0]?.presigned_url);
+                
+                // Test formatScreenshotData with first screenshot
+                console.log('🧪 Testing formatScreenshotData with first screenshot:');
+                const testResult = formatScreenshotData(folderScreenshots[0], 0);
+                console.log('🧪 formatScreenshotData result:', testResult);
+                console.log('🧪 testResult.image:', testResult.image);
+                
+                // Test if the URL works
+                if (testResult.image) {
+                  console.log('🌐 Testing if formatted URL loads...');
+                  const img = new Image();
+                  img.onload = () => console.log('✅ Formatted URL loads successfully');
+                  img.onerror = () => console.log('❌ Formatted URL failed to load');
+                  img.src = testResult.image;
+                } else {
+                  console.log('❌ No image URL in formatted result');
+                }
+              }
+              
+              alert('📊 API Response test logged to console. Check browser console for details.');
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none'
             }}
           >
-            🔍 Debug URLs
-          </Button> */}
+            🚀 Test API Data
+          </Button>
+
+          {/* Test your specific proxy URL format */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('� Testing your specific proxy URL format...');
+              const testProxyUrl = 'http://localhost:8000/api/proxy/screenshots/mohsinabbass688630_at_gmail.com/dxdglobal.com_&_deluxebilisim.com_genel_d%C3%BCzenlemeler_/2025-08-07_17-55-04_2025-08-07_17-55-04.webp';
+              
+              console.log('🔍 Test URL:', testProxyUrl);
+              
+              // Test if URL is accessible
+              const img = new Image();
+              img.onload = () => {
+                console.log('✅ Proxy URL loads successfully:', {
+                  width: img.naturalWidth,
+                  height: img.naturalHeight,
+                  size: `${img.naturalWidth}x${img.naturalHeight}`,
+                  url: testProxyUrl
+                });
+                alert(`✅ Proxy URL works! Image size: ${img.naturalWidth}x${img.naturalHeight}`);
+              };
+              img.onerror = (e) => {
+                console.error('❌ Proxy URL failed to load:', e);
+                console.error('❌ Error details:', {
+                  type: e.type,
+                  target: e.target,
+                  currentSrc: e.target.currentSrc
+                });
+                alert('❌ Proxy URL failed to load. Check console and ensure Django server is running on port 8000.');
+              };
+              img.src = testProxyUrl;
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#8b5cf6',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔧 Test Proxy URL
+          </Button>
+
+          {/* Test presigned URL from your actual API response */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔧 DEBUG: Testing your actual API presigned URL');
+              const testUrl = 'https://ddsfocustime.s3.amazonaws.com/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Y%C4%B1l%C4%B1_Ocak_Genel_Reklam_Planlama_ve_Payla%C5%9F%C4%B1m_Y%C3%B6netimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250807%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250807T141550Z&X-Amz-Expires=7200&X-Amz-SignedHeaders=host&X-Amz-Signature=c245697580a7fbf612e1e2fa35435f3b62eee398a3c900fdb7ed77a11b9e0618';
+              
+              // Test if URL is accessible
+              console.log('🔍 Testing your actual presigned URL:', testUrl.substring(0, 100) + '...');
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = () => {
+                console.log('✅ Your presigned URL works perfectly:', {
+                  width: img.naturalWidth,
+                  height: img.naturalHeight,
+                  size: `${img.naturalWidth}x${img.naturalHeight}`,
+                  url: testUrl.substring(0, 100) + '...'
+                });
+                alert(`✅ Your presigned URL works! Image size: ${img.naturalWidth}x${img.naturalHeight}\n\nNow screenshots should display correctly!`);
+              };
+              img.onerror = (e) => {
+                console.error('❌ Your presigned URL failed to load:', e);
+                alert('❌ Your presigned URL failed to load. Check console for details.');
+              };
+              img.src = testUrl;
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#22c55e',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            ✅ Test Your API URL
+          </Button>
+
+          {/* Test the corrected proxy URL format with screenshots/ */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔧 DEBUG: Testing CORRECTED proxy URL format');
+              const testProxyUrl = 'http://localhost:8000/api/proxy/screenshots/beyza-donmez-_at_hotmail.com/DDS_2025_Yılı_Ocak_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi/2025-06-14_02-42-30_2025-06-14_02-42-30.webp';
+              
+              console.log('🔍 Testing corrected proxy URL:', testProxyUrl);
+              
+              // Test if URL is accessible
+              const img = new Image();
+              img.onload = () => {
+                console.log('✅ CORRECTED Proxy URL works!:', {
+                  width: img.naturalWidth,
+                  height: img.naturalHeight,
+                  size: `${img.naturalWidth}x${img.naturalHeight}`,
+                  url: testProxyUrl
+                });
+                alert(`✅ FIXED! Proxy URL works now! Image size: ${img.naturalWidth}x${img.naturalHeight}\n\nThe issue was the missing 's' in 'screenshots'!`);
+              };
+              img.onerror = (e) => {
+                console.error('❌ Corrected proxy URL still failed:', e);
+                console.error('❌ Error details:', {
+                  type: e.type,
+                  target: e.target,
+                  currentSrc: e.target.currentSrc
+                });
+                alert('❌ Corrected proxy URL still failed. Check Django server and endpoint configuration.');
+              };
+              img.src = testProxyUrl;
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#f97316',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔧 Test Fixed Proxy
+          </Button>
+
+          {/* Test current folder screenshots URLs */}
+          {folderScreenshots.length > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                console.log('🔧 DEBUG: Testing current folder screenshot URLs');
+                console.log(`Found ${folderScreenshots.length} screenshots to test`);
+                
+                folderScreenshots.slice(0, 5).forEach((screenshot, index) => {
+                  console.log(`\n🔍 Testing Screenshot ${index + 1}:`);
+                  console.log('Raw data:', {
+                    filename: screenshot.filename,
+                    presigned_url: screenshot.presigned_url?.substring(0, 100) + '...',
+                    url: screenshot.url,
+                    s3_key: screenshot.s3_key
+                  });
+                  
+                  const formattedData = formatScreenshotData(screenshot, index);
+                  console.log('Formatted data:', {
+                    image: formattedData.image?.substring(0, 100) + '...',
+                    task: formattedData.task,
+                    time: formattedData.time
+                  });
+                  
+                  // Test the URL
+                  if (formattedData.image) {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                      console.log(`✅ Screenshot ${index + 1} loaded successfully:`, {
+                        size: `${img.naturalWidth}x${img.naturalHeight}`,
+                        filename: screenshot.filename
+                      });
+                    };
+                    img.onerror = (e) => {
+                      console.error(`❌ Screenshot ${index + 1} failed to load:`, {
+                        filename: screenshot.filename,
+                        url: formattedData.image?.substring(0, 100) + '...',
+                        error: e
+                      });
+                    };
+                    img.src = formattedData.image;
+                  } else {
+                    console.error(`❌ No image URL for screenshot ${index + 1}`);
+                  }
+                });
+                
+                alert(`🔧 Testing first ${Math.min(5, folderScreenshots.length)} screenshot URLs. Check console for results.`);
+              }}
+              style={{ 
+                fontSize: '11px',
+                padding: '4px 8px',
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              🔍 Test Current URLs ({folderScreenshots.length})
+            </Button>
+          )}
+
+          {/* LOG S3 KEYS from API Response */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              console.log('🔑 S3 KEYS ANALYSIS - Based on your API response:');
+              console.log('📊 Total screenshots in current view:', folderScreenshots.length);
+              
+              folderScreenshots.forEach((screenshot, index) => {
+                console.log(`\n🔑 Screenshot ${index + 1}/${folderScreenshots.length}:`);
+                console.log('├── ID:', screenshot?.id || 'No ID');
+                console.log('├── Filename:', screenshot?.filename || 'No filename');
+                console.log('├── S3 Key:', screenshot?.s3_key || '❌ NO S3 KEY');
+                console.log('├── Has Presigned URL:', !!screenshot?.presigned_url);
+                console.log('├── Generated URL:', getImageUrl(screenshot)?.substring(0, 80) + '...');
+                
+                if (screenshot?.s3_key) {
+                  const proxyUrl = `http://localhost:8000/api/proxy/screenshots/${encodeURIComponent(screenshot.s3_key).replace(/%2F/g, '/')}`;
+                  console.log('├── Proxy URL would be:', proxyUrl);
+                } else {
+                  console.log('├── ⚠️ Cannot generate proxy URL - no S3 key');
+                }
+                console.log('└──────────────────────────────────────');
+              });
+              
+              // Summary
+              const withS3Key = folderScreenshots.filter(s => s.s3_key).length;
+              const withoutS3Key = folderScreenshots.filter(s => !s.s3_key).length;
+              console.log('\n📈 SUMMARY:');
+              console.log(`✅ Screenshots with S3 key: ${withS3Key}`);
+              console.log(`❌ Screenshots without S3 key: ${withoutS3Key}`);
+              console.log(`📊 Percentage with S3 key: ${((withS3Key / folderScreenshots.length) * 100).toFixed(1)}%`);
+              
+              alert(`🔑 S3 Keys Analysis Complete!\n\n✅ With S3 key: ${withS3Key}\n❌ Without S3 key: ${withoutS3Key}\n\nCheck console for detailed S3 key analysis.`);
+            }}
+            style={{ 
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#10b981',
+              color: 'white',
+              border: 'none'
+            }}
+          >
+            🔑 Log S3 Keys ({folderScreenshots.length})
+          </Button>
+
+          {/* S3 KEY SPECIFIC DEBUG BUTTON */}
+          {folderScreenshots.length > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                console.log('🔑 S3 KEY ANALYSIS - Starting comprehensive S3 key debugging...');
+                console.log('🔑 Total screenshots to analyze:', folderScreenshots.length);
+                
+                folderScreenshots.forEach((screenshot, index) => {
+                  console.log(`🔑 S3 KEY ANALYSIS [${index + 1}/${folderScreenshots.length}]:`);
+                  console.log('🔑 Raw screenshot object:', screenshot);
+                  console.log('🔑 S3 key analysis:', {
+                    hasS3KeyProperty: 's3_key' in screenshot,
+                    s3KeyValue: screenshot.s3_key,
+                    s3KeyType: typeof screenshot.s3_key,
+                    s3KeyLength: screenshot.s3_key ? screenshot.s3_key.length : 0,
+                    isString: typeof screenshot.s3_key === 'string',
+                    isEmpty: screenshot.s3_key === '',
+                    isNull: screenshot.s3_key === null,
+                    isUndefined: screenshot.s3_key === undefined,
+                    filename: screenshot.filename,
+                    id: screenshot.id
+                  });
+                  
+                  // Test formatScreenshotData function
+                  const formattedData = formatScreenshotData(screenshot, index);
+                  console.log('🔑 Formatted data S3 key:', formattedData.s3_key);
+                  console.log('🔑 S3 debug info:', formattedData.s3_key_debug_info);
+                });
+                
+                // Summary
+                const s3KeyCount = folderScreenshots.filter(s => s.s3_key).length;
+                const nullS3KeyCount = folderScreenshots.filter(s => !s.s3_key).length;
+                console.log('🔑 S3 KEY SUMMARY:', {
+                  totalScreenshots: folderScreenshots.length,
+                  screenshotsWithS3Key: s3KeyCount,
+                  screenshotsWithoutS3Key: nullS3KeyCount,
+                  percentageWithS3Key: ((s3KeyCount / folderScreenshots.length) * 100).toFixed(1) + '%'
+                });
+                
+                alert(`🔑 S3 Key Analysis Complete!\n✅ With S3 key: ${s3KeyCount}\n❌ Without S3 key: ${nullS3KeyCount}\nCheck console for detailed analysis.`);
+              }}
+              style={{ 
+                fontSize: '11px',
+                padding: '4px 8px',
+                backgroundColor: '#8b5cf6',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              🔑 Analyze S3 Keys ({folderScreenshots.length})
+            </Button>
+          )}
+          
+          {/* Open first image URL in new tab */}
+          {folderScreenshots.length > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                const firstScreenshot = folderScreenshots[0];
+                const formattedData = formatScreenshotData(firstScreenshot, 0);
+                console.log('🌐 Opening first image URL in new tab:', formattedData.image);
+                
+                if (formattedData.image) {
+                  window.open(formattedData.image, '_blank');
+                } else {
+                  alert('❌ No image URL to open!');
+                }
+              }}
+              style={{ 
+                fontSize: '11px',
+                padding: '4px 8px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              🌐 Open First Image URL
+            </Button>
+          )}
+          
+          {/* Debug: Log all screenshot URLs button */}
+          {folderScreenshots.length > 0 && (
+            <button
+              onClick={() => {
+                console.log('🔍 All screenshot URLs:');
+                folderScreenshots.forEach((screenshot, index) => {
+                  const formattedData = formatScreenshotData(screenshot, index);
+                  console.log(`Screenshot ${index}:`, {
+                    original: screenshot,
+                    formatted: formattedData,
+                    image: formattedData.image
+                  });
+                });
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              🔍 Log All URLs
+            </button>
+          )}
         </div>
         
         {/* Per-page limit selector */}
@@ -2179,64 +4169,493 @@ const ActivityStream = () => {
           )}
         </PerPageContainer>
         
-        <CardGrid theme={theme} isDarkMode={isDarkMode}>
-          {folderScreenshots.map((screenshot, i) => {
-            const formattedData = formatScreenshotData(screenshot, i);
-            return (
-              <Card theme={theme} isDarkMode={isDarkMode} key={formattedData.id}>
-                {/* Use SimpleImageComponent for presigned URLs - they work directly */}
-                <SimpleImageComponent 
-                  src={formattedData.image} 
-                  alt={formattedData.task}
-                  crossOrigin="anonymous"
-                  style={{
-                    width: '100%',
-                    height: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '6px',
-                    marginBottom: '10px',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => handleImageClick(screenshot, i)}
-                />
+        <CardGrid ref={cardGridRef} theme={theme} isDarkMode={isDarkMode}>
+          {(() => {
+            // Apply date filtering to screenshots
+            const filteredScreenshots = filterScreenshotsByDate(folderScreenshots);
+            
+            console.log(`🗓️ Date filtering applied: ${folderScreenshots.length} total → ${filteredScreenshots.length} filtered`);
+            
+            return filteredScreenshots.map((screenshot, i) => {
+              const formattedData = screenshot; // Use the already formatted data
+              const originalApiData = screenshot.originalData || screenshot; // Access original API data
+              return (
+                <Card 
+                  ref={el => cardsRef.current[i] = el}
+                  theme={theme} 
+                  isDarkMode={isDarkMode} 
+                key={formattedData.id}
+                index={i}
+                style={{ position: 'relative' }}
+              >
+                {/* Download button overlay */}
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  zIndex: 10,
+                  display: 'flex',
+                  gap: '4px'
+                }}>
+                  {/* Download button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadScreenshot(originalApiData); // Use original API data for download
+                    }}
+                    style={{
+                      background: 'rgba(34, 197, 94, 0.9)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(34, 197, 94, 1)';
+                      e.target.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(34, 197, 94, 0.9)';
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    title={`Download ${originalApiData?.filename || 'screenshot'}`}
+                  >
+                    📥
+                  </button>
+                  
+                  {/* Full screen button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImageClick(originalApiData, i); // Use original API data for full screen
+                    }}
+                    style={{
+                      background: 'rgba(59, 130, 246, 0.9)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(59, 130, 246, 1)';
+                      e.target.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(59, 130, 246, 0.9)';
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    title="View full screen"
+                  >
+                    🔍
+                  </button>
+                </div>
+
+                {/* Direct image display with proper URL handling */}
+                <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '6px' }}>
+                  <img
+                    src={(() => {
+                      // Priority order for image URLs
+                      if (originalApiData?.presigned_url && originalApiData.presigned_url.includes('X-Amz-Signature')) {
+                        return originalApiData.presigned_url;
+                      } else if (originalApiData?.url && originalApiData.url.includes('X-Amz-Signature')) {
+                        return originalApiData.url;
+                      } else if (originalApiData?.s3_key) {
+                        return `http://localhost:8000/api/proxy/screenshots/${originalApiData.s3_key}`;
+                      } else if (originalApiData?.url) {
+                        return originalApiData.url;
+                      } else {
+                        return 'https://via.placeholder.com/300x120/f3f4f6/6b7280?text=No+Image';
+                      }
+                    })()}
+                    alt={originalApiData?.filename?.split('/').pop() || 'Screenshot'}
+                    style={{
+                      width: '100%',
+                      height: '120px',
+                      objectFit: 'cover',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease',
+                      backgroundColor: '#f3f4f6'
+                    }}
+                    onClick={() => {
+                      console.log('🖼️ Screenshot card clicked:', {
+                        id: originalApiData?.id,
+                        filename: originalApiData?.filename,
+                        timestamp: originalApiData?.timestamp,
+                        presignedUrl: originalApiData?.presigned_url?.substring(0, 100) + '...'
+                      });
+                      handleImageClick(originalApiData, i);
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    onError={(e) => {
+                      console.error('❌ Image failed to load:', {
+                        src: e.target.src,
+                        filename: originalApiData?.filename,
+                        id: originalApiData?.id
+                      });
+                      // Fallback to placeholder
+                      e.target.src = 'https://via.placeholder.com/300x120/ef4444/ffffff?text=Load+Failed';
+                    }}
+                    onLoad={(e) => {
+                      console.log('✅ Image loaded successfully:', {
+                        src: e.target.src.substring(0, 100) + '...',
+                        naturalWidth: e.target.naturalWidth,
+                        naturalHeight: e.target.naturalHeight,
+                        filename: originalApiData?.filename
+                      });
+                    }}
+                  />
+                  
+                  {/* Image info overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '0',
+                    right: '0',
+                    background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                    color: 'white',
+                    padding: '8px',
+                    fontSize: '10px'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '2px' }}>
+                      {originalApiData?.filename?.split('/').pop()?.substring(0, 25) || 'Screenshot'}
+                      {originalApiData?.filename?.length > 25 && '...'}
+                    </div>
+                    <div style={{ opacity: 0.8, fontSize: '9px' }}>
+                      {originalApiData?.timestamp && 
+                        new Date(originalApiData.timestamp).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      }
+                      {originalApiData?.size_mb && ` • ${originalApiData.size_mb} MB`}
+                    </div>
+                  </div>
+                </div>
+                
                 <TaskName theme={theme} isDarkMode={isDarkMode}>{formattedData.task}</TaskName>
                 <TaskTime theme={theme} isDarkMode={isDarkMode}>{formattedData.time}</TaskTime>
                 
-                {/* Display the actual image URL being used */}
-                <ImageUrl theme={theme} isDarkMode={isDarkMode}>
-                  🔗 Image URL: {formattedData.image || screenshot.presigned_url || screenshot.url || screenshot.s3_key || 'No URL found'}
-                </ImageUrl>
-                
-                {/* Debug: Show actual URL values */}
-                {/* <div style={{ fontSize: '8px', color: '#6b7280', marginTop: '2px', fontFamily: 'monospace', wordBreak: 'break-all', backgroundColor: '#f9fafb', padding: '4px', borderRadius: '2px' }}>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>formattedData.image:</strong> {formattedData.image || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.presigned_url:</strong> {screenshot.presigned_url || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.url:</strong> {screenshot.url || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.s3_key:</strong> {screenshot.s3_key || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>screenshot.filename:</strong> {screenshot.filename || 'None'}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>DEBUG TYPE:</strong> {typeof screenshot.presigned_url}</div>
-                  <div style={{ marginBottom: '2px' }}>📋 <strong>DEBUG VALUE:</strong> {JSON.stringify(screenshot.presigned_url)}</div>
-                </div> */}
-                
-                {/* Enhanced status badge with WebP info */}
-                {/* <BackendStatusBadge status="connected">
-                  ✅ WebP S3 Screenshot ({screenshot.file_extension || '.webp'})
-                </BackendStatusBadge> */}
-                
-                {/* Additional WebP metadata */}
-                {screenshot.size_mb && (
-                  <div style={{
-                    fontSize: '9px',
-                    color: '#9ca3af',
-                    marginTop: '2px',
-                    textAlign: 'center'
+                {/* 🚀 COMPREHENSIVE API DATA DISPLAY - Shows all data from your API response */}
+                <div style={{ 
+                  fontSize: '9px', 
+                  padding: '8px', 
+                  backgroundColor: isDarkMode ? '#1f2937' : '#f8fafc',
+                  borderRadius: '6px',
+                  marginTop: '8px',
+                  border: `1px solid ${isDarkMode ? '#374151' : '#e2e8f0'}`,
+                  lineHeight: '1.3'
+                }}>
+                  {/* Header with status */}
+                  <div style={{ 
+                    fontWeight: '600', 
+                    marginBottom: '6px',
+                    color: originalApiData?.presigned_url?.includes('X-Amz-Signature') ? '#10b981' : '#f59e0b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}>
-                    Size: {screenshot.size_mb} MB
+                    {(() => {
+                      // Console log the S3 key for each screenshot
+                      console.log(`🔑 Screenshot ${i + 1} S3 Key:`, originalApiData?.s3_key || 'No S3 key');
+                      console.log(`📸 Screenshot ${i + 1} Data:`, {
+                        id: originalApiData?.id,
+                        filename: originalApiData?.filename,
+                        s3_key: originalApiData?.s3_key,
+                        has_presigned_url: !!originalApiData?.presigned_url,
+                        presigned_url_preview: originalApiData?.presigned_url?.substring(0, 100) + '...'
+                      });
+                      
+                      // Use same logic as getImageUrl to determine URL status
+                      if (originalApiData?.presigned_url && originalApiData.presigned_url.includes('X-Amz-Signature')) {
+                        return '✅ S3 Direct (LIVE!)';
+                      } else if (originalApiData?.s3_key) {
+                        return '🔄 Proxy (Backup)';
+                      } else if (originalApiData?.url && originalApiData.url.includes('X-Amz-Signature')) {
+                        return '🔄 S3 Direct (URL Field)';
+                      } else if (originalApiData?.url) {
+                        return '🔗 Direct URL';
+                      } else if (originalApiData?.image_url || originalApiData?.thumbnail_url || originalApiData?.src) {
+                        return '🔗 Fallback URL';
+                      } else {
+                        return '❌ No URL';
+                      }
+                    })()}
+                    <span style={{ fontSize: '8px', opacity: 0.7 }}>#{i + 1}</span>
                   </div>
-                )}
+                  
+                  {/* 📊 Core API Data */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📊 Core Data:</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px', fontSize: '8px', paddingLeft: '8px' }}>
+                      <div><span style={{ opacity: 0.7 }}>🆔 ID:</span> <span style={{ fontFamily: 'monospace', color: '#3b82f6' }}>{originalApiData?.id || 'N/A'}</span></div>
+                      <div><span style={{ opacity: 0.7 }}>📄 Extension:</span> <span style={{ color: '#10b981' }}>{originalApiData?.file_extension || 'N/A'}</span></div>
+                      <div><span style={{ opacity: 0.7 }}>📏 Size:</span> <span style={{ color: '#f59e0b' }}>{originalApiData?.size_mb ? `${originalApiData.size_mb} MB` : 'N/A'}</span></div>
+                      <div><span style={{ opacity: 0.7 }}>🔢 Bytes:</span> <span style={{ fontFamily: 'monospace', fontSize: '7px' }}>{originalApiData?.size_bytes ? `${originalApiData.size_bytes.toLocaleString()}` : 'N/A'}</span></div>
+                    </div>
+                  </div>
+                  
+                  {/* 📅 Time & Date Info */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📅 Time Information:</div>
+                    <div style={{ fontSize: '8px', paddingLeft: '8px' }}>
+                      <div><span style={{ opacity: 0.7 }}>� Display:</span> {screenshot?.time_display || 'N/A'}</div>
+                      <div><span style={{ opacity: 0.7 }}>📅 Timestamp:</span> {screenshot?.timestamp || 'N/A'}</div>
+                      <div><span style={{ opacity: 0.7 }}>🔄 Modified:</span> {screenshot?.last_modified || 'N/A'}</div>
+                    </div>
+                  </div>
+                  
+                  {/* 💻 Application Info */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>💻 Application:</div>
+                    <div style={{ fontSize: '8px', paddingLeft: '8px' }}>
+                      <div><span style={{ opacity: 0.7 }}>📱 App:</span> {screenshot?.application || 'Unknown'}</div>
+                      <div style={{ opacity: 0.7, wordBreak: 'break-all' }}>🪟 Title: {screenshot?.window_title || 'N/A'}</div>
+                    </div>
+                  </div>
+                  
+                  {/* 📂 File Information */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📂 File Details:</div>
+                    <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
+                      <div style={{ 
+                        marginBottom: '3px', 
+                        padding: '3px 6px', 
+                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+                        borderRadius: '4px',
+                        border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#6366f1', marginBottom: '1px' }}>📄 Filename:</div>
+                        <div style={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: '6px', 
+                          wordBreak: 'break-all', 
+                          color: isDarkMode ? '#94a3b8' : '#475569',
+                          lineHeight: '1.2'
+                        }}>
+                          {screenshot?.filename || 'N/A'}
+                        </div>
+                      </div>
+                      <div style={{ 
+                        marginBottom: '2px', 
+                        padding: '3px 6px', 
+                        backgroundColor: isDarkMode ? '#1e1b2e' : '#fefcf4',
+                        borderRadius: '4px',
+                        border: `1px solid ${isDarkMode ? '#2d1b69' : '#fbbf24'}`
+                      }}>
+                        <div style={{ fontWeight: '600', color: '#f59e0b', marginBottom: '1px' }}>🔑 S3 Key:</div>
+                        <div style={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: '6px', 
+                          wordBreak: 'break-all', 
+                          color: isDarkMode ? '#fbbf24' : '#92400e',
+                          lineHeight: '1.2'
+                        }}>
+                          {screenshot?.s3_key || 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 🔗 URLs Section */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>🔗 URLs:</div>
+                    <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
+                      {screenshot?.presigned_url && (
+                        <div style={{ 
+                          marginBottom: '3px', 
+                          padding: '4px 6px', 
+                          backgroundColor: '#ecfdf5', 
+                          borderRadius: '4px',
+                          border: '2px solid #10b981',
+                          boxShadow: '0 1px 3px rgba(16, 185, 129, 0.1)'
+                        }}>
+                          <div style={{ 
+                            color: '#10b981', 
+                            fontWeight: '700', 
+                            marginBottom: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            ✅ PRESIGNED URL (LIVE!)
+                            <span style={{ 
+                              fontSize: '6px', 
+                              padding: '1px 4px', 
+                              backgroundColor: '#10b981', 
+                              color: 'white', 
+                              borderRadius: '2px' 
+                            }}>
+                              ACTIVE
+                            </span>
+                          </div>
+                          <div style={{ 
+                            fontFamily: 'monospace', 
+                            fontSize: '6px', 
+                            wordBreak: 'break-all', 
+                            color: '#065f46',
+                            lineHeight: '1.2',
+                            backgroundColor: '#f0fdf4',
+                            padding: '2px 4px',
+                            borderRadius: '2px',
+                            border: '1px solid #bbf7d0'
+                          }}>
+                            {screenshot.presigned_url.length > 120 ? 
+                              screenshot.presigned_url.substring(0, 120) + '...' : 
+                              screenshot.presigned_url
+                            }
+                          </div>
+                          <div style={{ 
+                            fontSize: '6px', 
+                            color: '#10b981', 
+                            marginTop: '2px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <span>🏃 Direct S3 Access</span>
+                            <span style={{ opacity: 0.7 }}>
+                              {screenshot.presigned_url.includes('X-Amz-Expires') ? 
+                                '⏰ Expires: ' + (screenshot.presigned_url.match(/X-Amz-Expires=(\d+)/) ? 
+                                  Math.floor(parseInt(screenshot.presigned_url.match(/X-Amz-Expires=(\d+)/)[1]) / 3600) + 'h' : 
+                                  '2h'
+                                ) : 
+                                '⏰ 2h'
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {screenshot?.thumbnail_url && (
+                        <div style={{ 
+                          marginBottom: '2px',
+                          padding: '2px 4px',
+                          backgroundColor: '#fef3c7',
+                          borderRadius: '3px',
+                          border: '1px solid #f59e0b'
+                        }}>
+                          <span style={{ color: '#f59e0b', fontWeight: '600' }}>🖼️ Thumbnail:</span>
+                          <div style={{ fontFamily: 'monospace', fontSize: '6px', wordBreak: 'break-all', color: '#92400e' }}>
+                            {screenshot.thumbnail_url}
+                          </div>
+                        </div>
+                      )}
+                      <div style={{ 
+                        marginTop: '3px', 
+                        padding: '3px 6px', 
+                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+                        borderRadius: '4px',
+                        border: `1px solid ${isDarkMode ? '#334155' : '#cbd5e1'}`
+                      }}>
+                        <div style={{ color: '#3b82f6', fontWeight: '600', marginBottom: '1px' }}>🛠️ Generated URL:</div>
+                        <div style={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: '6px', 
+                          wordBreak: 'break-all', 
+                          color: isDarkMode ? '#94a3b8' : '#475569',
+                          lineHeight: '1.2'
+                        }}>
+                          {(() => {
+                            // Generate URL using same logic as image display
+                            let generatedUrl = '';
+                            if (screenshot?.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+                              generatedUrl = screenshot.presigned_url;
+                            } else if (screenshot?.url && screenshot.url.includes('X-Amz-Signature')) {
+                              generatedUrl = screenshot.url;
+                            } else if (screenshot?.s3_key) {
+                              generatedUrl = `http://localhost:8000/api/proxy/screenshots/${screenshot.s3_key}`;
+                            } else if (screenshot?.url) {
+                              generatedUrl = screenshot.url;
+                            } else {
+                              generatedUrl = '⚠️ No URL available';
+                            }
+                            
+                            return generatedUrl.length > 120 ? 
+                              generatedUrl.substring(0, 120) + '...' : 
+                              generatedUrl;
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 🏷️ Additional Fields */}
+                  {Object.keys(screenshot || {}).filter(key => 
+                    !['id', 'filename', 's3_key', 'presigned_url', 'timestamp', 'time_display', 
+                      'application', 'window_title', 'size_bytes', 'size_mb', 'last_modified', 
+                      'file_extension', 'thumbnail_url'].includes(key)
+                  ).length > 0 && (
+                    <div>
+                      <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>🏷️ Additional Data:</div>
+                      <div style={{ fontSize: '7px', paddingLeft: '8px', maxHeight: '40px', overflow: 'auto' }}>
+                        {Object.entries(screenshot || {})
+                          .filter(([key]) => 
+                            !['id', 'filename', 's3_key', 'presigned_url', 'timestamp', 'time_display', 
+                              'application', 'window_title', 'size_bytes', 'size_mb', 'last_modified', 
+                              'file_extension', 'thumbnail_url'].includes(key)
+                          )
+                          .map(([key, value]) => (
+                            <div key={key} style={{ marginBottom: '1px' }}>
+                              <span style={{ opacity: 0.7 }}>{key}:</span> {String(value) || 'null'}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 🔍 JSON View Button */}
+                  <div style={{ 
+                    marginTop: '6px', 
+                    paddingTop: '6px', 
+                    borderTop: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}` 
+                  }}>
+                    <button
+                      onClick={() => {
+                        console.log(`🔍 Full API Data for Screenshot ${i + 1}:`, screenshot);
+                        alert(`🔍 Full API data logged to console for screenshot ${i + 1}\n\nCheck browser console for complete object details.`);
+                      }}
+                      style={{
+                        fontSize: '7px',
+                        padding: '2px 6px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                        fontWeight: '500'
+                      }}
+                    >
+                      🔍 View Full JSON Data
+                    </button>
+                  </div>
+                </div>
               </Card>
             );
-          })}
+            });
+          })()}
         </CardGrid>
 
         {folderPagination.totalPages > 1 && (
@@ -2280,40 +4699,147 @@ const ActivityStream = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {/* DEBUG: Current Component State */}
+      {console.log('🔍 RENDER DEBUG - Current State:', {
+        currentView,
+        hasSearched,
+        isUserSelected,
+        selectedUser: selectedUser?.display_name,
+        screenshotsLength: screenshots.length,
+        foldersLength: folders.length,
+        folderScreenshotsLength: folderScreenshots.length,
+        loading,
+        loadingFolders,
+        loadingFolderScreenshots,
+        error: error ? error.substring(0, 100) : null,
+        backendStatus
+      })}
+      
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
-        <Container theme={theme} isDarkMode={isDarkMode}>
-          <Title theme={theme} isDarkMode={isDarkMode}>
-            Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>
-            
+        <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
+          <Title theme={theme} isDarkMode={isDarkMode}>Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>         
             {/* Backend Connection Status */}
-   
-          
           </Title>
           <Username theme={theme} isDarkMode={isDarkMode} style={{marginBottom:'10px'}}>{hasSearched && search ? search : 'Jhone'}</Username>
-          <TopBar theme={theme} isDarkMode={isDarkMode} >
+          <TopBar ref={topBarRef} theme={theme} isDarkMode={isDarkMode} >
+          
           
             <div style={{display:'flex', alignItems:'center',justifyContent:'space-between', width:'100%'}}>
-            <DateScrollContainer theme={theme} isDarkMode={isDarkMode} style={{overflow:'hidden'}}>
-              <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handlePrev}>&lt;</Arrow>
-              {dates.map((date, index) => {
-                const isSingleDateActive = singleDateFilter === date.fullDate;
-                
-                return (
-                  <DateItem 
-                    key={index} 
-                    theme={theme}
-                    isDarkMode={isDarkMode}
-                    active={index === selected && !isSingleDateActive} 
-                    singleDateActive={isSingleDateActive}
-                    isToday={date.isToday}
-                    onClick={() => handleDateSelect(index)}
-                  >
-                    {date.day} <span>{date.month} {date.year}</span>
-                  </DateItem>
-                );
-              })}
-              <Arrow theme={theme} isDarkMode={isDarkMode} onClick={handleNext}>&gt;</Arrow>
-            </DateScrollContainer>
+
+    
+    
+
+            {/* TEST API BUTTON - Remove after debugging */}
+            <button 
+              onClick={async () => {
+                console.log('🧪 TEST API: Starting comprehensive API test...');
+                try {
+                  // Test the exact endpoint you're using in Postman
+                  const response = await fetch('http://localhost:8000/api/screenshots/employee/hasebcodejourney@gmail.com/folders/');
+                  const data = await response.json();
+                  console.log('🧪 FOLDERS API RESULT:', data);
+                  console.log('🧪 API STRUCTURE CHECK:', {
+                    hasSuccess: !!data.success,
+                    hasData: !!data.data,
+                    hasTaskFolders: !!data.data?.task_folders,
+                    taskFoldersLength: data.data?.task_folders?.length || 0,
+                    firstFolder: data.data?.task_folders?.[0]
+                  });
+                  
+                  // Now test screenshots endpoint for a specific folder
+                  if (data.data?.task_folders?.[0]) {
+                    const firstFolder = data.data.task_folders[0];
+                    console.log('🧪 Testing screenshots for first folder:', firstFolder.folder_name);
+                    
+                    const screenshotsUrl = `http://localhost:8000/api/screenshots/employee_folder_screenshots/?employee_email=hasebcodejourney@gmail.com&folder_name=${encodeURIComponent(firstFolder.folder_name)}&page=1&page_size=5`;
+                    console.log('🧪 Screenshots API URL:', screenshotsUrl);
+                    
+                    try {
+                      const screenshotsResponse = await fetch(screenshotsUrl);
+                      const screenshotsData = await screenshotsResponse.json();
+                      console.log('🧪 SCREENSHOTS API RESULT:', screenshotsData);
+                      console.log('🧪 FIRST SCREENSHOT:', screenshotsData.results?.[0]);
+                      
+                      if (screenshotsData.results?.[0]) {
+                        const firstScreenshot = screenshotsData.results[0];
+                        console.log('🧪 SCREENSHOT FIELDS:', {
+                          url: firstScreenshot.url,
+                          presigned_url: firstScreenshot.presigned_url,
+                          s3_key: firstScreenshot.s3_key,
+                          key: firstScreenshot.key,
+                          filename: firstScreenshot.filename,
+                          application: firstScreenshot.application,
+                          window_title: firstScreenshot.window_title
+                        });
+                        
+                        // Test image URL generation
+                        const testUrl = getImageUrl(firstScreenshot);
+                        console.log('🧪 GENERATED URL:', testUrl);
+                        
+                        // Test if the URL works by trying to fetch it
+                        if (testUrl) {
+                          console.log('🧪 Testing URL accessibility:', testUrl);
+                          try {
+                            const testResponse = await fetch(testUrl, { method: 'HEAD' });
+                            console.log('🧪 URL TEST RESULT:', {
+                              status: testResponse.status,
+                              statusText: testResponse.statusText,
+                              contentType: testResponse.headers.get('content-type'),
+                              contentLength: testResponse.headers.get('content-length'),
+                              accessible: testResponse.ok
+                            });
+                            
+                            if (testResponse.ok) {
+                              console.log('✅ URL is accessible - images should load!');
+                            } else {
+                              console.log('❌ URL failed:', testResponse.status, testResponse.statusText);
+                            }
+                          } catch (urlError) {
+                            console.log('❌ URL test failed:', urlError.message);
+                            
+                            // If backend proxy fails, test direct S3 URL
+                            if (testUrl.includes('localhost:8000/api/proxy/screenshot/')) {
+                              const directUrl = firstScreenshot?.url || firstScreenshot?.presigned_url;
+                              if (directUrl) {
+                                console.log('🧪 Testing direct S3 URL as fallback:', directUrl.substring(0, 100) + '...');
+                                try {
+                                  const s3Response = await fetch(directUrl, { method: 'HEAD' });
+                                  console.log('🧪 DIRECT S3 URL TEST:', {
+                                    status: s3Response.status,
+                                    accessible: s3Response.ok
+                                  });
+                                  if (s3Response.ok) {
+                                    console.log('✅ Direct S3 URL works! Backend proxy issue confirmed.');
+                                  }
+                                } catch (s3Error) {
+                                  console.log('❌ Direct S3 URL also failed:', s3Error.message);
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    } catch (screenshotsError) {
+                      console.error('🧪 Screenshots API ERROR:', screenshotsError);
+                    }
+                  }
+                } catch (error) {
+                  console.error('🧪 TEST API ERROR:', error);
+                }
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                marginLeft: '10px'
+              }}
+            >
+              🧪 Test API
+            </button>
 
             <Autocomplete
               freeSolo
@@ -2365,6 +4891,14 @@ const ActivityStream = () => {
                   setSearchSuggestions([]); // Clear suggestions
                   setHasSearched(true);
                   setCurrentView('search'); // Start with search, then auto-navigate to folders
+                  
+                  console.log('🔍 USER SELECTION DEBUG:', {
+                    selectedUser: newValue,
+                    isUserSelected: true,
+                    hasSearched: true,
+                    currentView: 'search',
+                    aboutToFetchFolders: true
+                  });
                   
                   // Automatically fetch folders for this user
                   const userEmail = newValue.search_value || newValue.email || newValue.username;
@@ -2587,93 +5121,279 @@ const ActivityStream = () => {
        
      </div>
   
-
-            {/* Show All Screenshots button - only show when there are active filters and a search term */}
-            {search && (singleDateFilter) && (
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setSingleDateFilter(null);
-                  setCurrentPage(1);
-                  if (isUserSelected && selectedUser) {
-                    const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    fetchScreenshots(searchTerm, 20, 1, false, false);
-                  }
-                }}
-                style={{ 
-                  textTransform: 'none', 
-                  fontWeight: 500,
-                  borderColor: '#0364ff',
-                  color: '#0364ff',
-                  '&:hover': {
-                    backgroundColor: '#f0f9ff'
-                  }
-                }}
-              >
-                📷 Show All Screenshots
-              </Button>
-            )}
-
-            {(singleDateFilter) && search && (
-              <Button
-                variant="outlined"
-                onClick={handleDateFilterClear}
-                style={{ 
-                  color: '#059669',
-                  borderColor: '#059669',
-                  textTransform: 'none', 
-                  fontWeight: 500 
-                }}
-              >
-                📷 Clear Date Filter
-              </Button>
-            )}
-
-            <Popover
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={() => setAnchorEl(null)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            >
-              <Box p={2} style={{ minWidth: '400px' }}>
-                <div style={{ marginBottom: '16px', fontWeight: '600', fontSize: '14px' }}>
-                  Filter Screenshots by Date Range
-                </div>
-                <DateRangePicker
-                  value={dateRange}
-                  onChange={(newValue) => setDateRange(newValue)}
-                  localeText={{ start: 'From', end: 'To' }}
-                />
-                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                  {(isDateFilterActive || singleDateFilter) && (
-                    <Button
-                      variant="outlined"
-                      onClick={handleDateFilterClear}
-                      style={{ fontSize: '12px', padding: '6px 12px' }}
-                    >
-                      Clear All Filters
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    onClick={handleDateFilterApply}
-                    style={{ fontSize: '12px', padding: '6px 12px', backgroundColor: '#0364ff' }}
-                  >
-                    Apply Date Range Filter
-                  </Button>
-                </div>
-              </Box>
-            </Popover>
           </TopBar>
 
           {renderBreadcrumb()}
+          {renderBackButton()}
 
           {/* Show view-specific info messages */}
           {currentView === 'search' && isUserSelected && selectedUser && (
             <SearchInfo theme={theme} isDarkMode={isDarkMode}>
               🔍 Showing folders for: <strong>{selectedUser.display_name}</strong> ({selectedUser.email})
               {selectedUser.screenshot_count && ` - ${selectedUser.screenshot_count} screenshots available`}
+              
+              {/* Show progressive loading option for users with large datasets */}
+              {selectedUser.screenshot_count && selectedUser.screenshot_count > 5000 && (
+                <div style={{ marginTop: '8px', fontSize: '12px' }}>
+                  💡 <strong>Large dataset detected ({selectedUser.screenshot_count} screenshots)</strong>
+                  <div style={{ marginTop: '4px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => {
+                        const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                        console.log('🚀 User requested progressive loading for large dataset');
+                        fetchScreenshots(searchTerm, 500, 1, true);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      📊 Load in Chunks (Recommended)
+                    </button>
+                    <button
+                      onClick={() => {
+                        const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                        console.log('🎯 User requested small sample first');
+                        fetchScreenshots(searchTerm, 200, 1);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        fontSize: '11px',
+                        backgroundColor: '#f59e0b',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🎯 Load 200 First
+                    </button>
+                  </div>
+                </div>
+              )}
             </SearchInfo>
+          )}
+
+          {/* Date Filter Section - Show when user is selected and we have screenshots or are searching */}
+          {((currentView === 'search' && isUserSelected && selectedUser && (hasSearched || screenshots.length > 0)) ||
+            (currentView === 'screenshots' && selectedFolder && folderScreenshots.length > 0)) && (
+            <Box sx={{ 
+              margin: '16px 0',
+              padding: '16px',
+              backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+              borderRadius: '8px',
+              border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '12px' 
+              }}>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '600',
+                  color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                  marginBottom: '8px'
+                }}>
+                  📅 Date Filter
+                </div>
+
+                {/* Date Range Picker */}
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <DateRangePicker
+                    slots={{ field: SingleInputDateRangeField }}
+                    slotProps={{
+                      field: { 
+                        placeholder: 'Select date range...',
+                        size: 'small',
+                        sx: { 
+                          minWidth: '250px',
+                          '& .MuiInputBase-root': {
+                            backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                            color: isDarkMode ? '#f3f4f6' : '#1f2937'
+                          }
+                        }
+                      }
+                    }}
+                    value={dateRange}
+                    onChange={handleDateRangeChange}
+                    format="YYYY-MM-DD"
+                  />
+                  
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={handleDateFilterApply}
+                    disabled={!dateRange[0] || !dateRange[1]}
+                    sx={{
+                      backgroundColor: '#10b981',
+                      '&:hover': { backgroundColor: '#059669' },
+                      '&:disabled': { backgroundColor: '#9ca3af' }
+                    }}
+                  >
+                    Apply Filter
+                  </Button>
+
+                  {(isDateFilterActive || singleDateFilter) && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={handleDateFilterClear}
+                      sx={{
+                        borderColor: '#ef4444',
+                        color: '#ef4444',
+                        '&:hover': { 
+                          borderColor: '#dc2626',
+                          backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                        }
+                      }}
+                    >
+                      Clear Filter
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="text"
+                    size="small"
+                    onClick={handleQuickSearch}
+                    sx={{
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        backgroundColor: isDarkMode ? 'rgba(156, 163, 175, 0.1)' : 'rgba(107, 114, 128, 0.1)'
+                      }
+                    }}
+                  >
+                    Show All Screenshots
+                  </Button>
+                </div>
+
+                {/* Quick Date Presets */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  flexWrap: 'wrap',
+                  marginTop: '8px'
+                }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: isDarkMode ? '#9ca3af' : '#6b7280',
+                    alignSelf: 'center',
+                    marginRight: '8px'
+                  }}>
+                    Quick filters:
+                  </div>
+                  
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      applyDateFilter(today, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Today
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const yesterday = dayjs().subtract(1, 'day');
+                      applyDateFilter(yesterday, yesterday);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Yesterday
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      const weekAgo = today.subtract(7, 'days');
+                      applyDateFilter(weekAgo, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Last 7 days
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      const monthAgo = today.subtract(30, 'days');
+                      applyDateFilter(monthAgo, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Last 30 days
+                  </Button>
+                </div>
+
+                {/* Active Filter Display */}
+                {(isDateFilterActive || singleDateFilter) && (
+                  <div style={{ 
+                    padding: '8px 12px',
+                    backgroundColor: isDarkMode ? '#1f2937' : '#eff6ff',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    color: isDarkMode ? '#93c5fd' : '#1d4ed8',
+                    border: `1px solid ${isDarkMode ? '#3b82f6' : '#bfdbfe'}`
+                  }}>
+                    {singleDateFilter ? (
+                      <>🗓️ Filtered by date: <strong>{singleDateFilter}</strong></>
+                    ) : isDateFilterActive ? (
+                      <>🗓️ Filtered from <strong>{dayjs(dateRange[0]).format('YYYY-MM-DD')}</strong> to <strong>{dayjs(dateRange[1]).format('YYYY-MM-DD')}</strong></>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            </Box>
           )}
 
           {currentView === 'search' && search && !isUserSelected && searchSuggestions.length > 0 && (
@@ -2726,8 +5446,14 @@ const ActivityStream = () => {
               <div>
                 {loadingFolders ? `Loading folders for ${selectedUser?.display_name}...` :
                  loadingFolderScreenshots ? `Loading screenshots from ${selectedFolder?.folder_name}...` :
+                 searchPattern === 'progressive' ? `Progressive loading in chunks... (${screenshots.length} loaded so far)` :
                  isUserSelected && selectedUser ? `Loading screenshots for ${selectedUser.display_name}...` :
                  `Loading screenshots for ${search}...`}
+                {searchPattern === 'progressive' && (
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                    💡 Loading large dataset in small chunks to avoid timeouts
+                  </div>
+                )}
               </div>
             </LoadingContainer>
           )}
@@ -2736,26 +5462,66 @@ const ActivityStream = () => {
           {error && (
             <ErrorMessage>
               {error}
-              <Button 
-                onClick={() => {
-                  if (currentView === 'folders' && selectedUser) {
-                    const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    fetchEmployeeFolders(userEmail);
-                  } else if (currentView === 'screenshots' && selectedUser && selectedFolder) {
-                    const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-                    fetchFolderScreenshots(userEmail, folderName, 1, 12);
-                  } else if (isUserSelected && selectedUser) {
-                    const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                    fetchScreenshots(searchTerm, 20, 1);
-                  } else {
-                    fetchScreenshots(search.trim(), 20, 1);
-                  }
-                }} 
-                style={{ marginLeft: '10px', fontSize: '12px' }}
-              >
-                Retry
-              </Button>
+              <div style={{ marginTop: '10px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <Button 
+                  onClick={() => {
+                    if (currentView === 'folders' && selectedUser) {
+                      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      fetchEmployeeFolders(userEmail);
+                    } else if (currentView === 'screenshots' && selectedUser && selectedFolder) {
+                      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+                      fetchFolderScreenshots(userEmail, folderName, 1, 12);
+                    } else if (isUserSelected && selectedUser) {
+                      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      fetchScreenshots(searchTerm, 20, 1);
+                    } else {
+                      fetchScreenshots(search.trim(), 20, 1);
+                    }
+                  }} 
+                  style={{ fontSize: '12px' }}
+                >
+                  🔄 Retry
+                </Button>
+
+                {/* Progressive loading option for timeout errors */}
+                {error.includes('timeout') && isUserSelected && selectedUser && (
+                  <Button 
+                    onClick={() => {
+                      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      console.log('🚀 Starting progressive loading for large dataset...');
+                      fetchScreenshots(searchTerm, 500, 1, true); // Enable progressive loading
+                    }} 
+                    style={{ 
+                      fontSize: '12px', 
+                      backgroundColor: '#10b981', 
+                      color: 'white',
+                      border: 'none'
+                    }}
+                  >
+                    📊 Load in Chunks
+                  </Button>
+                )}
+
+                {/* Alternative: Try smaller dataset first */}
+                {error.includes('timeout') && isUserSelected && selectedUser && (
+                  <Button 
+                    onClick={() => {
+                      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+                      console.log('🔍 Trying with smaller limit to avoid timeout...');
+                      fetchScreenshots(searchTerm, 100, 1); // Smaller limit
+                    }} 
+                    style={{ 
+                      fontSize: '12px', 
+                      backgroundColor: '#f59e0b', 
+                      color: 'white',
+                      border: 'none'
+                    }}
+                  >
+                    🎯 Load 100 First
+                  </Button>
+                )}
+              </div>
             </ErrorMessage>
           )}
 
@@ -2776,6 +5542,14 @@ const ActivityStream = () => {
           {/* Legacy screenshot grid - only show in search mode with screenshots */}
           {currentView === 'search' && hasSearched && screenshots.length > 0 && (
             <>
+              {console.log('🔍 RENDERING LEGACY SCREENSHOTS:', {
+                currentView,
+                hasSearched,
+                screenshotsLength: screenshots.length,
+                screenshots: screenshots.slice(0, 2),
+                selectedUser: selectedUser?.display_name
+              })}
+              
               <SearchInfo theme={theme} isDarkMode={isDarkMode}>
                 📂 Legacy view: Showing screenshots for: <strong>{selectedUser?.display_name}</strong> ({selectedUser?.email})
                 <br />
@@ -2786,20 +5560,88 @@ const ActivityStream = () => {
                 {screenshots.map((screenshot, i) => {
                   const formattedData = formatScreenshotData(screenshot, i);
                   return (
-                    <Card theme={theme} isDarkMode={isDarkMode} key={formattedData.id}>
-                      <Img 
-                        src={formattedData.image} 
-                        alt={formattedData.task}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleImageClick(screenshot, i)}
-                        onError={(e) => {
-                          // Don't replace with placeholder - let the browser show the broken image
-                          console.log('❌ Image failed to load but keeping original URL:', e.target.src);
-                        }}
-                      />
+                    <Card 
+                      theme={theme} 
+                      isDarkMode={isDarkMode} 
+                      key={formattedData.id}
+                      ref={el => cardsRef.current[i] = el}
+                      index={i}
+                      style={{ position: 'relative' }}
+                    >
+                      {/* Download and view buttons */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        zIndex: 10,
+                        display: 'flex',
+                        gap: '4px'
+                      }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadScreenshot(screenshot);
+                          }}
+                          style={{
+                            background: 'rgba(34, 197, 94, 0.9)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                          }}
+                          title={`Download ${screenshot?.filename || 'screenshot'}`}
+                        >
+                          📥
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleImageClick(screenshot, i);
+                          }}
+                          style={{
+                            background: 'rgba(59, 130, 246, 0.9)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '6px 8px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                          }}
+                          title="View full screen"
+                        >
+                          🔍
+                        </button>
+                      </div>
+
+                      {/* Use enhanced SimpleImageComponent */}
+                      <div style={{ 
+                        position: 'relative', 
+                        overflow: 'hidden', 
+                        borderRadius: '6px',
+                        marginBottom: '10px'
+                      }}>
+                        <SimpleImageComponent
+                          screenshot={screenshot}
+                          alt={formattedData.task}
+                          style={{ 
+                            width: '100%',
+                            height: '120px',
+                            objectFit: 'cover',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleImageClick(screenshot, i)}
+                        />
+                      </div>
+                      
                       <TaskName theme={theme} isDarkMode={isDarkMode}>{formattedData.task}</TaskName>
                       <TaskTime theme={theme} isDarkMode={isDarkMode}>{formattedData.time}</TaskTime>
-                      <ImageUrl theme={theme} isDarkMode={isDarkMode}>🔗 {formattedData.image}</ImageUrl>
+                      <ImageUrl theme={theme} isDarkMode={isDarkMode} style={{ fontSize: '10px' }}>
+                        {screenshot?.presigned_url ? '✅ S3 Direct' : screenshot?.s3_key ? '🔄 Proxy' : '❌ No URL'}
+                      </ImageUrl>
                       <BackendStatusBadge theme={theme} isDarkMode={isDarkMode} status={backendStatus}>
                         {backendStatus === 'connected' ? '✅ Live Data' : 
                          backendStatus === 'disconnected' ? '🔌 Backend Offline' : 

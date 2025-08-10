@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { getApiBaseURL, API_ENDPOINTS, buildApiUrl } from '../config/api.js';
 
 // Base API configuration
-// Use relative URL to leverage Vite's proxy configuration
+// Use proxy for production, direct for development
 const API_BASE_URL = '/api';
 
 // Create axios instance with default configuration
@@ -87,27 +88,27 @@ apiClient.interceptors.response.use(
 // Auth API endpoints
 export const authAPI = {
   login: (credentials) => {
-    console.log('API: Making login request to /auth/login/ with:', {
+    console.log('API: Making login request to', buildApiUrl(API_ENDPOINTS.AUTH.LOGIN), 'with:', {
       ...credentials,
       password: '***' // Hide password in logs
     });
-    return apiClient.post('/auth/login/', credentials);
+    return apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
   },
-  logout: () => apiClient.post('/auth/logout/'),
-  refresh: (refreshToken) => apiClient.post('/auth/refresh/', { refresh: refreshToken }),
-  forgotPassword: (usernameOrEmail) => apiClient.post('/auth/forgot-password/', { 
+  logout: () => apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
+  refresh: (refreshToken) => apiClient.post(API_ENDPOINTS.AUTH.REFRESH, { refresh: refreshToken }),
+  forgotPassword: (usernameOrEmail) => apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { 
     username: usernameOrEmail.includes('@') ? undefined : usernameOrEmail,
     email: usernameOrEmail.includes('@') ? usernameOrEmail : undefined 
   }),
-  resetPassword: (token, password) => apiClient.post('/auth/reset-password/', { token, password }),
-  verifyEmail: (token) => apiClient.post('/auth/verify-email/', { token }),
+  resetPassword: (token, password) => apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { token, password }),
+  verifyEmail: (token) => apiClient.post(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { token }),
 };
 
 // User API endpoints
 export const userAPI = {
-  getProfile: () => apiClient.get('/user/profile/'),
-  updateProfile: (data) => apiClient.put('/user/profile/', data),
-  changePassword: (data) => apiClient.post('/user/change-password/', data),
+  getProfile: () => apiClient.get(API_ENDPOINTS.USER.PROFILE),
+  updateProfile: (data) => apiClient.put(API_ENDPOINTS.USER.PROFILE, data),
+  changePassword: (data) => apiClient.post(API_ENDPOINTS.USER.CHANGE_PASSWORD, data),
 };
 
 // Generic API methods

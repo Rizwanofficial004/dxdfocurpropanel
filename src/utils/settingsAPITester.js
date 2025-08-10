@@ -3,7 +3,7 @@
 
 class SettingsAPITester {
   constructor() {
-    this.baseURL = 'https://dxdtime.ddsolutions.io/api/settings';
+    this.baseURL = 'http://localhost:8000api/settings';
     this.results = [];
   }
 
