@@ -3617,7 +3617,6 @@ const ActivityStream = () => {
             </>
           )}
           <br />
-          {/* <small>📅 Date: {dayjs(selectedFolder?.folder_name).format('MMM DD, YYYY')}</small> */}
           {error && (
             <>
               <br />
@@ -4407,80 +4406,19 @@ const ActivityStream = () => {
                   </div>
                   
                   {/* 📊 Core API Data */}
-                  <div style={{ marginBottom: '6px' }}>
-                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📊 Core Data:</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px', fontSize: '8px', paddingLeft: '8px' }}>
-                      <div><span style={{ opacity: 0.7 }}>🆔 ID:</span> <span style={{ fontFamily: 'monospace', color: '#3b82f6' }}>{originalApiData?.id || 'N/A'}</span></div>
-                      <div><span style={{ opacity: 0.7 }}>📄 Extension:</span> <span style={{ color: '#10b981' }}>{originalApiData?.file_extension || 'N/A'}</span></div>
-                      <div><span style={{ opacity: 0.7 }}>📏 Size:</span> <span style={{ color: '#f59e0b' }}>{originalApiData?.size_mb ? `${originalApiData.size_mb} MB` : 'N/A'}</span></div>
-                      <div><span style={{ opacity: 0.7 }}>🔢 Bytes:</span> <span style={{ fontFamily: 'monospace', fontSize: '7px' }}>{originalApiData?.size_bytes ? `${originalApiData.size_bytes.toLocaleString()}` : 'N/A'}</span></div>
-                    </div>
-                  </div>
                   
                   {/* 📅 Time & Date Info */}
                   <div style={{ marginBottom: '6px' }}>
-                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📅 Time Information:</div>
+
                     <div style={{ fontSize: '8px', paddingLeft: '8px' }}>
-                      <div><span style={{ opacity: 0.7 }}>� Display:</span> {screenshot?.time_display || 'N/A'}</div>
+                      {/* <div><span style={{ opacity: 0.7 }}>� Display:</span> {screenshot?.time_display || 'N/A'}</div> */}
                       <div><span style={{ opacity: 0.7 }}>📅 Timestamp:</span> {screenshot?.timestamp || 'N/A'}</div>
-                      <div><span style={{ opacity: 0.7 }}>🔄 Modified:</span> {screenshot?.last_modified || 'N/A'}</div>
+                     
                     </div>
                   </div>
                   
-                  {/* 💻 Application Info */}
-                  <div style={{ marginBottom: '6px' }}>
-                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>💻 Application:</div>
-                    <div style={{ fontSize: '8px', paddingLeft: '8px' }}>
-                      <div><span style={{ opacity: 0.7 }}>📱 App:</span> {screenshot?.application || 'Unknown'}</div>
-                      <div style={{ opacity: 0.7, wordBreak: 'break-all' }}>🪟 Title: {screenshot?.window_title || 'N/A'}</div>
-                    </div>
-                  </div>
-                  
-                  {/* 📂 File Information */}
-                  <div style={{ marginBottom: '6px' }}>
-                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>📂 File Details:</div>
-                    <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
-                      <div style={{ 
-                        marginBottom: '3px', 
-                        padding: '3px 6px', 
-                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
-                        borderRadius: '4px',
-                        border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`
-                      }}>
-                        <div style={{ fontWeight: '600', color: '#6366f1', marginBottom: '1px' }}>📄 Filename:</div>
-                        <div style={{ 
-                          fontFamily: 'monospace', 
-                          fontSize: '6px', 
-                          wordBreak: 'break-all', 
-                          color: isDarkMode ? '#94a3b8' : '#475569',
-                          lineHeight: '1.2'
-                        }}>
-                          {screenshot?.filename || 'N/A'}
-                        </div>
-                      </div>
-                      <div style={{ 
-                        marginBottom: '2px', 
-                        padding: '3px 6px', 
-                        backgroundColor: isDarkMode ? '#1e1b2e' : '#fefcf4',
-                        borderRadius: '4px',
-                        border: `1px solid ${isDarkMode ? '#2d1b69' : '#fbbf24'}`
-                      }}>
-                        <div style={{ fontWeight: '600', color: '#f59e0b', marginBottom: '1px' }}>🔑 S3 Key:</div>
-                        <div style={{ 
-                          fontFamily: 'monospace', 
-                          fontSize: '6px', 
-                          wordBreak: 'break-all', 
-                          color: isDarkMode ? '#fbbf24' : '#92400e',
-                          lineHeight: '1.2'
-                        }}>
-                          {screenshot?.s3_key || 'N/A'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* 🔗 URLs Section */}
-                  <div style={{ marginBottom: '6px' }}>
+                  {/*  URLs Section */}
+                  {/* <div style={{ marginBottom: '6px' }}>
                     <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>🔗 URLs:</div>
                     <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
                       {screenshot?.presigned_url && (
@@ -4599,7 +4537,7 @@ const ActivityStream = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                   
                   {/* 🏷️ Additional Fields */}
                   {Object.keys(screenshot || {}).filter(key => 
@@ -4626,31 +4564,6 @@ const ActivityStream = () => {
                     </div>
                   )}
                   
-                  {/* 🔍 JSON View Button */}
-                  <div style={{ 
-                    marginTop: '6px', 
-                    paddingTop: '6px', 
-                    borderTop: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}` 
-                  }}>
-                    <button
-                      onClick={() => {
-                        console.log(`🔍 Full API Data for Screenshot ${i + 1}:`, screenshot);
-                        alert(`🔍 Full API data logged to console for screenshot ${i + 1}\n\nCheck browser console for complete object details.`);
-                      }}
-                      style={{
-                        fontSize: '7px',
-                        padding: '2px 6px',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '3px',
-                        cursor: 'pointer',
-                        fontWeight: '500'
-                      }}
-                    >
-                      🔍 View Full JSON Data
-                    </button>
-                  </div>
                 </div>
               </Card>
             );
