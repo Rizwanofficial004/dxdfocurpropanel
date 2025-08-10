@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaDownload, FaChevronLeft, FaChevronRight, FaExpand, FaCompress } from 'react-icons/fa';
@@ -32,22 +33,26 @@ const getThemeProps = (props) => {
 
 // Styled Components
 export const ModalOverlay = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   background: ${props => {
     const { isDarkMode } = getThemeProps(props);
-    return isDarkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.8)';
-  }};
-  backdrop-filter: blur(8px);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  animation: ${fadeIn} 0.3s ease-out;
+    return isDarkMode ? 'rgba(0, 0, 0, 0.95)' : 'rgba(0, 0, 0, 0.85)';
+  }} !important;
+  backdrop-filter: blur(8px) !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  animation: ${fadeIn} 0.3s ease-out !important;
+  isolation: isolate !important;
+  pointer-events: auto !important;
 `;
 
 export const ModalContainer = styled(motion.div)`
@@ -73,6 +78,8 @@ export const ModalContainer = styled(motion.div)`
   animation: ${slideIn} 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  z-index: 100000;
+  isolation: isolate;
 `;
 
 export const ModalHeader = styled.div`
@@ -472,7 +479,13 @@ const ImageModal = ({
     : currentImage.title || currentImage.task || `Screenshot ${currentImageIndex + 1}`;
   const imageTime = typeof currentImage === 'object' ? currentImage.time : '';
 
-  return (
+  // Ensure document.body exists before creating portal
+  if (typeof document === 'undefined' || !document.body) {
+    console.warn('⚠️ Document body not available for modal portal');
+    return null;
+  }
+
+  const modalContent = (
     <AnimatePresence>
       <ModalOverlay
         theme={theme}
@@ -482,6 +495,15 @@ const ImageModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 99999,
+          pointerEvents: 'auto'
+        }}
       >
         <ModalContainer
           theme={theme}
@@ -607,6 +629,13 @@ const ImageModal = ({
       </ModalOverlay>
     </AnimatePresence>
   );
+
+  try {
+    return createPortal(modalContent, document.body);
+  } catch (error) {
+    console.error('❌ Failed to create modal portal:', error);
+    return modalContent; // Fallback to regular rendering
+  }
 };
 
 export default ImageModal;

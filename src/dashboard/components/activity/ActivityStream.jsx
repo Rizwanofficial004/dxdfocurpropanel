@@ -3247,16 +3247,38 @@ const ActivityStream = () => {
     console.log('🔍 Images array:', images);
     console.log('🔍 Start index:', startIndex);
     console.log('🔍 Setting modal state...');
-    setModalImages(images);
-    setModalCurrentIndex(startIndex);
+    
+    // Validate inputs
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      console.error('❌ Invalid images array provided to modal:', images);
+      return;
+    }
+    
+    if (startIndex < 0 || startIndex >= images.length) {
+      console.warn('⚠️ Invalid start index, defaulting to 0:', startIndex);
+      startIndex = 0;
+    }
+    
+    // Validate image URLs
+    const validImages = images.filter(img => img && img.src);
+    if (validImages.length === 0) {
+      console.error('❌ No valid images with src property found');
+      return;
+    }
+    
+    console.log('✅ Opening modal with', validImages.length, 'valid images');
+    setModalImages(validImages);
+    setModalCurrentIndex(Math.min(startIndex, validImages.length - 1));
     setIsModalOpen(true);
     console.log('✅ Modal state set - isModalOpen should be true');
   };
 
   const closeImageModal = () => {
+    console.log('🚪 Closing image modal');
     setIsModalOpen(false);
     setModalImages([]);
     setModalCurrentIndex(0);
+    console.log('✅ Modal closed - isModalOpen should be false');
   };
 
   const handleModalIndexChange = (newIndex) => {
@@ -3277,14 +3299,35 @@ const ActivityStream = () => {
       // Folder screenshots view
       console.log('📁 Using folder screenshots view');
       imagesToShow = folderScreenshots.map((screenshot, index) => {
-        const formattedData = formatScreenshotData(screenshot, index);
+        // Use the same URL generation logic as the image display
+        const imageUrl = (() => {
+          if (screenshot?.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
+            return screenshot.presigned_url;
+          } else if (screenshot?.url && screenshot.url.includes('X-Amz-Signature')) {
+            return screenshot.url;
+          } else if (screenshot?.s3_key) {
+            return `http://localhost:8000/api/proxy/screenshots/${screenshot.s3_key}`;
+          } else if (screenshot?.url) {
+            return screenshot.url;
+          } else {
+            return 'https://via.placeholder.com/800x600/f3f4f6/6b7280?text=No+Image';
+          }
+        })();
+
         return {
-          src: formattedData.image,
-          title: formattedData.task,
-          time: formattedData.time,
-          application: formattedData.application,
-          user: formattedData.user,
-          date: formattedData.date
+          src: imageUrl,
+          title: screenshot?.filename?.split('/').pop() || 'Screenshot',
+          time: screenshot?.timestamp ? new Date(screenshot.timestamp).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : 'Unknown Time',
+          application: screenshot?.application || 'Unknown App',
+          user: screenshot?.user || 'Unknown User',
+          date: screenshot?.timestamp ? new Date(screenshot.timestamp).toLocaleDateString() : 'Unknown Date',
+          id: screenshot?.id || index,
+          filename: screenshot?.filename || 'screenshot.jpg'
         };
       });
       startIndex = clickedIndex;
@@ -3306,24 +3349,47 @@ const ActivityStream = () => {
     } else {
       // Single image
       console.log('🖼️ Using single image mode');
-      const formattedData = formatScreenshotData(clickedImage, clickedIndex);
+      
+      // Use the same URL generation logic as the image display
+      const imageUrl = (() => {
+        if (clickedImage?.presigned_url && clickedImage.presigned_url.includes('X-Amz-Signature')) {
+          return clickedImage.presigned_url;
+        } else if (clickedImage?.url && clickedImage.url.includes('X-Amz-Signature')) {
+          return clickedImage.url;
+        } else if (clickedImage?.s3_key) {
+          return `http://localhost:8000/api/proxy/screenshots/${clickedImage.s3_key}`;
+        } else if (clickedImage?.url) {
+          return clickedImage.url;
+        } else {
+          return 'https://via.placeholder.com/800x600/f3f4f6/6b7280?text=No+Image';
+        }
+      })();
+
       imagesToShow = [{
-        src: formattedData.image,
-        title: formattedData.task,
-        time: formattedData.time,
-        application: formattedData.application,
-        user: formattedData.user,
-        date: formattedData.date
+        src: imageUrl,
+        title: clickedImage?.filename?.split('/').pop() || 'Screenshot',
+        time: clickedImage?.timestamp ? new Date(clickedImage.timestamp).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : 'Unknown Time',
+        application: clickedImage?.application || 'Unknown App',
+        user: clickedImage?.user || 'Unknown User',
+        date: clickedImage?.timestamp ? new Date(clickedImage.timestamp).toLocaleDateString() : 'Unknown Date',
+        id: clickedImage?.id || 0,
+        filename: clickedImage?.filename || 'screenshot.jpg'
       }];
       startIndex = 0;
     }
 
     console.log('🚀 About to open modal with:', { imagesToShow, startIndex });
+    console.log('🖼️ First image URL:', imagesToShow[0]?.src?.substring(0, 100) + '...');
     openImageModal(imagesToShow, startIndex);
   };
 
   const handleFolderPageChange = (page) => {
-    if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return; return;
+    if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return;
     
     console.log('📄 Folder page change requested:', {
       fromPage: folderPagination.page,
@@ -4298,6 +4364,7 @@ const ActivityStream = () => {
                         timestamp: originalApiData?.timestamp,
                         presignedUrl: originalApiData?.presigned_url?.substring(0, 100) + '...'
                       });
+                      console.log('🚀 Calling handleImageClick with:', { originalApiData, i });
                       handleImageClick(originalApiData, i);
                     }}
                     onMouseEnter={(e) => {
@@ -5591,15 +5658,25 @@ const ActivityStream = () => {
         
         {/* Image Modal */}
         {isModalOpen && (
-          <ImageModal
-            isOpen={isModalOpen}
-            images={modalImages}
-            currentIndex={modalCurrentIndex}
-            onClose={closeImageModal}
-            onIndexChange={handleModalIndexChange}
-            theme={theme}
-            isDarkMode={isDarkMode}
-          />
+          (() => {
+            console.log('🚀 MODAL RENDERING: Modal is open!', {
+              isModalOpen,
+              modalImagesCount: modalImages.length,
+              modalCurrentIndex,
+              firstImageSrc: modalImages[0]?.src?.substring(0, 100) + '...'
+            });
+            return (
+              <ImageModal
+                isOpen={isModalOpen}
+                images={modalImages}
+                currentIndex={modalCurrentIndex}
+                onClose={closeImageModal}
+                onIndexChange={handleModalIndexChange}
+                theme={theme}
+                isDarkMode={isDarkMode}
+              />
+            );
+          })()
         )}
       </Wrapper>
     </LocalizationProvider>
