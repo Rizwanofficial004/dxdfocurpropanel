@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { gsap } from 'gsap';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import {
   EmployeesWrapper,
@@ -207,80 +206,12 @@ const generateMockEmployees = () => {
 };
 
 // Animated Counter Component
-const AnimatedCounter = ({ target, prefix = '', suffix = '', duration = 2000 }) => {
-  const [count, setCount] = useState(0);
-  const countRef = useRef(null);
-
-  useEffect(() => {
-    if (countRef.current) {
-      gsap.to({ value: 0 }, {
-        value: target,
-        duration: duration / 1000,
-        ease: "power2.out",
-        onUpdate: function() {
-          setCount(Math.floor(this.targets()[0].value));
-        }
-      });
-    }
-  }, [target, duration]);
-
-  return <span ref={countRef}>{prefix}{count}{suffix}</span>;
+const AnimatedCounter = ({ target, prefix = '', suffix = '' }) => {
+  return <span>{prefix}{target}{suffix}</span>;
 };
 
-// 3D Employee Card Component
+// Employee Card Component
 const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView }) => {
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    if (cardRef.current) {
-      gsap.fromTo(cardRef.current, 
-        {
-          rotationX: 90,
-          rotationY: 45,
-          z: -300,
-          opacity: 0,
-          scale: 0.5
-        },
-        {
-          rotationX: 0,
-          rotationY: 0,
-          z: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 1.2,
-          ease: "back.out(1.7)",
-          delay: index * 0.15
-        }
-      );
-    }
-  }, [index]);
-
-  const handleMouseEnter = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationX: -8,
-        rotationY: 12,
-        z: 60,
-        scale: 1.03,
-        duration: 0.5,
-        ease: "power2.out"
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-    }
-  };
-
   const renderStars = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -301,12 +232,10 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
   };
 
   return (
+  <>
     <EmployeeCard
-      ref={cardRef}
       index={index}
       isDarkMode={isDarkMode}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <EmployeeAvatar className="employee-avatar">
         {employee.avatar ? (
@@ -418,70 +347,16 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
         </ActionButton>
       </ActionButtons>
     </EmployeeCard>
+  </>
   );
 };
 
 // Statistics Card Component
-const StatsCard3D = ({ icon, value, label, color, delay = 0, isDarkMode }) => {
-  const cardRef = useRef(null);
-
-  useEffect(() => {
-    if (cardRef.current) {
-      gsap.fromTo(cardRef.current, 
-        {
-          rotationX: 90,
-          rotationY: 30,
-          z: -200,
-          opacity: 0,
-          scale: 0.7
-        },
-        {
-          rotationX: 0,
-          rotationY: 0,
-          z: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 1,
-          ease: "back.out(1.5)",
-          delay: delay / 1000
-        }
-      );
-    }
-  }, [delay]);
-
-  const handleMouseEnter = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationX: -5,
-        rotationY: 8,
-        z: 30,
-        scale: 1.05,
-        duration: 0.4,
-        ease: "power2.out"
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        rotationX: 0,
-        rotationY: 0,
-        z: 0,
-        scale: 1,
-        duration: 0.5,
-        ease: "power2.out"
-      });
-    }
-  };
-
+const StatsCard3D = ({ icon, value, label, color, isDarkMode }) => {
   return (
     <StatCard
-      ref={cardRef}
       color={color}
       isDarkMode={isDarkMode}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <StatIcon>{icon}</StatIcon>
       <StatValue color={color}>
@@ -617,7 +492,6 @@ const Employees = () => {
               value={stats.totalEmployees}
               label="Total Employees"
               color="#3b82f6"
-              delay={0}
               isDarkMode={isDarkMode}
             />
             <StatsCard3D
@@ -625,7 +499,6 @@ const Employees = () => {
               value={stats.averageRating.toFixed(1)}
               label="Average Rating"
               color="#fbbf24"
-              delay={200}
               isDarkMode={isDarkMode}
             />
             <StatsCard3D
@@ -633,7 +506,6 @@ const Employees = () => {
               value={`$${stats.averageHourlyRate}`}
               label="Avg Hourly Rate"
               color="#10b981"
-              delay={400}
               isDarkMode={isDarkMode}
             />
             <StatsCard3D
@@ -641,7 +513,6 @@ const Employees = () => {
               value={stats.departments}
               label="Departments"
               color="#8b5cf6"
-              delay={600}
               isDarkMode={isDarkMode}
             />
           </StatsSummary>
