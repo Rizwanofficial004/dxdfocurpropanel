@@ -387,7 +387,7 @@ Employee Profile:
 - Name: ${employeeContext.name}
 - Role: ${employeeContext.jobTitle}
 - Department: ${employeeContext.department}
-- Hourly Rate: $${employeeContext.hourlyRate}/hr
+- Hourly Rate: ₺${employeeContext.hourlyRate}/hr
 - Performance Score: ${employeeContext.performanceScore}%
 - Rating: ${employeeContext.rating}/5
 - Screenshots: ${employeeContext.fileCount} files
@@ -561,6 +561,53 @@ const fetchEmployeesFromCRM = async () => {
     // Convert CRM data to employee objects
     const employees = crmData.map((staff, index) => {
       console.log(`🔄 Processing CRM staff: ${staff.firstname} ${staff.lastname}`);
+      console.log(`📸 Profile image: ${staff.profile_image}`);
+      console.log(`🆔 Staff ID: ${staff.staffid}`);
+      
+      // Generate multiple avatar URL possibilities for better fallback
+      let avatarUrl = null;
+      let avatarThumbUrl = null;
+      let avatarOriginalUrl = null;
+      let avatarAltUrl = null;
+      
+      if (staff.profile_image && staff.profile_image !== null && staff.profile_image.trim() !== '') {
+        console.log(`🔧 Building avatar URL for ${staff.firstname}:`);
+        console.log(`   📁 Base URL: https://crm.deluxebilisim.com/uploads/staff_profile_images/`);
+        console.log(`   🆔 Staff ID: ${staff.staffid}`);
+        console.log(`   🖼️ Profile Image: ${staff.profile_image}`);
+        
+        // Primary URL - Your specified pattern: staff_id/thumb_profile_image (with proper encoding)
+        avatarUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}`;
+        
+        // Thumbnail version (same as primary for your pattern)
+        avatarThumbUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}`;
+        
+        // Original version without thumb_ prefix
+        avatarOriginalUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/${encodeURIComponent(staff.profile_image)}`;
+        
+        // Alternative 1: Try with underscores instead of spaces (like CRM system)
+        const profileImageUnderscore = staff.profile_image.replace(/\s+/g, '_').replace(/[öüğıçş]/g, (match) => {
+          const map = { 'ö': 'o', 'ü': 'u', 'ğ': 'g', 'ı': 'i', 'ç': 'c', 'ş': 's' };
+          return map[match] || match;
+        });
+        const avatarUnderscoreUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${profileImageUnderscore}`;
+        
+        // Alternative with media path slug
+        if (staff.media_path_slug) {
+          avatarAltUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.media_path_slug}/thumb_${encodeURIComponent(staff.profile_image)}`;
+        } else {
+          avatarAltUrl = avatarUnderscoreUrl; // Use underscore version as alternative
+        }
+        
+        console.log(`✅ Final Avatar URLs:`);
+        console.log(`   🎯 Primary (Encoded): ${avatarUrl}`);
+        console.log(`   📸 Thumb: ${avatarThumbUrl}`);
+        console.log(`   📁 Original (No thumb_): ${avatarOriginalUrl}`);
+        console.log(`   🔄 Alternative (Underscore): ${avatarUnderscoreUrl}`);
+        if (avatarAltUrl && avatarAltUrl !== avatarUnderscoreUrl) console.log(`   🆔 Media Path: ${avatarAltUrl}`);
+      } else {
+        console.log(`❌ No profile image for ${staff.firstname} ${staff.lastname}`);
+      }
       
       return {
         id: staff.staffid || `staff_${index + 1}`,
@@ -574,16 +621,19 @@ const fetchEmployeesFromCRM = async () => {
         status: staff.active === '1' ? 'Active' : 'Inactive',
         joinDate: staff.datecreated ? staff.datecreated.split(' ')[0] : new Date().toISOString().split('T')[0],
         location: staff.home_town || staff.current_address || 'Not Specified',
-        avatar: staff.profile_image ? 
-          `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}` : 
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.firstname}${staff.lastname}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
+        avatar: avatarUrl,
+        avatar_thumb: avatarThumbUrl,
+        avatar_original: avatarOriginalUrl,
+        avatar_alt: avatarAltUrl,
         initials: (staff.firstname?.charAt(0) || '') + (staff.lastname?.charAt(0) || ''),
         staff_id: staff.staff_identifi || staff.staffid || `ID_${index + 1}`,
+        staffid: staff.staffid, // Add staffid for avatar URL construction
+        profile_image: staff.profile_image, // Add profile_image field for debugging
         performance_score: Math.round(Math.random() * 30 + 70), // Mock performance score
         ai_insights: [],
         is_logged_in: staff.is_logged_in === '1',
         last_activity: staff.last_activity || staff.last_login || new Date().toISOString(),
-        currency: 'USD',
+        currency: 'TL',
         
         // CRM specific fields - showing the ones you requested
         crm_staff_id: staff.staff_identifi, // This is the staff_id you wanted
@@ -811,7 +861,26 @@ const generateMockEmployeesFromCRM = () => {
     }
   ];
 
-  return mockStaff.map((staff, index) => ({
+  return mockStaff.map((staff, index) => {
+    // Use your specified URL pattern: staffid/thumb_profile_image (with proper encoding)
+    const avatarUrl = staff.profile_image ? 
+      `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}` : 
+      null;
+    const avatarThumbUrl = staff.profile_image ? 
+      `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}` : 
+      null;
+    const avatarOriginalUrl = staff.profile_image ? 
+      `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/${encodeURIComponent(staff.profile_image)}` : 
+      null;
+    
+    if (staff.profile_image) {
+      console.log(`🖼️ Mock Avatar URLs for ${staff.firstname}:`);
+      console.log(`   Main: ${avatarUrl}`);
+      console.log(`   Thumb: ${avatarThumbUrl}`);
+      console.log(`   Original: ${avatarOriginalUrl}`);
+    }
+    
+    return ({
     id: staff.staffid,
     name: `${staff.firstname} ${staff.lastname}`,
     email: staff.email,
@@ -823,14 +892,16 @@ const generateMockEmployeesFromCRM = () => {
     status: staff.active === '1' ? 'Active' : 'Inactive',
     joinDate: staff.datecreated.split(' ')[0],
     location: 'Remote',
-    avatar: staff.profile_image ? 
-      `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}` : 
-      `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.firstname}${staff.lastname}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
+    avatar: avatarUrl,
+    avatar_thumb: avatarThumbUrl,
+    avatar_original: avatarOriginalUrl,
     initials: staff.firstname.charAt(0) + staff.lastname.charAt(0),
     staff_id: staff.staff_identifi || `ID_${staff.staffid}`,
+    staffid: staff.staffid, // Add staffid for debugging
+    profile_image: staff.profile_image, // Add profile_image for debugging
     performance_score: Math.round(Math.random() * 30 + 70),
     ai_insights: [
-      `� Hourly Rate: $${staff.hourly_rate}/hr`,
+      `� Hourly Rate: ₺${staff.hourly_rate}/hr`,
       `� Phone: ${staff.phonenumber}`,
       `� Staff ID: ${staff.staff_identifi}`,
       `📅 Joined: ${staff.datecreated.split(' ')[0]}`
@@ -838,7 +909,8 @@ const generateMockEmployeesFromCRM = () => {
     crm_staff_id: staff.staff_identifi,
     crm_hourly_rate: staff.hourly_rate,
     crm_phonenumber: staff.phonenumber
-  }));
+  });
+});
 };
 
 // Generate mock employees as fallback
@@ -870,6 +942,8 @@ const generateMockEmployees = () => {
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
       initials: user.username.substring(0, 2).toUpperCase(),
       staff_id: 'MOCK_' + (index + 1).toString().padStart(3, '0'),
+      staffid: 'MOCK_' + (index + 1).toString().padStart(3, '0'), // Add staffid for debugging
+      profile_image: null, // Mock data doesn't have real profile images
       performance_score: Math.round((user.file_count / 200) * 20),
       ai_insights: [
         `Has ${user.file_count} screenshots stored`,
@@ -879,7 +953,7 @@ const generateMockEmployees = () => {
       ],
       is_logged_in: true,
       last_activity: new Date().toISOString(),
-      currency: 'USD',
+      currency: 'TL',
       screenshots_folder: `screenshots/${user.username}_at_${domain.replace('.', '_')}/`,
       file_count: user.file_count,
       storage_size_mb: user.storage_mb,
@@ -915,14 +989,16 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
   };
 
   return (
-  <>
-    <EmployeeCard
+    <>
+      <EmployeeCard
       index={index}
       isDarkMode={isDarkMode}
     >
       <EmployeeAvatar className="employee-avatar">
-        {employee.avatar ? (
-          <img 
+        {(employee.avatar || employee.profile_image) ? (
+          <>
+            {console.log(`🖼️ Loading avatar for ${employee.name}:`, employee.avatar)}
+            <img 
             src={employee.avatar} 
             alt={employee.name}
             style={{
@@ -932,18 +1008,102 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
               objectFit: 'cover'
             }}
             onError={(e) => {
-              // Fallback to generated avatar if CRM image fails to load
-              e.target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.name}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
-              e.target.onerror = () => {
-                // Final fallback to initials if everything fails
+              console.log(`❌ Avatar failed for ${employee.name} (ID: ${employee.staffid}): ${e.target.src}`);
+              console.log(`📋 Profile image field:`, employee.profile_image);
+              console.log(`🔍 Error details:`, e);
+              console.log(`🌐 Testing URL accessibility...`);
+              
+              // Test if the URL is accessible
+              fetch(e.target.src, { method: 'HEAD', mode: 'no-cors' })
+                .then(() => console.log(`✅ URL is accessible: ${e.target.src}`))
+                .catch(err => console.log(`❌ URL not accessible: ${e.target.src}`, err));
+              
+              // Prevent infinite loops - check if we've already tried all options
+              if (e.target.hasAttribute('data-fallback-tried')) {
+                console.log(`🛑 All fallbacks tried for ${employee.name}, showing initials`);
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'flex';
-              };
+                return;
+              }
+              
+              // Try thumb version
+              if (employee.avatar_thumb && e.target.src !== employee.avatar_thumb) {
+                console.log(`🔄 Trying thumb version: ${employee.avatar_thumb}`);
+                e.target.src = employee.avatar_thumb;
+                return;
+              }
+              // Try original path version
+              if (employee.avatar_original && e.target.src !== employee.avatar_original) {
+                console.log(`🔄 Trying original path: ${employee.avatar_original}`);
+                e.target.src = employee.avatar_original;
+                return;
+              }
+              // Try alternative version
+              if (employee.avatar_alt && e.target.src !== employee.avatar_alt) {
+                console.log(`🔄 Trying alternative path: ${employee.avatar_alt}`);
+                e.target.src = employee.avatar_alt;
+                return;
+              }
+              
+              // Try additional fallback patterns
+              const staffId = employee.staffid || employee.staff_id;
+              const profileImg = employee.profile_image;
+              
+              if (staffId && profileImg) {
+                // Pattern 1: Raw filename without encoding
+                const rawUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staffId}/thumb_${profileImg}`;
+                if (e.target.src !== rawUrl) {
+                  console.log(`🔄 Trying raw filename: ${rawUrl}`);
+                  e.target.src = rawUrl;
+                  return;
+                }
+                
+                // Pattern 2: No thumb prefix
+                const noThumbUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staffId}/${profileImg}`;
+                if (e.target.src !== noThumbUrl) {
+                  console.log(`🔄 Trying no thumb prefix: ${noThumbUrl}`);
+                  e.target.src = noThumbUrl;
+                  return;
+                }
+                
+                // Pattern 3: Simplified ASCII (like your CRM shows)
+                const simplifiedName = profileImg
+                  .replace(/\s+/g, '_')
+                  .replace(/[öÖ]/g, 'o')
+                  .replace(/[üÜ]/g, 'u')
+                  .replace(/[ğĞ]/g, 'g')
+                  .replace(/[ıİ]/g, 'i')
+                  .replace(/[çÇ]/g, 'c')
+                  .replace(/[şŞ]/g, 's');
+                const simplifiedUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staffId}/thumb_${simplifiedName}`;
+                if (e.target.src !== simplifiedUrl) {
+                  console.log(`🔄 Trying simplified ASCII: ${simplifiedUrl}`);
+                  e.target.src = simplifiedUrl;
+                  return;
+                }
+              }
+              
+              // Try generated avatar
+              const generatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.name}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+              if (e.target.src !== generatedAvatar) {
+                console.log(`🔄 Trying generated avatar for: ${employee.name}`);
+                e.target.src = generatedAvatar;
+                e.target.setAttribute('data-fallback-tried', 'true'); // Mark that we've tried all fallbacks
+                return;
+              }
+              // If even generated avatar fails, show initials
+              console.log(`🔄 Final fallback to initials for: ${employee.name}`);
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+            onLoad={(e) => {
+              console.log(`✅ Avatar loaded successfully for ${employee.name} (ID: ${employee.staffid}): ${e.target.src}`);
             }}
           />
+          </>
         ) : null}
         <span style={{ 
-          display: employee.avatar ? 'none' : 'flex',
+          display: (employee.avatar || employee.profile_image) ? 'none' : 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           width: '100%',
@@ -975,7 +1135,7 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
         <DetailItem isDarkMode={isDarkMode} style={{ backgroundColor: isDarkMode ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)', borderRadius: '6px', padding: '8px' }}>
           <DetailLabel isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#22c55e' }}>💰 Hourly Rate</DetailLabel>
           <DetailValue isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#22c55e' }}>
-            ${employee.crm_hourly_rate || employee.hourlyRate || '0.00'}/hr
+            ₺{employee.crm_hourly_rate || employee.hourlyRate || '0.00'}/hr
           </DetailValue>
         </DetailItem>
         <DetailItem isDarkMode={isDarkMode} style={{ backgroundColor: isDarkMode ? 'rgba(168, 85, 247, 0.15)' : 'rgba(168, 85, 247, 0.1)', borderRadius: '6px', padding: '8px' }}>
@@ -1105,6 +1265,21 @@ const Employees = () => {
         const crmEmployeesData = await fetchEmployeesFromCRM();
         console.log(`🎉 Successfully loaded ${crmEmployeesData.length} employees from CRM`);
         console.log('📋 Employee names:', crmEmployeesData.map(emp => emp.name));
+        
+        // Debug profile images
+        console.log('\n📸 PROFILE IMAGE DEBUG:');
+        crmEmployeesData.forEach((emp, index) => {
+          console.log(`${index + 1}. ${emp.name} (ID: ${emp.staffid}):`, {
+            profile_image: emp.profile_image,
+            hasAvatar: !!emp.avatar,
+            avatarUrl: emp.avatar,
+            avatarThumb: emp.avatar_thumb,
+            avatarOriginal: emp.avatar_original,
+            avatarAlt: emp.avatar_alt
+          });
+        });
+        console.log('📸 ===============================\n');
+        
         setEmployeesData(crmEmployeesData);
       } catch (error) {
         console.error('❌ Failed to load CRM employee data:', error);
