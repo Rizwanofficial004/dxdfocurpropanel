@@ -1,0 +1,1608 @@
+import React, { useState, useEffect } from 'react';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { Container } from '../styles/commonStyles';
+import { useLanguage } from '../context/LanguageContext';
+import { CircularProgress } from '@mui/material';
+import axios from 'axios';
+import { API_CONFIG, buildLiveTrackingUrl, buildScreenshotProxyUrl, retryExtremeApiCall } from '../../config/apiConfig';
+import ImageModal from '../components/common/ImageModal';
+import {
+  LiveTrackingContainer,
+  ContentSection,
+  TrackingCard,
+  CardHeader,
+  Title,
+  FilterSection,
+  LeftFilters,
+  RightFilters,
+  FilterDropdown,
+  SearchInput,
+  RefreshButton,
+  ExportButton,
+  StatusBadge,
+  ActivityInfo,
+  InfoItem,
+  ScreenshotGrid,
+  ScreenshotCard,
+  ScreenshotImage,
+  CardContent,
+  TaskHeader,
+  TaskName,
+  TaskMeta,
+  TaskTime,
+  PaginationContainer,
+  PaginationButton,
+  PaginationInfo,
+  LoadingContainer,
+  ErrorMessage,
+  NoDataMessage,
+  ResultsInfo,
+  ImageError
+} from './LiveTracking.styles';
+
+const LiveTracking = () => {
+  const { t } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedEmployee, setSelectedEmployee] = useState('all');
+  const [selectedDepartment, setSelectedDepartment] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');  const [dateRange, setDateRange] = useState('today');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+
+  // Image modal states
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [currentImages, setCurrentImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // API related states
+  const [liveTrackingData, setLiveTrackingData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [error, setError] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
+  const [activityStats, setActivityStats] = useState({
+    totalActive: 0,
+    online: 0,
+    idle: 0,
+    offline: 0,
+    totalHours: '0h'
+  });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [dataSource, setDataSource] = useState('unknown'); // Track which API is being used
+
+  // Test Live Tracking API endpoint
+  const testLiveTrackingAPI = async () => {
+    try {
+      console.log('🧪 Testing Live Tracking API...');
+      console.log('📡 API Base URL:', API_CONFIG.BASE_URL);
+      console.log('🎯 Full API URL: https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/');
+      
+      const testUrl = buildLiveTrackingUrl({ limit: 1 });
+      console.log('🔗 Built URL:', testUrl);
+      
+      const response = await axios.get(testUrl, {
+        ...API_CONFIG.LIGHT_REQUEST_CONFIG
+      });
+      
+      console.log('✅ Live Tracking API test successful:', response.status);
+      console.log('📊 Response data:', response.data);
+      setError('✅ API test successful! Live Tracking endpoint is working.');
+      return true;
+    } catch (error) {
+      console.error('❌ Live Tracking API test failed:', error.message);
+      console.error('🔍 Error details:', error);
+      setError(`❌ API test failed: ${error.message}. Check if https://dxdtime.ddsolutions.io is accessible.`);
+      return false;
+    }
+  };
+
+  // Image modal handlers
+  const openImageModal = (imageUrl, imageTitle = "Screenshot") => {
+    console.log('🖼️ Opening image modal for:', imageUrl);
+    const imageData = {
+      url: imageUrl,
+      title: imageTitle,
+      alt: imageTitle
+    };
+    setCurrentImages([imageData]);
+    setCurrentImageIndex(0);
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    console.log('🚫 Closing image modal');
+    setIsImageModalOpen(false);
+    setCurrentImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  // Helper function to format time ago
+  const formatTimeAgo = (minutes) => {
+    if (minutes === null || minutes === undefined) return 'Unknown';
+    
+    if (minutes === 0) return 'just now';
+    if (minutes === 1) return '1 minute ago';
+    if (minutes < 60) return `${minutes} minutes ago`;
+    
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (hours === 1) {
+      if (remainingMinutes === 0) return '1 hour ago';
+      if (remainingMinutes === 1) return '1 hour 1 minute ago';
+      return `1 hour ${remainingMinutes} minutes ago`;
+    }
+    
+    if (remainingMinutes === 0) return `${hours} hours ago`;
+    if (remainingMinutes === 1) return `${hours} hours 1 minute ago`;
+    return `${hours} hours ${remainingMinutes} minutes ago`;
+  };
+
+  // Helper function to get human-readable date range description
+  const getDateRangeDescription = () => {
+    const now = new Date();
+    const dateParams = getDateRangeParams();
+    
+    switch (dateRange) {
+      case 'today':
+        return `Today (${now.toLocaleDateString()})`;
+      case 'this_week':
+        const startOfWeek = new Date(dateParams.start_date);
+        const endOfWeek = new Date(dateParams.end_date);
+        return `This Week (${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()})`;
+      case 'this_month':
+        return `This Month (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})`;
+      case 'this_year':
+        return `This Year (${now.getFullYear()})`;
+      default:
+        return 'Today';
+    }
+  };
+
+  // Enhanced image URL handler with multiple fallback strategies
+  const getImageUrl = (originalUrl) => {
+    if (!originalUrl) return null;
+    
+    console.log('🔍 Processing image URL:', originalUrl);
+    
+    // If it's already a data URL or blob, return as-is
+    if (originalUrl.startsWith('data:') || originalUrl.startsWith('blob:')) {
+      console.log('✅ Using data/blob URL directly');
+      return originalUrl;
+    }
+    
+    // Use the centralized helper to build the correct proxy URL
+    const proxyUrl = buildScreenshotProxyUrl(originalUrl);
+    console.log('🔄 Generated proxy URL:', proxyUrl);
+    return proxyUrl;
+  };
+
+  // Enhanced Image Component with better error handling and fallback strategies
+  const ImageComponent = ({ src, alt, style, onLoad, onError, fallbackText = "No Image" }) => {
+    const [imageSrc, setImageSrc] = useState(src);
+    const [hasError, setHasError] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [retryCount, setRetryCount] = useState(0);
+    const maxRetries = 2;
+    
+    useEffect(() => {
+      setImageSrc(src);
+      setHasError(false);
+      setIsLoading(true);
+      setRetryCount(0);
+    }, [src]);
+
+    const handleError = (e) => {
+      console.error('❌ Image failed to load:', imageSrc, 'Error:', e.target.error);
+      setIsLoading(false);
+      
+      // Try fallback strategies
+      if (retryCount < maxRetries && imageSrc) {
+        console.log(`🔄 Retrying image load (${retryCount + 1}/${maxRetries})`);
+        
+        if (retryCount === 0) {
+          // First retry: try with different CORS approach
+          const fallbackUrl = imageSrc.includes('?') 
+            ? imageSrc.replace(/[?&]cache-control=[^&]*/, '').replace(/[?&]cors=[^&]*/, '')
+            : imageSrc;
+          console.log('🔄 Retry 1: Using clean URL:', fallbackUrl);
+          setImageSrc(fallbackUrl + '?' + Date.now()); // Add timestamp to bypass cache
+          setRetryCount(1);
+          return;
+        } else if (retryCount === 1) {
+          // Second retry: try with proxy approach using centralized helper
+          const proxyUrl = buildScreenshotProxyUrl(imageSrc);
+          if (proxyUrl !== imageSrc) {
+            console.log('🔄 Retry 2: Using centralized proxy URL:', proxyUrl);
+            setImageSrc(proxyUrl);
+            setRetryCount(2);
+            return;
+          }
+        }
+      }
+      
+      // All retries failed
+      setHasError(true);
+      if (onError) onError(e);
+    };
+
+    const handleLoad = (e) => {
+      console.log('✅ Image loaded successfully:', imageSrc);
+      setHasError(false);
+      setIsLoading(false);
+      if (onLoad) onLoad(e);
+    };
+
+    if (hasError || !imageSrc) {
+      return (
+        <ImageError style={style}>
+          <div className="icon">🚫</div>
+          <div className="message">Image Load Failed</div>
+          <div className="url">
+            {imageSrc ? (imageSrc.length > 30 ? imageSrc.substring(0, 30) + '...' : imageSrc) : 'No URL'}
+          </div>
+          {retryCount > 0 && (
+            <div style={{ fontSize: '7px', marginTop: '2px', opacity: 0.5 }}>
+              Tried {retryCount} fallback{retryCount > 1 ? 's' : ''}
+            </div>
+          )}
+        </ImageError>
+      );
+    }
+
+    return (
+      <div style={{ position: 'relative', ...style }}>
+        <img
+          src={imageSrc}
+          alt={alt}
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover', 
+            borderRadius: '8px',
+            opacity: isLoading ? 0.5 : 1,
+            transition: 'opacity 0.3s ease'
+          }}
+          onLoad={handleLoad}
+          onError={handleError}
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
+        />
+        {isLoading && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '12px',
+            color: '#6b7280',
+            background: 'rgba(255,255,255,0.8)',
+            padding: '4px 8px',
+            borderRadius: '4px'
+          }}>
+            Loading...
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Helper function to get date range for API filtering
+  const getDateRangeParams = () => {
+    const now = new Date();
+    let startDate, endDate;
+    
+    switch (dateRange) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        break;
+      case 'this_week':
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        startDate = startOfWeek;
+        endDate = endOfWeek;
+        break;
+      case 'this_month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        break;
+      case 'this_year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+        break;
+      default:
+        // Default to today
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    }
+    
+    console.log(`📅 Date range calculation for "${dateRange}":`, {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      startLocal: startDate.toLocaleString(),
+      endLocal: endDate.toLocaleString()
+    });
+    
+    return {
+      start_date: startDate.toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0]
+    };
+  };
+
+  // Helper function to try Flask API fallback for comprehensive data
+  const fetchComprehensiveScreenshotsData = async () => {
+    try {
+      console.log('🔄 Trying Flask API for comprehensive screenshots data...');
+      const response = await axios.get('http://localhost:5000/api/screenshots/all', {
+        timeout: 60000, // 60 seconds timeout for comprehensive scan
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('✅ Flask API response received:', response.data);
+      
+      if (response.data.status === 'success' && response.data.data && response.data.data.user_counts) {
+        const data = response.data.data;
+        
+        // Transform Flask API data to match LiveTracking format
+        const users = Object.keys(data.user_counts).map((email, index) => {
+          const screenshotCount = data.user_counts[email];
+          const displayName = email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          
+          return {
+            id: index + 1,
+            email: email,
+            username: email.split('@')[0],
+            display_name: displayName,
+            name: displayName,
+            screenshot_count: screenshotCount,
+            latest_screenshot: {
+              timestamp: data.date,
+              url: null, // Flask API doesn't provide individual screenshot URLs
+              has_screenshot: screenshotCount > 0
+            },
+            status: screenshotCount > 0 ? 'active' : 'offline',
+            is_online: screenshotCount > 0,
+            department: 'Unknown Department'
+          };
+        });
+        
+        return {
+          success: true,
+          data: {
+            users: users,
+            summary: {
+              total_users: data.total_users,
+              active_users: users.filter(u => u.screenshot_count > 0).length,
+              total_screenshots: data.total_files
+            }
+          },
+          source: 'flask-comprehensive-api'
+        };
+      }
+      
+      throw new Error('Invalid Flask API response structure');
+      
+    } catch (error) {
+      console.error('❌ Flask API failed:', error.message);
+      throw error;
+    }
+  };
+
+  // Fetch live tracking data from API with fallback support
+  const fetchLiveTrackingData = async (forceRefresh = false) => {
+    try {
+      setLoading(true);
+      setError('');
+      setLoadingProgress(0);
+      
+      // Show refresh message if it's a manual refresh
+      if (forceRefresh) {
+        console.log('🔄 Manual refresh triggered...');
+      }
+      
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 90) return prev; // Stop at 90% until real response
+          return prev + Math.random() * 10;
+        });
+      }, 2000);
+      
+      // Get date range parameters for API
+      const dateParams = getDateRangeParams();
+      
+      let response;
+      let dataSource = 'unknown';
+      
+      // Try Live Tracking API - https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/
+      try {
+        // Build API URL with filters - Request ALL S3 data
+        const apiUrl = buildLiveTrackingUrl({
+          limit: 50000, // Increased limit to get all S3 screenshots
+          start_date: dateParams.start_date,
+          end_date: dateParams.end_date
+        });
+        
+        console.log('🔄 Trying Live Tracking API (https://dxdtime.ddsolutions.io):', apiUrl);
+        console.log('📡 API Base URL:', API_CONFIG.BASE_URL);
+        console.log('🎯 Live Tracking Endpoint:', API_CONFIG.ENDPOINTS.LIVE_TRACKING);
+        setError('🔄 Connecting to Live Tracking API server...');
+        
+        // Try a faster approach first - use fast_mode and reasonable limits
+        let fastApiUrl = apiUrl.replace('limit=50000', 'limit=1000') + '&fast_mode=true';
+        
+        try {
+          console.log('🚀 Trying Live Tracking fast mode with 30s timeout...');
+          console.log('📈 Fast API URL:', fastApiUrl);
+          setError('🚀 Loading with Live Tracking fast mode (30s timeout)...');
+          
+          response = await axios.get(fastApiUrl, {
+            ...API_CONFIG.EXTENDED_REQUEST_CONFIG,
+            timeout: 30000 // 30 seconds for fast mode
+          });
+          
+          console.log('✅ Live Tracking fast mode succeeded!');
+          setError(''); // Clear error on success
+          dataSource = 'live-tracking-fast-mode';
+          
+        } catch (fastError) {
+          console.warn('❌ Live Tracking fast mode failed:', fastError.message);
+          
+          if (fastError.code === 'ECONNABORTED' || fastError.message.includes('timeout')) {
+            console.log('⏳ Live Tracking fast mode timed out, trying comprehensive scan...');
+            setError('⏳ Live Tracking fast mode timed out, trying comprehensive scan...');
+            
+            // Use extreme retry mechanism for comprehensive S3 scanning
+            response = await retryExtremeApiCall(
+              (timeout) => axios.get(apiUrl, {
+                ...API_CONFIG.EXTREME_REQUEST_CONFIG,
+                timeout
+              }),
+              'Live Tracking S3 Comprehensive Scan',
+              {
+                onRetry: (attempt, error, timeout) => {
+                  const timeoutLabel = timeout >= 60000 ? `${Math.round(timeout/60000)}min` : `${timeout/1000}s`;
+                  setError(`🔄 Live Tracking comprehensive scan attempt ${attempt}/4 with ${timeoutLabel} timeout...`);
+                  
+                  // Update progress based on attempt
+                  if (attempt === 1) setLoadingProgress(25);
+                  else if (attempt === 2) setLoadingProgress(50);
+                  else if (attempt === 3) setLoadingProgress(75);
+                  else setLoadingProgress(85);
+                }
+              }
+            );
+            dataSource = 'live-tracking-comprehensive';
+            console.log('✅ Live Tracking comprehensive scan succeeded!');
+            
+          } else {
+            // Non-timeout error, try Flask fallback
+            throw fastError;
+          }
+        }
+        
+      } catch (liveTrackingError) {
+        console.warn('❌ Live Tracking API completely failed:', liveTrackingError.message);
+        console.log('🔄 Falling back to Flask comprehensive API...');
+        setError('⚠️ Live Tracking server unavailable. Trying Flask comprehensive API...');
+        
+        // If date range is not "today", show warning about Flask limitations
+        if (dateRange !== 'today') {
+          setError('⚠️ Django server unavailable. Flask API provides ALL-time data (date filtering may be limited)...');
+        }
+        
+        try {
+          response = await fetchComprehensiveScreenshotsData();
+          dataSource = 'flask-comprehensive';
+          console.log('✅ Flask API succeeded as fallback!');
+          setError(''); // Clear error on success
+          
+        } catch (flaskError) {
+          console.error('❌ Both Live Tracking and Flask APIs failed');
+          setError(`❌ Both Live Tracking API and Flask API failed. Please ensure at least one server is running.
+          
+Live Tracking Error: ${liveTrackingError.message}
+Flask Error: ${flaskError.message}
+
+💡 To fix this:
+• Check Live Tracking API: https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/
+• OR start Flask server: python app.py (port 5000)
+• Verify API servers are accessible`);
+          throw new Error('All API servers failed');
+        }
+      }
+      
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+      
+      console.log(`✅ Live tracking data loaded from: ${dataSource}`);
+      console.log('📊 API response:', response.data || response);
+      
+      // Handle both Django and Flask API response structures
+      let users = [];
+      let summary = {};
+      
+      if (dataSource === 'flask-comprehensive') {
+        // Handle Flask API format
+        if (response && response.success && response.data && response.data.users) {
+          users = response.data.users;
+          summary = response.data.summary;
+          console.log(`📊 Flask API: ${users.length} users loaded`);
+          console.log(`🔍 Flask data source: comprehensive S3 scan`);
+        } else {
+          throw new Error('Invalid Flask API response structure');
+        }
+      } else {
+        // Handle Django API format
+        if (response.data && response.data.success && response.data.data && response.data.data.users) {
+          users = response.data.data.users;
+          summary = response.data.data.summary;
+          console.log(`📊 Django API: ${users.length} users loaded`);
+        } else {
+          console.warn('Unexpected Django API response structure:', response.data);
+          setError('Received unexpected data format from Django server');
+          return;
+        }
+      }
+      
+      console.log(`📊 Total users from ${dataSource}: ${users.length}`);
+      console.log(`Successfully fetched ${users.length} users from ${dataSource}`);
+      
+      // Log first few users with their timestamps for debugging
+      if (users.length > 0) {
+        console.log('📅 Sample user timestamps for debugging:');
+        users.slice(0, 5).forEach((user, index) => {
+          const timestamp = user.latest_screenshot?.timestamp;
+          const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : 'No timestamp';
+          console.log(`  ${index + 1}. ${user.display_name || 'Unknown'}: ${formattedTime}`);
+        });
+      }
+      
+      // Debug: Log a few sample image URLs (mainly for Django API)
+      const usersWithImages = users.filter(user => user.latest_screenshot?.url);
+      if (usersWithImages.length > 0) {
+        console.log('📷 Sample image URLs from API:');
+        usersWithImages.slice(0, 3).forEach((user, index) => {
+          console.log(`  ${index + 1}. ${user.display_name}: ${user.latest_screenshot.url}`);
+        });
+      } else {
+        if (dataSource.includes('django')) {
+          console.warn('⚠️ No users with image URLs found in Django API response');
+        } else {
+          console.log('ℹ️ Flask API provides screenshot counts but not individual URLs');
+        }
+      }
+        
+        // Apply client-side filtering based on current filter states
+        let filteredUsers = users;
+        
+        // For Flask API, date filtering is limited since it provides ALL-time data
+        if (dataSource === 'flask-comprehensive') {
+          console.log('ℹ️ Using Flask comprehensive API - date filtering not available (shows ALL screenshots)');
+          if (dateRange !== 'today') {
+            console.warn(`⚠️ Date range "${dateRange}" requested but Flask API provides ALL-time data`);
+          }
+        } else {
+          // Filter by date range (client-side backup filtering for Django API)
+          if (dateRange && dateRange !== 'all') {
+            const dateParams = getDateRangeParams();
+            const startDate = new Date(dateParams.start_date);
+            const endDate = new Date(dateParams.end_date);
+            endDate.setHours(23, 59, 59, 999); // Include the entire end day
+            
+            console.log(`🔍 Client-side date filtering: ${dateRange}`);
+            console.log(`📅 Date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
+            
+            filteredUsers = filteredUsers.filter(user => {
+              if (!user.latest_screenshot?.timestamp) {
+                console.log(`⚠️ User ${user.display_name} has no timestamp, excluding from date filter`);
+                return false; // Exclude users without timestamps when date filtering
+              }
+              
+              const screenshotDate = new Date(user.latest_screenshot.timestamp);
+              const isInRange = screenshotDate >= startDate && screenshotDate <= endDate;
+              
+              if (!isInRange) {
+                console.log(`📅 Filtering out ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (outside range)`);
+              } else {
+                console.log(`✅ Including ${user.display_name}: screenshot from ${screenshotDate.toDateString()} (in range)`);
+              }
+              
+              return isInRange;
+            });
+            
+            console.log(`📊 After date filtering: ${filteredUsers.length} users (was ${users.length})`);
+          }
+        }
+        
+        // Filter by search query
+        if (searchQuery.trim()) {
+          console.log(`🔍 Applying search filter for: "${searchQuery}"`);
+          console.log(`📊 Before search filtering: ${filteredUsers.length} users`);
+          
+          const beforeSearch = filteredUsers.length;
+          filteredUsers = filteredUsers.filter(user => {
+            const matchesName = user.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesEmail = user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesUsername = user.username?.toLowerCase().includes(searchQuery.toLowerCase());
+            const matches = matchesName || matchesEmail || matchesUsername;
+            
+            if (matches) {
+              console.log(`✅ Search match: ${user.display_name || user.email || user.username}`);
+            }
+            
+            return matches;
+          });
+          
+          console.log(`📊 After search filtering: ${filteredUsers.length} users (was ${beforeSearch})`);
+        }
+        
+        // Filter by selected employee
+        if (selectedEmployee !== 'all') {
+          console.log(`🔍 Filtering by selected employee: "${selectedEmployee}"`);
+          const beforeEmployeeFilter = filteredUsers.length;
+          
+          filteredUsers = filteredUsers.filter(user => {
+            const employeeId = user.email || user.username || user.id || (user.display_name || user.name || user.username || 'Unknown Employee').toLowerCase().replace(/\s+/g, '_');
+            const matches = employeeId === selectedEmployee ||
+                           user.email === selectedEmployee || 
+                           user.username === selectedEmployee ||
+                           user.display_name?.toLowerCase().includes(selectedEmployee.toLowerCase());
+            
+            if (matches) {
+              console.log(`✅ Employee filter match: ${user.display_name || user.email || user.username}`);
+            }
+            
+            return matches;
+          });
+          
+          console.log(`📊 After employee filtering: ${filteredUsers.length} users (was ${beforeEmployeeFilter})`);
+        }
+        
+        // Filter by status
+        if (selectedStatus !== 'all') {
+          filteredUsers = filteredUsers.filter(user => {
+            const userStatus = (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase();
+            return userStatus === selectedStatus.toLowerCase();
+          });
+        }
+        
+        setLiveTrackingData(filteredUsers);
+        setDataSource(dataSource); // Update data source state
+        
+        // Calculate stats from the summary or user data using screenshot-based status
+        const calculateStatusFromScreenshot = (user) => {
+          if (user.latest_screenshot?.timestamp) {
+            const screenshotDate = new Date(user.latest_screenshot.timestamp);
+            const now = new Date();
+            const timeDiffMinutes = Math.floor((now - screenshotDate) / (1000 * 60));
+            
+            if (timeDiffMinutes <= 5) return 'online';
+            if (timeDiffMinutes <= 15) return 'idle';
+            return 'offline';
+          }
+          return 'offline';
+        };
+        
+        // Calculate stats using screenshot-based status
+        const onlineUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'online').length;
+        const idleUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'idle').length;
+        const offlineUsers = users.filter(user => calculateStatusFromScreenshot(user) === 'offline').length;
+        const usersWithScreenshots = users.filter(user => user.latest_screenshot?.timestamp).length;
+        
+        console.log(`📊 Screenshot-based stats: Online: ${onlineUsers}, Idle: ${idleUsers}, Offline: ${offlineUsers}`);
+        
+        setActivityStats({
+          totalActive: users.length,
+          online: onlineUsers,
+          idle: idleUsers,
+          offline: offlineUsers,
+          totalHours: `${usersWithScreenshots}h`
+        });
+        
+        // Set total count for pagination (use filtered count)
+        setTotalCount(filteredUsers.length);
+        
+        // Update last updated time
+        setLastUpdated(new Date());
+        
+      } catch (err) {
+        console.error('Error fetching live tracking data:', err);
+        
+        if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+          setError(`⏰ API Timeout: All retry attempts failed
+        
+📊 The API scan is taking longer than expected, which suggests:
+• Large number of employee folders to scan
+• Slow API response times
+• Heavy server load
+
+💡 Recommendations:
+• Try again in a few minutes when server load is lower
+• Use a smaller date range to reduce data processing
+• Both Django (port 8000) and Flask (port 5000) APIs attempted
+• Consider waiting for comprehensive scan to complete`);
+        } else if (err.message === 'All API servers failed') {
+          // Error message already set above
+        } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+          setError(`🌐 Network Error: Unable to connect to API servers
+
+Attempted connections:
+• Live Tracking API: https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/
+• Flask API: http://localhost:5000 (comprehensive data)
+
+Please ensure:
+• Production API server (https://dxdtime.ddsolutions.io) is accessible
+• CORS is properly configured
+• No firewall is blocking the connections
+• Internet connection is stable
+
+💡 Quick fix:
+• Check if https://dxdtime.ddsolutions.io is accessible in your browser
+• Try the "Test API" button to verify connectivity`);
+        } else if (err.response) {
+          setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch live tracking data'}`);
+        } else if (err.request) {
+          setError('📡 Connection error: Request was made but no response received. Both Django and Flask API servers may be slow or unreachable.');
+        } else {
+          setError(`❌ Unexpected error: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
+        setLoadingProgress(0);
+      }
+    };
+
+  // Manual refresh function
+  const handleRefresh = () => {
+    console.log('🔄 Refreshing live tracking data...');
+    setCurrentPage(1); // Reset to first page
+    fetchLiveTrackingData(true);
+  };
+
+  // Fetch data when component mounts or filters change
+  useEffect(() => {
+    // Test Live Tracking API on component mount
+    if (currentPage === 1) {
+      console.log('🚀 Live Tracking Component Initialized');
+      console.log('📡 API Base URL:', API_CONFIG.BASE_URL);
+      console.log('🎯 Live Tracking Endpoint:', API_CONFIG.ENDPOINTS.LIVE_TRACKING);
+      console.log('🔗 Full API URL:', `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LIVE_TRACKING}`);
+      
+      testLiveTrackingAPI();
+    }
+
+    const timer = setTimeout(() => {
+      fetchLiveTrackingData();
+    }, 300); // 300ms debounce for search
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedEmployee, dateRange, currentPage]);
+
+  // Format tracking data for display
+  const formatTrackingData = (user, index) => {
+    // Format the screenshot timestamp for better display
+    let formattedTime = new Date().toLocaleTimeString();
+    let formattedDate = new Date().toLocaleDateString();
+    
+    if (user.latest_screenshot?.timestamp) {
+      const screenshotDate = new Date(user.latest_screenshot.timestamp);
+      formattedTime = screenshotDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      formattedDate = screenshotDate.toLocaleDateString([], { 
+        month: 'short', 
+        day: 'numeric',
+        year: screenshotDate.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      });
+    }
+    
+    // Extract task information from various sources
+    let taskName = user.current_task || user.current_activity || 'No Active Task';
+    
+    // If task is from task_folder, clean it up for better display
+    if (user.latest_screenshot?.task_folder) {
+      taskName = user.latest_screenshot.task_folder
+        .replace(/_/g, ' ')
+        .replace(/([A-Z])/g, ' $1')
+        .trim();
+    }
+    
+    // Determine status based on screenshot recency (within last 5 minutes = online)
+    let calculatedStatus = 'offline';
+    let isRecentlyActive = false;
+    let minutesSinceLastScreenshot = null;
+    
+    if (user.latest_screenshot?.timestamp) {
+      const screenshotDate = new Date(user.latest_screenshot.timestamp);
+      const now = new Date();
+      const timeDiffMs = now - screenshotDate;
+      const timeDiffMinutes = Math.floor(timeDiffMs / (1000 * 60));
+      minutesSinceLastScreenshot = timeDiffMinutes;
+      
+      if (timeDiffMinutes <= 5) {
+        calculatedStatus = 'online';
+        isRecentlyActive = true;
+      } else if (timeDiffMinutes <= 15) {
+        calculatedStatus = 'idle';
+      } else {
+        calculatedStatus = 'offline';
+      }
+      
+      console.log(`📊 Status calculation for ${user.display_name}: ${timeDiffMinutes} minutes ago = ${calculatedStatus}`);
+    } else {
+      console.log(`⚠️ No screenshot timestamp for ${user.display_name}, defaulting to offline`);
+    }
+    
+    return {
+      id: user.id || user.user_id || user.email || index,
+      task: taskName,
+      time: `${formattedDate} ${formattedTime}`,
+      screenshot: getImageUrl(user.latest_screenshot?.url || user.latest_screenshot?.image_url || user.latest_screenshot?.image_path),
+      status: calculatedStatus,
+      originalStatus: (user.status || (user.is_online ? 'online' : 'offline')).toLowerCase(),
+      minutesSinceLastScreenshot: minutesSinceLastScreenshot,
+      employee: user.display_name || user.name || user.username || 'Unknown Employee',
+      email: user.email || '',
+      department: user.department || 'Unknown Department',
+      duration: user.duration || 'N/A',
+      productivity: user.productivity_score || user.productivity || 'N/A',
+      taskPriority: user.task_priority || 'Normal',
+      location: user.location || 'Unknown Location',
+      lastActivity: user.last_activity_time ? new Date(user.last_activity_time).toLocaleString() : 'Unknown',
+      screenshotsCount: user.screenshots_count || 0,
+      isActive: isRecentlyActive, // Based on screenshot recency instead of API status
+      profileImage: user.profile_image || user.avatar,
+      project: user.current_project || 'No Project',
+      hasScreenshot: user.latest_screenshot?.has_screenshot || false,
+      screenshotSize: user.latest_screenshot?.file_size || null,
+      screenshotFilename: user.latest_screenshot?.filename || null,
+      fullDate: formattedDate,
+      timeOnly: formattedTime
+    };
+  };
+
+  // Employee list for filter dropdown - dynamically populated from API data
+  const employees = React.useMemo(() => {
+    const baseEmployees = [{ id: 'all', name: t('allEmployees') || 'All Employees' }];
+    
+    if (liveTrackingData.length > 0) {
+      const uniqueEmployees = liveTrackingData.reduce((acc, user) => {
+        const employeeName = user.display_name || user.name || user.username || 'Unknown Employee';
+        const employeeId = user.email || user.username || user.id || employeeName.toLowerCase().replace(/\s+/g, '_');
+        
+        // Check if employee already exists in the accumulator
+        if (!acc.find(emp => emp.id === employeeId)) {
+          acc.push({
+            id: employeeId,
+            name: employeeName,
+            email: user.email,
+            status: user.status || (user.is_online ? 'online' : 'offline')
+          });
+        }
+        
+        return acc;
+      }, []);
+      
+      // Sort employees alphabetically by name
+      uniqueEmployees.sort((a, b) => a.name.localeCompare(b.name));
+      
+      console.log(`👥 Generated employee list: ${uniqueEmployees.length} employees from API data`);
+      uniqueEmployees.forEach((emp, index) => {
+        console.log(`  ${index + 1}. ${emp.name} (${emp.email || 'no email'}) - ${emp.status}`);
+      });
+      
+      return [...baseEmployees, ...uniqueEmployees];
+    }
+    
+    return baseEmployees;
+  }, [liveTrackingData, t]);
+
+  const departments = [
+    { id: 'all', name: t('allDepartments') },
+    { id: 'dev', name: t('development') },
+    { id: 'design', name: t('design') },
+    { id: 'marketing', name: t('marketing') }
+  ];
+
+  // Filter data based on current filters - now using real API data
+  const filteredScreenshots = liveTrackingData.length > 0 
+    ? liveTrackingData.map((user, index) => formatTrackingData(user, index))
+    : [];
+
+  const totalPages = Math.ceil(filteredScreenshots.length / itemsPerPage);
+  
+  // Apply pagination to the filtered results
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedItems = filteredScreenshots.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedEmployee, dateRange, itemsPerPage]);
+
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
+  return (
+    <DashboardLayout headerTitle={t('liveTracking')} headerBreadcrumb={`${t('home')} / ${t('liveTracking')}`}>
+      <LiveTrackingContainer>
+        <Container>
+          <ContentSection>
+            <TrackingCard>
+              <CardHeader>
+                <Title>
+                  📍 {t('realTimeActivityStream')}
+                  <span style={{ fontSize: '14px', opacity: 0.7 }}>ⓘ</span>
+                </Title>
+                <div style={{ 
+                  fontSize: '11px', 
+                  color: '#6b7280', 
+                  background: '#f8fafc',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  🟢 Online (≤5min) | 🟡 Idle (≤15min) | 🔴 Offline ({'>'}15min)
+                </div>
+              </CardHeader>
+
+              <ActivityInfo>
+                <InfoItem>
+                  <div className="icon">👥</div>
+                  <div className="label">{t('totalActive')}</div>
+                  <div className="value">{activityStats.totalActive}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">🟢</div>
+                  <div className="label">{t('online')}</div>
+                  <div className="value">{activityStats.online}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">🟡</div>
+                  <div className="label">{t('idle')}</div>
+                  <div className="value">{activityStats.idle}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">🔴</div>
+                  <div className="label">{t('offline')}</div>
+                  <div className="value">{activityStats.offline}</div>
+                </InfoItem>
+                <InfoItem>
+                  <div className="icon">⏰</div>
+                  <div className="label">{t('totalHours')}</div>
+                  <div className="value">{activityStats.totalHours}</div>
+                </InfoItem>
+              </ActivityInfo>
+
+              <FilterSection>
+                <LeftFilters>
+                  <FilterDropdown 
+                    value={selectedEmployee} 
+                    onChange={(e) => setSelectedEmployee(e.target.value)}
+                    style={{
+                      background: selectedEmployee !== 'all' ? '#f0f9ff' : undefined,
+                      fontWeight: selectedEmployee !== 'all' ? '600' : 'normal'
+                    }}
+                  >
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.id === 'all' ? emp.name : `${emp.name}${emp.email ? ` (${emp.email})` : ''}`}
+                      </option>
+                    ))}
+                  </FilterDropdown>
+
+                  <FilterDropdown 
+                    value={dateRange} 
+                    onChange={(e) => setDateRange(e.target.value)}
+                    style={{
+                      background: dateRange !== 'today' ? '#fef3c7' : undefined,
+                      fontWeight: dateRange !== 'today' ? '600' : 'normal'
+                    }}
+                  >
+                    <option value="today">{t('today') || 'Today'}</option>
+                    <option value="this_week">{t('thisWeek') || 'This Week'}</option>
+                    <option value="this_month">{t('thisMonth') || 'This Month'}</option>
+                    <option value="this_year">This Year</option>
+                  </FilterDropdown>
+
+                  <FilterDropdown 
+                    value={itemsPerPage} 
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1); // Reset to first page when changing items per page
+                    }}
+                    style={{
+                      background: itemsPerPage !== 6 ? '#f0fdf4' : undefined,
+                      fontWeight: itemsPerPage !== 6 ? '600' : 'normal',
+                      color: itemsPerPage !== 6 ? '#166534' : undefined
+                    }}
+                  >
+                    <option value={6}>6 per page</option>
+                    <option value={20}>20 per page</option>
+                    <option value={50}>50 per page</option>
+                    <option value={100}>100 per page</option>
+                    <option value={150}>150 per page</option>
+                    <option value={200}>200 per page</option>
+                    <option value={300}>300 per page</option>
+                  </FilterDropdown>
+
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <SearchInput
+                      type="text"
+                      placeholder={t('searchEmployees') || 'Search employees...'}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{
+                        background: searchQuery ? '#fef3c7' : undefined,
+                        fontWeight: searchQuery ? '600' : 'normal',
+                        paddingRight: searchQuery ? '35px' : '12px'
+                      }}
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        style={{
+                          position: 'absolute',
+                          right: '8px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '16px',
+                          color: '#6b7280',
+                          padding: '2px'
+                        }}
+                        title="Clear search"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </LeftFilters>
+
+                <RightFilters>
+                  <RefreshButton 
+                    onClick={handleRefresh}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <CircularProgress size={16} style={{ color: 'white' }} />
+                        Refreshing...
+                      </>
+                    ) : (
+                      <>
+                        🔄 Refresh
+                      </>
+                    )}
+                  </RefreshButton>
+
+                  <RefreshButton 
+                    onClick={testLiveTrackingAPI}
+                    disabled={loading}
+                    style={{ backgroundColor: '#28a745', marginLeft: '8px' }}
+                  >
+                    🧪 Test API
+                  </RefreshButton>
+                  
+                  <ExportButton>
+                    📊 Export
+                  </ExportButton>
+                </RightFilters>
+           
+              </FilterSection>
+
+              {/* Data Source Info Banner */}
+              {dataSource !== 'unknown' && (
+                <div style={{
+                  marginBottom: '16px',
+                  padding: '12px',
+                  background: dataSource === 'flask-comprehensive' 
+                    ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' 
+                    : 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                  borderRadius: '8px',
+                  border: `1px solid ${dataSource === 'flask-comprehensive' ? '#fbbf24' : '#3b82f6'}`,
+                  textAlign: 'center',
+                  fontSize: '13px'
+                }}>
+                  <div style={{
+                    fontWeight: '600',
+                    color: dataSource === 'flask-comprehensive' ? '#92400e' : '#1d4ed8',
+                    marginBottom: '4px'
+                  }}>
+                    {dataSource === 'flask-comprehensive' && '🔄 Flask Comprehensive API (Port 5000)'}
+                    {dataSource.includes('django') && '⚡ Django Live Tracking API (Port 8000)'}
+                  </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: dataSource === 'flask-comprehensive' ? '#78350f' : '#1e40af',
+                    opacity: 0.9
+                  }}>
+                    {dataSource === 'flask-comprehensive' && 
+                      `📊 Showing ALL screenshots from S3 bucket • Date filtering not available • Total: ${filteredScreenshots.length} employees`
+                    }
+                    {dataSource.includes('django') && 
+                      `🕒 Real-time S3 scan with date filtering • ${dataSource.includes('fast') ? 'Fast mode' : 'Comprehensive scan'} • Count: ${filteredScreenshots.length} employees`
+                    }
+                  </div>
+                </div>
+              )}
+
+              {/* Results Info */}
+              <ResultsInfo>
+                <div>
+                  Showing {filteredScreenshots.length} employee{filteredScreenshots.length !== 1 ? 's' : ''} 
+                  {' for '} {getDateRangeDescription()}
+                  {searchQuery && (
+                    <span style={{ 
+                      background: '#fef3c7', 
+                      color: '#92400e', 
+                      padding: '2px 6px', 
+                      borderRadius: '4px', 
+                      fontSize: '12px', 
+                      fontWeight: '600',
+                      marginLeft: '8px'
+                    }}>
+                      matching "{searchQuery}"
+                    </span>
+                  )}
+                  {dateRange !== 'today' && dataSource !== 'flask-comprehensive' && (
+                    <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 'normal' }}>
+                      {' '}(filtered by date)
+                    </span>
+                  )}
+                  {dataSource === 'flask-comprehensive' && dateRange !== 'today' && (
+                    <span style={{ 
+                      fontSize: '11px', 
+                      color: '#dc2626', 
+                      fontWeight: '600',
+                      marginLeft: '8px',
+                      background: '#fee2e2',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      ⚠️ Flask API shows ALL-time data
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                  {dataSource !== 'unknown' && (
+                    <span style={{ 
+                      fontSize: '10px', 
+                      color: dataSource === 'flask-comprehensive' ? '#dc2626' : '#059669',
+                      fontWeight: '500',
+                      background: dataSource === 'flask-comprehensive' ? '#fee2e2' : '#ecfdf5',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      {dataSource === 'flask-comprehensive' ? '🔄 Flask' : '⚡ Django'}
+                    </span>
+                  )}
+                  {loading && (
+                    <span style={{ fontSize: '12px', color: '#6b7280' }}>
+                      🔄 Refreshing...
+                    </span>
+                  )}
+                </div>
+              </ResultsInfo>
+
+              {/* Debug Panel - only show in development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  margin: '16px 0',
+                  fontSize: '12px',
+                  color: '#64748b'
+                }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px' }}>🔧 Debug Info:</div>
+                  <div>Date Range: {dateRange} | API Params: {JSON.stringify(getDateRangeParams())}</div>
+                  <div>Search Query: "{searchQuery}" | Selected Employee: {selectedEmployee}</div>
+                  <div>Raw API Results: {liveTrackingData.length} users | Final Display: {filteredScreenshots.length}</div>
+                  <div>Current Page: {currentPage} | Items per page: {itemsPerPage} | Showing: {displayedItems.length}</div>
+                  <div style={{ 
+                    marginTop: '8px', 
+                    padding: '6px', 
+                    background: dataSource === 'flask-comprehensive' ? '#fef3c7' : '#dbeafe', 
+                    borderRadius: '4px', 
+                    color: dataSource === 'flask-comprehensive' ? '#92400e' : '#1d4ed8',
+                    fontWeight: '600'
+                  }}>
+                    <strong>Data Source:</strong> {dataSource} | 
+                    {dataSource === 'flask-comprehensive' && ' Flask API (ALL screenshots) '}
+                    {dataSource.includes('django') && ' Django API (date filtered) '}
+                  </div>
+                  {searchQuery && (
+                    <div style={{ marginTop: '8px', padding: '8px', background: '#fef3c7', borderRadius: '4px', color: '#92400e' }}>
+                      <strong>Search Active:</strong> Filtering for "{searchQuery}" - {filteredScreenshots.length} matches found
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {loading && (
+                <LoadingContainer>
+                  <CircularProgress />
+                  <div>🔍 Scanning S3 folders for live tracking data...</div>
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                    This may take 30-90 seconds as we scan all user folders
+                  </div>
+                  {loadingProgress > 0 && (
+                    <div style={{ marginTop: '12px', width: '200px' }}>
+                      <div style={{ 
+                        background: '#e5e7eb', 
+                        borderRadius: '4px', 
+                        height: '8px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          background: '#3b82f6', 
+                          height: '100%', 
+                          width: `${loadingProgress}%`,
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+                      <div style={{ fontSize: '10px', color: '#666', marginTop: '4px', textAlign: 'center' }}>
+                        {Math.round(loadingProgress)}% - Scanning user folders...
+                      </div>
+                    </div>
+                  )}
+                </LoadingContainer>
+              )}
+
+              {error && (
+                <ErrorMessage>
+                  {error}
+                  <button 
+                    onClick={fetchLiveTrackingData} 
+                    style={{ marginLeft: '10px', fontSize: '12px', padding: '4px 8px', cursor: 'pointer' }}
+                  >
+                    Retry
+                  </button>
+                </ErrorMessage>
+              )}
+
+              {!loading && !error && displayedItems.length === 0 && (
+                <NoDataMessage>
+                  No live tracking data found
+                  <br />
+                  <small>Try adjusting your filters or check if users have recent screenshots in the API</small>
+                </NoDataMessage>
+              )}
+
+              <ResultsInfo>
+                <span>
+                  {t('showing')} {displayedItems.length > 0 ? ((currentPage - 1) * itemsPerPage + 1) : 0}-{Math.min(currentPage * itemsPerPage, filteredScreenshots.length)} {t('of')} {filteredScreenshots.length} {t('results')}
+                </span>
+                <span>{displayedItems.length} {t('itemsOnThisPage')}</span>
+              </ResultsInfo>
+
+              <ScreenshotGrid>
+                {displayedItems.map((item) => (
+                  <ScreenshotCard key={item.id}>
+                    <ScreenshotImage>
+                        {item.hasScreenshot && item.screenshot && item.screenshot !== `Screenshot ${item.id}` ? (
+                          <img 
+                            src={item.screenshot} 
+                            alt={item.task}
+                            style={{ 
+                              width: '100%', 
+                              height: '100%', 
+                              objectFit: 'cover', 
+                              borderRadius: '8px',
+                              cursor: 'pointer'
+                            }}
+                            referrerPolicy="no-referrer"
+                            onClick={() => {
+                              console.log('🖼️ Image clicked:', item.screenshot);
+                              openImageModal(item.screenshot, `${item.employee} - ${item.task}`);
+                            }}
+                            onLoad={(e) => {
+                              console.log('✅ Image loaded successfully:', item.screenshot);
+                            }}
+                            onError={(e) => {
+                              console.error('❌ Image failed to load:', item.screenshot);
+                              console.error('Error details:', e);
+                              e.target.style.display = 'none';
+                              
+                              // Create a fallback div
+                              const fallbackDiv = document.createElement('div');
+                              fallbackDiv.style.cssText = `
+                                display: flex; 
+                                flex-direction: column; 
+                                align-items: center; 
+                                justify-content: center; 
+                                height: 100%; 
+                                background: #fef2f2; 
+                                color: #dc2626;
+                                padding: 8px;
+                                text-align: center;
+                              `;
+                              fallbackDiv.innerHTML = `
+                                <div style="font-size: 24px; margin-bottom: 8px;">�</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-bottom: 4px;">Image Load Error</div>
+                                <div style="font-size: 8px; opacity: 0.6; word-break: break-all;">
+                                  ${item.screenshot.length > 50 ? item.screenshot.substring(0, 50) + '...' : item.screenshot}
+                                </div>
+                              `;
+                              
+                              // Replace the image with the fallback
+                              if (e.target.parentElement) {
+                                e.target.parentElement.appendChild(fallbackDiv);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100%',
+                            background: '#f3f4f6',
+                            color: '#6b7280',
+                            padding: '8px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
+                            <div style={{ fontSize: '12px', opacity: 0.7, marginBottom: '4px' }}>
+                              {item.hasScreenshot === false ? 'No Screenshot Available' : 'Loading...'}
+                            </div>
+                            {item.screenshot && (
+                              <div style={{ fontSize: '8px', opacity: 0.5, wordBreak: 'break-all' }}>
+                                {item.screenshot.length > 40 ? item.screenshot.substring(0, 40) + '...' : item.screenshot}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </ScreenshotImage>
+                    
+                    {/* Image URL below the screenshot */}
+                    {item.screenshot && (
+                      <div style={{ 
+                        fontSize: '10px', 
+                        color: '#3b82f6',
+                        padding: '8px 0 4px 0',
+                        borderBottom: '1px solid #e5e7eb',
+                        marginBottom: '8px',
+                        cursor: 'pointer',
+                        wordBreak: 'break-all',
+                        lineHeight: '1.3',
+                        background: 'linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%)',
+                        borderRadius: '4px',
+                        paddingLeft: '8px',
+                        paddingRight: '8px',
+                        fontWeight: '500',
+                        border: '1px solid #bfdbfe',
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                      onClick={() => {
+                        console.log('🔗 Image URL:', item.screenshot);
+                        window.open(item.screenshot, '_blank');
+                      }}
+                      title="Click to open image in new tab"
+                      >
+                        <span style={{ 
+                          fontSize: '12px', 
+                          color: '#1d4ed8',
+                          fontWeight: 'bold'
+                        }}>➤</span>
+                        <span style={{ 
+                          background: 'linear-gradient(90deg, #1d4ed8, #2563eb)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          fontWeight: '600'
+                        }}>🔗 {item.screenshot}</span>
+                        <span style={{ 
+                          fontSize: '8px', 
+                          color: '#6366f1',
+                          marginLeft: 'auto',
+                          opacity: 0.8
+                        }}>↗</span>
+                      </div>
+                    )}
+                    
+                    <CardContent>
+                      <TaskHeader>
+                        <TaskName>{item.task}</TaskName>
+                        <StatusBadge status={item.status}>
+                          {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        </StatusBadge>
+                      </TaskHeader>
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {item.profileImage ? (
+                          <img 
+                            src={item.profileImage} 
+                            alt={item.employee}
+                            style={{ width: '16px', height: '16px', borderRadius: '50%' }}
+                          />
+                        ) : (
+                          <span>👤</span>
+                        )}
+                        {item.employee}
+                        {item.isActive && <span style={{ color: '#10b981', fontSize: '10px' }}>●</span>}
+                      </div>
+                      {item.email && (
+                        <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '4px' }}>
+                          📧 {item.email}
+                        </div>
+                      )}
+                      {item.minutesSinceLastScreenshot !== null && (
+                        <div style={{ 
+                          fontSize: '10px', 
+                          marginBottom: '4px',
+                          color: item.minutesSinceLastScreenshot <= 5 ? '#10b981' : 
+                                item.minutesSinceLastScreenshot <= 15 ? '#f59e0b' : '#ef4444',
+                          fontWeight: '500',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          <span style={{ fontSize: '8px' }}>
+                            {item.minutesSinceLastScreenshot <= 5 ? '🟢' : 
+                             item.minutesSinceLastScreenshot <= 15 ? '🟡' : '🔴'}
+                          </span>
+                          Last seen: {formatTimeAgo(item.minutesSinceLastScreenshot)}
+                        </div>
+                      )}
+                      {item.duration && item.duration !== 'N/A' && (
+                        <div style={{ fontSize: '11px', color: '#6366f1', marginBottom: '4px' }}>
+                          ⏱️ Working Time: {item.duration}
+                        </div>
+                      )}
+                      {item.productivity && item.productivity !== 'N/A' && (
+                        <div style={{ fontSize: '11px', color: '#059669', marginBottom: '4px' }}>
+                          📊 Efficiency: {item.productivity}
+                        </div>
+                      )}
+                      {item.screenshotsCount > 0 && (
+                        <div style={{ fontSize: '10px', color: '#8b5cf6', marginBottom: '4px' }}>
+                          📷 {item.screenshotsCount} screenshots
+                        </div>
+                      )}
+                      {item.screenshotFilename && (
+                        <div style={{ fontSize: '9px', color: '#6b7280', marginBottom: '4px', opacity: 0.8 }}>
+                          📁 {item.screenshotFilename}
+                        </div>
+                      )}
+                      {item.screenshotSize && (
+                        <div style={{ fontSize: '9px', color: '#6b7280', marginBottom: '4px', opacity: 0.8 }}>
+                          📊 {(item.screenshotSize / 1024).toFixed(1)} KB
+                        </div>
+                      )}
+                      {item.taskPriority && (
+                        <div style={{ 
+                          fontSize: '10px', 
+                          marginBottom: '4px',
+                          padding: '2px 6px',
+                          borderRadius: '8px',
+                          backgroundColor: item.taskPriority.toLowerCase() === 'high' ? '#fef2f2' : 
+                                         item.taskPriority.toLowerCase() === 'medium' ? '#fef3c7' : '#f0f9ff',
+                          color: item.taskPriority.toLowerCase() === 'high' ? '#dc2626' : 
+                                item.taskPriority.toLowerCase() === 'medium' ? '#d97706' : '#0369a1',
+                          fontWeight: '500'
+                        }}>
+                          🎯 {item.taskPriority} Priority
+                        </div>
+                      )}
+                      {item.location && item.location !== 'Unknown Location' && (
+                        <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>
+                          📍 {item.location}
+                        </div>
+                      )}
+                      {item.lastActivity && item.lastActivity !== 'Unknown' && (
+                        <div style={{ fontSize: '10px', color: '#f59e0b', marginBottom: '4px' }}>
+                          🔄 Last active: {item.lastActivity}
+                        </div>
+                      )}
+                      <TaskMeta>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <TaskTime>📅 {item.fullDate}</TaskTime>
+                          <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                            ⏱️ {item.timeOnly}
+                          </div>
+                        </div>
+                        {item.status && (
+                          <StatusBadge status={item.status} style={{ fontSize: '10px', padding: '2px 6px' }}>
+                            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                          </StatusBadge>
+                        )}
+                      </TaskMeta>
+                    </CardContent>
+                  </ScreenshotCard>
+                ))}
+              </ScreenshotGrid>
+
+              {totalPages > 1 && (
+                <PaginationContainer>
+                  <PaginationButton
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    ← {t('previous')}
+                  </PaginationButton>
+
+                  {generatePageNumbers().map((page, index) => (
+                    <PaginationButton
+                      key={index}
+                      active={page === currentPage}
+                      onClick={() => typeof page === 'number' && handlePageChange(page)}
+                      disabled={page === '...'}
+                    >
+                      {page}
+                    </PaginationButton>
+                  ))}
+
+                  <PaginationButton
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    {t('next')} →
+                  </PaginationButton>
+
+                  <PaginationInfo>
+                    {t('page')} {currentPage} {t('of')} {totalPages}
+                  </PaginationInfo>
+                </PaginationContainer>
+              )}
+            </TrackingCard>
+          </ContentSection>
+        </Container>
+      </LiveTrackingContainer>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        images={currentImages}
+        currentIndex={currentImageIndex}
+        onClose={closeImageModal}
+        onNavigate={setCurrentImageIndex}
+      />
+    </DashboardLayout>
+  );
+};
+
+export default LiveTracking;
