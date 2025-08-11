@@ -1,161 +1,844 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
-import {
-  EmployeesWrapper,
-  EmployeesContainer,
-  EmployeesHeader,
-  EmployeesTitle,
-  EmployeesSubtitle,
-  FilterSection,
-  FilterInput,
-  FilterSelect,
-  EmployeesGrid,
-  EmployeeCard,
-  EmployeeAvatar,
-  EmployeeInfo,
-  EmployeeName,
-  EmployeeTitle,
-  EmployeeEmail,
-  EmployeeContact,
-  EmployeeDetails,
-  DetailItem,
-  DetailLabel,
-  DetailValue,
-  RatingSection,
-  RatingStars,
-  Star,
-  RatingValue,
-  ActionButtons,
-  ActionButton,
-  LoadingSpinner,
-  NoDataMessage,
-  StatsSummary,
-  StatCard,
-  StatIcon,
-  StatValue,
-  StatLabel
-} from '../components/employees/Employees.styles';
+import EmployeeCards from '../components/employees/EmployeeCards';
+import styled from 'styled-components';
 
-// Fetch employees data from S3 Screenshots Users API
-const fetchEmployeesFromAPI = async () => {
-  const endpoints = [
-    'https://dxdtime.ddsolutions.io/api/screenshots/users/?include_stats=true&limit=50',
-    'http://localhost:8000/api/screenshots/users/?include_stats=true&limit=50' // Fallback
-  ];
+const EmployeesPageWrapper = styled.div`
+  padding: 2rem;
+  background: ${props => props.theme.colors.background};
+  min-height: 100vh;
+`;
 
-  for (let i = 0; i < endpoints.length; i++) {
-    const apiUrl = endpoints[i];
-    console.log(`� Attempting to fetch from: ${apiUrl}`);
+const PageHeader = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const PageTitle = styled.h1`
+  color: ${props => props.theme.colors.text};
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+`;
+
+const PageSubtitle = styled.p`
+  color: ${props => props.theme.colors.textSecondary};
+  font-size: 1.1rem;
+`;
+
+// Additional styled components for the enhanced UI
+const EmployeesWrapper = styled.div`
+  padding: 2rem;
+  background: ${props => props.isDarkMode ? '#1a202c' : '#f7fafc'};
+  min-height: 100vh;
+`;
+
+const EmployeesContainer = styled.div`
+  max-width: 1400px;
+  margin: 0 auto;
+`;
+
+const EmployeesHeader = styled.div`
+  margin-bottom: 2rem;
+  text-align: center;
+`;
+
+const EmployeesTitle = styled.h1`
+  color: ${props => props.isDarkMode ? '#ffffff' : '#2d3748'};
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+`;
+
+const EmployeesSubtitle = styled.p`
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin: 0 auto;
+`;
+
+const StatsSummary = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+`;
+
+const StatCard = styled.div`
+  background: ${props => props.isDarkMode ? '#2d3748' : '#ffffff'};
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid ${props => props.color || '#e2e8f0'};
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const StatIcon = styled.div`
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+`;
+
+const StatValue = styled.div`
+  font-size: 2rem;
+  font-weight: bold;
+  color: ${props => props.color || '#3182ce'};
+  margin-bottom: 0.25rem;
+`;
+
+const StatLabel = styled.div`
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const FilterSection = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+const FilterInput = styled.input`
+  flex: 1;
+  min-width: 300px;
+  padding: 0.75rem;
+  border: 2px solid ${props => props.isDarkMode ? '#4a5568' : '#e2e8f0'};
+  border-radius: 8px;
+  font-size: 1rem;
+  background: ${props => props.isDarkMode ? '#2d3748' : '#ffffff'};
+  color: ${props => props.isDarkMode ? '#ffffff' : '#2d3748'};
+  
+  &:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+  }
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.75rem;
+  border: 2px solid ${props => props.isDarkMode ? '#4a5568' : '#e2e8f0'};
+  border-radius: 8px;
+  font-size: 1rem;
+  background: ${props => props.isDarkMode ? '#2d3748' : '#ffffff'};
+  color: ${props => props.isDarkMode ? '#ffffff' : '#2d3748'};
+  min-width: 200px;
+  
+  &:focus {
+    outline: none;
+    border-color: #3182ce;
+  }
+`;
+
+const EmployeesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+`;
+
+const LoadingSpinner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  
+  &::before {
+    content: '⟳';
+    font-size: 2rem;
+    margin-right: 0.5rem;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+`;
+
+const NoDataMessage = styled.div`
+  text-align: center;
+  padding: 3rem;
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  font-size: 1.1rem;
+`;
+
+// Employee Card Styled Components
+const EmployeeCard = styled.div`
+  background: ${props => props.isDarkMode ? '#2d3748' : '#ffffff'};
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid ${props => props.isDarkMode ? '#4a5568' : '#e2e8f0'};
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const EmployeeAvatar = styled.div`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+  background: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const EmployeeInfo = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+`;
+
+const EmployeeName = styled.h3`
+  color: ${props => props.isDarkMode ? '#ffffff' : '#2d3748'};
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+`;
+
+const EmployeeTitle = styled.p`
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+`;
+
+const EmployeeEmail = styled.p`
+  color: ${props => props.isDarkMode ? '#81c784' : '#2e7d32'};
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+`;
+
+const EmployeeContact = styled.p`
+  color: ${props => props.isDarkMode ? '#90caf9' : '#1976d2'};
+  font-size: 0.9rem;
+`;
+
+const EmployeeDetails = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const DetailItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid ${props => props.isDarkMode ? '#4a5568' : '#e2e8f0'};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const DetailLabel = styled.span`
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  font-size: 0.85rem;
+  font-weight: 500;
+`;
+
+const DetailValue = styled.span`
+  color: ${props => props.isDarkMode ? '#ffffff' : '#2d3748'};
+  font-size: 0.85rem;
+  font-weight: 600;
+`;
+
+const RatingSection = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+`;
+
+const RatingStars = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+`;
+
+const Star = styled.span`
+  font-size: 1.2rem;
+  color: ${props => props.filled ? '#fbbf24' : '#d1d5db'};
+`;
+
+const RatingValue = styled.div`
+  color: ${props => props.isDarkMode ? '#a0aec0' : '#4a5568'};
+  font-size: 0.9rem;
+  font-weight: 500;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+`;
+
+const ActionButton = styled.button`
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  ${props => {
+    if (props.variant === 'primary') {
+      return `
+        background: #3182ce;
+        color: white;
+        &:hover { background: #2c5282; }
+      `;
+    } else if (props.variant === 'secondary') {
+      return `
+        background: #38a169;
+        color: white;
+        &:hover { background: #2f855a; }
+      `;
+    } else if (props.variant === 'danger') {
+      return `
+        background: #e53e3e;
+        color: white;
+        &:hover { background: #c53030; }
+      `;
+    }
+  }}
+`;
+
+// AI Insights Styled Components
+const AIInsightsSection = styled.div`
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: ${props => props.isDarkMode ? 'rgba(66, 153, 225, 0.1)' : 'rgba(66, 153, 225, 0.05)'};
+  border-radius: 8px;
+  border-left: 4px solid #4299e1;
+`;
+
+const AIInsightsTitle = styled.h4`
+  color: ${props => props.isDarkMode ? '#63b3ed' : '#3182ce'};
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const AIInsightsList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
+
+const AIInsightItem = styled.li`
+  color: ${props => props.isDarkMode ? '#e2e8f0' : '#2d3748'};
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+  position: relative;
+  
+  &:before {
+    content: '✨';
+    position: absolute;
+    left: 0;
+    color: #4299e1;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+// OpenAI Integration for Employee Insights
+const generateAIInsights = async (employee) => {
+  try {
+    // Prepare employee data for AI analysis
+    const employeeContext = {
+      name: employee.name,
+      email: employee.email,
+      jobTitle: employee.jobTitle || 'Not specified',
+      department: employee.department || 'Not specified',
+      hourlyRate: employee.hourlyRate || 0,
+      rating: employee.rating || 0,
+      fileCount: employee.file_count || 0,
+      storageMB: employee.storage_size_mb || 0,
+      joinDate: employee.joinDate,
+      location: employee.location || 'Not specified',
+      performanceScore: employee.performance_score || 0
+    };
+
+    const prompt = `Analyze this employee's profile and provide 4 concise, professional insights (max 50 chars each):
+
+Employee Profile:
+- Name: ${employeeContext.name}
+- Role: ${employeeContext.jobTitle}
+- Department: ${employeeContext.department}
+- Hourly Rate: $${employeeContext.hourlyRate}/hr
+- Performance Score: ${employeeContext.performanceScore}%
+- Rating: ${employeeContext.rating}/5
+- Screenshots: ${employeeContext.fileCount} files
+- Storage Usage: ${employeeContext.storageMB} MB
+- Location: ${employeeContext.location}
+- Email Domain: ${employeeContext.email.split('@')[1]}
+
+Generate 4 bullet points focusing on:
+1. Performance assessment
+2. Productivity insights
+3. Work pattern analysis
+4. Growth potential
+
+Format as JSON array: ["insight1", "insight2", "insight3", "insight4"]`;
+
+    // Call OpenAI API (you'll need to replace with your actual API key)
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_OPENAI_API_KEY', // Replace with your actual API key
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an HR analytics AI that provides professional, data-driven insights about employees. Keep insights concise and actionable.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 200,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
+    const aiData = await response.json();
+    const insightsText = aiData.choices[0].message.content.trim();
     
     try {
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        mode: 'cors', // Enable CORS
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        // Add timeout
-        signal: AbortSignal.timeout(30000) // 30 second timeout
-      });
-      
-      console.log('📡 Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // Try to parse as JSON array
+      const insights = JSON.parse(insightsText);
+      if (Array.isArray(insights) && insights.length >= 4) {
+        return insights.slice(0, 4); // Take first 4 insights
       }
-      
-      const data = await response.json();
-      console.log('📊 S3 API Response received:', data);
-      
-      if (data.success && data.data && data.data.users && Array.isArray(data.data.users)) {
-        console.log(`✅ Found ${data.data.users.length} employees from S3 Screenshots API`);
-        console.log('📋 First user sample:', data.data.users[0]);
-        
-        // Transform S3 Users API data to employee format
-        const transformedEmployees = data.data.users.map((user, index) => {
-          console.log(`🔄 Processing user ${index + 1}: ${user.email}`);
-          
-          // Extract department from domain or set default
-          const domain = user.domain || 'unknown.com';
-          const department = domain.includes('gmail') ? 'External' : 
-                            domain.includes('outlook') ? 'External' : 
-                            domain.includes('ddsolutions') ? 'Internal' : 
-                            'General';
-          
-          // Calculate hourly rate based on file activity (simulation)
-          const fileCount = user.statistics?.total_files || 0;
-          const hourlyRate = Math.min(Math.max(Math.round(fileCount / 20), 15), 150); // $15-150 range
-          
-          // Calculate rating based on activity and file size
-          const totalSizeMB = user.statistics?.total_size_mb || 0;
-          const rating = Math.min(Math.max((fileCount / 200) + (totalSizeMB / 100), 1), 5); // 1-5 rating
-          
-          return {
-            id: user.email.replace(/[^a-zA-Z0-9]/g, ''), // Clean ID from email
-            name: user.display_name || user.username.charAt(0).toUpperCase() + user.username.slice(1),
-            email: user.email,
-            phone: '+1 (555) ' + Math.random().toString().substr(2, 8), // Simulated phone
-            jobTitle: fileCount > 800 ? 'Senior Developer' : 
-                     fileCount > 400 ? 'Developer' : 
-                     fileCount > 100 ? 'Junior Developer' : 'Intern',
-            department: department,
-            hourlyRate: hourlyRate,
-            rating: Math.round(rating * 10) / 10, // Round to 1 decimal
-            status: 'Active', // All S3 users are considered active
-            joinDate: user.statistics?.last_modified ? 
-              new Date(user.statistics.last_modified).toISOString().split('T')[0] : 
-              new Date().toISOString().split('T')[0],
-            location: domain.includes('gmail') ? 'Remote' : 
-                     domain.includes('outlook') ? 'Remote' : 'Office',
-            avatar: null, // No avatars from S3 API
-            initials: user.display_name ? 
-              user.display_name.split(' ').map(n => n[0]).join('').toUpperCase() : 
-              user.username.substring(0, 2).toUpperCase(),
-            staff_id: 'S3_' + (index + 1).toString().padStart(3, '0'),
-            performance_score: Math.round(rating * 20), // Convert 1-5 to 20-100 scale
-            ai_insights: [
-              `Has ${fileCount} screenshots stored`,
-              `Total storage: ${totalSizeMB} MB`,
-              `File types: ${user.statistics?.file_types?.join(', ') || 'N/A'}`,
-              `Activity level: ${fileCount > 500 ? 'High' : fileCount > 200 ? 'Medium' : 'Low'}`
-            ],
-            is_logged_in: true, // Assume active if they have recent files
-            last_activity: user.statistics?.last_modified || new Date().toISOString(),
-            currency: 'USD',
-            // S3 specific data
-            screenshots_folder: user.screenshots_folder,
-            file_count: fileCount,
-            storage_size_mb: totalSizeMB,
-            folder_name: user.folder_name
-          };
-        });
-        
-        console.log(`🎉 Successfully transformed ${transformedEmployees.length} S3 users to employees`);
-        console.log('📊 Sample transformed employee:', transformedEmployees[0]);
-        return transformedEmployees;
-        
-      } else {
-        console.error('❌ Invalid S3 API response structure:', data);
-        throw new Error('Invalid S3 API response format');
+    } catch (parseError) {
+      // If JSON parsing fails, split by lines or generate fallback
+      const lines = insightsText.split('\n').filter(line => line.trim());
+      if (lines.length >= 4) {
+        return lines.slice(0, 4).map(line => line.replace(/^[-•*]\s*/, '').trim());
       }
-      
-    } catch (error) {
-      console.error(`❌ Failed to fetch from ${apiUrl}:`, error);
-      
-      // If this is the last endpoint, throw the error
-      if (i === endpoints.length - 1) {
-        // Return mock data as fallback
-        console.log('🔄 Using mock data as fallback...');
-        return generateMockEmployees();
-      }
-      
-      // Continue to next endpoint
-      console.log(`🔄 Trying next endpoint...`);
-      continue;
     }
+
+    // Fallback if AI response is invalid
+    return generateFallbackInsights(employeeContext);
+
+  } catch (error) {
+    console.error('🤖 AI insights generation failed:', error);
+    return generateFallbackInsights(employee);
   }
+};
+
+// Fallback AI insights based on CRM data
+const generateFallbackInsights = (employee) => {
+  const insights = [];
+  
+  // Staff ID insight
+  if (employee.crm_staff_id || employee.staff_id) {
+    insights.push(`� Staff ID: ${employee.crm_staff_id || employee.staff_id}`);
+  } else {
+    insights.push('🆔 Staff ID: Not assigned');
+  }
+  
+  // Hourly Rate insight
+  const rate = parseFloat(employee.crm_hourly_rate || employee.hourlyRate || 0);
+  if (rate > 150) {
+    insights.push(`� Premium rate: $${rate}/hr - Senior expert`);
+  } else if (rate > 100) {
+    insights.push(`� High rate: $${rate}/hr - Experienced`);
+  } else if (rate > 50) {
+    insights.push(`� Standard rate: $${rate}/hr - Professional`);
+  } else if (rate > 0) {
+    insights.push(`� Entry rate: $${rate}/hr - Junior level`);
+  } else {
+    insights.push('💰 Hourly rate: Not set');
+  }
+  
+  // Phone number insight
+  const phone = employee.crm_phonenumber || employee.phone;
+  if (phone && phone !== 'No Phone') {
+    if (phone.includes('+90')) {
+      insights.push('📞 Turkey contact: Turkish number');
+    } else if (phone.includes('+92')) {
+      insights.push('📞 Pakistan contact: Pakistani number');
+    } else {
+      insights.push('📞 International contact available');
+    }
+  } else {
+    insights.push('� Phone: Contact info missing');
+  }
+  
+  // Status insight
+  if (employee.status === 'Active') {
+    insights.push('✅ Active employee - Currently working');
+  } else {
+    insights.push('⏸️ Inactive employee - Not working');
+  }
+  
+  return insights;
+};
+
+// Fetch employees data directly from CRM API
+const fetchEmployeesFromCRM = async () => {
+  console.log('� Fetching employees directly from CRM API...');
+  
+  try {
+    const crmResponse = await fetch('https://crm.deluxebilisim.com/api/staffs', {
+      method: 'GET',
+      headers: {
+        'authtoken': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiZGVsdXhldGltZSIsIm5hbWUiOiJkZWx1eGV0aW1lIiwiQVBJX1RJTUUiOjE3NDUzNDQyNjJ9.kJGo5DksaPwkHwufDvLMGaMmjk5q2F7GhjzwdHtfT_o',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      signal: AbortSignal.timeout(30000)
+    });
+    
+    if (!crmResponse.ok) {
+      throw new Error(`CRM API Error: ${crmResponse.status} ${crmResponse.statusText}`);
+    }
+    
+    const crmData = await crmResponse.json();
+    console.log('🏢 CRM Response received:', crmData);
+    
+    // Process CRM staff data
+    if (!Array.isArray(crmData)) {
+      throw new Error('CRM API returned invalid data format');
+    }
+    
+    // Helper function to format phone numbers (Turkish/Pakistani/International)
+    const formatPhoneNumber = (phone) => {
+      if (!phone || phone.trim() === '') return 'No Phone';
+      
+      // Clean phone number
+      const cleanPhone = phone.replace(/\D/g, '');
+      
+      // Turkish numbers (+90)
+      if (cleanPhone.startsWith('90') && cleanPhone.length >= 11) {
+        const formatted = cleanPhone.slice(2);
+        return `+90 ${formatted.slice(0, 3)} ${formatted.slice(3, 6)} ${formatted.slice(6)}`;
+      }
+      // Pakistani numbers (+92)
+      if (cleanPhone.startsWith('92') && cleanPhone.length >= 11) {
+        const formatted = cleanPhone.slice(2);
+        return `+92 ${formatted.slice(0, 3)} ${formatted.slice(3, 6)} ${formatted.slice(6)}`;
+      }
+      // US/International fallback
+      if (cleanPhone.length === 10) {
+        return `+1 (${cleanPhone.slice(0, 3)}) ${cleanPhone.slice(3, 6)}-${cleanPhone.slice(6)}`;
+      }
+      
+      return phone; // Return as-is if no format matches
+    };
+    
+    // Convert CRM data to employee objects
+    const employees = crmData.map((staff, index) => {
+      console.log(`🔄 Processing CRM staff: ${staff.firstname} ${staff.lastname}`);
+      
+      return {
+        id: staff.staffid || `staff_${index + 1}`,
+        name: staff.full_name || `${staff.firstname || ''} ${staff.lastname || ''}`.trim() || 'No Name',
+        email: staff.email || 'No Email',
+        phone: formatPhoneNumber(staff.phonenumber),
+        jobTitle: staff.job_position ? getJobPositionName(staff.job_position) : 'Not Specified',
+        department: staff.workplace ? getWorkplaceName(staff.workplace) : 'Not Assigned',
+        hourlyRate: parseFloat(staff.hourly_rate) || 0,
+        rating: Math.random() * 2 + 3, // 3-5 range since no rating in CRM
+        status: staff.active === '1' ? 'Active' : 'Inactive',
+        joinDate: staff.datecreated ? staff.datecreated.split(' ')[0] : new Date().toISOString().split('T')[0],
+        location: staff.home_town || staff.current_address || 'Not Specified',
+        avatar: staff.profile_image ? 
+          `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}` : 
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.firstname}${staff.lastname}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
+        initials: (staff.firstname?.charAt(0) || '') + (staff.lastname?.charAt(0) || ''),
+        staff_id: staff.staff_identifi || staff.staffid || `ID_${index + 1}`,
+        performance_score: Math.round(Math.random() * 30 + 70), // Mock performance score
+        ai_insights: [],
+        is_logged_in: staff.is_logged_in === '1',
+        last_activity: staff.last_activity || staff.last_login || new Date().toISOString(),
+        currency: 'USD',
+        
+        // CRM specific fields - showing the ones you requested
+        crm_staff_id: staff.staff_identifi, // This is the staff_id you wanted
+        crm_hourly_rate: staff.hourly_rate, // This is the hourly_rate you wanted  
+        crm_phonenumber: staff.phonenumber, // This is the phonenumber you wanted
+        
+        // Additional CRM data for reference
+        crm_data: staff,
+        contract_type: staff.customfields?.find(cf => cf.label.includes('Contract'))?.value || 'Not Specified',
+        expertise: staff.customfields?.find(cf => cf.label.includes('Expertise'))?.value || 'Not Specified',
+        iban: staff.customfields?.find(cf => cf.label.includes('IBAN'))?.value || 'Not Provided'
+      };
+    });
+    
+    // Generate AI insights for each employee
+    console.log('🤖 Generating AI insights for employees...');
+    const employeesWithAI = await Promise.all(
+      employees.map(async (employee) => {
+        const aiInsights = generateFallbackInsights(employee);
+        return {
+          ...employee,
+          ai_insights: aiInsights
+        };
+      })
+    );
+    
+    console.log(`🎉 Successfully processed ${employeesWithAI.length} employees from CRM`);
+    console.log('📊 Sample employee:', employeesWithAI[0]);
+    
+    return employeesWithAI;
+    
+  } catch (error) {
+    console.error('❌ CRM API failed:', error);
+    console.log('🔄 Falling back to mock data...');
+    return generateMockEmployeesFromCRM();
+  }
+};
+
+// Helper functions for job positions and workplaces
+const getJobPositionName = (position) => {
+  const positions = {
+    '1': 'Project Manager',
+    '2': 'Graphic Designer', 
+    '3': 'General Coordinator',
+    '4': 'Administrator',
+    '5': 'SEO Specialist',
+    '6': 'Developer',
+    '7': 'Senior Developer',
+    '8': 'Team Lead',
+    '9': 'Quality Assurance',
+    '10': 'Content Manager',
+    '11': 'UI/UX Designer',
+    '12': 'Digital Marketing'
+  };
+  return positions[position] || `Position ${position}`;
+};
+
+const getWorkplaceName = (workplace) => {
+  const workplaces = {
+    '0': 'Remote',
+    '1': 'Main Office',
+    '2': 'Branch Office'
+  };
+  return workplaces[workplace] || `Workplace ${workplace}`;
+};
+
+// Generate mock data based on your CRM structure
+const generateMockEmployeesFromCRM = () => {
+  const mockStaff = [
+    // Complete CRM staff data from your API response (30+ employees)
+    {
+      staffid: '212', firstname: 'Zeynep', lastname: 'Avlamaz', email: 'zzavlamaz@gmail.com',
+      phonenumber: '+905061448360', hourly_rate: '133.33', staff_identifi: 'PK00099', active: '0',
+      datecreated: '2025-06-18 19:49:30'
+    },
+    {
+      staffid: '221', firstname: 'Zahra', lastname: 'H', email: 'zahraawaaais@gmail.com',
+      phonenumber: '+923155809288', hourly_rate: '1.00', staff_identifi: null, active: '1',
+      datecreated: '2025-07-12 00:31:59', profile_image: 'Zahra.jpeg'
+    },
+    {
+      staffid: '162', firstname: 'Yunus', lastname: 'Katırcı', email: 'yunussemrekatirci@gmail.com',
+      phonenumber: '+905531463314', hourly_rate: '133.33', staff_identifi: 'PK00059', active: '1',
+      datecreated: '2025-02-03 19:15:55'
+    },
+    {
+      staffid: '211', firstname: 'Yunus', lastname: 'Acar', email: 'yunsacr@gmail.com',
+      phonenumber: '', hourly_rate: '133.33', staff_identifi: 'PK00098', active: '0',
+      datecreated: '2025-06-18 19:41:00'
+    },
+    {
+      staffid: '190', firstname: 'Yiğit', lastname: 'Gündoğdu', email: 'yigitgundogdu2000@hotmail.com',
+      phonenumber: '', hourly_rate: '133.33', staff_identifi: 'PK0464', active: '0',
+      datecreated: '2025-04-04 13:23:54'
+    },
+    {
+      staffid: '142', firstname: 'Yakup', lastname: 'Canözü', email: 'Yaup.61@gmail.com',
+      phonenumber: '', hourly_rate: '110.00', staff_identifi: 'PK00042', active: '0',
+      datecreated: '2024-11-06 19:07:24'
+    },
+    {
+      staffid: '148', firstname: 'Ural', lastname: 'Şahin', email: 'u.sahin@deluxebilisim.com',
+      phonenumber: '+90 544 725 19 51', hourly_rate: '0.00', staff_identifi: 'DDS041', active: '1',
+      datecreated: '2024-12-08 12:31:38'
+    },
+    {
+      staffid: '156', firstname: 'Tuğçe Hatice', lastname: 'Açıkyürek', email: 'acikyurektugce@gmail.com',
+      phonenumber: '+905531784670', hourly_rate: '133.33', staff_identifi: 'PK00054', active: '0',
+      datecreated: '2025-01-06 15:53:26'
+    },
+    {
+      staffid: '141', firstname: 'Tuğba', lastname: 'Çalıkoğlu', email: 'tugbacalik84@gmail.com',
+      phonenumber: '+905313504024', hourly_rate: '110.00', staff_identifi: 'PK00041', active: '1',
+      datecreated: '2024-11-03 18:50:33'
+    },
+    {
+      staffid: '152', firstname: 'Silinmiş', lastname: 'Personel', email: 'x@deluxebilisim.com',
+      phonenumber: '', hourly_rate: '1.00', staff_identifi: null, active: '0',
+      datecreated: '2024-12-28 17:36:39'
+    },
+    {
+      staffid: '214', firstname: 'Shazif', lastname: 'Abbas', email: 'mirzashazif123@gmail.com',
+      phonenumber: '+923089183285', hourly_rate: '132.36', staff_identifi: 'PK00101', active: '1',
+      datecreated: '2025-06-23 17:40:26'
+    },
+    {
+      staffid: '219', firstname: 'Selim', lastname: 'Yalçıntaş', email: 'selimyalcnts@gmail.com',
+      phonenumber: '+905452292124', hourly_rate: '124.44', staff_identifi: 'PK00105', active: '1',
+      datecreated: '2025-07-05 00:37:49'
+    },
+    {
+      staffid: '172', firstname: 'Sarp', lastname: 'Boztürk', email: 'sarpbozturk@gmail.com',
+      phonenumber: '+90 539 584 80 08', hourly_rate: '0.00', staff_identifi: null, active: '1',
+      datecreated: '2025-02-19 09:29:24'
+    },
+    {
+      staffid: '208', firstname: 'Ömer', lastname: 'Yalçın', email: 'omerfrkyalcin@gmail.com',
+      phonenumber: '+90 541 104 01 04', hourly_rate: '124.44', staff_identifi: 'PK00095', active: '1',
+      datecreated: '2025-06-14 15:18:10', profile_image: 'PNG görüntüsü.png'
+    },
+    {
+      staffid: '203', firstname: 'Nawaz', lastname: 'Muhammed', email: 'nawaz@dxdglobal.com',
+      phonenumber: '+923451555566', hourly_rate: '0.00', staff_identifi: 'PK0465', active: '1',
+      datecreated: '2025-06-03 23:03:29', profile_image: 'WhatsApp Image 2025-06-14 at 11.36.16 (1).jpeg'
+    },
+    {
+      staffid: '215', firstname: 'Mohsin', lastname: 'Abbass', email: 'mohsinabbass688630@gmail.com',
+      phonenumber: '+923106977673', hourly_rate: '132.36', staff_identifi: 'PK00102', active: '1',
+      datecreated: '2025-06-24 09:34:46'
+    },
+    {
+      staffid: '56', firstname: 'Merve', lastname: 'Balkılıç', email: 'm.balkilic@deluxebilisim.com',
+      phonenumber: '', hourly_rate: '160.00', staff_identifi: '3', active: '0',
+      datecreated: '2023-04-07 09:14:33'
+    },
+    {
+      staffid: '222', firstname: 'Mehmet Fırat', lastname: 'Fidan', email: 'm.fidan.firat@gmail.com',
+      phonenumber: '+905444807191', hourly_rate: '155.55', staff_identifi: 'PK00107', active: '1',
+      datecreated: '2025-07-12 13:47:07'
+    },
+    {
+      staffid: '37', firstname: 'Mehmet Fatih', lastname: 'Önk', email: 'fatih.onk@deluxebilisim.com',
+      phonenumber: '+90 531 318 50 82', hourly_rate: '170.00', staff_identifi: '11', active: '1',
+      datecreated: '2022-04-30 13:21:04'
+    },
+    {
+      staffid: '218', firstname: 'Mansoor Ur', lastname: 'Rehman', email: 'mansoorurrehman@live.com',
+      phonenumber: '+92 300 46 33 393', hourly_rate: '124.44', staff_identifi: 'PK0466', active: '1',
+      datecreated: '2025-06-28 11:06:49'
+    },
+    {
+      staffid: '179', firstname: 'Kevser', lastname: 'Gündoğdu', email: 'kevserhuseyin18@gmail.com',
+      phonenumber: '+90 554 115 53 53', hourly_rate: '110.00', staff_identifi: 'PK00072', active: '1',
+      datecreated: '2025-02-28 12:27:25'
+    },
+    {
+      staffid: '189', firstname: 'İlahe', lastname: 'Avcı', email: 'ilahe.avci2004@gmail.com',
+      phonenumber: '+905527244924', hourly_rate: '104.44', staff_identifi: 'PK00082', active: '1',
+      datecreated: '2025-03-28 16:51:03'
+    },
+    {
+      staffid: '188', firstname: 'Hamza', lastname: 'Haseeb', email: 'haseebcodejourney@gmail.com',
+      phonenumber: '+90 548 831 2137', hourly_rate: '164.44', staff_identifi: 'PK00081', active: '1',
+      datecreated: '2025-03-27 15:41:11', profile_image: 'profile_hamza.jpg'
+    },
+    {
+      staffid: '180', firstname: 'Gülsüm Melisa', lastname: 'Arı', email: 'gulsummelisa.23@gmail.com',
+      phonenumber: '+90 531 839 4807', hourly_rate: '111.11', staff_identifi: 'PK00073', active: '1',
+      datecreated: '2025-03-01 10:40:21'
+    },
+    {
+      staffid: '73', firstname: 'Furkan', lastname: 'Aydın', email: 'frknaydinresmi@gmail.com',
+      phonenumber: '+905380611224', hourly_rate: '115.00', staff_identifi: 'PK0248', active: '1',
+      datecreated: '2023-06-03 13:00:40'
+    },
+    {
+      staffid: '1', firstname: 'Deniz', lastname: 'Üstündağ', email: 'deniz@dxdglobal.com',
+      phonenumber: '905488591559', hourly_rate: '300.00', staff_identifi: 'PK0001', active: '1',
+      datecreated: '2020-12-29 16:01:33', profile_image: 'deniz_profile.jpg'
+    },
+    {
+      staffid: '217', firstname: 'Danish', lastname: 'Ali', email: 'danish.ali9801@gmail.com',
+      phonenumber: '+923248414335', hourly_rate: '132.53', staff_identifi: 'PK00104', active: '1',
+      datecreated: '2025-06-27 12:12:56'
+    },
+    {
+      staffid: '39', firstname: 'Çağla', lastname: 'Şahar', email: 'cagla.shr@gmail.com',
+      phonenumber: '+905523431849', hourly_rate: '120.00', staff_identifi: 'PK0035', active: '1',
+      datecreated: '2022-05-07 13:19:39'
+    },
+    {
+      staffid: '146', firstname: 'Begüm Damla', lastname: 'Şen', email: 'begumdamlasen@gmail.com',
+      phonenumber: '+905453994271', hourly_rate: '105.00', staff_identifi: 'PK00046', active: '1',
+      datecreated: '2024-11-19 14:55:21', profile_image: 'IMG_20241206_004826_089.jpg'
+    },
+    {
+      staffid: '223', firstname: 'Aybüke Fatma', lastname: 'Çetin Bozkurt', email: 'aybuke.designer@gmail.com',
+      phonenumber: '05309310105', hourly_rate: '142.22', staff_identifi: 'PK00108', active: '1',
+      datecreated: '2025-07-15 13:20:28'
+    },
+    {
+      staffid: '187', firstname: 'Atakan İzzet', lastname: 'Kahraman', email: 'atakankahraman35@outlook.com',
+      phonenumber: '+90 5346649598', hourly_rate: '133.33', staff_identifi: 'PK00080', active: '1',
+      datecreated: '2025-03-27 14:12:04'
+    }
+  ];
+
+  return mockStaff.map((staff, index) => ({
+    id: staff.staffid,
+    name: `${staff.firstname} ${staff.lastname}`,
+    email: staff.email,
+    phone: staff.phonenumber || 'No Phone',
+    jobTitle: 'Developer',
+    department: 'Development',
+    hourlyRate: parseFloat(staff.hourly_rate),
+    rating: Math.random() * 2 + 3,
+    status: staff.active === '1' ? 'Active' : 'Inactive',
+    joinDate: staff.datecreated.split(' ')[0],
+    location: 'Remote',
+    avatar: staff.profile_image ? 
+      `https://crm.deluxebilisim.com/uploads/staff_profile_images/${staff.staffid}/thumb_${encodeURIComponent(staff.profile_image)}` : 
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.firstname}${staff.lastname}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
+    initials: staff.firstname.charAt(0) + staff.lastname.charAt(0),
+    staff_id: staff.staff_identifi || `ID_${staff.staffid}`,
+    performance_score: Math.round(Math.random() * 30 + 70),
+    ai_insights: [
+      `� Hourly Rate: $${staff.hourly_rate}/hr`,
+      `� Phone: ${staff.phonenumber}`,
+      `� Staff ID: ${staff.staff_identifi}`,
+      `📅 Joined: ${staff.datecreated.split(' ')[0]}`
+    ],
+    crm_staff_id: staff.staff_identifi,
+    crm_hourly_rate: staff.hourly_rate,
+    crm_phonenumber: staff.phonenumber
+  }));
 };
 
 // Generate mock employees as fallback
@@ -184,7 +867,7 @@ const generateMockEmployees = () => {
       status: 'Active',
       joinDate: new Date().toISOString().split('T')[0],
       location: domain.includes('gmail') ? 'Remote' : 'Office',
-      avatar: null,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
       initials: user.username.substring(0, 2).toUpperCase(),
       staff_id: 'MOCK_' + (index + 1).toString().padStart(3, '0'),
       performance_score: Math.round((user.file_count / 200) * 20),
@@ -249,9 +932,13 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
               objectFit: 'cover'
             }}
             onError={(e) => {
-              // Fallback to initials if image fails to load
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
+              // Fallback to generated avatar if CRM image fails to load
+              e.target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.name}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+              e.target.onerror = () => {
+                // Final fallback to initials if everything fails
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              };
             }}
           />
         ) : null}
@@ -278,12 +965,27 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
       </EmployeeInfo>
 
       <EmployeeDetails>
-        <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>💰 Hourly Rate</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>
-            {employee.hourlyRate > 0 ? `$${employee.hourlyRate.toFixed(2)}/hr` : 'Not Set'}
+        {/* Highlighted CRM Fields - Staff ID, Hourly Rate, Phone Number */}
+        <DetailItem isDarkMode={isDarkMode} style={{ backgroundColor: isDarkMode ? 'rgba(66, 153, 225, 0.15)' : 'rgba(66, 153, 225, 0.1)', borderRadius: '6px', padding: '8px' }}>
+          <DetailLabel isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#3182ce' }}>🆔 Staff ID</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#3182ce' }}>
+            {employee.crm_staff_id || employee.staff_id || 'No ID'}
           </DetailValue>
         </DetailItem>
+        <DetailItem isDarkMode={isDarkMode} style={{ backgroundColor: isDarkMode ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)', borderRadius: '6px', padding: '8px' }}>
+          <DetailLabel isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#22c55e' }}>💰 Hourly Rate</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#22c55e' }}>
+            ${employee.crm_hourly_rate || employee.hourlyRate || '0.00'}/hr
+          </DetailValue>
+        </DetailItem>
+        <DetailItem isDarkMode={isDarkMode} style={{ backgroundColor: isDarkMode ? 'rgba(168, 85, 247, 0.15)' : 'rgba(168, 85, 247, 0.1)', borderRadius: '6px', padding: '8px' }}>
+          <DetailLabel isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#a855f7' }}>📞 Phone Number</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode} style={{ fontWeight: 'bold', color: '#a855f7' }}>
+            {employee.crm_phonenumber || employee.phone || 'No Phone'}
+          </DetailValue>
+        </DetailItem>
+        
+        {/* Additional Employee Details */}
         <DetailItem isDarkMode={isDarkMode}>
           <DetailLabel isDarkMode={isDarkMode}>🏢 Department</DetailLabel>
           <DetailValue isDarkMode={isDarkMode}>{employee.department || 'Not Assigned'}</DetailValue>
@@ -303,28 +1005,47 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
           </DetailValue>
         </DetailItem>
         <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>🆔 Staff ID</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>{employee.staff_id || 'No ID'}</DetailValue>
-        </DetailItem>
-        <DetailItem isDarkMode={isDarkMode}>
           <DetailLabel isDarkMode={isDarkMode}>📊 Performance</DetailLabel>
           <DetailValue isDarkMode={isDarkMode}>
             {employee.performance_score ? `${employee.performance_score.toFixed(1)}%` : 'No Data'}
           </DetailValue>
         </DetailItem>
         <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>📸 Screenshots</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>
-            {employee.file_count ? `${employee.file_count.toLocaleString()} files` : 'No Data'}
+          <DetailLabel isDarkMode={isDarkMode}>✅ Status</DetailLabel>
+          <DetailValue isDarkMode={isDarkMode} style={{ 
+            color: employee.status === 'Active' ? '#22c55e' : '#ef4444',
+            fontWeight: 'bold'
+          }}>
+            {employee.status || 'Unknown'}
           </DetailValue>
         </DetailItem>
-        <DetailItem isDarkMode={isDarkMode}>
-          <DetailLabel isDarkMode={isDarkMode}>💾 Storage Used</DetailLabel>
-          <DetailValue isDarkMode={isDarkMode}>
-            {employee.storage_size_mb ? `${employee.storage_size_mb.toFixed(1)} MB` : 'No Data'}
-          </DetailValue>
-        </DetailItem>
+        {employee.contract_type && employee.contract_type !== 'Not Specified' && (
+          <DetailItem isDarkMode={isDarkMode}>
+            <DetailLabel isDarkMode={isDarkMode}>� Contract</DetailLabel>
+            <DetailValue isDarkMode={isDarkMode}>{employee.contract_type}</DetailValue>
+          </DetailItem>
+        )}
+        {employee.expertise && employee.expertise !== 'Not Specified' && (
+          <DetailItem isDarkMode={isDarkMode}>
+            <DetailLabel isDarkMode={isDarkMode}>🎯 Expertise</DetailLabel>
+            <DetailValue isDarkMode={isDarkMode}>{employee.expertise}</DetailValue>
+          </DetailItem>
+        )}
       </EmployeeDetails>
+
+      {/* AI Insights Section */}
+      {employee.ai_insights && employee.ai_insights.length > 0 && (
+        <AIInsightsSection>
+          <AIInsightsTitle isDarkMode={isDarkMode}>🤖 AI Insights</AIInsightsTitle>
+          <AIInsightsList>
+            {employee.ai_insights.map((insight, idx) => (
+              <AIInsightItem key={idx} isDarkMode={isDarkMode}>
+                {insight}
+              </AIInsightItem>
+            ))}
+          </AIInsightsList>
+        </AIInsightsSection>
+      )}
 
       <RatingSection className="employee-rating">
         <RatingStars>
@@ -375,27 +1096,25 @@ const Employees = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
 
-  // Fetch employees data from S3 Screenshots Users API on component mount
+  // Fetch employees data directly from CRM API on component mount
   useEffect(() => {
-    const loadS3Employees = async () => {
+    const loadCRMEmployees = async () => {
       setLoading(true);
       try {
-        console.log('🔄 Loading employee data from S3 Screenshots Users API...');
-        const s3EmployeesData = await fetchEmployeesFromAPI();
-        console.log(`🎉 Successfully loaded ${s3EmployeesData.length} employees from S3 Screenshots API`);
-        console.log('📋 Employee names:', s3EmployeesData.map(emp => emp.name));
-        setEmployeesData(s3EmployeesData);
+        console.log('🔄 Loading employees directly from CRM API...');
+        const crmEmployeesData = await fetchEmployeesFromCRM();
+        console.log(`🎉 Successfully loaded ${crmEmployeesData.length} employees from CRM`);
+        console.log('📋 Employee names:', crmEmployeesData.map(emp => emp.name));
+        setEmployeesData(crmEmployeesData);
       } catch (error) {
-        console.error('❌ Failed to load S3 employee data:', error);
-        console.log('🔄 API failed, using fallback data or mock data was already loaded');
-        // Don't show alert, the function will handle fallback data
-        // setEmployeesData will be set by the fallback logic in fetchEmployeesFromAPI
+        console.error('❌ Failed to load CRM employee data:', error);
+        console.log('🔄 CRM API failed, using fallback data...');
       } finally {
         setLoading(false);
       }
     };
 
-    loadS3Employees();
+    loadCRMEmployees();
   }, []);
 
   // Calculate statistics with proper null handling
@@ -437,7 +1156,7 @@ const Employees = () => {
     console.log('🔄 Manual refresh requested...');
     setLoading(true);
     try {
-      const freshData = await fetchEmployeesFromAPI();
+      const freshData = await fetchEmployeesFromCRM();
       setEmployeesData(freshData);
       alert(`✅ Successfully refreshed! Loaded ${freshData.length} employees from CRM database.`);
     } catch (error) {
@@ -473,14 +1192,14 @@ const Employees = () => {
           {/* Header Section */}
           <EmployeesHeader>
             <EmployeesTitle isDarkMode={isDarkMode}>
-              👥 Employee Management Dashboard - S3 SCREENSHOTS DATA
+              🏢 CRM Employee Dashboard - Staff ID | Hourly Rate | Phone Number
             </EmployeesTitle>
             <EmployeesSubtitle isDarkMode={isDarkMode}>
               {loading ? 
-                "🔄 Loading employee data from S3 Screenshots Users API..." :
+                "🔄 Loading employee data from CRM API (crm.deluxebilisim.com/api/staffs)..." :
                 employeesData.length > 0 ? 
-                  `📊 Displaying ${employeesData.length} employees from S3 Screenshots database (${employeesData.slice(0, 3).map(emp => emp.name).join(', ')}, etc.)` :
-                  "❌ No employee data found - Check S3 API connection"
+                  `📊 Displaying ${employeesData.length} employees with Staff ID, Hourly Rate, and Phone Number from CRM` :
+                  "❌ No employee data found - Check CRM API connection"
               }
             </EmployeesSubtitle>
           </EmployeesHeader>

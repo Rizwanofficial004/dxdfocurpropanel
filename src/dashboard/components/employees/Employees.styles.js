@@ -401,7 +401,7 @@ export const Star = styled.span`
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 
   &:hover {
-    transform: scale(1.2) rotateZ(15deg);
+    transform: scale(1.1);
     filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.5));
   }
 `;

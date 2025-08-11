@@ -4,23 +4,7 @@ import styled, { keyframes, css } from 'styled-components';
 import { gsap } from 'gsap';
 
 // 3D Animation Keyframes
-const cardEntrance = keyframes`
-  0% {
-    transform: perspective(1000px) rotateX(90deg) rotateY(45deg) translateZ(-300px);
-    opacity: 0;
-    scale: 0.6;
-  }
-  50% {
-    transform: perspective(1000px) rotateX(45deg) rotateY(20deg) translateZ(-100px);
-    opacity: 0.7;
-    scale: 0.8;
-  }
-  100% {
-    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px);
-    opacity: 1;
-    scale: 1;
-  }
-`;
+
 
 const cardFloat = keyframes`
   0%, 100% {
@@ -323,39 +307,58 @@ export const EmployeeCards = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch employee data
+  // Fetch employee data from CRM
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         setLoading(true);
-        console.log('Fetching comprehensive employee data...');
+        console.log('Fetching employees from CRM...');
         
-        const response = await fetch('http://127.0.0.1:8000/api/dashboard/employees/comprehensive/?include_profiles=true&format=detailed', {
+        const response = await fetch('https://crm.deluxebilisim.com/api/staffs', {
           method: 'GET',
           headers: {
-            'Accept': 'application/json',
+            'authtoken': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiZGVsdXhldGltZSIsIm5hbWUiOiJkZWx1eGV0aW1lIiwiQVBJX1RJTUUiOjE3NDUzNDQyNjJ9.kJGo5DksaPwkHwufDvLMGaMmjk5q2F7GhjzwdHtfT_o',
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'DDS-Focus-Time-Dashboard/1.0'
           },
         });
         
         if (!response.ok) {
-          throw new Error(`API failed: ${response.status}`);
+          throw new Error(`CRM API failed: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Employee data received:', data);
+        console.log('CRM data received:', data);
         
-        if (data.success && data.data.employees) {
-          setEmployees(data.data.employees);
-        } else {
-          throw new Error('Invalid API response format');
-        }
+        // Transform CRM data to component format
+        const transformedEmployees = data.map(staff => ({
+          id: staff.staffid,
+          full_name: `${staff.firstname} ${staff.lastname}`,
+          first_name: staff.firstname,
+          last_name: staff.lastname,
+          initials: `${staff.firstname.charAt(0)}${staff.lastname.charAt(0)}`,
+          email: staff.email,
+          phone: formatPhoneNumber(staff.phonenumber),
+          job_title: getJobTitle(staff.admin, staff.is_not_staff),
+          department: staff.department_name || 'General',
+          location: 'Office',
+          join_date: staff.datecreated,
+          hourly_rate: parseFloat(staff.hourly_rate) || 50,
+          currency: 'USD',
+          rating: 4.5,
+          max_rating: 5.0,
+          avatar_url: staff.profile_image ? `https://crm.deluxebilisim.com/${staff.profile_image}` : `https://ui-avatars.com/api/?name=${staff.firstname}+${staff.lastname}&background=6366f1&color=fff&size=200`,
+          active: staff.active === '1'
+        }));
+        
+        setEmployees(transformedEmployees);
         
       } catch (error) {
-        console.error('Error fetching employees:', error);
-        setError(error.message);
+        console.error('Error fetching CRM employees:', error);
+        setError(`Failed to load employees: ${error.message}`);
         
-        // Fallback demo data
+        // Fallback demo data for development
         const demoEmployees = [
           {
             id: 1001,
@@ -368,7 +371,7 @@ export const EmployeeCards = () => {
             job_title: "HR Specialist",
             department: "Human Resources",
             location: "Austin, TX",
-            join_date: "Jul 12, 2020",
+            join_date: "2020-07-12",
             hourly_rate: 65,
             currency: "USD",
             rating: 4.9,
@@ -384,6 +387,74 @@ export const EmployeeCards = () => {
 
     fetchEmployees();
   }, []);
+
+  // Helper function to determine job title based on CRM roles
+  const getJobTitle = (admin, isNotStaff) => {
+    if (admin === '1') return 'Administrator';
+    if (isNotStaff === '0') return 'Staff Member';
+    return 'Employee';
+  };
+
+  // Helper function to format phone numbers dynamically
+  const formatPhoneNumber = (phoneNumber) => {
+    // Return N/A if no phone number provided
+    if (!phoneNumber || phoneNumber.trim() === '') {
+      return 'N/A';
+    }
+    
+    // Clean the phone number (remove spaces, dashes, parentheses, plus signs)
+    const cleaned = phoneNumber.replace(/\D/g, '');
+    
+    // If it's empty after cleaning, return N/A
+    if (cleaned.length === 0) {
+      return 'N/A';
+    }
+    
+    // Handle different international formats based on the actual CRM data patterns
+    if (cleaned.startsWith('90') && cleaned.length === 12) {
+      // Turkish numbers: 905XXXXXXXXX -> +90 (5XX) XXX XX XX
+      return `+90 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10)}`;
+    } else if (cleaned.startsWith('92') && cleaned.length === 12) {
+      // Pakistani numbers: 923XXXXXXXXX -> +92 (3XX) XXX XXXX
+      return `+92 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
+    } else if (cleaned.startsWith('90') && cleaned.length === 13) {
+      // Turkish numbers with country code: 905XXXXXXXXX -> +90 (5XX) XXX XX XX
+      return `+90 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10)}`;
+    } else if (cleaned.startsWith('92') && cleaned.length === 13) {
+      // Pakistani numbers with country code: 923XXXXXXXXX -> +92 (3XX) XXX XXXX
+      return `+92 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
+    } else if (cleaned.length === 11 && cleaned.startsWith('90')) {
+      // Turkish numbers without leading country code digit: 905XXXXXXXX -> +90 (5XX) XXX XX XX
+      return `+90 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10)}`;
+    } else if (cleaned.length === 11 && cleaned.startsWith('92')) {
+      // Pakistani numbers without leading country code digit: 923XXXXXXXX -> +92 (3XX) XXX XXXX
+      return `+92 (${cleaned.slice(2, 5)}) ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
+    } else if (cleaned.length === 10) {
+      // US format: (XXX) XXX-XXXX
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    } else if (cleaned.length === 11 && cleaned.startsWith('1')) {
+      // US with country code: +1 (XXX) XXX-XXXX
+      return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
+    } else if (cleaned.length >= 10) {
+      // Generic international format for other numbers
+      const countryCode = cleaned.slice(0, -10);
+      const number = cleaned.slice(-10);
+      return `+${countryCode} (${number.slice(0, 3)}) ${number.slice(3, 6)} ${number.slice(6)}`;
+    } else if (cleaned.length >= 7) {
+      // Shorter numbers: XXX-XXXX format
+      if (cleaned.length === 7) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+      } else if (cleaned.length === 8) {
+        return `${cleaned.slice(0, 4)}-${cleaned.slice(4)}`;
+      } else if (cleaned.length === 9) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+      }
+    }
+    
+    // If we can't format it nicely, return the original with + prefix if it doesn't have one
+    const original = phoneNumber.trim();
+    return original.startsWith('+') ? original : `+${original}`;
+  };
 
   // GSAP animations
   useEffect(() => {
@@ -429,12 +500,20 @@ export const EmployeeCards = () => {
   };
 
   const formatJoinDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    try {
+      // Handle CRM date format (YYYY-MM-DD HH:MM:SS)
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return 'N/A';
+      }
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return 'N/A';
+    }
   };
 
   if (loading) {

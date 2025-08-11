@@ -49,19 +49,97 @@ const LanguageProvider = lazy(() =>
   import('./dashboard/context/LanguageContext').then(m => ({ default: m.LanguageProvider })).catch(() => ({ default: SimpleLanguageProvider }))
 );
 
-// Fallback components (make sure these are defined in your project)
-const FallbackDashboard = () => <div>Dashboard failed to load.</div>;
-const FallbackLiveTracking = () => <div>Live Tracking failed to load.</div>;
-const FallbackQuickView = () => <div>Quick View failed to load.</div>;
-const FallbackLogin = () => <div>Login failed to load.</div>;
-const FallbackThemeDemo = () => <div>Theme demo failed to load.</div>;
-const FallbackSettings = () => <div>Settings failed to load.</div>;
-const FallbackAttendance = () => <div>Attendance failed to load.</div>;
-const FallbackEmployees = () => <div>Employees failed to load.</div>;
-const FallbackTeams = () => <div>Teams failed to load.</div>;
+// Enhanced Full-Screen Loading Spinner Component
+const LoadingSpinner = () => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    zIndex: 9999,
+    overflow: 'hidden'
+  }}>
+    <div style={{
+      width: '80px',
+      height: '80px',
+      border: '6px solid rgba(255, 255, 255, 0.2)',
+      borderTop: '6px solid white',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite',
+      marginBottom: '30px'
+    }}></div>
+    <h2 style={{ 
+      marginBottom: '15px', 
+      fontSize: '24px', 
+      fontWeight: '600',
+      textAlign: 'center'
+    }}>Loading Dashboard</h2>
+    <p style={{ 
+      fontSize: '16px', 
+      opacity: 0.9,
+      textAlign: 'center',
+      maxWidth: '400px',
+      lineHeight: '1.5'
+    }}>Please wait while we prepare your workspace...</p>
+    <div style={{
+      marginTop: '40px',
+      display: 'flex',
+      gap: '8px'
+    }}>
+      <div style={{
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        background: 'rgba(255, 255, 255, 0.6)',
+        animation: 'pulse 1.5s ease-in-out infinite'
+      }}></div>
+      <div style={{
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        background: 'rgba(255, 255, 255, 0.6)',
+        animation: 'pulse 1.5s ease-in-out 0.2s infinite'
+      }}></div>
+      <div style={{
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        background: 'rgba(255, 255, 255, 0.6)',
+        animation: 'pulse 1.5s ease-in-out 0.4s infinite'
+      }}></div>
+    </div>
+    <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+    `}</style>
+  </div>
+);
+
+// Fallback components with loaders instead of error messages
+const FallbackDashboard = () => <LoadingSpinner />;
+const FallbackLiveTracking = () => <LoadingSpinner />;
+const FallbackQuickView = () => <LoadingSpinner />;
+const FallbackLogin = () => <LoadingSpinner />;
+const FallbackThemeDemo = () => <LoadingSpinner />;
+const FallbackSettings = () => <LoadingSpinner />;
+const FallbackAttendance = () => <LoadingSpinner />;
+const FallbackEmployees = () => <LoadingSpinner />;
+const FallbackTeams = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
-const LoadingSpinner = () => <div>Loading...</div>;
 
 const GlobalStyle = createGlobalStyle`
   * {
