@@ -1,6 +1,43 @@
 """
 All Screenshots API - Get all users and their screenshots from S3
-This API returns ALL users found in S3 with ALL their screenshots
+This API returns ALL us                # List all objects for this employee (including subfolders)
+                employee_key = employee_email.replace('@', '_at_')  # Only replace @, keep dots
+                prefix = f"screenshots/{employee_key}/"
+                
+                # Get all objects with pagination
+                screenshots = []
+                continuation_token = None
+                
+                while True:
+                    list_params = {
+                        'Bucket': bucket_name,
+                        'Prefix': prefix,
+                        'MaxKeys': 1000
+                    }
+                    if continuation_token:
+                        list_params['ContinuationToken'] = continuation_token
+                    
+                    response = s3_client.list_objects_v2(**list_params)
+                    
+                    if 'Contents' in response:
+                        screenshot_objects = [
+                            obj for obj in response['Contents'] 
+                            if obj['Key'].lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
+                            and obj['Key'] != prefix  # Exclude folder itself
+                            and not obj['Key'].endswith('/')  # Exclude folder markers
+                        ]
+                        
+                        for obj in screenshot_objects:
+                            screenshots.append(obj)
+                    
+                    # Check if there are more objects to retrieve
+                    if response.get('IsTruncated'):
+                        continuation_token = response.get('NextContinuationToken')
+                    else:
+                        break
+                
+                # Convert to the expected format
+                screenshot_objects = screenshots3 with ALL their screenshots
 """
 
 import logging
@@ -115,10 +152,18 @@ def all_screenshots_api(request):
                     if limit_per_user:
                         screenshot_objects = screenshot_objects[:limit_per_user]
                     
+                    screenshots = []
                     for obj in screenshot_objects:
+                        # Extract project folder from path
+                        path_parts = obj['Key'].split('/')
+                        project_folder = "Unknown"
+                        if len(path_parts) >= 3:
+                            project_folder = path_parts[2]  # screenshots/{user}/{project}/filename
+                        
                         screenshot_info = {
                             "filename": os.path.basename(obj['Key']),
                             "full_path": obj['Key'],
+                            "project_folder": project_folder,
                             "size": obj['Size'],
                             "last_modified": obj['LastModified'].isoformat(),
                             "date": obj['LastModified'].strftime('%Y-%m-%d'),
@@ -242,28 +287,50 @@ def user_screenshots_summary_api(request):
                 
             try:
                 # Count screenshots for this user
-                prefix = f"screenshots/{employee_folder}/"
-                response = s3_client.list_objects_v2(
-                    Bucket=bucket_name,
-                    Prefix=prefix
-                )
+                employee_key = employee_email.replace('@', '_at_').replace('.', '_')
+                prefix = f"screenshots/{employee_key}/"
                 
+                # Get all objects with pagination
                 screenshot_count = 0
                 last_activity = None
+                continuation_token = None
+                latest_screenshot = None
                 
-                if 'Contents' in response:
-                    screenshot_objects = [
-                        obj for obj in response['Contents'] 
-                        if obj['Key'].lower().endswith(('.png', '.jpg', '.jpeg'))
-                        and obj['Key'] != prefix
-                    ]
+                while True:
+                    list_params = {
+                        'Bucket': bucket_name,
+                        'Prefix': prefix,
+                        'MaxKeys': 1000
+                    }
+                    if continuation_token:
+                        list_params['ContinuationToken'] = continuation_token
                     
-                    screenshot_count = len(screenshot_objects)
+                    response = s3_client.list_objects_v2(**list_params)
                     
-                    if screenshot_objects:
-                        # Get most recent screenshot date
-                        latest = max(screenshot_objects, key=lambda x: x['LastModified'])
-                        last_activity = latest['LastModified'].isoformat()
+                    if 'Contents' in response:
+                        screenshot_objects = [
+                            obj for obj in response['Contents'] 
+                            if obj['Key'].lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
+                            and obj['Key'] != prefix
+                            and not obj['Key'].endswith('/')
+                        ]
+                        
+                        screenshot_count += len(screenshot_objects)
+                        
+                        # Find the latest screenshot
+                        if screenshot_objects:
+                            current_latest = max(screenshot_objects, key=lambda x: x['LastModified'])
+                            if not latest_screenshot or current_latest['LastModified'] > latest_screenshot['LastModified']:
+                                latest_screenshot = current_latest
+                    
+                    # Check if there are more objects to retrieve
+                    if response.get('IsTruncated'):
+                        continuation_token = response.get('NextContinuationToken')
+                    else:
+                        break
+                
+                if latest_screenshot:
+                    last_activity = latest_screenshot['LastModified'].isoformat()
                 
                 users_summary.append({
                     "employee_email": employee_email,

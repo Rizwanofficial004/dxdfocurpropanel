@@ -215,3 +215,87 @@ class ApplicationSettings(models.Model):
                 return {}
         else:  # string
             return self.value
+
+
+# ==================== SCREENSHOT TRACKING MODELS ====================
+
+class ScreenshotTracker(models.Model):
+    """
+    Smart tracking model for screenshots with auto-update capabilities
+    - Stores per-user screenshot counts and metadata
+    - Tracks last update times for incremental updates
+    - Optimized for fast API responses
+    """
+    user_email = models.EmailField(unique=True, db_index=True)
+    screenshot_count = models.PositiveIntegerField(default=0)
+    total_size_bytes = models.BigIntegerField(default=0)
+    project_count = models.PositiveIntegerField(default=0)
+    latest_screenshot_date = models.DateTimeField(null=True, blank=True)
+    
+    # Tracking fields
+    last_updated = models.DateTimeField(auto_now=True)
+    last_s3_scan = models.DateTimeField(null=True, blank=True)
+    needs_update = models.BooleanField(default=True)
+    
+    # Metadata
+    projects_json = models.TextField(default='{}')  # JSON of project counts
+    sample_files_json = models.TextField(default='[]')  # JSON of sample file info
+    
+    class Meta:
+        db_table = 'dashboard_screenshot_tracker'
+        ordering = ['-screenshot_count']
+    
+    def __str__(self):
+        return f"{self.user_email}: {self.screenshot_count:,} screenshots"
+    
+    def get_projects(self):
+        """Get projects as dictionary"""
+        try:
+            return json.loads(self.projects_json)
+        except json.JSONDecodeError:
+            return {}
+    
+    def set_projects(self, projects_dict):
+        """Set projects from dictionary"""
+        self.projects_json = json.dumps(projects_dict)
+        self.project_count = len(projects_dict)
+    
+    def get_sample_files(self):
+        """Get sample files as list"""
+        try:
+            return json.loads(self.sample_files_json)
+        except json.JSONDecodeError:
+            return []
+    
+    def set_sample_files(self, files_list):
+        """Set sample files from list"""
+        self.sample_files_json = json.dumps(files_list[:50])  # Limit to 50 samples
+    
+    def get_size_mb(self):
+        """Get size in megabytes"""
+        return round(self.total_size_bytes / (1024*1024), 2)
+    
+    def get_size_gb(self):
+        """Get size in gigabytes"""
+        return round(self.total_size_bytes / (1024*1024*1024), 2)
+
+
+class UpdateLog(models.Model):
+    """
+    Log of screenshot update operations
+    """
+    started_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    update_type = models.CharField(max_length=50)  # 'full', 'incremental', 'user'
+    users_processed = models.PositiveIntegerField(default=0)
+    users_updated = models.PositiveIntegerField(default=0)
+    total_screenshots = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, default='running')  # 'running', 'completed', 'failed'
+    error_message = models.TextField(blank=True)
+    
+    class Meta:
+        db_table = 'dashboard_update_log'
+        ordering = ['-started_at']
+    
+    def __str__(self):
+        return f"{self.update_type} update on {self.started_at.strftime('%Y-%m-%d %H:%M')}"

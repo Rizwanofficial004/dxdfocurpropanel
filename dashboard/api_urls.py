@@ -6,6 +6,8 @@ from . import screenshots_search_api
 from . import settings_apis
 from . import enhanced_api_views
 from . import all_screenshots_api
+from . import fast_screenshots_api
+from . import ultra_fast_screenshots_api
 from django.conf import settings
 from django.conf.urls.static import static
 from s3_screenshots_users_api import s3_screenshots_users_api
@@ -34,6 +36,11 @@ urlpatterns = [
     # All Screenshots API (NEW) - Get ALL users with ALL screenshots
     path('screenshots/all/', all_screenshots_api.all_screenshots_api, name='api_all_screenshots'),
     path('screenshots/summary/', all_screenshots_api.user_screenshots_summary_api, name='api_user_screenshots_summary'),
+    path('screenshots/fast-all/', fast_screenshots_api.fast_all_screenshots_api, name='api_fast_all_screenshots'),
+    
+    # Ultra-Fast Screenshots API (NEWEST) - Instant responses with auto-tracking
+    path('screenshots/ultra-fast/', ultra_fast_screenshots_api.ultra_fast_screenshots_api, name='api_ultra_fast_screenshots'),
+    path('screenshots/tracking-status/', ultra_fast_screenshots_api.cache_status_api, name='api_tracking_status'),
     
     # Google-like Search & Suggestion APIs (NEW)
     path('users/suggestions/', api_views.user_suggestions_api, name='api_user_suggestions'),
