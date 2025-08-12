@@ -5,6 +5,7 @@ from .date_based_live_tracking_api import live_tracking_screenshots_by_date_api
 from . import screenshots_search_api
 from . import settings_apis
 from . import enhanced_api_views
+from . import all_screenshots_api
 from django.conf import settings
 from django.conf.urls.static import static
 from s3_screenshots_users_api import s3_screenshots_users_api
@@ -29,6 +30,10 @@ urlpatterns = [
     path('screenshots/quick-search/', screenshots_search_api.quick_name_search_api, name='api_quick_name_search'),
     path('screenshots/date-search/', screenshots_search_api.name_date_filter_api, name='api_name_date_filter'),
     path('screenshots/comprehensive-search/', screenshots_search_api.name_all_screenshots_api, name='api_name_all_screenshots'),
+    
+    # All Screenshots API (NEW) - Get ALL users with ALL screenshots
+    path('screenshots/all/', all_screenshots_api.all_screenshots_api, name='api_all_screenshots'),
+    path('screenshots/summary/', all_screenshots_api.user_screenshots_summary_api, name='api_user_screenshots_summary'),
     
     # Google-like Search & Suggestion APIs (NEW)
     path('users/suggestions/', api_views.user_suggestions_api, name='api_user_suggestions'),

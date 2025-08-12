@@ -3,6 +3,10 @@ from botocore.exceptions import ClientError
 import re
 import unicodedata
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 def clean_for_s3(name):
     # Normalize Turkish characters and remove unsafe symbols
