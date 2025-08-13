@@ -27,6 +27,11 @@ scheduler.log
 cron_job.log
 s3_log_extractor.log
 
+# Logs directory contents (but keep the directory structure)
+logs/*.log
+logs/auto_scheduler.log
+logs/scheduler.log
+
 # Local settings
 settings_local.py
 

@@ -16,11 +16,16 @@ from apscheduler.triggers.interval import IntervalTrigger
 from django.conf import settings
 
 # Setup logging
+# Ensure logs directory exists
+import os
+logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(logs_dir, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('scheduler.log'),
+        logging.FileHandler(os.path.join(logs_dir, 'scheduler.log')),
         logging.StreamHandler()
     ]
 )

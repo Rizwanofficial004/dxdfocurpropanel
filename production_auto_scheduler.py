@@ -15,11 +15,16 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 # Simple logging without emojis for production
+# Ensure logs directory exists
+import os
+logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(logs_dir, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('auto_scheduler.log'),
+        logging.FileHandler(os.path.join(logs_dir, 'auto_scheduler.log')),
         logging.StreamHandler()
     ]
 )
