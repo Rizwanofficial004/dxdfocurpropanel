@@ -21,7 +21,11 @@ __pycache__/
 .DS_Store
 
 # Log files
-# *.log
+*.log
+auto_scheduler.log
+scheduler.log
+cron_job.log
+s3_log_extractor.log
 
 # Local settings
 settings_local.py
