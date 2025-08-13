@@ -349,3 +349,93 @@
 2025-08-13 13:37:33,250 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:37:33.249153+03:00
 2025-08-13 13:37:33,250 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
 2025-08-13 13:37:33,279 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 14:08:50,851 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 14:08:50,852 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 14:08:50,852 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 14:08:50,852 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 14:08:50,852 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 20:08:50.851594+03:00
+2025-08-13 14:08:50,853 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 14:08:51,674 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 14:08:51,674 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 14:08:51,674 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 14:08:51,675 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 14:08:51,675 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 20:08:51.674207+03:00
+2025-08-13 14:08:51,675 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 14:08:51,704 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 14:09:08,159 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:10,441 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:11,289 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:11,922 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:12,596 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:14,331 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:19,894 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:09:53,070 - dashboard.api_views - ERROR - Error getting live status for amirishaque67@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:09:54,371 - dashboard.api_views - ERROR - Error getting live status for atakankahraman35@outlook.com: no such table: dashboard_user_logs
+2025-08-13 14:09:57,608 - dashboard.api_views - ERROR - Error getting live status for begumdamlasen@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:01,499 - dashboard.api_views - ERROR - Error getting live status for beyza-donmez-@hotmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:01,886 - dashboard.api_views - ERROR - Error getting live status for bilgeryilmaz@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:02,453 - dashboard.api_views - ERROR - Error getting live status for cagla.shr@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:06,267 - dashboard.api_views - ERROR - Error getting live status for danish.ali9801@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:06,810 - dashboard.api_views - ERROR - Error getting live status for deniz@deluxebilisim.com: no such table: dashboard_user_logs
+2025-08-13 14:10:08,367 - dashboard.api_views - ERROR - Error getting live status for deniz@dxdglobal.com: no such table: dashboard_user_logs
+2025-08-13 14:10:08,715 - dashboard.api_views - ERROR - Error getting live status for eliff.ugrl@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:12,207 - dashboard.api_views - ERROR - Error getting live status for fatih.onk@deluxebilisim.com: no such table: dashboard_user_logs
+2025-08-13 14:10:12,939 - dashboard.api_views - ERROR - Error getting live status for frknaydinresmi@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:13,697 - dashboard.api_views - ERROR - Error getting live status for gulinsosyalmedya@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:15,507 - dashboard.api_views - ERROR - Error getting live status for gulsummelisa.23@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:20,308 - dashboard.api_views - ERROR - Error getting live status for haseebcodejourney@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:23,134 - dashboard.api_views - ERROR - Error getting live status for huseyinturguterek@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:25,986 - dashboard.api_views - ERROR - Error getting live status for ilahe.avci2004@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:27,862 - dashboard.api_views - ERROR - Error getting live status for kevserhuseyin18@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:32,159 - dashboard.api_views - ERROR - Error getting live status for m.balkilic@deluxebilisim.com: no such table: dashboard_user_logs
+2025-08-13 14:10:34,554 - dashboard.api_views - ERROR - Error getting live status for m.fidan.firat@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:35,450 - dashboard.api_views - ERROR - Error getting live status for mahboub.sad@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:36,915 - dashboard.api_views - ERROR - Error getting live status for mervegucluu.0044@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:38,282 - dashboard.api_views - ERROR - Error getting live status for mirzashazif123@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:38,684 - dashboard.api_views - ERROR - Error getting live status for mohsinabbass688630@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:39,973 - dashboard.api_views - ERROR - Error getting live status for nawaz@dxdglobal.com: no such table: dashboard_user_logs
+2025-08-13 14:10:41,052 - dashboard.api_views - ERROR - Error getting live status for omerfrkyalcin@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:46,397 - dashboard.api_views - ERROR - Error getting live status for ozgunhulyakaraoglan@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:48,830 - dashboard.api_views - ERROR - Error getting live status for rignimeyikur02@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:49,183 - dashboard.api_views - ERROR - Error getting live status for selimyalcnts@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:10:49,934 - dashboard.api_views - ERROR - Error getting live status for tugbacalik84@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:11:01,238 - dashboard.api_views - ERROR - Error getting live status for yunussemrekatirci@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:11:02,518 - dashboard.api_views - ERROR - Error getting live status for yurukelmenekse@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:11:03,245 - dashboard.api_views - ERROR - Error getting live status for zeynepbaygin60@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:28,461 - dashboard.api_views - ERROR - Error getting live status for amirishaque67@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:29,489 - dashboard.api_views - ERROR - Error getting live status for atakankahraman35@outlook.com: no such table: dashboard_user_logs
+2025-08-13 14:13:31,928 - dashboard.api_views - ERROR - Error getting live status for begumdamlasen@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:35,046 - dashboard.api_views - ERROR - Error getting live status for beyza-donmez-@hotmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:35,394 - dashboard.api_views - ERROR - Error getting live status for bilgeryilmaz@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:36,423 - dashboard.api_views - ERROR - Error getting live status for cagla.shr@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:40,478 - dashboard.api_views - ERROR - Error getting live status for danish.ali9801@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:40,818 - dashboard.api_views - ERROR - Error getting live status for deniz@deluxebilisim.com: no such table: dashboard_user_logs
+2025-08-13 14:13:42,036 - dashboard.api_views - ERROR - Error getting live status for deniz@dxdglobal.com: no such table: dashboard_user_logs
+2025-08-13 14:13:42,279 - dashboard.api_views - ERROR - Error getting live status for eliff.ugrl@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:45,827 - dashboard.api_views - ERROR - Error getting live status for fatih.onk@deluxebilisim.com: no such table: dashboard_user_logs
+2025-08-13 14:13:46,555 - dashboard.api_views - ERROR - Error getting live status for frknaydinresmi@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:47,606 - dashboard.api_views - ERROR - Error getting live status for gulinsosyalmedya@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:49,592 - dashboard.api_views - ERROR - Error getting live status for gulsummelisa.23@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:54,510 - dashboard.api_views - ERROR - Error getting live status for haseebcodejourney@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:13:57,672 - dashboard.api_views - ERROR - Error getting live status for huseyinturguterek@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:00,697 - dashboard.api_views - ERROR - Error getting live status for ilahe.avci2004@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:02,816 - dashboard.api_views - ERROR - Error getting live status for kevserhuseyin18@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:07,117 - dashboard.api_views - ERROR - Error getting live status for m.balkilic@deluxebilisim.com: no such table: dashboard_user_logs
+2025-08-13 14:14:08,632 - dashboard.api_views - ERROR - Error getting live status for m.fidan.firat@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:09,253 - dashboard.api_views - ERROR - Error getting live status for mahboub.sad@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:10,472 - dashboard.api_views - ERROR - Error getting live status for mervegucluu.0044@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:12,036 - dashboard.api_views - ERROR - Error getting live status for mirzashazif123@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:12,440 - dashboard.api_views - ERROR - Error getting live status for mohsinabbass688630@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:14,003 - dashboard.api_views - ERROR - Error getting live status for nawaz@dxdglobal.com: no such table: dashboard_user_logs
+2025-08-13 14:14:15,317 - dashboard.api_views - ERROR - Error getting live status for omerfrkyalcin@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:22,166 - dashboard.api_views - ERROR - Error getting live status for ozgunhulyakaraoglan@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:26,018 - dashboard.api_views - ERROR - Error getting live status for rignimeyikur02@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:26,504 - dashboard.api_views - ERROR - Error getting live status for selimyalcnts@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:27,500 - dashboard.api_views - ERROR - Error getting live status for tugbacalik84@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:38,513 - dashboard.api_views - ERROR - Error getting live status for yunussemrekatirci@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:40,262 - dashboard.api_views - ERROR - Error getting live status for yurukelmenekse@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:14:40,947 - dashboard.api_views - ERROR - Error getting live status for zeynepbaygin60@gmail.com: no such table: dashboard_user_logs
+2025-08-13 14:33:00,580 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:33:01,902 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:33:03,116 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
+2025-08-13 14:44:02,262 - django.request - ERROR - Internal Server Error: /api/actual-count-total/screenshots/
