@@ -506,9 +506,63 @@ const generateFallbackInsights = (employee) => {
   return insights;
 };
 
+// Fetch screenshot count data from API
+const fetchScreenshotData = async () => {
+  console.log('📸 Fetching screenshot data from API...');
+  
+  try {
+    const response = await fetch('http://127.0.0.1:8010/api/actual-count-total/screenshots/', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      signal: AbortSignal.timeout(15000)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Screenshot API Error: ${response.status} ${response.statusText}`);
+    }
+    
+    const screenshotData = await response.json();
+    console.log('📸 Screenshot API Response:', screenshotData);
+    
+    if (!screenshotData.success || !Array.isArray(screenshotData.users)) {
+      throw new Error('Screenshot API returned invalid data format');
+    }
+    
+    // Convert array to object for easier lookup by email
+    const screenshotMap = {};
+    screenshotData.users.forEach(user => {
+      if (user.user_email) {
+        screenshotMap[user.user_email.toLowerCase()] = {
+          screenshot_count: user.screenshot_count || 0,
+          last_updated: user.last_updated,
+          percentage: user.percentage || 0
+        };
+      }
+    });
+    
+    console.log(`📸 Successfully processed screenshot data for ${Object.keys(screenshotMap).length} users`);
+    return {
+      data: screenshotMap,
+      total_screenshots: screenshotData.total_screenshots || 0,
+      total_users: screenshotData.total_users || 0
+    };
+    
+  } catch (error) {
+    console.error('❌ Failed to fetch screenshot data:', error);
+    return {
+      data: {},
+      total_screenshots: 0,
+      total_users: 0
+    };
+  }
+};
+
 // Fetch employees data directly from CRM API
 const fetchEmployeesFromCRM = async () => {
-  console.log('� Fetching employees directly from CRM API...');
+  console.log('🏢 Fetching employees directly from CRM API...');
   
   try {
     const crmResponse = await fetch('https://crm.deluxebilisim.com/api/staffs', {
@@ -648,20 +702,44 @@ const fetchEmployeesFromCRM = async () => {
       };
     });
     
-    // Generate AI insights for each employee
+    // Fetch screenshot data and merge with employee data
+    console.log('📸 Fetching screenshot data to merge with CRM data...');
+    const screenshotInfo = await fetchScreenshotData();
+    
+    // Generate AI insights for each employee and merge screenshot data
     console.log('🤖 Generating AI insights for employees...');
     const employeesWithAI = await Promise.all(
       employees.map(async (employee) => {
         const aiInsights = generateFallbackInsights(employee);
+        
+        // Look up screenshot data for this employee
+        const emailKey = employee.email.toLowerCase();
+        const screenshotData = screenshotInfo.data[emailKey] || {
+          screenshot_count: 0,
+          last_updated: null,
+          percentage: 0
+        };
+        
+        console.log(`📸 Screenshot data for ${employee.name} (${employee.email}):`, screenshotData);
+        
         return {
           ...employee,
-          ai_insights: aiInsights
+          ai_insights: aiInsights,
+          // Add screenshot fields
+          screenshot_count: screenshotData.screenshot_count,
+          screenshot_last_updated: screenshotData.last_updated,
+          screenshot_percentage: screenshotData.percentage,
+          // Add total stats for reference
+          total_screenshots_company: screenshotInfo.total_screenshots,
+          total_users_company: screenshotInfo.total_users
         };
       })
     );
     
     console.log(`🎉 Successfully processed ${employeesWithAI.length} employees from CRM`);
-    console.log('📊 Sample employee:', employeesWithAI[0]);
+    console.log(`📸 Merged screenshot data for ${Object.keys(screenshotInfo.data).length} users`);
+    console.log(`📊 Company total screenshots: ${screenshotInfo.total_screenshots.toLocaleString()}`);
+    console.log('📊 Sample employee with screenshot data:', employeesWithAI[0]);
     
     return employeesWithAI;
     

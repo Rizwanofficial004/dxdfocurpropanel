@@ -574,6 +574,15 @@ export const EmployeeCards = () => {
               <ContactIcon>📞</ContactIcon>
               <ContactText>{employee.phone}</ContactText>
             </ContactItem>
+            <ContactItem>
+              <ContactIcon>📸</ContactIcon>
+              <ContactText>
+                Last activity: {employee.screenshot_last_updated ? 
+                  new Date(employee.screenshot_last_updated).toLocaleDateString() : 
+                  'No data'
+                }
+              </ContactText>
+            </ContactItem>
           </ContactInfo>
           
           <StatsGrid>
@@ -586,8 +595,21 @@ export const EmployeeCards = () => {
               <StatValue>{employee.department}</StatValue>
             </StatBox>
             <StatBox>
-              <StatLabel>Location</StatLabel>
-              <StatValue>{employee.location}</StatValue>
+              <StatLabel>📸 Screenshots</StatLabel>
+              <StatValue>{employee.screenshot_count ? employee.screenshot_count.toLocaleString() : '0'}</StatValue>
+            </StatBox>
+            <StatBox>
+              <StatLabel>🕐 Last Updated</StatLabel>
+              <StatValue>
+                {employee.screenshot_last_updated ? 
+                  new Date(employee.screenshot_last_updated).toLocaleString() : 
+                  'No data'
+                }
+              </StatValue>
+            </StatBox>
+            <StatBox>
+              <StatLabel>Activity %</StatLabel>
+              <StatValue>{employee.screenshot_percentage ? `${employee.screenshot_percentage}%` : '0%'}</StatValue>
             </StatBox>
             <StatBox>
               <StatLabel>Join Date</StatLabel>
