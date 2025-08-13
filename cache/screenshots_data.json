@@ -1,0 +1,598 @@
+{
+  "success": true,
+  "timestamp": "2025-08-13T18:14:09.810005",
+  "total_users": 33,
+  "total_screenshots": 1951924,
+  "status": "Real data from S3 scan (cached)",
+  "bucket": "ddsfocustime",
+  "cache_updated": "2025-08-13T18:14:09.810011",
+  "users": [
+    {
+      "user_email": "ilahe.avci2004@gmail.com",
+      "screenshot_count": 616717,
+      "last_updated": "2025-08-13T18:00:16.085910",
+      "latest_screenshot_date": "2025-08-13T14:50:16+00:00",
+      "total_size_bytes": 294425148270,
+      "project_count": 7,
+      "projects": {
+        "2025_YILI_AĞUSTOS_DDS_MARKETING": 2488,
+        "DDS_2025_Yılı_Haziran_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 1106,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 4178,
+        "DDS_Ağustos_2025_Sanal_Asistanlık_Süreci": 145961,
+        "_DDS_Haziran_2025_Sanal_Asistanlık_Süreci": 105207,
+        "_DDS_Temmuz_2025_Sanal_Asistanlık_Süreci": 357331,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 446
+      },
+      "percentage": 31.6
+    },
+    {
+      "user_email": "tugbacalik84@gmail.com",
+      "screenshot_count": 330186,
+      "last_updated": "2025-08-13T18:11:53.527902",
+      "latest_screenshot_date": "2025-08-13T14:55:30+00:00",
+      "total_size_bytes": 241863208611,
+      "project_count": 35,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 4423,
+        "Arşın_İnşaat_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 12266,
+        "Arşın_İnşaat_Logo_Tasarımı": 119,
+        "Arşın_İnşaat_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 43037,
+        "Arşın_İnşaat__HAZİRAN_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 11160,
+        "Body&Soul_Figen_Bilge_2025_Yılı_AĞUSTOS_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 2504,
+        "Body&Soul_Figen_Bilge_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 28876,
+        "Body&Soul_Figen_Bilge_2025_Yılı_MAYIS_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 2174,
+        "Body&Soul_Figen_Bilge_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 26017,
+        "Corpayss_HAZİRAN_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 12911,
+        "Corpayss_TEMMUZ_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 21511,
+        "DDS_2025_Yılı_Haziran_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 1080,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 7831,
+        "DDS__&_Supsis_Haziran_Grafik_Tasarımı_": 3167,
+        "DESTİNA_&_BABEEL_BUTİK_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 5142,
+        "Dialog_Ocean_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 7860,
+        "Dialog_Ocean_HAZİRAN_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 8686,
+        "Dialog_Ocean_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 2118,
+        "EASY_HOME_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 22035,
+        "EASY_HOME_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 12014,
+        "GRANDVIEW_2025_HAZİRAN_Genel_Grafik_Tasarım,_İçerik_Üretimi_,_Sosyal_Medya_Yönetimi": 4947,
+        "Island_Green_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 6086,
+        "Kıbrıs_Detay_Medya_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 283,
+        "Kıbrıs_Detay_Medya_Logo_ve_Kurumsal_Kimlik_Tasarımı": 6921,
+        "MK_MOTORS&_RENT_A_CAR_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 3273,
+        "MK_MOTORS&_RENT_A_CAR_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 265,
+        "PODOKTOR_2025_AĞUSTOS_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 4528,
+        "PODOKTOR_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 13736,
+        "PODOKTOR_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 17318,
+        "_BECEM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 6181,
+        "_BECEM_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimİ": 148,
+        "_Teknoloji_Kıbrıs_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 4615,
+        "Çalışkan_Transfer_2025_Yılı_AĞUSTOS_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 11231,
+        "Çalışkan_Transfer_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 3227,
+        "Çalışkan_Transfer_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 12496
+      },
+      "percentage": 16.92
+    },
+    {
+      "user_email": "begumdamlasen@gmail.com",
+      "screenshot_count": 281014,
+      "last_updated": "2025-08-13T17:40:04.739863",
+      "latest_screenshot_date": "2025-08-13T10:39:15+00:00",
+      "total_size_bytes": 202373151425,
+      "project_count": 12,
+      "projects": {
+        "DDS_2025_YILI_SEO_ÇALIŞMASI": 838,
+        "DDS_2025_Yılı_Haziran_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 362,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 763,
+        "DDS_Ağustos_2025_Sanal_Asistanlık_Süreci": 54322,
+        "MK_MOTORS_SEO_ÇALIŞMALARI": 3905,
+        "Teknoloji_Kıbrıs_E-Ticaret_Süreci_Haziran_2025": 9081,
+        "Teknoloji_Kıbrıs_E-Ticaret_Süreci_Mayıs_2025": 149,
+        "Teknoloji_Kıbrıs_E_Ticaret_Sürceci_Ekim_Ayı": 2362,
+        "Teknoloji_Kıbrıs_HAZİRAN_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 802,
+        "Teknolojikibris.com_E-Ticaret_Yönetimi_İş_Emri": 12065,
+        "_DDS_Haziran_2025_Sanal_Asistanlık_Süreci": 81832,
+        "_DDS_Temmuz_2025_Sanal_Asistanlık_Süreci": 114533
+      },
+      "percentage": 14.4
+    },
+    {
+      "user_email": "gulsummelisa.23@gmail.com",
+      "screenshot_count": 160808,
+      "last_updated": "2025-08-13T17:47:02.302253",
+      "latest_screenshot_date": "2025-08-13T14:08:34+00:00",
+      "total_size_bytes": 98243592233,
+      "project_count": 16,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 180,
+        "BECEM_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 595,
+        "BECEM_2025_Yılı_Mart_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 251,
+        "CORPAYSS_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 1170,
+        "Corpayss_HAZİRAN_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 420,
+        "DDS_2025_Yılı_AğustosGenel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 3513,
+        "DDS_2025_Yılı_Ağustos_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 43084,
+        "DDS_2025_Yılı_Haziran_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 46094,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 61315,
+        "FANCY_2025_Yılı_TEMMUZ_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 99,
+        "MK_MOTORS&RENT_A_CAR_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 167,
+        "PODOKTOR_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 1086,
+        "_Body&Soul_Figen_Bilge_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 1622,
+        "_EASY_HOME_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 670,
+        "_ECOSSE_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 310,
+        "Çalışkan_Transfer_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 232
+      },
+      "percentage": 8.24
+    },
+    {
+      "user_email": "yurukelmenekse@gmail.com",
+      "screenshot_count": 100761,
+      "last_updated": "2025-08-13T18:13:55.810622",
+      "latest_screenshot_date": "2025-07-08T15:42:36+00:00",
+      "total_size_bytes": 75924153867,
+      "project_count": 2,
+      "projects": {
+        "Teknoloji_Kıbrıs_SEO_Çalışması": 6322,
+        "Teknolojikibris.com_E-Ticaret_Yönetimi_İş_Emri": 94439
+      },
+      "percentage": 5.16
+    },
+    {
+      "user_email": "amirishaque67@gmail.com",
+      "screenshot_count": 64824,
+      "last_updated": "2025-08-13T17:29:50.294638",
+      "latest_screenshot_date": "2025-07-02T14:26:12+00:00",
+      "total_size_bytes": 20961369466,
+      "project_count": 5,
+      "projects": {
+        "DDSFocusPro_v1.3": 3,
+        "DDSFocusPro_v1.4": 599,
+        "DSSFocus_Pro_Admin_Panel_Task": 24703,
+        "Update_Process": 1134,
+        "V1_Development": 38385
+      },
+      "percentage": 3.32
+    },
+    {
+      "user_email": "atakankahraman35@outlook.com",
+      "screenshot_count": 53258,
+      "last_updated": "2025-08-13T17:31:29.145418",
+      "latest_screenshot_date": "2025-08-12T14:37:17+00:00",
+      "total_size_bytes": 28401271843,
+      "project_count": 10,
+      "projects": {
+        "CORPAYSS_2025_Yılı_TEMMUZ_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 383,
+        "Corpayss_TEMMUZ_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 3989,
+        "DDS_2025_Yılı_Haziran_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 26727,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 7104,
+        "EASY_HOME_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 601,
+        "Island_Green_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 1968,
+        "MK_MOTORS&_RENT_A_CAR_2025_AĞUSTOS_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 5650,
+        "MK_MOTORS&_RENT_A_CAR_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 4798,
+        "_BECEM_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimİ": 1261,
+        "_DDS_Haziran_2025_Sanal_Asistanlık_Süreci": 777
+      },
+      "percentage": 2.73
+    },
+    {
+      "user_email": "cagla.shr@gmail.com",
+      "screenshot_count": 45873,
+      "last_updated": "2025-08-13T17:42:11.056837",
+      "latest_screenshot_date": "2025-08-08T20:16:17+00:00",
+      "total_size_bytes": 26971726787,
+      "project_count": 12,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 2049,
+        "Arşın_İnşaat_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 2203,
+        "Arşın_İnşaat_Logo_Tasarımı": 4810,
+        "Arşın_İnşaat_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 16745,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 2956,
+        "DDS_ı_Portfolyo_Upwork_Güncellemesi": 8397,
+        "Deluxe_VCard_2025_Haziran_Genel_Grafik_Tasarım&İçerik_Üretimi": 1614,
+        "Dialog_Ocean_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 1061,
+        "Island_Green_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 3776,
+        "Kıbrıs_Detay_Medya_Logo_ve_Kurumsal_Kimlik_Tasarımı": 1852,
+        "SFC&CORNER_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 265,
+        "_Teknoloji_Kıbrıs_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 145
+      },
+      "percentage": 2.35
+    },
+    {
+      "user_email": "mahboub.sad@gmail.com",
+      "screenshot_count": 34969,
+      "last_updated": "2025-08-13T18:01:59.353308",
+      "latest_screenshot_date": "2025-06-16T13:44:22+00:00",
+      "total_size_bytes": 7349060330,
+      "project_count": 4,
+      "projects": {
+        "caliskantransfer.com_web_geliştirme": 15743,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 9291,
+        "Çalışkan_Transfer_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 5969,
+        "Çalışkan_Transfer_2025_Yılı_MART_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 3966
+      },
+      "percentage": 1.79
+    },
+    {
+      "user_email": "mohsinabbass688630@gmail.com",
+      "screenshot_count": 30058,
+      "last_updated": "2025-08-13T18:03:02.798733",
+      "latest_screenshot_date": "2025-08-12T13:24:16+00:00",
+      "total_size_bytes": 9376163283,
+      "project_count": 4,
+      "projects": {
+        "Header_Needs_to_be_fixed": 1785,
+        "Wordpress_General_Update_Themes_&_Plugins_": 8710,
+        "Wordpress_Website_TRNCNews": 11205,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 8358
+      },
+      "percentage": 1.54
+    },
+    {
+      "user_email": "omerfrkyalcin@gmail.com",
+      "screenshot_count": 29613,
+      "last_updated": "2025-08-13T18:03:47.810827",
+      "latest_screenshot_date": "2025-08-11T12:35:00+00:00",
+      "total_size_bytes": 21795987884,
+      "project_count": 14,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 6647,
+        "Arşın_İnşaat_2025_Yılı_TEMMUZ_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 875,
+        "Arşın_İnşaat_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 665,
+        "Arşın_İnşaat_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 874,
+        "Body&Soul_Figen_Bilge_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 4879,
+        "Body&Soul_Figen_Bilge_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 2050,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 1237,
+        "Deluxe_VCard_2025_Temmuz_Genel_Grafik_Tasarım&İçerik_Üretimi": 2256,
+        "EASY_HOME_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 1273,
+        "EASY_HOME_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 245,
+        "Island_Green_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 1043,
+        "Teknoloji_Kıbrıs_Ağustos_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 583,
+        "Teknoloji_Kıbrıs_HAZİRAN_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 5814,
+        "_Teknoloji_Kıbrıs_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 1172
+      },
+      "percentage": 1.52
+    },
+    {
+      "user_email": "m.balkilic@deluxebilisim.com",
+      "screenshot_count": 27910,
+      "last_updated": "2025-08-13T18:01:01.085356",
+      "latest_screenshot_date": "2025-08-04T10:24:28+00:00",
+      "total_size_bytes": 15821933482,
+      "project_count": 5,
+      "projects": {
+        "2025_YILI_HAZİRAN_DDS_MARKETING": 659,
+        "2025_YILI_TEMMUZ_DDS_MARKETING": 6039,
+        "DDS_Ağustos_2025_Sanal_Asistanlık_Süreci": 180,
+        "_DDS_Haziran_2025_Sanal_Asistanlık_Süreci": 10554,
+        "_DDS_Temmuz_2025_Sanal_Asistanlık_Süreci": 10478
+      },
+      "percentage": 1.43
+    },
+    {
+      "user_email": "haseebcodejourney@gmail.com",
+      "screenshot_count": 22001,
+      "last_updated": "2025-08-13T17:47:26.645707",
+      "latest_screenshot_date": "2025-07-17T14:41:06+00:00",
+      "total_size_bytes": 11299458687,
+      "project_count": 10,
+      "projects": {
+        "2025-06-10": 323,
+        "2025_YILI_HAZİRAN_DDS_MARKETING": 401,
+        "AI_SASS_Product_Wordpress_Website": 50,
+        "Create_UI_for_YouTube_AI_Automation_": 1256,
+        "DDSFocusPro_v1.3": 17728,
+        "DDSFocusPro_v1.4": 1715,
+        "DDSFocusPro_v1.5": 445,
+        "DDS_2025_YILI_SEO_ÇALIŞMASI": 4,
+        "DSSFocus_Pro_Admin_Panel_Task": 21,
+        "Development_Version_2_For_DDSFocus_Pro": 58
+      },
+      "percentage": 1.13
+    },
+    {
+      "user_email": "mervegucluu.0044@gmail.com",
+      "screenshot_count": 20825,
+      "last_updated": "2025-08-13T18:02:30.567921",
+      "latest_screenshot_date": "2025-06-15T20:57:56+00:00",
+      "total_size_bytes": 19651873957,
+      "project_count": 4,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 1976,
+        "EASY_HOME_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 5108,
+        "Teknoloji_Kıbrıs_HAZİRAN_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 6308,
+        "_EASY_HOME_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 7433
+      },
+      "percentage": 1.07
+    },
+    {
+      "user_email": "fatih.onk@deluxebilisim.com",
+      "screenshot_count": 20067,
+      "last_updated": "2025-08-13T17:42:53.000650",
+      "latest_screenshot_date": "2025-07-17T20:46:24+00:00",
+      "total_size_bytes": 5974729056,
+      "project_count": 2,
+      "projects": {
+        "DDS_2025_YILI_SEO_ÇALIŞMASI": 9200,
+        "Kariyer_KKTC_Web_Sitesi": 10867
+      },
+      "percentage": 1.03
+    },
+    {
+      "user_email": "huseyinturguterek@gmail.com",
+      "screenshot_count": 18223,
+      "last_updated": "2025-08-13T17:47:43.375659",
+      "latest_screenshot_date": "2025-08-13T11:36:26+00:00",
+      "total_size_bytes": 12708413665,
+      "project_count": 11,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 4107,
+        "BECEM_2025_Yılı_AĞUSTOS_Genel_Grafik_Tasarım_&_İçerik_Üretimİ": 2268,
+        "Dialog_Ocean_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 2492,
+        "EASY_HOME_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 2982,
+        "EASY_HOME_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 589,
+        "Island_Green_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 500,
+        "Kıbrıs_Detay_Medya_Logo_ve_Kurumsal_Kimlik_Tasarımı": 1192,
+        "MK_MOTORS&_RENT_A_CAR_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 1171,
+        "PODOKTOR_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 746,
+        "_BECEM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 1551,
+        "_BECEM_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimİ": 625
+      },
+      "percentage": 0.93
+    },
+    {
+      "user_email": "yunussemrekatirci@gmail.com",
+      "screenshot_count": 15115,
+      "last_updated": "2025-08-13T18:12:03.517243",
+      "latest_screenshot_date": "2025-08-12T03:31:22+00:00",
+      "total_size_bytes": 3628763443,
+      "project_count": 5,
+      "projects": {
+        "DDS_2025_Yılı_Haziran_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 86,
+        "_newskktc.com_web_geliştirme": 280,
+        "caliskantransfer.com_web_geliştirme": 10879,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 74,
+        "newstrnc.com_web_geliştirme": 3796
+      },
+      "percentage": 0.77
+    },
+    {
+      "user_email": "gulinsosyalmedya@gmail.com",
+      "screenshot_count": 13551,
+      "last_updated": "2025-08-13T17:43:25.211508",
+      "latest_screenshot_date": "2025-07-23T08:50:27+00:00",
+      "total_size_bytes": 4747623147,
+      "project_count": 5,
+      "projects": {
+        "AYCOM_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 121,
+        "FANCY_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 1028,
+        "Çağra_LTD_2025_Haziran_Sosyal_Medya_Yönetimi&Reklam_Kurulumu&Raporlama": 2917,
+        "Çağra_LTD_2025_MAYIS_Sosyal_Medya_Yönetimi&Reklam_Kurulumu&Raporlama": 99,
+        "Çağra_LTD_2025_Temmuz_Sosyal_Medya_Yönetimi&Reklam_Kurulumu&Raporlama": 9386
+      },
+      "percentage": 0.69
+    },
+    {
+      "user_email": "zeynepbaygin60@gmail.com",
+      "screenshot_count": 13264,
+      "last_updated": "2025-08-13T18:14:09.809800",
+      "latest_screenshot_date": "2025-07-25T12:34:07+00:00",
+      "total_size_bytes": 5108616326,
+      "project_count": 2,
+      "projects": {
+        "DDS_Portfolyo_Güncellemesi_+_Türkçe_ve_İngilizce_Katalog_Revizesi": 830,
+        "DDS_Temmuz_2025_Oryantasyon_Geliştirme": 12434
+      },
+      "percentage": 0.68
+    },
+    {
+      "user_email": "kevserhuseyin18@gmail.com",
+      "screenshot_count": 12827,
+      "last_updated": "2025-08-13T18:00:31.949911",
+      "latest_screenshot_date": "2025-08-13T13:17:12+00:00",
+      "total_size_bytes": 4760785423,
+      "project_count": 13,
+      "projects": {
+        "ADA_DİL_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 101,
+        "AYCOM_2025_Yılı_Temmuz_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 179,
+        "Babeel_Ayakkabı_&_Destina_Butik_Genel_Paylaşım_ve_Reklam_Pllanlaması": 230,
+        "DDS_2025_Yılı_Ağustos_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 607,
+        "DDS_2025_Yılı_Temmuz_Genel_Grafik,_İçerik_Üretim_ve_Sosyal_Medya_Yönetimi_Tasarım_Çalışmaları": 1083,
+        "Destina_Butik&Babeel_Ayakkabı_2025_ŞUBAT_Genel_Grafik_Tasarım&İçerik_Üretimi": 463,
+        "Dialog_Ocean_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 314,
+        "Dialog_Ocean_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 1899,
+        "EASY_HOME_2025_MART_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 333,
+        "EASY_HOME_2025_NİSAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 538,
+        "EASY_HOME_2025_TEMMUZ_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 6315,
+        "EASY_HOME_2025_Yılı_TEMMUZ_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 643,
+        "_Teknoloji_Kıbrıs_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 122
+      },
+      "percentage": 0.66
+    },
+    {
+      "user_email": "selimyalcnts@gmail.com",
+      "screenshot_count": 12444,
+      "last_updated": "2025-08-13T18:04:15.115624",
+      "latest_screenshot_date": "2025-08-11T20:28:07+00:00",
+      "total_size_bytes": 9370611134,
+      "project_count": 2,
+      "projects": {
+        "arsinconstruction.com_": 11988,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 456
+      },
+      "percentage": 0.64
+    },
+    {
+      "user_email": "deniz@deluxebilisim.com",
+      "screenshot_count": 5783,
+      "last_updated": "2025-08-13T17:42:21.645484",
+      "latest_screenshot_date": "2025-06-06T19:32:31+00:00",
+      "total_size_bytes": 2608819918,
+      "project_count": 5,
+      "projects": {
+        "Corpayss_MAYIS_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 3,
+        "Easyhome_2024_Aralık_Sosyal_Medya_Post_Tasarımı": 353,
+        "Haziran_2022_Çekim_Görselleri_Post": 1654,
+        "Luxxur_Design_Temmuz_2024_Sosyal_Medya_Post&Story_Tasarımı": 3457,
+        "Mardo_Genel_Sosyal_Medya_Çalışması": 316
+      },
+      "percentage": 0.3
+    },
+    {
+      "user_email": "nawaz@dxdglobal.com",
+      "screenshot_count": 5744,
+      "last_updated": "2025-08-13T18:03:07.432440",
+      "latest_screenshot_date": "2025-07-14T22:40:02+00:00",
+      "total_size_bytes": 2281458385,
+      "project_count": 5,
+      "projects": {
+        "DSSFocus_Pro_Admin_Panel_Task": 3452,
+        "Island_Green_Construction_2025_Yılı_TEMMUZ_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 478,
+        "Please_make_Fix_Search_Issue_on_Admin_Panel": 804,
+        "cyprushaber.com": 989,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 21
+      },
+      "percentage": 0.29
+    },
+    {
+      "user_email": "ozgunhulyakaraoglan@gmail.com",
+      "screenshot_count": 3482,
+      "last_updated": "2025-08-13T18:03:52.191595",
+      "latest_screenshot_date": "2025-06-27T09:24:28+00:00",
+      "total_size_bytes": 1364195689,
+      "project_count": 7,
+      "projects": {
+        "BECEM_SEO_ÇALIŞMALARI": 862,
+        "DELUXE_VCARD_2025_YILI_SEO_ÇALIŞMASI": 70,
+        "DXD_GLOBAL_SEO_ÇALIŞMASI_": 251,
+        "KARİYER_KKTC_SEO_ÇALIŞMALARI": 565,
+        "MK_MOTORS_SEO_ÇALIŞMALARI": 569,
+        "MYEDUCO_SEO_ÇALIŞMALARI": 315,
+        "PODOKTOR_SEO_ÇALIŞMALARI": 850
+      },
+      "percentage": 0.18
+    },
+    {
+      "user_email": "rignimeyikur02@gmail.com",
+      "screenshot_count": 2981,
+      "last_updated": "2025-08-13T18:03:55.654543",
+      "latest_screenshot_date": "2025-08-12T23:47:33+00:00",
+      "total_size_bytes": 1960187282,
+      "project_count": 1,
+      "projects": {
+        "Dialog_Ocean_AĞUSTOS_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 2981
+      },
+      "percentage": 0.15
+    },
+    {
+      "user_email": "danish.ali9801@gmail.com",
+      "screenshot_count": 2729,
+      "last_updated": "2025-08-13T17:42:13.983894",
+      "latest_screenshot_date": "2025-07-11T19:48:46+00:00",
+      "total_size_bytes": 873386237,
+      "project_count": 1,
+      "projects": {
+        "Create_a_website_AI": 2729
+      },
+      "percentage": 0.14
+    },
+    {
+      "user_email": "m.fidan.firat@gmail.com",
+      "screenshot_count": 2319,
+      "last_updated": "2025-08-13T18:01:05.201243",
+      "latest_screenshot_date": "2025-07-21T22:14:18+00:00",
+      "total_size_bytes": 2582757074,
+      "project_count": 2,
+      "projects": {
+        "Arşın_İnşaat_Temmuz_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 1327,
+        "_Teknoloji_Kıbrıs_TEMMUZ_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 992
+      },
+      "percentage": 0.12
+    },
+    {
+      "user_email": "eliff.ugrl@gmail.com",
+      "screenshot_count": 1490,
+      "last_updated": "2025-08-13T17:42:23.922315",
+      "latest_screenshot_date": "2025-06-24T11:42:19+00:00",
+      "total_size_bytes": 424374858,
+      "project_count": 16,
+      "projects": {
+        "ADA_DİL_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 28,
+        "ADA_DİL_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 12,
+        "ADA_DİL_SEO_ÇALIŞMALARI": 196,
+        "Deluxe_VCard_2025_Haziran_Genel_Grafik_Tasarım&İçerik_Üretimi": 99,
+        "Dialog_Ocean_HAZİRAN_2025_Genel_Grafik_Tasarım&İçerik_Üretimi": 152,
+        "EASY_HOME_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 44,
+        "MK_MOTORS&RENT_A_CAR_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 85,
+        "MK_MOTORS&_RENT_A_CAR_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 64,
+        "MK_MOTORS_mkmotorscy.com_&_mkrentacarcy.com_Web_tasarım": 20,
+        "PODOKTOR_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 24,
+        "PODOKTOR_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 21,
+        "_EASY_HOME_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 48,
+        "_newskktc.com_web_geliştirme": 276,
+        "dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_": 362,
+        "newstrnc.com_web_geliştirme": 34,
+        "trncnews.com_web_geliştirme": 25
+      },
+      "percentage": 0.08
+    },
+    {
+      "user_email": "bilgeryilmaz@gmail.com",
+      "screenshot_count": 1340,
+      "last_updated": "2025-08-13T17:40:06.368092",
+      "latest_screenshot_date": "2025-06-24T13:26:01+00:00",
+      "total_size_bytes": 193859886,
+      "project_count": 2,
+      "projects": {
+        "EASY_HOME_2025_YILI_SEO_ÇALIŞMASI": 1088,
+        "Çalışkan_2025_Yılı_SEO_ÇALIŞMASI": 252
+      },
+      "percentage": 0.07
+    },
+    {
+      "user_email": "mirzashazif123@gmail.com",
+      "screenshot_count": 1003,
+      "last_updated": "2025-08-13T18:02:32.633798",
+      "latest_screenshot_date": "2025-06-24T17:40:07+00:00",
+      "total_size_bytes": 300805404,
+      "project_count": 1,
+      "projects": {
+        "Wordpress_Website_TRNCNews": 1003
+      },
+      "percentage": 0.05
+    },
+    {
+      "user_email": "frknaydinresmi@gmail.com",
+      "screenshot_count": 625,
+      "last_updated": "2025-08-13T17:42:55.021097",
+      "latest_screenshot_date": "2025-06-18T19:40:40+00:00",
+      "total_size_bytes": 294093042,
+      "project_count": 2,
+      "projects": {
+        "DDS_Portfolyo_Güncellemesi_+_Türkçe_ve_İngilizce_Katalog_Revizesi": 266,
+        "MK_MOTORS&_RENT_A_CAR_2025_HAZİRAN_Genel_Grafik_Tasarımı_&_İçerik_Üretimi": 359
+      },
+      "percentage": 0.03
+    },
+    {
+      "user_email": "beyza-donmez-@hotmail.com",
+      "screenshot_count": 62,
+      "last_updated": "2025-08-13T17:40:04.878540",
+      "latest_screenshot_date": "2025-06-13T23:51:26+00:00",
+      "total_size_bytes": 15280506,
+      "project_count": 1,
+      "projects": {
+        "DDS_2025_Yılı_Ocak_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 62
+      },
+      "percentage": 0.0
+    },
+    {
+      "user_email": "deniz@dxdglobal.com",
+      "screenshot_count": 58,
+      "last_updated": "2025-08-13T17:42:21.801594",
+      "latest_screenshot_date": "2025-06-24T16:13:05+00:00",
+      "total_size_bytes": 14028217,
+      "project_count": 1,
+      "projects": {
+        "ADA_DİL_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 58
+      },
+      "percentage": 0.0
+    }
+  ]
+}

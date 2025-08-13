@@ -14,14 +14,35 @@ from s3_screenshots_users_api import s3_screenshots_users_api
 from user_screenshots_count_api import user_screenshots_count_api, user_screenshots_summary_api
 from scheduler_status_api import scheduler_status_api
 from health_api import health_api
-from simple_api import simple_screenshots_api
+from cached_api import cached_screenshots_api
+from working_api import working_screenshots_api
+from . import api_views
+from .fast_live_tracking_api import fast_live_tracking_screenshots_api
+from .date_based_live_tracking_api import live_tracking_screenshots_by_date_api
+from . import screenshots_search_api
+from . import settings_apis
+from . import enhanced_api_views
+from . import all_screenshots_api
+from . import fast_screenshots_api
+from . import ultra_fast_screenshots_api
+from django.conf import settings
+from django.conf.urls.static import static
+from s3_screenshots_users_api import s3_screenshots_users_api
+from user_screenshots_count_api import user_screenshots_count_api, user_screenshots_summary_api
+from scheduler_status_api import scheduler_status_api
+from health_api import health_api
+from cached_api import cached_screenshots_api
+from working_api import working_screenshots_api
 
 urlpatterns = [
     # Health Check API - Simple test endpoint
     path('health/', health_api, name='api_health'),
     
-    # Actual Count Total Screenshots API - Bypass middleware issues
-    path('actual-count-total/screenshots/', simple_screenshots_api, name='api_actual_count_total_screenshots'),
+    # Actual Count Total Screenshots API - FAST CACHED VERSION
+    path('actual-count-total/screenshots/', cached_screenshots_api, name='api_actual_count_total_screenshots'),
+    
+    # Working API with fallback (for testing)
+    path('working/screenshots/', working_screenshots_api, name='api_working_screenshots'),
     
     # Test endpoint
     path('test/', api_views.api_test, name='api_test'),

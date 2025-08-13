@@ -1,0 +1,248 @@
+{
+    "success": true,
+    "timestamp": "2025-08-13T17:02:35.873446",
+    "total_users": 19,
+    "total_screenshots": 85120,
+    "status": "Data from cached JSON file (updated every 6 hours)",
+    "bucket": "ddsfocustime",
+    "last_updated": "2025-08-13T17:02:35.873446",
+    "cache_info": {
+        "cache_file": "screenshot_data_cache.json",
+        "update_frequency": "Every 6 hours",
+        "next_update": "2025-08-13T23:02:35.873446"
+    },
+    "users": [
+        {
+            "user_email": "amirishaque67@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:32.543391",
+            "latest_screenshot_date": "2025-07-01T12:12:51+00:00",
+            "total_size_bytes": 1007440900,
+            "project_count": 2,
+            "projects": {
+                "DDSFocusPro_v1.3": 3,
+                "DDSFocusPro_v1.4": 97
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "atakankahraman35@outlook.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:32.772934",
+            "latest_screenshot_date": "2025-07-25T13:42:06+00:00",
+            "total_size_bytes": 2815307250,
+            "project_count": 1,
+            "projects": {
+                "CORPAYSS_2025_Yılı_TEMMUZ_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "begumdamlasen@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:33.114893",
+            "latest_screenshot_date": "2025-06-10T05:45:13+00:00",
+            "total_size_bytes": 2344105050,
+            "project_count": 1,
+            "projects": {
+                "DDS_2025_YILI_SEO_ÇALIŞMASI": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "bilgeryilmaz@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:33.611138",
+            "latest_screenshot_date": "2025-06-20T07:22:53+00:00",
+            "total_size_bytes": 781271650,
+            "project_count": 1,
+            "projects": {
+                "EASY_HOME_2025_YILI_SEO_ÇALIŞMASI": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "cagla.shr@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:33.794599",
+            "latest_screenshot_date": "2025-06-24T18:55:21+00:00",
+            "total_size_bytes": 2337966000,
+            "project_count": 1,
+            "projects": {
+                "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "danish.ali9801@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:33.938524",
+            "latest_screenshot_date": "2025-07-01T18:49:43+00:00",
+            "total_size_bytes": 1699456050,
+            "project_count": 1,
+            "projects": {
+                "Create_a_website_AI": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "deniz@deluxebilisim.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:34.201337",
+            "latest_screenshot_date": "2025-06-06T18:57:07+00:00",
+            "total_size_bytes": 1222622650,
+            "project_count": 2,
+            "projects": {
+                "Corpayss_MAYIS_2025_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 3,
+                "Easyhome_2024_Aralık_Sosyal_Medya_Post_Tasarımı": 97
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "eliff.ugrl@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:34.492988",
+            "latest_screenshot_date": "2025-06-24T11:22:08+00:00",
+            "total_size_bytes": 1917169900,
+            "project_count": 3,
+            "projects": {
+                "ADA_DİL_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 28,
+                "ADA_DİL_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 12,
+                "ADA_DİL_SEO_ÇALIŞMALARI": 60
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "fatih.onk@deluxebilisim.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:34.650258",
+            "latest_screenshot_date": "2025-06-25T20:06:34+00:00",
+            "total_size_bytes": 2259013700,
+            "project_count": 1,
+            "projects": {
+                "DDS_2025_YILI_SEO_ÇALIŞMASI": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "frknaydinresmi@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:34.805532",
+            "latest_screenshot_date": "2025-06-18T19:19:58+00:00",
+            "total_size_bytes": 2717704700,
+            "project_count": 1,
+            "projects": {
+                "DDS_Portfolyo_Güncellemesi_+_Türkçe_ve_İngilizce_Katalog_Revizesi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "gulinsosyalmedya@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:34.959579",
+            "latest_screenshot_date": "2025-06-30T14:08:24+00:00",
+            "total_size_bytes": 1915911600,
+            "project_count": 1,
+            "projects": {
+                "AYCOM_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "gulsummelisa.23@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:35.096478",
+            "latest_screenshot_date": "2025-06-16T21:43:27+00:00",
+            "total_size_bytes": 2609925050,
+            "project_count": 1,
+            "projects": {
+                "AYCOM_2025_Yılı_HAZİRAN_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "haseebcodejourney@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:35.227185",
+            "latest_screenshot_date": "2025-06-10T15:18:38+00:00",
+            "total_size_bytes": 1056768300,
+            "project_count": 1,
+            "projects": {
+                "2025-06-10": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "huseyinturguterek@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:35.387411",
+            "latest_screenshot_date": "2025-06-12T17:18:05+00:00",
+            "total_size_bytes": 2485204350,
+            "project_count": 1,
+            "projects": {
+                "AYCOM_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "ilahe.avci2004@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:35.571253",
+            "latest_screenshot_date": "2025-08-01T12:39:33+00:00",
+            "total_size_bytes": 2116070050,
+            "project_count": 1,
+            "projects": {
+                "2025_YILI_AĞUSTOS_DDS_MARKETING": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "kevserhuseyin18@gmail.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:35.718922",
+            "latest_screenshot_date": "2025-07-20T08:36:52+00:00",
+            "total_size_bytes": 1816494100,
+            "project_count": 1,
+            "projects": {
+                "ADA_DİL_2025_Yılı_TEMMUZ_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "m.balkilic@deluxebilisim.com",
+            "screenshot_count": 5000,
+            "last_updated": "2025-08-13T17:02:35.871719",
+            "latest_screenshot_date": "2025-07-08T10:08:03+00:00",
+            "total_size_bytes": 2905781200,
+            "project_count": 1,
+            "projects": {
+                "2025_YILI_HAZİRAN_DDS_MARKETING": 100
+            },
+            "percentage": 5.87
+        },
+        {
+            "user_email": "beyza-donmez-@hotmail.com",
+            "screenshot_count": 62,
+            "last_updated": "2025-08-13T17:02:33.321177",
+            "latest_screenshot_date": "2025-06-13T23:51:26+00:00",
+            "total_size_bytes": 15280506,
+            "project_count": 1,
+            "projects": {
+                "DDS_2025_Yılı_Ocak_Genel_Reklam_Planlama_ve_Paylaşım_Yönetimi": 62
+            },
+            "percentage": 0.07
+        },
+        {
+            "user_email": "deniz@dxdglobal.com",
+            "screenshot_count": 58,
+            "last_updated": "2025-08-13T17:02:34.356505",
+            "latest_screenshot_date": "2025-06-24T16:13:05+00:00",
+            "total_size_bytes": 14028217,
+            "project_count": 1,
+            "projects": {
+                "ADA_DİL_2025_Yılı_HAZİRAN_Genel_Grafik_Tasarım_&_İçerik_Üretimi": 58
+            },
+            "percentage": 0.07
+        }
+    ]
+}

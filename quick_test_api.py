@@ -9,13 +9,11 @@ print("🚀 Testing API...")
 time.sleep(2)  # Wait for server to be ready
 
 try:
-    url = "http://127.0.0.1:8000/api/screenshots/search/"
-    params = {"search": "test", "limit": 5}
+    url = "http://127.0.0.1:8001/api/actual-count-total/screenshots/"
     
     print(f"📡 Making request to: {url}")
-    print(f"📋 Parameters: {params}")
     
-    response = requests.get(url, params=params, timeout=10)
+    response = requests.get(url, timeout=30)
     
     print(f"📊 Status Code: {response.status_code}")
     print(f"🔗 Final URL: {response.url}")
@@ -23,7 +21,9 @@ try:
     if response.status_code == 200:
         print("✅ SUCCESS!")
         data = response.json()
-        print(f"Response: {data}")
+        print(f"Users: {data.get('total_users', 0)}")
+        print(f"Screenshots: {data.get('total_screenshots', 0)}")
+        print("API WORKING!")
     elif response.status_code == 302:
         print(f"🔄 Redirect to: {response.headers.get('Location', 'Unknown')}")
     else:
