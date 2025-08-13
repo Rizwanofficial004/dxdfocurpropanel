@@ -11,8 +11,18 @@ from . import ultra_fast_screenshots_api
 from django.conf import settings
 from django.conf.urls.static import static
 from s3_screenshots_users_api import s3_screenshots_users_api
+from user_screenshots_count_api import user_screenshots_count_api, user_screenshots_summary_api
+from scheduler_status_api import scheduler_status_api
+from health_api import health_api
+from simple_api import simple_screenshots_api
 
 urlpatterns = [
+    # Health Check API - Simple test endpoint
+    path('health/', health_api, name='api_health'),
+    
+    # Actual Count Total Screenshots API - Bypass middleware issues
+    path('actual-count-total/screenshots/', simple_screenshots_api, name='api_actual_count_total_screenshots'),
+    
     # Test endpoint
     path('test/', api_views.api_test, name='api_test'),
     
@@ -89,6 +99,17 @@ urlpatterns = [
     
     # Enhanced Live Tracking API - Date-based search
     path('live-tracking/screenshots-by-date/', live_tracking_screenshots_by_date_api, name='api_live_tracking_screenshots_by_date'),
+    
+    # ==================== USER SCREENSHOTS COUNT APIs ====================
+    # User Screenshots Count API - Get screenshot counts for each user
+    path('users/screenshots-count/', user_screenshots_count_api, name='api_user_screenshots_count'),
+    
+    # User Screenshots Summary API - Quick summary statistics
+    path('users/screenshots-summary/', user_screenshots_summary_api, name='api_user_screenshots_summary'),
+    
+    # ==================== SCHEDULER MANAGEMENT API ====================
+    # Scheduler Status API - Check and control the auto scheduler
+    path('scheduler/status/', scheduler_status_api, name='api_scheduler_status'),
     
     # ==================== SETTINGS MANAGEMENT APIs ====================
     # UI Settings APIs

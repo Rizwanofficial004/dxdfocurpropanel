@@ -1,0 +1,5 @@
+# Install APScheduler for Python scheduling
+pip install apscheduler
+
+# For Windows Service (optional)
+pip install pywin32

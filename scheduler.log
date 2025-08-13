@@ -1,0 +1,6 @@
+2025-08-13 11:23:57,013 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:23:57,013 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:23:57,014 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:23:57,542 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:23:57,542 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:23:57,542 - apscheduler.scheduler - INFO - Scheduler started

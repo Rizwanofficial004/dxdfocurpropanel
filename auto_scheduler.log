@@ -1,0 +1,351 @@
+2025-08-13 11:29:33,940 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:29:33,940 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:29:33,940 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:29:33,941 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:29:33,941 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:29:33.939920+03:00
+2025-08-13 11:29:33,941 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:29:34,742 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:29:34,742 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:29:34,742 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:29:34,743 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:29:34,743 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:29:34.742062+03:00
+2025-08-13 11:29:34,743 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:29:34,775 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 11:33:41,267 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:33:41,267 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:33:41,267 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:33:41,268 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:33:41,268 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:33:41.267295+03:00
+2025-08-13 11:33:41,268 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:33:42,029 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:33:42,029 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:33:42,029 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:33:42,030 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:33:42,030 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:33:42.029376+03:00
+2025-08-13 11:33:42,030 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:33:42,060 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 11:39:32,805 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:39:32,805 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:39:32,805 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:39:32,806 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:39:32,806 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:39:32.805186+03:00
+2025-08-13 11:39:32,806 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:39:33,601 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:39:33,601 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:39:33,601 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:39:33,601 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:39:33,602 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:39:33.601099+03:00
+2025-08-13 11:39:33,602 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:39:33,632 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 11:39:59,091 - django.request - ERROR - Internal Server Error: /api/users/screenshots-summary/
+2025-08-13 11:41:43,250 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:41:43,250 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:41:43,250 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:41:43,251 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:41:43,251 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:41:43.250222+03:00
+2025-08-13 11:41:43,251 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 11:43:59,252 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 11:43:59,252 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 11:43:59,252 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 11:43:59,253 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 11:43:59,253 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 17:43:59.252125+03:00
+2025-08-13 11:43:59,253 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:31:03,959 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:31:03,960 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:31:03,960 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:31:03,960 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:31:03,960 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:31:03.959835+03:00
+2025-08-13 12:31:03,960 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:31:32,683 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:31:32,684 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:31:32,684 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:31:32,684 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:31:32,684 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:31:32.683683+03:00
+2025-08-13 12:31:32,684 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:31:33,414 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:31:33,415 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:31:33,415 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:31:33,415 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:31:33,415 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:31:33.414837+03:00
+2025-08-13 12:31:33,416 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:31:33,446 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 12:37:00,033 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:37:00,033 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:37:00,033 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:37:00,033 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:37:00,033 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:37:00.032929+03:00
+2025-08-13 12:37:00,034 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:37:00,783 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:37:00,783 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:37:00,783 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:37:00,784 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:37:00,784 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:37:00.783200+03:00
+2025-08-13 12:37:00,784 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:37:00,814 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 12:39:34,308 - dashboard.api_views - WARNING - Failed login attempt for username: admin@example.com
+2025-08-13 12:39:34,309 - django.request - WARNING - Unauthorized: /api/auth/login/
+2025-08-13 12:39:34,738 - dashboard.api_views - WARNING - Failed login attempt for username: invalid@example.com
+2025-08-13 12:39:34,739 - django.request - WARNING - Unauthorized: /api/auth/login/
+2025-08-13 12:39:34,741 - django.request - WARNING - Unauthorized: /api/logs/
+2025-08-13 12:39:35,160 - dashboard.api_views - WARNING - Failed login attempt for username: invalid-email
+2025-08-13 12:39:35,161 - django.request - WARNING - Unauthorized: /api/auth/login/
+2025-08-13 12:39:35,163 - django.request - WARNING - Unauthorized: /api/screenshots/
+2025-08-13 12:41:50,094 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:41:50,094 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:41:50,094 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:41:50,095 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:41:50,095 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:41:50.094283+03:00
+2025-08-13 12:41:50,095 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:41:50,873 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:41:50,873 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:41:50,874 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:41:50,874 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:41:50,874 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:41:50.873536+03:00
+2025-08-13 12:41:50,874 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:41:50,908 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 12:44:46,202 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:44:46,202 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:44:46,202 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:44:46,203 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:44:46,203 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:44:46.201946+03:00
+2025-08-13 12:44:46,203 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:44:47,139 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:44:47,139 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:44:47,139 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:44:47,139 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:44:47,140 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:44:47.138876+03:00
+2025-08-13 12:44:47,140 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:44:47,173 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 12:46:18,374 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:46:18,374 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:46:18,374 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:46:18,375 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:46:18,375 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:46:18.374209+03:00
+2025-08-13 12:46:18,375 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:46:36,632 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:46:36,632 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:46:36,632 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:46:36,632 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:46:36,633 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:46:36.631904+03:00
+2025-08-13 12:46:36,633 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:51:36,201 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:51:36,201 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:51:36,201 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:51:36,202 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:51:36,202 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:51:36.201325+03:00
+2025-08-13 12:51:36,202 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:52:42,423 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:52:42,424 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:52:42,424 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:52:42,424 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:52:42,424 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:52:42.423769+03:00
+2025-08-13 12:52:42,424 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:53:39,736 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:53:39,736 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:53:39,737 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:53:39,737 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:53:39,737 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:53:39.736422+03:00
+2025-08-13 12:53:39,738 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:53:55,544 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:53:55,545 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:53:55,545 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:53:55,545 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:53:55,545 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:53:55.544738+03:00
+2025-08-13 12:53:55,546 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:57:15,748 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:57:15,749 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:57:15,749 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:57:15,749 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:57:15,749 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:57:15.748754+03:00
+2025-08-13 12:57:15,749 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:58:39,074 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:58:39,074 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:58:39,074 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:58:39,074 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:58:39,075 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:58:39.074004+03:00
+2025-08-13 12:58:39,075 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:58:39,861 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 12:58:39,862 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 12:58:39,862 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 12:58:39,862 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 12:58:39,862 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 18:58:39.861883+03:00
+2025-08-13 12:58:39,862 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 12:58:39,898 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:00:23,729 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:00:23,729 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:00:23,729 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:00:23,730 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:00:23,730 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:00:23.729379+03:00
+2025-08-13 13:00:23,730 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:00:24,528 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:00:24,529 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:00:24,529 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:00:24,529 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:00:24,529 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:00:24.528668+03:00
+2025-08-13 13:00:24,529 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:00:24,562 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:03:14,904 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:03:15,350 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:03:15,944 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:03:15,944 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:03:15,944 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:03:15,944 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:03:15,945 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:03:15.943946+03:00
+2025-08-13 13:03:15,945 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:03:15,978 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:03:16,372 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:03:16,372 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:03:16,372 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:03:16,372 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:03:16,373 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:03:16.371885+03:00
+2025-08-13 13:03:16,373 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:03:16,405 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:03:30,970 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:03:31,343 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:03:31,990 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:03:31,990 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:03:31,990 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:03:31,991 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:03:31,991 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:03:31.989935+03:00
+2025-08-13 13:03:31,991 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:03:32,024 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:03:32,360 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:03:32,361 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:03:32,361 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:03:32,361 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:03:32,361 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:03:32.360497+03:00
+2025-08-13 13:03:32,361 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:03:32,392 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:03:57,449 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:03:57,773 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:03:58,344 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:03:58,345 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:03:58,345 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:03:58,345 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:03:58,345 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:03:58.344692+03:00
+2025-08-13 13:03:58,345 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:03:58,378 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:03:58,728 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:03:58,728 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:03:58,728 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:03:58,728 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:03:58,729 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:03:58.727990+03:00
+2025-08-13 13:03:58,729 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:03:58,760 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:05:24,257 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\user_screenshots_count_api.py changed, reloading.
+2025-08-13 13:05:25,190 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:05:25,190 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:05:25,191 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:05:25,191 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:05:25,191 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:05:25.190486+03:00
+2025-08-13 13:05:25,191 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:05:25,222 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:05:51,816 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:05:51,816 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:05:51,816 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:05:51,816 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:05:51,817 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:05:51.816046+03:00
+2025-08-13 13:05:51,817 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:05:52,632 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:05:52,633 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:05:52,633 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:05:52,633 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:05:52,633 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:05:52.632523+03:00
+2025-08-13 13:05:52,633 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:05:52,666 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:20:44,416 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\user_screenshots_count_api.py changed, reloading.
+2025-08-13 13:20:44,455 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\user_screenshots_count_api.py changed, reloading.
+2025-08-13 13:20:45,608 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:20:45,608 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:20:45,608 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:20:45,609 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:20:45,609 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:20:45.607897+03:00
+2025-08-13 13:20:45,609 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:20:45,612 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:20:45,612 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:20:45,613 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:20:45,613 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:20:45,613 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:20:45.612353+03:00
+2025-08-13 13:20:45,613 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:20:45,647 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:20:45,651 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:24:43,927 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:24:44,364 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:24:44,962 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:24:44,963 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:24:44,963 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:24:44,963 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:24:44,964 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:24:44.962794+03:00
+2025-08-13 13:24:44,964 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:24:44,995 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:24:45,381 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:24:45,381 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:24:45,382 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:24:45,382 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:24:45,382 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:24:45.381482+03:00
+2025-08-13 13:24:45,382 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:24:45,414 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:25:02,691 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:25:03,334 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:25:03,839 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:25:03,839 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:25:03,839 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:25:03,840 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:25:03,840 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:25:03.839263+03:00
+2025-08-13 13:25:03,840 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:25:03,878 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:25:04,497 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:25:04,497 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:25:04,498 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:25:04,498 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:25:04,498 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:25:04.497104+03:00
+2025-08-13 13:25:04,498 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:25:04,535 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:26:35,231 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:26:35,969 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\simple_api.py changed, reloading.
+2025-08-13 13:26:36,251 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:26:36,251 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:26:36,252 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:26:36,252 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:26:36,252 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:26:36.251469+03:00
+2025-08-13 13:26:36,252 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:26:36,285 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:26:36,917 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:26:36,917 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:26:36,917 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:26:36,917 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:26:36,918 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:26:36.916955+03:00
+2025-08-13 13:26:36,918 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:26:36,947 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:36:46,404 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:36:46,940 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:36:47,363 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:36:47,363 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:36:47,363 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:36:47,364 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:36:47,364 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:36:47.363110+03:00
+2025-08-13 13:36:47,364 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:36:47,398 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:36:47,946 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:36:47,947 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:36:47,947 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:36:47,947 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:36:47,947 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:36:47.946641+03:00
+2025-08-13 13:36:47,947 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:36:47,977 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:37:31,794 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:37:32,318 - django.utils.autoreload - INFO - C:\Users\deniz\OneDrive\Email attachments\Masaüstü\Git-Projects\dxdfocurpropanel\dashboard\api_urls.py changed, reloading.
+2025-08-13 13:37:32,704 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:37:32,704 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:37:32,704 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:37:32,705 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:37:32,705 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:37:32.704373+03:00
+2025-08-13 13:37:32,705 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:37:32,736 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
+2025-08-13 13:37:33,249 - apscheduler.scheduler - INFO - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-13 13:37:33,249 - apscheduler.scheduler - INFO - Added job "Screenshot Update Job" to job store "default"
+2025-08-13 13:37:33,249 - apscheduler.scheduler - INFO - Scheduler started
+2025-08-13 13:37:33,250 - production_auto_scheduler - INFO - Auto Screenshot Scheduler started - Updates every 6 hours
+2025-08-13 13:37:33,250 - production_auto_scheduler - INFO - Next update scheduled for: 2025-08-13 19:37:33.249153+03:00
+2025-08-13 13:37:33,250 - dashboard.apps - INFO - Production Auto Screenshot Scheduler started with Django
+2025-08-13 13:37:33,279 - django.utils.autoreload - INFO - Watching for file changes with StatReloader
