@@ -156,7 +156,23 @@ AWS_S3_VERIFY_SSL = True
 
 import os
 
+# Set up logs directory
 BASE_PATH_LOG = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOGS_DIR = os.path.join(BASE_PATH_LOG, 'logs')
+
+# Ensure logs directory exists and is writable
+try:
+    os.makedirs(LOGS_DIR, exist_ok=True)
+    # Try to create a test file to check permissions
+    test_log = os.path.join(LOGS_DIR, 'test_permissions.log')
+    with open(test_log, 'a') as f:
+        f.write('')
+    os.remove(test_log)
+    LOG_FILE_PATH = os.path.join(LOGS_DIR, 'cron_job.log')
+except (OSError, PermissionError):
+    # Fallback to a temporary directory or disable file logging
+    import tempfile
+    LOG_FILE_PATH = os.path.join(tempfile.gettempdir(), 'django_cron.log')
 
 LOGGING = {
     'version': 1,
@@ -165,12 +181,16 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_PATH_LOG, 'cron_job.log'),
+            'filename': LOG_FILE_PATH,
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django_cron': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'INFO',
             'propagate': True,
         },

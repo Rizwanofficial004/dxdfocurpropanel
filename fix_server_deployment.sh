@@ -21,6 +21,12 @@ cp -f *.log logs_backup/ 2>/dev/null || echo "No log files to backup"
 echo "🗑️ Removing conflicting log files..."
 rm -f auto_scheduler.log scheduler.log cron_job.log s3_log_extractor.log
 
+# Create logs directory with proper permissions
+echo "📁 Setting up logs directory..."
+mkdir -p logs
+chown -R www-data:www-data logs/ 2>/dev/null || chown -R apache:apache logs/ 2>/dev/null || chown -R nginx:nginx logs/ 2>/dev/null
+chmod 755 logs/
+
 # Reset any local changes to tracked files
 echo "🔄 Resetting local changes..."
 git reset --hard HEAD
