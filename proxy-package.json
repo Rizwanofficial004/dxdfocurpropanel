@@ -1,0 +1,23 @@
+{
+  "name": "dxd-crm-proxy",
+  "version": "1.0.0",
+  "description": "CORS Proxy Server for CRM API access",
+  "main": "src/api/crmProxy.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/api/crmProxy.js",
+    "dev": "nodemon src/api/crmProxy.js",
+    "proxy": "node src/api/crmProxy.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["cors", "proxy", "crm", "api"],
+  "author": "DDS Team",
+  "license": "MIT"
+}
