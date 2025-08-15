@@ -461,31 +461,59 @@ const fetchEmployeesFromCRM = async () => {
         const screenshotData = screenshotInfo.data[emailKey] || {
           screenshot_count: 0,
           last_updated: null,
+          latest_screenshot_date: null,
+          total_size_bytes: 0,
+          project_count: 0,
+          projects: {},
           percentage: 0
         };
         
-        console.log(`📸 Screenshot data for ${employee.name} (${employee.email}):`, screenshotData);
+        if (screenshotData.screenshot_count > 0) {
+          console.log(`📸 Screenshot data for ${employee.name} (${employee.email}):`, {
+            screenshots: screenshotData.screenshot_count.toLocaleString(),
+            percentage: screenshotData.percentage + '%',
+            projects: screenshotData.project_count,
+            storage: (screenshotData.total_size_bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
+          });
+        }
         
         return {
           ...employee,
           ai_insights: aiInsights,
-          // Add screenshot fields
+          // Add comprehensive screenshot fields from API
           screenshot_count: screenshotData.screenshot_count,
           screenshot_last_updated: screenshotData.last_updated,
+          screenshot_latest_date: screenshotData.latest_screenshot_date,
           screenshot_percentage: screenshotData.percentage,
+          screenshot_storage_bytes: screenshotData.total_size_bytes,
+          screenshot_storage_gb: (screenshotData.total_size_bytes / (1024 * 1024 * 1024)).toFixed(2),
+          screenshot_project_count: screenshotData.project_count,
+          screenshot_projects: screenshotData.projects,
           // Add total stats for reference
           total_screenshots_company: screenshotInfo.total_screenshots,
-          total_users_company: screenshotInfo.total_users
+          total_users_company: screenshotInfo.total_users,
+          screenshot_api_status: screenshotInfo.status,
+          screenshot_api_timestamp: screenshotInfo.timestamp
         };
       })
     );
     
     console.log(`🎉 Successfully processed ${employeesWithAI.length} employees from CRM`);
-    console.log(`📸 Merged screenshot data for ${Object.keys(screenshotInfo.data).length} users`);
-    console.log(`📊 Company total screenshots: ${screenshotInfo.total_screenshots.toLocaleString()}`);
-    console.log('📊 Sample employee with screenshot data:', employeesWithAI[0]);
-    console.log('📊 Final employees array length:', employeesWithAI.length);
-    console.log('📊 Final employees sample (first 2):', employeesWithAI.slice(0, 2));
+    console.log(`📸 Screenshot data summary:`, {
+      totalEmployees: employeesWithAI.length,
+      employeesWithScreenshots: employeesWithAI.filter(emp => emp.screenshot_count > 0).length,
+      totalScreenshots: employeesWithAI.reduce((sum, emp) => sum + (emp.screenshot_count || 0), 0).toLocaleString(),
+      totalProjects: employeesWithAI.reduce((sum, emp) => sum + (emp.screenshot_project_count || 0), 0),
+      totalStorageGB: employeesWithAI.reduce((sum, emp) => sum + (parseFloat(emp.screenshot_storage_gb) || 0), 0).toFixed(2) + ' GB'
+    });
+    console.log('📊 Top 3 employees by screenshots:', 
+      employeesWithAI
+        .filter(emp => emp.screenshot_count > 0)
+        .sort((a, b) => b.screenshot_count - a.screenshot_count)
+        .slice(0, 3)
+        .map(emp => `${emp.name}: ${emp.screenshot_count.toLocaleString()} (${emp.screenshot_percentage}%)`)
+    );
+    console.log('📊 Sample employee with full data:', employeesWithAI.find(emp => emp.screenshot_count > 0));
     
     return employeesWithAI;
     
@@ -741,6 +769,198 @@ const Employee3DCard = ({ employee, index, isDarkMode, onEdit, onDelete, onView 
         )}
       </EmployeeDetails>
 
+      {/* 📸 Screenshot Analytics Section */}
+      {employee.screenshot_count && employee.screenshot_count > 0 && (
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '16px', 
+          backgroundColor: isDarkMode ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)', 
+          borderRadius: '12px',
+          border: '2px solid #22c55e',
+          boxShadow: '0 4px 8px rgba(34, 197, 94, 0.2)'
+        }}>
+          <h3 style={{ 
+            margin: '0 0 16px 0', 
+            fontSize: '16px', 
+            fontWeight: 'bold',
+            color: '#22c55e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            📸 Screenshot Analytics
+            <span style={{ 
+              fontSize: '12px', 
+              backgroundColor: '#22c55e', 
+              color: 'white', 
+              padding: '2px 8px', 
+              borderRadius: '12px',
+              fontWeight: 'normal'
+            }}>
+              {employee.screenshot_percentage}% of company
+            </span>
+          </h3>
+          
+          {/* Key Metrics Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ 
+              padding: '12px', 
+              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)', 
+              borderRadius: '8px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#22c55e' }}>
+                {employee.screenshot_count.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '11px', color: isDarkMode ? '#d1d5db' : '#6b7280' }}>
+                Total Screenshots
+              </div>
+            </div>
+            
+            <div style={{ 
+              padding: '12px', 
+              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)', 
+              borderRadius: '8px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>
+                {employee.screenshot_project_count || 0}
+              </div>
+              <div style={{ fontSize: '11px', color: isDarkMode ? '#d1d5db' : '#6b7280' }}>
+                Active Projects
+              </div>
+            </div>
+            
+            <div style={{ 
+              padding: '12px', 
+              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)', 
+              borderRadius: '8px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#a855f7' }}>
+                {employee.screenshot_storage_gb || '0'} GB
+              </div>
+              <div style={{ fontSize: '11px', color: isDarkMode ? '#d1d5db' : '#6b7280' }}>
+                Storage Used
+              </div>
+            </div>
+            
+            {employee.screenshot_latest_date && (
+              <div style={{ 
+                padding: '12px', 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.8)', 
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#f59e0b' }}>
+                  {new Date(employee.screenshot_latest_date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric'
+                  })}
+                </div>
+                <div style={{ fontSize: '11px', color: isDarkMode ? '#d1d5db' : '#6b7280' }}>
+                  Last Activity
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Projects Breakdown */}
+          {employee.screenshot_projects && Object.keys(employee.screenshot_projects).length > 0 && (
+            <div>
+              <h4 style={{ 
+                margin: '0 0 12px 0', 
+                fontSize: '14px', 
+                fontWeight: 'bold',
+                color: isDarkMode ? '#f3f4f6' : '#374151'
+              }}>
+                📁 Project Breakdown ({Object.keys(employee.screenshot_projects).length} projects)
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                {Object.entries(employee.screenshot_projects)
+                  .sort(([,a], [,b]) => b - a) // Sort by screenshot count
+                  .slice(0, 10) // Show top 10 projects
+                  .map(([projectName, count], idx) => (
+                    <div key={idx} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      fontSize: '12px',
+                      padding: '8px 12px',
+                      backgroundColor: isDarkMode ? 'rgba(55, 65, 81, 0.5)' : 'rgba(255, 255, 255, 0.7)',
+                      borderRadius: '6px',
+                      border: '1px solid ' + (isDarkMode ? '#4b5563' : '#e5e7eb')
+                    }}>
+                      <span style={{ 
+                        color: isDarkMode ? '#d1d5db' : '#4b5563',
+                        flex: 1,
+                        marginRight: '12px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '200px'
+                      }} title={projectName}>
+                        {projectName}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ 
+                          width: '60px',
+                          height: '4px',
+                          backgroundColor: '#e5e7eb',
+                          borderRadius: '2px',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            width: `${Math.min((count / Math.max(...Object.values(employee.screenshot_projects))) * 100, 100)}%`,
+                            height: '100%',
+                            backgroundColor: '#22c55e',
+                            borderRadius: '2px'
+                          }}></div>
+                        </div>
+                        <span style={{ 
+                          fontWeight: 'bold',
+                          color: '#22c55e',
+                          minWidth: '60px',
+                          textAlign: 'right'
+                        }}>
+                          {count.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                {Object.keys(employee.screenshot_projects).length > 10 && (
+                  <div style={{ 
+                    fontSize: '11px', 
+                    color: isDarkMode ? '#9ca3af' : '#6b7280',
+                    textAlign: 'center',
+                    fontStyle: 'italic',
+                    marginTop: '8px',
+                    padding: '8px'
+                  }}>
+                    +{Object.keys(employee.screenshot_projects).length - 10} more projects...
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* API Info */}
+          <div style={{ 
+            marginTop: '12px', 
+            padding: '8px 12px', 
+            backgroundColor: isDarkMode ? 'rgba(75, 85, 99, 0.5)' : 'rgba(243, 244, 246, 0.8)', 
+            borderRadius: '6px',
+            fontSize: '10px',
+            color: isDarkMode ? '#9ca3af' : '#6b7280'
+          }}>
+            📊 Data source: dxdtime.ddsolutions.io/api/actual-count-total/screenshots/
+            {employee.screenshot_last_updated && (
+              <span> • Last updated: {new Date(employee.screenshot_last_updated).toLocaleString()}</span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* AI Insights Section */}
       {employee.ai_insights && employee.ai_insights.length > 0 && (
         <AIInsightsSection>
@@ -857,7 +1077,12 @@ const Employees = () => {
       Number((employeesData.reduce((sum, emp) => sum + (emp.rating || 0), 0) / employeesData.length).toFixed(1)) : 0,
     averageHourlyRate: employeesData.length > 0 ? 
       Math.round(employeesData.filter(emp => emp.hourlyRate > 0).reduce((sum, emp) => sum + (emp.hourlyRate || 0), 0) / 
-        Math.max(employeesData.filter(emp => emp.hourlyRate > 0).length, 1)) : 0
+        Math.max(employeesData.filter(emp => emp.hourlyRate > 0).length, 1)) : 0,
+    totalScreenshots: employeesData.length > 0 ? 
+      employeesData.reduce((sum, emp) => sum + (emp.screenshot_count || 0), 0) : 0,
+    employeesWithScreenshots: employeesData.filter(emp => emp.screenshot_count > 0).length,
+    totalScreenshotProjects: employeesData.reduce((sum, emp) => sum + (emp.screenshot_project_count || 0), 0),
+    totalStorageGB: employeesData.reduce((sum, emp) => sum + (parseFloat(emp.screenshot_storage_gb) || 0), 0).toFixed(1)
   };
 
   console.log('📊 Current Statistics:', stats);
@@ -890,7 +1115,12 @@ const Employees = () => {
     try {
       const freshData = await fetchEmployeesFromCRM();
       setEmployeesData(freshData);
-      alert(`✅ Successfully refreshed! Loaded ${freshData.length} employees from CRM database.`);
+      
+      // Count employees with screenshot data
+      const employeesWithScreenshots = freshData.filter(emp => emp.screenshot_count > 0).length;
+      const totalScreenshots = freshData.reduce((sum, emp) => sum + (emp.screenshot_count || 0), 0);
+      
+      alert(`✅ Successfully refreshed!\n📊 Loaded ${freshData.length} employees from CRM\n📸 ${employeesWithScreenshots} employees have screenshot data\n📈 Total screenshots: ${totalScreenshots.toLocaleString()}`);
     } catch (error) {
       console.error('❌ Manual refresh failed:', error);
       alert(`❌ Refresh failed: ${error.message}`);
@@ -924,14 +1154,14 @@ const Employees = () => {
           {/* Header Section */}
           <EmployeesHeader>
             <EmployeesTitle isDarkMode={isDarkMode}>
-              🏢 CRM Employee Dashboard - Staff ID | Hourly Rate | Phone Number
+              🏢 CRM Employee Dashboard + 📸 Screenshot Analytics
             </EmployeesTitle>
             <EmployeesSubtitle isDarkMode={isDarkMode}>
               {loading ? 
-                "🔄 Loading employee data via Vite Proxy (/crm-api/staffs → crm.deluxebilisim.com/api/staffs)..." :
+                "🔄 Loading CRM employee data + Screenshot analytics from dxdtime.ddsolutions.io..." :
                 employeesData.length > 0 ? 
-                  `📊 Displaying ${employeesData.length} employees with Staff ID, Hourly Rate, and Phone Number from CRM (via Vite Proxy)` :
-                  "❌ No employee data found - Check Vite Proxy configuration in vite.config.js"
+                  `📊 Displaying ${employeesData.length} employees • ${stats.employeesWithScreenshots} with screenshot data • ${stats.totalScreenshots > 1000000 ? `${(stats.totalScreenshots / 1000000).toFixed(1)}M` : stats.totalScreenshots.toLocaleString()} total screenshots` :
+                  "❌ No employee data found - Check API connections"
               }
             </EmployeesSubtitle>
           </EmployeesHeader>
@@ -946,17 +1176,31 @@ const Employees = () => {
               isDarkMode={isDarkMode}
             />
             <StatsCard3D
-              icon="⭐"
-              value={stats.averageRating.toFixed(1)}
-              label="Average Rating"
-              color="#fbbf24"
+              icon="📸"
+              value={stats.totalScreenshots > 1000000 ? `${(stats.totalScreenshots / 1000000).toFixed(1)}M` : stats.totalScreenshots.toLocaleString()}
+              label="Total Screenshots"
+              color="#22c55e"
               isDarkMode={isDarkMode}
             />
             <StatsCard3D
-              icon="💰"
-              value={`$${stats.averageHourlyRate}`}
-              label="Avg Hourly Rate"
-              color="#10b981"
+              icon="📁"
+              value={stats.totalScreenshotProjects}
+              label="Active Projects"
+              color="#a855f7"
+              isDarkMode={isDarkMode}
+            />
+            <StatsCard3D
+              icon="�"
+              value={`${stats.totalStorageGB} GB`}
+              label="Total Storage"
+              color="#f59e0b"
+              isDarkMode={isDarkMode}
+            />
+            <StatsCard3D
+              icon="⭐"
+              value={stats.averageRating.toFixed(1)}
+              label="Average Rating"
+              color="#ef4444"
               isDarkMode={isDarkMode}
             />
           </StatsSummary>
