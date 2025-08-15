@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Button, TextField, Popover, Box, CircularProgress, Autocomplete } from '@mui/material';
+import { Button, TextField, Popover, Box, CircularProgress, Autocomplete, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
@@ -183,56 +183,13 @@ const ActivityStream = () => {
   const [selected, setSelected] = useState(29); // Start with today (last item in 30-day array)
   const [search, setSearch] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
+  const [quickFilter, setQuickFilter] = useState(''); // For quick date filter dropdown
   
   // EMERGENCY DEBUG FUNCTION FOR PRESIGNED URLS
   const debugImageUrlExtraction = (testData) => {
-    console.log('🚨 EMERGENCY DEBUG - Testing URL extraction with:', testData);
-    
-    // Test S3 key extraction first
-    console.log('🔍 S3 Key extraction test:');
-    console.log('  - testData.s3_key:', testData.s3_key);
-    console.log('  - typeof s3_key:', typeof testData.s3_key);
-    console.log('  - s3_key length:', testData.s3_key?.length);
-    console.log('  - s3_key exists:', !!testData.s3_key);
-    
-    // Test direct presigned URL access
-    console.log('🔍 Direct access test:');
-    console.log('  - testData.presigned_url:', testData.presigned_url);
-    console.log('  - typeof:', typeof testData.presigned_url);
-    console.log('  - length:', testData.presigned_url?.length);
-    console.log('  - trim():', testData.presigned_url?.trim());
-    console.log('  - trim() !== "":', testData.presigned_url?.trim() !== '');
-    
-    // Test all important fields
-    console.log('🔍 All important fields test:');
-    console.log('  - id:', testData.id);
-    console.log('  - filename:', testData.filename);
-    console.log('  - timestamp:', testData.timestamp);
-    console.log('  - time_display:', testData.time_display);
-    console.log('  - application:', testData.application);
-    console.log('  - window_title:', testData.window_title);
-    console.log('  - size_bytes:', testData.size_bytes);
-    console.log('  - size_mb:', testData.size_mb);
-    console.log('  - file_extension:', testData.file_extension);
-    
-    // Test conditional logic step by step
-    if (testData.presigned_url) {
-      console.log('✅ presigned_url exists');
-      if (typeof testData.presigned_url === 'string') {
-        console.log('✅ presigned_url is string');
-        if (testData.presigned_url.trim() !== '') {
-          console.log('✅ presigned_url is not empty after trim');
-          console.log('✅ SHOULD USE:', testData.presigned_url.trim());
-          return testData.presigned_url.trim();
-        } else {
-          console.log('❌ presigned_url is empty after trim');
-        }
-      } else {
-        console.log('❌ presigned_url is not string, type:', typeof testData.presigned_url);
-      }
-    } else {
-      console.log('❌ presigned_url does not exist');
-    }
+
+  
+  
     
     return null;
   };
@@ -461,20 +418,7 @@ const ActivityStream = () => {
 
   // Auto-apply date filtering when screenshots or filter settings change
   useEffect(() => {
-    console.log('🔄 AUTO-FILTERING TRIGGERED');
-    console.log('🔄 Trigger sources:', {
-      folderScreenshotsCount: folderScreenshots.length,
-      isDateFilterActive,
-      singleDateFilter,
-      dateRange: [
-        dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
-        dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
-      ],
-      filterUpdateTrigger
-    });
-    
     if (folderScreenshots.length === 0) {
-      console.log('🔄 No folder screenshots, clearing filtered array');
       setFilteredFolderScreenshots([]);
       return;
     }
@@ -484,17 +428,50 @@ const ActivityStream = () => {
     const hasSingleDateFilter = singleDateFilter && singleDateFilter.trim() !== '';
     
     if (!hasDateRangeFilter && !hasSingleDateFilter) {
-      console.log('🔄 No filter active, showing all screenshots');
       setFilteredFolderScreenshots(folderScreenshots);
       return;
     }
     
     // Apply filtering
     const filtered = filterScreenshotsByDate(folderScreenshots);
-    console.log(`🔄 AUTO-FILTER RESULT: ${folderScreenshots.length} → ${filtered.length}`);
     setFilteredFolderScreenshots(filtered);
     
   }, [folderScreenshots, isDateFilterActive, singleDateFilter, dateRange, filterUpdateTrigger]);
+  
+  // Auto-load Haseeb's data on component mount
+  useEffect(() => {
+    const initializeWithHaseeb = () => {
+      console.log('🚀 Auto-loading Haseeb data on component mount...');
+      
+      // Create Haseeb user object with real data from API documentation
+      const haseebUser = {
+        username: 'haseebcodejourney',
+        email: 'haseebcodejourney@gmail.com',
+        display_name: 'Haseebcodejourney',
+        staff_id: 'S3_HASEEBCODEJOURNEY',
+        search_value: 'haseebcodejourney@gmail.com',
+        source: 'default',
+        screenshot_count: null // Will be determined by API
+      };
+      
+      // Set Haseeb as selected user
+      setSelectedUser(haseebUser);
+      setIsUserSelected(true);
+      setSearch(haseebUser.display_name);
+      setHasSearched(true);
+      setCurrentView('search');
+      
+      console.log('🔍 Auto-selected Haseeb user:', haseebUser);
+      
+      // Automatically fetch folders for Haseeb
+      fetchEmployeeFolders(haseebUser.search_value);
+    };
+    
+    // Only initialize if no user is currently selected
+    if (!isUserSelected && !selectedUser && !hasSearched) {
+      initializeWithHaseeb();
+    }
+  }, []); // Empty dependency array - runs only on mount
   
   // Add image URL processing function (OPTIMIZED for your perfect API response)
   const getImageUrl = (screenshot) => {
@@ -508,25 +485,15 @@ const ActivityStream = () => {
       return screenshot;
     }
     
-    console.log('🔍 Processing screenshot URL:', {
-      id: screenshot?.id,
-      filename: screenshot?.filename,
-      hasPresignedUrl: !!screenshot?.presigned_url,
-      hasS3Key: !!screenshot?.s3_key,
-      hasUrl: !!screenshot?.url
-    });
-    
     // 🚀 PRIORITY OPTIMIZED FOR YOUR PROXY: use backend proxy first for reliable image loading!
     
     // 1. Try direct presigned URL FIRST (since backend proxy might not be configured)
     if (screenshot.url && screenshot.url.includes('X-Amz-Signature')) {
-      console.log('✅ Using direct S3 URL (PRIORITY METHOD):', screenshot.url.substring(0, 100) + '...');
       return screenshot.url;
     }
     
     // 2. Try presigned_url field
     if (screenshot.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
-      console.log('✅ Using presigned_url field:', screenshot.presigned_url.substring(0, 100) + '...');
       return screenshot.presigned_url;
     }
     
@@ -535,33 +502,22 @@ const ActivityStream = () => {
     if (s3Key) {
       // Use your backend proxy for image loading - BACKEND PROXY FORMAT
       const proxyUrl = `${getApiBaseURL()}/proxy/screenshot/${s3Key}`;
-      console.log('⚠️ Using backend proxy (BACKUP METHOD - check if configured):', proxyUrl);
-      console.log('📝 S3 Key:', s3Key);
       return proxyUrl;
     }
     
     // 4. Use any available URL field as direct URL (even without signature)
     if (screenshot.url) {
-      console.log('✅ Using direct url field (no signature check):', screenshot.url.substring(0, 100) + '...');
       return screenshot.url;
     }
     
     // 5. Fallback to any available URL field
     const fallbackUrl = screenshot.image_url || screenshot.thumbnail_url || screenshot.src || '';
-    console.log('⚠️ Using fallback URL:', fallbackUrl);
     return fallbackUrl;
   };
 
   // Download screenshot function (ENHANCED for proxy URLs)
   const downloadScreenshot = async (screenshot) => {
     try {
-      console.log('📥 Starting download for screenshot:', {
-        id: screenshot?.id,
-        filename: screenshot?.filename,
-        hasPresignedUrl: !!screenshot?.presigned_url,
-        hasS3Key: !!screenshot?.s3_key
-      });
-
       const imageUrl = getImageUrl(screenshot);
       if (!imageUrl) {
         alert('❌ No valid image URL found for download');
@@ -575,14 +531,9 @@ const ActivityStream = () => {
       if (filename.includes('/')) {
         filename = filename.split('/').pop();
       }
-      
-      console.log('📥 Downloading from URL:', imageUrl);
-      console.log('📥 Saving as filename:', filename);
 
       // For backend proxy URLs (your current setup)
       if (imageUrl.includes('localhost:8000/api/proxy/screenshot/')) {
-        console.log('📥 Using backend proxy download method');
-        
         const response = await fetch(imageUrl, {
           method: 'GET',
           headers: {
@@ -605,13 +556,9 @@ const ActivityStream = () => {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(downloadUrl);
-
-        console.log('✅ Backend proxy download completed successfully');
       }
       // For presigned URLs, download directly
       else if (imageUrl.includes('X-Amz-Signature')) {
-        console.log('📥 Using direct S3 presigned URL download method');
-        
         const response = await fetch(imageUrl, {
           method: 'GET',
           mode: 'cors',
@@ -635,13 +582,9 @@ const ActivityStream = () => {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(downloadUrl);
-
-        console.log('✅ S3 presigned URL download completed successfully');
       }
       // For any other URLs, use simple link approach
       else {
-        console.log('📥 Using simple link download method');
-        
         const link = document.createElement('a');
         link.href = imageUrl;
         link.download = filename;
@@ -649,8 +592,6 @@ const ActivityStream = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        console.log('✅ Simple link download initiated');
       }
 
       // Show success message
@@ -700,23 +641,6 @@ const ActivityStream = () => {
     useEffect(() => {
       const url = getImageUrl(screenshot);
       setCurrentUrl(url);
-      console.log('🖼️ SimpleImageComponent URL resolved:', {
-        screenshotId: screenshot?.id,
-        filename: screenshot?.filename,
-        originalApiUrl: screenshot?.url, // This should be the presigned URL from API
-        originalApiKey: screenshot?.key || screenshot?.s3_key,
-        resolvedUrl: url,
-        urlLength: url?.length,
-        isBackendProxy: url?.includes('http://localhost:8000/api/proxy/screenshot/'),
-        isS3Direct: url?.includes('s3.amazonaws.com'),
-        hasSignature: url?.includes('X-Amz-Signature'),
-        urlPreview: url?.substring(0, 150) + '...',
-        proxyMethod: url?.includes('http://localhost:8000/api/proxy/screenshot/') ? 'BACKEND_PROXY' : 'DIRECT_S3'
-      });
-      
-      console.log('🔥 TESTING URL DIRECTLY:', url);
-      console.log('🔥 URL IS VALID?', url && url !== '' && url !== 'null' && url !== 'undefined');
-      console.log('🔥 SCREENSHOT OBJECT:', screenshot);
       
       // Additional debugging for the specific case
       if (!url || url === '') {
@@ -754,13 +678,11 @@ const ActivityStream = () => {
         // Try to fall back to direct URL if available
         const directUrl = screenshot?.url || screenshot?.presigned_url;
         if (directUrl && directUrl.includes('X-Amz-Signature')) {
-          console.log('🔄 Attempting fallback to direct S3 URL:', directUrl.substring(0, 100) + '...');
           setCurrentUrl(directUrl);
           setHasError(false); // Reset error state to try again
           setIsLoading(true); // Set loading state for the retry
           return; // Don't set error yet, let the fallback try
         } else if (directUrl) {
-          console.log('🔄 Attempting fallback to direct URL (no signature):', directUrl.substring(0, 100) + '...');
           setCurrentUrl(directUrl);
           setHasError(false); // Reset error state to try again
           setIsLoading(true); // Set loading state for the retry
@@ -774,31 +696,17 @@ const ActivityStream = () => {
     };
 
     const handleLoad = (e) => {
-      console.log('✅ Image loaded successfully:', {
-        screenshotId: screenshot?.id,
-        filename: screenshot?.filename,
-        naturalWidth: e.target.naturalWidth,
-        naturalHeight: e.target.naturalHeight,
-        currentUrl: currentUrl,
-        loadMethod: currentUrl?.includes('localhost:8000/api/proxy/screenshot/') ? 'BACKEND_PROXY' : 'DIRECT_S3',
-        urlPreview: currentUrl?.substring(0, 150) + '...'
-      });
       setHasError(false);
       setIsLoading(false);
       if (onLoad) onLoad(e);
     };
 
     const handleClick = (e) => {
-      console.log('🖼️ Image clicked!', { 
-        screenshotId: screenshot?.id, 
-        filename: screenshot?.filename 
-      });
       if (onClick) onClick(e);
     };
 
     // Show error placeholder if no valid URL - ONLY for truly invalid URLs
     if (!currentUrl || currentUrl === '' || currentUrl === 'null' || currentUrl === 'undefined') {
-      console.log('📷 No valid URL available, showing placeholder for:', screenshot?.filename);
       return (
         <div
           style={{ 
@@ -976,12 +884,8 @@ const ActivityStream = () => {
             return response.json();
           })
           .then(data => {
-            console.log('✅ Backend presigned URL response:', data);
-            console.log('🔍 Backend response keys:', Object.keys(data));
             if (data.presigned_url) {
               const s3Url = data.presigned_url;
-              console.log('🔗 Got actual S3 URL from backend:', s3Url);
-              console.log('🔍 S3 URL includes signature:', s3Url.includes('X-Amz-Signature'));
               
               // Don't process the S3 URL further - use it directly since it's already presigned
               setFinalSrc(s3Url);
@@ -1938,52 +1842,17 @@ const ActivityStream = () => {
         const timeoutSeconds = err.config?.timeout ? err.config.timeout / 1000 : 'unknown';
         setError(`⏱️ Request timeout after ${timeoutSeconds} seconds. The dataset is too large for a single request. Try "Load in Chunks" option below for better performance.`);
       } else if (err.response) {
-        setError(`API server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch screenshots'}`);
-        
-        // Show dummy data for development if the backend is down
-        if (err.response.status === 500 || err.response.status === 404) {
-          console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to server error');
-          const testScreenshots = Array.from({ length: 5 }, (_, i) => ({
-            id: `test-${i}`,
-            filename: `test_screenshot_${i}.webp`,
-            presigned_url: `https://picsum.photos/400/300?random=${i}`,
-            url: `https://picsum.photos/400/300?random=${i}`,
-            employee_name: selectedUser?.display_name || 'Test User',
-            application: 'Test Application',
-            task_name: `Test Task ${i + 1}`,
-            s3_key: `test/screenshots/test_${i}.webp`,
-            size_mb: '1.2'
-          }));
-          
-          setScreenshots(testScreenshots);
-          setTotalCount(testScreenshots.length);
-          setTotalPages(1);
-          setCurrentPage(1);
-          setError('⚠️ Using test data due to server error. Please check your backend.');
-          return; // Exit early to prevent further error handling
-        }
+        // Silently handle server errors without showing error message
+        setScreenshots([]);
+        setTotalCount(0);
+        setTotalPages(0);
+        setCurrentPage(1);
       } else if (err.request) {
         setError('Network error: Unable to connect to API server. Please start your backend server on http://localhost:8000');
-        
-        // Show dummy data for development if the backend is not running
-        console.log('🔧 DEVELOPMENT FALLBACK: Showing test data due to network error');
-        const testScreenshots = Array.from({ length: 3 }, (_, i) => ({
-          id: `network-test-${i}`,
-          filename: `network_test_${i}.webp`,
-          presigned_url: `https://picsum.photos/400/300?random=${i + 10}`,
-          url: `https://picsum.photos/400/300?random=${i + 10}`,
-          employee_name: selectedUser?.display_name || 'Test User',
-          application: 'Network Test App',
-          task_name: `Network Test ${i + 1}`,
-          s3_key: `network/test/test_${i}.webp`,
-          size_mb: '0.8'
-        }));
-        
-        setScreenshots(testScreenshots);
-        setTotalCount(testScreenshots.length);
-        setTotalPages(1);
+        setScreenshots([]);
+        setTotalCount(0);
+        setTotalPages(0);
         setCurrentPage(1);
-        setError('⚠️ Backend not accessible. Using test data for development.');
       } else {
         setError('An unexpected error occurred while fetching screenshots');
       }
@@ -2750,9 +2619,7 @@ const ActivityStream = () => {
     }
 
     // DEBUG INFO - Keep debug functions but don't use their return values for processing
-    console.log('🚨 CALLING EMERGENCY DEBUG FUNCTION (for debug only)');
-    const emergencyTestResult = debugImageUrlExtraction(screenshot);
-    console.log('🚨 EMERGENCY DEBUG RESULT (debug only):', emergencyTestResult);
+    // const emergencyTestResult = debugImageUrlExtraction(screenshot);
 
     // Extract time from API response or filename - Handle both field names
     let timeFromFilename = null;
@@ -2780,22 +2647,13 @@ const ActivityStream = () => {
     // EMERGENCY SIMPLIFIED URL EXTRACTION - Use debug function result
     let finalImageUrl = null; // Initialize as null, use presigned_url directly
     
-    console.log('� EXTRACTING IMAGE URL FROM API DATA:', {
-      hasPresignedUrl: !!screenshot.presigned_url,
-      presignedUrlValue: screenshot.presigned_url,
-      presignedUrlType: typeof screenshot.presigned_url,
-      presignedUrlLength: screenshot.presigned_url?.length
-    });
-    
     // Try presigned_url first, then url field from API response
     if (screenshot?.presigned_url && typeof screenshot.presigned_url === 'string' && screenshot.presigned_url.trim() !== '') {
       finalImageUrl = screenshot.presigned_url.trim();
       console.log('✅ SUCCESS: Using presigned_url from API:', finalImageUrl.substring(0, 100) + '...');
     } else if (screenshot?.url && typeof screenshot.url === 'string' && screenshot.url.trim() !== '') {
       finalImageUrl = screenshot.url.trim();
-      console.log('✅ SUCCESS: Using url from API:', finalImageUrl.substring(0, 100) + '...');
     } else {
-      console.log('❌ ERROR: No valid presigned_url or url in API response');
       finalImageUrl = null;
     }
     
@@ -2896,7 +2754,6 @@ const ActivityStream = () => {
       imageURL: resultObject.image,
       imageURLPreview: resultObject.image ? resultObject.image.substring(0, 100) + '...' : 'NULL',
       taskName: resultObject.task,
-      emergencyDebugWorked: emergencyTestResult === resultObject.image,
       originalPresignedUrl: screenshot.presigned_url,
       // S3 KEY SPECIFIC DEBUGGING
       hasS3Key: !!screenshot.s3_key,
@@ -2913,7 +2770,6 @@ const ActivityStream = () => {
     // FINAL VALIDATION CHECK
     if (!resultObject.image) {
       console.error('🚨 CRITICAL: Returning object with NULL image URL!', {
-        emergencyResult: emergencyTestResult,
         originalPresignedUrl: screenshot.presigned_url,
         allObjectKeys: Object.keys(screenshot),
         screenshotObject: screenshot
@@ -3722,67 +3578,6 @@ const ActivityStream = () => {
     );
   };
 
-  // Render back button navigation
-  const renderBackButton = () => {
-    if (currentView === 'search') return null;
-    
-    const getBackHandler = () => {
-      if (currentView === 'folders') return handleBackToSearch;
-      if (currentView === 'screenshots') return handleBackToFolders;
-      return null;
-    };
-
-    const getBackLabel = () => {
-      if (currentView === 'folders') return 'Back to Search';
-      if (currentView === 'screenshots') return 'Back to Folders';
-      return '';
-    };
-
-    const handler = getBackHandler();
-    const label = getBackLabel();
-
-    if (!handler) return null;
-
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '16px',
-        padding: '8px 0'
-      }}>
-        <button
-          onClick={handler}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-1px)';
-            e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
-          }}
-        >
-          <span style={{ fontSize: '16px' }}>←</span>
-          {label}
-        </button>
-      </div>
-    );
-  };
-
   // Render folders view
   const renderFoldersView = () => {
     if (loadingFolders) {
@@ -3816,6 +3611,121 @@ const ActivityStream = () => {
             }
           </small>
         </SearchInfo> */}
+
+        {/* Date Filter Section for Folders */}
+        <Box sx={{ 
+          margin: '16px 0',
+          padding: '16px',
+          backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+          borderRadius: '8px',
+          border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '12px' 
+          }}>
+            <div style={{ 
+              fontSize: '14px', 
+              fontWeight: '600',
+              color: isDarkMode ? '#f3f4f6' : '#1f2937',
+              marginBottom: '8px'
+            }}>
+              📅 Please add date range
+            </div>
+
+            {/* Date Range Picker */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <DateRangePicker
+                slots={{ field: SingleInputDateRangeField }}
+                slotProps={{
+                  field: { 
+                    placeholder: 'Select date range...',
+                    size: 'small',
+                    sx: { 
+                      minWidth: '250px',
+                      '& .MuiInputBase-root': {
+                        backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                        color: isDarkMode ? '#f3f4f6' : '#1f2937'
+                      }
+                    }
+                  }
+                }}
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                format="YYYY-MM-DD"
+              />
+              
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleDateFilterApply}
+                disabled={!dateRange[0] || !dateRange[1]}
+                sx={{
+                  backgroundColor: '#10b981',
+                  '&:hover': { backgroundColor: '#059669' },
+                  '&:disabled': { backgroundColor: '#9ca3af' }
+                }}
+              >
+                Apply Filter
+              </Button>
+
+              {(isDateFilterActive || singleDateFilter) && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleDateFilterClear}
+                  sx={{
+                    borderColor: '#ef4444',
+                    color: '#ef4444',
+                    '&:hover': { 
+                      borderColor: '#dc2626',
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                    }
+                  }}
+                >
+                  Clear Filter
+                </Button>
+              )}
+
+              {/* Date Filter Status Indicator */}
+              {(isDateFilterActive || singleDateFilter) && (
+                <div style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: isDarkMode ? '#065f46' : '#d1fae5',
+                  color: isDarkMode ? '#34d399' : '#065f46',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  border: `1px solid ${isDarkMode ? '#34d399' : '#10b981'}`
+                }}>
+                  {singleDateFilter ? (
+                    `📅 Filtering by: ${dayjs(singleDateFilter).format('YYYY-MM-DD')}`
+                  ) : isDateFilterActive && dateRange[0] && dateRange[1] ? (
+                    `📅 Range: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`
+                  ) : (
+                    '📅 Date filter active'
+                  )}
+                </div>
+              )}
+
+            </div>
+
+            {/* Active Filter Display */}
+            {(isDateFilterActive || singleDateFilter) && (
+              <div style={{ 
+                padding: '8px 12px',
+                backgroundColor: isDarkMode ? '#1f2937' : '#eff6ff',
+                borderRadius: '6px',
+                fontSize: '12px',
+                color: isDarkMode ? '#93c5fd' : '#1d4ed8',
+                border: `1px solid ${isDarkMode ? '#3b82f6' : '#bfdbfe'}`
+              }}>
+                📁 Date filter is active - filtering folder contents based on selected date range
+              </div>
+            )}
+          </div>
+        </Box>
         
         <FoldersGrid theme={theme} isDarkMode={isDarkMode}>
           {folders.map((folder, index) => (
@@ -4488,414 +4398,315 @@ const ActivityStream = () => {
       
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
-          <Title theme={theme} isDarkMode={isDarkMode}>Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>         
-            {/* Backend Connection Status */}
-          </Title>
-          <Username theme={theme} isDarkMode={isDarkMode} style={{marginBottom:'10px'}}>{hasSearched && search ? search : 'Jhone'}</Username>
           <TopBar ref={topBarRef} theme={theme} isDarkMode={isDarkMode} >
-          
-          
-            <div style={{display:'flex', alignItems:'center',justifyContent:'space-between', width:'100%'}}>
-
-    
-    
-
-            {/* TEST API BUTTON - Remove after debugging */}
-            <button 
-              onClick={async () => {
-                console.log('🧪 TEST API: Starting comprehensive API test...');
-                try {
-                  // Test the exact endpoint you're using in Postman
-                  const response = await fetch('http://localhost:8000/api/screenshots/employee/hasebcodejourney@gmail.com/folders/');
-                  const data = await response.json();
-                  console.log('🧪 FOLDERS API RESULT:', data);
-                  console.log('🧪 API STRUCTURE CHECK:', {
-                    hasSuccess: !!data.success,
-                    hasData: !!data.data,
-                    hasTaskFolders: !!data.data?.task_folders,
-                    taskFoldersLength: data.data?.task_folders?.length || 0,
-                    firstFolder: data.data?.task_folders?.[0]
-                  });
+            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%'}}>
+              <div style={{ fontSize:'18px', fontWeight:'600', color: isDarkMode ? '#f3f4f6' : '#1f2937' }}>
+                Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                {/* Quick filters dropdown */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  }}>
+                    Quick filters:
+                  </div>
                   
-                  // Now test screenshots endpoint for a specific folder
-                  if (data.data?.task_folders?.[0]) {
-                    const firstFolder = data.data.task_folders[0];
-                    console.log('🧪 Testing screenshots for first folder:', firstFolder.folder_name);
-                    
-                    const screenshotsUrl = `http://localhost:8000/api/screenshots/employee_folder_screenshots/?employee_email=hasebcodejourney@gmail.com&folder_name=${encodeURIComponent(firstFolder.folder_name)}&page=1&page_size=5`;
-                    console.log('🧪 Screenshots API URL:', screenshotsUrl);
-                    
-                    try {
-                      const screenshotsResponse = await fetch(screenshotsUrl);
-                      const screenshotsData = await screenshotsResponse.json();
-                      console.log('🧪 SCREENSHOTS API RESULT:', screenshotsData);
-                      console.log('🧪 FIRST SCREENSHOT:', screenshotsData.results?.[0]);
-                      
-                      if (screenshotsData.results?.[0]) {
-                        const firstScreenshot = screenshotsData.results[0];
-                        console.log('🧪 SCREENSHOT FIELDS:', {
-                          url: firstScreenshot.url,
-                          presigned_url: firstScreenshot.presigned_url,
-                          s3_key: firstScreenshot.s3_key,
-                          key: firstScreenshot.key,
-                          filename: firstScreenshot.filename,
-                          application: firstScreenshot.application,
-                          window_title: firstScreenshot.window_title
-                        });
+                  <FormControl size="small" sx={{ minWidth: 120 }}>
+                    <Select
+                      value={quickFilter}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setQuickFilter(value);
                         
-                        // Test image URL generation
-                        const testUrl = getImageUrl(firstScreenshot);
-                        console.log('🧪 GENERATED URL:', testUrl);
-                        
-                        // Test if the URL works by trying to fetch it
-                        if (testUrl) {
-                          console.log('🧪 Testing URL accessibility:', testUrl);
-                          try {
-                            const testResponse = await fetch(testUrl, { method: 'HEAD' });
-                            console.log('🧪 URL TEST RESULT:', {
-                              status: testResponse.status,
-                              statusText: testResponse.statusText,
-                              contentType: testResponse.headers.get('content-type'),
-                              contentLength: testResponse.headers.get('content-length'),
-                              accessible: testResponse.ok
-                            });
-                            
-                            if (testResponse.ok) {
-                              console.log('✅ URL is accessible - images should load!');
-                            } else {
-                              console.log('❌ URL failed:', testResponse.status, testResponse.statusText);
-                            }
-                          } catch (urlError) {
-                            console.log('❌ URL test failed:', urlError.message);
-                            
-                            // If backend proxy fails, test direct S3 URL
-                            if (testUrl.includes('localhost:8000/api/proxy/screenshot/')) {
-                              const directUrl = firstScreenshot?.url || firstScreenshot?.presigned_url;
-                              if (directUrl) {
-                                console.log('🧪 Testing direct S3 URL as fallback:', directUrl.substring(0, 100) + '...');
-                                try {
-                                  const s3Response = await fetch(directUrl, { method: 'HEAD' });
-                                  console.log('🧪 DIRECT S3 URL TEST:', {
-                                    status: s3Response.status,
-                                    accessible: s3Response.ok
-                                  });
-                                  if (s3Response.ok) {
-                                    console.log('✅ Direct S3 URL works! Backend proxy issue confirmed.');
-                                  }
-                                } catch (s3Error) {
-                                  console.log('❌ Direct S3 URL also failed:', s3Error.message);
-                                }
-                              }
-                            }
-                          }
+                        if (value === 'today') {
+                          const today = dayjs();
+                          applyDateFilter(today, today);
+                        } else if (value === 'yesterday') {
+                          const yesterday = dayjs().subtract(1, 'day');
+                          applyDateFilter(yesterday, yesterday);
+                        } else if (value === 'week') {
+                          const today = dayjs();
+                          const weekAgo = today.subtract(7, 'days');
+                          applyDateFilter(weekAgo, today);
+                        } else if (value === 'month') {
+                          const today = dayjs();
+                          const monthAgo = today.subtract(30, 'days');
+                          applyDateFilter(monthAgo, today);
                         }
-                      }
-                    } catch (screenshotsError) {
-                      console.error('🧪 Screenshots API ERROR:', screenshotsError);
-                    }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '12px',
+                        color: isDarkMode ? '#9ca3af' : '#6b7280',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#10b981',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#10b981',
+                        },
+                        '& .MuiSelect-select': {
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                        }
+                      }}
+                    >
+                      <MenuItem value="" sx={{ fontSize: '12px' }}>
+                        <em>Select filter</em>
+                      </MenuItem>
+                      <MenuItem value="today" sx={{ fontSize: '12px' }}>Today</MenuItem>
+                      <MenuItem value="yesterday" sx={{ fontSize: '12px' }}>Yesterday</MenuItem>
+                      <MenuItem value="week" sx={{ fontSize: '12px' }}>Last 7 days</MenuItem>
+                      <MenuItem value="month" sx={{ fontSize: '12px' }}>Last 30 days</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                
+                <Autocomplete
+                freeSolo
+                options={searchSuggestions}
+                loading={loadingSuggestions}
+                value={isUserSelected ? selectedUser?.display_name || '' : search}
+                open={!isUserSelected && searchSuggestions.length > 0}
+                autoHighlight
+                selectOnFocus
+                clearOnBlur
+                handleHomeEndKeys
+                getOptionLabel={(option) => {
+                  if (typeof option === 'string') return option;
+                  return option.display_name || option.label || option.suggestion_text || option.email || option;
+                }}
+                onInputChange={(event, newInputValue) => {
+                  if (isUserSelected && newInputValue !== selectedUser?.display_name) {
+                    setIsUserSelected(false);
+                    setSelectedUser(null);
+                    setScreenshots([]);
+                    setHasSearched(false);
+                    setError('');
+                    setTotalCount(0);
+                    setTotalPages(0);
+                    setCurrentPage(1);
+                    setFullDataset([]);
+                    setSearchPattern('quick');
                   }
-                } catch (error) {
-                  console.error('🧪 TEST API ERROR:', error);
-                }
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                marginLeft: '10px'
-              }}
-            >
-              🧪 Test API
-            </button>
-
-            <Autocomplete
-              freeSolo
-              options={searchSuggestions}
-              loading={loadingSuggestions}
-              value={isUserSelected ? selectedUser?.display_name || '' : search}
-              open={!isUserSelected && searchSuggestions.length > 0}
-              autoHighlight
-              selectOnFocus
-              clearOnBlur
-              handleHomeEndKeys
-              getOptionLabel={(option) => {
-                // Handle both string options and object options
-                if (typeof option === 'string') return option;
-                return option.display_name || option.label || option.suggestion_text || option.email || option;
-              }}
-              onInputChange={(event, newInputValue) => {
-                // If user has selected someone and then changes the input, reset selection
-                if (isUserSelected && newInputValue !== selectedUser?.display_name) {
-                  setIsUserSelected(false);
-                  setSelectedUser(null);
-                  setScreenshots([]);
-                  setHasSearched(false);
-                  setError('');
-                  setTotalCount(0);
-                  setTotalPages(0);
-                  setCurrentPage(1);
-                  setFullDataset([]);
-                  setSearchPattern('quick');
-                }
-                setSearch(newInputValue);
-              }}
-              onChange={(event, newValue) => {
-                if (newValue && typeof newValue === 'object') {
-                  // User selected from suggestions
-                  console.log('🔍 User selected from suggestions:', newValue);
-                  console.log('🎯 Selected user details:', {
-                    username: newValue.username,
-                    email: newValue.email,
-                    display_name: newValue.display_name,
-                    staff_id: newValue.staff_id,
-                    value: newValue.value
-                  });
-                  
-                  // Set selected user and move to Level 2 (folders view)
-                  setSelectedUser(newValue);
-                  setIsUserSelected(true);
-                  setSearch(newValue.display_name);
-                  setSearchSuggestions([]); // Clear suggestions
-                  setHasSearched(true);
-                  setCurrentView('search'); // Start with search, then auto-navigate to folders
-                  
-                  console.log('🔍 USER SELECTION DEBUG:', {
-                    selectedUser: newValue,
-                    isUserSelected: true,
-                    hasSearched: true,
-                    currentView: 'search',
-                    aboutToFetchFolders: true
-                  });
-                  
-                  // Automatically fetch folders for this user
-                  const userEmail = newValue.search_value || newValue.email || newValue.username;
-                  console.log('🔍 User selected, about to fetch folders:');
-                  console.log('   - Display name:', newValue.display_name);
-                  console.log('   - Email to use for API:', userEmail);
-                  console.log('   - Available email fields:', {
-                    search_value: newValue.search_value,
-                    email: newValue.email,
-                    username: newValue.username,
-                    value: newValue.value
-                  });
-                  fetchEmployeeFolders(userEmail);
-                } else if (typeof newValue === 'string' && newValue.trim()) {
-                  // User typed and pressed enter or selected a string option
-                  setSearch(newValue);
-                  // Auto-select if there's an exact match in suggestions
-                  const exactMatch = searchSuggestions.find(suggestion => 
-                    suggestion.display_name?.toLowerCase() === newValue.toLowerCase() ||
-                    suggestion.email?.toLowerCase() === newValue.toLowerCase() ||
-                    suggestion.username?.toLowerCase() === newValue.toLowerCase()
-                  );
-                  if (exactMatch) {
-                    setSelectedUser(exactMatch);
+                  setSearch(newInputValue);
+                }}
+                onChange={(event, newValue) => {
+                  if (newValue && typeof newValue === 'object') {
+                    console.log('🔍 User selected from suggestions:', newValue);
+                    console.log('🎯 Selected user details:', {
+                      username: newValue.username,
+                      email: newValue.email,
+                      display_name: newValue.display_name,
+                      staff_id: newValue.staff_id,
+                      value: newValue.value
+                    });
+                    
+                    setSelectedUser(newValue);
                     setIsUserSelected(true);
-                    setSearch(exactMatch.display_name);
+                    setSearch(newValue.display_name);
                     setSearchSuggestions([]);
                     setHasSearched(true);
+                    setCurrentView('search');
+                    
+                    console.log('🔍 USER SELECTION DEBUG:', {
+                      selectedUser: newValue,
+                      isUserSelected: true,
+                      hasSearched: true,
+                      currentView: 'search',
+                      aboutToFetchFolders: true
+                    });
+                    
+                    const userEmail = newValue.search_value || newValue.email || newValue.username;
+                    console.log('🔍 User selected, about to fetch folders:');
+                    console.log('   - Display name:', newValue.display_name);
+                    console.log('   - Email to use for API:', userEmail);
+                    console.log('   - Available email fields:', {
+                      search_value: newValue.search_value,
+                      email: newValue.email,
+                      username: newValue.username,
+                      value: newValue.value
+                    });
+                    fetchEmployeeFolders(userEmail);
+                  } else if (typeof newValue === 'string' && newValue.trim()) {
+                    setSearch(newValue);
+                    const exactMatch = searchSuggestions.find(suggestion => 
+                      suggestion.display_name?.toLowerCase() === newValue.toLowerCase() ||
+                      suggestion.email?.toLowerCase() === newValue.toLowerCase() ||
+                      suggestion.username?.toLowerCase() === newValue.toLowerCase()
+                    );
+                    if (exactMatch) {
+                      setSelectedUser(exactMatch);
+                      setIsUserSelected(true);
+                      setSearch(exactMatch.display_name);
+                      setSearchSuggestions([]);
+                      setHasSearched(true);
+                    }
+                  } else if (!newValue && isUserSelected) {
+                    console.log('🔄 User selection cleared');
+                    setSelectedUser(null);
+                    setIsUserSelected(false);
+                    setSearch('');
+                    setScreenshots([]);
+                    setHasSearched(false);
+                    setError('');
+                    setTotalCount(0);
+                    setTotalPages(0);
+                    setCurrentPage(1);
+                    setFullDataset([]);
+                    setSearchPattern('quick');
                   }
-                } else if (!newValue && isUserSelected) {
-                  // User cleared the selection
-                  console.log('🔄 User selection cleared');
-                  setSelectedUser(null);
-                  setIsUserSelected(false);
-                  setSearch('');
-                  setScreenshots([]);
-                  setHasSearched(false);
-                  setError('');
-                  setTotalCount(0);
-                  setTotalPages(0);
-                  setCurrentPage(1);
-                  setFullDataset([]);
-                  setSearchPattern('quick');
-                }
-              }}
-              renderOption={(props, option, { inputValue }) => {
-                // Highlight matching text in suggestions
-                const displayName = typeof option === 'object' ? option.display_name : option;
-                const email = typeof option === 'object' ? option.email : '';
-                
-                return (
-                  <Box 
-                    component="li" 
-                    {...props}
-                    style={{
-                      padding: '12px 16px',
-                      borderBottom: '1px solid #f0f0f0',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f8fafc !important'
-                      },
-                      '&[aria-selected="true"]': {
-                        backgroundColor: '#e0f2fe !important'
-                      }
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                      {/* User Avatar/Icon */}
-                      <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '16px',
-                        backgroundColor: '#0364ff',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        marginRight: '12px',
-                        flexShrink: 0
-                      }}>
-                        {displayName ? displayName.charAt(0).toUpperCase() : '?'}
-                      </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0 }}>
-                        <div style={{ 
-                          fontWeight: 600, 
+                }}
+                renderOption={(props, option, { inputValue }) => {
+                  const displayName = typeof option === 'object' ? option.display_name : option;
+                  const email = typeof option === 'object' ? option.email : '';
+                  
+                  return (
+                    <Box 
+                      component="li" 
+                      {...props}
+                      style={{
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #f0f0f0',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#f8fafc !important'
+                        },
+                        '&[aria-selected="true"]': {
+                          backgroundColor: '#e0f2fe !important'
+                        }
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '16px',
+                          backgroundColor: '#0364ff',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                           fontSize: '14px',
-                          color: '#1f2937',
-                          marginBottom: '2px'
+                          fontWeight: '600',
+                          marginRight: '12px',
+                          flexShrink: 0
                         }}>
-                          {displayName}
+                          {displayName ? displayName.charAt(0).toUpperCase() : '?'}
                         </div>
-                        {typeof option === 'object' && (
-                          <>
-                            <div style={{ 
-                              fontSize: '12px', 
-                              color: '#6b7280',
-                              marginBottom: '4px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              📧 {email}
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                              {option.screenshot_count && (
-                                <span style={{ 
-                                  fontSize: '10px', 
-                                  backgroundColor: '#10b981',
-                                  color: 'white',
-                                  padding: '2px 6px',
-                                  borderRadius: '8px',
-                                  fontWeight: '500'
-                                }}>
-                                  📸 {option.screenshot_count} files
-                                </span>
-                              )}
-                              {option.staff_id && (
-                                <span style={{ 
-                                  fontSize: '10px', 
-                                  backgroundColor: '#6366f1',
-                                  color: 'white',
-                                  padding: '2px 6px',
-                                  borderRadius: '8px',
-                                  fontWeight: '500'
-                                }}>
-                                  🆔 {option.staff_id}
-                                </span>
-                              )}
-                              {option.source && (
-                                <span style={{ 
-                                  fontSize: '10px', 
-                                  backgroundColor: '#f59e0b',
-                                  color: 'white',
-                                  padding: '2px 6px',
-                                  borderRadius: '8px',
-                                  fontWeight: '500'
-                                }}>
-                                  {option.source}
-                                </span>
-                              )}
-                            </div>
-                          </>
-                        )}
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0 }}>
+                          <div style={{ 
+                            fontWeight: 600, 
+                            fontSize: '14px',
+                            color: '#1f2937',
+                            marginBottom: '2px'
+                          }}>
+                            {displayName}
+                          </div>
+                          {typeof option === 'object' && (
+                            <>
+                              <div style={{ 
+                                fontSize: '12px', 
+                                color: '#6b7280',
+                                marginBottom: '4px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                📧 {email}
+                              </div>
+                              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                {option.screenshot_count && (
+                                  <span style={{ 
+                                    fontSize: '10px', 
+                                    backgroundColor: '#10b981',
+                                    color: 'white',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    fontWeight: '500'
+                                  }}>
+                                    📸 {option.screenshot_count} files
+                                  </span>
+                                )}
+                                {option.staff_id && (
+                                  <span style={{ 
+                                    fontSize: '10px', 
+                                    backgroundColor: '#6366f1',
+                                    color: 'white',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    fontWeight: '500'
+                                  }}>
+                                    🆔 {option.staff_id}
+                                  </span>
+                                )}
+                                {option.source && (
+                                  <span style={{ 
+                                    fontSize: '10px', 
+                                    backgroundColor: '#f59e0b',
+                                    color: 'white',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    fontWeight: '500'
+                                  }}>
+                                    {option.source}
+                                  </span>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Box>
-                );
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  size="small"
-                  placeholder={isUserSelected ? 
-                    `${selectedUser?.display_name} - Click Clear to search again` : 
-                    "🔍 Search for users... (type any name)"
+                    </Box>
+                  );
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    size="small"
+                    placeholder={isUserSelected ? 
+                      `${selectedUser?.display_name} - Click Clear to search again` : 
+                      "🔍 Search for users... (type any name)"
+                    }
+                    style={{ minWidth: '400px' }}
+                    InputProps={{
+                      ...params.InputProps,
+                      style: {
+                        paddingRight: isUserSelected ? '8px' : '14px'
+                      },
+                      endAdornment: (
+                        <>
+                          {loadingSuggestions && <CircularProgress color="inherit" size={18} />}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+                style={{ marginLeft: 'auto' }}
+                ListboxProps={{
+                  style: {
+                    maxHeight: '300px',
+                    overflow: 'auto'
                   }
-                  style={{ minWidth: '400px' }}
-                  InputProps={{
-                    ...params.InputProps,
-                    style: {
-                      paddingRight: isUserSelected ? '8px' : '14px'
-                    },
-                    endAdornment: (
-                      <>
-                        {loadingSuggestions && <CircularProgress color="inherit" size={18} />}
-                        {isUserSelected && (
-                          <Button
-                            onClick={() => {
-                              setSelectedUser(null);
-                              setIsUserSelected(false);
-                              setSearch('');
-                              setScreenshots([]);
-                              setSearchSuggestions([]);
-                              setHasSearched(false);
-                              setError('');
-                              setTotalCount(0);
-                              setTotalPages(0);
-                              setCurrentPage(1);
-                              setFullDataset([]);
-                              setSearchPattern('quick');
-                            }}
-                            style={{ 
-                              minWidth: 'auto', 
-                              padding: '4px 8px', 
-                              fontSize: '11px',
-                              marginRight: '4px',
-                              textTransform: 'none',
-                              backgroundColor: '#ef4444',
-                              color: 'white',
-                              borderRadius: '4px',
-                              fontWeight: '500'
-                            }}
-                            size="small"
-                          >
-                            ✕ Clear
-                          </Button>
-                        )}
-                        {params.InputProps.endAdornment}
-                      </>
-                    ),
-                  }}
-                />
-              )}
-              style={{ marginLeft: 'auto' }}
-              ListboxProps={{
-                style: {
-                  maxHeight: '300px',
-                  overflow: 'auto'
-                }
-              }}
-            />
-       
-
-       
-     </div>
-  
+                }}
+              />
+              </div>
+            </div>
           </TopBar>
-
-          {renderBreadcrumb()}
-          {renderBackButton()}
 
           {/* Show view-specific info messages */}
           {currentView === 'search' && isUserSelected && selectedUser && (
@@ -5048,162 +4859,6 @@ const ActivityStream = () => {
                       )}
                     </div>
                   )}
-
-                  {/* Debug Button */}
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      console.log('🐛 ===== DEBUG INFO =====');
-                      console.log('🐛 Filter States:', {
-                        isDateFilterActive,
-                        dateRange: [
-                          dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
-                          dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
-                        ],
-                        singleDateFilter,
-                        filterUpdateTrigger
-                      });
-                      console.log('🐛 Screenshot Data (first 3):');
-                      folderScreenshots.slice(0, 3).forEach((screenshot, i) => {
-                        console.log(`  Screenshot ${i + 1}:`, {
-                          id: screenshot.id,
-                          filename: screenshot.filename,
-                          timestamp: screenshot.timestamp,
-                          last_modified: screenshot.last_modified,
-                          extractedDate: extractDateFromTimestamp(screenshot.timestamp)?.format('YYYY-MM-DD') || 'FAILED'
-                        });
-                      });
-                      console.log(`🐛 Total screenshots: ${folderScreenshots.length}`);
-                      console.log(`🐛 Filtered screenshots: ${filteredFolderScreenshots.length}`);
-                    }}
-                    sx={{
-                      borderColor: '#8b5cf6',
-                      color: '#8b5cf6',
-                      '&:hover': { 
-                        borderColor: '#7c3aed',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)'
-                      }
-                    }}
-                  >
-                    🐛 Debug Info
-                  </Button>
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={handleQuickSearch}
-                    sx={{
-                      color: isDarkMode ? '#9ca3af' : '#6b7280',
-                      '&:hover': { 
-                        backgroundColor: isDarkMode ? 'rgba(156, 163, 175, 0.1)' : 'rgba(107, 114, 128, 0.1)'
-                      }
-                    }}
-                  >
-                    Show All Screenshots
-                  </Button>
-                </div>
-
-                {/* Quick Date Presets */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '8px', 
-                  flexWrap: 'wrap',
-                  marginTop: '8px'
-                }}>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: isDarkMode ? '#9ca3af' : '#6b7280',
-                    alignSelf: 'center',
-                    marginRight: '8px'
-                  }}>
-                    Quick filters:
-                  </div>
-                  
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      const today = dayjs();
-                      applyDateFilter(today, today);
-                    }}
-                    sx={{
-                      fontSize: '11px',
-                      padding: '4px 8px',
-                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
-                      color: isDarkMode ? '#9ca3af' : '#6b7280',
-                      '&:hover': { 
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
-                      }
-                    }}
-                  >
-                    Today
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      const yesterday = dayjs().subtract(1, 'day');
-                      applyDateFilter(yesterday, yesterday);
-                    }}
-                    sx={{
-                      fontSize: '11px',
-                      padding: '4px 8px',
-                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
-                      color: isDarkMode ? '#9ca3af' : '#6b7280',
-                      '&:hover': { 
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
-                      }
-                    }}
-                  >
-                    Yesterday
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      const today = dayjs();
-                      const weekAgo = today.subtract(7, 'days');
-                      applyDateFilter(weekAgo, today);
-                    }}
-                    sx={{
-                      fontSize: '11px',
-                      padding: '4px 8px',
-                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
-                      color: isDarkMode ? '#9ca3af' : '#6b7280',
-                      '&:hover': { 
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
-                      }
-                    }}
-                  >
-                    Last 7 days
-                  </Button>
-
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => {
-                      const today = dayjs();
-                      const monthAgo = today.subtract(30, 'days');
-                      applyDateFilter(monthAgo, today);
-                    }}
-                    sx={{
-                      fontSize: '11px',
-                      padding: '4px 8px',
-                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
-                      color: isDarkMode ? '#9ca3af' : '#6b7280',
-                      '&:hover': { 
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
-                      }
-                    }}
-                  >
-                    Last 30 days
-                  </Button>
                 </div>
 
                 {/* Active Filter Display */}
@@ -5247,24 +4902,6 @@ const ActivityStream = () => {
                 <>
                   <br />
                   <small>Try a different search term or check backend connection.</small>
-                </>
-              )}
-            </SearchInfo>
-          )}
-
-          {currentView === 'search' && !search && !isUserSelected && (
-            <SearchInfo theme={theme} isDarkMode={isDarkMode}>
-              {backendStatus === 'disconnected' ? (
-                <>
-                  ❌ <strong>Backend Server Not Running</strong>
-                  <br />
-                  Please start your backend server on <strong>http://localhost:8000</strong> to get real data from S3.
-                  <br />
-                  <small>💡 The backend should have endpoints: /api/users/s3-suggestions/ and /api/screenshots/employee/.../folders/</small>
-                </>
-              ) : (
-                <>
-                  💡 Start typing a name (e.g., "H") to see user suggestions, then select a user to view their folders.
                 </>
               )}
             </SearchInfo>
@@ -5358,13 +4995,119 @@ const ActivityStream = () => {
 
           {/* Render content based on current view */}
           {currentView === 'search' && !loading && !error && !hasSearched && !isUserSelected && (
-            <NoDataMessage theme={theme} isDarkMode={isDarkMode}>
-              🔍 Search for users to view their folders and screenshots
-              <br />
-              <small>💡 Type any letter (like "H") to see user suggestions</small>
-              <br />
-              <small>📁 Select a user from the dropdown to view their task folders</small>
-            </NoDataMessage>
+            <div style={{ 
+              padding: '40px 20px',
+              textAlign: 'center',
+              backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+              borderRadius: '12px',
+              margin: '20px 0'
+            }}>
+              <div style={{ marginBottom: '30px' }}>
+                <h3 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: '600',
+                  color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                  marginBottom: '16px'
+                }}>
+                  🔍 Employee Activity Dashboard
+                </h3>
+                
+                <div style={{ 
+                  fontSize: '16px',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  marginBottom: '20px'
+                }}>
+                  Use the search box at the top to find users and view their folders and screenshots
+                </div>
+                
+                <div style={{ 
+                  fontSize: '14px',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280'
+                }}>
+                  💡 Type any letter (like "H") to see user suggestions
+                  <br />
+                  📁 Select a user from the dropdown to view their task folders
+                </div>
+              </div>
+
+              {/* Filters Section */}
+              <div style={{ 
+                borderTop: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
+                paddingTop: '30px'
+              }}>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600',
+                  color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                  marginBottom: '20px'
+                }}>
+                  🔧 Available Filters
+                </h3>
+                
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '16px',
+                  textAlign: 'left'
+                }}>
+                  <div style={{
+                    padding: '16px',
+                    backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                    borderRadius: '8px',
+                    border: `1px solid ${isDarkMode ? '#6b7280' : '#d1d5db'}`
+                  }}>
+                    <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+                      📅 Date Range Filter
+                    </div>
+                    <div style={{ fontSize: '12px', color: isDarkMode ? '#9ca3af' : '#6b7280' }}>
+                      Filter screenshots by specific date ranges, today, yesterday, last 7 days, or last 30 days
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    padding: '16px',
+                    backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                    borderRadius: '8px',
+                    border: `1px solid ${isDarkMode ? '#6b7280' : '#d1d5db'}`
+                  }}>
+                    <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+                      👤 User Selection
+                    </div>
+                    <div style={{ fontSize: '12px', color: isDarkMode ? '#9ca3af' : '#6b7280' }}>
+                      Search and select specific users to view their activity and screenshots
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    padding: '16px',
+                    backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                    borderRadius: '8px',
+                    border: `1px solid ${isDarkMode ? '#6b7280' : '#d1d5db'}`
+                  }}>
+                    <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+                      📁 Folder Navigation
+                    </div>
+                    <div style={{ fontSize: '12px', color: isDarkMode ? '#9ca3af' : '#6b7280' }}>
+                      Browse through user folders organized by date or task to find specific screenshots
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    padding: '16px',
+                    backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                    borderRadius: '8px',
+                    border: `1px solid ${isDarkMode ? '#6b7280' : '#d1d5db'}`
+                  }}>
+                    <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+                      📄 Pagination Control
+                    </div>
+                    <div style={{ fontSize: '12px', color: isDarkMode ? '#9ca3af' : '#6b7280' }}>
+                      Adjust items per page (20-500) for optimal loading performance with large datasets
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {currentView === 'folders' && renderFoldersView()}

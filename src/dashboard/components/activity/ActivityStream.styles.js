@@ -1002,3 +1002,167 @@ export const ButtonContainer = styled.div`
   margin-top: 24px;
   text-align: center;
 `;
+
+// Inline Style Components
+export const StatusBanner = styled.div`
+  background: ${props => props.status === 'disconnected' ? '#fef2f2' : '#f0f9ff'};
+  border: 1px solid ${props => props.status === 'disconnected' ? '#fecaca' : '#bae6fd'};
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: ${props => props.status === 'disconnected' ? '#dc2626' : '#0369a1'};
+`;
+
+export const StatusText = styled.small`
+  font-size: 12px;
+`;
+
+export const ImageComponentContainer = styled.div`
+  position: relative;
+  ${props => props.customStyle && Object.entries(props.customStyle).map(([key, value]) => 
+    `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`
+  ).join('\n')}
+`;
+
+export const StyledImage = styled.img`
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+`;
+
+export const TaskInfoSmall = styled.div`
+  font-size: 10px;
+  margin-top: 4px;
+`;
+
+export const TaskInfoTiny = styled.div`
+  font-size: 8px;
+  margin-top: 2px;
+  opacity: 0.7;
+`;
+
+export const TaskInfoMicro = styled.div`
+  font-size: 7px;
+  margin-top: 2px;
+  opacity: 0.5;
+`;
+
+export const LoadingCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: ${props => props.theme?.colors?.surface || '#ffffff'};
+  border: 1px solid ${props => props.theme?.colors?.border || '#e5e7eb'};
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 200px;
+  text-align: center;
+`;
+
+export const LoadingEmoji = styled.div`
+  font-size: 16px;
+  margin-bottom: 4px;
+`;
+
+export const LoadingText = styled.div`
+  font-size: 10px;
+`;
+
+export const LoadingSubtext = styled.div`
+  font-size: 8px;
+  margin-top: 2px;
+  opacity: 0.7;
+`;
+
+export const ErrorCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: ${props => props.theme?.colors?.surface || '#ffffff'};
+  border: 1px solid ${props => props.theme?.colors?.border || '#e5e7eb'};
+  border-radius: 8px;
+  padding: 24px;
+  min-height: 200px;
+  text-align: center;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+`;
+
+export const ErrorEmoji = styled.div`
+  font-size: 24px;
+  margin-bottom: 4px;
+`;
+
+export const ErrorTitle = styled.div`
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 2px;
+`;
+
+export const ErrorDescription = styled.div`
+  font-size: 8px;
+  line-height: 1.2;
+  opacity: 0.8;
+`;
+
+export const ErrorDetails = styled.div`
+  font-size: 7px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 4px;
+  color: #dc2626;
+`;
+
+export const HelpContainer = styled.div`
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #856404;
+`;
+
+export const HelpList = styled.ol`
+  margin: 8px 0 0 16px;
+  padding: 0;
+`;
+
+export const CodeSnippet = styled.code`
+  background: #f8f9fa;
+  padding: 2px 4px;
+`;
+
+export const CardDetailContainer = styled.div`
+  position: relative;
+  ${props => props.customStyles && Object.entries(props.customStyles).map(([key, value]) => 
+    `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`
+  ).join('\n')}
+`;
+
+export const TaskDetailHeader = styled.div`
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 4px;
+  padding: 2px 0;
+  border-bottom: 1px solid #e5e7eb;
+`;
+
+export const TaskDetailGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 0;
+`;
+
+export const TaskDetailItem = styled.div`
+  font-size: 8px;
+  color: #6b7280;
+  line-height: 1.3;
+`;
