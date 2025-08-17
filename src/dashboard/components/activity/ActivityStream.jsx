@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Button, TextField, Popover, Box, CircularProgress, Autocomplete, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Button, TextField, Popover, Box, CircularProgress, Autocomplete } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
@@ -183,7 +183,6 @@ const ActivityStream = () => {
   const [selected, setSelected] = useState(29); // Start with today (last item in 30-day array)
   const [search, setSearch] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
-  const [quickFilter, setQuickFilter] = useState(''); // For quick date filter dropdown
   
   // EMERGENCY DEBUG FUNCTION FOR PRESIGNED URLS
   const debugImageUrlExtraction = (testData) => {
@@ -3711,6 +3710,109 @@ const ActivityStream = () => {
 
             </div>
 
+            {/* Quick Date Presets */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '8px', 
+              flexWrap: 'wrap',
+              marginTop: '8px'
+            }}>
+              <div style={{ 
+                fontSize: '12px', 
+                color: isDarkMode ? '#9ca3af' : '#6b7280',
+                alignSelf: 'center',
+                marginRight: '8px'
+              }}>
+                Quick filters:
+              </div>
+              
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  const today = dayjs();
+                  applyDateFilter(today, today);
+                }}
+                sx={{
+                  fontSize: '11px',
+                  padding: '4px 8px',
+                  borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  '&:hover': { 
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                  }
+                }}
+              >
+                Today
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  const yesterday = dayjs().subtract(1, 'day');
+                  applyDateFilter(yesterday, yesterday);
+                }}
+                sx={{
+                  fontSize: '11px',
+                  padding: '4px 8px',
+                  borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  '&:hover': { 
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                  }
+                }}
+              >
+                Yesterday
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  const today = dayjs();
+                  const weekAgo = today.subtract(7, 'days');
+                  applyDateFilter(weekAgo, today);
+                }}
+                sx={{
+                  fontSize: '11px',
+                  padding: '4px 8px',
+                  borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  '&:hover': { 
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                  }
+                }}
+              >
+                Last 7 days
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  const today = dayjs();
+                  const monthAgo = today.subtract(30, 'days');
+                  applyDateFilter(monthAgo, today);
+                }}
+                sx={{
+                  fontSize: '11px',
+                  padding: '4px 8px',
+                  borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                  color: isDarkMode ? '#9ca3af' : '#6b7280',
+                  '&:hover': { 
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                  }
+                }}
+              >
+                Last 30 days
+              </Button>
+            </div>
+
             {/* Active Filter Display */}
             {(isDateFilterActive || singleDateFilter) && (
               <div style={{ 
@@ -4398,80 +4500,16 @@ const ActivityStream = () => {
       
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
+          {hasSearched && search && (
+            <Username theme={theme} isDarkMode={isDarkMode} style={{marginBottom:'10px'}}>{search}</Username>
+          )}
           <TopBar ref={topBarRef} theme={theme} isDarkMode={isDarkMode} >
             <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%'}}>
               <div style={{ fontSize:'18px', fontWeight:'600', color: isDarkMode ? '#f3f4f6' : '#1f2937' }}>
                 Real Time Activity Stream <span style={{ fontSize: '14px', color: '#9ca3af' }}>ⓘ</span>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                {/* Quick filters dropdown */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: isDarkMode ? '#9ca3af' : '#6b7280',
-                  }}>
-                    Quick filters:
-                  </div>
-                  
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
-                    <Select
-                      value={quickFilter}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setQuickFilter(value);
-                        
-                        if (value === 'today') {
-                          const today = dayjs();
-                          applyDateFilter(today, today);
-                        } else if (value === 'yesterday') {
-                          const yesterday = dayjs().subtract(1, 'day');
-                          applyDateFilter(yesterday, yesterday);
-                        } else if (value === 'week') {
-                          const today = dayjs();
-                          const weekAgo = today.subtract(7, 'days');
-                          applyDateFilter(weekAgo, today);
-                        } else if (value === 'month') {
-                          const today = dayjs();
-                          const monthAgo = today.subtract(30, 'days');
-                          applyDateFilter(monthAgo, today);
-                        }
-                      }}
-                      displayEmpty
-                      sx={{
-                        fontSize: '12px',
-                        color: isDarkMode ? '#9ca3af' : '#6b7280',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#10b981',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#10b981',
-                        },
-                        '& .MuiSelect-select': {
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                        }
-                      }}
-                    >
-                      <MenuItem value="" sx={{ fontSize: '12px' }}>
-                        <em>Select filter</em>
-                      </MenuItem>
-                      <MenuItem value="today" sx={{ fontSize: '12px' }}>Today</MenuItem>
-                      <MenuItem value="yesterday" sx={{ fontSize: '12px' }}>Yesterday</MenuItem>
-                      <MenuItem value="week" sx={{ fontSize: '12px' }}>Last 7 days</MenuItem>
-                      <MenuItem value="month" sx={{ fontSize: '12px' }}>Last 30 days</MenuItem>
-                    </Select>
-                  </FormControl>
-                </div>
-                
-                <Autocomplete
+              <Autocomplete
                 freeSolo
                 options={searchSuggestions}
                 loading={loadingSuggestions}
@@ -4704,9 +4742,10 @@ const ActivityStream = () => {
                   }
                 }}
               />
-              </div>
             </div>
           </TopBar>
+
+          {renderBreadcrumb()}
 
           {/* Show view-specific info messages */}
           {currentView === 'search' && isUserSelected && selectedUser && (
@@ -4859,6 +4898,109 @@ const ActivityStream = () => {
                       )}
                     </div>
                   )}
+                </div>
+
+                {/* Quick Date Presets */}
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  flexWrap: 'wrap',
+                  marginTop: '8px'
+                }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: isDarkMode ? '#9ca3af' : '#6b7280',
+                    alignSelf: 'center',
+                    marginRight: '8px'
+                  }}>
+                    Quick filters:
+                  </div>
+                  
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      applyDateFilter(today, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Today
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const yesterday = dayjs().subtract(1, 'day');
+                      applyDateFilter(yesterday, yesterday);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Yesterday
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      const weekAgo = today.subtract(7, 'days');
+                      applyDateFilter(weekAgo, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Last 7 days
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      const today = dayjs();
+                      const monthAgo = today.subtract(30, 'days');
+                      applyDateFilter(monthAgo, today);
+                    }}
+                    sx={{
+                      fontSize: '11px',
+                      padding: '4px 8px',
+                      borderColor: isDarkMode ? '#6b7280' : '#d1d5db',
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&:hover': { 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                      }
+                    }}
+                  >
+                    Last 30 days
+                  </Button>
                 </div>
 
                 {/* Active Filter Display */}
