@@ -1,61 +1,12 @@
 import styled, { keyframes, css } from 'styled-components';
 
-// 3D Animation Keyframes
+// Simple fade-in animations
 const containerEntrance = keyframes`
-  0% {
-    transform: perspective(1000px) rotateX(-30deg) rotateY(20deg) translateZ(-200px);
-    opacity: 0;
-    scale: 0.8;
-  }
-  50% {
-    transform: perspective(1000px) rotateX(-15deg) rotateY(10deg) translateZ(-100px);
-    opacity: 0.6;
-    scale: 0.9;
-  }
-  100% {
-    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px);
-    opacity: 1;
-    scale: 1;
-  }
-`;
 
-const cardFloat = keyframes`
-  0%, 100% {
-    transform: perspective(800px) translateY(0px) rotateX(0deg) rotateY(0deg);
-  }
-  33% {
-    transform: perspective(800px) translateY(-3px) rotateX(1deg) rotateY(0.5deg);
-  }
-  66% {
-    transform: perspective(800px) translateY(-1px) rotateX(-0.5deg) rotateY(-0.5deg);
-  }
 `;
 
 const cardEntrance = keyframes`
-  0% {
-    transform: perspective(1000px) rotateX(90deg) rotateY(45deg) translateZ(-300px);
-    opacity: 0;
-    scale: 0.6;
-  }
-  50% {
-    transform: perspective(1000px) rotateX(45deg) rotateY(20deg) translateZ(-100px);
-    opacity: 0.7;
-    scale: 0.8;
-  }
-  100% {
-    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px);
-    opacity: 1;
-    scale: 1;
-  }
-`;
 
-const folderFloat = keyframes`
-  0%, 100% {
-    transform: perspective(600px) translateY(0px) rotateX(0deg);
-  }
-  50% {
-    transform: perspective(600px) translateY(-5px) rotateX(2deg);
-  }
 `;
 
 const shimmer = keyframes`
@@ -64,15 +15,6 @@ const shimmer = keyframes`
   }
   100% {
     background-position: 200% 0;
-  }
-`;
-
-const dateItemFloat = keyframes`
-  0%, 100% {
-    transform: perspective(400px) translateY(0px) rotateY(0deg);
-  }
-  50% {
-    transform: perspective(400px) translateY(-2px) rotateY(1deg);
   }
 `;
 
@@ -95,9 +37,7 @@ export const Wrapper = styled.div`
   }};
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#e5e7eb' : 'inherit'};
   min-height: auto;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  perspective: 1000px;
-  transform-style: preserve-3d;
+  transition: all 0.3s ease;
 `;
 
 export const Container = styled.div`
@@ -111,10 +51,8 @@ export const Container = styled.div`
   padding: 2rem;
   position: relative;
   overflow: hidden;
-  transform-style: preserve-3d;
-  perspective: 1000px;
   
-  // 3D Glass Morphism Effect
+  // Glass morphism effect
   backdrop-filter: blur(20px);
   border: 1px solid ${props => 
     (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') 
@@ -122,51 +60,19 @@ export const Container = styled.div`
       : 'rgba(241, 245, 249, 0.5)'
   };
   
-  // 3D Box Shadow with multiple layers
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.1),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    inset 0 2px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -2px 0 rgba(255, 255, 255, 0.05);
+  // Simple shadow
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#f3f4f6' : '#1f2937'} !important;
   
-  // 3D Hover Effects
+  // Simple hover effects
   &:hover {
-    transform: perspective(1000px) translateY(-8px) rotateX(2deg) rotateY(1deg);
-    box-shadow: 
-      0 30px 80px rgba(0, 0, 0, 0.15),
-      0 12px 40px rgba(0, 0, 0, 0.12),
-      inset 0 3px 0 rgba(255, 255, 255, 0.15),
-      inset 0 -3px 0 rgba(255, 255, 255, 0.1);
-  }
-  
-  // Shimmer effect
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    transition: left 0.8s ease;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  &:hover::before {
-    left: 100%;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
   
   // Entrance animation
-  animation: ${css`${containerEntrance} 1s cubic-bezier(0.4, 0, 0.2, 1) both`};
+  animation: ${css`${containerEntrance} 0.6s ease both`};
   
   /* Enhanced dark mode support */
   ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') && css`
@@ -191,9 +97,6 @@ export const TopBar = styled.div`
   margin-bottom: 2rem;
   position: relative;
   z-index: 2;
-  transform-style: preserve-3d;
-  
-
 `;
 
 export const DateScrollContainer = styled.div`
@@ -217,10 +120,8 @@ export const DateScrollContainer = styled.div`
   };
   
   transition: all 0.3s ease;
-  transform-style: preserve-3d;
   
   &:hover {
-    transform: perspective(500px) translateY(-2px) rotateX(1deg);
     background: ${props => 
       (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
         ? 'rgba(55, 65, 81, 0.5)'
@@ -255,24 +156,7 @@ export const Title = styled.h3`
   margin-bottom: 1.5rem;
   position: relative;
   
-  // 3D Text effect
-  background: ${props => 
-    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-      ? 'linear-gradient(135deg, #f9fafb, #d1d5db)'
-      : 'linear-gradient(135deg, #111827, #4b5563)'
-  };
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-  text-shadow: 
-    2px 2px 4px rgba(0, 0, 0, 0.1),
-    0 0 20px rgba(0, 0, 0, 0.05);
-  
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-  
-  
+  transition: all 0.3s ease;
 `;
 
 export const Username = styled.div`
@@ -294,13 +178,15 @@ export const Username = styled.div`
   };
   backdrop-filter: blur(10px);
   
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
+  transition: all 0.3s ease;
   
-
-    box-shadow: 
-      0 8px 20px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  &:hover {
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(96, 165, 250, 0.2)'
+        : 'rgba(3, 100, 255, 0.2)'
+    };
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -323,24 +209,20 @@ export const Arrow = styled.div`
       : 'rgba(55, 65, 81, 0.2)'
   };
   
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
+  transition: all 0.3s ease;
   
   &:hover {
     color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#e5e7eb' : '#111827'};
-    transform: perspective(400px) translateY(-2px) rotateX(5deg) scale(1.1);
     background: ${props => 
       (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
         ? 'rgba(156, 163, 175, 0.2)'
         : 'rgba(55, 65, 81, 0.2)'
     };
-    box-shadow: 
-      0 8px 16px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
   
   &:active {
-    transform: perspective(400px) translateY(0px) rotateX(2deg) scale(0.95);
+    opacity: 0.8;
   }
 `;
 
@@ -362,7 +244,6 @@ export const DateItem = styled.div`
   text-align: center;
   cursor: pointer;
   position: relative;
-  transform-style: preserve-3d;
   
   // Glass morphism effect
   backdrop-filter: blur(12px);
@@ -372,22 +253,13 @@ export const DateItem = styled.div`
       : 'rgba(241, 245, 249, 0.4)'
   };
   
-  // 3D Box shadow
-  box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  // Simple shadow
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  // Floating animation
-  animation: ${css`${dateItemFloat} 6s ease-in-out infinite`};
-  animation-delay: ${props => props.index * 0.1}s;
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: perspective(500px) translateY(-4px) rotateX(5deg) rotateY(2deg) scale(1.05);
-    box-shadow: 
-      0 12px 24px rgba(0, 0, 0, 0.15),
-      inset 0 2px 0 rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     background: ${props => {
       if (props.active || props.singleDateActive || props.isToday) return '';
       return (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? 'rgba(75, 85, 99, 0.8)' : 'rgba(226, 232, 240, 0.9)';
@@ -395,7 +267,7 @@ export const DateItem = styled.div`
   }
   
   &:active {
-    transform: perspective(500px) translateY(-2px) rotateX(2deg) scale(0.98);
+    opacity: 0.9;
   }
 
   span {
@@ -414,7 +286,6 @@ export const DateItem = styled.div`
       position: absolute;
       bottom: -20px;
       left: 50%;
-      transform: translateX(-50%);
       font-size: 0.625rem;
       font-weight: 600;
       color: ${(props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#d97706' : '#f59e0b'};
@@ -431,8 +302,6 @@ export const CardGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
-  perspective: 1200px;
-  
 `;
 
 export const Card = styled.div`
@@ -451,19 +320,14 @@ export const Card = styled.div`
   cursor: pointer;
   position: relative;
   overflow: hidden;
- 
   
   // Glass morphism effect
   backdrop-filter: blur(20px);
   
-  // 3D shadows
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.1),
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  // Simple shadows
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  
+  transition: all 0.3s ease;
   
   &:hover {
     border-color: ${props => 
@@ -471,20 +335,8 @@ export const Card = styled.div`
         ? '#60a5fa' 
         : '#0364ff'
     };
-
-    box-shadow: 
-      0 25px 60px ${props => 
-        (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-          ? 'rgba(96, 165, 250, 0.3)' 
-          : 'rgba(3, 100, 255, 0.2)'
-      },
-      0 12px 32px rgba(0, 0, 0, 0.15),
-      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
-  
-
-  
- 
 `;
 
 export const Img = styled.img`
@@ -506,27 +358,10 @@ export const TaskName = styled.div`
   text-align: center;
   position: relative;
   
-  // 3D text effect
-  background: ${props => 
-    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-      ? 'linear-gradient(135deg, #f3f4f6, #d1d5db)'
-      : 'linear-gradient(135deg, #111827, #4b5563)'
-  };
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-  text-shadow: 
-    1px 1px 2px rgba(0, 0, 0, 0.1),
-    0 0 10px rgba(0, 0, 0, 0.05);
-  
   transition: all 0.3s ease;
   
   &:hover {
-    transform: perspective(400px) rotateX(3deg) scale(1.02);
-    text-shadow: 
-      2px 2px 4px rgba(0, 0, 0, 0.15),
-      0 0 15px rgba(0, 0, 0, 0.1);
+    color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#60a5fa' : '#0364ff'};
   }
 `;
 
@@ -550,10 +385,8 @@ export const TaskTime = styled.div`
   };
   
   transition: all 0.3s ease;
-  transform-style: preserve-3d;
   
   &:hover {
-    transform: perspective(300px) translateY(-1px) rotateX(2deg);
     background: ${props => 
       (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
         ? 'rgba(156, 163, 175, 0.2)'
@@ -730,8 +563,6 @@ export const FoldersGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
-  perspective: 1200px;
-  transform-style: preserve-3d;
 `;
 
 export const FolderCard = styled.div`
@@ -750,22 +581,14 @@ export const FolderCard = styled.div`
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transform-style: preserve-3d;
   
   // Glass morphism effect
   backdrop-filter: blur(20px);
   
-  // 3D shadows
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.1),
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  // Simple shadow
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  // Floating animation
-  animation: ${css`${folderFloat} 10s ease-in-out infinite`};
-  animation-delay: ${props => (props.index || 0) * 0.15}s;
+  transition: all 0.3s ease;
   
   &:hover {
     border-color: ${props => 
@@ -773,42 +596,11 @@ export const FolderCard = styled.div`
         ? '#60a5fa' 
         : '#0364ff'
     };
-    transform: perspective(800px) translateY(-12px) rotateX(8deg) rotateY(5deg) scale(1.02);
-    box-shadow: 
-      0 25px 60px ${props => 
-        (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-          ? 'rgba(96, 165, 250, 0.3)' 
-          : 'rgba(3, 100, 255, 0.2)'
-      },
-      0 12px 32px rgba(0, 0, 0, 0.15),
-      inset 0 2px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
   
   &:active {
-    transform: perspective(800px) translateY(-8px) rotateX(4deg) rotateY(2deg) scale(0.98);
-  }
-  
-  // Shimmer effect
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
-    transition: left 0.6s ease;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  &:hover::before {
-    left: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -839,10 +631,8 @@ export const FolderIcon = styled.div`
   backdrop-filter: blur(10px);
   
   transition: all 0.3s ease;
-  transform-style: preserve-3d;
   
   &:hover {
-    transform: perspective(400px) rotateY(15deg) rotateX(5deg);
     background: ${props => 
       (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
         ? 'rgba(96, 165, 250, 0.3)'
@@ -858,27 +648,10 @@ export const FolderName = styled.div`
   flex: 1;
   position: relative;
   
-  // 3D text effect
-  background: ${props => 
-    (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
-      ? 'linear-gradient(135deg, #f3f4f6, #d1d5db)'
-      : 'linear-gradient(135deg, #111827, #4b5563)'
-  };
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  
-  text-shadow: 
-    1px 1px 2px rgba(0, 0, 0, 0.1),
-    0 0 10px rgba(0, 0, 0, 0.05);
-  
   transition: all 0.3s ease;
   
   &:hover {
-    transform: perspective(400px) rotateX(3deg) scale(1.02);
-    text-shadow: 
-      2px 2px 4px rgba(0, 0, 0, 0.15),
-      0 0 15px rgba(0, 0, 0, 0.1);
+    color: ${props => (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark') ? '#60a5fa' : '#0364ff'};
   }
 `;
 
@@ -911,8 +684,14 @@ export const FolderStat = styled.div`
   };
   
   transition: all 0.3s ease;
-  transform-style: preserve-3d;
   
+  &:hover {
+    background: ${props => 
+      (props.isDarkMode || props.theme?.name === 'dark' || props.theme?.mode === 'dark')
+        ? 'rgba(156, 163, 175, 0.2)'
+        : 'rgba(107, 114, 128, 0.2)'
+    };
+  }
 `;
 
 export const ViewModeToggle = styled.div`
