@@ -2,66 +2,57 @@ import React, { useRef } from 'react';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
 
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-`;
-
-const Title = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.isDarkMode ? '#f3f4f6' : '#1f2937'};
-  white-space: nowrap;
-`;
-
-const RangeContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-`;
-
 const DateSelectorContainer = styled.div`
-  margin: 16px 0;
   background: ${props => props.isDarkMode ? '#1f2937' : '#ffffff'};
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  margin-bottom: 20px;
 `;
 
-const ScrollContainer = styled.div`
+const ScrollToggle = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  padding: 12px;
+  gap: 8px;
 `;
 
 const ScrollButton = styled.button`
+  width: 36px;
+  height: 36px;
   border: none;
-  background: ${props => props.isDarkMode ? '#374151' : '#f3f4f6'};
-  color: ${props => props.isDarkMode ? '#9ca3af' : '#6b7280'};
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  border-radius: 8px;
+  background: ${props => props.isDarkMode ? '#374151' : '#f8fafc'};
+  color: ${props => props.isDarkMode ? '#9ca3af' : '#64748b'};
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
+  font-size: 16px;
   transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
 
   &:hover {
-    background: ${props => props.isDarkMode ? '#4b5563' : '#e5e7eb'};
+    background: ${props => props.isDarkMode ? '#4b5563' : '#e2e8f0'};
+    color: ${props => props.isDarkMode ? '#f3f4f6' : '#475569'};
+  }
+
+  &:before {
+    content: ${props => props.direction === 'left' ? '"‹"' : '"›"'};
+    font-size: 20px;
+    font-weight: bold;
   }
 `;
 
-const DatesContainer = styled.div`
+const ScrollList = styled.ul`
   display: flex;
   overflow-x: auto;
   scroll-behavior: smooth;
-  gap: 8px;
-  padding: 4px;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex: 1;
+  
   &::-webkit-scrollbar {
     display: none;
   }
@@ -69,37 +60,56 @@ const DatesContainer = styled.div`
   scrollbar-width: none;
 `;
 
-const DateItem = styled.div`
-  padding: 8px 16px;
-  border-radius: 8px;
+const ScrollListItem = styled.li`
+  flex-shrink: 0;
   cursor: pointer;
-  background: ${props => props.isActive ? 
-    (props.isDarkMode ? '#3b82f6' : '#60a5fa') : 
-    'transparent'};
-  color: ${props => props.isActive ? 
-    '#ffffff' : 
-    (props.isDarkMode ? '#9ca3af' : '#6b7280')};
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 80px;
+  text-align: center;
   transition: all 0.2s ease;
-
+  background: ${props => props.isActive ? 
+    (props.isDarkMode ? '#3b82f6' : '#3b82f6') : 
+    'transparent'};
+  
   &:hover {
     background: ${props => props.isActive ? 
-      (props.isDarkMode ? '#3b82f6' : '#60a5fa') : 
-      (props.isDarkMode ? '#374151' : '#f3f4f6')};
+      (props.isDarkMode ? '#2563eb' : '#2563eb') : 
+      (props.isDarkMode ? '#374151' : '#f1f5f9')};
   }
 `;
 
 const DateNumber = styled.span`
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
+  color: ${props => props.isActive ? '#ffffff' : (props.isDarkMode ? '#f3f4f6' : '#1e293b')};
+  line-height: 1;
+  margin-bottom: 4px;
 `;
 
-const DateText = styled.div`
-  font-size: 12px;
-  opacity: 0.8;
+const DateWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+`;
+
+const MonthText = styled.div`
+  font-size: 11px;
+  font-weight: 500;
+  color: ${props => props.isActive ? '#ffffff' : (props.isDarkMode ? '#9ca3af' : '#64748b')};
+  line-height: 1;
+  text-transform: uppercase;
+`;
+
+const YearText = styled.div`
+  font-size: 10px;
+  font-weight: 400;
+  color: ${props => props.isActive ? '#ffffff' : (props.isDarkMode ? '#6b7280' : '#94a3b8')};
+  line-height: 1;
 `;
 
 const DateSelector = ({ isDarkMode, selectedDate, onDateSelect }) => {
@@ -134,46 +144,53 @@ const DateSelector = ({ isDarkMode, selectedDate, onDateSelect }) => {
 
   return (
     <DateSelectorContainer isDarkMode={isDarkMode}>
-      <Header>
-        <Title isDarkMode={isDarkMode}>Please add date range</Title>
-        <RangeContainer>
-          {/* Date range picker will go here */}
-        </RangeContainer>
-      </Header>
-      <ScrollContainer>
+      <ScrollToggle>
         <ScrollButton 
           isDarkMode={isDarkMode}
+          direction="left"
           onClick={() => handleScroll('left')}
-          title="Scroll left"
-        >
-          ←
-        </ScrollButton>
+          title="Previous dates"
+        />
         
-        <DatesContainer ref={scrollContainerRef}>
+        <ScrollList ref={scrollContainerRef}>
           {dates.map((date, index) => (
-            <DateItem
+            <ScrollListItem
               key={index}
               isDarkMode={isDarkMode}
               isActive={date.fullDate === selectedDate}
               onClick={() => onDateSelect(date.fullDate)}
             >
-              <DateNumber>{date.day}</DateNumber>
-              <DateText>
-                <div>{date.month}</div>
-                <div>{date.year}</div>
-              </DateText>
-            </DateItem>
+              <DateNumber 
+                isDarkMode={isDarkMode}
+                isActive={date.fullDate === selectedDate}
+              >
+                {date.day}
+              </DateNumber>
+              <DateWrapper>
+                <MonthText 
+                  isDarkMode={isDarkMode}
+                  isActive={date.fullDate === selectedDate}
+                >
+                  {date.month}
+                </MonthText>
+                <YearText 
+                  isDarkMode={isDarkMode}
+                  isActive={date.fullDate === selectedDate}
+                >
+                  {date.year}
+                </YearText>
+              </DateWrapper>
+            </ScrollListItem>
           ))}
-        </DatesContainer>
+        </ScrollList>
         
         <ScrollButton
           isDarkMode={isDarkMode}
+          direction="right"
           onClick={() => handleScroll('right')}
-          title="Scroll right"
-        >
-          →
-        </ScrollButton>
-      </ScrollContainer>
+          title="Next dates"
+        />
+      </ScrollToggle>
     </DateSelectorContainer>
   );
 };

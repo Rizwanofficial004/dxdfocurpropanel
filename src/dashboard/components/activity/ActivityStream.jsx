@@ -13,6 +13,7 @@ import { getApiBaseURL } from '../../../config/api';
 import { retryApiCall, retryExtremeApiCall } from '../../../config/apiConfig';
 import ImageModal from '../common/ImageModal';
 import Pagination from './Pagination';
+import DateSelector from './DateSelector';
 import {
   Wrapper,
   Container,
@@ -217,6 +218,9 @@ const ActivityStream = () => {
   const [isDateFilterActive, setIsDateFilterActive] = useState(false);
   const [singleDateFilter, setSingleDateFilter] = useState(null);
   const [filterUpdateTrigger, setFilterUpdateTrigger] = useState(0); // Force re-render trigger
+  
+  // DateSelector state - for the new date selector component
+  const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD')); // Default to today
   
   // Search suggestions states
   const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -1911,7 +1915,6 @@ const ActivityStream = () => {
       });
       
       setFolders(foldersList);
-      setCurrentView('folders');
       console.log('📁 Set folders in state:', foldersList.length, 'folders');
       
       // If no folders found, let's also try to debug the user email
@@ -1925,7 +1928,16 @@ const ActivityStream = () => {
         console.log('   2. The backend API endpoint is not working correctly');
         console.log('   3. The user doesn\'t have any screenshot folders yet');
         console.log('   4. There\'s a mismatch between search email and S3 folder structure');
+        setCurrentView('search'); // Go back to search if no folders
+        return;
       }
+      
+      // AUTO-NAVIGATE: Instead of showing folders, automatically fetch all screenshots from all folders
+      console.log('🚀 Auto-navigating to fetch all screenshots from all folders...');
+      setCurrentView('screenshots'); // Skip folders view, go directly to screenshots
+      
+      // Automatically fetch screenshots from all folders
+      await fetchAllScreenshotsFromAllFolders(employeeEmail, foldersList);
       
     } catch (err) {
       console.error('❌ Error fetching employee folders:', err);
@@ -1952,6 +1964,102 @@ const ActivityStream = () => {
       
     } finally {
       setLoadingFolders(false);
+    }
+  };
+
+  // AUTO-FETCH: Get all screenshots from all folders and combine them
+  const fetchAllScreenshotsFromAllFolders = async (employeeEmail, foldersList) => {
+    try {
+      setLoadingFolderScreenshots(true);
+      console.log('📸 Fetching screenshots from', foldersList.length, 'folders...');
+      
+      let allScreenshots = [];
+      let totalProcessed = 0;
+      
+      // Process each folder and get screenshots
+      for (let i = 0; i < foldersList.length; i++) {
+        const folder = foldersList[i];
+        const folderName = folder.folder_name || folder.date || folder.name;
+        
+        try {
+          console.log(`📸 Processing folder ${i + 1}/${foldersList.length}: ${folderName}`);
+          
+          const apiBaseURL = getApiBaseURL();
+          const folderApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=1&limit=1000`;
+          
+          const folderResponse = await axios.get(folderApiUrl, { 
+            timeout: 1800000,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          });
+          
+          let folderScreenshots = [];
+          
+          // Parse folder response
+          if (folderResponse.data && folderResponse.data.success && folderResponse.data.data && Array.isArray(folderResponse.data.data.screenshots)) {
+            folderScreenshots = folderResponse.data.data.screenshots;
+          } else if (folderResponse.data && Array.isArray(folderResponse.data.screenshots)) {
+            folderScreenshots = folderResponse.data.screenshots;
+          } else if (folderResponse.data && Array.isArray(folderResponse.data)) {
+            folderScreenshots = folderResponse.data;
+          }
+          
+          // Add folder info to each screenshot
+          const screenshotsWithFolder = folderScreenshots.map(screenshot => ({
+            ...screenshot,
+            folder_name: folderName,
+            employee_name: selectedUser?.display_name,
+            employee_email: employeeEmail
+          }));
+          
+          allScreenshots = [...allScreenshots, ...screenshotsWithFolder];
+          totalProcessed++;
+          
+          console.log(`✅ Added ${folderScreenshots.length} screenshots from "${folderName}". Total: ${allScreenshots.length}`);
+          
+          // Update progress
+          setError(`📊 Loading screenshots... ${totalProcessed}/${foldersList.length} folders processed (${allScreenshots.length} screenshots)`);
+          
+        } catch (folderError) {
+          console.error(`❌ Error fetching from folder "${folderName}":`, folderError);
+          // Continue with other folders
+        }
+      }
+      
+      // Sort all screenshots by timestamp (newest first)
+      allScreenshots.sort((a, b) => {
+        const timeA = new Date(a.timestamp || a.created_at || 0);
+        const timeB = new Date(b.timestamp || b.created_at || 0);
+        return timeB - timeA;
+      });
+      
+      console.log('🎉 Successfully collected', allScreenshots.length, 'screenshots from all folders');
+      
+      // Set all screenshots in folder screenshots state for display
+      setFolderScreenshots(allScreenshots);
+      setFilteredFolderScreenshots(allScreenshots);
+      setFolderPagination({
+        page: 1,
+        totalPages: Math.ceil(allScreenshots.length / perPageLimit),
+        totalCount: allScreenshots.length
+      });
+      
+      // Set a virtual "All Folders" selection
+      setSelectedFolder({
+        folder_name: 'All Folders',
+        screenshot_count: allScreenshots.length,
+        date: 'Combined'
+      });
+      
+      setError(''); // Clear loading message
+      
+    } catch (err) {
+      console.error('❌ Error fetching all screenshots:', err);
+      setError('Failed to fetch screenshots from folders');
+    } finally {
+      setLoadingFolderScreenshots(false);
     }
   };
 
@@ -2562,6 +2670,317 @@ const ActivityStream = () => {
     return screenshot.s3_key;
   };
 
+  // NEW: Fetch folders and then automatically fetch all screenshots from all folders with pagination
+  const fetchEmployeeFoldersAndAllScreenshots = async (employeeEmail, page = 1, limit = null) => {
+    const actualLimit = limit || perPageLimit; // Use provided limit or current dropdown selection
+    
+    try {
+      console.log('🚀 Starting fetchEmployeeFoldersAndAllScreenshots for:', employeeEmail, 'page:', page, 'limit:', actualLimit);
+      
+      // Step 1: Fetch all folders for the user (only on first page load)
+      if (page === 1) {
+        setLoadingFolders(true);
+        setError('');
+        
+        console.log('📁 Step 1: Fetching folders for employee:', employeeEmail);
+        const apiBaseURL = getApiBaseURL();
+        const foldersApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
+        console.log('🔍 Folders API URL:', foldersApiUrl);
+        
+        const foldersResponse = await axios.get(foldersApiUrl, { 
+          timeout: 1800000, // 30 minutes timeout
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        
+        console.log('✅ Folders API response:', foldersResponse.data);
+        
+        let foldersList = [];
+        
+        // Handle different response structures for folders
+        if (foldersResponse.data && foldersResponse.data.success && foldersResponse.data.data && foldersResponse.data.data.task_folders) {
+          foldersList = foldersResponse.data.data.task_folders;
+          console.log('✅ Using task_folders from API response');
+        } else if (foldersResponse.data && foldersResponse.data.success && foldersResponse.data.data && foldersResponse.data.data.folders) {
+          foldersList = foldersResponse.data.data.folders;
+        } else if (foldersResponse.data && foldersResponse.data.folders) {
+          foldersList = foldersResponse.data.folders;
+        } else if (foldersResponse.data && foldersResponse.data.task_folders) {
+          foldersList = foldersResponse.data.task_folders;
+        } else if (foldersResponse.data && Array.isArray(foldersResponse.data)) {
+          foldersList = foldersResponse.data;
+        } else {
+          console.warn('⚠️ Unexpected folders API response structure:', foldersResponse.data);
+          foldersList = [];
+        }
+        
+        console.log('📁 Step 1 Complete: Found', foldersList.length, 'folders');
+        
+        // Sort folders by date (newest first)
+        foldersList.sort((a, b) => {
+          const dateA = new Date(a.folder_name || a.date || a.name);
+          const dateB = new Date(b.folder_name || b.date || b.name);
+          return dateB - dateA;
+        });
+        
+        // Set folders in state (but don't show folders view)
+        setFolders(foldersList);
+        setLoadingFolders(false);
+        
+        if (foldersList.length === 0) {
+          console.log('❌ No folders found for user:', employeeEmail);
+          setError('No folders found for this user');
+          setCurrentView('search'); // Go back to search if no folders
+          return;
+        }
+      }
+      
+      // Step 2: Use the live-tracking API to get paginated screenshots from all folders
+      console.log('📸 Step 2: Fetching paginated screenshots from all folders...');
+      setLoadingFolderScreenshots(true);
+      setCurrentView('screenshots'); // Go directly to screenshots view
+      
+      // Use the same API endpoint that works for direct screenshot access
+      const apiBaseURL = getApiBaseURL();
+      const apiUrl = `${apiBaseURL}/live-tracking/fast-screenshots/`;
+      const params = new URLSearchParams();
+      
+      // Set parameters to get screenshots from all folders with pagination
+      params.append('fast_mode', 'true'); // Enable fast mode
+      params.append('all_folders', 'true'); // Get screenshots from all folders/tasks
+      params.append('user', employeeEmail); // User-specific search
+      params.append('limit', actualLimit.toString()); // Respect per-page limit
+      
+      if (page > 1) {
+        const offset = (page - 1) * actualLimit;
+        params.append('offset', offset.toString());
+      }
+      
+      // Handle date filtering if active
+      if (singleDateFilter) {
+        params.append('date', singleDateFilter);
+        console.log(`�️ Applying single date filter: ${singleDateFilter}`);
+      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
+        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
+        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
+        params.append('start_date', startDate);
+        params.append('end_date', endDate);
+        console.log(`🗓️ Applying date range filter: ${startDate} to ${endDate}`);
+      }
+      
+      const fullUrl = `${apiUrl}?${params.toString()}`;
+      console.log(`🔍 Paginated API Request: ${fullUrl}`);
+      
+      const response = await axios.get(fullUrl, { 
+        timeout: 1800000, // 30 minutes timeout
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      let screenshots = [];
+      let totalCount = 0;
+      
+      // Use the EXACT same comprehensive parsing logic as the working fetchScreenshots function
+      console.log('🔍 Dynamic API Response Analysis:', {
+        hasData: !!response.data,
+        hasSuccess: !!response.data?.success,
+        hasEmployees: !!response.data?.employees,
+        hasResults: !!response.data?.results,
+        responseKeys: Object.keys(response.data || {}),
+        responseType: typeof response.data,
+        isArray: Array.isArray(response.data),
+        fullResponse: response.data
+      });
+      
+      // CRITICAL DEBUG: Log the exact response structure
+      console.log('🔍 FULL DYNAMIC API RESPONSE:', JSON.stringify(response.data, null, 2));
+      
+      if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
+        // Dynamic API structure: { success: true, employees: [...], total_count: number }
+        screenshots = response.data.employees;
+        totalCount = response.data.total_count || response.data.count || screenshots.length;
+        console.log('✅ Using dynamic API success structure with employees array');
+      } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
+        // Dynamic API structure without success flag: { employees: [...], total_count: number }
+        screenshots = response.data.employees;
+        totalCount = response.data.total_count || response.data.count || screenshots.length;
+        console.log('✅ Using dynamic API employees structure');
+      } else if (response.data && response.data.success && response.data.data && Array.isArray(response.data.data)) {
+        // Structure: { success: true, data: [...] }
+        screenshots = response.data.data;
+        totalCount = response.data.total_count || response.data.count || screenshots.length;
+        console.log('✅ Using success + data array structure');
+      } else if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
+        // Nested structure: { data: { employees: [...], summary: {...} } }
+        let allScreenshots = [];
+        const filteredEmployees = response.data.data.employees.filter(employee => {
+          if (!selectedUser) {
+            return employee.name?.toLowerCase().includes(employeeEmail.toLowerCase()) ||
+                   employee.email?.toLowerCase().includes(employeeEmail.toLowerCase()) ||
+                   employee.staff_id?.toLowerCase().includes(employeeEmail.toLowerCase());
+          }
+          const empName = (employee.name || '').toLowerCase();
+          const empEmail = (employee.email || '').toLowerCase(); 
+          const empStaffId = (employee.staff_id || '').toLowerCase();
+          const userUsername = (selectedUser.username || '').toLowerCase();
+          const userEmail = (selectedUser.email || '').toLowerCase();
+          const userDisplayName = (selectedUser.display_name || '').toLowerCase();
+          const userValue = (selectedUser.value || '').toLowerCase();
+          const userStaffId = (selectedUser.staff_id || '').toLowerCase();
+          if (empEmail && userEmail && empEmail === userEmail) return true;
+          if (empStaffId && userStaffId && empStaffId === userStaffId) return true;
+          if (empName && (
+            (userUsername && empName === userUsername) ||
+            (userDisplayName && empName === userDisplayName) ||
+            (userValue && empName === userValue)
+          )) return true;
+          return false;
+        });
+        
+        filteredEmployees.forEach(employee => {
+          if (employee.screenshots && Array.isArray(employee.screenshots)) {
+            const employeeScreenshots = employee.screenshots.map(screenshot => ({
+              ...screenshot,
+              employee_name: employee.name,
+              employee_email: employee.email,
+              employee_staff_id: employee.staff_id
+            }));
+            allScreenshots = [...allScreenshots, ...employeeScreenshots];
+          }
+        });
+        
+        screenshots = allScreenshots;
+        totalCount = response.data.data.summary?.total_screenshots || response.data.data.total_count || screenshots.length;
+        console.log('✅ Using nested employees structure with screenshots');
+      } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+        // Structure: { screenshots: [...], total_count: number }
+        screenshots = response.data.screenshots;
+        totalCount = response.data.total_count || response.data.count || screenshots.length;
+        console.log('✅ Using screenshots array structure');
+      } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+        // Structure: { results: [...], count: number }
+        screenshots = response.data.results;
+        totalCount = response.data.count || response.data.total_count || screenshots.length;
+        console.log('✅ Using results array structure');
+      } else if (Array.isArray(response.data)) {
+        // Direct array structure: [...]
+        screenshots = response.data;
+        totalCount = screenshots.length;
+        console.log('✅ Using direct array structure');
+      } else {
+        console.warn('⚠️ Unexpected dynamic API response structure:', response.data);
+        console.log('🔍 Full response analysis:', {
+          data: response.data,
+          dataType: typeof response.data,
+          isArray: Array.isArray(response.data),
+          keys: response.data ? Object.keys(response.data) : []
+        });
+        
+        // FALLBACK: Try to extract any screenshot data from the response
+        let fallbackScreenshots = [];
+        
+        // Try various possible structures
+        if (response.data && Array.isArray(response.data)) {
+          fallbackScreenshots = response.data;
+        } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+          fallbackScreenshots = response.data.results;
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          fallbackScreenshots = response.data.data;
+        } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+          fallbackScreenshots = response.data.screenshots;
+        } else if (response.data && typeof response.data === 'object') {
+          // Look for any array in the response
+          const keys = Object.keys(response.data);
+          for (const key of keys) {
+            if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
+              console.log(`🔍 Found array in key "${key}":`, response.data[key].slice(0, 2));
+              fallbackScreenshots = response.data[key];
+              break;
+            }
+          }
+        }
+        
+        screenshots = fallbackScreenshots;
+        totalCount = response.data?.total_count || response.data?.count || fallbackScreenshots.length;
+        console.log('🔧 FALLBACK: Extracted screenshots using fallback logic:', {
+          screenshotsFound: fallbackScreenshots.length,
+          totalCount,
+          firstScreenshot: fallbackScreenshots[0]
+        });
+      }
+      
+      console.log('🎉 Step 2 Complete: Loaded paginated screenshots using working parsing logic');
+      console.log(`📊 Paginated results: ${screenshots.length} screenshots on page ${page}, total: ${totalCount}`);
+      console.log('🔍 SCREENSHOTS STATE DEBUG:', {
+        screenshotsLength: screenshots.length,
+        firstScreenshot: screenshots[0],
+        lastScreenshot: screenshots[screenshots.length - 1],
+        sampleScreenshots: screenshots.slice(0, 3),
+        totalCount: totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / actualLimit)
+      });
+      
+      // Set paginated screenshots in state (using same state as working function)
+      setFolderScreenshots(screenshots);
+      setFilteredFolderScreenshots(screenshots);
+      setFolderPagination({
+        page: page,
+        totalPages: Math.ceil(totalCount / actualLimit),
+        totalCount: totalCount
+      });
+      
+      // Set a "virtual" selected folder that represents all folders
+      setSelectedFolder({
+        folder_name: 'All Folders',
+        screenshot_count: totalCount,
+        date: 'Combined'
+      });
+      
+      // Create fake folders list for state consistency
+      setFolders([{
+        folder_name: 'All Folders',
+        screenshot_count: totalCount,
+        date: 'Combined'
+      }]);
+      
+      setError(''); // Clear any loading messages
+      console.log('✅ Successfully loaded paginated screenshots using working live-tracking API:', {
+        currentPage: page,
+        screenshotsOnPage: screenshots.length,
+        totalScreenshots: totalCount,
+        totalPages: Math.ceil(totalCount / actualLimit),
+        perPage: actualLimit,
+        user: selectedUser?.display_name,
+        apiUsed: 'live-tracking/fast-screenshots',
+        endpoint: fullUrl
+      });
+      
+    } catch (err) {
+      console.error('❌ Error in fetchEmployeeFoldersAndAllScreenshots:', err);
+      
+      if (err.response) {
+        setError(`Server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch folders and screenshots'}`);
+      } else if (err.request) {
+        setError('Network error: Unable to connect to server. Please check if your backend server is running on http://localhost:8000');
+      } else {
+        setError('An unexpected error occurred while fetching folders and screenshots');
+      }
+      
+      setFolders([]);
+      setFolderScreenshots([]);
+      setFilteredFolderScreenshots([]);
+      
+    } finally {
+      setLoadingFolders(false);
+      setLoadingFolderScreenshots(false);
+    }
+  };
+
   // Format screenshot data for display (ULTRA ENHANCED DEBUGGING VERSION)
   const formatScreenshotData = (screenshot, index) => {
     console.log('🔧 🚨 ULTRA DEBUGGING - Full screenshot object received:', screenshot);
@@ -2819,8 +3238,8 @@ const ActivityStream = () => {
       setCurrentPage(page);
       console.log('📸 Frontend pagination applied:', paginatedScreenshots.length, 'screenshots for page', page);
     } else {
-      // For quick search and date filter, fetch from backend
-      fetchScreenshots(searchTerm, 20, page);
+      // For quick search, fetch from backend with current per-page limit
+      fetchScreenshots(searchTerm, perPageLimit, page);
     }
   };
 
@@ -2835,7 +3254,7 @@ const ActivityStream = () => {
         isDarkMode={isDarkMode}
         theme={theme}
         isLoading={loading}
-        itemsPerPage={20}
+        itemsPerPage={perPageLimit}
         totalItems={totalCount}
         currentItems={screenshots.length}
         context="screenshots"
@@ -3281,6 +3700,35 @@ const ActivityStream = () => {
       const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
       fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
     }
+    
+    setFilterUpdateTrigger(prev => prev + 1);
+    console.log(`🗓️ Applied date filter: ${dayjs(startDate).format('YYYY-MM-DD')} to ${dayjs(endDate).format('YYYY-MM-DD')}`);
+  };
+
+  // DateSelector handler - integrates with existing filtering system
+  const handleDateSelectorChange = (dateString) => {
+    console.log('📅 DateSelector changed to:', dateString);
+    setSelectedDate(dateString);
+    
+    // Apply single date filter when user selects a date from DateSelector
+    setSingleDateFilter(dateString);
+    setIsDateFilterActive(false); // Clear range filter
+    setDateRange([null, null]); // Clear range picker
+    
+    // Trigger filtering based on current view
+    if (currentView === 'search' && isUserSelected && selectedUser) {
+      setCurrentPage(1);
+      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      fetchScreenshots(searchTerm, 20, 1);
+    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
+      setFolderPagination(prev => ({ ...prev, page: 1 }));
+      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+    }
+    
+    setFilterUpdateTrigger(prev => prev + 1);
+    console.log(`📅 Applied DateSelector single date filter: ${dateString}`);
   };
 
   // Navigation handlers for 3-level system
@@ -3327,20 +3775,17 @@ const ActivityStream = () => {
     console.log('📄 Per-page limit changed from', perPageLimit, 'to', newLimit);
     setPerPageLimit(newLimit);
     
-    // If we're currently viewing screenshots, refetch with new limit
+    // Simple handling for search view
+    if (currentView === 'search' && isUserSelected && selectedUser) {
+      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
+      console.log('📄 Refetching with new limit:', newLimit);
+      fetchScreenshots(searchTerm, newLimit, 1);
+    }
+    
+    // Keep folder logic for when users go to specific folders
     if (currentView === 'screenshots' && selectedUser && selectedFolder) {
       const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
       const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      
-      console.log('📄 Refetching screenshots with new limit:', newLimit, 'for folder:', folderName);
-      console.log('📄 Current folder details:', {
-        selectedFolder: selectedFolder,
-        screenshot_count: selectedFolder?.screenshot_count,
-        userEmail: userEmail,
-        folderName: folderName
-      });
-      
-      // Reset to page 1 with new limit
       fetchFolderScreenshots(userEmail, folderName, 1, newLimit);
     }
   };
@@ -3500,14 +3945,22 @@ const ActivityStream = () => {
       toPage: page,
       totalPages: folderPagination.totalPages,
       folderName: selectedFolder.folder_name,
-      estimatedCount: selectedFolder?.screenshot_count
+      estimatedCount: selectedFolder?.screenshot_count,
+      isAllFolders: selectedFolder.folder_name === 'All Folders'
     });
     
     const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-    const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
     
-    // Use the selected per-page limit
-    fetchFolderScreenshots(userEmail, folderName, page, perPageLimit);
+    // Check if we're viewing all folders or a specific folder
+    if (selectedFolder.folder_name === 'All Folders') {
+      // Use the new paginated function for all folders
+      console.log('📄 Loading page', page, 'of all folders with', perPageLimit, 'per page');
+      fetchEmployeeFoldersAndAllScreenshots(userEmail, page, perPageLimit);
+    } else {
+      // Use the original function for specific folder
+      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
+      fetchFolderScreenshots(userEmail, folderName, page, perPageLimit);
+    }
   };
 
   // Render breadcrumb navigation
@@ -3532,7 +3985,11 @@ const ActivityStream = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator>›</BreadcrumbSeparator>
             <BreadcrumbItem active>
-              📸 {selectedFolder?.folder_name || selectedFolder?.date} Screenshots
+              {selectedFolder?.folder_name === 'All Folders' ? (
+                <>📸 All Screenshots from All Folders</>
+              ) : (
+                <>📸 {selectedFolder?.folder_name || selectedFolder?.date} Screenshots</>
+              )}
             </BreadcrumbItem>
           </>
         )}
@@ -3575,6 +4032,14 @@ const ActivityStream = () => {
         </SearchInfo> */}
 
         {/* Date Filter Section for Folders */}
+        
+        {/* DateSelector Component - Visual date selector */}
+        <DateSelector 
+          isDarkMode={isDarkMode}
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelectorChange}
+        />
+        
         <Box sx={{ 
           margin: '16px 0',
           padding: '16px',
@@ -3920,7 +4385,15 @@ const ActivityStream = () => {
     return (
       <>
         <SearchInfo theme={theme} isDarkMode={isDarkMode}>
-          📸 Showing <strong>{filteredFolderScreenshots.length}</strong> of <strong>{folderScreenshots.length}</strong> screenshots from folder <strong>{selectedFolder?.folder_name}</strong> 
+          {selectedFolder?.folder_name === 'All Folders' ? (
+            <>
+              📸 Showing <strong>{filteredFolderScreenshots.length}</strong> of <strong>{folderScreenshots.length}</strong> screenshots from <strong>all folders/tasks</strong> for <strong>{selectedUser?.display_name}</strong>
+            </>
+          ) : (
+            <>
+              📸 Showing <strong>{filteredFolderScreenshots.length}</strong> of <strong>{folderScreenshots.length}</strong> screenshots from folder <strong>{selectedFolder?.folder_name}</strong>
+            </>
+          )}
           {(isDateFilterActive || singleDateFilter) && (
             <span style={{ color: '#10b981', fontWeight: '500' }}>
               {' '}(filtered by date)
@@ -3928,7 +4401,11 @@ const ActivityStream = () => {
           )}
           <br />
           <small>
-            Total in folder: {folderPagination.totalCount} | Page {folderPagination.page} of {folderPagination.totalPages} | {perPageLimit} per page
+            {selectedFolder?.folder_name === 'All Folders' ? (
+              <>Total from all folders: {folderPagination.totalCount} | Page {folderPagination.page} of {folderPagination.totalPages} | {perPageLimit} per page</>
+            ) : (
+              <>Total in folder: {folderPagination.totalCount} | Page {folderPagination.page} of {folderPagination.totalPages} | {perPageLimit} per page</>
+            )}
           </small>
           {selectedFolder && selectedFolder.screenshot_count !== folderPagination.totalCount && (
             <>
@@ -4375,26 +4852,22 @@ const ActivityStream = () => {
                     setSearch(newValue.display_name);
                     setSearchSuggestions([]);
                     setHasSearched(true);
-                    setCurrentView('search');
+                    setCurrentView('folders'); // Start with folders view but will auto-navigate
                     
                     console.log('🔍 USER SELECTION DEBUG:', {
                       selectedUser: newValue,
                       isUserSelected: true,
                       hasSearched: true,
-                      currentView: 'search',
+                      currentView: 'folders',
                       aboutToFetchFolders: true
                     });
                     
                     const userEmail = newValue.search_value || newValue.email || newValue.username;
-                    console.log('🔍 User selected, about to fetch folders:');
+                    console.log('🔍 User selected, fetching folders (background):');
                     console.log('   - Display name:', newValue.display_name);
                     console.log('   - Email to use for API:', userEmail);
-                    console.log('   - Available email fields:', {
-                      search_value: newValue.search_value,
-                      email: newValue.email,
-                      username: newValue.username,
-                      value: newValue.value
-                    });
+                    
+                    // Fetch folders in background and auto-navigate to all screenshots
                     fetchEmployeeFolders(userEmail);
                   } else if (typeof newValue === 'string' && newValue.trim()) {
                     setSearch(newValue);
@@ -4624,13 +5097,21 @@ const ActivityStream = () => {
           {/* Date Filter Section - Show when user is selected and we have screenshots or are searching */}
           {((currentView === 'search' && isUserSelected && selectedUser && (hasSearched || screenshots.length > 0)) ||
             (currentView === 'screenshots' && selectedFolder && folderScreenshots.length > 0)) && (
-            <Box sx={{ 
-              margin: '16px 0',
-              padding: '16px',
-              backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
-              borderRadius: '8px',
-              border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
-            }}>
+            <>
+              {/* DateSelector Component - Visual date selector */}
+              <DateSelector 
+                isDarkMode={isDarkMode}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelectorChange}
+              />
+              
+              <Box sx={{ 
+                margin: '16px 0',
+                padding: '16px',
+                backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+                borderRadius: '8px',
+                border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+              }}>
               <div style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
@@ -4843,6 +5324,7 @@ const ActivityStream = () => {
                 )}
               </div>
             </Box>
+            </>
           )}
 
           {currentView === 'search' && search && !isUserSelected && searchSuggestions.length > 0 && (
