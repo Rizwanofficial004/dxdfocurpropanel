@@ -112,15 +112,49 @@ const YearText = styled.div`
   line-height: 1;
 `;
 
-const DateSelector = ({ isDarkMode, selectedDate, onDateSelect }) => {
+const DateSelector = ({ isDarkMode, selectedDate, onDateSelect, selectedMonth }) => {
   const scrollContainerRef = useRef(null);
   
-  // Generate dates array (from 15 days ago to 15 days ahead)
+  // Generate dates array based on selectedMonth or current month
   const dates = React.useMemo(() => {
-    const today = dayjs();
+    const currentYear = dayjs().year();
+    let targetMonth;
+    
+    if (!selectedMonth || selectedMonth === 'all') {
+      // Show last 15 days to next 15 days if no month selected
+      const today = dayjs();
+      const datesArray = [];
+      for (let i = -15; i <= 15; i++) {
+        const date = today.add(i, 'day');
+        datesArray.push({
+          day: date.format('DD'),
+          month: date.format('MMM'),
+          year: date.format('YYYY'),
+          fullDate: date.format('YYYY-MM-DD')
+        });
+      }
+      return datesArray;
+    } else if (selectedMonth === 'current') {
+      targetMonth = dayjs().month(); // Current month (0-based)
+    } else {
+      // Convert month string to number
+      const monthMapping = {
+        'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3, 'may': 4, 'jun': 5,
+        'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11
+      };
+      targetMonth = monthMapping[selectedMonth];
+      if (targetMonth === undefined) {
+        targetMonth = dayjs().month(); // Fallback to current month
+      }
+    }
+    
+    // Create a date for the first day of the target month
+    const startOfMonth = dayjs().year(currentYear).month(targetMonth).startOf('month');
+    const daysInMonth = startOfMonth.daysInMonth();
+    
     const datesArray = [];
-    for (let i = -15; i <= 15; i++) {
-      const date = today.add(i, 'day');
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = startOfMonth.date(day);
       datesArray.push({
         day: date.format('DD'),
         month: date.format('MMM'),
@@ -129,7 +163,7 @@ const DateSelector = ({ isDarkMode, selectedDate, onDateSelect }) => {
       });
     }
     return datesArray;
-  }, []);
+  }, [selectedMonth]);
 
   // Handle scroll buttons
   const handleScroll = (direction) => {

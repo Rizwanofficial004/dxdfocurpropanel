@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Button, TextField, Popover, Box, CircularProgress, Autocomplete } from '@mui/material';
+import { Button, TextField, Popover, Box, CircularProgress, Autocomplete, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
@@ -221,6 +221,27 @@ const ActivityStream = () => {
   
   // DateSelector state - for the new date selector component
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD')); // Default to today
+  
+  // Month dropdown state
+  const [selectedMonth, setSelectedMonth] = useState('all'); // 'all', 'current', 'jan', 'feb', etc.
+  
+  // Month options for dropdown
+  const monthOptions = [
+    { value: 'all', label: 'All Months' },
+    { value: 'current', label: 'Current Month' },
+    { value: 'jan', label: 'January' },
+    { value: 'feb', label: 'February' },
+    { value: 'mar', label: 'March' },
+    { value: 'apr', label: 'April' },
+    { value: 'may', label: 'May' },
+    { value: 'jun', label: 'June' },
+    { value: 'jul', label: 'July' },
+    { value: 'aug', label: 'August' },
+    { value: 'sep', label: 'September' },
+    { value: 'oct', label: 'October' },
+    { value: 'nov', label: 'November' },
+    { value: 'dec', label: 'December' }
+  ];
   
   // Search suggestions states
   const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -3731,6 +3752,39 @@ const ActivityStream = () => {
     console.log(`📅 Applied DateSelector single date filter: ${dateString}`);
   };
 
+  // Month filter handler
+  const handleMonthChange = (event) => {
+    const month = event.target.value;
+    setSelectedMonth(month);
+    console.log('📅 Month filter changed to:', month);
+    
+    // Apply month-based filtering
+    if (month === 'all') {
+      // Clear month filter - show all data
+      setIsDateFilterActive(false);
+      setSingleDateFilter('');
+      setDateRange([null, null]);
+    } else if (month === 'current') {
+      // Filter to current month
+      const startOfMonth = dayjs().startOf('month');
+      const endOfMonth = dayjs().endOf('month');
+      applyDateFilter(startOfMonth, endOfMonth);
+    } else {
+      // Filter to specific month (jan, feb, etc.)
+      const currentYear = dayjs().year();
+      const monthNumber = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
+                          'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month);
+      
+      if (monthNumber !== -1) {
+        const startOfMonth = dayjs().year(currentYear).month(monthNumber).startOf('month');
+        const endOfMonth = dayjs().year(currentYear).month(monthNumber).endOf('month');
+        applyDateFilter(startOfMonth, endOfMonth);
+      }
+    }
+    
+    setFilterUpdateTrigger(prev => prev + 1);
+  };
+
   // Navigation handlers for 3-level system
   const handleBackToSearch = () => {
     setCurrentView('search');
@@ -5094,24 +5148,112 @@ const ActivityStream = () => {
             </SearchInfo>
           )}
 
-          {/* Date Filter Section - Show when user is selected and we have screenshots or are searching */}
-          {((currentView === 'search' && isUserSelected && selectedUser && (hasSearched || screenshots.length > 0)) ||
-            (currentView === 'screenshots' && selectedFolder && folderScreenshots.length > 0)) && (
-            <>
-              {/* DateSelector Component - Visual date selector */}
-              <DateSelector 
-                isDarkMode={isDarkMode}
-                selectedDate={selectedDate}
-                onDateSelect={handleDateSelectorChange}
-              />
-              
-              <Box sx={{ 
-                margin: '16px 0',
-                padding: '16px',
-                backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
-                borderRadius: '8px',
-                border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+          {/* Month and Date Filter Section - Always visible for easy navigation */}
+          <Box sx={{ 
+            margin: '16px 0',
+            padding: '16px',
+            backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+            borderRadius: '8px',
+            border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '12px' 
+            }}>
+              <div style={{ 
+                fontSize: '14px', 
+                fontWeight: '600',
+                color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                marginBottom: '8px'
               }}>
+                📅 Please add date range
+              </div>
+
+              {/* Month Filter and Calendar Row on same line */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '16px', 
+                marginBottom: '12px',
+                flexWrap: 'wrap' 
+              }}>
+                <FormControl size="small" sx={{ minWidth: 150, flexShrink: 0 }}>
+                  <InputLabel 
+                    sx={{ 
+                      color: isDarkMode ? '#9ca3af' : '#6b7280',
+                      '&.Mui-focused': {
+                        color: isDarkMode ? '#10b981' : '#059669'
+                      }
+                    }}
+                  >
+                    Month Filter
+                  </InputLabel>
+                  <Select
+                    value={selectedMonth}
+                    onChange={handleMonthChange}
+                    label="Month Filter"
+                    sx={{
+                      backgroundColor: isDarkMode ? '#4b5563' : '#ffffff',
+                      color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDarkMode ? '#6b7280' : '#d1d5db'
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDarkMode ? '#10b981' : '#059669'
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: isDarkMode ? '#10b981' : '#059669'
+                      }
+                    }}
+                  >
+                    {monthOptions.map((month) => (
+                      <MenuItem key={month.value} value={month.value} sx={{ fontSize: '12px' }}>
+                        {month.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* DateSelector Component - Visual date selector on same line */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <DateSelector 
+                    isDarkMode={isDarkMode}
+                    selectedDate={selectedDate}
+                    onDateSelect={handleDateSelectorChange}
+                    selectedMonth={selectedMonth}
+                  />
+                </div>
+                
+                {/* Month Filter Status Indicator */}
+                {selectedMonth !== 'all' && (
+                  <div style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: isDarkMode ? '#065f46' : '#d1fae5',
+                    color: isDarkMode ? '#34d399' : '#065f46',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    border: `1px solid ${isDarkMode ? '#34d399' : '#10b981'}`
+                  }}>
+                    📅 Month: {selectedMonth === 'current' ? 'Current Month' : 
+                      selectedMonth.charAt(0).toUpperCase() + selectedMonth.slice(1)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Box>
+
+          {/* Date Range Filter Section - Only show when user is selected */}
+          {((currentView === 'search' && isUserSelected && selectedUser) ||
+            (currentView === 'screenshots' && selectedFolder)) && (
+            <Box sx={{ 
+              margin: '16px 0',
+              padding: '16px',
+              backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
+              borderRadius: '8px',
+              border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`
+            }}>
               <div style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
@@ -5123,7 +5265,7 @@ const ActivityStream = () => {
                   color: isDarkMode ? '#f3f4f6' : '#1f2937',
                   marginBottom: '8px'
                 }}>
-                  📅 Please add date range
+                  📅 Advanced Date Range Filters
                 </div>
 
                 {/* Date Range Picker */}
@@ -5324,7 +5466,6 @@ const ActivityStream = () => {
                 )}
               </div>
             </Box>
-            </>
           )}
 
           {currentView === 'search' && search && !isUserSelected && searchSuggestions.length > 0 && (
