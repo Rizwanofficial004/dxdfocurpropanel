@@ -12,6 +12,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { getApiBaseURL } from '../../../config/api';
 import { retryApiCall, retryExtremeApiCall } from '../../../config/apiConfig';
 import ImageModal from '../common/ImageModal';
+import Pagination from './Pagination';
 import {
   Wrapper,
   Container,
@@ -28,9 +29,6 @@ import {
   TaskTime,
   ImageUrl,
   BackendStatusBadge,
-  PaginationContainer,
-  PaginationButton,
-  PaginationInfo,
   LoadingContainer,
   ErrorMessage,
   NoDataMessage,
@@ -2828,55 +2826,20 @@ const ActivityStream = () => {
 
   const renderPagination = () => {
     if (!hasSearched || screenshots.length === 0 || totalPages <= 1) return null;
-    const getPageNumbers = () => {
-      const delta = 2;
-      const range = [];
-      const rangeWithDots = [];
-      for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-        range.push(i);
-      }
-      if (currentPage - delta > 2) {
-        rangeWithDots.push(1, '...');
-      } else {
-        rangeWithDots.push(1);
-      }
-      rangeWithDots.push(...range);
-      if (currentPage + delta < totalPages - 1) {
-        rangeWithDots.push('...', totalPages);
-      } else {
-        rangeWithDots.push(totalPages);
-      }
-      return rangeWithDots;
-    };
+    
     return (
-      <PaginationContainer theme={theme} isDarkMode={isDarkMode}>
-        <PaginationButton
-          theme={theme} isDarkMode={isDarkMode}
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1 || loading}
-        >Previous</PaginationButton>
-        {getPageNumbers().map((page, index) =>
-          page === '...' ? (
-            <span key={index} style={{ padding: '8px 4px', color: '#6b7280' }}>...</span>
-          ) : (
-            <PaginationButton
-              theme={theme} isDarkMode={isDarkMode}
-              key={index}
-              active={page === currentPage}
-              onClick={() => handlePageChange(page)}
-              disabled={loading}
-            >{page}</PaginationButton>
-          )
-        )}
-        <PaginationButton
-          theme={theme} isDarkMode={isDarkMode}
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || loading}
-        >Next</PaginationButton>
-        <PaginationInfo theme={theme} isDarkMode={isDarkMode}>
-          Page {currentPage} of {totalPages} ({screenshots.length} of {totalCount} screenshots)
-        </PaginationInfo>
-      </PaginationContainer>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        isDarkMode={isDarkMode}
+        theme={theme}
+        isLoading={loading}
+        itemsPerPage={20}
+        totalItems={totalCount}
+        currentItems={screenshots.length}
+        context="screenshots"
+      />
     );
   };
 
@@ -4287,127 +4250,6 @@ const ActivityStream = () => {
                     </div>
                   </div>
                   
-                  {/*  URLs Section */}
-                  {/* <div style={{ marginBottom: '6px' }}>
-                    <div style={{ fontWeight: '500', fontSize: '8px', marginBottom: '2px', opacity: 0.8 }}>🔗 URLs:</div>
-                    <div style={{ fontSize: '7px', paddingLeft: '8px' }}>
-                      {screenshot?.presigned_url && (
-                        <div style={{ 
-                          marginBottom: '3px', 
-                          padding: '4px 6px', 
-                          backgroundColor: '#ecfdf5', 
-                          borderRadius: '4px',
-                          border: '2px solid #10b981',
-                          boxShadow: '0 1px 3px rgba(16, 185, 129, 0.1)'
-                        }}>
-                          <div style={{ 
-                            color: '#10b981', 
-                            fontWeight: '700', 
-                            marginBottom: '2px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}>
-                            ✅ PRESIGNED URL (LIVE!)
-                            <span style={{ 
-                              fontSize: '6px', 
-                              padding: '1px 4px', 
-                              backgroundColor: '#10b981', 
-                              color: 'white', 
-                              borderRadius: '2px' 
-                            }}>
-                              ACTIVE
-                            </span>
-                          </div>
-                          <div style={{ 
-                            fontFamily: 'monospace', 
-                            fontSize: '6px', 
-                            wordBreak: 'break-all', 
-                            color: '#065f46',
-                            lineHeight: '1.2',
-                            backgroundColor: '#f0fdf4',
-                            padding: '2px 4px',
-                            borderRadius: '2px',
-                            border: '1px solid #bbf7d0'
-                          }}>
-                            {screenshot.presigned_url.length > 120 ? 
-                              screenshot.presigned_url.substring(0, 120) + '...' : 
-                              screenshot.presigned_url
-                            }
-                          </div>
-                          <div style={{ 
-                            fontSize: '6px', 
-                            color: '#10b981', 
-                            marginTop: '2px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}>
-                            <span>🏃 Direct S3 Access</span>
-                            <span style={{ opacity: 0.7 }}>
-                              {screenshot.presigned_url.includes('X-Amz-Expires') ? 
-                                '⏰ Expires: ' + (screenshot.presigned_url.match(/X-Amz-Expires=(\d+)/) ? 
-                                  Math.floor(parseInt(screenshot.presigned_url.match(/X-Amz-Expires=(\d+)/)[1]) / 3600) + 'h' : 
-                                  '2h'
-                                ) : 
-                                '⏰ 2h'
-                              }
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      {screenshot?.thumbnail_url && (
-                        <div style={{ 
-                          marginBottom: '2px',
-                          padding: '2px 4px',
-                          backgroundColor: '#fef3c7',
-                          borderRadius: '3px',
-                          border: '1px solid #f59e0b'
-                        }}>
-                          <span style={{ color: '#f59e0b', fontWeight: '600' }}>🖼️ Thumbnail:</span>
-                          <div style={{ fontFamily: 'monospace', fontSize: '6px', wordBreak: 'break-all', color: '#92400e' }}>
-                            {screenshot.thumbnail_url}
-                          </div>
-                        </div>
-                      )}
-                      <div style={{ 
-                        marginTop: '3px', 
-                        padding: '3px 6px', 
-                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
-                        borderRadius: '4px',
-                        border: `1px solid ${isDarkMode ? '#334155' : '#cbd5e1'}`
-                      }}>
-                        <div style={{ color: '#3b82f6', fontWeight: '600', marginBottom: '1px' }}>🛠️ Generated URL:</div>
-                        <div style={{ 
-                          fontFamily: 'monospace', 
-                          fontSize: '6px', 
-                          wordBreak: 'break-all', 
-                          color: isDarkMode ? '#94a3b8' : '#475569',
-                          lineHeight: '1.2'
-                        }}>
-                          {(() => {
-                            // Generate URL using same logic as image display
-                            let generatedUrl = '';
-                            if (screenshot?.presigned_url && screenshot.presigned_url.includes('X-Amz-Signature')) {
-                              generatedUrl = screenshot.presigned_url;
-                            } else if (screenshot?.url && screenshot.url.includes('X-Amz-Signature')) {
-                              generatedUrl = screenshot.url;
-                            } else if (screenshot?.s3_key) {
-                              generatedUrl = `http://localhost:8000/api/proxy/screenshots/${screenshot.s3_key}`;
-                            } else if (screenshot?.url) {
-                              generatedUrl = screenshot.url;
-                            } else {
-                              generatedUrl = '⚠️ No URL available';
-                            }
-                            
-                            return generatedUrl.length > 120 ? 
-                              generatedUrl.substring(0, 120) + '...' : 
-                              generatedUrl;
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-                  </div> */}
                   
                   {/* 🏷️ Additional Fields */}
                   {Object.keys(screenshot || {}).filter(key => 
@@ -4442,39 +4284,18 @@ const ActivityStream = () => {
         </CardGrid>
 
         {folderPagination.totalPages > 1 && (
-          <PaginationContainer theme={theme} isDarkMode={isDarkMode}>
-            <PaginationButton
-              theme={theme} isDarkMode={isDarkMode}
-              onClick={() => handleFolderPageChange(folderPagination.page - 1)}
-              disabled={folderPagination.page === 1 || loadingFolderScreenshots}
-            >
-              Previous
-            </PaginationButton>
-            
-            {Array.from({ length: folderPagination.totalPages }, (_, i) => i + 1).map(page => (
-              <PaginationButton
-                theme={theme} isDarkMode={isDarkMode}
-                key={page}
-                active={page === folderPagination.page}
-                onClick={() => handleFolderPageChange(page)}
-                disabled={loadingFolderScreenshots}
-              >
-                {page}
-              </PaginationButton>
-            ))}
-            
-            <PaginationButton
-              theme={theme} isDarkMode={isDarkMode}
-              onClick={() => handleFolderPageChange(folderPagination.page + 1)}
-              disabled={folderPagination.page === folderPagination.totalPages || loadingFolderScreenshots}
-            >
-              Next
-            </PaginationButton>
-            
-            <PaginationInfo theme={theme} isDarkMode={isDarkMode}>
-              Page {folderPagination.page} of {folderPagination.totalPages} ({folderScreenshots.length} of {folderPagination.totalCount} screenshots, showing {perPageLimit} per page)
-            </PaginationInfo>
-          </PaginationContainer>
+          <Pagination
+            currentPage={folderPagination.page}
+            totalPages={folderPagination.totalPages}
+            onPageChange={handleFolderPageChange}
+            isDarkMode={isDarkMode}
+            theme={theme}
+            isLoading={loadingFolderScreenshots}
+            itemsPerPage={perPageLimit}
+            totalItems={folderPagination.totalCount}
+            currentItems={folderScreenshots.length}
+            context="folderScreenshots"
+          />
         )}
       </>
     );

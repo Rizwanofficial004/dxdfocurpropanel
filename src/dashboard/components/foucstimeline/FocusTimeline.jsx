@@ -1275,10 +1275,10 @@ const FocusTimeline = () => {
               {fileLogs.map((log, index) => (
                 <LogItem key={log.id || index}>
                   <LogImage 
-                    src={log.screenshot_url || 'https://via.placeholder.com/80x60.png?text=Activity'} 
+                    src={log.screenshot_url || 'https://centrumhotelcyprus.com/wp-content/uploads/2024/09/placeholder-1-1.png'} 
                     alt={log.action}
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/80x60.png?text=No+Image';
+                      e.target.src = 'https://centrumhotelcyprus.com/wp-content/uploads/2024/09/placeholder-1-1.png';
                     }}
                   />
                   <LogContent>
