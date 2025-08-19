@@ -8,6 +8,7 @@ from . import enhanced_api_views
 from . import all_screenshots_api
 from . import fast_screenshots_api
 from . import ultra_fast_screenshots_api
+from . import comprehensive_scanner_api
 from django.conf import settings
 from django.conf.urls.static import static
 from s3_screenshots_users_api import s3_screenshots_users_api
@@ -144,6 +145,13 @@ urlpatterns = [
     
     # Bulk Operations API
     path('settings/bulk/', settings_apis.bulk_settings_api, name='api_bulk_settings'),
+    
+    # ==================== COMPREHENSIVE SCANNER APIs ====================
+    # Comprehensive Employee Folder Scanner - Scan ALL employees and ALL folders with S3 pagination
+    path('screenshots/comprehensive-scan/', comprehensive_scanner_api.comprehensive_employee_folder_scanner_api, name='api_comprehensive_employee_folder_scanner'),
+    
+    # Enhanced Single Employee Scanner - Comprehensive scan for specific employee
+    path('screenshots/employee/<str:employee_email>/comprehensive-scan/', comprehensive_scanner_api.enhanced_single_employee_scanner_api, name='api_enhanced_single_employee_scanner'),
 ]
 
 if settings.DEBUG:
