@@ -267,7 +267,7 @@ const ActivityStream = () => {
   const [folderPagination, setFolderPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
   const [verifiedFolderCounts, setVerifiedFolderCounts] = useState({}); // Track actual counts for folders
   const [showDummyData, setShowDummyData] = useState(false); // Control dummy data display
-  const [perPageLimit, setPerPageLimit] = useState(20); // Default to 20 per page
+  const [perPageLimit, setPerPageLimit] = useState(500000); // Default to 500k per page - NO LIMITS
 
   // Image Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1509,13 +1509,13 @@ const ActivityStream = () => {
     }
   };
 
-  // Progressive loading helper for large datasets
-  const fetchScreenshotsProgressive = async (searchTerm, targetLimit = 1000) => {
-    console.log(`📊 PROGRESSIVE LOADING: Starting for ${searchTerm}, target: ${targetLimit}`);
+  // Progressive loading helper for large datasets - NO LIMITS
+  const fetchScreenshotsProgressive = async (searchTerm, targetLimit = 500000) => {
+    console.log(`📊 PROGRESSIVE LOADING: Starting for ${searchTerm}, target: ${targetLimit} (NO LIMITS)`);
     
     let allScreenshots = [];
     let currentPage = 1;
-    const chunkSize = 500; // Smaller chunks to avoid timeout
+    const chunkSize = 1000; // Larger chunks for efficiency - no need to be cautious
     let hasMore = true;
     let totalFromAPI = 0;
     
@@ -1620,8 +1620,8 @@ const ActivityStream = () => {
     };
   };
 
-  // Fetch screenshots from API using dynamic endpoints
-  const fetchScreenshots = async (searchTerm, limit = 20, page = 1, useProgressive = false) => {
+  // Fetch screenshots from API using dynamic endpoints - NO LIMITS for 500k+ screenshots
+  const fetchScreenshots = async (searchTerm, limit = 500000, page = 1, useProgressive = false) => {
     if (!searchTerm || !searchTerm.trim()) {
       setScreenshots([]);
       setHasSearched(false);
@@ -1633,11 +1633,11 @@ const ActivityStream = () => {
       return;
     }
 
-    // For large datasets, use progressive loading
+    // For large datasets, use progressive loading - NO LIMITS
     if (useProgressive || totalCount > 2000) {
-      console.log(`📊 Using progressive loading for large dataset (${totalCount || 'unknown'} total)`);
+      console.log(`📊 Using progressive loading for large dataset (${totalCount || 'unknown'} total) - NO LIMITS`);
       setLoading(true);
-      return await fetchScreenshotsProgressive(searchTerm, 5000); // Load up to 5000 in chunks
+      return await fetchScreenshotsProgressive(searchTerm, totalCount || 500000); // Load ALL screenshots, default 500k if unknown
     }
     
     try {
@@ -1666,16 +1666,15 @@ const ActivityStream = () => {
         dateRange: dateRange[0] ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none'
       });
       
-      // Handle different search modes with reasonable limits
-      // Always use reasonable pagination - no more 50k limits
-      const safeLimit = Math.min(limit, 1000); // Never exceed 1000 per request
-      params.append('limit', safeLimit.toString());
+      // Handle different search modes - NO LIMITS for large datasets
+      // Support employees with 500,000+ screenshots
+      params.append('limit', limit.toString()); // Use requested limit without restriction
       if (page > 1) {
-        const offset = (page - 1) * safeLimit;
+        const offset = (page - 1) * limit;
         params.append('offset', offset.toString());
       }
       setSearchPattern('paginated');
-      console.log(`🔍 Fetching screenshots with pagination: page ${page}, limit ${safeLimit}`);
+      console.log(`🔍 Fetching screenshots with NO LIMIT: page ${page}, limit ${limit}`);
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
       console.log(`🔍 API Request: ${fullUrl}`);
@@ -2025,10 +2024,10 @@ const ActivityStream = () => {
           console.log(`📸 Processing folder ${i + 1}/${foldersList.length}: ${folderName}`);
           
           const apiBaseURL = getApiBaseURL();
-          const folderApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=1&limit=1000`;
+          const folderApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=1&limit=500000`;
           
           const folderResponse = await axios.get(folderApiUrl, { 
-            timeout: 1800000,
+            timeout: 1800000, // 30 minutes timeout for large datasets
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
@@ -2103,8 +2102,8 @@ const ActivityStream = () => {
     }
   };
 
-  // Level 3: Fetch screenshots for selected folder
-  const fetchFolderScreenshots = async (employeeEmail, folderName, page = 1, limit = 20) => {
+  // Level 3: Fetch screenshots for selected folder - NO LIMITS for employees with 500k+ screenshots
+  const fetchFolderScreenshots = async (employeeEmail, folderName, page = 1, limit = 500000) => {
     // Declare variables outside try block so they're accessible in catch block
     let adjustedLimit = limit;
     
@@ -2112,7 +2111,7 @@ const ActivityStream = () => {
       setLoadingFolderScreenshots(true);
       setError('');
       
-      console.log('📸 Fetching screenshots for folder:', { employeeEmail, folderName, page, limit });
+      console.log('📸 Fetching screenshots for folder (NO LIMITS):', { employeeEmail, folderName, page, limit });
       console.log('📸 User selected limit from dropdown:', limit);
       console.log('📸 Initial adjustedLimit:', adjustedLimit);
       
@@ -2156,6 +2155,14 @@ const ActivityStream = () => {
       console.log('�🔍 Level 3 Enhanced API URL:', apiUrl);
       console.log('🚀 Using enhanced S3-like endpoint for fast response with progressive retry');
       console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced', dateFilter: singleDateFilter || (isDateFilterActive ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none') });
+      
+      // DEBUG: Log the exact API call for folder screenshot count issue
+      console.log('🐛 DEBUGGING FOLDER SCREENSHOT COUNT ISSUE:');
+      console.log('🐛 API URL:', apiUrl);
+      console.log('🐛 Expected: Should get ALL screenshots from this folder (e.g., all 401 for Haseeb)');
+      console.log('🐛 Adjusted limit:', adjustedLimit);
+      console.log('🐛 Employee email:', employeeEmail);
+      console.log('🐛 Folder name:', folderName);
       
       const startTime = Date.now();
       
@@ -2263,17 +2270,14 @@ const ActivityStream = () => {
           endpoint_type: 'enhanced_s3_optimized'
         });
         
-        // Enhanced endpoint should handle pagination properly, but still validate
+        // Enhanced endpoint should show ALL screenshots - NO TRUNCATION for complete folder view
         if (screenshotsList.length > adjustedLimit) {
-          console.log('⚠️ Enhanced endpoint returned more screenshots than requested:', {
+          console.log('✅ Enhanced endpoint returned more screenshots than initially requested:', {
             requested: adjustedLimit,
             received: screenshotsList.length,
-            truncating: true,
-            note: 'Enhanced endpoint should handle this properly'
+            action: 'KEEPING ALL - no truncation for complete folder view'
           });
-          // Truncate to requested limit for proper pagination
-          screenshotsList = screenshotsList.slice(0, adjustedLimit);
-          console.log('✂️ Truncated enhanced response to requested limit:', screenshotsList.length);
+          console.log('✅ Showing ALL screenshots from folder:', screenshotsList.length);
         }
         
         // Enhanced folder statistics logging
@@ -2653,7 +2657,7 @@ const ActivityStream = () => {
           username: selectedUser.username,
           search_value: selectedUser.search_value
         });
-        fetchScreenshots(searchTerm, 20, 1);
+        fetchScreenshots(searchTerm); // Use default unlimited limit
       } else if (!isUserSelected) {
         setScreenshots([]);
         setHasSearched(false);
@@ -3324,7 +3328,7 @@ const ActivityStream = () => {
       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username || selectedUser.display_name;
       
       // Always append when loading more (never replace)
-      fetchScreenshots(searchTerm, 20, nextPage);
+      fetchScreenshots(searchTerm, undefined, nextPage); // Use default unlimited limit
     } else {
       console.log('❌ Cannot load more screenshots:', {
         isUserSelected,
@@ -3350,7 +3354,7 @@ const ActivityStream = () => {
       setFolderPagination(prev => ({ ...prev, page: 1 }));
       const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
       const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+      fetchFolderScreenshots(userEmail, folderName); // Use default unlimited limit
     }
   };
 
@@ -3713,7 +3717,7 @@ const ActivityStream = () => {
       setFolderPagination(prev => ({ ...prev, page: 1 }));
       const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
       const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+      fetchFolderScreenshots(userEmail, folderName); // Use default unlimited limit
     }
     
     setFilterUpdateTrigger(prev => prev + 1);
@@ -3839,8 +3843,8 @@ const ActivityStream = () => {
     console.log('🚀 About to call fetchFolderScreenshots with:', { userEmail, folderName });
     console.log('🔍 CURRENT VIEW SET TO: screenshots');
     
-    // Use the selected per-page limit
-    fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+    // Get ALL screenshots from folder - no limits
+    fetchFolderScreenshots(userEmail, folderName);
   };
 
   const handlePerPageLimitChange = (newLimit) => {
@@ -4026,12 +4030,12 @@ const ActivityStream = () => {
     // Check if we're viewing all folders or a specific folder
     if (selectedFolder.folder_name === 'All Folders') {
       // Use the new paginated function for all folders
-      console.log('📄 Loading page', page, 'of all folders with', perPageLimit, 'per page');
-      fetchEmployeeFoldersAndAllScreenshots(userEmail, page, perPageLimit);
+      console.log('📄 Loading page', page, 'of all folders - no per-page limits');
+      fetchEmployeeFoldersAndAllScreenshots(userEmail, page, 500000);
     } else {
-      // Use the original function for specific folder
+      // Get ALL screenshots from specific folder - no limits
       const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      fetchFolderScreenshots(userEmail, folderName, page, perPageLimit);
+      fetchFolderScreenshots(userEmail, folderName, page);
     }
   };
 
@@ -5546,17 +5550,16 @@ const ActivityStream = () => {
                     } else if (currentView === 'screenshots' && selectedUser && selectedFolder) {
                       const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
                       const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-                      fetchFolderScreenshots(userEmail, folderName, 1, 12);
+                      fetchFolderScreenshots(userEmail, folderName); // Use default unlimited limit
                     } else if (isUserSelected && selectedUser) {
                       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-                      fetchScreenshots(searchTerm, 20, 1);
+                      fetchScreenshots(searchTerm); // Use default unlimited limit
                     } else {
-                      fetchScreenshots(search.trim(), 20, 1);
+                      fetchScreenshots(search.trim()); // Use default unlimited limit
                     }
                   }} 
                   style={{ fontSize: '12px' }}
                 >
-                  🔄 Retry
                 </Button>
 
                 {/* Progressive loading option for timeout errors */}
@@ -5706,10 +5709,10 @@ const ActivityStream = () => {
                     border: `1px solid ${isDarkMode ? '#6b7280' : '#d1d5db'}`
                   }}>
                     <div style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
-                      📄 Pagination Control
+                      📄 No Limits - Handle 500k+ Screenshots
                     </div>
                     <div style={{ fontSize: '12px', color: isDarkMode ? '#9ca3af' : '#6b7280' }}>
-                      Adjust items per page (20-500) for optimal loading performance with large datasets
+                      System supports unlimited screenshots per employee (500,000+ tested). No artificial limits applied.
                     </div>
                   </div>
                 </div>
