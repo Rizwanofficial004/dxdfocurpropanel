@@ -274,6 +274,31 @@ const ActivityStream = () => {
   const [modalImages, setModalImages] = useState([]);
   const [modalCurrentIndex, setModalCurrentIndex] = useState(0);
   
+  // Initialization useEffect - ensure no filters are applied on mount
+  useEffect(() => {
+    console.log('🚀 ActivityStream initialized - ensuring no filters are applied');
+    
+    // Force clear all filters on mount with delay to ensure it sticks
+    setTimeout(() => {
+      setSelectedMonth('all');
+      setIsDateFilterActive(false);
+      setSingleDateFilter('');
+      setDateRange([null, null]);
+      setSelectedDate(dayjs().format('YYYY-MM-DD'));
+      console.log('✅ All filters force-cleared on mount - should show all screenshots');
+    }, 100);
+    
+  }, []); // Run once on mount
+  
+  // Debug useEffect to track selectedMonth changes
+  useEffect(() => {
+    console.log('🔍 SELECTED MONTH CHANGED TO:', selectedMonth);
+    if (selectedMonth !== 'all') {
+      console.log('⚠️ WARNING: Month is not "all" - this will trigger filtering!');
+      console.trace('Stack trace for month change:');
+    }
+  }, [selectedMonth]);
+  
   // GSAP Entrance Animations
   useEffect(() => {
     if (containerRef.current) {
@@ -1633,19 +1658,13 @@ const ActivityStream = () => {
         params.append('search', searchTerm.trim());
       }
       
-      // Handle date filtering
-      if (singleDateFilter) {
-        // Single date filter
-        params.append('date', singleDateFilter);
-        console.log(`🗓️ Applying single date filter: ${singleDateFilter}`);
-      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
-        // Date range filter
-        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
-        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
-        params.append('start_date', startDate);
-        params.append('end_date', endDate);
-        console.log(`🗓️ Applying date range filter: ${startDate} to ${endDate}`);
-      }
+      // Handle date filtering - FRONT-END ONLY (no backend filtering)
+      console.log('📅 FRONT-END FILTERING MODE: API will fetch ALL screenshots, date filtering happens in UI');
+      console.log('� Current filter state (for front-end use only):', {
+        singleDateFilter,
+        isDateFilterActive,
+        dateRange: dateRange[0] ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none'
+      });
       
       // Handle different search modes with reasonable limits
       // Always use reasonable pagination - no more 50k limits
@@ -2124,16 +2143,15 @@ const ActivityStream = () => {
       const apiBaseURL = getApiBaseURL();
       let apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
       
-      // Add date filtering parameters if active
-      if (singleDateFilter) {
-        apiUrl += `&date=${singleDateFilter}`;
-        console.log(`🗓️ Adding single date filter to folder screenshots: ${singleDateFilter}`);
-      } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
-        const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
-        const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
-        apiUrl += `&start_date=${startDate}&end_date=${endDate}`;
-        console.log(`�️ Adding date range filter to folder screenshots: ${startDate} to ${endDate}`);
-      }
+      // FRONT-END FILTERING: Do NOT add any date filters to API - always fetch ALL screenshots
+      console.log('� FRONT-END FILTERING MODE: API will fetch ALL screenshots, filtering happens in UI');
+      console.log('🔍 FILTER DEBUG:', {
+        selectedMonth,
+        singleDateFilter,
+        isDateFilterActive,
+        dateRange,
+        note: 'These filters will be applied on front-end only'
+      });
       
       console.log('�🔍 Level 3 Enhanced API URL:', apiUrl);
       console.log('🚀 Using enhanced S3-like endpoint for fast response with progressive retry');
@@ -3643,44 +3661,18 @@ const ActivityStream = () => {
   };
 
   const handleDateFilterApply = () => {
+    console.log(`🗓️ ===== APPLYING MANUAL DATE RANGE FILTER =====`);
+    
+    // This function is now primarily for manual date range selection
     if (dateRange[0] && dateRange[1]) {
-      console.log(`🗓️ ===== APPLYING DATE RANGE FILTER =====`);
       console.log(`🗓️ Date range: ${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}`);
-      
-      // Set the filter states
       setIsDateFilterActive(true);
       setSingleDateFilter(null); // Clear single date filter
+      setSelectedMonth('all'); // Reset month selection since we're using custom range
       
       // Force a re-render
       setFilterUpdateTrigger(prev => prev + 1);
-      
-      console.log(`🗓️ Filter activated - isDateFilterActive: true`);
-      
-      // Test the date extraction logic with some sample filenames
-      const testFilenames = [
-        '2025-06-18_14-06-29_2025',
-        '2025-06-21_10-30-45_2025',
-        '2025-06-22_16-45-12_2025',
-        '2025-06-28_13-54-54_2025'
-      ];
-      
-      console.log(`🧪 Testing date extraction on sample filenames:`);
-      testFilenames.forEach(filename => {
-        const extractedDate = extractDateFromFilename(filename);
-        const startDate = dayjs(dateRange[0]);
-        const endDate = dayjs(dateRange[1]);
-        const isInRange = extractedDate ? extractedDate.isBetween(startDate, endDate, 'day', '[]') : false;
-        console.log(`  📁 ${filename} -> ${extractedDate ? extractedDate.format('YYYY-MM-DD') : 'FAILED'} -> ${isInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
-      });
-      
-      // Test with actual timestamp
-      console.log(`🧪 Testing timestamp extraction:`);
-      const testTimestamp = '2025-06-16T11:08:03+00:00';
-      const extractedFromTimestamp = extractDateFromTimestamp(testTimestamp);
-      const startDate = dayjs(dateRange[0]);
-      const endDate = dayjs(dateRange[1]);
-      const isTimestampInRange = extractedFromTimestamp ? extractedFromTimestamp.isBetween(startDate, endDate, 'day', '[]') : false;
-      console.log(`  📅 ${testTimestamp} -> ${extractedFromTimestamp ? extractedFromTimestamp.format('YYYY-MM-DD') : 'FAILED'} -> ${isTimestampInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
+      console.log(`🗓️ Manual date range filter applied successfully`);
     }
   };
 
@@ -3688,9 +3680,11 @@ const ActivityStream = () => {
     setIsDateFilterActive(false);
     setDateRange([null, null]);
     setSingleDateFilter(null);
+    setSelectedMonth('all'); // Clear month selection
+    setSelectedDate(dayjs().format('YYYY-MM-DD')); // Reset to today
     setFilterUpdateTrigger(prev => prev + 1); // Force re-render
     
-    console.log('🗓️ Cleared all date filters');
+    console.log('🗓️ Cleared all date filters and reset selections');
   };
 
   const handleSingleDateSelect = (dateIndex) => {
@@ -3726,51 +3720,72 @@ const ActivityStream = () => {
     console.log(`🗓️ Applied date filter: ${dayjs(startDate).format('YYYY-MM-DD')} to ${dayjs(endDate).format('YYYY-MM-DD')}`);
   };
 
-  // DateSelector handler - integrates with existing filtering system
+  // DateSelector handler - FRONT-END FILTERING ONLY (no backend API calls)
   const handleDateSelectorChange = (dateString) => {
     console.log('📅 DateSelector changed to:', dateString);
+    console.log('📅 Current selectedMonth:', selectedMonth);
     setSelectedDate(dateString);
     
-    // Apply single date filter when user selects a date from DateSelector
-    setSingleDateFilter(dateString);
-    setIsDateFilterActive(false); // Clear range filter
-    setDateRange([null, null]); // Clear range picker
-    
-    // Trigger filtering based on current view
-    if (currentView === 'search' && isUserSelected && selectedUser) {
-      setCurrentPage(1);
-      const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      fetchScreenshots(searchTerm, 20, 1);
-    } else if (currentView === 'screenshots' && selectedFolder && selectedUser) {
-      setFolderPagination(prev => ({ ...prev, page: 1 }));
-      const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
-      const folderName = selectedFolder.folder_name || selectedFolder.date || selectedFolder.name;
-      fetchFolderScreenshots(userEmail, folderName, 1, perPageLimit);
+    // FRONT-END FILTERING: Set filter parameters for filterScreenshotsByDate function
+    if (selectedMonth === 'all') {
+      console.log('📅 Month is "all" - applying single date filter only');
+      // When "All Months" is selected, filter by single date across all months
+      setSingleDateFilter(dateString);
+      setIsDateFilterActive(false); // Clear range filter
+    } else {
+      console.log('📅 Month is specific - applying month + date filter');
+      // When specific month is selected, combine month and date filtering
+      const selectedDateObj = dayjs(dateString);
+      const currentYear = dayjs().year();
+      const monthNumber = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
+                          'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(selectedMonth);
+      
+      if (monthNumber !== -1) {
+        // Create a date range for the specific day in the specific month
+        const targetDate = dayjs().year(currentYear).month(monthNumber).date(selectedDateObj.date());
+        setSingleDateFilter(targetDate.format('YYYY-MM-DD'));
+        setIsDateFilterActive(false); // Clear range filter
+        console.log(`📅 Set front-end filter for ${selectedMonth} ${selectedDateObj.date()}: ${targetDate.format('YYYY-MM-DD')}`);
+      }
     }
     
+    // Trigger re-filtering of existing screenshots (no new API call)
     setFilterUpdateTrigger(prev => prev + 1);
-    console.log(`📅 Applied DateSelector single date filter: ${dateString}`);
+    console.log(`📅 Front-end filter applied: ${dateString}`);
   };
 
-  // Month filter handler
+  // Month filter handler - FRONT-END FILTERING ONLY (no backend API calls)
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
-    console.log('📅 Month filter changed to:', month);
+    console.log('📅 Month changed to:', month);
     
-    // Apply month-based filtering
+    // FRONT-END FILTERING: Set filter parameters for filterScreenshotsByDate function
     if (month === 'all') {
-      // Clear month filter - show all data
+      console.log('📅 CLEARING ALL FILTERS - Selected "All Months"');
+      
+      // Clear all front-end filters - show all data
       setIsDateFilterActive(false);
       setSingleDateFilter('');
       setDateRange([null, null]);
+      setSelectedDate(''); // Clear selected date as well
+      setFilterUpdateTrigger(prev => prev + 1);
+      
+      console.log('📅 All front-end filters cleared - should show all screenshots now');
     } else if (month === 'current') {
-      // Filter to current month
+      console.log('📅 Setting front-end filter for current month');
+      // Filter to current month using front-end date range
       const startOfMonth = dayjs().startOf('month');
       const endOfMonth = dayjs().endOf('month');
-      applyDateFilter(startOfMonth, endOfMonth);
+      
+      setDateRange([startOfMonth, endOfMonth]);
+      setIsDateFilterActive(true);
+      setSingleDateFilter(''); // Clear single date filter
+      setFilterUpdateTrigger(prev => prev + 1);
+      console.log(`📅 Applied front-end current month filter: ${startOfMonth.format('YYYY-MM-DD')} to ${endOfMonth.format('YYYY-MM-DD')}`);
     } else {
-      // Filter to specific month (jan, feb, etc.)
+      console.log(`📅 Setting front-end filter for ${month}`);
+      // Filter to specific month (jan, feb, etc.) using front-end date range
       const currentYear = dayjs().year();
       const monthNumber = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 
                           'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(month);
@@ -3778,11 +3793,14 @@ const ActivityStream = () => {
       if (monthNumber !== -1) {
         const startOfMonth = dayjs().year(currentYear).month(monthNumber).startOf('month');
         const endOfMonth = dayjs().year(currentYear).month(monthNumber).endOf('month');
-        applyDateFilter(startOfMonth, endOfMonth);
+        
+        setDateRange([startOfMonth, endOfMonth]);
+        setIsDateFilterActive(true);
+        setSingleDateFilter(''); // Clear single date filter
+        setFilterUpdateTrigger(prev => prev + 1);
+        console.log(`📅 Applied front-end ${month} filter: ${startOfMonth.format('YYYY-MM-DD')} to ${endOfMonth.format('YYYY-MM-DD')}`);
       }
     }
-    
-    setFilterUpdateTrigger(prev => prev + 1);
   };
 
   // Navigation handlers for 3-level system
@@ -5240,6 +5258,9 @@ const ActivityStream = () => {
                       selectedMonth.charAt(0).toUpperCase() + selectedMonth.slice(1)}
                   </div>
                 )}
+                
+         
+              
               </div>
             </div>
           </Box>
@@ -5301,7 +5322,7 @@ const ActivityStream = () => {
                       '&:disabled': { backgroundColor: '#9ca3af' }
                     }}
                   >
-                    Apply Filter
+                    Apply Range Filter
                   </Button>
 
                   {(isDateFilterActive || singleDateFilter) && (
