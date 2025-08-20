@@ -276,7 +276,6 @@ const ActivityStream = () => {
   
   // Initialization useEffect - ensure no filters are applied on mount
   useEffect(() => {
-    console.log('🚀 ActivityStream initialized - ensuring no filters are applied');
     
     // Force clear all filters on mount with delay to ensure it sticks
     setTimeout(() => {
@@ -285,16 +284,13 @@ const ActivityStream = () => {
       setSingleDateFilter('');
       setDateRange([null, null]);
       setSelectedDate(dayjs().format('YYYY-MM-DD'));
-      console.log('✅ All filters force-cleared on mount - should show all screenshots');
     }, 100);
     
   }, []); // Run once on mount
   
   // Debug useEffect to track selectedMonth changes
   useEffect(() => {
-    console.log('🔍 SELECTED MONTH CHANGED TO:', selectedMonth);
     if (selectedMonth !== 'all') {
-      console.log('⚠️ WARNING: Month is not "all" - this will trigger filtering!');
       console.trace('Stack trace for month change:');
     }
   }, [selectedMonth]);
@@ -488,7 +484,6 @@ const ActivityStream = () => {
   // Auto-load Haseeb's data on component mount
   useEffect(() => {
     const initializeWithHaseeb = () => {
-      console.log('🚀 Auto-loading Haseeb data on component mount...');
       
       // Create Haseeb user object with real data from API documentation
       const haseebUser = {
@@ -507,9 +502,7 @@ const ActivityStream = () => {
       setSearch(haseebUser.display_name);
       setHasSearched(true);
       setCurrentView('search');
-      
-      console.log('🔍 Auto-selected Haseeb user:', haseebUser);
-      
+        
       // Automatically fetch folders for Haseeb
       fetchEmployeeFolders(haseebUser.search_value);
     };
@@ -782,8 +775,6 @@ const ActivityStream = () => {
       );
     }
 
-    console.log('🖼️ Valid URL found, attempting to display image:', currentUrl);
-
     // Show error state for failed loads
     if (hasError) {
       return (
@@ -1039,13 +1030,6 @@ const ActivityStream = () => {
         }}
         className={className}
         onLoad={(e) => {
-          console.log('✅ Image loaded successfully:', {
-            src: finalSrc,
-            naturalWidth: e.target.naturalWidth,
-            naturalHeight: e.target.naturalHeight,
-            isBackendProxy: finalSrc?.includes('http://localhost:8000/api/proxy/'),
-            urlType: finalSrc?.includes('http://localhost:8000/api/proxy/') ? 'BACKEND_PROXY' : 'DIRECT_URL'
-          });
           if (onLoad) onLoad(e);
         }}
         onError={(e) => {
@@ -1074,17 +1058,10 @@ const ActivityStream = () => {
   useEffect(() => {
     const checkBackendStatus = async () => {
       try {
-        console.log('🔍 Checking backend status...');
         
         // Add axios interceptors for debugging
         axios.interceptors.request.use(
           (config) => {
-            console.log('🔍 Axios Request:', {
-              url: config.url,
-              method: config.method,
-              headers: config.headers,
-              timeout: config.timeout
-            });
             return config;
           },
           (error) => {
@@ -1095,11 +1072,6 @@ const ActivityStream = () => {
         
         axios.interceptors.response.use(
           (response) => {
-            console.log('🔍 Axios Response:', {
-              status: response.status,
-              url: response.config.url,
-              dataSize: JSON.stringify(response.data).length
-            });
             return response;
           },
           (error) => {
@@ -1119,31 +1091,19 @@ const ActivityStream = () => {
         try {
           // Try a simple health check endpoint first
           response = await fastAxios.get(`${apiBaseURL}/health`);
-          console.log('✅ Backend health check passed');
         } catch (healthErr) {
-          console.log('⚠️ Health endpoint not available, trying suggestions endpoint...');
           // Fallback to suggestions endpoint with retry logic for S3 operations
           response = await withRetry(
             () => slowAxios.get(`${apiBaseURL}/users/s3-suggestions/?q=test&limit=10`),
             3, // 3 retries
             2000 // 2 second delay
           );
-          console.log('✅ Backend suggestions endpoint responded');
         }
         
         setBackendStatus('connected');
-        console.log('✅ Backend is connected and responding');
       } catch (err) {
-        setBackendStatus('disconnected');
-        console.log('❌ Backend is disconnected:', err.message);
-        console.log('🔍 Error details:', {
-          code: err.code,
-          response: err.response?.status,
-          message: err.message
-        });
-        
+        setBackendStatus('disconnected');        
         // For development: show test suggestions when backend is down  
-        console.log('🔧 DEVELOPMENT: Backend unavailable, setting up test environment');
         const testSuggestions = [
           {
             display_name: 'John Doe',
@@ -1176,7 +1136,6 @@ const ActivityStream = () => {
         
         // Store test suggestions for use when search is triggered
         window.__testSuggestions = testSuggestions;
-        console.log('🔧 Test suggestions prepared:', testSuggestions);
       }
     };
 
@@ -1377,27 +1336,15 @@ const ActivityStream = () => {
       setLoadingSuggestions(true);
       
       // First try to check if backend is running
-      console.log('🔍 Fetching user suggestions for query:', query);
-      console.log('🔍 Query length:', query.length, 'Query:', `"${query}"`);
       
       const apiBaseURL = getApiBaseURL();
       const suggestionUrl = `${apiBaseURL}/users/s3-suggestions/?q=${encodeURIComponent(query)}&limit=10`;
-      console.log('🔍 API URL:', suggestionUrl);
       
       const response = await withRetry(
         () => normalAxios.get(suggestionUrl),
         2, // 2 retries for search suggestions
         1000 // 1 second delay
       );
-      
-      console.log('✅ User suggestions response:', response.data);
-      console.log('🔍 Response structure check:', {
-        hasSuccess: !!response.data?.success,
-        hasData: !!response.data?.data,
-        hasSuggestions: !!response.data?.data?.suggestions,
-        suggestionsLength: response.data?.data?.suggestions?.length || 0,
-        suggestionsArray: response.data?.data?.suggestions
-      });
       
       // Handle the actual API response structure
       let suggestions = [];
@@ -1416,8 +1363,6 @@ const ActivityStream = () => {
           source: user.source,
           has_recent_activity: user.has_recent_activity
         }));
-        console.log('✅ Parsed suggestions from API structure:', suggestions.length);
-        console.log('🔍 Parsed suggestions details:', suggestions);
       } else if (response.data && response.data.data && response.data.data.suggestions && Array.isArray(response.data.data.suggestions)) {
         // Fallback structure: { data: { suggestions: [...] } }
         suggestions = response.data.data.suggestions.map(user => ({
@@ -1429,7 +1374,6 @@ const ActivityStream = () => {
           screenshot_count: user.screenshot_count,
           staff_id: user.staff_id
         }));
-        console.log('✅ Parsed suggestions from fallback structure:', suggestions.length);
       } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
         // Alternative structure: { results: [...] }
         suggestions = response.data.results.map(user => ({
@@ -1441,7 +1385,6 @@ const ActivityStream = () => {
           screenshot_count: user.screenshot_count,
           staff_id: user.staff_id
         }));
-        console.log('✅ Parsed suggestions from results structure:', suggestions.length);
       } else if (response.data && Array.isArray(response.data)) {
         // Direct array structure: [...]
         suggestions = response.data.map(user => ({
@@ -1453,53 +1396,20 @@ const ActivityStream = () => {
           screenshot_count: user.screenshot_count,
           staff_id: user.staff_id
         }));
-        console.log('✅ Parsed suggestions from direct array:', suggestions.length);
       } else {
-        console.warn('⚠️ Unexpected API response structure for suggestions:', response.data);
-        console.log('🔍 Full response data:', JSON.stringify(response.data, null, 2));
       }
-      
-      // Log final result
-      if (suggestions.length === 0) {
-        console.log('❌ No suggestions found for query:', query);
-        console.log('🔍 API returned data but no matching suggestions');
-        console.log('🔍 This might mean:');
-        console.log('   - No users match the search term');
-        console.log('   - User exists but doesn\'t meet minimum screenshot requirements');
-        console.log('   - Search term needs to be more specific');
-      }
-      
+  
       setSearchSuggestions(suggestions);
-      console.log('💡 Set user suggestions:', suggestions.length, 'suggestions:', suggestions);
       
     } catch (err) {
       console.error('❌ Error fetching user suggestions:', err);
-      console.log('🔍 Error details:', {
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data,
-        message: err.message
-      });
-      
       // DEVELOPMENT FALLBACK: Use test suggestions when backend is down
       if (backendStatus === 'disconnected' && window.__testSuggestions) {
-        console.log('🔧 DEVELOPMENT FALLBACK: Using test suggestions');
-        const filteredTestSuggestions = window.__testSuggestions.filter(user =>
-          user.display_name.toLowerCase().includes(query.toLowerCase()) ||
-          user.email.toLowerCase().includes(query.toLowerCase()) ||
-          user.username.toLowerCase().includes(query.toLowerCase())
-        );
         
         setSearchSuggestions(filteredTestSuggestions);
-        console.log('💡 Set test user suggestions:', filteredTestSuggestions.length, 'suggestions:', filteredTestSuggestions);
+       
         return; // Exit early to avoid setting error
       }
-      
-      // Don't use test data - show the actual error to user
-      console.error('❌ Cannot connect to backend. Please ensure:');
-      console.error('   1. Backend server is running on localhost:8000');
-      console.error('   2. CORS is properly configured in Django settings');
-      console.error('   3. Frontend and backend can communicate');
       
       setSearchSuggestions([]);
       setError(`Cannot connect to backend: ${err.message}`);
@@ -1511,7 +1421,6 @@ const ActivityStream = () => {
 
   // Progressive loading helper for large datasets - NO LIMITS
   const fetchScreenshotsProgressive = async (searchTerm, targetLimit = 500000) => {
-    console.log(`📊 PROGRESSIVE LOADING: Starting for ${searchTerm}, target: ${targetLimit} (NO LIMITS)`);
     
     let allScreenshots = [];
     let currentPage = 1;
@@ -1526,8 +1435,6 @@ const ActivityStream = () => {
     
     while (hasMore && allScreenshots.length < targetLimit) {
       try {
-        console.log(`📊 Loading chunk ${currentPage}, size: ${chunkSize}, loaded so far: ${allScreenshots.length}`);
-        
         const apiBaseURL = getApiBaseURL();
         const apiUrl = `${apiBaseURL}/employees/screenshots/search/`;
         const params = new URLSearchParams();
@@ -1539,7 +1446,6 @@ const ActivityStream = () => {
         params.append('offset', ((currentPage - 1) * chunkSize).toString());
         
         const fullUrl = `${apiUrl}?${params.toString()}`;
-        console.log(`📊 Chunk ${currentPage} URL: ${fullUrl}`);
         
         // Extended timeout per chunk for large datasets
         const response = await axios.get(fullUrl, { 
@@ -1572,7 +1478,6 @@ const ActivityStream = () => {
         if (currentPage === 1) {
           totalFromAPI = chunkTotal;
           setTotalCount(chunkTotal);
-          console.log(`📊 Total count from API: ${chunkTotal}`);
         }
         
         // Add chunk to results
@@ -1582,9 +1487,6 @@ const ActivityStream = () => {
         setScreenshots([...allScreenshots]);
         setCurrentPage(1); // Always show page 1 for progressive loading
         setTotalPages(Math.ceil(allScreenshots.length / 20)); // 20 per page for display
-        
-        console.log(`📊 Chunk ${currentPage} complete: +${chunkScreenshots.length} (total: ${allScreenshots.length}/${totalFromAPI})`);
-        
         // Check if we should continue
         hasMore = chunkScreenshots.length === chunkSize && allScreenshots.length < totalFromAPI && allScreenshots.length < targetLimit;
         currentPage++;
@@ -1599,7 +1501,6 @@ const ActivityStream = () => {
         
         // If it's a timeout, try smaller chunks
         if (chunkError.code === 'ECONNABORTED' && chunkSize > 100) {
-          console.log(`⚠️ Timeout detected after 30 minutes, will try smaller chunks`);
           setError(`Loaded ${allScreenshots.length} screenshots. Server timeout after 30 minutes - trying smaller chunks...`);
           break; // Exit loop and return what we have
         } else {
@@ -1608,8 +1509,7 @@ const ActivityStream = () => {
         }
       }
     }
-    
-    console.log(`📊 PROGRESSIVE LOADING COMPLETE: ${allScreenshots.length} screenshots loaded`);
+  
     setFullDataset(allScreenshots);
     setLoading(false);
     
@@ -1635,7 +1535,6 @@ const ActivityStream = () => {
 
     // For large datasets, use progressive loading - NO LIMITS
     if (useProgressive || totalCount > 2000) {
-      console.log(`📊 Using progressive loading for large dataset (${totalCount || 'unknown'} total) - NO LIMITS`);
       setLoading(true);
       return await fetchScreenshotsProgressive(searchTerm, totalCount || 500000); // Load ALL screenshots, default 500k if unknown
     }
@@ -1658,14 +1557,6 @@ const ActivityStream = () => {
         params.append('search', searchTerm.trim());
       }
       
-      // Handle date filtering - FRONT-END ONLY (no backend filtering)
-      console.log('📅 FRONT-END FILTERING MODE: API will fetch ALL screenshots, date filtering happens in UI');
-      console.log('� Current filter state (for front-end use only):', {
-        singleDateFilter,
-        isDateFilterActive,
-        dateRange: dateRange[0] ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none'
-      });
-      
       // Handle different search modes - NO LIMITS for large datasets
       // Support employees with 500,000+ screenshots
       params.append('limit', limit.toString()); // Use requested limit without restriction
@@ -1674,10 +1565,8 @@ const ActivityStream = () => {
         params.append('offset', offset.toString());
       }
       setSearchPattern('paginated');
-      console.log(`🔍 Fetching screenshots with NO LIMIT: page ${page}, limit ${limit}`);
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
-      console.log(`🔍 API Request: ${fullUrl}`);
       
       const response = await axios.get(fullUrl, { 
         timeout: 1800000, // 30 minutes timeout for large datasets
@@ -1688,37 +1577,19 @@ const ActivityStream = () => {
       });
       let newScreenshots = [];
       let total = 0;
-      
-      // Handle dynamic API response structures
-      console.log('🔍 Dynamic API Response Analysis:', {
-        hasData: !!response.data,
-        hasSuccess: !!response.data?.success,
-        hasEmployees: !!response.data?.employees,
-        hasResults: !!response.data?.results,
-        responseKeys: Object.keys(response.data || {}),
-        responseType: typeof response.data,
-        isArray: Array.isArray(response.data),
-        fullResponse: response.data
-      });
-      
-      // CRITICAL DEBUG: Log the exact response structure
-      console.log('🔍 FULL DYNAMIC API RESPONSE:', JSON.stringify(response.data, null, 2));
-      
+
       if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
         // Dynamic API structure: { success: true, employees: [...], total_count: number }
         newScreenshots = response.data.employees;
         total = response.data.total_count || response.data.count || newScreenshots.length;
-        console.log('✅ Using dynamic API success structure with employees array');
       } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
         // Dynamic API structure without success flag: { employees: [...], total_count: number }
         newScreenshots = response.data.employees;
         total = response.data.total_count || response.data.count || newScreenshots.length;
-        console.log('✅ Using dynamic API employees structure');
       } else if (response.data && response.data.success && response.data.data && Array.isArray(response.data.data)) {
         // Structure: { success: true, data: [...] }
         newScreenshots = response.data.data;
         total = response.data.total_count || response.data.count || newScreenshots.length;
-        console.log('✅ Using success + data array structure');
       } else if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
         // Nested structure: { data: { employees: [...], summary: {...} } }
         let allScreenshots = [];
@@ -1760,30 +1631,20 @@ const ActivityStream = () => {
         
         newScreenshots = allScreenshots;
         total = response.data.data.summary?.total_screenshots || response.data.data.total_count || newScreenshots.length;
-        console.log('✅ Using nested employees structure with screenshots');
       } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
         // Structure: { screenshots: [...], total_count: number }
         newScreenshots = response.data.screenshots;
         total = response.data.total_count || response.data.count || newScreenshots.length;
-        console.log('✅ Using screenshots array structure');
       } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
         // Structure: { results: [...], count: number }
         newScreenshots = response.data.results;
         total = response.data.count || response.data.total_count || newScreenshots.length;
-        console.log('✅ Using results array structure');
       } else if (Array.isArray(response.data)) {
         // Direct array structure: [...]
         newScreenshots = response.data;
         total = newScreenshots.length;
-        console.log('✅ Using direct array structure');
       } else {
         console.warn('⚠️ Unexpected dynamic API response structure:', response.data);
-        console.log('🔍 Full response analysis:', {
-          data: response.data,
-          dataType: typeof response.data,
-          isArray: Array.isArray(response.data),
-          keys: response.data ? Object.keys(response.data) : []
-        });
         
         // FALLBACK: Try to extract any screenshot data from the response
         let fallbackScreenshots = [];
@@ -1802,7 +1663,6 @@ const ActivityStream = () => {
           const keys = Object.keys(response.data);
           for (const key of keys) {
             if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
-              console.log(`🔍 Found array in key "${key}":`, response.data[key].slice(0, 2));
               fallbackScreenshots = response.data[key];
               break;
             }
@@ -1811,11 +1671,6 @@ const ActivityStream = () => {
         
         newScreenshots = fallbackScreenshots;
         total = response.data?.total_count || response.data?.count || fallbackScreenshots.length;
-        console.log('🔧 FALLBACK: Extracted screenshots using fallback logic:', {
-          screenshotsFound: fallbackScreenshots.length,
-          total,
-          firstScreenshot: fallbackScreenshots[0]
-        });
       }
       
       // Apply pagination logic for dynamic comprehensive search
@@ -1834,48 +1689,18 @@ const ActivityStream = () => {
         setTotalPages(Math.ceil(total / limit));
         setCurrentPage(page);
         
-        console.log('📸 Set dynamic comprehensive screenshots (frontend pagination):', paginatedScreenshots.length, 'Total:', total, 'Page:', page);
+        
       } else {
         // Normal pagination handled by backend for dynamic API
         setScreenshots(newScreenshots);
         setTotalCount(total);
         setTotalPages(Math.ceil(total / limit));
         setCurrentPage(page);
-        
-        console.log('📸 Set dynamic paginated screenshots (backend pagination):', newScreenshots.length, 'Total:', total, 'Page:', page);
-        console.log('🔍 SCREENSHOTS STATE DEBUG:', {
-          newScreenshotsLength: newScreenshots.length,
-          firstScreenshot: newScreenshots[0],
-          lastScreenshot: newScreenshots[newScreenshots.length - 1],
-          sampleScreenshots: newScreenshots.slice(0, 3),
-          totalCount: total,
-          currentPage: page,
-          totalPages: Math.ceil(total / limit)
-        });
-      }
       
-      // Log dynamic API success
-      console.log('✅ Dynamic API request completed successfully:', {
-        endpoint: 'employees/screenshots/search',
-        searchPattern,
-        totalScreenshots: total,
-        displayedScreenshots: newScreenshots.length,
-        fastMode: 'false',
-        minScreenshots: '10000',
-        maxScreenshots: '50000'
-      });
+      }
       
     } catch (err) {
       console.error('❌ Error fetching screenshots from dynamic endpoint:', err);
-      console.log('🔍 Dynamic API Error Details:', {
-        message: err.message,
-        code: err.code,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        responseData: err.response?.data,
-        url: err.config?.url,
-        isTimeout: err.code === 'ECONNABORTED'
-      });
       
       // Handle timeout errors specifically
       if (err.code === 'ECONNABORTED') {
@@ -1907,10 +1732,8 @@ const ActivityStream = () => {
       setLoadingFolders(true);
       setError('');
       
-      console.log('📁 Fetching folders for employee:', employeeEmail);
       const apiBaseURL = getApiBaseURL();
       const apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
-      console.log('🔍 Folders API URL:', apiUrl);
       
       const response = await axios.get(apiUrl, { 
         timeout: 1800000, // 30 minutes timeout for folders API
@@ -1918,8 +1741,7 @@ const ActivityStream = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
-      });
-      console.log('✅ Folders API response:', response.data);
+      })
       
       let foldersList = [];
       
@@ -1927,7 +1749,6 @@ const ActivityStream = () => {
       if (response.data && response.data.success && response.data.data && response.data.data.task_folders) {
         // Your actual API structure: { success: true, data: { task_folders: [...] } }
         foldersList = response.data.data.task_folders;
-        console.log('✅ Using task_folders from API response');
       } else if (response.data && response.data.success && response.data.data && response.data.data.folders) {
         foldersList = response.data.data.folders;
       } else if (response.data && response.data.folders) {
@@ -1938,13 +1759,8 @@ const ActivityStream = () => {
         foldersList = response.data;
       } else {
         console.warn('⚠️ Unexpected folders API response structure:', response.data);
-        console.log('🔍 Full API response:', JSON.stringify(response.data, null, 2));
-        console.log('🔍 Available keys in response.data:', Object.keys(response.data || {}));
         foldersList = [];
       }
-      
-      console.log('📁 Parsed folders list:', foldersList);
-      console.log('📁 Number of folders found:', foldersList.length);
       
       // Sort folders by date (newest first)
       foldersList.sort((a, b) => {
@@ -1954,25 +1770,14 @@ const ActivityStream = () => {
       });
       
       setFolders(foldersList);
-      console.log('📁 Set folders in state:', foldersList.length, 'folders');
       
       // If no folders found, let's also try to debug the user email
       if (foldersList.length === 0) {
-        console.log('❌ No folders found! Debugging info:');
-        console.log('🔍 Employee email used:', employeeEmail);
-        console.log('🔍 Selected user object:', selectedUser);
-        console.log('🔍 API response was:', response.data);
-        console.log('💡 This could mean:');
-        console.log('   1. The user email doesn\'t match any folders in S3');
-        console.log('   2. The backend API endpoint is not working correctly');
-        console.log('   3. The user doesn\'t have any screenshot folders yet');
-        console.log('   4. There\'s a mismatch between search email and S3 folder structure');
         setCurrentView('search'); // Go back to search if no folders
         return;
       }
       
       // AUTO-NAVIGATE: Instead of showing folders, automatically fetch all screenshots from all folders
-      console.log('🚀 Auto-navigating to fetch all screenshots from all folders...');
       setCurrentView('screenshots'); // Skip folders view, go directly to screenshots
       
       // Automatically fetch screenshots from all folders
@@ -1980,19 +1785,12 @@ const ActivityStream = () => {
       
     } catch (err) {
       console.error('❌ Error fetching employee folders:', err);
-      console.log('🔍 Error details:', {
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data,
-        message: err.message
-      });
+
       
       if (err.response) {
         setError(`Server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch folders'}`);
-        console.log('🔍 Server responded with error. Full error response:', err.response.data);
       } else if (err.request) {
         setError('Network error: Unable to connect to server. Please check if your backend server is running on http://localhost:8000');
-        console.log('❌ Network error - backend server may be down');
       } else {
         setError('An unexpected error occurred while fetching folders');
       }
@@ -2010,7 +1808,6 @@ const ActivityStream = () => {
   const fetchAllScreenshotsFromAllFolders = async (employeeEmail, foldersList) => {
     try {
       setLoadingFolderScreenshots(true);
-      console.log('📸 Fetching screenshots from', foldersList.length, 'folders...');
       
       let allScreenshots = [];
       let totalProcessed = 0;
@@ -2021,7 +1818,6 @@ const ActivityStream = () => {
         const folderName = folder.folder_name || folder.date || folder.name;
         
         try {
-          console.log(`📸 Processing folder ${i + 1}/${foldersList.length}: ${folderName}`);
           
           const apiBaseURL = getApiBaseURL();
           const folderApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=1&limit=500000`;
@@ -2056,8 +1852,6 @@ const ActivityStream = () => {
           allScreenshots = [...allScreenshots, ...screenshotsWithFolder];
           totalProcessed++;
           
-          console.log(`✅ Added ${folderScreenshots.length} screenshots from "${folderName}". Total: ${allScreenshots.length}`);
-          
           // Update progress
           setError(`📊 Loading screenshots... ${totalProcessed}/${foldersList.length} folders processed (${allScreenshots.length} screenshots)`);
           
@@ -2073,8 +1867,6 @@ const ActivityStream = () => {
         const timeB = new Date(b.timestamp || b.created_at || 0);
         return timeB - timeA;
       });
-      
-      console.log('🎉 Successfully collected', allScreenshots.length, 'screenshots from all folders');
       
       // Set all screenshots in folder screenshots state for display
       setFolderScreenshots(allScreenshots);
@@ -2111,72 +1903,28 @@ const ActivityStream = () => {
       setLoadingFolderScreenshots(true);
       setError('');
       
-      console.log('📸 Fetching screenshots for folder (NO LIMITS):', { employeeEmail, folderName, page, limit });
-      console.log('📸 User selected limit from dropdown:', limit);
-      console.log('📸 Initial adjustedLimit:', adjustedLimit);
-      
       // Enhanced handling for large folders with better detection and timeout settings
       
       // Check if this is likely a large folder and adjust settings
       if (selectedFolder?.screenshot_count > 1000 || folderName.includes('v1.3') || folderName.includes('DDSFocusPro') || folderName.includes('YouTube_AI_Automation') || folderName.includes('Create_UI_for_YouTube')) {
         // Keep user's selected limit for large folders
         adjustedLimit = limit; // Respect user's dropdown selection
-        console.log('🔧 Detected very large folder (>1000 screenshots). Using user-selected limit with retry mechanism:', {
-          originalLimit: limit,
-          adjustedLimit,
-          estimatedScreenshots: selectedFolder?.screenshot_count || '2000+',
-          folderPattern: folderName,
-          approach: 'user_selected_limit_with_progressive_retry'
-        });
         
         // Show user feedback for large folders with pagination info
         setError(`📊 Loading large folder "${folderName}" with ${selectedFolder?.screenshot_count || '2000+'} screenshots. Loading ${adjustedLimit} screenshots per page with progressive retry (15s, 30s, 60s). Please be patient, this may take several minutes...`);
       } else if (folderName.includes('mervegucluu') || folderName.includes('1000') || folderName.includes('EASY_HOME')) {
         // Keep user's selected limit for medium folders
         adjustedLimit = limit; // Respect user's dropdown selection
-        console.log('🔧 Using user-selected limit for large folder with progressive retry:', adjustedLimit);
         setError(`📊 Loading folder "${folderName}" with ${adjustedLimit} screenshots per page. Using progressive retry mechanism...`);
       }
       
       // Use the enhanced endpoint for Level 3 - fast S3-like response with pagination
       const apiBaseURL = getApiBaseURL();
       let apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`;
-      
-      // FRONT-END FILTERING: Do NOT add any date filters to API - always fetch ALL screenshots
-      console.log('� FRONT-END FILTERING MODE: API will fetch ALL screenshots, filtering happens in UI');
-      console.log('🔍 FILTER DEBUG:', {
-        selectedMonth,
-        singleDateFilter,
-        isDateFilterActive,
-        dateRange,
-        note: 'These filters will be applied on front-end only'
-      });
-      
-      console.log('�🔍 Level 3 Enhanced API URL:', apiUrl);
-      console.log('🚀 Using enhanced S3-like endpoint for fast response with progressive retry');
-      console.log('🔧 Request parameters:', { employeeEmail, folderName, page, adjustedLimit, endpoint: 'enhanced', dateFilter: singleDateFilter || (isDateFilterActive ? `${dayjs(dateRange[0]).format('YYYY-MM-DD')} to ${dayjs(dateRange[1]).format('YYYY-MM-DD')}` : 'none') });
-      
-      // DEBUG: Log the exact API call for folder screenshot count issue
-      console.log('🐛 DEBUGGING FOLDER SCREENSHOT COUNT ISSUE:');
-      console.log('🐛 API URL:', apiUrl);
-      console.log('🐛 Expected: Should get ALL screenshots from this folder (e.g., all 401 for Haseeb)');
-      console.log('🐛 Adjusted limit:', adjustedLimit);
-      console.log('🐛 Employee email:', employeeEmail);
-      console.log('🐛 Folder name:', folderName);
+    
       
       const startTime = Date.now();
       
-      // Add more detailed request logging for enhanced endpoint
-      console.log('🚀 Making Enhanced API request to:', apiUrl);
-      console.log('📋 Enhanced endpoint request config:', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        endpoint_type: 'enhanced_s3_optimized',
-        expected_format: 'fast_paginated_response',
-        retry_strategy: 'progressive_timeout'
-      });
       
       const response = await axios.get(apiUrl, { 
         timeout: 1800000, // 30 minutes timeout for folder screenshots
@@ -2191,8 +1939,7 @@ const ActivityStream = () => {
         onDownloadProgress: (progressEvent) => {
           if (selectedFolder?.screenshot_count > 500) {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            console.log(`📥 Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB)`);
-            
+
             // Update error message with progress for large folders
             if (progressEvent.total > 1000000) { // > 1MB response
               setError(`📊 Loading large folder "${folderName}" - Download progress: ${percentCompleted}% (${Math.round(progressEvent.loaded / 1024)}KB). Please wait...`);
@@ -2201,19 +1948,8 @@ const ActivityStream = () => {
         }
       });
 
-      // 🤣 USER REQUESTED DEBUG - Console API result with "haha" message
-      console.log('haha - API RESULT:', response);
-      console.log('haha - API DATA:', response.data);
-      console.log('haha - API STATUS:', response.status);
-      console.log('haha - FULL RESPONSE OBJECT:', JSON.stringify(response.data, null, 2));
       
       const loadTime = (Date.now() - startTime) / 1000;
-      console.log('✅ Enhanced API response received in', loadTime.toFixed(2), 'seconds');
-      console.log('✅ Response status:', response.status, response.statusText);
-      console.log('✅ Enhanced endpoint response size:', JSON.stringify(response.data).length, 'characters');
-      console.log('✅ S3-optimized response data:', response.data);
-      console.log('🚀 Enhanced endpoint performance:', loadTime < 5 ? '⚡ FAST' : loadTime < 10 ? '✅ GOOD' : '⚠️ SLOW');
-      
       // Validate response structure first
       if (!response.data) {
         console.error('❌ No response data received');
@@ -2226,29 +1962,13 @@ const ActivityStream = () => {
         setError(response.data.message || 'API request failed');
         return;
       }
-      
-      // Enhanced response structure handling for the optimized endpoint
-      console.log('🔍 ENHANCED API RESPONSE ANALYSIS:');
-      console.log('🔍 Full enhanced response:', response);
-      console.log('🔍 Enhanced response.data:', response.data);
-      console.log('🔍 Enhanced response.data.data:', response.data?.data);
-      console.log('🔍 Enhanced response.data.success:', response.data?.success);
-      console.log('🔍 Enhanced response.data.message:', response.data?.message);
-      console.log('🚀 S3-optimized endpoint characteristics detected');
+
       
       if (response.data && response.data.data) {
         const data = response.data.data;
-        console.log('🔍 Enhanced screenshots array exists:', !!data.screenshots);
-        console.log('🔍 Enhanced screenshots array length:', data.screenshots?.length || 0);
-        console.log('🔍 Enhanced screenshots array type:', Array.isArray(data.screenshots) ? 'array' : typeof data.screenshots);
-        console.log('🔍 Enhanced total count from API:', data.pagination?.total_screenshots || data.total_count);
-        console.log('🔍 Enhanced total pages:', data.pagination?.total_pages);
-        console.log('🔍 Enhanced current page:', data.pagination?.current_page);
-        console.log('🔍 Enhanced pagination info:', data.pagination);
-        console.log('🚀 S3-optimized data structure validated');
+
         if (data.screenshots && Array.isArray(data.screenshots)) {
-          console.log('🔍 Enhanced first few screenshots:', data.screenshots.slice(0, 2));
-          console.log('🔍 Enhanced sample screenshot structure:', data.screenshots[0]);
+
         }
       }
       
@@ -2263,35 +1983,6 @@ const ActivityStream = () => {
         totalCount = data.pagination?.total_screenshots || data.total_count || screenshotsList.length;
         totalPages = data.pagination?.total_pages || Math.ceil(totalCount / adjustedLimit);
         
-        console.log('✅ Enhanced endpoint response processed:', {
-          screenshots_received: screenshotsList.length,
-          total_count: totalCount,
-          total_pages: totalPages,
-          endpoint_type: 'enhanced_s3_optimized'
-        });
-        
-        // Enhanced endpoint should show ALL screenshots - NO TRUNCATION for complete folder view
-        if (screenshotsList.length > adjustedLimit) {
-          console.log('✅ Enhanced endpoint returned more screenshots than initially requested:', {
-            requested: adjustedLimit,
-            received: screenshotsList.length,
-            action: 'KEEPING ALL - no truncation for complete folder view'
-          });
-          console.log('✅ Showing ALL screenshots from folder:', screenshotsList.length);
-        }
-        
-        // Enhanced folder statistics logging
-        if (totalCount > 1000) {
-          console.log('📊 LARGE FOLDER DETECTED (Enhanced Endpoint):');
-          console.log('📊 Enhanced total screenshots:', totalCount);
-          console.log('📊 Enhanced total pages:', totalPages);
-          console.log('📊 Enhanced screenshots per page:', adjustedLimit);
-          console.log('📊 Enhanced actually displaying:', screenshotsList.length);
-          console.log('📊 Enhanced estimated total size:', (totalCount * 0.25).toFixed(1), 'MB');
-          console.log('📊 Enhanced load time:', loadTime.toFixed(2), 'seconds');
-          console.log('📊 Enhanced processing rate:', (screenshotsList.length / loadTime).toFixed(1), 'screenshots/second');
-          console.log('🚀 S3-optimized performance metrics validated');
-        }
       } else if (response.data && response.data.screenshots) {
         screenshotsList = response.data.screenshots;
         totalCount = response.data.total_count || response.data.count || screenshotsList.length;
@@ -2306,27 +1997,10 @@ const ActivityStream = () => {
         return;
       }
       
-      // Process screenshots with enhanced formatting for S3-optimized datasets
-      console.log('🔧 About to process enhanced screenshots:', {
-        screenshotsListLength: screenshotsList.length,
-        totalCount,
-        firstScreenshot: screenshotsList[0],
-        sampleScreenshots: screenshotsList.slice(0, 2),
-        endpoint_type: 'enhanced_s3_optimized'
-      });
       
       const processedScreenshots = screenshotsList.map((screenshot, index) => {
         const formatted = formatScreenshotData(screenshot, index);
-        if (index < 3) {
-          console.log(`🖼️ EMERGENCY DEBUG - Processing screenshot ${index + 1}:`, {
-            original: screenshot,
-            formatted: formatted,
-            has_presigned_url: !!screenshot.presigned_url,
-            presigned_url_sample: screenshot.presigned_url?.substring(0, 100),
-            formatted_image: formatted.image,
-            has_formatted_image: !!formatted.image
-          });
-        }
+ 
         // Preserve original API data alongside formatted data for dynamic display
         return {
           ...formatted,
@@ -2334,22 +2008,12 @@ const ActivityStream = () => {
         };
       });
       
-      console.log('✅ Processed enhanced screenshots:', {
-        processedCount: processedScreenshots.length,
-        firstProcessed: processedScreenshots[0],
-        endpoint_type: 'enhanced_s3_optimized'
-      });
+
       
       // Validate that we have screenshots to display
       if (processedScreenshots.length === 0) {
         console.error('❌ CRITICAL: No screenshots to display after processing!');
-        console.log('🔍 Debug info:', {
-          originalScreenshotsList: screenshotsList.length,
-          processedScreenshots: processedScreenshots.length,
-          totalCount,
-          adjustedLimit,
-          apiResponse: response.data
-        });
+
         setError(`No screenshots found in folder "${folderName}". The API returned data but no valid screenshots could be processed.`);
         setFolderScreenshots([]);
         setFolderPagination({ page: 1, totalPages: 1, totalCount: 0 });
@@ -2363,19 +2027,10 @@ const ActivityStream = () => {
       // Clear loading message and show success info for large folders (enhanced endpoint)
       if (totalCount > 1000) {
         setError(''); // Clear the loading message
-        console.log('✅ Large folder loaded successfully via enhanced endpoint:', {
-          screenshotsDisplayed: processedScreenshots.length,
-          totalCount,
-          page,
-          totalPages,
-          loadTime: loadTime.toFixed(2) + 's',
-          endpoint_type: 'enhanced_s3_optimized',
-          performance: loadTime < 5 ? 'EXCELLENT' : loadTime < 10 ? 'GOOD' : 'ACCEPTABLE'
-        });
+
       }
       
-      console.log('📸 Set enhanced folder screenshots:', processedScreenshots.length, 'Total:', totalCount, 'Page:', page);
-      
+   
       // Store verified count for this folder
       const folderKey = `${employeeEmail}_${folderName}`;
       
@@ -2386,7 +2041,7 @@ const ActivityStream = () => {
           (folderName.includes('Island_Green_Construction') && folderName.includes('TEMMUZ'))) {
         if (totalCount === 42 || totalCount > 21) {
           correctedCount = 21; // Correct S3 count based on your screenshots
-          console.log('🔧 APPLIED CORRECTION: Changed count from', totalCount, 'to 21 for folder:', folderName);
+          
         }
       }
       
@@ -2399,47 +2054,21 @@ const ActivityStream = () => {
       if (correctedCount !== totalCount) {
         const correctedPages = Math.ceil(correctedCount / limit);
         setFolderPagination({ page, totalPages: correctedPages, totalCount: correctedCount });
-        console.log('🔧 Updated pagination with corrected count:', correctedCount);
+  
       }
       
       // Compare with folder metadata count for debugging
       if (selectedFolder && selectedFolder.screenshot_count !== totalCount) {
         console.warn('⚠️ COUNT MISMATCH DETECTED:');
-        console.log('🔍 Folder metadata count:', selectedFolder.screenshot_count);
-        console.log('🔍 Actual API count:', totalCount);
-        console.log('🔍 Screenshots array length:', screenshotsList.length);
-        console.log('🔍 Difference:', Math.abs(selectedFolder.screenshot_count - totalCount));
-        console.log('� Expected count (from S3): 21 files');
-        console.log('�💡 This could be due to:');
-        console.log('   - API returning duplicate entries');
-        console.log('   - API counting non-image files (but S3 shows only .webp)');
-        console.log('   - Backend pagination or data processing issue');
-        console.log('   - Database vs S3 synchronization issue');
         
         // Log actual screenshots for analysis
         if (screenshotsList.length > 0) {
-          console.log('🔍 Sample screenshots returned:', screenshotsList.slice(0, 5).map((s, i) => ({
-            index: i,
-            filename: s.filename || s.name || s.id,
-            timestamp: s.timestamp || s.created_at || s.date
-          })));
+     
         }
       }
       
     } catch (err) {
       console.error('❌ Error fetching folder screenshots:', err);
-      console.log('🔍 Error details:', {
-        message: err.message,
-        code: err.code,
-        name: err.name,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        responseData: err.response?.data,
-        requestURL: err.config?.url,
-        requestMethod: err.config?.method,
-        requestHeaders: err.config?.headers,
-        stack: err.stack
-      });
       
       // Log the exact Enhanced API URL that failed
       console.error('🔍 FAILED ENHANCED API URL:', `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=${page}&limit=${adjustedLimit}`);
@@ -2456,7 +2085,6 @@ const ActivityStream = () => {
       
       // Handle specific timeout/broken pipe errors (ECONNABORTED means timeout)
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        console.log('⏱️ Request timed out - folder may have too many screenshots');
         const estimatedCount = selectedFolder?.screenshot_count || 'many';
         if (estimatedCount > 1000) {
           setError(`⏱️ TIMEOUT: This folder contains ${estimatedCount} screenshots. Try refreshing the page and the system will load them in smaller batches of 3 per page to prevent timeouts.`);
@@ -2475,13 +2103,12 @@ const ActivityStream = () => {
       } 
       // Handle network connection errors
       else if (err.code === 'ECONNREFUSED' || err.message.includes('Network Error') || err.message.includes('connect')) {
-        console.log('🔄 Network error detected, will retry once...');
         setError('Network error: Unable to connect to server. Please check if your backend server is running on http://localhost:8000 - Retrying automatically...');
         
         // Retry once after a short delay
         setTimeout(async () => {
           try {
-            console.log('🔄 Retrying API call with patient timeout...');
+
             const retryResponse = await axios.get(apiUrl, { 
               timeout: 1800000, // 30 minutes for retry - very patient
               headers: {
@@ -2489,7 +2116,7 @@ const ActivityStream = () => {
                 'Accept': 'application/json'
               }
             });
-            console.log('✅ Retry successful!');
+
             setError(''); // Clear error message
             
             // Process the successful retry response
@@ -2507,7 +2134,6 @@ const ActivityStream = () => {
             setFolderScreenshots(screenshotsList);
             setFolderPagination({ page, totalPages, totalCount });
             setCurrentView('screenshots');
-            console.log('✅ Retry processed successfully:', screenshotsList.length, 'screenshots');
             
           } catch (retryErr) {
             console.error('❌ Retry also failed:', retryErr.message);
@@ -2522,23 +2148,17 @@ const ActivityStream = () => {
       // Handle different types of errors
       if (err.response) {
         // Server responded with error status
-        console.log('🔍 Server error response:', err.response.status, err.response.data);
         setError(`Server error: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Failed to fetch folder screenshots'}`);
-        console.log('🔍 Server responded with error. Full error response:', err.response.data);
       } else if (err.request) {
         // Network error - request was made but no response received
-        console.log('🔍 Network error - no response received:', err.request);
-        console.log('🔍 This usually indicates CORS issues or server is down');
         setError(`Network error: Cannot connect to server. This could be a CORS issue or the backend server may be down. URL: ${err.config?.url || 'unknown'}`);
       } else {
         // Something else happened
-        console.log('🔍 Request setup error:', err.message);
         setError(`Request error: ${err.message}`);
       }
       
       // For timeout errors with large folders, try one more time with even smaller batch
       if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        console.log('⏱️ Timeout detected - trying one more time with ultra-micro batch (1 screenshot)');
         
         try {
           // Try again with just 1 screenshot and ultra-short timeout
@@ -2546,8 +2166,6 @@ const ActivityStream = () => {
           const ultraSmallLimit = 1; // Just 1 screenshot
           
           const retryApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=${page}&limit=${ultraSmallLimit}`;
-          console.log('🔄 Retrying with ultra-micro batch:', retryApiUrl);
-          console.log('🔄 Using ultra-patient timeout:', ultraShortTimeout / 1000, 'seconds');
           
           const retryResponse = await axios.get(retryApiUrl, { 
             timeout: ultraShortTimeout,
@@ -2556,8 +2174,6 @@ const ActivityStream = () => {
               'Accept': 'application/json'
             }
           });
-          
-          console.log('✅ Ultra-micro batch retry successful!');
           
           // Process the retry response
           if (retryResponse.data && retryResponse.data.success && retryResponse.data.data) {
@@ -2579,18 +2195,13 @@ const ActivityStream = () => {
               setCurrentView('screenshots');
               setError(''); // Clear error since we got real data
               
-              console.log('✅ Ultra-micro batch loaded real screenshots:', processedRetryScreenshots.length);
-              console.log('✅ Pagination set to 1 screenshot per page for maximum speed');
               return; // Exit with real data
             }
           }
         } catch (retryErr) {
-          console.log('❌ Ultra-micro batch retry also failed:', retryErr.message);
-          console.log('🔍 Even 1 screenshot with 5-second timeout failed');
           
           // Try one final time with extreme settings
           try {
-            console.log('🔄 Final attempt with extreme patience...');
             const extremeTimeout = 1800000; // 30 minutes extreme timeout
             const extremeApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/?page=1&limit=1`;
             
@@ -2600,7 +2211,6 @@ const ActivityStream = () => {
             });
             
             if (extremeResponse.data && extremeResponse.data.success) {
-              console.log('✅ Extreme attempt succeeded!');
               // Process successful extreme response
               const data = extremeResponse.data.data;
               const screenshots = data.screenshots || [];
@@ -2610,12 +2220,11 @@ const ActivityStream = () => {
                 setFolderPagination({ page: 1, totalPages: data.pagination?.total_screenshots || 1000, totalCount: data.pagination?.total_screenshots || 1000 });
                 setCurrentView('screenshots');
                 setError('');
-                console.log('✅ Extreme attempt loaded real screenshot');
                 return;
               }
             }
           } catch (extremeErr) {
-            console.log('❌ Extreme attempt also failed:', extremeErr.message);
+ 
           }
         }
         
@@ -2650,13 +2259,6 @@ const ActivityStream = () => {
         setCurrentPage(1);
         // Use search_value (email) for API call as it's the most reliable identifier
         const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username;
-        console.log('🔍 Fetching screenshots for selected user:', {
-          display_name: selectedUser.display_name,
-          search_term: searchTerm,
-          email: selectedUser.email,
-          username: selectedUser.username,
-          search_value: selectedUser.search_value
-        });
         fetchScreenshots(searchTerm); // Use default unlimited limit
       } else if (!isUserSelected) {
         setScreenshots([]);
@@ -2688,27 +2290,11 @@ const ActivityStream = () => {
 
   // S3 KEY SPECIFIC DEBUGGING FUNCTION
   const debugS3KeyExtraction = (screenshot) => {
-    console.log('🔑 S3 KEY DEBUGGING - Raw screenshot object:', screenshot);
-    console.log('🔑 S3 KEY DEBUGGING - Detailed analysis:', {
-      hasS3Key: 's3_key' in screenshot,
-      s3KeyValue: screenshot.s3_key,
-      s3KeyType: typeof screenshot.s3_key,
-      s3KeyLength: screenshot.s3_key ? screenshot.s3_key.length : 0,
-      s3KeyIsString: typeof screenshot.s3_key === 'string',
-      s3KeyIsEmpty: screenshot.s3_key === '',
-      s3KeyIsNull: screenshot.s3_key === null,
-      s3KeyIsUndefined: screenshot.s3_key === undefined,
-      allObjectKeys: Object.keys(screenshot),
-      s3KeyInKeys: Object.keys(screenshot).includes('s3_key')
-    });
+
     
     // Test direct access
     const directS3Key = screenshot['s3_key'];
-    console.log('🔑 S3 KEY DEBUGGING - Direct access test:', {
-      directAccess: directS3Key,
-      directAccessType: typeof directS3Key,
-      directAccessLength: directS3Key ? directS3Key.length : 0
-    });
+
     
     return screenshot.s3_key;
   };
@@ -2718,17 +2304,16 @@ const ActivityStream = () => {
     const actualLimit = limit || perPageLimit; // Use provided limit or current dropdown selection
     
     try {
-      console.log('🚀 Starting fetchEmployeeFoldersAndAllScreenshots for:', employeeEmail, 'page:', page, 'limit:', actualLimit);
-      
+
       // Step 1: Fetch all folders for the user (only on first page load)
       if (page === 1) {
         setLoadingFolders(true);
         setError('');
         
-        console.log('📁 Step 1: Fetching folders for employee:', employeeEmail);
+       
         const apiBaseURL = getApiBaseURL();
         const foldersApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folders/`;
-        console.log('🔍 Folders API URL:', foldersApiUrl);
+
         
         const foldersResponse = await axios.get(foldersApiUrl, { 
           timeout: 1800000, // 30 minutes timeout
@@ -2738,14 +2323,14 @@ const ActivityStream = () => {
           }
         });
         
-        console.log('✅ Folders API response:', foldersResponse.data);
+ 
         
         let foldersList = [];
         
         // Handle different response structures for folders
         if (foldersResponse.data && foldersResponse.data.success && foldersResponse.data.data && foldersResponse.data.data.task_folders) {
           foldersList = foldersResponse.data.data.task_folders;
-          console.log('✅ Using task_folders from API response');
+     
         } else if (foldersResponse.data && foldersResponse.data.success && foldersResponse.data.data && foldersResponse.data.data.folders) {
           foldersList = foldersResponse.data.data.folders;
         } else if (foldersResponse.data && foldersResponse.data.folders) {
@@ -2759,7 +2344,7 @@ const ActivityStream = () => {
           foldersList = [];
         }
         
-        console.log('📁 Step 1 Complete: Found', foldersList.length, 'folders');
+     
         
         // Sort folders by date (newest first)
         foldersList.sort((a, b) => {
@@ -2773,7 +2358,7 @@ const ActivityStream = () => {
         setLoadingFolders(false);
         
         if (foldersList.length === 0) {
-          console.log('❌ No folders found for user:', employeeEmail);
+      
           setError('No folders found for this user');
           setCurrentView('search'); // Go back to search if no folders
           return;
@@ -2781,7 +2366,7 @@ const ActivityStream = () => {
       }
       
       // Step 2: Use the live-tracking API to get paginated screenshots from all folders
-      console.log('📸 Step 2: Fetching paginated screenshots from all folders...');
+
       setLoadingFolderScreenshots(true);
       setCurrentView('screenshots'); // Go directly to screenshots view
       
@@ -2804,17 +2389,17 @@ const ActivityStream = () => {
       // Handle date filtering if active
       if (singleDateFilter) {
         params.append('date', singleDateFilter);
-        console.log(`�️ Applying single date filter: ${singleDateFilter}`);
+   
       } else if (isDateFilterActive && dateRange[0] && dateRange[1]) {
         const startDate = dayjs(dateRange[0]).format('YYYY-MM-DD');
         const endDate = dayjs(dateRange[1]).format('YYYY-MM-DD');
         params.append('start_date', startDate);
         params.append('end_date', endDate);
-        console.log(`🗓️ Applying date range filter: ${startDate} to ${endDate}`);
+       
       }
       
       const fullUrl = `${apiUrl}?${params.toString()}`;
-      console.log(`🔍 Paginated API Request: ${fullUrl}`);
+    
       
       const response = await axios.get(fullUrl, { 
         timeout: 1800000, // 30 minutes timeout
@@ -2826,37 +2411,25 @@ const ActivityStream = () => {
       
       let screenshots = [];
       let totalCount = 0;
+
       
-      // Use the EXACT same comprehensive parsing logic as the working fetchScreenshots function
-      console.log('🔍 Dynamic API Response Analysis:', {
-        hasData: !!response.data,
-        hasSuccess: !!response.data?.success,
-        hasEmployees: !!response.data?.employees,
-        hasResults: !!response.data?.results,
-        responseKeys: Object.keys(response.data || {}),
-        responseType: typeof response.data,
-        isArray: Array.isArray(response.data),
-        fullResponse: response.data
-      });
-      
-      // CRITICAL DEBUG: Log the exact response structure
-      console.log('🔍 FULL DYNAMIC API RESPONSE:', JSON.stringify(response.data, null, 2));
+
       
       if (response.data && response.data.success && response.data.employees && Array.isArray(response.data.employees)) {
         // Dynamic API structure: { success: true, employees: [...], total_count: number }
         screenshots = response.data.employees;
         totalCount = response.data.total_count || response.data.count || screenshots.length;
-        console.log('✅ Using dynamic API success structure with employees array');
+
       } else if (response.data && response.data.employees && Array.isArray(response.data.employees)) {
         // Dynamic API structure without success flag: { employees: [...], total_count: number }
         screenshots = response.data.employees;
         totalCount = response.data.total_count || response.data.count || screenshots.length;
-        console.log('✅ Using dynamic API employees structure');
+      
       } else if (response.data && response.data.success && response.data.data && Array.isArray(response.data.data)) {
         // Structure: { success: true, data: [...] }
         screenshots = response.data.data;
         totalCount = response.data.total_count || response.data.count || screenshots.length;
-        console.log('✅ Using success + data array structure');
+
       } else if (response.data && response.data.data && response.data.data.employees && Array.isArray(response.data.data.employees)) {
         // Nested structure: { data: { employees: [...], summary: {...} } }
         let allScreenshots = [];
@@ -2898,30 +2471,25 @@ const ActivityStream = () => {
         
         screenshots = allScreenshots;
         totalCount = response.data.data.summary?.total_screenshots || response.data.data.total_count || screenshots.length;
-        console.log('✅ Using nested employees structure with screenshots');
+
       } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
         // Structure: { screenshots: [...], total_count: number }
         screenshots = response.data.screenshots;
         totalCount = response.data.total_count || response.data.count || screenshots.length;
-        console.log('✅ Using screenshots array structure');
+
       } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
         // Structure: { results: [...], count: number }
         screenshots = response.data.results;
         totalCount = response.data.count || response.data.total_count || screenshots.length;
-        console.log('✅ Using results array structure');
+      
       } else if (Array.isArray(response.data)) {
         // Direct array structure: [...]
         screenshots = response.data;
         totalCount = screenshots.length;
-        console.log('✅ Using direct array structure');
+   
       } else {
         console.warn('⚠️ Unexpected dynamic API response structure:', response.data);
-        console.log('🔍 Full response analysis:', {
-          data: response.data,
-          dataType: typeof response.data,
-          isArray: Array.isArray(response.data),
-          keys: response.data ? Object.keys(response.data) : []
-        });
+  
         
         // FALLBACK: Try to extract any screenshot data from the response
         let fallbackScreenshots = [];
@@ -2940,7 +2508,7 @@ const ActivityStream = () => {
           const keys = Object.keys(response.data);
           for (const key of keys) {
             if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
-              console.log(`🔍 Found array in key "${key}":`, response.data[key].slice(0, 2));
+       
               fallbackScreenshots = response.data[key];
               break;
             }
@@ -2949,24 +2517,10 @@ const ActivityStream = () => {
         
         screenshots = fallbackScreenshots;
         totalCount = response.data?.total_count || response.data?.count || fallbackScreenshots.length;
-        console.log('🔧 FALLBACK: Extracted screenshots using fallback logic:', {
-          screenshotsFound: fallbackScreenshots.length,
-          totalCount,
-          firstScreenshot: fallbackScreenshots[0]
-        });
+
       }
       
-      console.log('🎉 Step 2 Complete: Loaded paginated screenshots using working parsing logic');
-      console.log(`📊 Paginated results: ${screenshots.length} screenshots on page ${page}, total: ${totalCount}`);
-      console.log('🔍 SCREENSHOTS STATE DEBUG:', {
-        screenshotsLength: screenshots.length,
-        firstScreenshot: screenshots[0],
-        lastScreenshot: screenshots[screenshots.length - 1],
-        sampleScreenshots: screenshots.slice(0, 3),
-        totalCount: totalCount,
-        currentPage: page,
-        totalPages: Math.ceil(totalCount / actualLimit)
-      });
+
       
       // Set paginated screenshots in state (using same state as working function)
       setFolderScreenshots(screenshots);
@@ -2992,16 +2546,7 @@ const ActivityStream = () => {
       }]);
       
       setError(''); // Clear any loading messages
-      console.log('✅ Successfully loaded paginated screenshots using working live-tracking API:', {
-        currentPage: page,
-        screenshotsOnPage: screenshots.length,
-        totalScreenshots: totalCount,
-        totalPages: Math.ceil(totalCount / actualLimit),
-        perPage: actualLimit,
-        user: selectedUser?.display_name,
-        apiUsed: 'live-tracking/fast-screenshots',
-        endpoint: fullUrl
-      });
+
       
     } catch (err) {
       console.error('❌ Error in fetchEmployeeFoldersAndAllScreenshots:', err);
@@ -3026,36 +2571,16 @@ const ActivityStream = () => {
 
   // Format screenshot data for display (ULTRA ENHANCED DEBUGGING VERSION)
   const formatScreenshotData = (screenshot, index) => {
-    console.log('🔧 🚨 ULTRA DEBUGGING - Full screenshot object received:', screenshot);
-    console.log('🔧 🚨 ULTRA DEBUGGING - Processing screenshot data:', {
-      index,
-      screenshot_is_object: typeof screenshot === 'object',
-      screenshot_is_null: screenshot === null,
-      screenshot_is_undefined: screenshot === undefined,
-      screenshot_keys: screenshot ? Object.keys(screenshot) : 'NO_KEYS',
-      filename: screenshot?.filename,
-      hasPresignedUrl: !!screenshot?.presigned_url,
-      presignedUrlValue: screenshot?.presigned_url,
-      presignedUrlType: typeof screenshot?.presigned_url,
-      presignedUrlLength: screenshot?.presigned_url?.length,
-      presignedUrlPreview: screenshot?.presigned_url?.substring(0, 100) + '...',
-      s3Key: screenshot?.s3_key,
-      timestamp: screenshot?.timestamp,
-      application: screenshot?.application,
-      timeDisplay: screenshot?.time_display,
-      id: screenshot?.id,
-      size_bytes: screenshot?.size_bytes,
-      window_title: screenshot?.window_title
-    });
+
 
     // CALL S3 KEY DEBUGGING FUNCTION
-    console.log('🔑 CALLING S3 KEY DEBUG FUNCTION FOR INDEX:', index);
+
     const debuggedS3Key = debugS3KeyExtraction(screenshot);
-    console.log('🔑 S3 KEY DEBUG RESULT:', debuggedS3Key);
+ 
     
     // Extract the actual S3 key value - Handle both field names
     const actualS3Key = screenshot?.key || screenshot?.s3_key || null;
-    console.log('🔑 ACTUAL S3 KEY VALUE:', actualS3Key);
+
 
     // EMERGENCY: Check if screenshot object is being passed correctly
     if (!screenshot || typeof screenshot !== 'object') {
@@ -3109,30 +2634,13 @@ const ActivityStream = () => {
     // Try presigned_url first, then url field from API response
     if (screenshot?.presigned_url && typeof screenshot.presigned_url === 'string' && screenshot.presigned_url.trim() !== '') {
       finalImageUrl = screenshot.presigned_url.trim();
-      console.log('✅ SUCCESS: Using presigned_url from API:', finalImageUrl.substring(0, 100) + '...');
+  
     } else if (screenshot?.url && typeof screenshot.url === 'string' && screenshot.url.trim() !== '') {
       finalImageUrl = screenshot.url.trim();
     } else {
       finalImageUrl = null;
     }
-    
-    console.log('�️ Image URL Processing:', {
-      hasPresignedUrl: !!screenshot.presigned_url,
-      presignedUrlLength: screenshot.presigned_url?.length,
-      hasSignature: screenshot.presigned_url?.includes('X-Amz-Signature'),
-      s3Domain: screenshot.presigned_url?.includes('ddsfocustime.s3.amazonaws.com')
-    });
-    
-    // SKIP DUPLICATE URL PROCESSING - finalImageUrl already set above
-
-    console.log('🎯 FINAL RESULT - Image URL Processing:', {
-      finalImageUrl: finalImageUrl,
-      finalImageUrlPreview: finalImageUrl ? finalImageUrl.substring(0, 100) + '...' : 'NULL',
-      isPresigned: finalImageUrl?.includes('X-Amz-Signature'),
-      domain: finalImageUrl?.includes('ddsfocustime.s3.amazonaws.com') ? 'S3' : 'Other',
-      isValidURL: !!finalImageUrl && finalImageUrl.length > 0,
-      originalPresignedUrl: screenshot?.presigned_url
-    });
+  
 
     // Enhanced time formatting using API data
     let displayTime = `${9 + index}:00 AM`;
@@ -3162,14 +2670,7 @@ const ActivityStream = () => {
       applicationName = screenshot.window_title;
     }
     
-    // DEBUGGING APPLICATION DATA
-    console.log('🔧 Application Debug:', {
-      raw_application: screenshot.application,
-      raw_window_title: screenshot.window_title,
-      final_application: applicationName,
-      has_application: !!screenshot.application,
-      has_window_title: !!screenshot.window_title
-    });
+
 
     // Task name from API or folder
     let taskName = applicationName;
@@ -3207,24 +2708,7 @@ const ActivityStream = () => {
       }
     };
 
-    console.log('🎯 RETURNING FORMATTED DATA:', {
-      index,
-      hasImageURL: !!resultObject.image,
-      imageURL: resultObject.image,
-      imageURLPreview: resultObject.image ? resultObject.image.substring(0, 100) + '...' : 'NULL',
-      taskName: resultObject.task,
-      originalPresignedUrl: screenshot.presigned_url,
-      // S3 KEY SPECIFIC DEBUGGING
-      hasS3Key: !!screenshot.s3_key,
-      s3KeyValue: screenshot.s3_key,
-      s3KeyType: typeof screenshot.s3_key,
-      s3KeyLength: screenshot.s3_key?.length,
-      resultS3Key: resultObject.s3_key,
-      s3KeyMatch: screenshot.s3_key === resultObject.s3_key,
-      debuggedS3Key: debuggedS3Key,
-      s3KeyDebugInfo: resultObject.s3_key_debug_info,
-      resultObject: resultObject
-    });
+
 
     // FINAL VALIDATION CHECK
     if (!resultObject.image) {
@@ -3234,7 +2718,7 @@ const ActivityStream = () => {
         screenshotObject: screenshot
       });
     } else {
-      console.log('✅ SUCCESS: Returning object with valid image URL:', resultObject.image.substring(0, 50) + '...');
+      
     }
 
     // S3 KEY VALIDATION CHECK
@@ -3247,7 +2731,7 @@ const ActivityStream = () => {
         screenshotObject: screenshot
       });
     } else {
-      console.log('✅ S3 KEY SUCCESS: Returning object with valid S3 key:', resultObject.s3_key.substring(0, 50) + '...');
+      
     }
 
     return resultObject;
@@ -3261,13 +2745,7 @@ const ActivityStream = () => {
   const handlePageChange = (page) => {
     if (!isUserSelected || !selectedUser || loading || page < 1 || page > totalPages || page === currentPage) return;
     
-    console.log('📄 Changing to page:', {
-      fromPage: currentPage,
-      toPage: page,
-      totalPages,
-      selectedUser: selectedUser.display_name,
-      searchPattern
-    });
+
     
     const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username || selectedUser.display_name;
     
@@ -3279,7 +2757,7 @@ const ActivityStream = () => {
       
       setScreenshots(paginatedScreenshots);
       setCurrentPage(page);
-      console.log('📸 Frontend pagination applied:', paginatedScreenshots.length, 'screenshots for page', page);
+      
     } else {
       // For quick search, fetch from backend with current per-page limit
       fetchScreenshots(searchTerm, perPageLimit, page);
@@ -3315,14 +2793,7 @@ const ActivityStream = () => {
   const handleLoadMore = () => {
     if (isUserSelected && selectedUser && !loadingMore && !loading) {
       const nextPage = currentPage + 1;
-      console.log('🔄 Loading more screenshots:', {
-        currentPage,
-        nextPage,
-        currentScreenshotsCount: screenshots.length,
-        totalCount,
-        selectedUser: selectedUser.display_name,
-        expectedOffset: (nextPage - 1) * 20
-      });
+
       
       // Use the same search term that was used initially for consistency
       const searchTerm = selectedUser.search_value || selectedUser.email || selectedUser.username || selectedUser.display_name;
@@ -3330,12 +2801,7 @@ const ActivityStream = () => {
       // Always append when loading more (never replace)
       fetchScreenshots(searchTerm, undefined, nextPage); // Use default unlimited limit
     } else {
-      console.log('❌ Cannot load more screenshots:', {
-        isUserSelected,
-        hasSelectedUser: !!selectedUser,
-        loadingMore,
-        loading
-      });
+
     }
   };
 
@@ -3360,7 +2826,7 @@ const ActivityStream = () => {
 
   // Debug function to test date filtering logic (accessible in console)
   window.testDateFiltering = (testRange = ['2025-06-21', '2025-06-22']) => {
-    console.log('🧪 ===== TESTING DATE FILTERING LOGIC =====');
+ 
     
     const testData = [
       { id: 1, filename: '2025-06-18_14-06-29_2025', timestamp: '2025-06-18T14:06:29+00:00' },
@@ -3370,53 +2836,42 @@ const ActivityStream = () => {
       { id: 5, filename: '2025-06-28_13-54-54_2025', timestamp: '2025-06-28T13:54:54+00:00' }
     ];
     
-    console.log(`🗓️ Test date range: ${testRange[0]} to ${testRange[1]}`);
+
     
     const startDate = dayjs(testRange[0]);
     const endDate = dayjs(testRange[1]);
     
     testData.forEach(item => {
-      console.log(`\n📸 Testing item ${item.id}:`);
-      console.log(`  - filename: ${item.filename}`);
-      console.log(`  - timestamp: ${item.timestamp}`);
+ 
       
       // Test timestamp extraction
       const dateFromTimestamp = extractDateFromTimestamp(item.timestamp);
-      console.log(`  - Date from timestamp: ${dateFromTimestamp ? dateFromTimestamp.format('YYYY-MM-DD') : 'FAILED'}`);
-      
+
       // Test filename extraction
       const dateFromFilename = extractDateFromFilename(item.filename);
-      console.log(`  - Date from filename: ${dateFromFilename ? dateFromFilename.format('YYYY-MM-DD') : 'FAILED'}`);
-      
+  
       // Test filtering logic
       const extractedDate = dateFromTimestamp || dateFromFilename;
       if (extractedDate) {
         const isInRange = extractedDate.isBetween(startDate, endDate, 'day', '[]');
-        console.log(`  - Range check: ${extractedDate.format('YYYY-MM-DD')} between ${startDate.format('YYYY-MM-DD')} and ${endDate.format('YYYY-MM-DD')} = ${isInRange ? '✅ INCLUDE' : '❌ EXCLUDE'}`);
+       
       } else {
-        console.log(`  - Range check: ❌ NO DATE EXTRACTED`);
+      
       }
     });
     
-    console.log('🧪 ===== TEST COMPLETE =====');
+
   };
 
   // Utility function to extract date from filename
   const extractDateFromFilename = (filename) => {
     if (!filename) {
-      console.log(`🔍 No filename provided`);
+
       return null;
     }
     
-    console.log(`🔍 === EXTRACTING DATE FROM FILENAME ===`);
-    console.log(`🔍 Input filename: "${filename}"`);
-    
-    // Try to match common screenshot filename patterns:
-    // 1. YYYY-MM-DD_HH-MM-SS_YYYY format (like "2025-06-28_13-54-54_2025")
-    // 2. YYYY-MM-DD_HH-MM-SS format
-    // 3. YYYY-MM-DD format
-    // 4. YYYYMMDD format
-    // 5. DD-MM-YYYY format
+
+
     const patterns = [
       { name: 'YYYY-MM-DD_HH-MM-SS_YYYY', regex: /(\d{4}-\d{2}-\d{2})_\d{2}-\d{2}-\d{2}_\d{4}/ },
       { name: 'YYYY-MM-DD_HH-MM-SS', regex: /(\d{4}-\d{2}-\d{2})_\d{2}-\d{2}-\d{2}/ },
@@ -3427,12 +2882,12 @@ const ActivityStream = () => {
     
     for (let i = 0; i < patterns.length; i++) {
       const pattern = patterns[i];
-      console.log(`🔍 Trying pattern "${pattern.name}": ${pattern.regex}`);
+
       
       const match = filename.match(pattern.regex);
       
       if (match) {
-        console.log(`✅ Pattern "${pattern.name}" matched:`, match);
+
         
         let dateStr;
         if (i === 0 || i === 1 || i === 2) {
@@ -3446,7 +2901,7 @@ const ActivityStream = () => {
           dateStr = `${match[3]}-${match[2]}-${match[1]}`;
         }
         
-        console.log(`🔍 Constructed date string: "${dateStr}"`);
+ 
         
         const parsedDate = dayjs(dateStr);
         if (parsedDate.isValid()) {
@@ -3456,23 +2911,22 @@ const ActivityStream = () => {
           console.log(`❌ Date string "${dateStr}" is not valid`);
         }
       } else {
-        console.log(`❌ Pattern "${pattern.name}" did not match`);
+       
       }
     }
     
-    console.log(`❌ Could not extract date from filename: ${filename}`);
+   
     return null;
   };
 
   // Utility function to extract date from timestamp - ENHANCED FOR TIMESTAMP PRIORITY
   const extractDateFromTimestamp = (timestamp) => {
     if (!timestamp) {
-      console.log(`🔍 No timestamp provided`);
+    
       return null;
     }
     
-    console.log(`🔍 === EXTRACTING DATE FROM TIMESTAMP ===`);
-    console.log(`🔍 Input timestamp: "${timestamp}"`);
+
     
     try {
       let parsedDate;
@@ -3480,17 +2934,17 @@ const ActivityStream = () => {
       // Handle ISO format with timezone: "2025-06-16T11:08:03+00:00"
       if (timestamp.includes('T') && (timestamp.includes('+') || timestamp.includes('Z'))) {
         parsedDate = dayjs(timestamp);
-        console.log(`🔍 Parsing as ISO format with timezone`);
+  
       }
       // Handle ISO format: "2025-06-14T02:42:30Z"
       else if (timestamp.includes('T')) {
         parsedDate = dayjs(timestamp);
-        console.log(`🔍 Parsing as ISO format`);
+   
       } 
       // Handle format with space: "2025-06-14 02:42:30"
       else if (timestamp.includes(' ')) {
         parsedDate = dayjs(timestamp);
-        console.log(`🔍 Parsing as space-separated format`);
+   
       } 
       // Handle simple date format: "2025-06-14"
       else if (timestamp.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -3500,48 +2954,38 @@ const ActivityStream = () => {
       // Handle Unix timestamp (10 digits - seconds)
       else if (timestamp.match(/^\d{10}$/)) {
         parsedDate = dayjs.unix(parseInt(timestamp));
-        console.log(`🔍 Parsing as Unix timestamp (seconds)`);
+  
       } 
       // Handle Unix timestamp (13 digits - milliseconds)
       else if (timestamp.match(/^\d{13}$/)) {
         parsedDate = dayjs(parseInt(timestamp));
-        console.log(`🔍 Parsing as Unix timestamp (milliseconds)`);
+ 
       } 
       // Try parsing as-is
       else {
         parsedDate = dayjs(timestamp);
-        console.log(`🔍 Parsing as-is (fallback)`);
+    
       }
       
       if (parsedDate.isValid()) {
-        console.log(`✅ Successfully parsed timestamp: ${timestamp} -> ${parsedDate.format('YYYY-MM-DD HH:mm:ss')}`);
+       
         return parsedDate;
       } else {
-        console.log(`❌ Invalid date from timestamp: ${timestamp}`);
+
         return null;
       }
     } catch (error) {
-      console.log(`❌ Error parsing timestamp: ${timestamp}`, error);
+ 
       return null;
     }
   };
 
   // Function to filter screenshots by date - ENHANCED VERSION
   const filterScreenshotsByDate = (screenshots) => {
-    console.log('🗓️ ===== FILTER FUNCTION CALLED =====');
-    console.log('🗓️ Function parameters:', {
-      screenshotsCount: screenshots?.length || 0,
-      isDateFilterActive,
-      singleDateFilter,
-      dateRange: [
-        dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
-        dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
-      ],
-      filterUpdateTrigger
-    });
+
     
     if (!screenshots || screenshots.length === 0) {
-      console.log('🗓️ No screenshots to filter, returning empty array');
+   
       return screenshots;
     }
     
@@ -3550,14 +2994,7 @@ const ActivityStream = () => {
     const hasSingleDateFilter = singleDateFilter && singleDateFilter.trim() !== '';
     
     if (!hasDateRangeFilter && !hasSingleDateFilter) {
-      console.log('🗓️ ❌ NO VALID DATE FILTER - returning all screenshots unchanged');
-      console.log('🗓️ Filter check details:', { 
-        isDateFilterActive, 
-        hasDateRange: !!(dateRange[0] && dateRange[1]),
-        singleDateFilter,
-        hasDateRangeFilter,
-        hasSingleDateFilter 
-      });
+
       return screenshots;
     }
     
@@ -3568,10 +3005,7 @@ const ActivityStream = () => {
       
       // Only show first 5 for debugging to avoid spam
       if (index < 5) {
-        console.log(`\n🔍 === Processing screenshot ${index + 1}/${screenshots.length} ===`);
-        console.log(`  - ID: ${screenshot.id}`);
-        console.log(`  - filename: ${screenshot.filename}`);
-        console.log(`  - timestamp: ${screenshot.timestamp}`);
+
       }
       
       // PRIORITY 1: Try to extract date from timestamp FIRST (this is the most reliable)
@@ -3636,8 +3070,6 @@ const ActivityStream = () => {
       return false; // Default to exclude if no valid filter
     });
     
-    console.log(`🗓️ ======= FILTERING COMPLETE =======`);
-    console.log(`🗓️ Results: ${screenshots.length} total → ${filteredResults.length} filtered`);
     
     return filteredResults;
   };
@@ -3649,9 +3081,7 @@ const ActivityStream = () => {
     
     // Auto-activate filter when both dates are selected
     if (newValue && newValue[0] && newValue[1]) {
-      console.log(`🗓️ ===== AUTO-APPLYING DATE RANGE FILTER =====`);
-      console.log(`🗓️ Date range: ${dayjs(newValue[0]).format('YYYY-MM-DD')} to ${dayjs(newValue[1]).format('YYYY-MM-DD')}`);
-      
+
       // Set the filter states
       setIsDateFilterActive(true);
       setSingleDateFilter(null); // Clear single date filter
@@ -3726,8 +3156,7 @@ const ActivityStream = () => {
 
   // DateSelector handler - FRONT-END FILTERING ONLY (no backend API calls)
   const handleDateSelectorChange = (dateString) => {
-    console.log('📅 DateSelector changed to:', dateString);
-    console.log('📅 Current selectedMonth:', selectedMonth);
+
     setSelectedDate(dateString);
     
     // FRONT-END FILTERING: Set filter parameters for filterScreenshotsByDate function
@@ -3827,10 +3256,7 @@ const ActivityStream = () => {
   };
 
   const handleFolderClick = (folder) => {
-    console.log('📁 Folder clicked:', folder);
-    console.log('🔍 Current user:', selectedUser);
-    console.log('🔍 User email for API:', selectedUser?.search_value || selectedUser?.email || selectedUser?.username);
-    console.log('🔍 Folder name for API:', folder.folder_name || folder.date || folder.name);
+
     
     setSelectedFolder(folder);
     setError(''); // Clear any previous errors
@@ -3839,9 +3265,7 @@ const ActivityStream = () => {
     
     const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
     const folderName = folder.folder_name || folder.date || folder.name;
-    
-    console.log('🚀 About to call fetchFolderScreenshots with:', { userEmail, folderName });
-    console.log('🔍 CURRENT VIEW SET TO: screenshots');
+
     
     // Get ALL screenshots from folder - no limits
     fetchFolderScreenshots(userEmail, folderName);
@@ -3868,10 +3292,7 @@ const ActivityStream = () => {
 
   // Image Modal Functions
   const openImageModal = (images, startIndex = 0) => {
-    console.log('🖼️ Opening image modal with:', { images, startIndex });
-    console.log('🔍 Images array:', images);
-    console.log('🔍 Start index:', startIndex);
-    console.log('🔍 Setting modal state...');
+
     
     // Validate inputs
     if (!images || !Array.isArray(images) || images.length === 0) {
@@ -3911,10 +3332,7 @@ const ActivityStream = () => {
   };
 
   const handleImageClick = (clickedImage, clickedIndex) => {
-    console.log('🖼️ Image clicked:', { clickedImage, clickedIndex });
-    console.log('🔍 Current view:', currentView);
-    console.log('🔍 Folder screenshots length:', folderScreenshots.length);
-    console.log('🔍 Screenshots length:', screenshots.length);
+
     
     // Determine which image array to use based on current view
     let imagesToShow = [];
@@ -4008,29 +3426,21 @@ const ActivityStream = () => {
       startIndex = 0;
     }
 
-    console.log('🚀 About to open modal with:', { imagesToShow, startIndex });
-    console.log('🖼️ First image URL:', imagesToShow[0]?.src?.substring(0, 100) + '...');
+
     openImageModal(imagesToShow, startIndex);
   };
 
   const handleFolderPageChange = (page) => {
     if (!selectedUser || !selectedFolder || loadingFolderScreenshots || page < 1 || page > folderPagination.totalPages || page === folderPagination.page) return;
     
-    console.log('📄 Folder page change requested:', {
-      fromPage: folderPagination.page,
-      toPage: page,
-      totalPages: folderPagination.totalPages,
-      folderName: selectedFolder.folder_name,
-      estimatedCount: selectedFolder?.screenshot_count,
-      isAllFolders: selectedFolder.folder_name === 'All Folders'
-    });
+
     
     const userEmail = selectedUser.search_value || selectedUser.email || selectedUser.username;
     
     // Check if we're viewing all folders or a specific folder
     if (selectedFolder.folder_name === 'All Folders') {
       // Use the new paginated function for all folders
-      console.log('📄 Loading page', page, 'of all folders - no per-page limits');
+
       fetchEmployeeFoldersAndAllScreenshots(userEmail, page, 500000);
     } else {
       // Get ALL screenshots from specific folder - no limits
@@ -4096,18 +3506,7 @@ const ActivityStream = () => {
 
     return (
       <>
-        {/* <SearchInfo theme={theme} isDarkMode={isDarkMode}>
-          📁 Found <strong>{folders.length}</strong> folder{folders.length === 1 ? '' : 's'} for <strong>{selectedUser?.display_name}</strong>
-          <br />
-          <small>
-            Click on any folder to view screenshots. 
-            {folders.some(f => f.is_date_folder) && folders.some(f => !f.is_date_folder) && 
-              ' Date folders (📅) and task folders (📁) available.'
-            }
-          </small>
-        </SearchInfo> */}
-
-        {/* Date Filter Section for Folders */}
+ 
         
         {/* DateSelector Component - Visual date selector */}
         <DateSelector 
@@ -4405,17 +3804,9 @@ const ActivityStream = () => {
 
     // 🎯 LIVE IMAGE DISPLAY TEST: Check if we have presigned URLs like LiveTracking
     if (folderScreenshots?.length > 0) {
-      console.log('🎯 LIVE IMAGE DISPLAY TEST - Sample screenshot data:');
+
       const firstScreenshot = folderScreenshots[0];
-      console.log('  📸 First screenshot:', {
-        id: firstScreenshot?.id,
-        filename: firstScreenshot?.filename,
-        has_presigned_url: !!firstScreenshot?.presigned_url,
-        presigned_url_preview: firstScreenshot?.presigned_url?.substring(0, 120) + '...',
-        has_s3_key: !!firstScreenshot?.s3_key,
-        s3_key: firstScreenshot?.s3_key,
-        generated_url: getImageUrl(firstScreenshot)?.substring(0, 120) + '...'
-      });
+
 
     }
 
@@ -4457,7 +3848,7 @@ const ActivityStream = () => {
       );
     }
 
-    console.log('✅ Rendering', folderScreenshots.length, 'screenshots');
+
     return (
       <>
         <SearchInfo theme={theme} isDarkMode={isDarkMode}>
@@ -4546,19 +3937,7 @@ const ActivityStream = () => {
         
         <CardGrid ref={cardGridRef} theme={theme} isDarkMode={isDarkMode}>
           {(() => {
-            // Use pre-filtered screenshots from useEffect
-            console.log(`🗓️ ===== RENDERING FOLDER SCREENSHOTS =====`);
-            console.log(`🗓️ Using pre-filtered screenshots:`);
-            console.log(`🗓️ Original count: ${folderScreenshots.length}`);
-            console.log(`🗓️ Filtered count: ${filteredFolderScreenshots.length}`);
-            console.log(`🗓️ Filter state:`, {
-              isDateFilterActive,
-              singleDateFilter,
-              dateRange: [
-                dateRange[0] ? dayjs(dateRange[0]).format('YYYY-MM-DD') : 'null',
-                dateRange[1] ? dayjs(dateRange[1]).format('YYYY-MM-DD') : 'null'
-              ]
-            });
+
             
             return filteredFolderScreenshots.map((screenshot, i) => {
               const formattedData = screenshot; // Use the already formatted data
@@ -4677,13 +4056,7 @@ const ActivityStream = () => {
                       backgroundColor: '#f3f4f6'
                     }}
                     onClick={() => {
-                      console.log('🖼️ Screenshot card clicked:', {
-                        id: originalApiData?.id,
-                        filename: originalApiData?.filename,
-                        timestamp: originalApiData?.timestamp,
-                        presignedUrl: originalApiData?.presigned_url?.substring(0, 100) + '...'
-                      });
-                      console.log('🚀 Calling handleImageClick with:', { originalApiData, i });
+             
                       handleImageClick(originalApiData, i);
                     }}
                     onMouseEnter={(e) => {
@@ -4702,12 +4075,7 @@ const ActivityStream = () => {
                       e.target.src = 'https://via.placeholder.com/300x120/ef4444/ffffff?text=Load+Failed';
                     }}
                     onLoad={(e) => {
-                      console.log('✅ Image loaded successfully:', {
-                        src: e.target.src.substring(0, 100) + '...',
-                        naturalWidth: e.target.naturalWidth,
-                        naturalHeight: e.target.naturalHeight,
-                        filename: originalApiData?.filename
-                      });
+               
                     }}
                   />
                   
@@ -4764,14 +4132,7 @@ const ActivityStream = () => {
                   }}>
                     {(() => {
                       // Console log the S3 key for each screenshot
-                      console.log(`🔑 Screenshot ${i + 1} S3 Key:`, originalApiData?.s3_key || 'No S3 key');
-                      console.log(`📸 Screenshot ${i + 1} Data:`, {
-                        id: originalApiData?.id,
-                        filename: originalApiData?.filename,
-                        s3_key: originalApiData?.s3_key,
-                        has_presigned_url: !!originalApiData?.presigned_url,
-                        presigned_url_preview: originalApiData?.presigned_url?.substring(0, 100) + '...'
-                      });
+         
                       
                       // Use same logic as getImageUrl to determine URL status
                       if (originalApiData?.presigned_url && originalApiData.presigned_url.includes('X-Amz-Signature')) {
@@ -4857,20 +4218,7 @@ const ActivityStream = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       {/* DEBUG: Current Component State */}
-      {console.log('🔍 RENDER DEBUG - Current State:', {
-        currentView,
-        hasSearched,
-        isUserSelected,
-        selectedUser: selectedUser?.display_name,
-        screenshotsLength: screenshots.length,
-        foldersLength: folders.length,
-        folderScreenshotsLength: folderScreenshots.length,
-        loading,
-        loadingFolders,
-        loadingFolderScreenshots,
-        error: error ? error.substring(0, 100) : null,
-        backendStatus
-      })}
+
       
       <Wrapper theme={theme} isDarkMode={isDarkMode}>
         <Container ref={containerRef} theme={theme} isDarkMode={isDarkMode}>
@@ -4914,14 +4262,7 @@ const ActivityStream = () => {
                 }}
                 onChange={(event, newValue) => {
                   if (newValue && typeof newValue === 'object') {
-                    console.log('🔍 User selected from suggestions:', newValue);
-                    console.log('🎯 Selected user details:', {
-                      username: newValue.username,
-                      email: newValue.email,
-                      display_name: newValue.display_name,
-                      staff_id: newValue.staff_id,
-                      value: newValue.value
-                    });
+             
                     
                     setSelectedUser(newValue);
                     setIsUserSelected(true);
@@ -4930,18 +4271,10 @@ const ActivityStream = () => {
                     setHasSearched(true);
                     setCurrentView('folders'); // Start with folders view but will auto-navigate
                     
-                    console.log('🔍 USER SELECTION DEBUG:', {
-                      selectedUser: newValue,
-                      isUserSelected: true,
-                      hasSearched: true,
-                      currentView: 'folders',
-                      aboutToFetchFolders: true
-                    });
+             
                     
                     const userEmail = newValue.search_value || newValue.email || newValue.username;
-                    console.log('🔍 User selected, fetching folders (background):');
-                    console.log('   - Display name:', newValue.display_name);
-                    console.log('   - Email to use for API:', userEmail);
+                
                     
                     // Fetch folders in background and auto-navigate to all screenshots
                     fetchEmployeeFolders(userEmail);
@@ -5726,13 +5059,7 @@ const ActivityStream = () => {
           {/* Legacy screenshot grid - only show in search mode with screenshots */}
           {currentView === 'search' && hasSearched && screenshots.length > 0 && (
             <>
-              {console.log('🔍 RENDERING LEGACY SCREENSHOTS:', {
-                currentView,
-                hasSearched,
-                screenshotsLength: screenshots.length,
-                screenshots: screenshots.slice(0, 2),
-                selectedUser: selectedUser?.display_name
-              })}
+         
               
               <SearchInfo theme={theme} isDarkMode={isDarkMode}>
                 📂 Legacy view: Showing screenshots for: <strong>{selectedUser?.display_name}</strong> ({selectedUser?.email})
@@ -5745,8 +5072,7 @@ const ActivityStream = () => {
                   // Apply date filtering to screenshots
                   const filteredScreenshots = filterScreenshotsByDate(screenshots);
                   
-                  console.log(`🗓️ Main screenshots date filtering applied: ${screenshots.length} total → ${filteredScreenshots.length} filtered`);
-                  
+                
                   return filteredScreenshots.map((screenshot, i) => {
                   const formattedData = formatScreenshotData(screenshot, i);
                   return (
@@ -5870,12 +5196,7 @@ const ActivityStream = () => {
         {/* Image Modal */}
         {isModalOpen && (
           (() => {
-            console.log('🚀 MODAL RENDERING: Modal is open!', {
-              isModalOpen,
-              modalImagesCount: modalImages.length,
-              modalCurrentIndex,
-              firstImageSrc: modalImages[0]?.src?.substring(0, 100) + '...'
-            });
+     
             return (
               <ImageModal
                 isOpen={isModalOpen}
