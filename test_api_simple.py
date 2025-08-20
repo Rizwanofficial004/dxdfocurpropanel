@@ -1,68 +1,67 @@
-#!/usr/bin/env python3
-"""
-Simple API Test for Screenshots Search
-"""
 import requests
 import json
 
-def test_screenshots_search_api():
-    """Test the screenshots search API without authentication"""
-    
-    # API endpoint
-    base_url = "http://localhost:8000"
-    endpoint = "/api/screenshots/search/"
-    
-    # Test different parameter combinations
-    test_cases = [
-        {"search": "test", "limit": 5},
-        {"search": "haseeb", "limit": 10},
-        {"search": "nawaz", "date": "2024-08-01", "limit": 5},
-        {"search": "admin", "scan_s3": "true", "limit": 3}
-    ]
-    
-    print("🚀 Testing Screenshots Search API")
-    print("=" * 50)
-    
-    for i, params in enumerate(test_cases, 1):
-        print(f"\n📋 Test Case {i}: {params}")
-        print("-" * 30)
+def test_projects_api():
+    """Test the projects API endpoint"""
+    try:
+        url = "http://127.0.0.1:8000/api/projects"
+        response = requests.get(url, timeout=10)
         
-        try:
-            url = f"{base_url}{endpoint}"
-            response = requests.get(url, params=params, timeout=30)
+        print(f"Status Code: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            stats = data.get('data', {}).get('statistics', {})
             
-            print(f"📊 Status Code: {response.status_code}")
-            print(f"🔗 URL: {response.url}")
+            print("\n=== API RESPONSE STATISTICS ===")
+            print(f"Total Projects: {stats.get('total', 'N/A')}")
+            print(f"Not Started: {stats.get('not_started', 'N/A')}")
+            print(f"In Progress: {stats.get('in_progress', 'N/A')}")
+            print(f"Finished: {stats.get('finished', 'N/A')}")
+            print(f"On Hold: {stats.get('on_hold', 'N/A')}")
+            print(f"Cancelled: {stats.get('cancelled', 'N/A')}")
+            print(f"Growth Rate: {stats.get('growth_rate', 'N/A')}")
             
-            if response.status_code == 200:
-                try:
-                    data = response.json()
-                    print(f"✅ Success: {data.get('success', 'Unknown')}")
-                    print(f"📝 Message: {data.get('message', 'No message')}")
-                    
-                    if 'data' in data and isinstance(data['data'], dict):
-                        if 'results' in data['data']:
-                            count = len(data['data']['results'])
-                            print(f"📊 Results Count: {count}")
-                        if 'total' in data['data']:
-                            print(f"📈 Total Available: {data['data']['total']}")
-                            
-                except json.JSONDecodeError:
-                    print(f"⚠️ Non-JSON Response: {response.text[:200]}...")
-            elif response.status_code == 302:
-                print(f"🔄 Redirect to: {response.headers.get('Location', 'Unknown')}")
-                print("❌ API requires authentication")
+            print("\n=== EXPECTED VALUES ===")
+            print("Total Projects: 294")
+            print("Not Started: 2")
+            print("In Progress: 37")
+            print("Finished: 245")
+            print("On Hold: 4")
+            print("Cancelled: 6")
+            
+            print("\n=== COMPARISON ===")
+            expected = {
+                'total': 294,
+                'not_started': 2,
+                'in_progress': 37,
+                'finished': 245,
+                'on_hold': 4,
+                'cancelled': 6
+            }
+            
+            all_correct = True
+            for key, expected_value in expected.items():
+                actual_value = stats.get(key, 0)
+                status = "✅ CORRECT" if actual_value == expected_value else "❌ INCORRECT"
+                print(f"{key.replace('_', ' ').title()}: {actual_value} (expected {expected_value}) {status}")
+                if actual_value != expected_value:
+                    all_correct = False
+            
+            print(f"\n=== OVERALL RESULT ===")
+            if all_correct:
+                print("🎉 ALL VALUES ARE CORRECT!")
             else:
-                print(f"❌ Error: {response.status_code}")
-                print(f"Response: {response.text[:200]}...")
+                print("⚠️  SOME VALUES ARE INCORRECT")
                 
-        except requests.exceptions.RequestException as e:
-            print(f"🚫 Request failed: {e}")
-        except Exception as e:
-            print(f"💥 Unexpected error: {e}")
-    
-    print("\n" + "=" * 50)
-    print("🏁 API Test Complete")
+            print(f"\nSource: {data.get('data', {}).get('source', 'Unknown')}")
+            
+        else:
+            print(f"Error: HTTP {response.status_code}")
+            print(response.text)
+            
+    except Exception as e:
+        print(f"Error testing API: {str(e)}")
 
 if __name__ == "__main__":
-    test_screenshots_search_api()
+    test_projects_api()

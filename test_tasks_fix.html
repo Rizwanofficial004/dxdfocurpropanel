@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks API Test - Fixed Statistics</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; border-left: 4px solid #28a745; }
+        .stat-number { font-size: 24px; font-weight: bold; color: #28a745; }
+        .stat-label { font-size: 12px; color: #666; margin-top: 5px; }
+        .test-button { background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .test-button:hover { background: #218838; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 6px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .comparison { background: #e9ecef; padding: 15px; border-radius: 6px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Tasks API Statistics Fix Test</h1>
+        <p>Testing the fixed task statistics calculation for the tasks endpoint.</p>
+        
+        <button class="test-button" onclick="testTasksAPI()">🧪 Test Tasks API</button>
+        
+        <div id="result"></div>
+        
+        <div id="stats-display" style="display: none;">
+            <h3>📊 Task Statistics</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total">-</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="not_started">-</div>
+                    <div class="stat-label">Not Started</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="in_progress">-</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="testing">-</div>
+                    <div class="stat-label">Testing</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="awaiting_feedback">-</div>
+                    <div class="stat-label">Awaiting Feedback</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completed">-</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="beklemede">-</div>
+                    <div class="stat-label">Beklemede</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testTasksAPI() {
+            const resultDiv = document.getElementById('result');
+            const statsDiv = document.getElementById('stats-display');
+            
+            resultDiv.innerHTML = '<p>🔄 Testing tasks API...</p>';
+            statsDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/tasks');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const stats = data.data.statistics;
+                
+                // Update display
+                document.getElementById('total').textContent = stats.total || 0;
+                document.getElementById('not_started').textContent = stats.not_started || 0;
+                document.getElementById('in_progress').textContent = stats.in_progress || 0;
+                document.getElementById('testing').textContent = stats.testing || 0;
+                document.getElementById('awaiting_feedback').textContent = stats.awaiting_feedback || 0;
+                document.getElementById('completed').textContent = stats.completed || 0;
+                document.getElementById('beklemede').textContent = stats.beklemede || 0;
+                
+                // Expected values based on your CRM interface
+                const expected = {
+                    total: 1530,
+                    not_started: 21,
+                    in_progress: 49,
+                    testing: 1,
+                    awaiting_feedback: 0,
+                    completed: 1446,
+                    beklemede: 14
+                };
+                
+                // Check if values match
+                const comparisons = [];
+                for (const [key, expectedValue] of Object.entries(expected)) {
+                    const actualValue = stats[key] || 0;
+                    const isCorrect = actualValue === expectedValue;
+                    comparisons.push({
+                        field: key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        expected: expectedValue,
+                        actual: actualValue,
+                        correct: isCorrect
+                    });
+                }
+                
+                const allCorrect = comparisons.every(c => c.correct);
+                
+                let resultHTML = `
+                    <div class="result ${allCorrect ? 'success' : 'error'}">
+                        <h4>${allCorrect ? '✅ SUCCESS! Task statistics are now accurate!' : '⚠️ Some values need adjustment'}</h4>
+                        <div class="comparison">
+                            <h5>📊 Comparison with CRM Interface:</h5>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Field</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Expected</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Actual</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #ddd;">Status</th>
+                                </tr>
+                `;
+                
+                comparisons.forEach(comp => {
+                    resultHTML += `
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${comp.field}</td>
+                            <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${comp.expected}</td>
+                            <td style="padding: 8px; text-align: center; border: 1px solid #ddd; ${comp.correct ? 'color: green;' : 'color: red;'}">${comp.actual}</td>
+                            <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${comp.correct ? '✅' : '❌'}</td>
+                        </tr>
+                    `;
+                });
+                
+                resultHTML += `
+                            </table>
+                        </div>
+                        <p><strong>Growth Rate:</strong> ${stats.growth_rate || 'N/A'}</p>
+                        ${allCorrect ? '<p>🎉 The task statistics fix has been successfully applied!</p>' : '<p>⚙️ The values have been updated according to your CRM interface.</p>'}
+                    </div>
+                `;
+                
+                resultDiv.innerHTML = resultHTML;
+                statsDiv.style.display = 'block';
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h4>❌ Error testing API</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Make sure the server is running on http://127.0.0.1:8000</p>
+                        <p>You can also check: <a href="http://127.0.0.1:8000/api/tasks" target="_blank">http://127.0.0.1:8000/api/tasks</a></p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
