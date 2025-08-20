@@ -1520,8 +1520,109 @@ const ActivityStream = () => {
     };
   };
 
-  // Fetch screenshots from API using dynamic endpoints - NO LIMITS for 500k+ screenshots
-  const fetchScreenshots = async (searchTerm, limit = 500000, page = 1, useProgressive = false) => {
+  // NEW: Fetch screenshots using comprehensive-scan API endpoint
+  const fetchScreenshotsComprehensive = async (employeeEmail, limit = 500000, page = 1) => {
+    // If no email provided, try to get from selectedUser or use default
+    if (!employeeEmail) {
+      if (selectedUser && selectedUser.email) {
+        employeeEmail = selectedUser.email;
+      } else if (selectedUser && selectedUser.search_value && selectedUser.search_value.includes('@')) {
+        employeeEmail = selectedUser.search_value;
+      } else {
+        employeeEmail = 'haseebcodejourney@gmail.com'; // Final fallback
+      }
+    }
+    
+    try {
+      setLoading(true);
+      setError('');
+      setHasSearched(true);
+      
+      const apiBaseURL = getApiBaseURL();
+      const apiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/comprehensive-scan/`;
+      
+      console.log(`🔍 Using NEW comprehensive-scan API: ${apiUrl}`);
+      console.log(`🚨 API VERIFICATION: Email in URL = ${employeeEmail}`);
+      
+      // Set up parameters for comprehensive scan
+      let params = new URLSearchParams();
+      params.append('limit', limit.toString());
+      if (page > 1) {
+        const offset = (page - 1) * limit;
+        params.append('offset', offset.toString());
+      }
+      
+      const fullUrl = `${apiUrl}?${params.toString()}`;
+      console.log(`📡 Comprehensive scan URL: ${fullUrl}`);
+      
+      const response = await axios.get(fullUrl, { 
+        timeout: 1800000, // 30 minutes timeout for comprehensive scan
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      let newScreenshots = [];
+      let total = 0;
+      
+      // Handle comprehensive-scan API response structure
+      if (response.data && response.data.success && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+        newScreenshots = response.data.screenshots;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log(`✅ Comprehensive scan successful: ${newScreenshots.length} screenshots, total: ${total}`);
+      } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+        newScreenshots = response.data.screenshots;
+        total = response.data.total_count || response.data.count || newScreenshots.length;
+        console.log(`✅ Comprehensive scan successful (alt structure): ${newScreenshots.length} screenshots, total: ${total}`);
+      } else {
+        console.warn('⚠️ Unexpected comprehensive-scan response structure:', response.data);
+        newScreenshots = [];
+        total = 0;
+      }
+      
+      // Set the results
+      setScreenshots(newScreenshots);
+      setTotalCount(total);
+      setTotalPages(Math.ceil(total / limit));
+      setCurrentPage(page);
+      setSearchPattern('comprehensive');
+      
+      return {
+        screenshots: newScreenshots,
+        total: total,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit)
+      };
+      
+    } catch (err) {
+      console.error('❌ Error fetching screenshots from comprehensive-scan endpoint:', err);
+      
+      if (err.code === 'ECONNABORTED') {
+        const timeoutSeconds = err.config?.timeout ? err.config.timeout / 1000 : 'unknown';
+        setError(`⏱️ Comprehensive scan timeout after ${timeoutSeconds} seconds. Try reducing the limit or check server performance.`);
+      } else if (err.response) {
+        setError(`❌ Comprehensive scan failed: ${err.response.status} - ${err.response.data?.message || err.response.data?.detail || 'Server error'}`);
+      } else if (err.request) {
+        setError('❌ Network error: Unable to connect to comprehensive-scan API. Please check your backend server.');
+      } else {
+        setError('❌ An unexpected error occurred during comprehensive scan');
+      }
+      
+      setScreenshots([]);
+      setTotalCount(0);
+      setTotalPages(0);
+      setCurrentPage(1);
+      
+      return { screenshots: [], total: 0, currentPage: 1, totalPages: 0 };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // OLD: Fetch screenshots from API using dynamic endpoints - NO LIMITS for 500k+ screenshots
+  // COMMENTED OUT - Using new comprehensive-scan API instead
+  const fetchScreenshots_OLD = async (searchTerm, limit = 500000, page = 1, useProgressive = false) => {
     if (!searchTerm || !searchTerm.trim()) {
       setScreenshots([]);
       setHasSearched(false);
@@ -1724,7 +1825,34 @@ const ActivityStream = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
+  /* END OF OLD fetchScreenshots_OLD FUNCTION - COMMENTED OUT */
+
+  // NEW: Wrapper function to use comprehensive-scan API for all screenshot requests
+  const fetchScreenshots = async (searchTerm, limit = 500000, page = 1, useProgressive = false) => {
+    // 🚀 DYNAMIC EMAIL: Use the selected user's email instead of hardcoded
+    let employeeEmail = 'haseebcodejourney@gmail.com'; // Default fallback
+    
+    // First priority: Use selectedUser's email if available
+    if (selectedUser && selectedUser.email) {
+      employeeEmail = selectedUser.email;
+    }
+    // Second priority: Use selectedUser's search_value if it contains @ (email format)
+    else if (selectedUser && selectedUser.search_value && selectedUser.search_value.includes('@')) {
+      employeeEmail = selectedUser.search_value;
+    }
+    // Third priority: Try to extract email from searchTerm if it looks like an email
+    else if (searchTerm && searchTerm.includes('@')) {
+      employeeEmail = searchTerm.trim();
+    }
+    
+    console.log(`🆕 NEW fetchScreenshots called with: searchTerm=${searchTerm}, limit=${limit}, page=${page}`);
+    console.log(`🎯 Using DYNAMIC email for comprehensive-scan API: ${employeeEmail}`);
+    console.log(`📧 Selected user:`, selectedUser);
+    console.log(`🚨 VERIFICATION: Email being sent to API: ${employeeEmail}`);
+    
+    return await fetchScreenshotsComprehensive(employeeEmail, limit, page);
+  };
 
   // Level 2: Fetch folders for selected employee
   const fetchEmployeeFolders = async (employeeEmail) => {
@@ -1804,94 +1932,189 @@ const ActivityStream = () => {
     }
   };
 
-  // AUTO-FETCH: Get all screenshots from all folders and combine them
+  // AUTO-FETCH: Get all screenshots from all folders and combine them using NEW comprehensive-scan API
   const fetchAllScreenshotsFromAllFolders = async (employeeEmail, foldersList) => {
     try {
       setLoadingFolderScreenshots(true);
       
-      let allScreenshots = [];
-      let totalProcessed = 0;
+      // NEW: Use comprehensive-scan API instead of processing individual folders
+      console.log(`🆕 Using NEW comprehensive-scan API for ${employeeEmail}`);
       
-      // Process each folder and get screenshots
-      for (let i = 0; i < foldersList.length; i++) {
-        const folder = foldersList[i];
-        const folderName = folder.folder_name || folder.date || folder.name;
-        
-        try {
-          
-          const apiBaseURL = getApiBaseURL();
-          const folderApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/folder/${encodeURIComponent(folderName)}/enhanced/?page=1&limit=500000`;
-          
-          const folderResponse = await axios.get(folderApiUrl, { 
-            timeout: 1800000, // 30 minutes timeout for large datasets
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          });
-          
-          let folderScreenshots = [];
-          
-          // Parse folder response
-          if (folderResponse.data && folderResponse.data.success && folderResponse.data.data && Array.isArray(folderResponse.data.data.screenshots)) {
-            folderScreenshots = folderResponse.data.data.screenshots;
-          } else if (folderResponse.data && Array.isArray(folderResponse.data.screenshots)) {
-            folderScreenshots = folderResponse.data.screenshots;
-          } else if (folderResponse.data && Array.isArray(folderResponse.data)) {
-            folderScreenshots = folderResponse.data;
-          }
-          
-          // Add folder info to each screenshot
-          const screenshotsWithFolder = folderScreenshots.map(screenshot => ({
-            ...screenshot,
-            folder_name: folderName,
-            employee_name: selectedUser?.display_name,
-            employee_email: employeeEmail
-          }));
-          
-          allScreenshots = [...allScreenshots, ...screenshotsWithFolder];
-          totalProcessed++;
-          
-          // Update progress
-          setError(`📊 Loading screenshots... ${totalProcessed}/${foldersList.length} folders processed (${allScreenshots.length} screenshots)`);
-          
-        } catch (folderError) {
-          console.error(`❌ Error fetching from folder "${folderName}":`, folderError);
-          // Continue with other folders
+      const apiBaseURL = getApiBaseURL();
+      const comprehensiveApiUrl = `${apiBaseURL}/screenshots/employee/${encodeURIComponent(employeeEmail)}/comprehensive-scan/`;
+      
+      // Update loading message to show comprehensive scan starting
+      setError(`🔍 Starting comprehensive scan... Analyzing folder structure`);
+      
+      const response = await axios.get(comprehensiveApiUrl, { 
+        timeout: 1800000, // 30 minutes timeout for comprehensive scan
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        params: {
+          limit: 500000, // Request large limit for comprehensive scan
+          include_folder_info: true // Request folder information if available
         }
+      });
+      
+      let allScreenshots = [];
+      let totalCount = 0;
+      
+      // Update progress after receiving API response
+      setError(`📊 Processing API response... Extracting screenshots from folders`);
+      
+      // Parse comprehensive-scan API response - Updated for actual API structure
+      if (response.data && response.data.success && response.data.data && response.data.data.folders && Array.isArray(response.data.data.folders)) {
+        // NEW: Extract screenshots from all folders and flatten into single array with progress display
+        const totalFolders = response.data.data.folders.length;
+        console.log(`🔍 Processing ${totalFolders} folders from comprehensive-scan API`);
+        
+        response.data.data.folders.forEach((folder, folderIndex) => {
+          if (folder.screenshots && Array.isArray(folder.screenshots)) {
+            const folderProgress = folderIndex + 1;
+            const screenshotCount = folder.screenshots.length;
+            
+            // Update progress in real-time for each folder
+            setError(`� Processing folder ${folderProgress}/${totalFolders}: "${folder.folder_name}" - ${screenshotCount.toLocaleString()} screenshots`);
+            
+            console.log(`📁 Folder ${folderProgress}/${totalFolders}: "${folder.folder_name}" has ${screenshotCount} screenshots`);
+            allScreenshots = [...allScreenshots, ...folder.screenshots];
+          }
+        });
+        
+        totalCount = response.data.data.folder_summary?.total_screenshots || allScreenshots.length;
+        console.log(`✅ Comprehensive scan successful: ${allScreenshots.length} screenshots from ${totalFolders} folders, total: ${totalCount}`);
+      } else if (response.data && response.data.success && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+        // Fallback: Direct screenshots array (old format)
+        allScreenshots = response.data.screenshots;
+        totalCount = response.data.total_count || response.data.count || allScreenshots.length;
+        console.log(`✅ Comprehensive scan successful (direct screenshots): ${allScreenshots.length} screenshots, total: ${totalCount}`);
+      } else if (response.data && response.data.screenshots && Array.isArray(response.data.screenshots)) {
+        allScreenshots = response.data.screenshots;
+        totalCount = response.data.total_count || response.data.count || allScreenshots.length;
+        console.log(`✅ Comprehensive scan successful (no success flag): ${allScreenshots.length} screenshots`);
+      } else if (response.data && Array.isArray(response.data)) {
+        allScreenshots = response.data;
+        totalCount = allScreenshots.length;
+        console.log(`✅ Comprehensive scan successful (direct array): ${allScreenshots.length} screenshots`);
+      } else {
+        console.error('❌ Unexpected comprehensive-scan API response structure:', response.data);
+        console.log('🔍 Expected: response.data.data.folders[] or response.data.screenshots[]');
+        setError('Unexpected response format from comprehensive-scan API');
+        return;
       }
       
+      // Add employee info to screenshots if not already present
+      const screenshotsWithEmployeeInfo = allScreenshots.map(screenshot => ({
+        ...screenshot,
+        employee_name: screenshot.employee_name || selectedUser?.display_name,
+        employee_email: screenshot.employee_email || employeeEmail
+      }));
+      
       // Sort all screenshots by timestamp (newest first)
-      allScreenshots.sort((a, b) => {
+      screenshotsWithEmployeeInfo.sort((a, b) => {
         const timeA = new Date(a.timestamp || a.created_at || 0);
         const timeB = new Date(b.timestamp || b.created_at || 0);
         return timeB - timeA;
       });
       
-      // Set all screenshots in folder screenshots state for display
-      setFolderScreenshots(allScreenshots);
-      setFilteredFolderScreenshots(allScreenshots);
+      // 🚀 PERFORMANCE FIX: Load screenshots in chunks to prevent browser hang
+      const INITIAL_CHUNK_SIZE = 50; // Start with only 50 screenshots
+      const initialChunk = screenshotsWithEmployeeInfo.slice(0, INITIAL_CHUNK_SIZE);
+      
+      // Store full dataset for "Load More" functionality
+      setFullDataset(screenshotsWithEmployeeInfo);
+      
+      // Set ONLY the initial chunk for display (prevents hang)
+      setFolderScreenshots(initialChunk);
+      setFilteredFolderScreenshots(initialChunk);
       setFolderPagination({
         page: 1,
-        totalPages: Math.ceil(allScreenshots.length / perPageLimit),
-        totalCount: allScreenshots.length
+        totalPages: Math.ceil(screenshotsWithEmployeeInfo.length / INITIAL_CHUNK_SIZE),
+        totalCount: screenshotsWithEmployeeInfo.length,
+        currentlyLoaded: initialChunk.length,
+        hasMoreToLoad: screenshotsWithEmployeeInfo.length > INITIAL_CHUNK_SIZE
       });
       
       // Set a virtual "All Folders" selection
       setSelectedFolder({
-        folder_name: 'All Folders',
-        screenshot_count: allScreenshots.length,
+        folder_name: 'All Folders (Comprehensive Scan)',
+        screenshot_count: screenshotsWithEmployeeInfo.length,
         date: 'Combined'
       });
       
-      setError(''); // Clear loading message
+      // Show completion message with chunk info
+      setError(`✅ Loaded first ${initialChunk.length} of ${screenshotsWithEmployeeInfo.length.toLocaleString()} screenshots. Click "Load More" for additional screenshots.`);
+      
+      // Clear loading message after delay
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      
+      console.log(`🎯 Initial chunk loaded: ${initialChunk.length}/${screenshotsWithEmployeeInfo.length} screenshots (prevents browser hang)`);
       
     } catch (err) {
-      console.error('❌ Error fetching all screenshots:', err);
-      setError('Failed to fetch screenshots from folders');
+      console.error('❌ Error fetching all screenshots from comprehensive-scan API:', err);
+      
+      if (err.code === 'ECONNABORTED') {
+        setError('⏱️ Comprehensive scan timeout. The dataset is very large. Please try again or contact support.');
+      } else if (err.response) {
+        setError(`Server error: ${err.response.status} - ${err.response.data?.message || 'Comprehensive scan failed'}`);
+      } else if (err.request) {
+        setError('Network error: Unable to connect to comprehensive-scan API. Please check server connection.');
+      } else {
+        setError('Failed to fetch screenshots using comprehensive-scan API');
+      }
+      
+      // Fallback: If comprehensive-scan fails, comment explains the old method is available
+      console.warn('📝 Note: If comprehensive-scan continues to fail, the old folder-by-folder method can be restored');
+      
     } finally {
       setLoadingFolderScreenshots(false);
     }
+  };
+
+  // 🚀 NEW: Load More functionality for chunked screenshot loading
+  const loadMoreScreenshots = () => {
+    if (!fullDataset || fullDataset.length === 0) {
+      console.warn('⚠️ No additional screenshots to load');
+      return;
+    }
+    
+    const CHUNK_SIZE = 50; // Load 50 more screenshots each time
+    const currentlyDisplayed = folderScreenshots.length;
+    const nextChunkEnd = currentlyDisplayed + CHUNK_SIZE;
+    
+    // Get next chunk from the full dataset
+    const nextChunk = fullDataset.slice(currentlyDisplayed, nextChunkEnd);
+    
+    if (nextChunk.length === 0) {
+      console.log('✅ All screenshots have been loaded');
+      return;
+    }
+    
+    // Append new chunk to existing screenshots
+    const updatedScreenshots = [...folderScreenshots, ...nextChunk];
+    
+    setFolderScreenshots(updatedScreenshots);
+    setFilteredFolderScreenshots(updatedScreenshots);
+    
+    // Update pagination info
+    setFolderPagination(prev => ({
+      ...prev,
+      currentlyLoaded: updatedScreenshots.length,
+      hasMoreToLoad: updatedScreenshots.length < fullDataset.length
+    }));
+    
+    const remainingCount = fullDataset.length - updatedScreenshots.length;
+    console.log(`📊 Loaded ${nextChunk.length} more screenshots. Total: ${updatedScreenshots.length}/${fullDataset.length} (${remainingCount} remaining)`);
+    
+    // Show brief success message
+    setError(`📊 Loaded ${nextChunk.length} more screenshots. Showing ${updatedScreenshots.length.toLocaleString()} of ${fullDataset.length.toLocaleString()} total.`);
+    setTimeout(() => {
+      setError('');
+    }, 2000);
   };
 
   // Level 3: Fetch screenshots for selected folder - NO LIMITS for employees with 500k+ screenshots
@@ -4196,6 +4419,65 @@ const ActivityStream = () => {
             });
           })()}
         </CardGrid>
+
+        {/* 🚀 Load More Button - Only show if there are more screenshots to load */}
+        {folderPagination.hasMoreToLoad && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            margin: '20px 0',
+            gap: '12px',
+            alignItems: 'center'
+          }}>
+            <button
+              onClick={loadMoreScreenshots}
+              disabled={loadingFolderScreenshots}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: isDarkMode ? '#3b82f6' : '#2563eb',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: loadingFolderScreenshots ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: loadingFolderScreenshots ? 0.6 : 1,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onMouseEnter={(e) => {
+                if (!loadingFolderScreenshots) {
+                  e.target.style.backgroundColor = isDarkMode ? '#2563eb' : '#1d4ed8';
+                  e.target.style.transform = 'translateY(-1px)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loadingFolderScreenshots) {
+                  e.target.style.backgroundColor = isDarkMode ? '#3b82f6' : '#2563eb';
+                  e.target.style.transform = 'translateY(0)';
+                }
+              }}
+            >
+              {loadingFolderScreenshots ? '⏳' : '📥'} 
+              {loadingFolderScreenshots ? 'Loading...' : 'Load More Screenshots'}
+            </button>
+            
+            {/* Progress indicator */}
+            <div style={{ 
+              fontSize: '12px', 
+              color: isDarkMode ? '#9ca3af' : '#6b7280',
+              textAlign: 'center'
+            }}>
+              <div>Showing {folderPagination.currentlyLoaded?.toLocaleString() || folderScreenshots.length.toLocaleString()} of {folderPagination.totalCount?.toLocaleString()}</div>
+              <div style={{ fontSize: '10px', opacity: 0.8 }}>
+                {folderPagination.totalCount - (folderPagination.currentlyLoaded || folderScreenshots.length)} remaining
+              </div>
+            </div>
+          </div>
+        )}
 
         {folderPagination.totalPages > 1 && (
           <Pagination
