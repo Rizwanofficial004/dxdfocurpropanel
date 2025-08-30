@@ -128,7 +128,6 @@ const translations = {
     
     // Activity Stream
     recentActivity: 'Recent Activity',
-    newUserRegistered: 'New user registered',
     reportGenerated: 'Report generated',
     taskCompleted: 'Task completed',
     documentUpdated: 'Document updated',
@@ -310,7 +309,6 @@ const translations = {
     
     // Activity Stream
     recentActivity: 'Son Aktiviteler',
-    newUserRegistered: 'Yeni kullanıcı kaydedildi',
     reportGenerated: 'Rapor oluşturuldu',
     taskCompleted: 'Görev tamamlandı',
     documentUpdated: 'Belge güncellendi',
