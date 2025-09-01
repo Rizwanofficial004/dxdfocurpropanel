@@ -1,0 +1,20 @@
+# Include base requirements
+-r base.txt
+
+# Production Web Server
+gunicorn==20.1.0
+
+# Error Monitoring
+sentry-sdk==1.29.2
+
+# Performance and Caching
+django-redis==5.3.0
+
+# Security
+django-security==0.17.0
+
+# Production Database
+psycopg2==2.9.6
+
+# Log Management
+django-structlog==4.0.0
