@@ -5653,3 +5653,525 @@ INFO 2025-09-02 18:43:27,587 views 19044 9120 End date filter: 2025-09-02
 INFO 2025-09-02 18:43:27,587 views 19044 9120 Searching screenshots in prefix: users_screenshots/
 INFO 2025-09-02 18:43:31,210 middleware 19044 9120 Response: 200 for GET /api/users/search/
 INFO 2025-09-02 18:43:31,223 basehttp 19044 9120 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34296
+INFO 2025-09-03 12:28:06,798 middleware 8704 11904 Request: GET /api/users/search/
+INFO 2025-09-03 12:28:08,170 views 8704 11904 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 12:28:08,171 views 8704 11904 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date
+INFO 2025-09-03 12:28:08,176 views 8704 11904 Start date filter: 2025-09-01
+INFO 2025-09-03 12:28:08,176 views 8704 11904 End date filter: 2025-09-02
+INFO 2025-09-03 12:28:08,176 views 8704 11904 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 12:28:14,403 middleware 8704 11904 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 12:28:14,404 basehttp 8704 11904 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34295
+INFO 2025-09-03 12:28:37,418 middleware 8704 11904 Request: GET /api/users/search/
+INFO 2025-09-03 12:28:37,431 views 8704 11904 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 12:28:37,432 views 8704 11904 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date
+INFO 2025-09-03 12:28:37,432 views 8704 11904 Start date filter: 2025-09-01
+INFO 2025-09-03 12:28:37,432 views 8704 11904 End date filter: 2025-09-02
+INFO 2025-09-03 12:28:37,433 views 8704 11904 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 12:28:41,270 middleware 8704 11904 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 12:28:41,271 basehttp 8704 11904 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34296
+INFO 2025-09-03 13:01:18,580 middleware 8800 9184 Request: GET /api/users/search/
+INFO 2025-09-03 13:01:19,016 users_search_views 8800 9184 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:01:19,017 users_search_views 8800 9184 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 
+INFO 2025-09-03 13:01:19,021 users_search_views 8800 9184 Start date filter: 2025-09-01
+INFO 2025-09-03 13:01:19,021 users_search_views 8800 9184 End date filter: 2025-09-02
+INFO 2025-09-03 13:01:19,021 users_search_views 8800 9184 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:01:21,355 middleware 8800 9184 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:01:21,356 basehttp 8800 9184 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34428
+INFO 2025-09-03 13:01:45,032 middleware 8800 9184 Request: GET /api/users/search/
+INFO 2025-09-03 13:01:45,041 users_search_views 8800 9184 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:01:45,042 users_search_views 8800 9184 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 2025-09
+INFO 2025-09-03 13:01:45,042 users_search_views 8800 9184 Month filter applied: 2025-09 (2025-09-01 to 2025-09-03)
+INFO 2025-09-03 13:01:45,043 users_search_views 8800 9184 Using month filter as date range: 2025-09-01 to 2025-09-03
+INFO 2025-09-03 13:01:45,043 users_search_views 8800 9184 Start date filter: 2025-09-01
+INFO 2025-09-03 13:01:45,044 users_search_views 8800 9184 End date filter: 2025-09-03
+INFO 2025-09-03 13:01:45,044 users_search_views 8800 9184 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:01:46,827 middleware 8800 9184 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:01:46,829 basehttp 8800 9184 "GET /api/users/search/?q=naw&page=1&page_size=50&month=2025-09 HTTP/1.1" 200 34460
+INFO 2025-09-03 13:03:26,906 middleware 8800 9268 Request: GET /api/users/search/
+INFO 2025-09-03 13:03:26,914 users_search_views 8800 9268 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:03:26,915 users_search_views 8800 9268 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 2025-010
+WARNING 2025-09-03 13:03:26,916 users_search_views 8800 9268 Invalid month filter format: 2025-010. Expected YYYY-MM
+INFO 2025-09-03 13:03:26,916 users_search_views 8800 9268 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:03:29,206 middleware 8800 9268 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:03:29,207 basehttp 8800 9268 "GET /api/users/search/?q=naw&month=2025-010&page=1&page_size=50 HTTP/1.1" 200 34402
+INFO 2025-09-03 13:03:33,076 middleware 8800 9268 Request: GET /api/users/search/
+INFO 2025-09-03 13:03:33,084 users_search_views 8800 9268 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:03:33,085 users_search_views 8800 9268 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 2025-10
+WARNING 2025-09-03 13:03:33,085 users_search_views 8800 9268 Month filter 2025-10 is in the future, limiting to current month
+INFO 2025-09-03 13:03:33,085 users_search_views 8800 9268 Month filter applied: 2025-10 (2025-09-01 to 2025-09-03)
+INFO 2025-09-03 13:03:33,086 users_search_views 8800 9268 Using month filter as date range: 2025-09-01 to 2025-09-03
+INFO 2025-09-03 13:03:33,086 users_search_views 8800 9268 Start date filter: 2025-09-01
+INFO 2025-09-03 13:03:33,087 users_search_views 8800 9268 End date filter: 2025-09-03
+INFO 2025-09-03 13:03:33,087 users_search_views 8800 9268 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:03:35,961 middleware 8800 9268 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:03:35,962 basehttp 8800 9268 "GET /api/users/search/?q=naw&month=2025-10&page=1&page_size=50 HTTP/1.1" 200 34460
+INFO 2025-09-03 13:09:35,552 middleware 4196 14328 Request: GET /api/users/search/
+INFO 2025-09-03 13:09:36,007 users_search_views 4196 14328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:09:36,008 users_search_views 4196 14328 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 2025-10
+WARNING 2025-09-03 13:09:36,009 users_search_views 4196 14328 Month filter 2025-10 is in the future. Current month is 2025-09
+ERROR 2025-09-03 13:09:36,009 users_search_views 4196 14328 Invalid month filter: 2025-10. Current month is 2025-09
+INFO 2025-09-03 13:09:36,010 middleware 4196 14328 Response: 400 for GET /api/users/search/
+WARNING 2025-09-03 13:09:36,031 log 4196 14328 Bad Request: /api/users/search/
+WARNING 2025-09-03 13:09:36,033 basehttp 4196 14328 "GET /api/users/search/?q=naw&month=2025-10&page=1&page_size=50 HTTP/1.1" 400 380
+INFO 2025-09-03 13:09:57,882 middleware 4196 14328 Request: GET /api/users/search/
+INFO 2025-09-03 13:09:57,891 users_search_views 4196 14328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:09:57,891 users_search_views 4196 14328 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 2025-09
+INFO 2025-09-03 13:09:57,892 users_search_views 4196 14328 Month filter applied: 2025-09 (2025-09-01 to 2025-09-03)
+INFO 2025-09-03 13:09:57,892 users_search_views 4196 14328 Using month filter as date range: 2025-09-01 to 2025-09-03
+INFO 2025-09-03 13:09:57,895 users_search_views 4196 14328 Start date filter: 2025-09-01
+INFO 2025-09-03 13:09:57,896 users_search_views 4196 14328 End date filter: 2025-09-03
+INFO 2025-09-03 13:09:57,896 users_search_views 4196 14328 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:09:59,960 middleware 4196 14328 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:09:59,961 basehttp 4196 14328 "GET /api/users/search/?q=naw&month=2025-09&page=1&page_size=50 HTTP/1.1" 200 34460
+INFO 2025-09-03 13:10:25,350 middleware 4196 14328 Request: GET /api/users/search/
+INFO 2025-09-03 13:10:25,358 users_search_views 4196 14328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:10:25,359 users_search_views 4196 14328 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: 
+INFO 2025-09-03 13:10:25,359 users_search_views 4196 14328 Start date filter: 2025-09-01
+INFO 2025-09-03 13:10:25,359 users_search_views 4196 14328 End date filter: 2025-09-02
+INFO 2025-09-03 13:10:25,360 users_search_views 4196 14328 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:10:27,151 middleware 4196 14328 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:10:27,152 basehttp 4196 14328 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34428
+INFO 2025-09-03 13:20:36,444 middleware 4036 13124 Request: GET /api/users/search/
+INFO 2025-09-03 13:20:36,834 users_search_views 4036 13124 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:20:36,835 users_search_views 4036 13124 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 2025
+INFO 2025-09-03 13:20:36,835 users_search_views 4036 13124 Year filter applied: 2025 (2025-01-01 to 2025-09-03)
+INFO 2025-09-03 13:20:36,836 users_search_views 4036 13124 Using year filter as date range: 2025-01-01 to 2025-09-03
+INFO 2025-09-03 13:20:36,839 users_search_views 4036 13124 Start date filter: 2025-01-01
+INFO 2025-09-03 13:20:36,839 users_search_views 4036 13124 End date filter: 2025-09-03
+INFO 2025-09-03 13:20:36,840 users_search_views 4036 13124 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:20:38,648 middleware 4036 13124 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:20:38,649 basehttp 4036 13124 "GET /api/users/search/?q=naw&page=1&page_size=50&year=2025 HTTP/1.1" 200 34570
+INFO 2025-09-03 13:21:36,781 middleware 4036 8864 Request: GET /api/users/search/
+INFO 2025-09-03 13:21:36,788 users_search_views 4036 8864 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:21:36,789 users_search_views 4036 8864 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 2025
+INFO 2025-09-03 13:21:36,789 users_search_views 4036 8864 Year filter applied: 2025 (2025-01-01 to 2025-09-03)
+INFO 2025-09-03 13:21:36,790 users_search_views 4036 8864 Using year filter as date range: 2025-01-01 to 2025-09-03
+INFO 2025-09-03 13:21:36,790 users_search_views 4036 8864 Start date filter: 2025-01-01
+INFO 2025-09-03 13:21:36,790 users_search_views 4036 8864 End date filter: 2025-09-03
+INFO 2025-09-03 13:21:36,791 users_search_views 4036 8864 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:21:38,775 middleware 4036 8864 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:21:38,777 basehttp 4036 8864 "GET /api/users/search/?q=naw&page=1&page_size=50&year=2025 HTTP/1.1" 200 34570
+INFO 2025-09-03 13:21:46,725 middleware 4036 8864 Request: GET /api/users/search/
+INFO 2025-09-03 13:21:46,734 users_search_views 4036 8864 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:21:46,735 users_search_views 4036 8864 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 2025
+INFO 2025-09-03 13:21:46,735 users_search_views 4036 8864 Year filter applied: 2025 (2025-01-01 to 2025-09-03)
+INFO 2025-09-03 13:21:46,735 users_search_views 4036 8864 Using year filter as date range: 2025-01-01 to 2025-09-03
+INFO 2025-09-03 13:21:46,736 users_search_views 4036 8864 Start date filter: 2025-01-01
+INFO 2025-09-03 13:21:46,736 users_search_views 4036 8864 End date filter: 2025-09-03
+INFO 2025-09-03 13:21:46,736 users_search_views 4036 8864 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:21:48,483 middleware 4036 8864 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:21:48,484 basehttp 4036 8864 "GET /api/users/search/?q=naw&page=1&page_size=50&year=2025 HTTP/1.1" 200 34570
+INFO 2025-09-03 13:24:25,496 middleware 4036 15712 Request: GET /api/users/search/
+INFO 2025-09-03 13:24:25,505 users_search_views 4036 15712 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:24:25,506 users_search_views 4036 15712 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 13:24:25,506 users_search_views 4036 15712 Start date filter: 2025-09-01
+INFO 2025-09-03 13:24:25,507 users_search_views 4036 15712 End date filter: 2025-09-02
+INFO 2025-09-03 13:24:25,507 users_search_views 4036 15712 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:24:27,699 middleware 4036 15712 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:24:27,700 basehttp 4036 15712 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 13:26:22,331 middleware 4036 8472 Request: GET /api/users/search/
+INFO 2025-09-03 13:26:22,352 users_search_views 4036 8472 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:26:22,353 users_search_views 4036 8472 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 13:26:22,353 users_search_views 4036 8472 Start date filter: 2025-09-01
+WARNING 2025-09-03 13:26:22,353 users_search_views 4036 8472 End date 2025-09-05 is in the future, limiting to today (2025-09-03)
+INFO 2025-09-03 13:26:22,354 users_search_views 4036 8472 End date filter: 2025-09-03
+INFO 2025-09-03 13:26:22,354 users_search_views 4036 8472 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:26:24,595 middleware 4036 8472 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:26:24,596 basehttp 4036 8472 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-05&page=1&page_size=50 HTTP/1.1" 200 34543
+INFO 2025-09-03 13:26:33,448 middleware 4036 8472 Request: GET /api/users/search/
+INFO 2025-09-03 13:26:33,458 users_search_views 4036 8472 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:26:33,459 users_search_views 4036 8472 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+WARNING 2025-09-03 13:26:33,459 users_search_views 4036 8472 Start date 2025-09-05 is in the future, limiting to today (2025-09-03)
+INFO 2025-09-03 13:26:33,460 users_search_views 4036 8472 Start date filter: 2025-09-03
+WARNING 2025-09-03 13:26:33,460 users_search_views 4036 8472 End date 2025-09-05 is in the future, limiting to today (2025-09-03)
+INFO 2025-09-03 13:26:33,460 users_search_views 4036 8472 End date filter: 2025-09-03
+INFO 2025-09-03 13:26:33,461 users_search_views 4036 8472 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:26:35,738 middleware 4036 8472 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:26:35,739 basehttp 4036 8472 "GET /api/users/search/?q=naw&start_date=2025-09-05&end_date=2025-09-05&page=1&page_size=50 HTTP/1.1" 200 1698
+INFO 2025-09-03 13:28:54,196 middleware 4036 6292 Request: GET /api/users/search/
+INFO 2025-09-03 13:28:54,206 users_search_views 4036 6292 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:28:54,206 users_search_views 4036 6292 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 13:28:54,207 users_search_views 4036 6292 Start date filter: 2025-09-01
+INFO 2025-09-03 13:28:54,207 users_search_views 4036 6292 End date filter: 2025-09-02
+INFO 2025-09-03 13:28:54,207 users_search_views 4036 6292 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:28:56,134 middleware 4036 6292 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:28:56,135 basehttp 4036 6292 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 13:29:42,377 middleware 4036 6292 Request: GET /api/users/search/
+INFO 2025-09-03 13:29:42,384 users_search_views 4036 6292 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 13:29:42,385 users_search_views 4036 6292 Enhanced search for 'naw' - Page: 12, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 13:29:42,386 users_search_views 4036 6292 Start date filter: 2025-09-01
+INFO 2025-09-03 13:29:42,386 users_search_views 4036 6292 End date filter: 2025-09-02
+INFO 2025-09-03 13:29:42,386 users_search_views 4036 6292 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 13:30:41,633 middleware 4036 6292 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 13:30:41,634 basehttp 4036 6292 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=12&page_size=50 HTTP/1.1" 200 1214
+INFO 2025-09-03 14:22:21,808 middleware 11772 18272 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:22:21,878 middleware 11772 18272 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:22:21,887 basehttp 11772 18272 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:22:21,927 middleware 11772 9960 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:22:22,418 employees_details_views 11772 9960 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:22:22,419 employees_details_views 11772 9960 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:22:22,419 employees_details_views 11772 9960 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:22:25,436 employees_details_views 11772 9960 Fetching employee data from CRM...
+INFO 2025-09-03 14:22:25,437 employees_details_views 11772 9960 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:22:26,439 employees_details_views 11772 9960 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:22:26,439 employees_details_views 11772 9960 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:22:27,450 employees_details_views 11772 9960 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:22:27,450 employees_details_views 11772 9960 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:22:28,572 employees_details_views 11772 9960 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:22:28,572 employees_details_views 11772 9960 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:22:29,695 employees_details_views 11772 9960 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:22:29,695 employees_details_views 11772 9960 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:22:30,658 employees_details_views 11772 9960 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:22:30,659 employees_details_views 11772 9960 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:22:30,661 middleware 11772 9960 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:22:30,662 basehttp 11772 9960 "GET /api/Employees/Details/ HTTP/1.1" 200 8487
+INFO 2025-09-03 14:22:48,215 middleware 11772 9960 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:22:48,224 middleware 11772 9960 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:22:48,226 basehttp 11772 9960 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:22:48,227 middleware 11772 17296 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:22:48,236 employees_details_views 11772 17296 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:22:48,236 employees_details_views 11772 17296 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:22:48,236 employees_details_views 11772 17296 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:22:51,933 employees_details_views 11772 17296 Fetching employee data from CRM...
+INFO 2025-09-03 14:22:51,934 employees_details_views 11772 17296 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:22:52,830 employees_details_views 11772 17296 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:22:52,831 employees_details_views 11772 17296 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:22:53,950 employees_details_views 11772 17296 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:22:53,950 employees_details_views 11772 17296 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:22:54,902 employees_details_views 11772 17296 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:22:54,903 employees_details_views 11772 17296 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:22:55,809 employees_details_views 11772 17296 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:22:55,810 employees_details_views 11772 17296 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:22:56,695 employees_details_views 11772 17296 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:22:56,696 employees_details_views 11772 17296 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:22:56,699 middleware 11772 17296 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:22:56,700 basehttp 11772 17296 "GET /api/Employees/Details/ HTTP/1.1" 200 8487
+INFO 2025-09-03 14:24:27,317 middleware 11772 16664 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:24:27,339 middleware 11772 16664 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:24:27,348 basehttp 11772 16664 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:24:27,361 middleware 11772 5284 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:24:27,376 employees_details_views 11772 5284 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:24:27,377 employees_details_views 11772 5284 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:24:27,377 employees_details_views 11772 5284 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:24:30,582 employees_details_views 11772 5284 Fetching employee data from CRM...
+INFO 2025-09-03 14:24:30,583 employees_details_views 11772 5284 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:24:32,077 employees_details_views 11772 5284 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:24:32,078 employees_details_views 11772 5284 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:24:33,170 employees_details_views 11772 5284 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:24:33,170 employees_details_views 11772 5284 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:24:35,011 employees_details_views 11772 5284 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:24:35,012 employees_details_views 11772 5284 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:24:36,298 employees_details_views 11772 5284 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:24:36,299 employees_details_views 11772 5284 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:24:37,337 employees_details_views 11772 5284 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:24:37,338 employees_details_views 11772 5284 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:24:37,340 middleware 11772 5284 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:24:37,341 basehttp 11772 5284 "GET /api/Employees/Details/ HTTP/1.1" 200 8486
+INFO 2025-09-03 14:25:42,926 middleware 11772 12184 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:25:42,934 middleware 11772 12184 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:25:42,935 basehttp 11772 12184 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:25:42,939 middleware 11772 4072 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:25:42,948 employees_details_views 11772 4072 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:25:42,949 employees_details_views 11772 4072 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:25:42,949 employees_details_views 11772 4072 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:25:45,710 employees_details_views 11772 4072 Fetching employee data from CRM...
+INFO 2025-09-03 14:25:45,711 employees_details_views 11772 4072 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:25:46,770 employees_details_views 11772 4072 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:25:46,771 employees_details_views 11772 4072 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:25:47,785 employees_details_views 11772 4072 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:25:47,785 employees_details_views 11772 4072 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:25:48,928 employees_details_views 11772 4072 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:25:48,928 employees_details_views 11772 4072 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:25:49,926 employees_details_views 11772 4072 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:25:49,927 employees_details_views 11772 4072 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:25:50,934 employees_details_views 11772 4072 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:25:50,934 employees_details_views 11772 4072 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:25:50,937 middleware 11772 4072 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:25:50,939 basehttp 11772 4072 "GET /api/Employees/Details/ HTTP/1.1" 200 8487
+INFO 2025-09-03 14:38:40,091 middleware 11772 18088 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:38:40,099 middleware 11772 18088 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:38:40,100 basehttp 11772 18088 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:38:40,103 middleware 11772 17860 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:38:40,113 employees_details_views 11772 17860 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:38:40,114 employees_details_views 11772 17860 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:38:40,114 employees_details_views 11772 17860 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:38:55,573 employees_details_views 11772 17860 Fetching employee data from CRM...
+INFO 2025-09-03 14:38:55,573 employees_details_views 11772 17860 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:38:56,690 employees_details_views 11772 17860 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:38:56,691 employees_details_views 11772 17860 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:38:57,615 employees_details_views 11772 17860 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:38:57,615 employees_details_views 11772 17860 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:38:58,603 employees_details_views 11772 17860 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:38:58,604 employees_details_views 11772 17860 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:38:59,571 employees_details_views 11772 17860 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:38:59,572 employees_details_views 11772 17860 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:39:00,487 employees_details_views 11772 17860 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:39:00,488 employees_details_views 11772 17860 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:39:00,490 middleware 11772 17860 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:39:00,491 basehttp 11772 17860 "GET /api/Employees/Details/ HTTP/1.1" 200 8488
+INFO 2025-09-03 14:45:50,612 middleware 19888 19324 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:45:50,625 middleware 19888 19324 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:45:50,626 basehttp 19888 19324 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:45:50,628 middleware 19888 16648 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:45:51,112 employees_details_views 19888 16648 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:45:51,113 employees_details_views 19888 16648 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:45:51,113 employees_details_views 19888 16648 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:45:53,565 employees_details_views 19888 16648 Fetching employee data from CRM...
+INFO 2025-09-03 14:45:53,566 employees_details_views 19888 16648 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:45:55,185 employees_details_views 19888 16648 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:45:55,186 employees_details_views 19888 16648 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:45:56,066 employees_details_views 19888 16648 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:45:56,066 employees_details_views 19888 16648 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:45:57,052 employees_details_views 19888 16648 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:45:57,052 employees_details_views 19888 16648 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:45:58,078 employees_details_views 19888 16648 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:45:58,079 employees_details_views 19888 16648 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:45:59,742 employees_details_views 19888 16648 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:45:59,743 employees_details_views 19888 16648 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:45:59,746 middleware 19888 16648 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:45:59,747 basehttp 19888 16648 "GET /api/Employees/Details/ HTTP/1.1" 200 8418
+INFO 2025-09-03 14:47:35,224 middleware 19888 20420 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:47:35,234 middleware 19888 20420 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:47:35,235 basehttp 19888 20420 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:47:35,237 middleware 19888 11760 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:47:35,246 employees_details_views 19888 11760 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:47:35,247 employees_details_views 19888 11760 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:47:35,247 employees_details_views 19888 11760 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:47:37,086 employees_details_views 19888 11760 Fetching employee data from CRM...
+INFO 2025-09-03 14:47:37,087 employees_details_views 19888 11760 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:47:38,497 employees_details_views 19888 11760 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:47:38,498 employees_details_views 19888 11760 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:47:39,454 employees_details_views 19888 11760 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:47:39,454 employees_details_views 19888 11760 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:47:40,627 employees_details_views 19888 11760 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:47:40,627 employees_details_views 19888 11760 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:47:41,639 employees_details_views 19888 11760 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:47:41,639 employees_details_views 19888 11760 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:47:42,876 employees_details_views 19888 11760 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:47:42,877 employees_details_views 19888 11760 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:47:42,880 middleware 19888 11760 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:47:42,881 basehttp 19888 11760 "GET /api/Employees/Details/ HTTP/1.1" 200 8418
+INFO 2025-09-03 14:48:54,626 middleware 19888 11760 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:48:54,635 middleware 19888 11760 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:48:54,636 basehttp 19888 11760 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:48:54,672 middleware 19888 7572 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:48:54,719 employees_details_views 19888 7572 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:48:54,740 employees_details_views 19888 7572 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:48:54,750 employees_details_views 19888 7572 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:48:57,085 employees_details_views 19888 7572 Fetching employee data from CRM...
+INFO 2025-09-03 14:48:57,086 employees_details_views 19888 7572 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:48:58,238 employees_details_views 19888 7572 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:48:58,238 employees_details_views 19888 7572 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:48:59,677 employees_details_views 19888 7572 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:48:59,679 employees_details_views 19888 7572 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:49:01,983 employees_details_views 19888 7572 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:49:01,983 employees_details_views 19888 7572 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:49:03,392 employees_details_views 19888 7572 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:49:03,392 employees_details_views 19888 7572 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:49:04,562 employees_details_views 19888 7572 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:49:04,566 employees_details_views 19888 7572 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:49:04,571 middleware 19888 7572 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:49:04,573 basehttp 19888 7572 "GET /api/Employees/Details/ HTTP/1.1" 200 8416
+INFO 2025-09-03 14:49:48,721 middleware 19888 18044 Request: GET /api/Employees/Details
+INFO 2025-09-03 14:49:48,733 middleware 19888 18044 Response: 404 for GET /api/Employees/Details
+INFO 2025-09-03 14:49:48,734 basehttp 19888 18044 "GET /api/Employees/Details HTTP/1.1" 301 0
+INFO 2025-09-03 14:49:48,737 middleware 19888 19696 Request: GET /api/Employees/Details/
+INFO 2025-09-03 14:49:48,746 employees_details_views 19888 19696 S3 client initialized successfully for employee details
+INFO 2025-09-03 14:49:48,747 employees_details_views 19888 19696 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-03 14:49:48,747 employees_details_views 19888 19696 Scanning S3 bucket for employee data...
+INFO 2025-09-03 14:49:51,138 employees_details_views 19888 19696 Fetching employee data from CRM...
+INFO 2025-09-03 14:49:51,139 employees_details_views 19888 19696 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-03 14:49:52,156 employees_details_views 19888 19696 CRM endpoint /employees returned status 404
+INFO 2025-09-03 14:49:52,157 employees_details_views 19888 19696 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-03 14:49:53,001 employees_details_views 19888 19696 CRM endpoint /users returned status 404
+INFO 2025-09-03 14:49:53,002 employees_details_views 19888 19696 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-03 14:49:54,204 employees_details_views 19888 19696 CRM endpoint /staff returned status 404
+INFO 2025-09-03 14:49:54,205 employees_details_views 19888 19696 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-03 14:49:55,146 employees_details_views 19888 19696 CRM endpoint /personnel returned status 404
+INFO 2025-09-03 14:49:55,146 employees_details_views 19888 19696 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-03 14:49:56,121 employees_details_views 19888 19696 CRM endpoint /members returned status 404
+WARNING 2025-09-03 14:49:56,121 employees_details_views 19888 19696 No CRM endpoints were accessible, using mock data
+INFO 2025-09-03 14:49:56,125 middleware 19888 19696 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-03 14:49:56,126 basehttp 19888 19696 "GET /api/Employees/Details/ HTTP/1.1" 200 8417
+INFO 2025-09-03 14:55:56,206 middleware 7624 19824 Request: GET /api/Timer
+INFO 2025-09-03 14:55:56,222 middleware 7624 19824 Response: 404 for GET /api/Timer
+INFO 2025-09-03 14:55:56,223 basehttp 7624 19824 "GET /api/Timer HTTP/1.1" 301 0
+INFO 2025-09-03 14:55:56,225 middleware 7624 19048 Request: GET /api/Timer/
+INFO 2025-09-03 14:55:56,226 timer_api_views 7624 19048 Fetching timer status and settings
+INFO 2025-09-03 14:55:56,226 middleware 7624 19048 Response: 200 for GET /api/Timer/
+INFO 2025-09-03 14:55:56,227 basehttp 7624 19048 "GET /api/Timer/ HTTP/1.1" 200 321
+INFO 2025-09-03 14:59:01,490 middleware 7624 18120 Request: GET /api/Timer
+INFO 2025-09-03 14:59:01,502 middleware 7624 18120 Response: 404 for GET /api/Timer
+INFO 2025-09-03 14:59:01,504 basehttp 7624 18120 "GET /api/Timer HTTP/1.1" 301 0
+INFO 2025-09-03 14:59:01,507 middleware 7624 19956 Request: GET /api/Timer/
+INFO 2025-09-03 14:59:01,508 timer_api_views 7624 19956 Fetching timer status and settings
+INFO 2025-09-03 14:59:01,508 middleware 7624 19956 Response: 200 for GET /api/Timer/
+INFO 2025-09-03 14:59:01,509 basehttp 7624 19956 "GET /api/Timer/ HTTP/1.1" 200 321
+INFO 2025-09-03 15:00:12,657 middleware 7624 19956 Request: GET /api/Timer
+INFO 2025-09-03 15:00:12,667 middleware 7624 19956 Response: 404 for GET /api/Timer
+INFO 2025-09-03 15:00:12,669 basehttp 7624 19956 "GET /api/Timer HTTP/1.1" 301 0
+INFO 2025-09-03 15:00:12,671 middleware 7624 19584 Request: GET /api/Timer/
+INFO 2025-09-03 15:00:12,672 timer_api_views 7624 19584 Fetching timer status and settings
+INFO 2025-09-03 15:00:12,672 middleware 7624 19584 Response: 200 for GET /api/Timer/
+INFO 2025-09-03 15:00:12,673 basehttp 7624 19584 "GET /api/Timer/ HTTP/1.1" 200 321
+INFO 2025-09-03 15:00:51,424 middleware 7624 19584 Request: POST /api/Timer
+INFO 2025-09-03 15:00:51,433 middleware 7624 19584 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:00:51,605 log 7624 19584 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:00:51,611 basehttp 7624 19584 "POST /api/Timer HTTP/1.1" 500 79485
+INFO 2025-09-03 15:02:41,795 middleware 7624 2828 Request: POST /api/Timer
+INFO 2025-09-03 15:02:41,808 middleware 7624 2828 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:02:41,850 log 7624 2828 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:02:41,854 basehttp 7624 2828 "POST /api/Timer HTTP/1.1" 500 79619
+INFO 2025-09-03 15:05:51,220 middleware 16876 18728 Request: POST /api/Timer
+INFO 2025-09-03 15:05:51,238 middleware 16876 18728 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:05:51,295 log 16876 18728 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:05:51,304 basehttp 16876 18728 "POST /api/Timer HTTP/1.1" 500 79619
+INFO 2025-09-03 15:08:33,506 middleware 16952 18040 Request: POST /api/Timer
+INFO 2025-09-03 15:08:33,523 middleware 16952 18040 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:08:33,578 log 16952 18040 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:08:33,584 basehttp 16952 18040 "POST /api/Timer HTTP/1.1" 500 79752
+INFO 2025-09-03 15:09:26,194 middleware 16952 18536 Request: POST /api/Timer
+INFO 2025-09-03 15:09:26,206 middleware 16952 18536 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:09:26,286 log 16952 18536 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+INFO 2025-09-03 15:11:05,718 middleware 16952 10116 Request: GET /api/Timer
+INFO 2025-09-03 15:11:05,728 middleware 16952 10116 Response: 404 for GET /api/Timer
+INFO 2025-09-03 15:11:05,730 basehttp 16952 10116 "GET /api/Timer HTTP/1.1" 301 0
+INFO 2025-09-03 15:11:05,736 middleware 16952 11760 Request: GET /api/Timer/
+INFO 2025-09-03 15:11:05,738 timer_api_views 16952 11760 Fetching timer status and settings
+INFO 2025-09-03 15:11:05,742 middleware 16952 11760 Response: 200 for GET /api/Timer/
+INFO 2025-09-03 15:11:05,743 basehttp 16952 11760 "GET /api/Timer/ HTTP/1.1" 200 321
+INFO 2025-09-03 15:12:24,645 middleware 3520 19004 Request: POST /api/Timer
+INFO 2025-09-03 15:12:24,662 middleware 3520 19004 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:12:24,708 log 3520 19004 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:12:24,712 basehttp 3520 19004 "POST /api/Timer HTTP/1.1" 500 79610
+INFO 2025-09-03 15:26:30,448 middleware 3520 19888 Request: POST /api/Timer
+INFO 2025-09-03 15:26:30,457 middleware 3520 19888 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:26:30,498 log 3520 19888 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:26:30,502 basehttp 3520 19888 "POST /api/Timer HTTP/1.1" 500 79752
+INFO 2025-09-03 15:27:38,441 middleware 3520 19044 Request: POST /api/Timer
+INFO 2025-09-03 15:27:38,451 middleware 3520 19044 Response: 404 for POST /api/Timer
+ERROR 2025-09-03 15:27:38,486 log 3520 19044 Internal Server Error: /api/Timer
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 108, in process_response
+    return self.response_redirect_class(self.get_full_path_with_slash(request))
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\middleware\common.py", line 87, in get_full_path_with_slash
+    raise RuntimeError(
+    ...<9 lines>...
+    )
+RuntimeError: You called this URL via POST, but the URL doesn't end in a slash and you have APPEND_SLASH set. Django can't redirect to the slash URL while maintaining POST data. Change your form to point to 127.0.0.1:8000/api/Timer/ (note the trailing slash), or set APPEND_SLASH=False in your Django settings.
+ERROR 2025-09-03 15:27:38,489 basehttp 3520 19044 "POST /api/Timer HTTP/1.1" 500 79617
+INFO 2025-09-03 15:30:45,756 middleware 3520 16760 Request: GET /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+INFO 2025-09-03 15:30:45,766 middleware 3520 16760 Response: 404 for GET /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+WARNING 2025-09-03 15:30:45,767 log 3520 16760 Not Found: /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+WARNING 2025-09-03 15:30:45,778 basehttp 3520 16760 "GET /api/Timer%22%20-Method%20POST%20-Body%20'%7B%22action%22:%22apply_settings%22,%22email%22:%22nawaz@dxdglobal.com%22,%22minutes%22:25,%22seconds%22:30%7D HTTP/1.1" 404 9737
+INFO 2025-09-03 15:31:00,718 middleware 3520 16760 Request: GET /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+INFO 2025-09-03 15:31:00,728 middleware 3520 16760 Response: 404 for GET /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+WARNING 2025-09-03 15:31:00,729 log 3520 16760 Not Found: /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+WARNING 2025-09-03 15:31:00,730 basehttp 3520 16760 "GET /api/Timer%22%20-Method%20POST%20-Body%20'%7B%22action%22:%22apply_settings%22,%22email%22:%22nawaz@dxdglobal.com%22,%22minutes%22:25,%22seconds%22:30%7D HTTP/1.1" 404 9737
+INFO 2025-09-03 15:31:03,626 middleware 3520 16760 Request: GET /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+INFO 2025-09-03 15:31:03,635 middleware 3520 16760 Response: 404 for GET /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+WARNING 2025-09-03 15:31:03,636 log 3520 16760 Not Found: /api/Timer" -Method POST -Body '{"action":"apply_settings","email":"nawaz@dxdglobal.com","minutes":25,"seconds":30}
+WARNING 2025-09-03 15:31:03,637 basehttp 3520 16760 "GET /api/Timer%22%20-Method%20POST%20-Body%20'%7B%22action%22:%22apply_settings%22,%22email%22:%22nawaz@dxdglobal.com%22,%22minutes%22:25,%22seconds%22:30%7D HTTP/1.1" 404 9737
+INFO 2025-09-03 15:36:18,398 middleware 3520 17028 Request: GET /api/Timer
+INFO 2025-09-03 15:36:18,408 middleware 3520 17028 Response: 404 for GET /api/Timer
+INFO 2025-09-03 15:36:18,410 basehttp 3520 17028 "GET /api/Timer HTTP/1.1" 301 0
+INFO 2025-09-03 15:36:18,413 middleware 3520 19728 Request: GET /api/Timer/
+INFO 2025-09-03 15:36:18,413 timer_api_views 3520 19728 Fetching timer status and settings
+INFO 2025-09-03 15:36:18,414 middleware 3520 19728 Response: 200 for GET /api/Timer/
+INFO 2025-09-03 15:36:18,415 basehttp 3520 19728 "GET /api/Timer/ HTTP/1.1" 200 321
