@@ -6175,3 +6175,64 @@ INFO 2025-09-03 15:36:18,413 middleware 3520 19728 Request: GET /api/Timer/
 INFO 2025-09-03 15:36:18,413 timer_api_views 3520 19728 Fetching timer status and settings
 INFO 2025-09-03 15:36:18,414 middleware 3520 19728 Response: 200 for GET /api/Timer/
 INFO 2025-09-03 15:36:18,415 basehttp 3520 19728 "GET /api/Timer/ HTTP/1.1" 200 321
+INFO 2025-09-03 17:58:51,220 middleware 11276 2004 Request: GET /api/users/search/
+INFO 2025-09-03 17:58:52,169 users_search_views 11276 2004 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 17:58:52,169 users_search_views 11276 2004 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 17:58:52,175 users_search_views 11276 2004 Start date filter: 2025-09-01
+INFO 2025-09-03 17:58:52,176 users_search_views 11276 2004 End date filter: 2025-09-02
+INFO 2025-09-03 17:58:52,176 users_search_views 11276 2004 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 17:58:54,331 middleware 11276 2004 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 17:58:54,333 basehttp 11276 2004 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 17:59:13,710 middleware 11276 2004 Request: GET /api/users/search/
+INFO 2025-09-03 17:59:13,719 users_search_views 11276 2004 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 17:59:13,720 users_search_views 11276 2004 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 17:59:13,720 users_search_views 11276 2004 Start date filter: 2025-09-01
+INFO 2025-09-03 17:59:13,721 users_search_views 11276 2004 End date filter: 2025-09-02
+INFO 2025-09-03 17:59:13,721 users_search_views 11276 2004 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 17:59:17,124 middleware 11276 2004 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 17:59:17,126 basehttp 11276 2004 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 17:59:20,916 middleware 11276 2004 Request: GET /api/users/search/
+INFO 2025-09-03 17:59:20,927 users_search_views 11276 2004 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 17:59:20,928 users_search_views 11276 2004 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 17:59:20,928 users_search_views 11276 2004 Start date filter: 2025-09-01
+INFO 2025-09-03 17:59:20,929 users_search_views 11276 2004 End date filter: 2025-09-02
+INFO 2025-09-03 17:59:20,929 users_search_views 11276 2004 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 17:59:22,776 middleware 11276 2004 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 17:59:22,777 basehttp 11276 2004 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 17:59:24,908 middleware 11276 2004 Request: GET /api/users/search/
+INFO 2025-09-03 17:59:24,916 users_search_views 11276 2004 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 17:59:24,917 users_search_views 11276 2004 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 17:59:24,917 users_search_views 11276 2004 Start date filter: 2025-09-01
+INFO 2025-09-03 17:59:24,917 users_search_views 11276 2004 End date filter: 2025-09-02
+INFO 2025-09-03 17:59:24,918 users_search_views 11276 2004 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 17:59:26,700 middleware 11276 2004 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 17:59:26,701 basehttp 11276 2004 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 17:59:29,439 middleware 11276 2004 Request: GET /api/users/search/
+INFO 2025-09-03 17:59:29,448 users_search_views 11276 2004 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 17:59:29,449 users_search_views 11276 2004 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 17:59:29,449 users_search_views 11276 2004 Start date filter: 2025-09-01
+INFO 2025-09-03 17:59:29,450 users_search_views 11276 2004 End date filter: 2025-09-02
+INFO 2025-09-03 17:59:29,450 users_search_views 11276 2004 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 17:59:31,032 middleware 11276 2004 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 17:59:31,033 basehttp 11276 2004 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 17:59:55,321 middleware 11276 2004 Request: GET /api/users/search/
+INFO 2025-09-03 17:59:55,330 users_search_views 11276 2004 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 17:59:55,330 users_search_views 11276 2004 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 17:59:55,331 users_search_views 11276 2004 Start date filter: 2025-09-01
+INFO 2025-09-03 17:59:55,331 users_search_views 11276 2004 End date filter: 2025-09-02
+INFO 2025-09-03 17:59:55,332 users_search_views 11276 2004 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 17:59:56,848 middleware 11276 2004 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 17:59:56,849 basehttp 11276 2004 "GET /api/users/search/?q=naw&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34544
+INFO 2025-09-03 18:09:10,270 middleware 11276 19416 Request: GET /api/users/search/
+INFO 2025-09-03 18:09:10,279 users_search_views 11276 19416 S3 client initialized successfully for enhanced users search
+INFO 2025-09-03 18:09:10,280 users_search_views 11276 19416 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-03 18:09:10,281 users_search_views 11276 19416 Start date filter: 2025-09-01
+INFO 2025-09-03 18:09:10,281 users_search_views 11276 19416 End date filter: 2025-09-02
+INFO 2025-09-03 18:09:10,281 users_search_views 11276 19416 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-03 18:09:13,161 middleware 11276 19416 Response: 200 for GET /api/users/search/
+INFO 2025-09-03 18:09:13,163 basehttp 11276 19416 "GET /api/users/search/?q=nawaz&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 34548
+INFO 2025-09-03 18:09:50,086 middleware 11276 19416 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-03 18:09:50,087 crm_comprehensive_views 11276 19416 Starting CRM comprehensive dashboard data retrieval...
+ERROR 2025-09-03 18:09:50,087 crm_comprehensive_views 11276 19416 CRM service not configured
+INFO 2025-09-03 18:09:50,088 middleware 11276 19416 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-03 18:09:50,089 basehttp 11276 19416 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 948
