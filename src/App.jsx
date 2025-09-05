@@ -21,6 +21,10 @@ const Login = lazy(() =>
   import('./auth/pages/Login').catch(() => ({ default: FallbackLogin }))
 );
 
+const Register = lazy(() =>
+  import('./auth/pages/Register').catch(() => ({ default: FallbackRegister }))
+);
+
 const ThemeDemo = lazy(() =>
   import('./dashboard/pages/ThemeDemo').catch(() => ({ default: FallbackThemeDemo }))
 );
@@ -133,6 +137,7 @@ const FallbackDashboard = () => <LoadingSpinner />;
 const FallbackLiveTracking = () => <LoadingSpinner />;
 const FallbackQuickView = () => <LoadingSpinner />;
 const FallbackLogin = () => <LoadingSpinner />;
+const FallbackRegister = () => <LoadingSpinner />;
 const FallbackThemeDemo = () => <LoadingSpinner />;
 const FallbackSettings = () => <LoadingSpinner />;
 const FallbackAttendance = () => <LoadingSpinner />;
@@ -153,17 +158,44 @@ const GlobalStyle = createGlobalStyle`
     background: ${props => props.theme?.colors?.background || '#f8fafc'};
     color: ${props => props.theme?.colors?.text?.primary || '#1e293b'};
     transition: background-color 0.3s ease, color 0.3s ease;
+    position: relative;
+  }
+
+  /* Global background mask */
+  body::before {
+    content: "";
+    position: fixed;
+    background-image: url('https://dash.focusro.com/assets/images/a.png');
+    background-size: cover;
+    height: 831px;
+    left: 0;
+    top: 0;
+    width: 350px;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    background-image: url('https://dash.focusro.com/assets/images/b.png');
+    background-size: cover;
+    height: 850px;
+    right: 0;
+    bottom: -80px;
+    width: 370px;
+
   }
 
   #root {
     min-height: 100vh;
     width: 100%;
+    position: relative;
   }
 `;
 
 const AppContainer = styled.div`
   min-height: 100vh;
-  background: ${props => props.theme?.colors?.background || '#f8fafc'};
+  background: transparent;
+  position: relative;
 `;
 
 function App() {
@@ -173,10 +205,10 @@ function App() {
         <LanguageProvider>
           <ThemeProvider>
             <GlobalStyle />
-            <AppContainer>
+            <AppContainer className="wrapper has-mask">
               <Router>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/" element={<Navigate to="/admin-panel" replace />} />
                   <Route
                     path="/login"
                     element={
@@ -186,7 +218,25 @@ function App() {
                     }
                   />
                   <Route
+                    path="/register"
+                    element={
+                      <Suspense fallback={<FallbackRegister />}>
+                        <Register />
+                      </Suspense>
+                    }
+                  />
+                  <Route
                     path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackDashboard />}>
+                          <Dashboard />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin-panel"
                     element={
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackDashboard />}>
@@ -265,7 +315,7 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/admin-panel" replace />} />
                 </Routes>
               </Router>
             </AppContainer>

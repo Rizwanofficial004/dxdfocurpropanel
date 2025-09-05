@@ -9,6 +9,7 @@ const LayoutContainer = styled.div`
   flex-direction: column;
   min-height: 100vh;
   font-family: ${props => props.theme.typography.fontFamily};
+  position: relative;
 `;
 
 const LayoutBody = styled.div`
@@ -19,9 +20,11 @@ const LayoutBody = styled.div`
 const MainContent = styled.main`
   flex: 1;
   overflow-x: hidden;
-  background: ${props => props.theme.colors.background};
+  background: transparent;
   min-height: calc(100vh - 80px);
   position: relative;
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
 `;
 
 export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => {

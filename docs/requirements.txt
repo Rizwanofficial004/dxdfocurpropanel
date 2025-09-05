@@ -1,0 +1,21 @@
+# Django Backend Requirements
+# File: backend/requirements.txt
+
+Django>=4.2.0
+djangorestframework>=3.14.0
+djangorestframework-simplejwt>=5.2.0
+django-cors-headers>=4.0.0
+python-decouple>=3.8
+Pillow>=9.5.0
+
+# Database drivers (choose one based on your database)
+psycopg2-binary>=2.9.0  # For PostgreSQL
+# mysqlclient>=2.1.0    # For MySQL
+
+# Optional but recommended
+django-extensions>=3.2.0
+whitenoise>=6.5.0       # For static files in production
+gunicorn>=20.1.0        # For production deployment
+
+# Development dependencies
+django-debug-toolbar>=4.1.0  # For development debugging
