@@ -16,7 +16,7 @@ urlpatterns = [
     ])),
     
     # Dashboard-specific endpoints
-    path('dashboard/employees/', UsersScreenshotsView.as_view(), name='dashboard-employees'),
+    path('api/live-tracking/fast-screenshots/', UsersScreenshotsView.as_view(), name='fast-screenshots'), ##Correct API call 
     
     # CRM Comprehensive endpoints
     path('dashboard/crm-comprehensive/', CRMComprehensiveDashboardView.as_view(), name='crm-comprehensive-dashboard'),

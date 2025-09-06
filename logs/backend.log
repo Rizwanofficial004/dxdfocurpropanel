@@ -2598,3 +2598,585 @@ INFO 2025-09-01 18:42:47,901 users_screenshots_view 30884 18696 Processed users_
 INFO 2025-09-01 18:42:47,902 users_screenshots_view 30884 18696 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
 INFO 2025-09-01 18:42:47,902 middleware 30884 18696 Response: 200 for GET /api/dashboard/employees/
 INFO 2025-09-01 18:42:47,903 basehttp 30884 18696 "GET /api/dashboard/employees/ HTTP/1.1" 200 1508
+INFO 2025-09-06 14:56:03,402 autoreload 26340 16932 Watching for file changes with StatReloader
+INFO 2025-09-06 14:56:08,273 middleware 26340 9752 Request: GET /
+INFO 2025-09-06 14:56:08,626 middleware 26340 9752 Response: 404 for GET /
+WARNING 2025-09-06 14:56:08,642 log 26340 9752 Not Found: /
+WARNING 2025-09-06 14:56:08,642 basehttp 26340 9752 "GET / HTTP/1.1" 404 3930
+INFO 2025-09-06 14:56:08,964 middleware 26340 9752 Request: GET /favicon.ico
+INFO 2025-09-06 14:56:08,969 middleware 26340 9752 Response: 404 for GET /favicon.ico
+WARNING 2025-09-06 14:56:08,970 log 26340 9752 Not Found: /favicon.ico
+WARNING 2025-09-06 14:56:08,971 basehttp 26340 9752 "GET /favicon.ico HTTP/1.1" 404 3981
+INFO 2025-09-06 14:57:11,334 middleware 26340 10276 Request: GET /health
+INFO 2025-09-06 14:57:11,369 middleware 26340 10276 Response: 404 for GET /health
+INFO 2025-09-06 14:57:11,381 basehttp 26340 10276 "GET /health HTTP/1.1" 301 0
+INFO 2025-09-06 14:57:17,973 middleware 26340 692 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 14:57:18,001 middleware 26340 692 Response: 404 for GET /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 14:57:18,003 log 26340 692 Not Found: /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 14:57:18,005 basehttp 26340 692 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 404 5236
+INFO 2025-09-06 15:00:17,245 autoreload 26340 16932 C:\Users\sweid\Desktop\backend\dxdfocurpropanel\manage.py changed, reloading.
+INFO 2025-09-06 15:00:57,882 middleware 22960 26604 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:00:57,906 middleware 22960 26604 Response: 404 for GET /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:00:57,910 log 22960 26604 Not Found: /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:00:57,911 basehttp 22960 26604 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 404 5236
+INFO 2025-09-06 15:01:00,291 middleware 22960 26604 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:01:00,299 middleware 22960 26604 Response: 404 for GET /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:01:00,300 log 22960 26604 Not Found: /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:01:00,301 basehttp 22960 26604 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 404 5236
+INFO 2025-09-06 15:02:18,886 middleware 22960 26604 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:02:18,898 middleware 22960 26604 Response: 404 for GET /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:02:18,899 log 22960 26604 Not Found: /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:02:18,900 basehttp 22960 26604 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 404 5236
+INFO 2025-09-06 15:02:19,585 middleware 22960 26604 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:02:19,593 middleware 22960 26604 Response: 404 for GET /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:02:19,593 log 22960 26604 Not Found: /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:02:19,594 basehttp 22960 26604 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 404 5236
+INFO 2025-09-06 15:07:21,105 middleware 22960 24336 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:07:21,131 middleware 22960 24336 Response: 404 for GET /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:07:21,134 log 22960 24336 Not Found: /api/live-tracking/fast-screenshots/
+WARNING 2025-09-06 15:07:21,135 basehttp 22960 24336 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 404 5236
+INFO 2025-09-06 15:10:55,209 middleware 716 11068 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:10:56,703 users_screenshots_view 716 11068 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:10:56,787 users_screenshots_view 716 11068 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:10:58,400 users_screenshots_view 716 11068 Processing page with 534 objects
+INFO 2025-09-06 15:10:58,401 users_screenshots_view 716 11068 S3 Processing Summary:
+INFO 2025-09-06 15:10:58,402 users_screenshots_view 716 11068   - Total users found: 3
+INFO 2025-09-06 15:10:58,402 users_screenshots_view 716 11068   - Active users: 3
+INFO 2025-09-06 15:10:58,402 users_screenshots_view 716 11068   - Total files: 533
+INFO 2025-09-06 15:10:58,402 users_screenshots_view 716 11068   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:10:58,446 users_screenshots_view 716 11068 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:10:58,447 users_screenshots_view 716 11068 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:10:58,447 middleware 716 11068 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:10:58,448 basehttp 716 11068 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:12:26,060 middleware 716 11068 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:12:26,069 users_screenshots_view 716 11068 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:12:26,070 users_screenshots_view 716 11068 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:12:28,445 users_screenshots_view 716 11068 Processing page with 534 objects
+INFO 2025-09-06 15:12:28,447 users_screenshots_view 716 11068 S3 Processing Summary:
+INFO 2025-09-06 15:12:28,447 users_screenshots_view 716 11068   - Total users found: 3
+INFO 2025-09-06 15:12:28,448 users_screenshots_view 716 11068   - Active users: 3
+INFO 2025-09-06 15:12:28,448 users_screenshots_view 716 11068   - Total files: 533
+INFO 2025-09-06 15:12:28,449 users_screenshots_view 716 11068   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:12:28,450 users_screenshots_view 716 11068 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:12:28,451 users_screenshots_view 716 11068 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:12:28,452 middleware 716 11068 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:12:28,455 basehttp 716 11068 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:18:58,796 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:18:58,881 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:18:58,885 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:19:01,848 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:19:01,851 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:19:01,851 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:19:01,851 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:19:01,852 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:19:01,852 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:19:01,853 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:19:01,854 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:19:01,860 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:19:01,866 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:19:54,483 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:19:54,496 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:19:54,498 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:19:57,297 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:19:57,300 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:19:57,300 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:19:57,301 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:19:57,301 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:19:57,301 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:19:57,302 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:19:57,302 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:19:57,303 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:19:57,305 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:22:17,733 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:22:17,746 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:22:17,747 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:22:19,817 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:22:19,819 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:22:19,819 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:22:19,820 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:22:19,820 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:22:19,820 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:22:19,821 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:22:19,821 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:22:19,822 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:22:19,823 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:24:17,057 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:24:17,067 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:24:17,069 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:24:19,745 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:24:19,747 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:24:19,747 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:24:19,747 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:24:19,748 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:24:19,748 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:24:19,749 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:24:19,750 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:24:19,751 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:24:19,752 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:25:19,240 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:25:19,255 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:25:19,256 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:25:21,141 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:25:21,143 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:25:21,143 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:25:21,143 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:25:21,143 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:25:21,144 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:25:21,144 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:25:21,145 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:25:21,146 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:25:21,147 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:25:29,296 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:25:29,305 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:25:29,306 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:25:32,473 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:25:32,476 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:25:32,477 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:25:32,477 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:25:32,478 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:25:32,478 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:25:32,479 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:25:32,480 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:25:32,481 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:25:32,483 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2024-12-31&end_date=2025-12-31 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:29:26,829 middleware 716 24104 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:29:26,844 users_screenshots_view 716 24104 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:29:26,846 users_screenshots_view 716 24104 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:29:29,095 users_screenshots_view 716 24104 Processing page with 534 objects
+INFO 2025-09-06 15:29:29,098 users_screenshots_view 716 24104 S3 Processing Summary:
+INFO 2025-09-06 15:29:29,098 users_screenshots_view 716 24104   - Total users found: 3
+INFO 2025-09-06 15:29:29,098 users_screenshots_view 716 24104   - Active users: 3
+INFO 2025-09-06 15:29:29,099 users_screenshots_view 716 24104   - Total files: 533
+INFO 2025-09-06 15:29:29,099 users_screenshots_view 716 24104   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:29:29,100 users_screenshots_view 716 24104 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:29:29,101 users_screenshots_view 716 24104 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:29:29,102 middleware 716 24104 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:29:29,103 basehttp 716 24104 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:36:23,056 middleware 716 18900 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:36:23,077 users_screenshots_view 716 18900 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:36:23,079 users_screenshots_view 716 18900 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:36:24,684 users_screenshots_view 716 18900 Processing page with 534 objects
+INFO 2025-09-06 15:36:24,687 users_screenshots_view 716 18900 S3 Processing Summary:
+INFO 2025-09-06 15:36:24,687 users_screenshots_view 716 18900   - Total users found: 3
+INFO 2025-09-06 15:36:24,687 users_screenshots_view 716 18900   - Active users: 3
+INFO 2025-09-06 15:36:24,688 users_screenshots_view 716 18900   - Total files: 533
+INFO 2025-09-06 15:36:24,688 users_screenshots_view 716 18900   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:36:24,690 users_screenshots_view 716 18900 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:36:24,691 users_screenshots_view 716 18900 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:36:24,693 middleware 716 18900 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:36:24,695 basehttp 716 18900 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:45:20,751 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:45:20,837 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:45:20,840 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:45:24,038 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:45:24,042 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:45:24,043 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:45:24,044 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:45:24,044 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:45:24,046 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:45:24,048 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:45:24,049 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:45:24,053 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:45:24,056 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:46:56,610 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:46:56,627 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:46:56,628 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:46:58,813 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:46:58,814 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:46:58,815 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:46:58,815 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:46:58,815 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:46:58,815 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:46:58,816 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:46:58,817 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:46:58,819 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:46:58,820 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:47:11,032 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:47:11,047 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:47:11,049 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:47:12,945 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:47:12,947 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:47:12,947 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:47:12,948 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:47:12,948 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:47:12,949 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:47:12,950 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:47:12,950 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:47:12,951 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:47:12,953 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:47:18,953 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:47:18,973 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:47:18,975 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:47:21,126 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:47:21,129 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:47:21,129 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:47:21,130 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:47:21,130 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:47:21,131 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:47:21,132 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:47:21,133 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:47:21,134 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:47:21,136 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2024-12-31&end_date=2025-12-31 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:47:28,565 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:47:28,600 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:47:28,603 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:47:32,098 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:47:32,102 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:47:32,102 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:47:32,103 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:47:32,103 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:47:32,104 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:47:32,105 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:47:32,106 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:47:32,108 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:47:32,111 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:50:26,307 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:50:26,356 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:50:26,362 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:50:28,369 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:50:28,371 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:50:28,372 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:50:28,372 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:50:28,373 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:50:28,373 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:50:28,375 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:50:28,377 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:50:28,379 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:50:28,382 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:50:56,735 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:50:56,753 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:50:56,756 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:50:58,797 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:50:58,799 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:50:58,800 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:50:58,800 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:50:58,800 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:50:58,801 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:50:58,802 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:50:58,803 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:50:58,804 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:50:58,806 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:51:02,332 middleware 716 1124 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:51:02,350 users_screenshots_view 716 1124 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:51:02,352 users_screenshots_view 716 1124 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:51:04,415 users_screenshots_view 716 1124 Processing page with 534 objects
+INFO 2025-09-06 15:51:04,418 users_screenshots_view 716 1124 S3 Processing Summary:
+INFO 2025-09-06 15:51:04,418 users_screenshots_view 716 1124   - Total users found: 3
+INFO 2025-09-06 15:51:04,419 users_screenshots_view 716 1124   - Active users: 3
+INFO 2025-09-06 15:51:04,419 users_screenshots_view 716 1124   - Total files: 533
+INFO 2025-09-06 15:51:04,420 users_screenshots_view 716 1124   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:51:04,420 users_screenshots_view 716 1124 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:51:04,421 users_screenshots_view 716 1124 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:51:04,422 middleware 716 1124 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:51:04,424 basehttp 716 1124 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:55:28,754 middleware 27264 22200 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:55:30,092 users_screenshots_view 27264 22200 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:55:32,289 middleware 27264 22200 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:55:32,291 basehttp 27264 22200 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2493
+INFO 2025-09-06 15:55:33,351 middleware 27264 22200 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:55:33,365 users_screenshots_view 27264 22200 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:55:35,116 middleware 27264 22200 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:55:35,118 basehttp 27264 22200 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2493
+INFO 2025-09-06 15:55:51,853 middleware 27264 22200 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:55:51,865 users_screenshots_view 27264 22200 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:55:53,646 middleware 27264 22200 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:55:53,647 basehttp 27264 22200 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2493
+INFO 2025-09-06 15:59:34,809 middleware 4424 3292 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:59:35,915 users_screenshots_view 4424 3292 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:59:36,028 users_screenshots_view 4424 3292 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:59:37,133 middleware 4424 6924 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:59:37,147 users_screenshots_view 4424 6924 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 15:59:37,148 users_screenshots_view 4424 6924 Starting to process users_screenshots folder...
+INFO 2025-09-06 15:59:39,270 users_screenshots_view 4424 3292 Processing page with 534 objects
+INFO 2025-09-06 15:59:39,307 users_screenshots_view 4424 3292 S3 Processing Summary:
+INFO 2025-09-06 15:59:39,335 users_screenshots_view 4424 3292   - Total users found: 3
+INFO 2025-09-06 15:59:39,358 users_screenshots_view 4424 3292   - Active users: 3
+INFO 2025-09-06 15:59:39,390 users_screenshots_view 4424 3292   - Total files: 533
+INFO 2025-09-06 15:59:39,420 users_screenshots_view 4424 3292   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:59:39,450 users_screenshots_view 4424 6924 Processing page with 534 objects
+INFO 2025-09-06 15:59:39,453 users_screenshots_view 4424 6924 S3 Processing Summary:
+INFO 2025-09-06 15:59:39,453 users_screenshots_view 4424 6924   - Total users found: 3
+INFO 2025-09-06 15:59:39,454 users_screenshots_view 4424 6924   - Active users: 3
+INFO 2025-09-06 15:59:39,454 users_screenshots_view 4424 6924   - Total files: 533
+INFO 2025-09-06 15:59:39,469 users_screenshots_view 4424 6924   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 15:59:39,472 users_screenshots_view 4424 3292 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:59:39,473 users_screenshots_view 4424 6924 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 15:59:39,474 users_screenshots_view 4424 3292 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:59:39,475 users_screenshots_view 4424 6924 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 15:59:39,477 middleware 4424 3292 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:59:39,479 middleware 4424 6924 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 15:59:39,482 basehttp 4424 3292 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 15:59:39,483 basehttp 4424 6924 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 1502
+INFO 2025-09-06 16:04:47,653 middleware 18396 22432 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:04:48,324 users_screenshots_view 18396 22432 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:04:48,408 users_screenshots_view 18396 22432 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:04:49,822 middleware 18396 26024 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:04:49,835 users_screenshots_view 18396 26024 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:04:49,837 users_screenshots_view 18396 26024 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:04:50,610 users_screenshots_view 18396 22432 Processing page with 534 objects
+INFO 2025-09-06 16:04:50,613 users_screenshots_view 18396 22432 S3 Processing Summary:
+INFO 2025-09-06 16:04:50,613 users_screenshots_view 18396 22432   - Total users found: 3
+INFO 2025-09-06 16:04:50,614 users_screenshots_view 18396 22432   - Active users: 3
+INFO 2025-09-06 16:04:50,614 users_screenshots_view 18396 22432   - Total files: 533
+INFO 2025-09-06 16:04:50,615 users_screenshots_view 18396 22432   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+ERROR 2025-09-06 16:04:50,635 users_screenshots_view 18396 22432 Error getting comprehensive screenshots data: name 'latest_file_key' is not defined
+INFO 2025-09-06 16:04:50,636 users_screenshots_view 18396 22432 Users screenshots data retrieved successfully - Total: 0, Active: 0, Growth: 0%
+INFO 2025-09-06 16:04:50,638 middleware 18396 22432 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:04:50,639 basehttp 18396 22432 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 978
+INFO 2025-09-06 16:04:51,566 users_screenshots_view 18396 26024 Processing page with 534 objects
+INFO 2025-09-06 16:04:51,568 users_screenshots_view 18396 26024 S3 Processing Summary:
+INFO 2025-09-06 16:04:51,569 users_screenshots_view 18396 26024   - Total users found: 3
+INFO 2025-09-06 16:04:51,569 users_screenshots_view 18396 26024   - Active users: 3
+INFO 2025-09-06 16:04:51,570 users_screenshots_view 18396 26024   - Total files: 533
+INFO 2025-09-06 16:04:51,570 users_screenshots_view 18396 26024   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+ERROR 2025-09-06 16:04:51,571 users_screenshots_view 18396 26024 Error getting comprehensive screenshots data: name 'latest_file_key' is not defined
+INFO 2025-09-06 16:04:51,572 users_screenshots_view 18396 26024 Users screenshots data retrieved successfully - Total: 0, Active: 0, Growth: 0%
+INFO 2025-09-06 16:04:51,573 middleware 18396 26024 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:04:51,574 basehttp 18396 26024 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 978
+INFO 2025-09-06 16:05:07,547 middleware 18396 26024 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:05:07,574 users_screenshots_view 18396 26024 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:05:07,576 users_screenshots_view 18396 26024 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:05:12,106 users_screenshots_view 18396 26024 Processing page with 534 objects
+INFO 2025-09-06 16:05:12,108 users_screenshots_view 18396 26024 S3 Processing Summary:
+INFO 2025-09-06 16:05:12,109 users_screenshots_view 18396 26024   - Total users found: 3
+INFO 2025-09-06 16:05:12,110 users_screenshots_view 18396 26024   - Active users: 3
+INFO 2025-09-06 16:05:12,111 users_screenshots_view 18396 26024   - Total files: 533
+INFO 2025-09-06 16:05:12,112 users_screenshots_view 18396 26024   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+ERROR 2025-09-06 16:05:12,113 users_screenshots_view 18396 26024 Error getting comprehensive screenshots data: name 'latest_file_key' is not defined
+INFO 2025-09-06 16:05:12,114 users_screenshots_view 18396 26024 Users screenshots data retrieved successfully - Total: 0, Active: 0, Growth: 0%
+INFO 2025-09-06 16:05:12,115 middleware 18396 26024 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:05:12,117 basehttp 18396 26024 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 978
+INFO 2025-09-06 16:05:13,829 middleware 18396 26024 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:05:13,846 users_screenshots_view 18396 26024 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:05:13,847 users_screenshots_view 18396 26024 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:05:16,423 users_screenshots_view 18396 26024 Processing page with 534 objects
+INFO 2025-09-06 16:05:16,426 users_screenshots_view 18396 26024 S3 Processing Summary:
+INFO 2025-09-06 16:05:16,426 users_screenshots_view 18396 26024   - Total users found: 3
+INFO 2025-09-06 16:05:16,427 users_screenshots_view 18396 26024   - Active users: 3
+INFO 2025-09-06 16:05:16,428 users_screenshots_view 18396 26024   - Total files: 533
+INFO 2025-09-06 16:05:16,428 users_screenshots_view 18396 26024   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+ERROR 2025-09-06 16:05:16,429 users_screenshots_view 18396 26024 Error getting comprehensive screenshots data: name 'latest_file_key' is not defined
+INFO 2025-09-06 16:05:16,430 users_screenshots_view 18396 26024 Users screenshots data retrieved successfully - Total: 0, Active: 0, Growth: 0%
+INFO 2025-09-06 16:05:16,431 middleware 18396 26024 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:05:16,433 basehttp 18396 26024 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 978
+INFO 2025-09-06 16:05:58,541 middleware 16620 24004 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:05:59,028 users_screenshots_view 16620 24004 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:05:59,070 users_screenshots_view 16620 24004 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:06:02,006 users_screenshots_view 16620 24004 Processing page with 534 objects
+INFO 2025-09-06 16:06:02,009 users_screenshots_view 16620 24004 S3 Processing Summary:
+INFO 2025-09-06 16:06:02,009 users_screenshots_view 16620 24004   - Total users found: 3
+INFO 2025-09-06 16:06:02,010 users_screenshots_view 16620 24004   - Active users: 3
+INFO 2025-09-06 16:06:02,010 users_screenshots_view 16620 24004   - Total files: 533
+INFO 2025-09-06 16:06:02,011 users_screenshots_view 16620 24004   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:06:02,035 users_screenshots_view 16620 24004 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:06:02,036 users_screenshots_view 16620 24004 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:06:02,038 middleware 16620 24004 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:06:02,039 basehttp 16620 24004 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:06:08,192 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:06:08,203 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:06:08,205 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:06:12,020 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:06:12,023 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:06:12,023 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:06:12,023 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:06:12,024 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:06:12,024 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:06:12,030 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:06:12,031 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:06:12,032 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:06:12,034 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:06:14,593 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:06:14,620 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:06:14,622 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:06:16,568 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:06:16,570 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:06:16,571 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:06:16,571 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:06:16,572 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:06:16,572 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:06:16,579 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:06:16,580 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:06:16,581 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:06:16,584 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:06:57,118 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:06:57,133 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:06:57,135 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:07:00,292 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:07:00,294 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:07:00,295 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:07:00,295 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:07:00,296 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:07:00,297 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:07:00,302 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:07:00,302 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:07:00,304 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:07:00,306 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:07:01,358 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:07:01,371 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:07:01,372 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:07:03,182 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:07:03,185 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:07:03,185 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:07:03,186 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:07:03,187 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:07:03,187 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:07:03,194 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:07:03,195 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:07:03,196 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:07:03,198 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:10:59,992 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:00,052 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:11:00,055 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:11:02,024 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:11:02,027 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:11:02,027 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:11:02,027 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:11:02,028 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:11:02,028 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:11:02,033 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:11:02,033 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:11:02,035 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:02,036 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:11:02,980 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:03,020 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:11:03,021 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:11:04,853 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:11:04,856 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:11:04,856 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:11:04,857 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:11:04,857 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:11:04,857 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:11:04,863 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:11:04,864 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:11:04,865 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:04,867 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:11:28,209 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:28,219 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:11:28,220 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:11:30,277 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:11:30,279 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:11:30,279 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:11:30,280 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:11:30,280 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:11:30,280 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:11:30,285 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:11:30,286 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:11:30,286 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:30,287 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:11:31,091 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:31,107 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:11:31,108 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:11:32,530 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:11:32,532 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:11:32,533 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:11:32,533 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:11:32,534 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:11:32,535 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:11:32,541 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:11:32,542 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:11:32,543 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:11:32,544 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:15:56,640 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:15:56,664 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:15:56,667 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:15:59,538 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:15:59,540 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:15:59,541 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:15:59,541 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:15:59,542 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:15:59,543 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:15:59,551 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:15:59,552 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:15:59,555 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:15:59,557 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:16:03,684 middleware 16620 18436 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:16:03,719 users_screenshots_view 16620 18436 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:16:03,721 users_screenshots_view 16620 18436 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:16:06,395 users_screenshots_view 16620 18436 Processing page with 534 objects
+INFO 2025-09-06 16:16:06,398 users_screenshots_view 16620 18436 S3 Processing Summary:
+INFO 2025-09-06 16:16:06,398 users_screenshots_view 16620 18436   - Total users found: 3
+INFO 2025-09-06 16:16:06,399 users_screenshots_view 16620 18436   - Active users: 3
+INFO 2025-09-06 16:16:06,399 users_screenshots_view 16620 18436   - Total files: 533
+INFO 2025-09-06 16:16:06,400 users_screenshots_view 16620 18436   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:16:06,406 users_screenshots_view 16620 18436 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:16:06,407 users_screenshots_view 16620 18436 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:16:06,408 middleware 16620 18436 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:16:06,410 basehttp 16620 18436 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:22:02,790 middleware 16620 25920 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:22:02,803 users_screenshots_view 16620 25920 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:22:02,806 users_screenshots_view 16620 25920 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:22:05,218 users_screenshots_view 16620 25920 Processing page with 534 objects
+INFO 2025-09-06 16:22:05,221 users_screenshots_view 16620 25920 S3 Processing Summary:
+INFO 2025-09-06 16:22:05,221 users_screenshots_view 16620 25920   - Total users found: 3
+INFO 2025-09-06 16:22:05,221 users_screenshots_view 16620 25920   - Active users: 3
+INFO 2025-09-06 16:22:05,222 users_screenshots_view 16620 25920   - Total files: 533
+INFO 2025-09-06 16:22:05,222 users_screenshots_view 16620 25920   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:22:05,228 users_screenshots_view 16620 25920 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:22:05,229 users_screenshots_view 16620 25920 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:22:05,230 middleware 16620 25920 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:22:05,231 basehttp 16620 25920 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:22:11,691 middleware 16620 25920 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:22:11,704 users_screenshots_view 16620 25920 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:22:11,707 users_screenshots_view 16620 25920 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:22:16,780 users_screenshots_view 16620 25920 Processing page with 534 objects
+INFO 2025-09-06 16:22:16,782 users_screenshots_view 16620 25920 S3 Processing Summary:
+INFO 2025-09-06 16:22:16,782 users_screenshots_view 16620 25920   - Total users found: 3
+INFO 2025-09-06 16:22:16,783 users_screenshots_view 16620 25920   - Active users: 3
+INFO 2025-09-06 16:22:16,783 users_screenshots_view 16620 25920   - Total files: 533
+INFO 2025-09-06 16:22:16,784 users_screenshots_view 16620 25920   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:22:16,793 users_screenshots_view 16620 25920 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:22:16,794 users_screenshots_view 16620 25920 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:22:16,795 middleware 16620 25920 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:22:16,798 basehttp 16620 25920 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-08-30&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:36:42,774 middleware 16620 17088 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:36:42,898 users_screenshots_view 16620 17088 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:36:42,903 users_screenshots_view 16620 17088 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:36:45,266 users_screenshots_view 16620 17088 Processing page with 534 objects
+INFO 2025-09-06 16:36:45,270 users_screenshots_view 16620 17088 S3 Processing Summary:
+INFO 2025-09-06 16:36:45,270 users_screenshots_view 16620 17088   - Total users found: 3
+INFO 2025-09-06 16:36:45,270 users_screenshots_view 16620 17088   - Active users: 3
+INFO 2025-09-06 16:36:45,271 users_screenshots_view 16620 17088   - Total files: 533
+INFO 2025-09-06 16:36:45,278 users_screenshots_view 16620 17088   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:36:45,370 users_screenshots_view 16620 17088 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:36:45,373 users_screenshots_view 16620 17088 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:36:45,391 middleware 16620 17088 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:36:45,406 basehttp 16620 17088 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:36:45,407 middleware 16620 25752 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:36:45,517 users_screenshots_view 16620 25752 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:36:45,523 users_screenshots_view 16620 25752 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:36:46,688 users_screenshots_view 16620 25752 Processing page with 534 objects
+INFO 2025-09-06 16:36:46,689 users_screenshots_view 16620 25752 S3 Processing Summary:
+INFO 2025-09-06 16:36:46,690 users_screenshots_view 16620 25752   - Total users found: 3
+INFO 2025-09-06 16:36:46,690 users_screenshots_view 16620 25752   - Active users: 3
+INFO 2025-09-06 16:36:46,690 users_screenshots_view 16620 25752   - Total files: 533
+INFO 2025-09-06 16:36:46,690 users_screenshots_view 16620 25752   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:36:46,697 users_screenshots_view 16620 25752 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:36:46,697 users_screenshots_view 16620 25752 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:36:46,698 middleware 16620 25752 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:36:46,699 basehttp 16620 25752 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:55:28,667 middleware 16620 2912 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:55:28,762 users_screenshots_view 16620 2912 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:55:28,768 users_screenshots_view 16620 2912 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:55:30,836 users_screenshots_view 16620 2912 Processing page with 534 objects
+INFO 2025-09-06 16:55:30,838 users_screenshots_view 16620 2912 S3 Processing Summary:
+INFO 2025-09-06 16:55:30,838 users_screenshots_view 16620 2912   - Total users found: 3
+INFO 2025-09-06 16:55:30,838 users_screenshots_view 16620 2912   - Active users: 3
+INFO 2025-09-06 16:55:30,838 users_screenshots_view 16620 2912   - Total files: 533
+INFO 2025-09-06 16:55:30,839 users_screenshots_view 16620 2912   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:55:30,842 users_screenshots_view 16620 2912 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:55:30,842 users_screenshots_view 16620 2912 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:55:30,845 middleware 16620 2912 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:55:30,846 basehttp 16620 2912 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
+INFO 2025-09-06 16:55:30,849 middleware 16620 19280 Request: GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:55:30,856 users_screenshots_view 16620 19280 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-06 16:55:30,857 users_screenshots_view 16620 19280 Starting to process users_screenshots folder...
+INFO 2025-09-06 16:55:32,002 users_screenshots_view 16620 19280 Processing page with 534 objects
+INFO 2025-09-06 16:55:32,003 users_screenshots_view 16620 19280 S3 Processing Summary:
+INFO 2025-09-06 16:55:32,004 users_screenshots_view 16620 19280   - Total users found: 3
+INFO 2025-09-06 16:55:32,004 users_screenshots_view 16620 19280   - Active users: 3
+INFO 2025-09-06 16:55:32,004 users_screenshots_view 16620 19280   - Total files: 533
+INFO 2025-09-06 16:55:32,004 users_screenshots_view 16620 19280   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-06 16:55:32,008 users_screenshots_view 16620 19280 Processed users_screenshots: 3 users, 533 files, 97.09MB
+INFO 2025-09-06 16:55:32,008 users_screenshots_view 16620 19280 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 0.0%
+INFO 2025-09-06 16:55:32,009 middleware 16620 19280 Response: 200 for GET /api/live-tracking/fast-screenshots/
+INFO 2025-09-06 16:55:32,009 basehttp 16620 19280 "GET /api/live-tracking/fast-screenshots/?limit=100&start_date=2025-09-05&end_date=2025-09-06 HTTP/1.1" 200 2720
