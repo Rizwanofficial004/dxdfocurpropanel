@@ -3,7 +3,7 @@ Enhanced Users Search API Views with Screenshots, Pagination, Date & Month Filte
 
 This module provides comprehensive user search functionality that searches through S3 bucket
 to find users and returns their screenshots organized by date/month with pagination.
-Enhanced with month filtering capabilities.
+Enhanced with month filtering capabilities and intelligent Google-like search.
 """
 
 from rest_framework.views import APIView
@@ -19,6 +19,7 @@ from urllib.parse import unquote
 from collections import defaultdict
 import math
 import calendar
+from .intelligent_search import intelligent_search
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +149,10 @@ class EnhancedUsersSearchView(APIView):
         """
         try:
             if not search_query:
+                # Generate search suggestions from available users
+                all_users = self._get_all_users_preview()
+                suggestions = intelligent_search.generate_suggestions("", all_users)
+                
                 return Response({
                     "status": "error",
                     "message": "Search query is required",
@@ -162,13 +167,17 @@ class EnhancedUsersSearchView(APIView):
                             "has_next": False,
                             "has_previous": False
                         },
-                        "suggestions": [
+                        "suggestions": suggestions[:5] if suggestions else [
                             "Try searching for: haseeb, nawaz, dxd, global",
-                            "Use pagination: ?page=1&page_size=10",
-                            "Group by: ?group_by=date (date, month, year)",
-                            "Filter by month: ?month=2025-09 (YYYY-MM format)",
-                            "Filter by year: ?year=2025 (YYYY format)",
-                            "Filter by date range: ?start_date=2025-09-01&end_date=2025-09-02"
+                            "Use partial search: 'n' will match 'nawaz', 'haseeb', etc.",
+                            "Fuzzy matching: 'navaz' will find 'nawaz'",
+                            "Smart ranking: Results sorted by relevance"
+                        ],
+                        "search_tips": [
+                            "✨ Smart Search: Search with just 'n' or 'm' for great results",
+                            "🔍 Fuzzy Matching: 'navaz' finds 'nawaz', 'haseb' finds 'haseeb'",
+                            "📊 Intelligent Ranking: Best matches appear first",
+                            "🎯 Partial Matching: Any part of email or name works"
                         ]
                     }
                 }, status=status.HTTP_400_BAD_REQUEST)
@@ -635,29 +644,83 @@ class EnhancedUsersSearchView(APIView):
                     logger.error(f"Error searching in prefix {prefix}: {str(e)}")
                     continue
             
-            # Convert to list - for single user searches, don't paginate users
+            # Convert to list and apply intelligent ranking
             all_users = list(users_data.values())
             total_users = len(all_users)
             
-            # Don't paginate users for screenshot-focused searches
-            # The pagination will be applied to screenshots within each user
+            # Apply intelligent search ranking to all users
+            if search_query and all_users:
+                # Create user objects for intelligent search
+                user_objects = []
+                for user_data in all_users:
+                    user_obj = {
+                        'email': user_data['email'],
+                        'display_name': user_data['display_name'],
+                        'original_name': user_data['original_name']
+                    }
+                    user_objects.append(user_obj)
+                
+                # Get intelligent search results with scoring
+                ranked_results = intelligent_search.search(search_query, user_objects, max_results=len(user_objects))
+                
+                # Create a mapping of email to search score and match reasons
+                score_mapping = {}
+                for result in ranked_results:
+                    score_mapping[result['email']] = {
+                        'score': result['search_score'],
+                        'match_reasons': result['match_reasons']
+                    }
+                
+                # Sort original users based on intelligent search scores
+                def get_sort_key(user_data):
+                    email = user_data['email']
+                    if email in score_mapping:
+                        return score_mapping[email]['score']
+                    return 0
+                
+                all_users.sort(key=get_sort_key, reverse=True)
+                
+                # Add search metadata to users
+                for user_data in all_users:
+                    email = user_data['email']
+                    if email in score_mapping:
+                        user_data['search_score'] = score_mapping[email]['score']
+                        user_data['match_reasons'] = score_mapping[email]['match_reasons']
+                    else:
+                        user_data['search_score'] = 0
+                        user_data['match_reasons'] = ['Basic match']
+            
+            # Format users with screenshots (applying pagination to screenshots within each user)
             formatted_users = []
             for user_data in all_users:
                 formatted_user = self._format_user_with_screenshots(user_data, group_by, page_size, page)
+                if search_query and 'search_score' in user_data:
+                    formatted_user['search_score'] = user_data['search_score']
+                    formatted_user['match_reasons'] = user_data['match_reasons']
                 formatted_users.append(formatted_user)
-            
-            # Sort by relevance (most recent activity first)
-            formatted_users.sort(key=lambda x: x['last_activity'] or '1900-01-01', reverse=True)
             
             # Calculate search time
             search_time = (datetime.now() - start_time).total_seconds() * 1000
             
-            return {
+            # Generate search suggestions based on query and available users
+            search_suggestions = []
+            if search_query and len(all_users) > 0:
+                # Get all available users for suggestions
+                all_available_users = self._get_all_users_preview()
+                search_suggestions = intelligent_search.generate_suggestions(search_query, all_available_users)
+            
+            result = {
                 'users': formatted_users,
                 'total_count': total_users,
                 'total_screenshots': total_screenshots,
                 'search_time_ms': round(search_time, 2),
                 'objects_scanned': objects_scanned,
+                'search_metadata': {
+                    'query': search_query,
+                    'intelligent_search_enabled': True,
+                    'ranking_applied': bool(search_query),
+                    'suggestions': search_suggestions[:5] if search_suggestions else []
+                },
                 'validated_dates': {
                     'start_date': start_date_obj.strftime('%Y-%m-%d') if start_date_obj else None,
                     'end_date': end_date_obj.strftime('%Y-%m-%d') if end_date_obj else None,
@@ -671,6 +734,8 @@ class EnhancedUsersSearchView(APIView):
                     'original_year_filter': year_filter if year_filter else None
                 }
             }
+            
+            return result
             
         except Exception as e:
             logger.error(f"Error in enhanced search: {str(e)}")
@@ -857,16 +922,23 @@ class EnhancedUsersSearchView(APIView):
             }
     
     def _extract_user_from_key(self, key, search_term):
-        """Extract user information from S3 key"""
+        """Extract user information from S3 key - Enhanced to find all users"""
         try:
             parts = key.split('/')
             
+            # Look for email patterns in any part (don't filter by search_term yet)
             for part in parts:
-                if '@' in part or search_term in part.lower():
+                if '_at_' in part or '@' in part:
                     # Convert from folder name to email
                     if '_at_' in part:
                         email = part.replace('_at_', '@')
-                        display_name = part.replace('_at_dxdglobal.com', '').replace('_', ' ')
+                        # Extract display name better
+                        if '_at_gmail.com' in part:
+                            display_name = part.replace('_at_gmail.com', '').replace('_', ' ')
+                        elif '_at_dxdglobal.com' in part:
+                            display_name = part.replace('_at_dxdglobal.com', '').replace('_', ' ')
+                        else:
+                            display_name = part.split('_at_')[0].replace('_', ' ')
                     else:
                         email = part
                         display_name = part.split('@')[0] if '@' in part else part
@@ -884,18 +956,18 @@ class EnhancedUsersSearchView(APIView):
             return None
     
     def _matches_search(self, user_info, search_term):
-        """Check if user info matches search term"""
+        """Enhanced search matching using intelligent search engine"""
         if not user_info or not search_term:
             return False
         
-        search_term = search_term.lower()
+        # Use intelligent search engine for scoring
+        score = intelligent_search._calculate_user_score(search_term, user_info)
         
-        # Check email, display name, and original name
-        return (
-            search_term in user_info['email'].lower() or
-            search_term in user_info['display_name'].lower() or
-            search_term in user_info['original_name'].lower()
-        )
+        logger.debug(f"User {user_info['email']} scored {score} for search '{search_term}'")
+        
+        # Lower threshold for better matching, especially for single character searches
+        threshold = 20 if len(search_term) == 1 else 50
+        return score > threshold
     
     def _time_ago(self, date_time):
         """Calculate time ago string"""
@@ -927,3 +999,44 @@ class EnhancedUsersSearchView(APIView):
     def _get_match_reason(self, user_data, group_by):
         """Get reason for match"""
         return f"Content match (grouped by {group_by})"
+    
+    def _get_all_users_preview(self):
+        """Get a preview of all users for generating suggestions"""
+        try:
+            users = []
+            
+            # Quick scan of S3 to get user emails
+            paginator = self.s3_client.get_paginator('list_objects_v2')
+            pages = paginator.paginate(
+                Bucket=self.bucket_name,
+                Prefix='users_screenshots/',
+                Delimiter='/',
+                PaginationConfig={'MaxItems': 100}  # Limit for performance
+            )
+            
+            for page_data in pages:
+                if 'CommonPrefixes' in page_data:
+                    for prefix in page_data['CommonPrefixes']:
+                        folder_path = prefix['Prefix']
+                        parts = folder_path.split('/')
+                        if len(parts) >= 3:
+                            user_part = parts[2]  # users_screenshots/date/user/
+                            if '@' in user_part or '_at_' in user_part:
+                                if '_at_' in user_part:
+                                    email = user_part.replace('_at_', '@')
+                                    display_name = user_part.replace('_at_dxdglobal.com', '').replace('_', ' ')
+                                else:
+                                    email = user_part
+                                    display_name = user_part.split('@')[0] if '@' in user_part else user_part
+                                
+                                users.append({
+                                    'email': email,
+                                    'display_name': display_name,
+                                    'original_name': user_part
+                                })
+            
+            return users
+            
+        except Exception as e:
+            logger.error(f"Error getting users preview: {str(e)}")
+            return []

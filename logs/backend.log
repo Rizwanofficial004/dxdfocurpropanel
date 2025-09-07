@@ -6236,3 +6236,248 @@ INFO 2025-09-03 18:09:50,087 crm_comprehensive_views 11276 19416 Starting CRM co
 ERROR 2025-09-03 18:09:50,087 crm_comprehensive_views 11276 19416 CRM service not configured
 INFO 2025-09-03 18:09:50,088 middleware 11276 19416 Response: 200 for GET /api/dashboard/crm-comprehensive/
 INFO 2025-09-03 18:09:50,089 basehttp 11276 19416 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 948
+INFO 2025-09-06 22:05:34,341 middleware 1972 22464 Request: GET /api/users/search/
+INFO 2025-09-06 22:05:35,169 users_search_views 1972 22464 S3 client initialized successfully for enhanced users search
+INFO 2025-09-06 22:05:35,170 users_search_views 1972 22464 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-06 22:05:35,171 users_search_views 1972 22464 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-06 22:05:38,075 middleware 1972 22464 Response: 200 for GET /api/users/search/
+INFO 2025-09-06 22:05:38,077 basehttp 1972 22464 "GET /api/users/search/?q=nawaz HTTP/1.1" 200 34517
+INFO 2025-09-06 22:05:43,763 middleware 1972 22464 Request: GET /api/users/search/
+INFO 2025-09-06 22:05:43,773 users_search_views 1972 22464 S3 client initialized successfully for enhanced users search
+INFO 2025-09-06 22:05:43,774 users_search_views 1972 22464 Enhanced search for 'na' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-06 22:05:43,774 users_search_views 1972 22464 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-06 22:05:45,751 middleware 1972 22464 Response: 200 for GET /api/users/search/
+INFO 2025-09-06 22:05:45,752 basehttp 1972 22464 "GET /api/users/search/?q=na HTTP/1.1" 200 68341
+INFO 2025-09-06 22:06:00,400 middleware 1972 22464 Request: GET /api/users/search/
+INFO 2025-09-06 22:06:00,409 users_search_views 1972 22464 S3 client initialized successfully for enhanced users search
+INFO 2025-09-06 22:06:00,409 users_search_views 1972 22464 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-06 22:06:00,410 users_search_views 1972 22464 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-06 22:06:03,088 middleware 1972 22464 Response: 200 for GET /api/users/search/
+INFO 2025-09-06 22:06:03,090 basehttp 1972 22464 "GET /api/users/search/?q=n HTTP/1.1" 200 34992
+INFO 2025-09-07 22:42:41,337 middleware 16716 7632 Request: GET /api/users/search/
+INFO 2025-09-07 22:42:42,292 users_search_views 16716 7632 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:42:42,293 users_search_views 16716 7632 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:42:42,294 users_search_views 16716 7632 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:42:44,973 middleware 16716 7632 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:42:44,974 basehttp 16716 7632 "GET /api/users/search/?q=naw HTTP/1.1" 200 34617
+INFO 2025-09-07 22:42:52,487 middleware 16716 7632 Request: GET /api/users/search/
+INFO 2025-09-07 22:42:52,500 users_search_views 16716 7632 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:42:52,501 users_search_views 16716 7632 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:42:52,501 users_search_views 16716 7632 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:42:54,867 middleware 16716 7632 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:42:54,869 basehttp 16716 7632 "GET /api/users/search/?q=n HTTP/1.1" 200 35089
+INFO 2025-09-07 22:45:07,420 middleware 16716 23156 Request: GET /api/users/search/
+INFO 2025-09-07 22:45:07,452 users_search_views 16716 23156 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:45:07,454 users_search_views 16716 23156 Enhanced search for 'na' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:45:07,455 users_search_views 16716 23156 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:45:10,063 middleware 16716 23156 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:45:10,069 basehttp 16716 23156 "GET /api/users/search/?q=na HTTP/1.1" 200 68539
+INFO 2025-09-07 22:45:13,256 middleware 16716 23156 Request: GET /api/users/search/
+INFO 2025-09-07 22:45:13,268 users_search_views 16716 23156 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:45:13,269 users_search_views 16716 23156 Enhanced search for 'ki' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:45:13,270 users_search_views 16716 23156 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:45:15,332 middleware 16716 23156 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:45:15,333 basehttp 16716 23156 "GET /api/users/search/?q=ki HTTP/1.1" 200 35107
+INFO 2025-09-07 22:45:17,494 middleware 16716 23156 Request: GET /api/users/search/
+INFO 2025-09-07 22:45:17,506 users_search_views 16716 23156 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:45:17,507 users_search_views 16716 23156 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:45:17,507 users_search_views 16716 23156 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:45:19,535 middleware 16716 23156 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:45:19,536 basehttp 16716 23156 "GET /api/users/search/?q=k HTTP/1.1" 200 71576
+INFO 2025-09-07 22:45:22,574 middleware 16716 23156 Request: GET /api/users/search/
+INFO 2025-09-07 22:45:22,585 users_search_views 16716 23156 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:45:22,585 users_search_views 16716 23156 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:45:22,586 users_search_views 16716 23156 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:45:25,564 middleware 16716 23156 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:45:25,567 basehttp 16716 23156 "GET /api/users/search/?q=h HTTP/1.1" 200 35089
+INFO 2025-09-07 22:51:42,380 middleware 20652 20660 Request: GET /api/users/search/
+INFO 2025-09-07 22:51:43,235 users_search_views 20652 20660 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:51:43,248 users_search_views 20652 20660 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:51:43,250 users_search_views 20652 20660 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:51:46,264 middleware 20652 20660 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:51:46,265 basehttp 20652 20660 "GET /api/users/search/?q=h HTTP/1.1" 200 35089
+INFO 2025-09-07 22:52:38,797 middleware 20652 20660 Request: GET /api/users/search/
+INFO 2025-09-07 22:52:38,983 users_search_views 20652 20660 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:52:40,758 middleware 20652 20660 Response: 400 for GET /api/users/search/
+WARNING 2025-09-07 22:52:40,764 log 20652 20660 Bad Request: /api/users/search/
+WARNING 2025-09-07 22:52:40,772 basehttp 20652 20660 "GET /api/users/search/?q= HTTP/1.1" 400 678
+INFO 2025-09-07 22:53:06,285 middleware 20652 20660 Request: GET /api/users/search/
+INFO 2025-09-07 22:53:06,301 users_search_views 20652 20660 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:53:06,303 users_search_views 20652 20660 Enhanced search for 'haseeb' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:53:06,304 users_search_views 20652 20660 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:53:09,282 middleware 20652 20660 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:53:09,284 basehttp 20652 20660 "GET /api/users/search/?q=haseeb HTTP/1.1" 200 8136
+INFO 2025-09-07 22:53:36,679 middleware 20652 20660 Request: GET /api/users/search/
+INFO 2025-09-07 22:53:36,692 users_search_views 20652 20660 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:53:36,693 users_search_views 20652 20660 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:53:36,694 users_search_views 20652 20660 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:53:39,262 middleware 20652 20660 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:53:39,263 basehttp 20652 20660 "GET /api/users/search/?q=h HTTP/1.1" 200 35089
+INFO 2025-09-07 22:53:49,335 middleware 20652 20660 Request: GET /api/users/search/
+INFO 2025-09-07 22:53:49,347 users_search_views 20652 20660 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:53:49,348 users_search_views 20652 20660 Enhanced search for 'h' - Page: 1, Size: 10, Group: date, Month: , Year: 
+INFO 2025-09-07 22:53:49,348 users_search_views 20652 20660 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:53:51,544 middleware 20652 20660 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:53:51,545 basehttp 20652 20660 "GET /api/users/search/?q=h&page_size=10 HTTP/1.1" 200 10949
+INFO 2025-09-07 22:54:39,835 middleware 20652 20660 Request: GET /api/users/search/
+INFO 2025-09-07 22:54:39,849 users_search_views 20652 20660 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:54:39,857 users_search_views 20652 20660 Enhanced search for 'n' - Page: 1, Size: 20, Group: date, Month: , Year: 
+INFO 2025-09-07 22:54:39,864 users_search_views 20652 20660 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:54:43,425 middleware 20652 20660 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:54:43,432 basehttp 20652 20660 "GET /api/users/search/?q=n&page_size=20 HTTP/1.1" 200 16984
+INFO 2025-09-07 22:56:42,675 middleware 24720 12868 Request: GET /api/users/search/
+INFO 2025-09-07 22:56:43,394 users_search_views 24720 12868 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 22:56:43,396 users_search_views 24720 12868 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 22:56:43,397 users_search_views 24720 12868 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 22:56:46,020 middleware 24720 12868 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 22:56:46,042 basehttp 24720 12868 "GET /api/users/search/?q=h HTTP/1.1" 200 35089
+INFO 2025-09-07 23:01:41,791 middleware 22624 25560 Request: GET /api/users/search/
+INFO 2025-09-07 23:01:42,438 users_search_views 22624 25560 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:01:42,439 users_search_views 22624 25560 Enhanced search for 'h' - Page: 1, Size: 10, Group: date, Month: , Year: 
+INFO 2025-09-07 23:01:42,439 users_search_views 22624 25560 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:01:44,748 middleware 22624 25560 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:01:44,749 basehttp 22624 25560 "GET /api/users/search/?q=h&page_size=10 HTTP/1.1" 200 1175
+INFO 2025-09-07 23:03:10,287 middleware 22624 25560 Request: GET /api/users/search/
+INFO 2025-09-07 23:03:10,294 users_search_views 22624 25560 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:03:10,295 users_search_views 22624 25560 Enhanced search for 'h' - Page: 1, Size: 10, Group: date, Month: , Year: 
+INFO 2025-09-07 23:03:10,296 users_search_views 22624 25560 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:03:12,473 middleware 22624 25560 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:03:12,474 basehttp 22624 25560 "GET /api/users/search/?q=h&page_size=10 HTTP/1.1" 200 1174
+INFO 2025-09-07 23:03:38,493 middleware 22624 25560 Request: GET /api/users/search/
+INFO 2025-09-07 23:03:38,673 users_search_views 22624 25560 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:03:38,710 users_search_views 22624 25560 Enhanced search for 'n' - Page: 1, Size: 5, Group: date, Month: , Year: 
+INFO 2025-09-07 23:03:38,714 users_search_views 22624 25560 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:03:41,153 middleware 22624 25560 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:03:41,154 basehttp 22624 25560 "GET /api/users/search/?q=n&page_size=5 HTTP/1.1" 200 1174
+INFO 2025-09-07 23:04:52,699 middleware 22624 25560 Request: GET /api/users/search/
+INFO 2025-09-07 23:04:52,713 users_search_views 22624 25560 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:04:52,713 users_search_views 22624 25560 Enhanced search for 'haseeb' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:04:52,714 users_search_views 22624 25560 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:04:55,541 middleware 22624 25560 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:04:55,543 basehttp 22624 25560 "GET /api/users/search/?q=haseeb HTTP/1.1" 200 8136
+INFO 2025-09-07 23:05:22,471 middleware 22624 25560 Request: GET /api/users/search/
+INFO 2025-09-07 23:05:22,484 users_search_views 22624 25560 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:05:22,485 users_search_views 22624 25560 Enhanced search for 'h' - Page: 1, Size: 5, Group: date, Month: , Year: 
+INFO 2025-09-07 23:05:22,485 users_search_views 22624 25560 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:05:24,845 middleware 22624 25560 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:05:24,847 basehttp 22624 25560 "GET /api/users/search/?q=h&page_size=5 HTTP/1.1" 200 1174
+INFO 2025-09-07 23:08:14,141 middleware 20172 24328 Request: GET /api/users/search/
+INFO 2025-09-07 23:08:15,335 users_search_views 20172 24328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:08:15,337 users_search_views 20172 24328 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:08:15,337 users_search_views 20172 24328 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:08:18,062 middleware 20172 24328 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:08:18,067 basehttp 20172 24328 "GET /api/users/search/?q=h HTTP/1.1" 200 35087
+INFO 2025-09-07 23:08:35,457 middleware 20172 24328 Request: GET /api/users/search/
+INFO 2025-09-07 23:08:35,472 users_search_views 20172 24328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:08:35,473 users_search_views 20172 24328 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:08:35,474 users_search_views 20172 24328 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:08:37,812 middleware 20172 24328 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:08:37,814 basehttp 20172 24328 "GET /api/users/search/?q=naw HTTP/1.1" 200 34619
+INFO 2025-09-07 23:08:41,375 middleware 20172 24328 Request: GET /api/users/search/
+INFO 2025-09-07 23:08:41,388 users_search_views 20172 24328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:08:41,388 users_search_views 20172 24328 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:08:41,389 users_search_views 20172 24328 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:08:43,621 middleware 20172 24328 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:08:43,623 basehttp 20172 24328 "GET /api/users/search/?q=h HTTP/1.1" 200 35086
+INFO 2025-09-07 23:08:47,423 middleware 20172 24328 Request: GET /api/users/search/
+INFO 2025-09-07 23:08:47,434 users_search_views 20172 24328 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:08:47,435 users_search_views 20172 24328 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:08:47,435 users_search_views 20172 24328 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:08:49,797 middleware 20172 24328 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:08:49,799 basehttp 20172 24328 "GET /api/users/search/?q=n HTTP/1.1" 200 35087
+INFO 2025-09-07 23:36:19,087 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:36:19,785 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:36:19,786 users_search_views 13904 5168 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:36:19,786 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:36:23,655 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:36:23,658 basehttp 13904 5168 "GET /api/users/search/?q=n HTTP/1.1" 200 1174
+INFO 2025-09-07 23:36:34,242 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:36:34,253 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:36:34,256 users_search_views 13904 5168 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:36:34,257 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:36:37,282 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:36:37,283 basehttp 13904 5168 "GET /api/users/search/?q=naw HTTP/1.1" 200 34616
+INFO 2025-09-07 23:36:47,239 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:36:47,250 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:36:47,253 users_search_views 13904 5168 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:36:47,253 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:36:49,607 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:36:49,608 basehttp 13904 5168 "GET /api/users/search/?q=k HTTP/1.1" 200 1175
+INFO 2025-09-07 23:36:58,856 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:36:58,864 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:36:58,865 users_search_views 13904 5168 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:36:58,866 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:37:01,328 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:37:01,329 basehttp 13904 5168 "GET /api/users/search/?q=k HTTP/1.1" 200 1175
+INFO 2025-09-07 23:37:18,686 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:37:18,697 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:37:18,698 users_search_views 13904 5168 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:37:18,698 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:37:21,398 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:37:21,399 basehttp 13904 5168 "GET /api/users/search/?q=k HTTP/1.1" 200 1175
+INFO 2025-09-07 23:37:48,727 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:37:48,734 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:37:48,735 users_search_views 13904 5168 Enhanced search for 'na' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:37:48,735 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:37:50,964 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:37:50,965 basehttp 13904 5168 "GET /api/users/search/?q=na HTTP/1.1" 200 68540
+INFO 2025-09-07 23:38:01,471 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:38:01,481 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:38:01,482 users_search_views 13904 5168 Enhanced search for 'ha' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:38:01,482 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:38:04,834 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:38:04,836 basehttp 13904 5168 "GET /api/users/search/?q=ha HTTP/1.1" 200 8117
+INFO 2025-09-07 23:38:08,918 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:38:08,928 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:38:08,929 users_search_views 13904 5168 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:38:08,929 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:38:15,646 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:38:15,647 basehttp 13904 5168 "GET /api/users/search/?q=k HTTP/1.1" 200 1175
+INFO 2025-09-07 23:38:18,488 middleware 13904 5168 Request: GET /api/users/search/
+INFO 2025-09-07 23:38:18,499 users_search_views 13904 5168 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:38:18,501 users_search_views 13904 5168 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:38:18,501 users_search_views 13904 5168 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:38:22,434 middleware 13904 5168 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:38:22,436 basehttp 13904 5168 "GET /api/users/search/?q=n HTTP/1.1" 200 1175
+INFO 2025-09-07 23:50:32,397 users_search_views 30148 34596 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:51:48,996 users_search_views 27204 14324 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:51:48,998 users_search_views 27204 14324 Enhanced search for 'n' - Page: 1, Size: 5, Group: date, Month: , Year: 
+INFO 2025-09-07 23:51:48,999 users_search_views 27204 14324 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:51:53,210 users_search_views 27204 14324 Enhanced search for 'h' - Page: 1, Size: 5, Group: date, Month: , Year: 
+INFO 2025-09-07 23:51:53,211 users_search_views 27204 14324 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:54:17,592 middleware 33328 1564 Request: GET /api/users/search/
+INFO 2025-09-07 23:54:18,468 users_search_views 33328 1564 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:54:18,472 users_search_views 33328 1564 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:54:18,473 users_search_views 33328 1564 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:54:21,746 middleware 33328 1564 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:54:21,748 basehttp 33328 1564 "GET /api/users/search/?q=n HTTP/1.1" 200 75438
+INFO 2025-09-07 23:54:26,376 middleware 33328 1564 Request: GET /api/users/search/
+INFO 2025-09-07 23:54:26,511 users_search_views 33328 1564 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:54:26,517 users_search_views 33328 1564 Enhanced search for 'h' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:54:26,532 users_search_views 33328 1564 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:54:28,843 middleware 33328 1564 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:54:28,845 basehttp 33328 1564 "GET /api/users/search/?q=h HTTP/1.1" 200 8100
+INFO 2025-09-07 23:54:35,105 middleware 33328 1564 Request: GET /api/users/search/
+INFO 2025-09-07 23:54:35,114 users_search_views 33328 1564 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:54:35,116 users_search_views 33328 1564 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:54:35,117 users_search_views 33328 1564 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:54:37,389 middleware 33328 1564 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:54:37,390 basehttp 33328 1564 "GET /api/users/search/?q=k HTTP/1.1" 200 35088
+INFO 2025-09-07 23:54:44,766 middleware 33328 1564 Request: GET /api/users/search/
+INFO 2025-09-07 23:54:44,777 users_search_views 33328 1564 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:54:44,778 users_search_views 33328 1564 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:54:44,779 users_search_views 33328 1564 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:54:47,053 middleware 33328 1564 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:54:47,055 basehttp 33328 1564 "GET /api/users/search/?q=n HTTP/1.1" 200 75438
+INFO 2025-09-07 23:57:10,885 middleware 33328 32436 Request: GET /api/users/search/
+INFO 2025-09-07 23:57:10,898 users_search_views 33328 32436 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:57:10,899 users_search_views 33328 32436 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:57:10,912 users_search_views 33328 32436 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:57:13,435 middleware 33328 32436 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:57:13,436 basehttp 33328 32436 "GET /api/users/search/?q=k HTTP/1.1" 200 35088
+INFO 2025-09-07 23:58:44,300 middleware 33328 21144 Request: GET /api/users/search/
+INFO 2025-09-07 23:58:44,443 users_search_views 33328 21144 S3 client initialized successfully for enhanced users search
+INFO 2025-09-07 23:58:44,647 users_search_views 33328 21144 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-07 23:58:44,675 users_search_views 33328 21144 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-07 23:58:47,565 middleware 33328 21144 Response: 200 for GET /api/users/search/
+INFO 2025-09-07 23:58:47,566 basehttp 33328 21144 "GET /api/users/search/?q=k HTTP/1.1" 200 35088
