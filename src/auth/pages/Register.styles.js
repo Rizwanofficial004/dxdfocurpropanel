@@ -325,6 +325,7 @@ export const Input = styled.input`
   font-size: 16px;
   transition: all 0.3s ease;
   background: white;
+  color: #000;
 
   &:focus {
     outline: none;
