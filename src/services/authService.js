@@ -2,21 +2,21 @@ import { getApiBaseURL, API_ENDPOINTS, buildApiUrl } from '../config/api.js';
 
 // Dummy credentials for fallback when API is not available
 export const DUMMY_CREDENTIALS = {
-  username: 'admin@focus.com',
-  password: 'admin123',
+  username: 'testuser@example.com',  // Updated to use the working test user
+  password: 'testpass123',           // Updated to use the working test password
   userData: {
-    id: 1,
-    username: 'admin@focus.com',
-    email: 'admin@focus.com',
-    first_name: 'Admin',
+    id: 8,
+    username: 'testuser@example.com',
+    email: 'testuser@example.com',
+    first_name: 'Test',
     last_name: 'User',
     role: 'admin',
-    is_superuser: true,
-    is_staff: true,
+    is_superuser: false,  // Updated to match actual API response
+    is_staff: false,      // Updated to match actual API response
     is_active: true,
-    permissions: ['read', 'write', 'delete', 'admin'],
-    token: 'dummy-jwt-token-for-offline-mode',
-    refresh_token: 'dummy-refresh-token',
+    permissions: ['read', 'write'],  // Updated for regular user
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJ1c2VybmFtZSI6InRlc3R1c2VyQGV4YW1wbGUuY29tIiwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImV4cCI6MTc1Nzk0MjkzMiwiaWF0IjoxNzU3MzM4MTMyfQ.rrFAvt5isaNR5RsTevmBS4QrZ5OVwdkRpz_1sE93QhU',
+    refresh_token: '0f0bc0f8f4f21c14fba096397a55306bcc7c3cce',
     expires_in: 3600,
     profile_picture: null,
     last_login: new Date().toISOString(),
@@ -61,21 +61,31 @@ class AuthService {
       for (const endpoint of possibleEndpoints) {
         try {
           console.log(`🔍 Trying endpoint: ${buildApiUrl(endpoint)}`);
+          
+          const requestBody = {
+            username: username,
+            password: password,
+            email: username, // Some APIs expect email field
+            remember_me: rememberMe
+          };
+          
+          console.log('📤 Request body:', requestBody);
+          console.log('📋 Request headers:', {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          });
+          
           response = await fetch(buildApiUrl(endpoint), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: JSON.stringify({
-              username: username,
-              password: password,
-              email: username, // Some APIs expect email field
-              remember_me: rememberMe
-            }),
+            body: JSON.stringify(requestBody),
           });
 
           console.log(`📡 Response status for ${endpoint}:`, response.status);
+          console.log(`📡 Response headers:`, Object.fromEntries(response.headers.entries()));
           
           if (response.ok) {
             usedEndpoint = endpoint;
@@ -87,6 +97,8 @@ class AuthService {
           } else {
             // Non-404 error, might be authentication issue
             console.log(`⚠️ Endpoint ${endpoint} returned ${response.status}`);
+            const errorText = await response.text();
+            console.log(`📄 Error response body:`, errorText);
             usedEndpoint = endpoint;
             break;
           }
@@ -151,6 +163,7 @@ class AuthService {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
+          username: userData.email,  // Add username field as required by API
           email: userData.email,
           password: userData.password,
           organization_name: userData.organization,

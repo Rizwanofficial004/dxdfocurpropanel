@@ -69,6 +69,46 @@ const Login = () => {
     setShowDummyCredentials(false);
   };
 
+  // Test API directly with working credentials
+  const testApiDirectly = async () => {
+    console.log('🧪 Testing API directly with known working credentials...');
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('https://dxdtime.ddsolutions.io/api/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'hb@example.com',
+          password: 'password123'
+        }),
+      });
+      
+      console.log('🔍 Direct API Test Response Status:', response.status);
+      console.log('🔍 Direct API Test Response Headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      console.log('🔍 Direct API Test Response Body:', responseText);
+      
+      if (response.ok) {
+        const data = JSON.parse(responseText);
+        console.log('✅ Direct API test successful:', data);
+        alert('✅ Direct API test successful! Check console for details.');
+      } else {
+        console.error('❌ Direct API test failed:', response.status, responseText);
+        alert(`❌ Direct API test failed: ${response.status} - ${responseText}`);
+      }
+    } catch (error) {
+      console.error('🚫 Direct API test error:', error);
+      alert(`🚫 Direct API test error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     
@@ -116,6 +156,10 @@ const Login = () => {
 
     try {
       console.log('🔐 Starting authentication process...');
+      console.log('📋 Login data:', {
+        username: formData.username,
+        rememberMe: formData.rememberMe
+      });
       
       // Use the authentication service for login
       const userData = await authService.login(
@@ -124,26 +168,31 @@ const Login = () => {
         formData.rememberMe
       );
       
-      console.log('✅ Authentication successful:', userData.source);
+      console.log('✅ Authentication successful:', userData);
+      console.log('👤 User data:', userData.user);
+      console.log('🔑 Token received:', userData.token ? 'Yes' : 'No');
       
       // Update auth context with user data
       login(userData);
       
-      // Show success message based on authentication source
-      if (userData.source === 'dummy') {
-        console.log('⚠️ Using dummy credentials - API not available');
-      }
+      // Show success message
+      console.log('🎉 User logged in successfully!');
+      alert(`🎉 Login successful! Welcome back ${userData.user?.first_name || userData.user?.email}!`);
       
-      // Redirect to intended page or admin panel
-      const from = location.state?.from?.pathname || '/admin-panel';
-      navigate(from, { replace: true });
+      // Redirect to admin panel
+      navigate('/admin-panel', { replace: true });
       
     } catch (error) {
       console.error('❌ Authentication failed:', error);
+      console.error('🔍 Error details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
       
       // Set appropriate error message
       setErrors({
-        general: error.message || 'Login failed. Please try again.'
+        general: error.message || 'Login failed. Please check your credentials.'
       });
     } finally {
       setIsLoading(false);
@@ -176,9 +225,14 @@ const Login = () => {
           <DemoTitle>Demo Access</DemoTitle>
           <DemoText>API Backend: Django REST API</DemoText>
           <DemoText>Fallback Credentials Available</DemoText>
-          <DemoButton type="button" onClick={() => setShowDummyCredentials(!showDummyCredentials)}>
-            {showDummyCredentials ? 'Hide' : 'Show'} Demo Credentials
-          </DemoButton>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <DemoButton type="button" onClick={() => setShowDummyCredentials(!showDummyCredentials)}>
+              {showDummyCredentials ? 'Hide' : 'Show'} Demo Credentials
+            </DemoButton>
+            <DemoButton type="button" onClick={testApiDirectly} disabled={isLoading}>
+              🧪 Test API Direct
+            </DemoButton>
+          </div>
           {showDummyCredentials && (
             <DemoCredentials>
               <DemoText><strong>Username:</strong> {DUMMY_CREDENTIALS.username}</DemoText>

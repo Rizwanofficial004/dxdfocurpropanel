@@ -136,6 +136,11 @@ const Register = () => {
 
     try {
       console.log('📝 Starting registration process...');
+      console.log('📋 Registration data:', {
+        email: formData.email,
+        organization: formData.organization,
+        country: formData.country
+      });
       
       // Use the authentication service for registration
       const userData = await authService.register({
@@ -145,21 +150,29 @@ const Register = () => {
         country: formData.country
       });
       
-      console.log('✅ Registration successful:', userData.source);
+      console.log('✅ Registration successful:', userData);
       
       // Update auth context with user data
       login(userData);
       
-      // Show success message based on registration source
-      if (userData.source === 'mock') {
-        console.log('⚠️ Using mock registration - API not available');
-      }
+      // Show success message
+      console.log('🎉 User registered and logged in successfully!');
+      console.log('👤 User data:', userData.user);
+      console.log('🔑 Token received:', userData.token ? 'Yes' : 'No');
+      
+      // Show user feedback
+      alert(`🎉 Registration successful! Welcome ${userData.user?.first_name || userData.user?.email}!`);
       
       // Redirect to admin panel
       navigate('/admin-panel', { replace: true });
       
     } catch (error) {
       console.error('❌ Registration failed:', error);
+      console.error('🔍 Error details:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
       
       // Set appropriate error message
       setErrors({

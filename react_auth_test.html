@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 React Auth Flow Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #4A90E2;
+            font-size: 2.5em;
+            margin: 0;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .test-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+        }
+        .test-card h3 {
+            color: #28a745;
+            margin-top: 0;
+        }
+        .test-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #4A90E2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: all 0.3s;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #357ABD;
+            transform: translateY(-2px);
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.success:hover {
+            background: #218838;
+        }
+        .credentials {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #bee5eb;
+        }
+        .credential-item {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .steps {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ffeaa7;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .step-number {
+            background: #4A90E2;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .result-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            white-space: pre-wrap;
+        }
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 React Authentication Flow Test</h1>
+            <p>Complete end-to-end testing for registration and login functionality</p>
+        </div>
+
+        <div class="steps">
+            <h3>🎯 Testing Instructions</h3>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Test Registration</strong><br>
+                    Open the registration page and create a new account with unique email
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Verify Auto-Login</strong><br>
+                    After registration, you should be automatically logged in and redirected
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Test Manual Login</strong><br>
+                    Logout and then login again with the same credentials
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Access Dashboard</strong><br>
+                    Verify you can access the admin panel and QuickView component
+                </div>
+            </div>
+        </div>
+
+        <div class="test-grid">
+            <div class="test-card">
+                <h3><span class="emoji">📝</span>Registration Test</h3>
+                <p>Test the registration flow with a new user account</p>
+                
+                <div class="credentials">
+                    <strong>Suggested Test Data:</strong>
+                    <div class="credential-item">Email: user1@testdomain.com</div>
+                    <div class="credential-item">Password: testpass123</div>
+                    <div class="credential-item">Organization: Test Company</div>
+                    <div class="credential-item">Country: Cyprus</div>
+                </div>
+                
+                <a href="http://localhost:5175/register" class="test-button">
+                    <span class="emoji">🚀</span>Open Registration Page
+                </a>
+                
+                <button onclick="generateTestData()" class="test-button">
+                    <span class="emoji">🎲</span>Generate Random Test Data
+                </button>
+            </div>
+            
+            <div class="test-card">
+                <h3><span class="emoji">🔐</span>Login Test</h3>
+                <p>Test login with existing or newly created credentials</p>
+                
+                <div class="credentials">
+                    <strong>Working Test User:</strong>
+                    <div class="credential-item">Email: testuser@example.com</div>
+                    <div class="credential-item">Password: testpass123</div>
+                </div>
+                
+                <a href="http://localhost:5175/login" class="test-button">
+                    <span class="emoji">🔑</span>Open Login Page
+                </a>
+                
+                <button onclick="testLoginCredentials()" class="test-button">
+                    <span class="emoji">🧪</span>Verify Credentials Work
+                </button>
+            </div>
+            
+            <div class="test-card">
+                <h3><span class="emoji">⚡</span>Dashboard Access</h3>
+                <p>Test access to protected routes and components</p>
+                
+                <a href="http://localhost:5175/admin-panel" class="test-button">
+                    <span class="emoji">📊</span>Admin Panel
+                </a>
+                
+                <a href="http://localhost:5175/quickview" class="test-button">
+                    <span class="emoji">👁️</span>QuickView Component
+                </a>
+                
+                <button onclick="checkAuthStatus()" class="test-button">
+                    <span class="emoji">🔍</span>Check Auth Status
+                </button>
+            </div>
+            
+            <div class="test-card">
+                <h3><span class="emoji">🛠️</span>Debug Tools</h3>
+                <p>Additional testing and debugging utilities</p>
+                
+                <a href="file:///c:/Users/USER/Desktop/GitHub-Projects/dxdfocurpropanel/test_registration_login.html" class="test-button">
+                    <span class="emoji">🧪</span>API Test Suite
+                </a>
+                
+                <button onclick="clearStorage()" class="test-button">
+                    <span class="emoji">🧹</span>Clear Storage
+                </button>
+                
+                <button onclick="viewConsole()" class="test-button">
+                    <span class="emoji">📋</span>View Console Logs
+                </button>
+            </div>
+        </div>
+
+        <div class="container" style="background: #e3f2fd; border-left: 4px solid #2196f3;">
+            <h3><span class="emoji">📊</span>Test Results</h3>
+            <div id="testResults" class="result-display">
+Click the test buttons above to see results here...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+
+        function logResult(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            testResults.push(`[${timestamp}] ${message}`);
+            updateResultsDisplay();
+        }
+
+        function updateResultsDisplay() {
+            const resultsElement = document.getElementById('testResults');
+            resultsElement.textContent = testResults.join('\n');
+            resultsElement.scrollTop = resultsElement.scrollHeight;
+        }
+
+        function generateTestData() {
+            const randomId = Math.floor(Math.random() * 10000);
+            const testData = {
+                email: `testuser${randomId}@example.com`,
+                password: 'testpass123',
+                organization: `Test Company ${randomId}`,
+                country: 'Cyprus'
+            };
+            
+            logResult('🎲 Generated test data:');
+            logResult(`Email: ${testData.email}`);
+            logResult(`Password: ${testData.password}`);
+            logResult(`Organization: ${testData.organization}`);
+            logResult(`Country: ${testData.country}`);
+            logResult('💡 Copy this data to use in the registration form');
+            
+            // Copy to clipboard if possible
+            try {
+                navigator.clipboard.writeText(testData.email);
+                logResult('📋 Email copied to clipboard!');
+            } catch (err) {
+                logResult('ℹ️ Manual copy required');
+            }
+        }
+
+        async function testLoginCredentials() {
+            logResult('🔐 Testing login credentials...');
+            
+            try {
+                const response = await fetch('https://dxdtime.ddsolutions.io/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'testuser@example.com',
+                        password: 'testpass123'
+                    }),
+                });
+                
+                logResult(`📡 Response status: ${response.status}`);
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    logResult('✅ Login credentials work!');
+                    logResult(`👤 User: ${data.user?.email}`);
+                    logResult(`🔑 Token received: ${data.token ? 'Yes' : 'No'}`);
+                } else {
+                    logResult('❌ Login credentials failed');
+                    logResult(`📝 Error: ${data.message}`);
+                }
+                
+            } catch (error) {
+                logResult('🚫 Network error:');
+                logResult(`📝 ${error.message}`);
+            }
+        }
+
+        function checkAuthStatus() {
+            logResult('🔍 Checking authentication status...');
+            
+            // Check localStorage
+            const localToken = localStorage.getItem('access_token');
+            const localUser = localStorage.getItem('user_data');
+            
+            // Check sessionStorage
+            const sessionToken = sessionStorage.getItem('access_token');
+            const sessionUser = sessionStorage.getItem('user_data');
+            
+            logResult('💾 Storage check:');
+            logResult(`LocalStorage token: ${localToken ? 'Found' : 'Not found'}`);
+            logResult(`LocalStorage user: ${localUser ? 'Found' : 'Not found'}`);
+            logResult(`SessionStorage token: ${sessionToken ? 'Found' : 'Not found'}`);
+            logResult(`SessionStorage user: ${sessionUser ? 'Found' : 'Not found'}`);
+            
+            if (localUser || sessionUser) {
+                try {
+                    const userData = JSON.parse(localUser || sessionUser);
+                    logResult(`👤 Stored user: ${userData.email || userData.username}`);
+                    logResult(`🏢 Organization: ${userData.organization || 'Not specified'}`);
+                } catch (e) {
+                    logResult('⚠️ Error parsing user data');
+                }
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            logResult('🧹 All storage cleared');
+            logResult('ℹ️ You will need to login again');
+        }
+
+        function viewConsole() {
+            logResult('📋 Check browser console for detailed logs');
+            logResult('💡 Press F12 to open developer tools');
+            console.log('🔧 React Auth Test - Console logs available here');
+            console.log('📊 Current storage state:', {
+                localStorage: {
+                    token: localStorage.getItem('access_token'),
+                    user: localStorage.getItem('user_data')
+                },
+                sessionStorage: {
+                    token: sessionStorage.getItem('access_token'),
+                    user: sessionStorage.getItem('user_data')
+                }
+            });
+        }
+
+        // Initialize
+        logResult('🔧 React Authentication Test Suite loaded');
+        logResult('🎯 Ready for testing!');
+        logResult('📍 App running at: http://localhost:5175');
+    </script>
+</body>
+</html>
