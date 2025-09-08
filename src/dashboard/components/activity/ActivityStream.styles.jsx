@@ -4,8 +4,8 @@ import styled from 'styled-components';
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 12px;
+  padding: 20px;
   background: transparent;
   border-radius: 12px;
 //   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -110,7 +110,8 @@ export const ArrowButton = styled.button`
 
 export const ContentContainer = styled.div`
   display: flex;
-  gap: 20px;
+  gap: 12px;
+
 `;
 
 export const SearchContainer = styled.div`
@@ -119,7 +120,7 @@ export const SearchContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 `;
 
 export const SearchInput = styled.input`
@@ -154,16 +155,16 @@ export const EmptyStateContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px;
+  padding: 60px 40px;
   background: #f9fafb;
   border-radius: 8px;
   border: 1px dashed #e5e7eb;
 `;
 
 export const EmptyIcon = styled.img`
-  width: 140px;
-  height: 140px;
-  margin-bottom: 20px;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 16px;
   opacity: 0.9;
 `;
 

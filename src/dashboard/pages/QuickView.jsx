@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
+import GoogleSearch from '../../components/search/GoogleSearch';
 import {
   QuickViewContainer,
   QuickViewCard,
@@ -51,6 +52,7 @@ const QuickView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const [selectedDate, setSelectedDate] = useState('08/09/2025');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   // Mock employee data matching the design
   const mockEmployees = [
@@ -68,12 +70,77 @@ const QuickView = () => {
       break: '0h 0m',
       idle: '0h 0m',
       offline: '0h 0m',
-      productivityPercentage: 0
+      productivityPercentage: 0,
+      email: 'loll@company.com',
+      organization: 'Tech Solutions',
+      role: 'Employee',
+      first_name: 'LoLL',
+      last_name: '',
+      username: 'loll'
+    },
+    {
+      id: 2,
+      status: 'ACTIVE',
+      name: 'Nawaz Ahmed',
+      team: 'Development',
+      loggedTime: '8h 15m',
+      activeTime: '7h 45m',
+      productive: '6h 30m',
+      distraction: '1h 15m',
+      neutral: '0h 0m',
+      meeting: '1h 30m',
+      break: '0h 30m',
+      idle: '0h 15m',
+      offline: '0h 0m',
+      productivityPercentage: 85,
+      email: 'nawaz@company.com',
+      organization: 'Tech Solutions',
+      role: 'Developer',
+      first_name: 'Nawaz',
+      last_name: 'Ahmed',
+      username: 'nawaz.ahmed'
+    },
+    {
+      id: 3,
+      status: 'ACTIVE',
+      name: 'Test User',
+      team: 'QA',
+      loggedTime: '6h 30m',
+      activeTime: '6h 0m',
+      productive: '5h 15m',
+      distraction: '0h 45m',
+      neutral: '0h 0m',
+      meeting: '0h 30m',
+      break: '0h 30m',
+      idle: '0h 0m',
+      offline: '0h 0m',
+      productivityPercentage: 88,
+      email: 'testuser@example.com',
+      organization: 'Test Organization',
+      role: 'Tester',
+      first_name: 'Test',
+      last_name: 'User',
+      username: 'testuser'
     }
   ];
 
   const [employees, setEmployees] = useState(mockEmployees);
   const [filteredEmployees, setFilteredEmployees] = useState(mockEmployees);
+
+  // Handle search result selection
+  const handleSearchResultSelect = (user) => {
+    console.log('Selected user:', user);
+    setSelectedEmployee(user);
+    
+    // Filter employees based on selected user
+    const filtered = employees.filter(employee =>
+      employee.id === user.id ||
+      employee.name.toLowerCase().includes(user.first_name?.toLowerCase() || '') ||
+      employee.email === user.email
+    );
+    setFilteredEmployees(filtered.length > 0 ? filtered : employees);
+    setCurrentPage(1); // Reset to first page
+  };
 
   // Handle search
   useEffect(() => {
@@ -82,7 +149,9 @@ const QuickView = () => {
     } else {
       const filtered = employees.filter(employee =>
         employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.team.toLowerCase().includes(searchQuery.toLowerCase())
+        employee.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.role?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredEmployees(filtered);
     }
@@ -123,15 +192,14 @@ const QuickView = () => {
                   </QuickViewTitle>
                 </HeaderLeft>
                 <HeaderControls>
-                  <SearchContainer>
-                    <SearchInput
-                      type="text"
-                      placeholder="Search..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                  <div style={{ width: '300px' }}>
+                    <GoogleSearch
+                      placeholder="Search employees..."
+                      onResultSelect={handleSearchResultSelect}
+                      showAdvanced={false}
+                      className="quickview-search"
                     />
-                    <SearchIcon>🔍</SearchIcon>
-                  </SearchContainer>
+                  </div>
                   <DateControl>
                     <DateIcon>📅</DateIcon>
                     <span>SELECT DATE</span>
