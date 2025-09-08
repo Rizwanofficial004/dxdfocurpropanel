@@ -155,7 +155,7 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: ${props => props.theme?.colors?.background || '#f8fafc'};
+    background: ${props => props.theme?.colors?.background || '#ecf3fc'};
     color: ${props => props.theme?.colors?.text?.primary || '#1e293b'};
     transition: background-color 0.3s ease, color 0.3s ease;
     position: relative;
