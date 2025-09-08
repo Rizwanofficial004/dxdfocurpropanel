@@ -316,3 +316,64 @@ class ScreenshotLog(models.Model):
     def file_size_mb(self):
         """Get file size in MB"""
         return round(self.file_size / (1024 * 1024), 2)
+
+
+class UserTimer(models.Model):
+    """
+    Simple timer model for tracking user timer sessions
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='timer_sessions')
+    
+    # Timer data
+    duration_seconds = models.IntegerField(help_text="Timer duration in seconds")
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    
+    # Optional metadata
+    timer_name = models.CharField(max_length=100, blank=True, default="Timer Session")
+    notes = models.TextField(blank=True)
+    
+    class Meta:
+        verbose_name = "User Timer"
+        verbose_name_plural = "User Timers"
+        ordering = ['-start_time']
+        indexes = [
+            models.Index(fields=['user', 'start_time']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.duration_seconds}s ({self.start_time.strftime('%Y-%m-%d %H:%M')})"
+    
+    @property
+    def duration_formatted(self):
+        """Return duration in HH:MM:SS format"""
+        hours = self.duration_seconds // 3600
+        minutes = (self.duration_seconds % 3600) // 60
+        seconds = self.duration_seconds % 60
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    
+    def save(self, *args, **kwargs):
+        if not self.end_time:
+            self.end_time = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class UserNumericValue(models.Model):
+    """
+    Simple model to store numeric values for each user
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='numeric_value')
+    value = models.IntegerField(default=0, help_text="Numeric value for the user")
+    
+    # Metadata
+    description = models.CharField(max_length=200, blank=True, help_text="Optional description of what this value represents")
+    last_updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "User Numeric Value"
+        verbose_name_plural = "User Numeric Values"
+        ordering = ['-value']
+    
+    def __str__(self):
+        return f"{self.user.username}: {self.value}"

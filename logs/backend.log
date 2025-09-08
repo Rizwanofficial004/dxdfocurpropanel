@@ -7583,3 +7583,377 @@ INFO 2025-09-08 16:01:58,245 middleware 14028 7428 Request: POST /api/auth/login
 INFO 2025-09-08 16:01:59,801 views 14028 7428 Login attempt: User=HB@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
 INFO 2025-09-08 16:01:59,802 middleware 14028 7428 Response: 200 for POST /api/auth/login/
 INFO 2025-09-08 16:01:59,802 basehttp 14028 7428 "POST //api/auth/login/ HTTP/1.1" 200 605
+INFO 2025-09-08 17:10:43,357 middleware 1444 14584 Request: GET /user-timer/
+INFO 2025-09-08 17:10:43,413 middleware 1444 14584 Response: 403 for GET /user-timer/
+WARNING 2025-09-08 17:10:43,415 log 1444 14584 Forbidden: /user-timer/
+WARNING 2025-09-08 17:10:43,416 basehttp 1444 14584 "GET //user-timer/ HTTP/1.1" 403 58
+INFO 2025-09-08 17:10:50,169 middleware 1444 14584 Request: GET /user-timer/
+INFO 2025-09-08 17:10:50,201 middleware 1444 14584 Response: 403 for GET /user-timer/
+WARNING 2025-09-08 17:10:50,202 log 1444 14584 Forbidden: /user-timer/
+WARNING 2025-09-08 17:10:50,204 basehttp 1444 14584 "GET /user-timer/ HTTP/1.1" 403 58
+INFO 2025-09-08 17:20:52,793 middleware 21112 20128 Request: GET /api/user-value/
+INFO 2025-09-08 17:20:52,916 middleware 21112 20128 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 17:20:52,938 log 21112 20128 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:20:52,940 basehttp 21112 20128 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:22:38,221 middleware 21112 11948 Request: POST /api/user-value/
+INFO 2025-09-08 17:22:38,275 middleware 21112 11948 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:22:38,308 log 21112 11948 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:22:38,309 basehttp 21112 11948 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:22:58,934 middleware 21112 11948 Request: POST /api/user-value/
+INFO 2025-09-08 17:22:58,935 middleware 21112 11948 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:22:58,936 log 21112 11948 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:22:58,936 basehttp 21112 11948 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:25:18,444 middleware 21112 12804 Request: POST /api/auth/simple-login/
+INFO 2025-09-08 17:25:18,446 simple_views 21112 12804 Login attempt: username=hamza11@example.com
+INFO 2025-09-08 17:25:19,899 middleware 21112 12804 Response: 401 for POST /api/auth/simple-login/
+WARNING 2025-09-08 17:25:19,900 log 21112 12804 Unauthorized: /api/auth/simple-login/
+WARNING 2025-09-08 17:25:19,901 basehttp 21112 12804 "POST /api/auth/simple-login/ HTTP/1.1" 401 59
+INFO 2025-09-08 17:25:49,594 middleware 21112 12804 Request: GET /api/user-value/
+INFO 2025-09-08 17:25:49,607 middleware 21112 12804 Response: 200 for GET /api/user-value/
+INFO 2025-09-08 17:25:49,608 basehttp 21112 12804 "GET /api/user-value/ HTTP/1.1" 200 259
+INFO 2025-09-08 17:25:59,899 middleware 21112 12804 Request: POST /api/user-value/
+INFO 2025-09-08 17:25:59,914 middleware 21112 12804 Response: 200 for POST /api/user-value/
+INFO 2025-09-08 17:25:59,915 basehttp 21112 12804 "POST /api/user-value/ HTTP/1.1" 200 285
+INFO 2025-09-08 17:26:07,660 middleware 21112 12804 Request: GET /api/user-value/all/
+INFO 2025-09-08 17:26:07,680 middleware 21112 12804 Response: 200 for GET /api/user-value/all/
+INFO 2025-09-08 17:26:07,681 basehttp 21112 12804 "GET /api/user-value/all/ HTTP/1.1" 200 1576
+INFO 2025-09-08 17:27:03,516 middleware 21112 5900 Request: POST /api/user-value/all/
+INFO 2025-09-08 17:27:03,517 middleware 21112 5900 Response: 401 for POST /api/user-value/all/
+WARNING 2025-09-08 17:27:03,517 log 21112 5900 Unauthorized: /api/user-value/all/
+WARNING 2025-09-08 17:27:03,518 basehttp 21112 5900 "POST /api/user-value/all/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:27:19,766 middleware 21112 5900 Request: POST /api/user-value/all/
+INFO 2025-09-08 17:27:19,767 middleware 21112 5900 Response: 401 for POST /api/user-value/all/
+WARNING 2025-09-08 17:27:19,768 log 21112 5900 Unauthorized: /api/user-value/all/
+WARNING 2025-09-08 17:27:19,768 basehttp 21112 5900 "POST /api/user-value/all/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:30:16,934 middleware 21112 11896 Request: POST /api/user-value/
+INFO 2025-09-08 17:30:16,935 middleware 21112 11896 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:30:16,936 log 21112 11896 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:30:16,936 basehttp 21112 11896 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:31:24,848 middleware 21112 13632 Request: POST /api/user-value/
+INFO 2025-09-08 17:31:24,849 middleware 21112 13632 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:31:24,850 log 21112 13632 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:31:24,850 basehttp 21112 13632 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:34:07,218 middleware 21112 22012 Request: POST /api/user-value/
+INFO 2025-09-08 17:34:07,220 middleware 21112 22012 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:34:07,220 log 21112 22012 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:34:07,221 basehttp 21112 22012 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:34:24,522 middleware 21112 22012 Request: POST /api/user-value/haseebcodejourney_at_gmail.com
+INFO 2025-09-08 17:34:24,540 middleware 21112 22012 Response: 404 for POST /api/user-value/haseebcodejourney_at_gmail.com
+WARNING 2025-09-08 17:34:24,540 log 21112 22012 Not Found: /api/user-value/haseebcodejourney_at_gmail.com
+WARNING 2025-09-08 17:34:24,541 basehttp 21112 22012 "POST /api/user-value/haseebcodejourney_at_gmail.com HTTP/1.1" 404 11172
+INFO 2025-09-08 17:35:22,296 middleware 21112 22012 Request: POST /api/user-value/
+
+INFO 2025-09-08 17:35:22,307 middleware 21112 22012 Response: 404 for POST /api/user-value/
+
+WARNING 2025-09-08 17:35:22,308 log 21112 22012 Not Found: /api/user-value/\n
+WARNING 2025-09-08 17:35:22,308 basehttp 21112 22012 "POST /api/user-value/%0A HTTP/1.1" 404 11087
+INFO 2025-09-08 17:35:31,538 middleware 21112 22012 Request: POST /api/user-value/
+INFO 2025-09-08 17:35:31,539 middleware 21112 22012 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:35:31,539 log 21112 22012 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:35:31,540 basehttp 21112 22012 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:38:07,897 middleware 21112 16548 Request: GET /api/user-value/
+INFO 2025-09-08 17:38:07,898 middleware 21112 16548 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 17:38:07,899 log 21112 16548 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:38:07,899 basehttp 21112 16548 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:38:11,610 middleware 21112 16548 Request: POST /api/user-value/
+INFO 2025-09-08 17:38:11,610 middleware 21112 16548 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:38:11,611 log 21112 16548 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:38:11,611 basehttp 21112 16548 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:38:46,446 middleware 21112 16548 Request: POST /api/user-value/
+INFO 2025-09-08 17:38:46,447 middleware 21112 16548 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:38:46,447 log 21112 16548 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:38:46,447 basehttp 21112 16548 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:39:27,321 middleware 21112 16548 Request: POST /api/user-value/user/testuser/
+INFO 2025-09-08 17:39:27,332 middleware 21112 16548 Response: 404 for POST /api/user-value/user/testuser/
+WARNING 2025-09-08 17:39:27,333 log 21112 16548 Not Found: /api/user-value/user/testuser/
+WARNING 2025-09-08 17:39:27,333 basehttp 21112 16548 "POST /api/user-value/user/testuser/ HTTP/1.1" 404 11124
+INFO 2025-09-08 17:39:46,312 middleware 21112 16548 Request: GET /api/user-value/user/testuser/
+INFO 2025-09-08 17:39:46,323 middleware 21112 16548 Response: 404 for GET /api/user-value/user/testuser/
+WARNING 2025-09-08 17:39:46,324 log 21112 16548 Not Found: /api/user-value/user/testuser/
+WARNING 2025-09-08 17:39:46,324 basehttp 21112 16548 "GET /api/user-value/user/testuser/ HTTP/1.1" 404 11123
+INFO 2025-09-08 17:40:15,996 middleware 21112 16548 Request: POST /api/user-value/all/
+INFO 2025-09-08 17:40:15,997 middleware 21112 16548 Response: 401 for POST /api/user-value/all/
+WARNING 2025-09-08 17:40:15,998 log 21112 16548 Unauthorized: /api/user-value/all/
+WARNING 2025-09-08 17:40:15,998 basehttp 21112 16548 "POST /api/user-value/all/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:40:48,230 middleware 21112 16548 Request: POST /api/user-value/1/
+INFO 2025-09-08 17:40:48,231 middleware 21112 16548 Response: 401 for POST /api/user-value/1/
+WARNING 2025-09-08 17:40:48,232 log 21112 16548 Unauthorized: /api/user-value/1/
+WARNING 2025-09-08 17:40:48,232 basehttp 21112 16548 "POST /api/user-value/1/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:41:30,352 middleware 21112 16548 Request: POST /api/user-value/user/testuser/
+INFO 2025-09-08 17:41:30,390 middleware 21112 16548 Response: 404 for POST /api/user-value/user/testuser/
+WARNING 2025-09-08 17:41:30,438 log 21112 16548 Not Found: /api/user-value/user/testuser/
+WARNING 2025-09-08 17:41:30,440 basehttp 21112 16548 "POST /api/user-value/user/testuser/ HTTP/1.1" 404 11124
+INFO 2025-09-08 17:42:05,009 middleware 21112 16548 Request: POST /api/user-value/user/testuser/
+INFO 2025-09-08 17:42:05,019 middleware 21112 16548 Response: 404 for POST /api/user-value/user/testuser/
+WARNING 2025-09-08 17:42:05,020 log 21112 16548 Not Found: /api/user-value/user/testuser/
+WARNING 2025-09-08 17:42:05,021 basehttp 21112 16548 "POST /api/user-value/user/testuser/ HTTP/1.1" 404 11124
+INFO 2025-09-08 17:42:30,567 middleware 21112 16548 Request: POST /api/user-value/user/testuser/
+INFO 2025-09-08 17:42:30,578 middleware 21112 16548 Response: 404 for POST /api/user-value/user/testuser/
+WARNING 2025-09-08 17:42:30,579 log 21112 16548 Not Found: /api/user-value/user/testuser/
+WARNING 2025-09-08 17:42:30,579 basehttp 21112 16548 "POST /api/user-value/user/testuser/ HTTP/1.1" 404 11124
+INFO 2025-09-08 17:42:47,553 middleware 21112 16548 Request: POST /api/user-value/user/testuser/
+INFO 2025-09-08 17:42:47,564 middleware 21112 16548 Response: 404 for POST /api/user-value/user/testuser/
+WARNING 2025-09-08 17:42:47,565 log 21112 16548 Not Found: /api/user-value/user/testuser/
+WARNING 2025-09-08 17:42:47,565 basehttp 21112 16548 "POST /api/user-value/user/testuser/ HTTP/1.1" 404 11124
+INFO 2025-09-08 17:43:15,635 middleware 21112 16548 Request: GET /api/user-value/1/
+INFO 2025-09-08 17:43:15,636 middleware 21112 16548 Response: 401 for GET /api/user-value/1/
+WARNING 2025-09-08 17:43:15,637 log 21112 16548 Unauthorized: /api/user-value/1/
+WARNING 2025-09-08 17:43:15,637 basehttp 21112 16548 "GET /api/user-value/1/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:44:10,218 middleware 21112 16548 Request: GET /api/user-value/1/
+INFO 2025-09-08 17:44:10,219 middleware 21112 16548 Response: 401 for GET /api/user-value/1/
+WARNING 2025-09-08 17:44:10,220 log 21112 16548 Unauthorized: /api/user-value/1/
+WARNING 2025-09-08 17:44:10,220 basehttp 21112 16548 "GET /api/user-value/1/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:44:16,462 middleware 21112 16548 Request: GET /api/user-value/
+INFO 2025-09-08 17:44:16,463 middleware 21112 16548 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 17:44:16,464 log 21112 16548 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:44:16,464 basehttp 21112 16548 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:44:33,201 middleware 21112 16548 Request: GET /api/user-value/1/
+INFO 2025-09-08 17:44:33,201 middleware 21112 16548 Response: 401 for GET /api/user-value/1/
+WARNING 2025-09-08 17:44:33,202 log 21112 16548 Unauthorized: /api/user-value/1/
+WARNING 2025-09-08 17:44:33,202 basehttp 21112 16548 "GET /api/user-value/1/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:44:35,447 middleware 21112 16548 Request: GET /api/user-value/1/
+INFO 2025-09-08 17:44:35,447 middleware 21112 16548 Response: 401 for GET /api/user-value/1/
+WARNING 2025-09-08 17:44:35,448 log 21112 16548 Unauthorized: /api/user-value/1/
+WARNING 2025-09-08 17:44:35,448 basehttp 21112 16548 "GET /api/user-value/1/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:45:07,219 middleware 21112 16548 Request: GET /api/user-value/all/
+INFO 2025-09-08 17:45:07,220 middleware 21112 16548 Response: 401 for GET /api/user-value/all/
+WARNING 2025-09-08 17:45:07,221 log 21112 16548 Unauthorized: /api/user-value/all/
+WARNING 2025-09-08 17:45:07,222 basehttp 21112 16548 "GET /api/user-value/all/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:51:40,976 middleware 21112 9620 Request: POST /api/user-value/
+INFO 2025-09-08 17:51:40,977 middleware 21112 9620 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 17:51:40,978 log 21112 9620 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:51:40,979 basehttp 21112 9620 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:53:57,417 middleware 21112 21668 Request: GET /api/user-value/
+INFO 2025-09-08 17:53:57,419 middleware 21112 21668 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 17:53:57,419 log 21112 21668 Unauthorized: /api/user-value/
+WARNING 2025-09-08 17:53:57,420 basehttp 21112 21668 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 17:54:36,568 middleware 21112 21668 Request: GET /api/user-value/
+INFO 2025-09-08 17:54:36,574 middleware 21112 21668 Response: 200 for GET /api/user-value/
+INFO 2025-09-08 17:54:36,575 basehttp 21112 21668 "GET /api/user-value/ HTTP/1.1" 200 259
+INFO 2025-09-08 17:59:01,871 middleware 21112 16044 Request: POST /api/user-value/2/
+INFO 2025-09-08 17:59:01,877 middleware 21112 16044 Response: 400 for POST /api/user-value/2/
+WARNING 2025-09-08 17:59:01,878 log 21112 16044 Bad Request: /api/user-value/2/
+WARNING 2025-09-08 17:59:01,879 basehttp 21112 16044 "POST /api/user-value/2/ HTTP/1.1" 400 136
+INFO 2025-09-08 17:59:12,826 middleware 21112 16044 Request: POST /api/user-value/2/
+INFO 2025-09-08 17:59:12,856 middleware 21112 16044 Response: 201 for POST /api/user-value/2/
+INFO 2025-09-08 17:59:12,857 basehttp 21112 16044 "POST /api/user-value/2/ HTTP/1.1" 201 286
+INFO 2025-09-08 17:59:24,218 middleware 21112 16044 Request: POST /api/user-value/3/
+INFO 2025-09-08 17:59:24,264 middleware 21112 16044 Response: 201 for POST /api/user-value/3/
+INFO 2025-09-08 17:59:24,265 basehttp 21112 16044 "POST /api/user-value/3/ HTTP/1.1" 201 283
+INFO 2025-09-08 17:59:35,681 middleware 21112 16044 Request: GET /api/user-value/all/
+INFO 2025-09-08 17:59:35,705 middleware 21112 16044 Response: 200 for GET /api/user-value/all/
+INFO 2025-09-08 17:59:35,706 basehttp 21112 16044 "GET /api/user-value/all/ HTTP/1.1" 200 1703
+INFO 2025-09-08 18:01:43,941 middleware 21112 8868 Request: GET /api/user-value/all/
+INFO 2025-09-08 18:01:43,964 middleware 21112 8868 Response: 200 for GET /api/user-value/all/
+INFO 2025-09-08 18:01:43,965 basehttp 21112 8868 "GET /api/user-value/all/ HTTP/1.1" 200 1703
+INFO 2025-09-08 18:04:47,273 middleware 21112 260 Request: GET /api/user-value/
+INFO 2025-09-08 18:04:47,274 middleware 21112 260 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 18:04:47,274 log 21112 260 Unauthorized: /api/user-value/
+WARNING 2025-09-08 18:04:47,275 basehttp 21112 260 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:04:55,872 middleware 21112 260 Request: GET /api/user-value/
+INFO 2025-09-08 18:04:55,873 middleware 21112 260 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 18:04:55,873 log 21112 260 Unauthorized: /api/user-value/
+WARNING 2025-09-08 18:04:55,874 basehttp 21112 260 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:05:14,368 middleware 21112 260 Request: GET /api/user-value/
+INFO 2025-09-08 18:05:14,369 middleware 21112 260 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 18:05:14,369 log 21112 260 Unauthorized: /api/user-value/
+WARNING 2025-09-08 18:05:14,370 basehttp 21112 260 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:05:18,572 middleware 21112 260 Request: GET /api/user-value/
+INFO 2025-09-08 18:05:18,573 middleware 21112 260 Response: 401 for GET /api/user-value/
+WARNING 2025-09-08 18:05:18,574 log 21112 260 Unauthorized: /api/user-value/
+WARNING 2025-09-08 18:05:18,574 basehttp 21112 260 "GET /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:06:17,304 middleware 21112 260 Request: POST /api/user-value/
+INFO 2025-09-08 18:06:17,305 middleware 21112 260 Response: 401 for POST /api/user-value/
+WARNING 2025-09-08 18:06:17,305 log 21112 260 Unauthorized: /api/user-value/
+WARNING 2025-09-08 18:06:17,306 basehttp 21112 260 "POST /api/user-value/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:07:30,158 middleware 21112 15020 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:07:30,159 middleware 21112 15020 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:07:30,159 log 21112 15020 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:07:30,160 basehttp 21112 15020 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:07:50,021 middleware 21112 15020 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:07:50,022 middleware 21112 15020 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:07:50,023 log 21112 15020 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:07:50,024 basehttp 21112 15020 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:09:14,304 middleware 21112 10260 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:09:14,349 middleware 21112 10260 Response: 200 for POST /api/user-value/3/
+INFO 2025-09-08 18:09:14,350 basehttp 21112 10260 "POST /api/user-value/3/ HTTP/1.1" 200 295
+INFO 2025-09-08 18:09:23,485 middleware 21112 10260 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:09:23,528 middleware 21112 10260 Response: 200 for POST /api/user-value/3/
+INFO 2025-09-08 18:09:23,529 basehttp 21112 10260 "POST /api/user-value/3/ HTTP/1.1" 200 295
+INFO 2025-09-08 18:10:51,395 middleware 21112 4032 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:10:51,396 middleware 21112 4032 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:10:51,397 log 21112 4032 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:10:51,398 basehttp 21112 4032 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:11:16,163 middleware 21112 4032 Request: PUT /api/user-value/3/
+INFO 2025-09-08 18:11:16,164 middleware 21112 4032 Response: 401 for PUT /api/user-value/3/
+WARNING 2025-09-08 18:11:16,164 log 21112 4032 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:11:16,165 basehttp 21112 4032 "PUT /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:11:20,615 middleware 21112 4032 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:11:20,616 middleware 21112 4032 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:11:20,617 log 21112 4032 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:11:20,618 basehttp 21112 4032 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:12:26,468 middleware 21112 19832 Request: GET /api/user-value/
+INFO 2025-09-08 18:12:26,476 middleware 21112 19832 Response: 200 for GET /api/user-value/
+INFO 2025-09-08 18:12:26,477 basehttp 21112 19832 "GET /api/user-value/ HTTP/1.1" 200 259
+INFO 2025-09-08 18:14:28,855 middleware 20908 6044 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:28,884 middleware 20908 6044 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:28,886 log 20908 6044 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:28,888 basehttp 20908 6044 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:31,571 middleware 20908 6044 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:31,572 middleware 20908 6044 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:31,573 log 20908 6044 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:31,573 basehttp 20908 6044 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:32,981 middleware 20908 6044 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:32,982 middleware 20908 6044 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:32,982 log 20908 6044 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:32,983 basehttp 20908 6044 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:48,967 middleware 22476 14920 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:49,002 middleware 22476 14920 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:49,006 log 22476 14920 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:49,007 basehttp 22476 14920 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:50,645 middleware 22476 14920 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:50,646 middleware 22476 14920 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:50,647 log 22476 14920 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:50,648 basehttp 22476 14920 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:52,349 middleware 22476 14920 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:52,350 middleware 22476 14920 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:52,350 log 22476 14920 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:52,351 basehttp 22476 14920 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:53,776 middleware 22476 14920 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:53,777 middleware 22476 14920 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:53,777 log 22476 14920 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:53,778 basehttp 22476 14920 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:14:59,279 middleware 22476 14920 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:14:59,280 middleware 22476 14920 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:14:59,280 log 22476 14920 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:14:59,281 basehttp 22476 14920 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:15:02,731 middleware 22476 14920 Request: POST /api/user-value/3/
+INFO 2025-09-08 18:15:02,732 middleware 22476 14920 Response: 401 for POST /api/user-value/3/
+WARNING 2025-09-08 18:15:02,732 log 22476 14920 Unauthorized: /api/user-value/3/
+WARNING 2025-09-08 18:15:02,733 basehttp 22476 14920 "POST /api/user-value/3/ HTTP/1.1" 401 58
+INFO 2025-09-08 18:15:18,463 middleware 10484 7588 Request: GET /api/setup-value/
+INFO 2025-09-08 18:15:18,473 middleware 10484 7588 Response: 200 for GET /api/setup-value/
+INFO 2025-09-08 18:15:18,474 basehttp 10484 7588 "GET /api/setup-value/ HTTP/1.1" 200 229
+INFO 2025-09-08 18:15:26,560 middleware 10484 7588 Request: GET /api/setup-value/
+INFO 2025-09-08 18:15:26,565 middleware 10484 7588 Response: 200 for GET /api/setup-value/
+INFO 2025-09-08 18:15:26,566 basehttp 10484 7588 "GET /api/setup-value/ HTTP/1.1" 200 229
+INFO 2025-09-08 18:17:19,331 middleware 3184 11216 Request: POST /api/auto-set-value/
+INFO 2025-09-08 18:17:19,348 middleware 3184 11216 Response: 200 for POST /api/auto-set-value/
+INFO 2025-09-08 18:17:19,349 basehttp 3184 11216 "POST /api/auto-set-value/ HTTP/1.1" 200 336
+INFO 2025-09-08 18:17:28,436 middleware 3184 11216 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:17:28,443 middleware 3184 11216 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:17:28,444 basehttp 3184 11216 "POST /api/auto-get-value/ HTTP/1.1" 200 359
+INFO 2025-09-08 18:17:37,792 middleware 3184 11216 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:17:37,797 middleware 3184 11216 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:17:37,798 basehttp 3184 11216 "POST /api/auto-get-value/ HTTP/1.1" 200 266
+INFO 2025-09-08 18:18:18,191 middleware 3184 17120 Request: POST /api/auto-set-value/
+INFO 2025-09-08 18:18:18,232 middleware 3184 17120 Response: 200 for POST /api/auto-set-value/
+INFO 2025-09-08 18:18:18,233 basehttp 3184 17120 "POST /api/auto-set-value/ HTTP/1.1" 200 330
+INFO 2025-09-08 18:19:00,082 middleware 3184 17120 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:19:00,087 middleware 3184 17120 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:19:00,088 basehttp 3184 17120 "POST /api/auto-get-value/ HTTP/1.1" 200 353
+INFO 2025-09-08 18:25:51,480 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:25:51,489 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:25:51,490 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:26:19,193 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:26:19,197 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:26:19,198 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:26:37,028 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:26:37,033 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:26:37,034 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:26:48,191 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:26:48,196 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:26:48,196 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:26:50,189 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:26:50,193 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:26:50,194 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:10,412 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:10,417 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:10,418 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:14,998 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:15,003 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:15,004 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:17,200 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:17,205 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:17,206 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:20,782 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:20,787 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:20,788 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:21,746 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:21,750 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:21,751 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:22,661 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:22,665 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:22,667 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:24,281 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:24,285 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:24,286 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:27:29,461 middleware 7928 9448 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:27:29,465 middleware 7928 9448 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:27:29,466 basehttp 7928 9448 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:28:32,729 middleware 7928 19952 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:28:32,734 middleware 7928 19952 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:28:32,735 basehttp 7928 19952 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:29:02,030 middleware 7928 19952 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:29:02,039 middleware 7928 19952 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:29:02,040 basehttp 7928 19952 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:30:08,594 middleware 7928 7496 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:30:08,598 middleware 7928 7496 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:30:08,599 basehttp 7928 7496 "POST /api/auto-get-value/ HTTP/1.1" 200 363
+INFO 2025-09-08 18:41:59,031 middleware 7928 17400 Request: POST /api/auto-set-value/
+INFO 2025-09-08 18:41:59,061 middleware 7928 17400 Response: 200 for POST /api/auto-set-value/
+INFO 2025-09-08 18:41:59,062 basehttp 7928 17400 "POST /api/auto-set-value/ HTTP/1.1" 200 337
+INFO 2025-09-08 18:42:07,096 middleware 7928 17400 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:42:07,102 middleware 7928 17400 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:42:07,103 basehttp 7928 17400 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:43:14,582 middleware 7928 592 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:43:14,609 middleware 7928 592 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:43:14,610 basehttp 7928 592 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:43:17,577 middleware 7928 592 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:43:17,584 middleware 7928 592 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:43:17,585 basehttp 7928 592 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:44:07,466 middleware 7928 17628 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:44:07,472 middleware 7928 17628 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:44:07,473 basehttp 7928 17628 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:44:24,090 middleware 7928 16360 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:44:24,097 middleware 7928 16360 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:44:24,097 basehttp 7928 16360 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:44:36,284 middleware 7928 16360 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:44:36,336 middleware 7928 16360 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:44:36,347 basehttp 7928 16360 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:44:38,446 middleware 7928 16360 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:44:38,451 middleware 7928 16360 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:44:38,452 basehttp 7928 16360 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:44:39,634 middleware 7928 16360 Request: POST /api/auto-get-value/
+INFO 2025-09-08 18:44:39,638 middleware 7928 16360 Response: 200 for POST /api/auto-get-value/
+INFO 2025-09-08 18:44:39,639 basehttp 7928 16360 "POST /api/auto-get-value/ HTTP/1.1" 200 360
+INFO 2025-09-08 18:45:27,727 middleware 7928 17628 Request: POST /api/auto-set-value/
+INFO 2025-09-08 18:45:27,766 middleware 7928 17628 Response: 200 for POST /api/auto-set-value/
+INFO 2025-09-08 18:45:27,768 basehttp 7928 17628 "POST /api/auto-set-value/ HTTP/1.1" 200 350
+INFO 2025-09-08 18:46:35,033 middleware 7928 15252 Request: POST /api/auto-set-value/
+INFO 2025-09-08 18:46:35,088 middleware 7928 15252 Response: 200 for POST /api/auto-set-value/
+INFO 2025-09-08 18:46:35,090 basehttp 7928 15252 "POST /api/auto-set-value/ HTTP/1.1" 200 343
+INFO 2025-09-08 18:46:41,697 middleware 7928 15252 Request: POST /api/auto-set-value/
+INFO 2025-09-08 18:46:41,846 middleware 7928 15252 Response: 200 for POST /api/auto-set-value/
+INFO 2025-09-08 18:46:41,847 basehttp 7928 15252 "POST /api/auto-set-value/ HTTP/1.1" 200 343
+INFO 2025-09-08 18:48:48,813 middleware 6292 1924 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:48:48,822 middleware 6292 1924 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:48:48,824 basehttp 6292 1924 "POST /api/flexible-get-value/ HTTP/1.1" 200 444
+INFO 2025-09-08 18:49:00,144 middleware 6292 1924 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:49:00,148 middleware 6292 1924 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:49:00,149 basehttp 6292 1924 "POST /api/flexible-get-value/ HTTP/1.1" 200 444
+INFO 2025-09-08 18:49:14,154 middleware 20964 20884 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:49:14,162 middleware 20964 20884 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:49:14,164 basehttp 20964 20884 "POST /api/flexible-get-value/ HTTP/1.1" 200 486
+INFO 2025-09-08 18:49:28,114 middleware 20964 20884 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:49:28,118 middleware 20964 20884 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:49:28,119 basehttp 20964 20884 "POST /api/flexible-get-value/ HTTP/1.1" 200 444
+INFO 2025-09-08 18:51:44,506 middleware 20964 16712 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:51:44,512 middleware 20964 16712 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:51:44,513 basehttp 20964 16712 "POST /api/flexible-get-value/ HTTP/1.1" 200 486
+INFO 2025-09-08 18:52:02,848 middleware 20964 16712 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:52:02,853 middleware 20964 16712 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:52:02,853 basehttp 20964 16712 "POST /api/flexible-get-value/ HTTP/1.1" 200 337
+INFO 2025-09-08 18:52:08,739 middleware 20964 16712 Request: POST /api/flexible-get-value/
+INFO 2025-09-08 18:52:08,743 middleware 20964 16712 Response: 200 for POST /api/flexible-get-value/
+INFO 2025-09-08 18:52:08,744 basehttp 20964 16712 "POST /api/flexible-get-value/ HTTP/1.1" 200 444
