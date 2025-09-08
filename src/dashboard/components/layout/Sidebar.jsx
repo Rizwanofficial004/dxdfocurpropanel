@@ -251,7 +251,16 @@ export const Sidebar = () => {
     { icon: "👥", label: "EMPLOYEES", path: "/dashboard/employees" },
     { icon: "🏢", label: "TEAMS", path: "/dashboard/teams" },
     { icon: "💼", label: "JOBS", path: "/dashboard/jobs", hasArrow: true, badge: "BETA" },
-    { icon: "⚙️", label: "SETTINGS", path: "/dashboard/settings", hasArrow: true },
+    { 
+      icon: "⚙️", 
+      label: "SETTINGS", 
+      path: "/dashboard/settings", 
+      hasArrow: true,
+      subItems: [
+        { label: "STYLE SETTINGS", path: "/dashboard/settings/style" },
+        { label: "CREDENTIALS SETTINGS", path: "/dashboard/settings/credentials" },
+      ]
+    },
   ];
 
   const handleNavigation = (path) => {

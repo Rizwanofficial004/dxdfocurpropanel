@@ -87,6 +87,7 @@ export const SettingsWrapper = styled.div`
   };
   position: relative;
   overflow-x: hidden;
+  z-index: 9999;
 
   &::before {
     content: '';
@@ -255,18 +256,12 @@ export const RightSidebar = styled.div`
 export const Section = styled.div`
   background: ${props => props.isDarkMode 
     ? 'rgba(30, 41, 59, 0.9)'
-    : 'rgba(255, 255, 255, 0.9)'
+    : 'transparent'
   };
   border-radius: 1.5rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  border: 1px solid ${props => props.isDarkMode 
-    ? 'rgba(71, 85, 105, 0.3)'
-    : 'rgba(203, 213, 225, 0.3)'
-  };
   backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
   position: relative;

@@ -155,8 +155,8 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: ${props => props.theme?.colors?.background || '#ecf3fc'};
-    color: ${props => props.theme?.colors?.text?.primary || '#1e293b'};
+    background: #ecf3fc;
+    color: #1e293b;
     transition: background-color 0.3s ease, color 0.3s ease;
     position: relative;
   }
@@ -182,7 +182,6 @@ const GlobalStyle = createGlobalStyle`
     right: 0;
     bottom: -80px;
     width: 370px;
-
   }
 
   #root {
@@ -277,6 +276,56 @@ function App() {
                   />
                   <Route
                     path="/dashboard/settings"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackSettings />}>
+                          <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings/style"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackSettings />}>
+                          <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings/credentials"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackSettings />}>
+                          <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings/upload"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackSettings />}>
+                          <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings/database"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackSettings />}>
+                          <Settings />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings/aws"
                     element={
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackSettings />}>
