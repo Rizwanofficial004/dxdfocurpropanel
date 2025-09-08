@@ -6481,3 +6481,755 @@ INFO 2025-09-07 23:58:44,647 users_search_views 33328 21144 Enhanced search for 
 INFO 2025-09-07 23:58:44,675 users_search_views 33328 21144 Searching screenshots in prefix: users_screenshots/
 INFO 2025-09-07 23:58:47,565 middleware 33328 21144 Response: 200 for GET /api/users/search/
 INFO 2025-09-07 23:58:47,566 basehttp 33328 21144 "GET /api/users/search/?q=k HTTP/1.1" 200 35088
+INFO 2025-09-08 11:55:09,494 middleware 21464 19420 Request: GET /api/users/search/
+INFO 2025-09-08 11:55:10,606 users_search_views 21464 19420 S3 client initialized successfully for enhanced users search
+INFO 2025-09-08 11:55:10,607 users_search_views 21464 19420 Enhanced search for 'naw' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-08 11:55:10,607 users_search_views 21464 19420 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-08 11:55:13,316 middleware 21464 19420 Response: 200 for GET /api/users/search/
+INFO 2025-09-08 11:55:13,317 basehttp 21464 19420 "GET /api/users/search/?q=naw HTTP/1.1" 200 75380
+INFO 2025-09-08 11:55:19,904 middleware 21464 19420 Request: GET /api/users/search/
+INFO 2025-09-08 11:55:19,913 users_search_views 21464 19420 S3 client initialized successfully for enhanced users search
+INFO 2025-09-08 11:55:19,914 users_search_views 21464 19420 Enhanced search for 'b' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-08 11:55:19,914 users_search_views 21464 19420 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-08 11:55:21,726 middleware 21464 19420 Response: 200 for GET /api/users/search/
+INFO 2025-09-08 11:55:21,727 basehttp 21464 19420 "GET /api/users/search/?q=b HTTP/1.1" 200 41492
+INFO 2025-09-08 11:55:26,415 middleware 21464 19420 Request: GET /api/users/search/
+INFO 2025-09-08 11:55:26,424 users_search_views 21464 19420 S3 client initialized successfully for enhanced users search
+INFO 2025-09-08 11:55:26,425 users_search_views 21464 19420 Enhanced search for 'n' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-08 11:55:26,426 users_search_views 21464 19420 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-08 11:55:28,169 middleware 21464 19420 Response: 200 for GET /api/users/search/
+INFO 2025-09-08 11:55:28,171 basehttp 21464 19420 "GET /api/users/search/?q=n HTTP/1.1" 200 75438
+INFO 2025-09-08 11:55:33,617 middleware 21464 19420 Request: GET /api/users/search/
+INFO 2025-09-08 11:55:33,625 users_search_views 21464 19420 S3 client initialized successfully for enhanced users search
+INFO 2025-09-08 11:55:33,626 users_search_views 21464 19420 Enhanced search for 'k' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-08 11:55:33,626 users_search_views 21464 19420 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-08 11:55:35,286 middleware 21464 19420 Response: 200 for GET /api/users/search/
+INFO 2025-09-08 11:55:35,287 basehttp 21464 19420 "GET /api/users/search/?q=k HTTP/1.1" 200 35088
+INFO 2025-09-08 12:03:36,012 middleware 18376 18176 Request: GET /api/Employees/Details/
+INFO 2025-09-08 12:03:36,421 employees_details_views 18376 18176 S3 client initialized successfully for employee details
+INFO 2025-09-08 12:03:36,422 employees_details_views 18376 18176 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-08 12:03:36,422 employees_details_views 18376 18176 Scanning S3 bucket for employee data...
+INFO 2025-09-08 12:03:38,266 employees_details_views 18376 18176 Fetching employee data from CRM...
+INFO 2025-09-08 12:03:38,266 employees_details_views 18376 18176 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-08 12:03:39,354 employees_details_views 18376 18176 CRM endpoint /employees returned status 404
+INFO 2025-09-08 12:03:39,355 employees_details_views 18376 18176 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-08 12:03:40,328 employees_details_views 18376 18176 CRM endpoint /users returned status 404
+INFO 2025-09-08 12:03:40,328 employees_details_views 18376 18176 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-08 12:03:41,280 employees_details_views 18376 18176 CRM endpoint /staff returned status 404
+INFO 2025-09-08 12:03:41,280 employees_details_views 18376 18176 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-08 12:03:42,218 employees_details_views 18376 18176 CRM endpoint /personnel returned status 404
+INFO 2025-09-08 12:03:42,218 employees_details_views 18376 18176 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-08 12:03:43,162 employees_details_views 18376 18176 CRM endpoint /members returned status 404
+WARNING 2025-09-08 12:03:43,163 employees_details_views 18376 18176 No CRM endpoints were accessible, using mock data
+INFO 2025-09-08 12:03:43,167 middleware 18376 18176 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-08 12:03:43,168 basehttp 18376 18176 "GET /api/Employees/Details/ HTTP/1.1" 200 8418
+INFO 2025-09-08 12:05:18,471 middleware 18376 7492 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:05:18,473 crm_comprehensive_views 18376 7492 Starting CRM comprehensive dashboard data retrieval...
+ERROR 2025-09-08 12:05:18,475 crm_comprehensive_views 18376 7492 CRM service not configured
+INFO 2025-09-08 12:05:18,477 middleware 18376 7492 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:05:18,478 basehttp 18376 7492 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 948
+INFO 2025-09-08 12:16:12,844 middleware 13928 13016 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:16:12,846 crm_comprehensive_views 13928 13016 Starting CRM comprehensive dashboard data retrieval...
+ERROR 2025-09-08 12:16:12,847 crm_comprehensive_views 13928 13016 CRM service not configured
+INFO 2025-09-08 12:16:12,848 middleware 13928 13016 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:16:12,849 basehttp 13928 13016 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 948
+INFO 2025-09-08 12:16:17,400 middleware 13928 13016 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:16:17,401 crm_comprehensive_views 13928 13016 Starting CRM comprehensive dashboard data retrieval...
+ERROR 2025-09-08 12:16:17,401 crm_comprehensive_views 13928 13016 CRM service not configured
+INFO 2025-09-08 12:16:17,401 middleware 13928 13016 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:16:17,402 basehttp 13928 13016 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 948
+INFO 2025-09-08 12:19:31,410 middleware 13928 21464 Request: GET /api/Employees/Details/
+INFO 2025-09-08 12:19:31,802 employees_details_views 13928 21464 S3 client initialized successfully for employee details
+INFO 2025-09-08 12:19:31,802 employees_details_views 13928 21464 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-08 12:19:31,803 employees_details_views 13928 21464 Scanning S3 bucket for employee data...
+INFO 2025-09-08 12:19:33,588 employees_details_views 13928 21464 Fetching employee data from CRM...
+INFO 2025-09-08 12:19:33,588 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-08 12:19:34,625 employees_details_views 13928 21464 CRM endpoint /employees returned status 404
+INFO 2025-09-08 12:19:34,646 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-08 12:19:35,735 employees_details_views 13928 21464 CRM endpoint /users returned status 404
+INFO 2025-09-08 12:19:35,735 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-08 12:19:36,655 employees_details_views 13928 21464 CRM endpoint /staff returned status 404
+INFO 2025-09-08 12:19:36,656 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-08 12:19:37,555 employees_details_views 13928 21464 CRM endpoint /personnel returned status 404
+INFO 2025-09-08 12:19:37,556 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-08 12:19:38,431 employees_details_views 13928 21464 CRM endpoint /members returned status 404
+WARNING 2025-09-08 12:19:38,432 employees_details_views 13928 21464 No CRM endpoints were accessible, using mock data
+INFO 2025-09-08 12:19:38,435 middleware 13928 21464 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-08 12:19:38,436 basehttp 13928 21464 "GET /api/Employees/Details/ HTTP/1.1" 200 8418
+INFO 2025-09-08 12:19:47,133 middleware 13928 21464 Request: GET /api/Employees/Details/
+INFO 2025-09-08 12:19:47,143 employees_details_views 13928 21464 S3 client initialized successfully for employee details
+INFO 2025-09-08 12:19:47,143 employees_details_views 13928 21464 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-08 12:19:47,144 employees_details_views 13928 21464 Scanning S3 bucket for employee data...
+INFO 2025-09-08 12:19:48,729 employees_details_views 13928 21464 Fetching employee data from CRM...
+INFO 2025-09-08 12:19:48,729 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-08 12:19:49,627 employees_details_views 13928 21464 CRM endpoint /employees returned status 404
+INFO 2025-09-08 12:19:49,627 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-08 12:19:50,521 employees_details_views 13928 21464 CRM endpoint /users returned status 404
+INFO 2025-09-08 12:19:50,522 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-08 12:19:51,416 employees_details_views 13928 21464 CRM endpoint /staff returned status 404
+INFO 2025-09-08 12:19:51,416 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-08 12:19:52,342 employees_details_views 13928 21464 CRM endpoint /personnel returned status 404
+INFO 2025-09-08 12:19:52,343 employees_details_views 13928 21464 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-08 12:19:53,284 employees_details_views 13928 21464 CRM endpoint /members returned status 404
+WARNING 2025-09-08 12:19:53,284 employees_details_views 13928 21464 No CRM endpoints were accessible, using mock data
+INFO 2025-09-08 12:19:53,287 middleware 13928 21464 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-08 12:19:53,288 basehttp 13928 21464 "GET /api/Employees/Details/ HTTP/1.1" 200 8418
+INFO 2025-09-08 12:20:57,551 middleware 13928 21464 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:20:57,552 crm_comprehensive_views 13928 21464 Starting CRM comprehensive dashboard data retrieval...
+ERROR 2025-09-08 12:20:57,552 crm_comprehensive_views 13928 21464 CRM service not configured
+INFO 2025-09-08 12:20:57,553 middleware 13928 21464 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:20:57,554 basehttp 13928 21464 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 948
+INFO 2025-09-08 12:25:46,867 middleware 12980 15616 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:25:47,282 crm_comprehensive_views 12980 15616 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:25:47,283 crm_comprehensive_views 12980 15616 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:25:47,283 crm_comprehensive_views 12980 15616 Fetching S3 employee data...
+INFO 2025-09-08 12:25:47,283 crm_comprehensive_views 12980 15616 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:25:48,998 crm_comprehensive_views 12980 15616 S3 scan completed: 3 employees found, 500 objects scanned in 1714.61ms
+INFO 2025-09-08 12:25:48,999 crm_comprehensive_views 12980 15616 Fetching CRM data...
+INFO 2025-09-08 12:25:48,999 crm_comprehensive_views 12980 15616 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:25:49,000 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,000 crm_comprehensive_views 12980 15616 Trying CRM endpoint: users
+ERROR 2025-09-08 12:25:49,000 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,000 crm_comprehensive_views 12980 15616 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:25:49,001 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,001 crm_comprehensive_views 12980 15616 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:25:49,001 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,002 crm_comprehensive_views 12980 15616 Trying CRM endpoint: team
+ERROR 2025-09-08 12:25:49,002 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,003 crm_comprehensive_views 12980 15616 Trying CRM endpoint: members
+ERROR 2025-09-08 12:25:49,003 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:25:49,003 crm_comprehensive_views 12980 15616 No employees found in any CRM endpoint
+INFO 2025-09-08 12:25:49,004 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:25:49,004 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,004 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:25:49,004 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,005 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:25:49,005 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,005 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:25:49,006 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,006 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:25:49,006 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,007 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:25:49,007 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:25:49,007 crm_comprehensive_views 12980 15616 No projects found in any CRM endpoint
+INFO 2025-09-08 12:25:49,008 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:25:49,008 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,008 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:25:49,009 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,009 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:25:49,009 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,009 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:25:49,010 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,010 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:25:49,010 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,010 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:25:49,011 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:25:49,011 crm_comprehensive_views 12980 15616 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:25:49,011 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:25:49,012 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,012 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:25:49,012 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,012 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:25:49,013 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,013 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:25:49,013 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:25:49,014 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:25:49,014 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:25:49,014 crm_comprehensive_views 12980 15616 No dashboard summary found in CRM
+INFO 2025-09-08 12:25:49,014 crm_comprehensive_views 12980 15616 Fetching Database analytics...
+ERROR 2025-09-08 12:25:49,019 crm_comprehensive_views 12980 15616 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:25:49,021 crm_comprehensive_views 12980 15616 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:25:49,021 crm_comprehensive_views 12980 15616 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:25:49,022 crm_comprehensive_views 12980 15616 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:25:49,022 crm_comprehensive_views 12980 15616 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:25:49,022 crm_comprehensive_views 12980 15616 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:25:49,023 middleware 12980 15616 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:25:49,024 basehttp 12980 15616 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2418
+INFO 2025-09-08 12:25:59,382 middleware 12980 15616 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:25:59,394 crm_comprehensive_views 12980 15616 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:25:59,395 crm_comprehensive_views 12980 15616 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:25:59,395 crm_comprehensive_views 12980 15616 Fetching S3 employee data...
+INFO 2025-09-08 12:25:59,396 crm_comprehensive_views 12980 15616 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:26:00,988 crm_comprehensive_views 12980 15616 S3 scan completed: 3 employees found, 500 objects scanned in 1592.35ms
+INFO 2025-09-08 12:26:00,989 crm_comprehensive_views 12980 15616 Fetching CRM data...
+INFO 2025-09-08 12:26:00,989 crm_comprehensive_views 12980 15616 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:26:00,989 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,990 crm_comprehensive_views 12980 15616 Trying CRM endpoint: users
+ERROR 2025-09-08 12:26:00,990 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,990 crm_comprehensive_views 12980 15616 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:26:00,990 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,991 crm_comprehensive_views 12980 15616 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:26:00,991 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,991 crm_comprehensive_views 12980 15616 Trying CRM endpoint: team
+ERROR 2025-09-08 12:26:00,991 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,992 crm_comprehensive_views 12980 15616 Trying CRM endpoint: members
+ERROR 2025-09-08 12:26:00,992 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:00,992 crm_comprehensive_views 12980 15616 No employees found in any CRM endpoint
+INFO 2025-09-08 12:26:00,992 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:26:00,993 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,993 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:26:00,993 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,994 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:26:00,994 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,994 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:26:00,994 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,995 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:26:00,995 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,995 crm_comprehensive_views 12980 15616 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:26:00,995 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:00,996 crm_comprehensive_views 12980 15616 No projects found in any CRM endpoint
+INFO 2025-09-08 12:26:00,996 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:26:00,996 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,996 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:26:00,997 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,997 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:26:00,997 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,997 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:26:00,997 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,998 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:26:00,998 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,998 crm_comprehensive_views 12980 15616 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:26:00,998 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:00,999 crm_comprehensive_views 12980 15616 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:26:00,999 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:26:00,999 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:00,999 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:26:01,000 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:01,000 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:26:01,000 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:01,000 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:26:01,001 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:01,001 crm_comprehensive_views 12980 15616 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:26:01,001 crm_comprehensive_views 12980 15616 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:01,002 crm_comprehensive_views 12980 15616 No dashboard summary found in CRM
+INFO 2025-09-08 12:26:01,002 crm_comprehensive_views 12980 15616 Fetching Database analytics...
+ERROR 2025-09-08 12:26:01,004 crm_comprehensive_views 12980 15616 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:26:01,005 crm_comprehensive_views 12980 15616 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:26:01,005 crm_comprehensive_views 12980 15616 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:26:01,006 crm_comprehensive_views 12980 15616 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:26:01,006 crm_comprehensive_views 12980 15616 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:26:01,006 crm_comprehensive_views 12980 15616 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:26:01,007 middleware 12980 15616 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:26:01,007 basehttp 12980 15616 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2418
+INFO 2025-09-08 12:26:46,856 middleware 12980 18700 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:26:46,865 crm_comprehensive_views 12980 18700 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:26:46,865 crm_comprehensive_views 12980 18700 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:26:46,866 crm_comprehensive_views 12980 18700 Fetching S3 employee data...
+INFO 2025-09-08 12:26:46,866 crm_comprehensive_views 12980 18700 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:26:48,494 crm_comprehensive_views 12980 18700 S3 scan completed: 3 employees found, 500 objects scanned in 1627.91ms
+INFO 2025-09-08 12:26:48,495 crm_comprehensive_views 12980 18700 Fetching CRM data...
+INFO 2025-09-08 12:26:48,495 crm_comprehensive_views 12980 18700 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:26:48,495 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,496 crm_comprehensive_views 12980 18700 Trying CRM endpoint: users
+ERROR 2025-09-08 12:26:48,496 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,496 crm_comprehensive_views 12980 18700 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:26:48,497 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,497 crm_comprehensive_views 12980 18700 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:26:48,497 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,498 crm_comprehensive_views 12980 18700 Trying CRM endpoint: team
+ERROR 2025-09-08 12:26:48,498 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,498 crm_comprehensive_views 12980 18700 Trying CRM endpoint: members
+ERROR 2025-09-08 12:26:48,498 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:48,499 crm_comprehensive_views 12980 18700 No employees found in any CRM endpoint
+INFO 2025-09-08 12:26:48,499 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:26:48,499 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,499 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:26:48,500 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,500 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:26:48,500 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,501 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:26:48,501 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,501 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:26:48,501 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,502 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:26:48,502 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:48,502 crm_comprehensive_views 12980 18700 No projects found in any CRM endpoint
+INFO 2025-09-08 12:26:48,503 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:26:48,503 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,503 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:26:48,504 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,504 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:26:48,504 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,505 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:26:48,505 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,505 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:26:48,505 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,506 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:26:48,506 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:48,506 crm_comprehensive_views 12980 18700 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:26:48,507 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:26:48,507 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,507 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:26:48,507 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,508 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:26:48,508 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,508 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:26:48,508 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:48,508 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:26:48,509 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:48,509 crm_comprehensive_views 12980 18700 No dashboard summary found in CRM
+INFO 2025-09-08 12:26:48,509 crm_comprehensive_views 12980 18700 Fetching Database analytics...
+ERROR 2025-09-08 12:26:48,511 crm_comprehensive_views 12980 18700 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:26:48,512 crm_comprehensive_views 12980 18700 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:26:48,512 crm_comprehensive_views 12980 18700 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:26:48,512 crm_comprehensive_views 12980 18700 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:26:48,513 crm_comprehensive_views 12980 18700 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:26:48,513 crm_comprehensive_views 12980 18700 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:26:48,513 middleware 12980 18700 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:26:48,514 basehttp 12980 18700 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2418
+INFO 2025-09-08 12:26:58,103 middleware 12980 18700 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:26:58,113 crm_comprehensive_views 12980 18700 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:26:58,114 crm_comprehensive_views 12980 18700 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:26:58,114 crm_comprehensive_views 12980 18700 Fetching S3 employee data...
+INFO 2025-09-08 12:26:58,114 crm_comprehensive_views 12980 18700 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:26:59,775 crm_comprehensive_views 12980 18700 S3 scan completed: 3 employees found, 500 objects scanned in 1660.50ms
+INFO 2025-09-08 12:26:59,776 crm_comprehensive_views 12980 18700 Fetching CRM data...
+INFO 2025-09-08 12:26:59,776 crm_comprehensive_views 12980 18700 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:26:59,776 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,777 crm_comprehensive_views 12980 18700 Trying CRM endpoint: users
+ERROR 2025-09-08 12:26:59,777 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,777 crm_comprehensive_views 12980 18700 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:26:59,778 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,778 crm_comprehensive_views 12980 18700 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:26:59,778 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,779 crm_comprehensive_views 12980 18700 Trying CRM endpoint: team
+ERROR 2025-09-08 12:26:59,779 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,779 crm_comprehensive_views 12980 18700 Trying CRM endpoint: members
+ERROR 2025-09-08 12:26:59,780 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:59,780 crm_comprehensive_views 12980 18700 No employees found in any CRM endpoint
+INFO 2025-09-08 12:26:59,780 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:26:59,780 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,781 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:26:59,781 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,781 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:26:59,782 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,782 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:26:59,782 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,783 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:26:59,783 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,783 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:26:59,783 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:59,784 crm_comprehensive_views 12980 18700 No projects found in any CRM endpoint
+INFO 2025-09-08 12:26:59,784 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:26:59,785 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,785 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:26:59,785 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,785 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:26:59,787 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,788 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:26:59,790 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,793 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:26:59,793 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,794 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:26:59,794 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:59,794 crm_comprehensive_views 12980 18700 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:26:59,795 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:26:59,795 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,796 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:26:59,796 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,796 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:26:59,797 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,797 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:26:59,798 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:26:59,798 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:26:59,798 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:26:59,799 crm_comprehensive_views 12980 18700 No dashboard summary found in CRM
+INFO 2025-09-08 12:26:59,799 crm_comprehensive_views 12980 18700 Fetching Database analytics...
+ERROR 2025-09-08 12:26:59,801 crm_comprehensive_views 12980 18700 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:26:59,802 crm_comprehensive_views 12980 18700 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:26:59,802 crm_comprehensive_views 12980 18700 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:26:59,803 crm_comprehensive_views 12980 18700 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:26:59,804 crm_comprehensive_views 12980 18700 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:26:59,804 crm_comprehensive_views 12980 18700 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:26:59,805 middleware 12980 18700 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:26:59,806 basehttp 12980 18700 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2417
+INFO 2025-09-08 12:27:09,832 middleware 12980 18700 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:27:09,850 crm_comprehensive_views 12980 18700 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:27:09,851 crm_comprehensive_views 12980 18700 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:27:09,851 crm_comprehensive_views 12980 18700 Fetching S3 employee data...
+INFO 2025-09-08 12:27:09,852 crm_comprehensive_views 12980 18700 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:27:11,489 crm_comprehensive_views 12980 18700 S3 scan completed: 3 employees found, 500 objects scanned in 1637.62ms
+INFO 2025-09-08 12:27:11,490 crm_comprehensive_views 12980 18700 Fetching CRM data...
+INFO 2025-09-08 12:27:11,490 crm_comprehensive_views 12980 18700 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:27:11,491 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,491 crm_comprehensive_views 12980 18700 Trying CRM endpoint: users
+ERROR 2025-09-08 12:27:11,491 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,492 crm_comprehensive_views 12980 18700 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:27:11,492 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,492 crm_comprehensive_views 12980 18700 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:27:11,493 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,493 crm_comprehensive_views 12980 18700 Trying CRM endpoint: team
+ERROR 2025-09-08 12:27:11,493 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,493 crm_comprehensive_views 12980 18700 Trying CRM endpoint: members
+ERROR 2025-09-08 12:27:11,494 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:11,494 crm_comprehensive_views 12980 18700 No employees found in any CRM endpoint
+INFO 2025-09-08 12:27:11,494 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:27:11,494 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,495 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:27:11,495 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,495 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:27:11,495 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,496 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:27:11,496 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,496 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:27:11,497 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,497 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:27:11,497 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:11,498 crm_comprehensive_views 12980 18700 No projects found in any CRM endpoint
+INFO 2025-09-08 12:27:11,498 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:27:11,498 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,499 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:27:11,499 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,499 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:27:11,499 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,500 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:27:11,500 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,500 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:27:11,500 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,501 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:27:11,501 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:11,501 crm_comprehensive_views 12980 18700 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:27:11,501 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:27:11,502 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,502 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:27:11,502 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,502 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:27:11,503 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,503 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:27:11,504 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:11,504 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:27:11,504 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:11,505 crm_comprehensive_views 12980 18700 No dashboard summary found in CRM
+INFO 2025-09-08 12:27:11,505 crm_comprehensive_views 12980 18700 Fetching Database analytics...
+ERROR 2025-09-08 12:27:11,507 crm_comprehensive_views 12980 18700 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:27:11,508 crm_comprehensive_views 12980 18700 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:27:11,508 crm_comprehensive_views 12980 18700 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:27:11,508 crm_comprehensive_views 12980 18700 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:27:11,509 crm_comprehensive_views 12980 18700 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:27:11,509 crm_comprehensive_views 12980 18700 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:27:11,509 middleware 12980 18700 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:27:11,510 basehttp 12980 18700 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2418
+INFO 2025-09-08 12:27:29,448 middleware 12980 18700 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:27:29,456 crm_comprehensive_views 12980 18700 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:27:29,457 crm_comprehensive_views 12980 18700 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:27:29,457 crm_comprehensive_views 12980 18700 Fetching S3 employee data...
+INFO 2025-09-08 12:27:29,458 crm_comprehensive_views 12980 18700 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:27:31,114 crm_comprehensive_views 12980 18700 S3 scan completed: 3 employees found, 500 objects scanned in 1655.96ms
+INFO 2025-09-08 12:27:31,114 crm_comprehensive_views 12980 18700 Fetching CRM data...
+INFO 2025-09-08 12:27:31,115 crm_comprehensive_views 12980 18700 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:27:31,115 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,115 crm_comprehensive_views 12980 18700 Trying CRM endpoint: users
+ERROR 2025-09-08 12:27:31,115 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,116 crm_comprehensive_views 12980 18700 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:27:31,116 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,116 crm_comprehensive_views 12980 18700 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:27:31,116 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,117 crm_comprehensive_views 12980 18700 Trying CRM endpoint: team
+ERROR 2025-09-08 12:27:31,117 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,117 crm_comprehensive_views 12980 18700 Trying CRM endpoint: members
+ERROR 2025-09-08 12:27:31,117 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:31,118 crm_comprehensive_views 12980 18700 No employees found in any CRM endpoint
+INFO 2025-09-08 12:27:31,118 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:27:31,118 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,118 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:27:31,119 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,119 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:27:31,119 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,120 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:27:31,120 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,120 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:27:31,121 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,121 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:27:31,121 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:31,122 crm_comprehensive_views 12980 18700 No projects found in any CRM endpoint
+INFO 2025-09-08 12:27:31,122 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:27:31,122 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,123 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:27:31,123 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,123 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:27:31,124 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,124 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:27:31,124 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,124 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:27:31,125 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,125 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:27:31,125 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:31,126 crm_comprehensive_views 12980 18700 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:27:31,126 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:27:31,126 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,127 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:27:31,127 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,127 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:27:31,127 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,128 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:27:31,128 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:31,128 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:27:31,128 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:31,129 crm_comprehensive_views 12980 18700 No dashboard summary found in CRM
+INFO 2025-09-08 12:27:31,129 crm_comprehensive_views 12980 18700 Fetching Database analytics...
+ERROR 2025-09-08 12:27:31,130 crm_comprehensive_views 12980 18700 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:27:31,131 crm_comprehensive_views 12980 18700 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:27:31,132 crm_comprehensive_views 12980 18700 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:27:31,132 crm_comprehensive_views 12980 18700 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:27:31,132 crm_comprehensive_views 12980 18700 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:27:31,132 crm_comprehensive_views 12980 18700 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:27:31,133 middleware 12980 18700 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:27:31,134 basehttp 12980 18700 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2418
+INFO 2025-09-08 12:27:43,331 middleware 12980 18700 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:27:43,340 crm_comprehensive_views 12980 18700 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:27:43,340 crm_comprehensive_views 12980 18700 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:27:43,340 crm_comprehensive_views 12980 18700 Fetching S3 employee data...
+INFO 2025-09-08 12:27:43,341 crm_comprehensive_views 12980 18700 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:27:44,935 crm_comprehensive_views 12980 18700 S3 scan completed: 3 employees found, 500 objects scanned in 1594.57ms
+INFO 2025-09-08 12:27:44,936 crm_comprehensive_views 12980 18700 Fetching CRM data...
+INFO 2025-09-08 12:27:44,936 crm_comprehensive_views 12980 18700 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:27:44,937 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,937 crm_comprehensive_views 12980 18700 Trying CRM endpoint: users
+ERROR 2025-09-08 12:27:44,937 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,937 crm_comprehensive_views 12980 18700 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:27:44,938 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,938 crm_comprehensive_views 12980 18700 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:27:44,939 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,939 crm_comprehensive_views 12980 18700 Trying CRM endpoint: team
+ERROR 2025-09-08 12:27:44,939 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,940 crm_comprehensive_views 12980 18700 Trying CRM endpoint: members
+ERROR 2025-09-08 12:27:44,940 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:44,940 crm_comprehensive_views 12980 18700 No employees found in any CRM endpoint
+INFO 2025-09-08 12:27:44,940 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:27:44,941 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,941 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:27:44,941 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,942 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:27:44,942 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,942 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:27:44,943 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,943 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:27:44,943 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,944 crm_comprehensive_views 12980 18700 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:27:44,944 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:44,944 crm_comprehensive_views 12980 18700 No projects found in any CRM endpoint
+INFO 2025-09-08 12:27:44,945 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:27:44,945 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,945 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:27:44,945 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,946 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:27:44,946 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,946 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:27:44,947 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,947 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:27:44,947 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,948 crm_comprehensive_views 12980 18700 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:27:44,948 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:44,948 crm_comprehensive_views 12980 18700 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:27:44,949 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:27:44,949 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,949 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:27:44,950 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,950 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:27:44,950 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,951 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:27:44,951 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:27:44,951 crm_comprehensive_views 12980 18700 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:27:44,951 crm_comprehensive_views 12980 18700 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:27:44,952 crm_comprehensive_views 12980 18700 No dashboard summary found in CRM
+INFO 2025-09-08 12:27:44,952 crm_comprehensive_views 12980 18700 Fetching Database analytics...
+ERROR 2025-09-08 12:27:44,954 crm_comprehensive_views 12980 18700 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:27:44,955 crm_comprehensive_views 12980 18700 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:27:44,956 crm_comprehensive_views 12980 18700 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:27:44,956 crm_comprehensive_views 12980 18700 Dynamic data retrieved: 32 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket
+INFO 2025-09-08 12:27:44,956 crm_comprehensive_views 12980 18700 Employee analysis: Total=32, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:27:44,957 crm_comprehensive_views 12980 18700 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:27:44,957 middleware 12980 18700 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:27:44,958 basehttp 12980 18700 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2418
+INFO 2025-09-08 12:35:34,496 middleware 13460 8764 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:35:34,907 crm_comprehensive_views 13460 8764 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:35:34,908 crm_comprehensive_views 13460 8764 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:35:34,908 crm_comprehensive_views 13460 8764 Fetching S3 employee data...
+INFO 2025-09-08 12:35:34,908 crm_comprehensive_views 13460 8764 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:35:36,705 crm_comprehensive_views 13460 8764 S3 scan completed: 3 employees found, 500 objects scanned in 1796.86ms
+INFO 2025-09-08 12:35:36,706 crm_comprehensive_views 13460 8764 Fetching CRM data...
+INFO 2025-09-08 12:35:36,706 crm_comprehensive_views 13460 8764 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:35:36,707 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,707 crm_comprehensive_views 13460 8764 Trying CRM endpoint: users
+ERROR 2025-09-08 12:35:36,707 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,707 crm_comprehensive_views 13460 8764 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:35:36,708 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,708 crm_comprehensive_views 13460 8764 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:35:36,708 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,709 crm_comprehensive_views 13460 8764 Trying CRM endpoint: team
+ERROR 2025-09-08 12:35:36,709 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,709 crm_comprehensive_views 13460 8764 Trying CRM endpoint: members
+ERROR 2025-09-08 12:35:36,709 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:35:36,710 crm_comprehensive_views 13460 8764 No employees found in any CRM endpoint
+INFO 2025-09-08 12:35:36,710 crm_comprehensive_views 13460 8764 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:35:36,710 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,710 crm_comprehensive_views 13460 8764 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:35:36,711 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,711 crm_comprehensive_views 13460 8764 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:35:36,711 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,711 crm_comprehensive_views 13460 8764 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:35:36,712 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,712 crm_comprehensive_views 13460 8764 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:35:36,712 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,713 crm_comprehensive_views 13460 8764 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:35:36,713 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:35:36,713 crm_comprehensive_views 13460 8764 No projects found in any CRM endpoint
+INFO 2025-09-08 12:35:36,714 crm_comprehensive_views 13460 8764 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:35:36,714 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,714 crm_comprehensive_views 13460 8764 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:35:36,715 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,715 crm_comprehensive_views 13460 8764 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:35:36,715 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,715 crm_comprehensive_views 13460 8764 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:35:36,716 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,716 crm_comprehensive_views 13460 8764 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:35:36,716 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,717 crm_comprehensive_views 13460 8764 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:35:36,717 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:35:36,718 crm_comprehensive_views 13460 8764 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:35:36,718 crm_comprehensive_views 13460 8764 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:35:36,718 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,718 crm_comprehensive_views 13460 8764 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:35:36,719 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,719 crm_comprehensive_views 13460 8764 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:35:36,719 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,719 crm_comprehensive_views 13460 8764 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:35:36,720 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:35:36,720 crm_comprehensive_views 13460 8764 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:35:36,720 crm_comprehensive_views 13460 8764 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:35:36,720 crm_comprehensive_views 13460 8764 No dashboard summary found in CRM
+INFO 2025-09-08 12:35:36,721 crm_comprehensive_views 13460 8764 Fetching Database analytics...
+ERROR 2025-09-08 12:35:36,838 crm_comprehensive_views 13460 8764 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:35:36,840 crm_comprehensive_views 13460 8764 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:35:36,841 crm_comprehensive_views 13460 8764 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:35:36,841 crm_comprehensive_views 13460 8764 Using S3 employee count as primary: 3
+INFO 2025-09-08 12:35:36,841 crm_comprehensive_views 13460 8764 Dynamic data retrieved: 3 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket (Real-time)
+INFO 2025-09-08 12:35:36,841 crm_comprehensive_views 13460 8764 Employee analysis: Total=3, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:35:36,842 crm_comprehensive_views 13460 8764 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:35:36,843 middleware 13460 8764 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:35:36,844 basehttp 13460 8764 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2438
+INFO 2025-09-08 12:38:35,814 middleware 13460 5356 Request: GET /api/users/search/
+INFO 2025-09-08 12:38:35,824 users_search_views 13460 5356 S3 client initialized successfully for enhanced users search
+INFO 2025-09-08 12:38:36,909 middleware 13460 5356 Response: 400 for GET /api/users/search/
+WARNING 2025-09-08 12:38:36,927 log 13460 5356 Bad Request: /api/users/search/
+WARNING 2025-09-08 12:38:36,928 basehttp 13460 5356 "GET /api/users/search/ HTTP/1.1" 400 678
+INFO 2025-09-08 12:40:54,691 middleware 13460 20080 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:40:54,700 crm_comprehensive_views 13460 20080 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-08 12:40:54,701 crm_comprehensive_views 13460 20080 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-08 12:40:54,701 crm_comprehensive_views 13460 20080 Fetching S3 employee data...
+INFO 2025-09-08 12:40:54,701 crm_comprehensive_views 13460 20080 Scanning S3 bucket for employee folder data...
+INFO 2025-09-08 12:40:56,294 crm_comprehensive_views 13460 20080 S3 scan completed: 3 employees found, 500 objects scanned in 1593.00ms
+INFO 2025-09-08 12:40:56,295 crm_comprehensive_views 13460 20080 Fetching CRM data...
+INFO 2025-09-08 12:40:56,295 crm_comprehensive_views 13460 20080 Trying CRM endpoint: employees
+ERROR 2025-09-08 12:40:56,296 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,296 crm_comprehensive_views 13460 20080 Trying CRM endpoint: users
+ERROR 2025-09-08 12:40:56,296 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,297 crm_comprehensive_views 13460 20080 Trying CRM endpoint: staff
+ERROR 2025-09-08 12:40:56,297 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,297 crm_comprehensive_views 13460 20080 Trying CRM endpoint: personnel
+ERROR 2025-09-08 12:40:56,298 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,298 crm_comprehensive_views 13460 20080 Trying CRM endpoint: team
+ERROR 2025-09-08 12:40:56,298 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,298 crm_comprehensive_views 13460 20080 Trying CRM endpoint: members
+ERROR 2025-09-08 12:40:56,299 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:40:56,299 crm_comprehensive_views 13460 20080 No employees found in any CRM endpoint
+INFO 2025-09-08 12:40:56,299 crm_comprehensive_views 13460 20080 Trying CRM projects endpoint: projects
+ERROR 2025-09-08 12:40:56,299 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,300 crm_comprehensive_views 13460 20080 Trying CRM projects endpoint: deals
+ERROR 2025-09-08 12:40:56,300 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,300 crm_comprehensive_views 13460 20080 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-08 12:40:56,301 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,301 crm_comprehensive_views 13460 20080 Trying CRM projects endpoint: cases
+ERROR 2025-09-08 12:40:56,302 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,302 crm_comprehensive_views 13460 20080 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-08 12:40:56,302 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,303 crm_comprehensive_views 13460 20080 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-08 12:40:56,303 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:40:56,303 crm_comprehensive_views 13460 20080 No projects found in any CRM endpoint
+INFO 2025-09-08 12:40:56,304 crm_comprehensive_views 13460 20080 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-08 12:40:56,304 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,304 crm_comprehensive_views 13460 20080 Trying CRM tasks endpoint: activities
+ERROR 2025-09-08 12:40:56,305 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,305 crm_comprehensive_views 13460 20080 Trying CRM tasks endpoint: todos
+ERROR 2025-09-08 12:40:56,305 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,305 crm_comprehensive_views 13460 20080 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-08 12:40:56,306 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,306 crm_comprehensive_views 13460 20080 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-08 12:40:56,306 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,306 crm_comprehensive_views 13460 20080 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-08 12:40:56,307 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:40:56,307 crm_comprehensive_views 13460 20080 No tasks found in any CRM endpoint
+INFO 2025-09-08 12:40:56,307 crm_comprehensive_views 13460 20080 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-08 12:40:56,307 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,308 crm_comprehensive_views 13460 20080 Trying CRM summary endpoint: summary
+ERROR 2025-09-08 12:40:56,308 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,308 crm_comprehensive_views 13460 20080 Trying CRM summary endpoint: overview
+ERROR 2025-09-08 12:40:56,308 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,309 crm_comprehensive_views 13460 20080 Trying CRM summary endpoint: stats
+ERROR 2025-09-08 12:40:56,309 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+INFO 2025-09-08 12:40:56,309 crm_comprehensive_views 13460 20080 Trying CRM summary endpoint: metrics
+ERROR 2025-09-08 12:40:56,309 crm_comprehensive_views 13460 20080 CRM service not configured - missing base URL or token
+WARNING 2025-09-08 12:40:56,310 crm_comprehensive_views 13460 20080 No dashboard summary found in CRM
+INFO 2025-09-08 12:40:56,310 crm_comprehensive_views 13460 20080 Fetching Database analytics...
+ERROR 2025-09-08 12:40:56,312 crm_comprehensive_views 13460 20080 Error fetching employee analytics from database: no such table: dashboard_employeeanalytics
+ERROR 2025-09-08 12:40:56,313 crm_comprehensive_views 13460 20080 Error fetching AWS credentials from database: no such table: dashboard_awscredential
+ERROR 2025-09-08 12:40:56,313 crm_comprehensive_views 13460 20080 Error fetching database stats: no such table: dashboard_employeeanalytics
+INFO 2025-09-08 12:40:56,313 crm_comprehensive_views 13460 20080 Using S3 employee count as primary: 3
+INFO 2025-09-08 12:40:56,314 crm_comprehensive_views 13460 20080 Dynamic data retrieved: 3 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket (Real-time)
+INFO 2025-09-08 12:40:56,314 crm_comprehensive_views 13460 20080 Employee analysis: Total=3, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-08 12:40:56,314 crm_comprehensive_views 13460 20080 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-08 12:40:56,315 middleware 13460 20080 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-08 12:40:56,315 basehttp 13460 20080 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2437
+INFO 2025-09-08 12:45:30,490 middleware 13460 21428 Request: GET /api/Employees/Details/
+INFO 2025-09-08 12:45:30,499 employees_details_views 13460 21428 S3 client initialized successfully for employee details
+INFO 2025-09-08 12:45:30,500 employees_details_views 13460 21428 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-08 12:45:30,500 employees_details_views 13460 21428 Scanning S3 bucket for employee data...
+INFO 2025-09-08 12:45:32,170 employees_details_views 13460 21428 Fetching employee data from CRM...
+INFO 2025-09-08 12:45:32,170 employees_details_views 13460 21428 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-08 12:45:33,202 employees_details_views 13460 21428 CRM endpoint /employees returned status 404
+INFO 2025-09-08 12:45:33,202 employees_details_views 13460 21428 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-08 12:45:34,270 employees_details_views 13460 21428 CRM endpoint /users returned status 404
+INFO 2025-09-08 12:45:34,271 employees_details_views 13460 21428 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-08 12:45:35,201 employees_details_views 13460 21428 CRM endpoint /staff returned status 404
+INFO 2025-09-08 12:45:35,202 employees_details_views 13460 21428 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-08 12:45:36,193 employees_details_views 13460 21428 CRM endpoint /personnel returned status 404
+INFO 2025-09-08 12:45:36,194 employees_details_views 13460 21428 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-08 12:45:37,147 employees_details_views 13460 21428 CRM endpoint /members returned status 404
+WARNING 2025-09-08 12:45:37,147 employees_details_views 13460 21428 No CRM endpoints were accessible, using mock data
+INFO 2025-09-08 12:45:37,150 middleware 13460 21428 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-08 12:45:37,150 basehttp 13460 21428 "GET /api/Employees/Details/ HTTP/1.1" 200 8417
+INFO 2025-09-08 13:35:17,732 middleware 14236 12028 Request: GET /api/logs/search/
+INFO 2025-09-08 13:35:17,735 middleware 14236 12028 Response: 403 for GET /api/logs/search/
+WARNING 2025-09-08 13:35:17,737 log 14236 12028 Forbidden: /api/logs/search/
+WARNING 2025-09-08 13:35:17,738 basehttp 14236 12028 "GET /api/logs/search/ HTTP/1.1" 403 58
+INFO 2025-09-08 13:35:56,459 middleware 21552 19952 Request: GET /api/logs/search/
+INFO 2025-09-08 13:36:00,699 middleware 21552 19952 Response: 200 for GET /api/logs/search/
+INFO 2025-09-08 13:36:00,701 basehttp 21552 19952 "GET /api/logs/search/ HTTP/1.1" 200 770
+INFO 2025-09-08 13:36:07,545 middleware 21552 19952 Request: GET /api/logs/system/
+INFO 2025-09-08 13:36:09,707 middleware 21552 19952 Response: 200 for GET /api/logs/system/
+INFO 2025-09-08 13:36:09,708 basehttp 21552 19952 "GET /api/logs/system/ HTTP/1.1" 200 191
+INFO 2025-09-08 13:36:14,482 middleware 21552 19952 Request: GET /api/logs/stats/
+INFO 2025-09-08 13:36:14,483 middleware 21552 19952 Response: 200 for GET /api/logs/stats/
+INFO 2025-09-08 13:36:14,484 basehttp 21552 19952 "GET /api/logs/stats/ HTTP/1.1" 200 354
+INFO 2025-09-08 13:38:31,552 middleware 21552 7940 Request: GET /api/Employees/Details/
+INFO 2025-09-08 13:38:31,561 employees_details_views 21552 7940 S3 client initialized successfully for employee details
+INFO 2025-09-08 13:38:31,562 employees_details_views 21552 7940 Fetching comprehensive employee details from S3 and CRM
+INFO 2025-09-08 13:38:31,562 employees_details_views 21552 7940 Scanning S3 bucket for employee data...
+INFO 2025-09-08 13:38:34,174 employees_details_views 21552 7940 Fetching employee data from CRM...
+INFO 2025-09-08 13:38:34,175 employees_details_views 21552 7940 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+WARNING 2025-09-08 13:38:35,575 employees_details_views 21552 7940 CRM endpoint /employees returned status 404
+INFO 2025-09-08 13:38:35,576 employees_details_views 21552 7940 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+WARNING 2025-09-08 13:38:36,738 employees_details_views 21552 7940 CRM endpoint /users returned status 404
+INFO 2025-09-08 13:38:36,739 employees_details_views 21552 7940 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+WARNING 2025-09-08 13:38:37,824 employees_details_views 21552 7940 CRM endpoint /staff returned status 404
+INFO 2025-09-08 13:38:37,824 employees_details_views 21552 7940 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+WARNING 2025-09-08 13:38:39,056 employees_details_views 21552 7940 CRM endpoint /personnel returned status 404
+INFO 2025-09-08 13:38:39,057 employees_details_views 21552 7940 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+WARNING 2025-09-08 13:38:40,246 employees_details_views 21552 7940 CRM endpoint /members returned status 404
+WARNING 2025-09-08 13:38:40,247 employees_details_views 21552 7940 No CRM endpoints were accessible, using mock data
+INFO 2025-09-08 13:38:40,249 middleware 21552 7940 Response: 200 for GET /api/Employees/Details/
+INFO 2025-09-08 13:38:40,250 basehttp 21552 7940 "GET /api/Employees/Details/ HTTP/1.1" 200 8418
+INFO 2025-09-08 13:42:04,121 middleware 21552 8764 Request: POST /api/Timer/
+INFO 2025-09-08 13:42:04,258 middleware 21552 8764 Response: 404 for POST /api/Timer/
+WARNING 2025-09-08 13:42:04,261 log 21552 8764 Not Found: /api/Timer/
+WARNING 2025-09-08 13:42:04,262 basehttp 21552 8764 "POST /api/Timer/ HTTP/1.1" 404 9205

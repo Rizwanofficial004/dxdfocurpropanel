@@ -9,6 +9,7 @@ from .employees_details_views import EmployeesDetailsView
 # from .s3_timer_api_views import S3TimerAPIView, S3ScreenshotAPIView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
+from .logs_views import LogsSearchView, LogsSystemView, LogsStatsView
 
 
 app_name = 'dashboard'
@@ -51,6 +52,13 @@ urlpatterns = [
         path('chat/', AIChatView.as_view(), name='ai-chat'),
         path('analyze/employees/', AIEmployeeAnalysisView.as_view(), name='ai-employee-analysis'),
         path('generate/report/', AIReportGeneratorView.as_view(), name='ai-report-generator'),
+    ])),
+    
+    # Logs endpoints - Activity tracking and system logs
+    path('logs/', include([
+        path('search/', LogsSearchView.as_view(), name='logs-search'),
+        path('system/', LogsSystemView.as_view(), name='logs-system'),
+        path('stats/', LogsStatsView.as_view(), name='logs-stats'),
     ])),
     
     # System endpoints - Credentials Management

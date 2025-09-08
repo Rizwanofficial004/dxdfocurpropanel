@@ -259,11 +259,132 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/Timer/" -Method POST -Body $bo
 
 ---
 
+# 8. Logs API - Activity Tracking & System Logs
+
+## Logs Search API
+
+**Endpoint:** `/api/logs/search/`  
+**Method:** GET  
+**Purpose:** Search system logs and activity data with filtering
+
+### Query Parameters:
+- `q` (string, optional): Search query string
+- `start_date` (string, optional): Start date filter (YYYY-MM-DD format)
+- `end_date` (string, optional): End date filter (YYYY-MM-DD format) 
+- `user_email` (string, optional): Filter by specific user email
+- `activity_type` (string, optional): Filter by activity type (screenshot, api_call, authentication, error)
+- `limit` (integer, optional): Number of results to return (default: 100)
+
+### Example Request:
+```bash
+curl -X GET "http://127.0.0.1:8000/api/logs/search/?q=screenshot&user_email=haseebcodejourney@gmail.com&start_date=2025-01-09&limit=50"
+```
+
+### Response:
+```json
+{
+    "status": "success",
+    "count": 15,
+    "logs": [
+        {
+            "timestamp": "2025-01-09T10:30:00Z",
+            "activity_type": "screenshot",
+            "user_email": "haseebcodejourney@gmail.com",
+            "source": "s3",
+            "details": {
+                "file_path": "users_screenshots/2025-01-09/haseebcodejourney@gmail.com/screenshot_1234567890.png",
+                "file_size": 245760,
+                "bucket": "ddsfocustime"
+            },
+            "message": "Screenshot captured for haseebcodejourney@gmail.com"
+        }
+    ],
+    "search_params": {
+        "query": "screenshot",
+        "start_date": "2025-01-09",
+        "user_email": "haseebcodejourney@gmail.com",
+        "limit": 50
+    }
+}
+```
+
+## Logs System Info API
+
+**Endpoint:** `/api/logs/system/`  
+**Method:** GET  
+**Purpose:** Get system logging configuration and status
+
+### Example Request:
+```bash
+curl -X GET "http://127.0.0.1:8000/api/logs/system/"
+```
+
+### Response:
+```json
+{
+    "status": "success",
+    "logging_config": {
+        "level": "INFO",
+        "handlers": ["console", "file"],
+        "formatters": ["standard"]
+    },
+    "system_status": {
+        "django_logging": true,
+        "s3_access": true,
+        "database_logging": true
+    }
+}
+```
+
+## Logs Statistics API
+
+**Endpoint:** `/api/logs/stats/`  
+**Method:** GET  
+**Purpose:** Get logs analytics and statistics
+
+### Example Request:
+```bash
+curl -X GET "http://127.0.0.1:8000/api/logs/stats/"
+```
+
+### Response:
+```json
+{
+    "status": "success",
+    "stats": {
+        "last_24_hours": {
+            "total_logs": 150,
+            "by_type": {
+                "screenshot": 85,
+                "api_call": 40,
+                "authentication": 15,
+                "error": 10
+            },
+            "by_user": {
+                "haseebcodejourney@gmail.com": 35,
+                "kiranaiza4@gmail.com": 30,
+                "nawaz@dxdglobal.com": 20
+            }
+        },
+        "system_health": {
+            "error_rate": 6.7,
+            "avg_response_time": 245,
+            "active_users": 3
+        }
+    },
+    "generated_at": "2025-01-09T12:00:00Z"
+}
+```
+
+---
+
 ## 🚀 **RECENT DEVELOPMENTS**
 
 1. ✅ Enhanced users search with month/year filtering
 2. ✅ Employees details API combining S3 and CRM
 3. ✅ Removed `total_screenshots` field as requested
 4. 🔧 Timer API created (GET working, POST debugging in progress)
+5. ✅ Logs API implemented with search, system info, and statistics endpoints
+6. ✅ CORS configuration updated for frontend integration
 
 **All APIs are located in the dashboard folder as requested and use the `/api/` prefix.**
