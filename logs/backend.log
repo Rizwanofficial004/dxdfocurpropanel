@@ -7233,3 +7233,353 @@ INFO 2025-09-08 13:42:04,121 middleware 21552 8764 Request: POST /api/Timer/
 INFO 2025-09-08 13:42:04,258 middleware 21552 8764 Response: 404 for POST /api/Timer/
 WARNING 2025-09-08 13:42:04,261 log 21552 8764 Not Found: /api/Timer/
 WARNING 2025-09-08 13:42:04,262 basehttp 21552 8764 "POST /api/Timer/ HTTP/1.1" 404 9205
+INFO 2025-09-08 14:39:14,002 middleware 9368 22260 Request: GET /api/Timer/
+INFO 2025-09-08 14:39:14,042 middleware 9368 22260 Response: 200 for GET /api/Timer/
+INFO 2025-09-08 14:39:14,073 basehttp 9368 22260 "GET /api/Timer/ HTTP/1.1" 200 82
+INFO 2025-09-08 14:39:25,731 middleware 9368 22260 Request: POST /api/Timer/
+ERROR 2025-09-08 14:39:25,733 timer_api_views 9368 22260 Timer API POST error: name 'timer_service' is not defined
+INFO 2025-09-08 14:39:25,733 middleware 9368 22260 Response: 500 for POST /api/Timer/
+ERROR 2025-09-08 14:39:25,735 log 9368 22260 Internal Server Error: /api/Timer/
+ERROR 2025-09-08 14:39:25,737 basehttp 9368 22260 "POST /api/Timer/ HTTP/1.1" 500 89
+INFO 2025-09-08 14:39:43,586 middleware 9368 22260 Request: POST /api/Timer/
+ERROR 2025-09-08 14:39:43,587 timer_api_views 9368 22260 Timer API POST error: name 'timer_service' is not defined
+INFO 2025-09-08 14:39:43,587 middleware 9368 22260 Response: 500 for POST /api/Timer/
+ERROR 2025-09-08 14:39:43,588 log 9368 22260 Internal Server Error: /api/Timer/
+ERROR 2025-09-08 14:39:43,588 basehttp 9368 22260 "POST /api/Timer/ HTTP/1.1" 500 89
+INFO 2025-09-08 14:46:25,234 middleware 10884 20716 Request: GET /api/Timer/
+INFO 2025-09-08 14:46:25,244 middleware 10884 20716 Response: 200 for GET /api/Timer/
+INFO 2025-09-08 14:46:25,245 basehttp 10884 20716 "GET /api/Timer/ HTTP/1.1" 200 82
+INFO 2025-09-08 14:47:02,709 middleware 10884 20716 Request: POST /api/Timer/
+INFO 2025-09-08 14:47:04,402 middleware 10884 20716 Response: 404 for POST /api/Timer/
+WARNING 2025-09-08 14:47:04,404 log 10884 20716 Not Found: /api/Timer/
+WARNING 2025-09-08 14:47:04,405 basehttp 10884 20716 "POST /api/Timer/ HTTP/1.1" 404 88
+INFO 2025-09-08 14:47:19,224 middleware 10884 20716 Request: GET /api/Timer/
+INFO 2025-09-08 14:47:20,394 middleware 10884 20716 Response: 200 for GET /api/Timer/
+INFO 2025-09-08 14:47:20,395 basehttp 10884 20716 "GET /api/Timer/?action=sync HTTP/1.1" 200 99
+INFO 2025-09-08 14:58:46,784 middleware 10884 16620 Request: POST /api/auth/login/
+INFO 2025-09-08 14:58:46,799 middleware 10884 16620 Response: 404 for POST /api/auth/login/
+WARNING 2025-09-08 14:58:46,800 log 10884 16620 Not Found: /api/auth/login/
+WARNING 2025-09-08 14:58:46,801 basehttp 10884 16620 "POST /api/auth/login/ HTTP/1.1" 404 10814
+INFO 2025-09-08 14:59:08,187 middleware 10884 16620 Request: POST /api/auth/login/
+INFO 2025-09-08 14:59:08,200 middleware 10884 16620 Response: 404 for POST /api/auth/login/
+WARNING 2025-09-08 14:59:08,201 log 10884 16620 Not Found: /api/auth/login/
+WARNING 2025-09-08 14:59:08,201 basehttp 10884 16620 "POST /api/auth/login/ HTTP/1.1" 404 10814
+INFO 2025-09-08 14:59:45,752 middleware 10884 16620 Request: POST /api/auth/login/
+INFO 2025-09-08 14:59:45,764 middleware 10884 16620 Response: 404 for POST /api/auth/login/
+WARNING 2025-09-08 14:59:45,764 log 10884 16620 Not Found: /api/auth/login/
+WARNING 2025-09-08 14:59:45,765 basehttp 10884 16620 "POST /api/auth/login/ HTTP/1.1" 404 10814
+INFO 2025-09-08 15:00:01,306 middleware 10884 16620 Request: POST /api/auth/register/
+INFO 2025-09-08 15:00:01,319 middleware 10884 16620 Response: 404 for POST /api/auth/register/
+WARNING 2025-09-08 15:00:01,320 log 10884 16620 Not Found: /api/auth/register/
+WARNING 2025-09-08 15:00:01,320 basehttp 10884 16620 "POST /api/auth/register/ HTTP/1.1" 404 10823
+INFO 2025-09-08 15:01:03,790 middleware 10884 16424 Request: POST /api/auth/login/
+INFO 2025-09-08 15:01:03,803 middleware 10884 16424 Response: 404 for POST /api/auth/login/
+WARNING 2025-09-08 15:01:03,804 log 10884 16424 Not Found: /api/auth/login/
+WARNING 2025-09-08 15:01:03,805 basehttp 10884 16424 "POST /api/auth/login/ HTTP/1.1" 404 10814
+INFO 2025-09-08 15:01:06,137 middleware 10884 16424 Request: POST /api/auth/login/
+INFO 2025-09-08 15:01:06,148 middleware 10884 16424 Response: 404 for POST /api/auth/login/
+WARNING 2025-09-08 15:01:06,149 log 10884 16424 Not Found: /api/auth/login/
+WARNING 2025-09-08 15:01:06,149 basehttp 10884 16424 "POST /api/auth/login/ HTTP/1.1" 404 10814
+INFO 2025-09-08 15:01:11,602 middleware 10884 16424 Request: POST /api/auth/login/
+INFO 2025-09-08 15:01:11,617 middleware 10884 16424 Response: 404 for POST /api/auth/login/
+WARNING 2025-09-08 15:01:11,617 log 10884 16424 Not Found: /api/auth/login/
+WARNING 2025-09-08 15:01:11,618 basehttp 10884 16424 "POST /api/auth/login/ HTTP/1.1" 404 10814
+INFO 2025-09-08 15:14:05,396 middleware 11300 18832 Request: GET /api/auth/database-test/
+ERROR 2025-09-08 15:14:05,403 views 11300 18832 Database test error: no such function: VERSION
+INFO 2025-09-08 15:14:05,407 middleware 11300 18832 Response: 500 for GET /api/auth/database-test/
+ERROR 2025-09-08 15:14:05,409 log 11300 18832 Internal Server Error: /api/auth/database-test/
+ERROR 2025-09-08 15:14:05,410 basehttp 11300 18832 "GET /api/auth/database-test/ HTTP/1.1" 500 167
+INFO 2025-09-08 15:16:40,420 middleware 17560 16812 Request: POST /api/auth/register/
+INFO 2025-09-08 15:16:40,425 middleware 17560 16812 Response: 400 for POST /api/auth/register/
+WARNING 2025-09-08 15:16:40,427 log 17560 16812 Bad Request: /api/auth/register/
+WARNING 2025-09-08 15:16:40,428 basehttp 17560 16812 "POST /api/auth/register/ HTTP/1.1" 400 73
+INFO 2025-09-08 15:16:46,810 middleware 17560 16812 Request: POST /api/auth/register/
+ERROR 2025-09-08 15:16:49,004 views 17560 16812 Registration API error: type object 'Token' has no attribute 'objects'
+INFO 2025-09-08 15:16:49,005 middleware 17560 16812 Response: 500 for POST /api/auth/register/
+ERROR 2025-09-08 15:16:49,005 log 17560 16812 Internal Server Error: /api/auth/register/
+ERROR 2025-09-08 15:16:49,006 basehttp 17560 16812 "POST /api/auth/register/ HTTP/1.1" 500 98
+INFO 2025-09-08 15:18:57,991 middleware 22208 21976 Request: POST /api/auth/register/
+INFO 2025-09-08 15:18:57,997 middleware 22208 21976 Response: 400 for POST /api/auth/register/
+WARNING 2025-09-08 15:18:57,999 log 22208 21976 Bad Request: /api/auth/register/
+WARNING 2025-09-08 15:18:58,000 basehttp 22208 21976 "POST /api/auth/register/ HTTP/1.1" 400 54
+INFO 2025-09-08 15:19:05,301 middleware 22208 21976 Request: POST /api/auth/register/
+INFO 2025-09-08 15:19:07,118 views 22208 21976 New user registered: john.doe@example.com
+INFO 2025-09-08 15:19:07,119 middleware 22208 21976 Response: 201 for POST /api/auth/register/
+INFO 2025-09-08 15:19:07,120 basehttp 22208 21976 "POST /api/auth/register/ HTTP/1.1" 201 231
+INFO 2025-09-08 15:19:13,599 middleware 22208 21976 Request: POST /api/auth/login/
+INFO 2025-09-08 15:19:15,536 views 22208 21976 Login attempt: User=john.doe@example.com, Result=success, IP=127.0.0.1, UA=Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.6216
+INFO 2025-09-08 15:19:15,537 middleware 22208 21976 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:19:15,839 log 22208 21976 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:19:15,845 basehttp 22208 21976 "POST /api/auth/login/ HTTP/1.1" 400 86285
+INFO 2025-09-08 15:19:22,633 middleware 22208 12664 Request: GET /api/auth/database-test/
+ERROR 2025-09-08 15:19:22,637 views 22208 12664 Database test error: no such function: VERSION
+INFO 2025-09-08 15:19:22,638 middleware 22208 12664 Response: 500 for GET /api/auth/database-test/
+ERROR 2025-09-08 15:19:22,638 log 22208 12664 Internal Server Error: /api/auth/database-test/
+ERROR 2025-09-08 15:19:22,639 basehttp 22208 12664 "GET /api/auth/database-test/ HTTP/1.1" 500 167
+INFO 2025-09-08 15:19:43,046 middleware 22208 12664 Request: POST /api/auth/login/
+INFO 2025-09-08 15:19:44,928 views 22208 12664 Login attempt: User=john.doe@example.com, Result=success, IP=127.0.0.1, UA=Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.6216
+INFO 2025-09-08 15:19:44,929 middleware 22208 12664 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:19:44,987 log 22208 12664 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:19:44,991 basehttp 22208 12664 "POST /api/auth/login/ HTTP/1.1" 400 86283
+INFO 2025-09-08 15:22:00,013 middleware 21348 1380 Request: POST /api/auth/login/
+INFO 2025-09-08 15:22:01,895 views 21348 1380 Login attempt: User=john.doe@example.com, Result=success, IP=127.0.0.1, UA=Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.6216
+INFO 2025-09-08 15:22:01,896 middleware 21348 1380 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:22:01,961 log 21348 1380 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:22:01,967 basehttp 21348 1380 "POST /api/auth/login/ HTTP/1.1" 400 86560
+INFO 2025-09-08 15:22:06,821 middleware 21348 6240 Request: POST /api/auth/login/
+INFO 2025-09-08 15:22:08,491 views 21348 6240 Login attempt: User=john.doe@example.com, Result=success, IP=127.0.0.1, UA=Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.6216
+INFO 2025-09-08 15:22:08,491 middleware 21348 6240 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:22:08,541 log 21348 6240 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:22:08,547 basehttp 21348 6240 "POST /api/auth/login/ HTTP/1.1" 400 86425
+INFO 2025-09-08 15:22:51,435 middleware 10924 8612 Request: GET /api/auth/users/
+INFO 2025-09-08 15:22:51,445 middleware 10924 8612 Response: 200 for GET /api/auth/users/
+INFO 2025-09-08 15:22:51,449 basehttp 10924 8612 "GET /api/auth/users/ HTTP/1.1" 200 555
+INFO 2025-09-08 15:22:58,748 middleware 10924 8612 Request: POST /api/auth/simple-login/
+INFO 2025-09-08 15:22:58,750 simple_views 10924 8612 Login attempt: username=john.doe@example.com
+INFO 2025-09-08 15:23:00,490 middleware 10924 8612 Response: 200 for POST /api/auth/simple-login/
+INFO 2025-09-08 15:23:00,491 basehttp 10924 8612 "POST /api/auth/simple-login/ HTTP/1.1" 200 219
+INFO 2025-09-08 15:23:08,997 middleware 10924 8612 Request: POST /api/auth/register/
+INFO 2025-09-08 15:23:09,001 middleware 10924 8612 Response: 400 for POST /api/auth/register/
+WARNING 2025-09-08 15:23:09,003 log 10924 8612 Bad Request: /api/auth/register/
+WARNING 2025-09-08 15:23:09,004 basehttp 10924 8612 "POST /api/auth/register/ HTTP/1.1" 400 54
+INFO 2025-09-08 15:23:15,256 middleware 10924 8612 Request: POST /api/auth/simple-login/
+INFO 2025-09-08 15:23:15,257 simple_views 10924 8612 Login attempt: username=newuser@example.com
+INFO 2025-09-08 15:23:16,907 middleware 10924 8612 Response: 200 for POST /api/auth/simple-login/
+INFO 2025-09-08 15:23:16,908 basehttp 10924 8612 "POST /api/auth/simple-login/ HTTP/1.1" 200 217
+INFO 2025-09-08 15:24:03,665 middleware 10924 16436 Request: POST /api/auth/register/
+INFO 2025-09-08 15:24:03,682 middleware 10924 16436 Response: 400 for POST /api/auth/register/
+WARNING 2025-09-08 15:24:03,683 log 10924 16436 Bad Request: /api/auth/register/
+WARNING 2025-09-08 15:24:03,684 basehttp 10924 16436 "POST //api/auth/register/ HTTP/1.1" 400 54
+INFO 2025-09-08 15:24:35,579 middleware 10924 16436 Request: POST /api/auth/register/
+INFO 2025-09-08 15:24:37,459 views 10924 16436 New user registered: hamza@example.com
+INFO 2025-09-08 15:24:37,459 middleware 10924 16436 Response: 201 for POST /api/auth/register/
+INFO 2025-09-08 15:24:37,460 basehttp 10924 16436 "POST //api/auth/register/ HTTP/1.1" 201 225
+INFO 2025-09-08 15:25:12,530 middleware 10924 16436 Request: POST /api/auth/login/
+INFO 2025-09-08 15:25:14,194 views 10924 16436 Login attempt: User=hamza@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 15:25:14,195 middleware 10924 16436 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:25:14,255 log 10924 16436 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:25:14,260 basehttp 10924 16436 "POST //api/auth/login/ HTTP/1.1" 400 86762
+INFO 2025-09-08 15:25:43,058 middleware 10924 6308 Request: POST /api/auth/login/
+INFO 2025-09-08 15:25:44,747 views 10924 6308 Login attempt: User=hamza@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 15:25:44,747 middleware 10924 6308 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:25:44,790 log 10924 6308 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:25:44,794 basehttp 10924 6308 "POST //api/auth/login/ HTTP/1.1" 400 86763
+INFO 2025-09-08 15:27:57,246 middleware 10924 22396 Request: POST /api/auth/login/
+INFO 2025-09-08 15:27:59,316 views 10924 22396 Login attempt: User=newuser@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 15:27:59,317 middleware 10924 22396 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:27:59,361 log 10924 22396 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:27:59,365 basehttp 10924 22396 "POST //api/auth/login/ HTTP/1.1" 400 86765
+INFO 2025-09-08 15:30:51,381 middleware 10924 18736 Request: POST /api/auth/register/
+INFO 2025-09-08 15:30:51,382 middleware 10924 18736 Response: 400 for POST /api/auth/register/
+WARNING 2025-09-08 15:30:51,383 log 10924 18736 Bad Request: /api/auth/register/
+WARNING 2025-09-08 15:30:51,383 basehttp 10924 18736 "POST //api/auth/register/ HTTP/1.1" 400 73
+INFO 2025-09-08 15:31:28,288 middleware 10924 18736 Request: POST /api/auth/register/
+INFO 2025-09-08 15:31:30,420 views 10924 18736 New user registered: hamza11@example.com
+INFO 2025-09-08 15:31:30,421 middleware 10924 18736 Response: 201 for POST /api/auth/register/
+INFO 2025-09-08 15:31:30,422 basehttp 10924 18736 "POST //api/auth/register/ HTTP/1.1" 201 222
+INFO 2025-09-08 15:31:48,833 middleware 10924 18736 Request: POST /api/auth/login/
+INFO 2025-09-08 15:31:50,861 views 10924 18736 Login attempt: User=hamza11@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 15:31:50,862 middleware 10924 18736 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:31:50,915 log 10924 18736 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:31:50,921 basehttp 10924 18736 "POST //api/auth/login/ HTTP/1.1" 400 86766
+INFO 2025-09-08 15:32:05,303 middleware 10924 20980 Request: POST /api/auth/login/
+INFO 2025-09-08 15:32:07,398 views 10924 20980 Login attempt: User=hamza11@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 15:32:07,399 middleware 10924 20980 Response: 200 for POST /api/auth/login/
+WARNING 2025-09-08 15:32:07,443 log 10924 20980 The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.: /api/auth/login/
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 59, in process_response
+    request.session.save()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\backends\cache.py", line 89, in save
+    raise UpdateError
+django.contrib.sessions.backends.base.UpdateError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\utils\deprecation.py", line 122, in __call__
+    response = self.process_response(request, response)
+  File "C:\Users\DDS\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\sessions\middleware.py", line 61, in process_response
+    raise SessionInterrupted(
+    ...<3 lines>...
+    )
+django.contrib.sessions.exceptions.SessionInterrupted: The request's session was deleted before the request completed. The user may have logged out in a concurrent request, for example.
+WARNING 2025-09-08 15:32:07,446 basehttp 10924 20980 "POST //api/auth/login/ HTTP/1.1" 400 86765
+INFO 2025-09-08 15:59:46,147 middleware 14028 7428 Request: POST /api/auth/register/
+INFO 2025-09-08 15:59:47,781 views 14028 7428 New user registered: nawaz@example.com
+INFO 2025-09-08 15:59:47,782 middleware 14028 7428 Response: 201 for POST /api/auth/register/
+INFO 2025-09-08 15:59:47,783 basehttp 14028 7428 "POST //api/auth/register/ HTTP/1.1" 201 225
+INFO 2025-09-08 16:00:25,753 middleware 14028 7428 Request: POST /api/auth/login/
+INFO 2025-09-08 16:00:27,476 views 14028 7428 Login attempt: User=nawaz@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 16:00:27,476 middleware 14028 7428 Response: 200 for POST /api/auth/login/
+INFO 2025-09-08 16:00:27,477 basehttp 14028 7428 "POST //api/auth/login/ HTTP/1.1" 200 622
+INFO 2025-09-08 16:01:12,034 middleware 14028 7428 Request: POST /api/auth/register/
+INFO 2025-09-08 16:01:13,566 views 14028 7428 New user registered: HB@example.com
+INFO 2025-09-08 16:01:13,567 middleware 14028 7428 Response: 201 for POST /api/auth/register/
+INFO 2025-09-08 16:01:13,568 basehttp 14028 7428 "POST //api/auth/register/ HTTP/1.1" 201 216
+INFO 2025-09-08 16:01:58,245 middleware 14028 7428 Request: POST /api/auth/login/
+INFO 2025-09-08 16:01:59,801 views 14028 7428 Login attempt: User=HB@example.com, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.45.0
+INFO 2025-09-08 16:01:59,802 middleware 14028 7428 Response: 200 for POST /api/auth/login/
+INFO 2025-09-08 16:01:59,802 basehttp 14028 7428 "POST //api/auth/login/ HTTP/1.1" 200 605

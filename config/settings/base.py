@@ -40,12 +40,14 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
 ]
 
 LOCAL_APPS = [
     'apps.dashboard',
     'apps.users',
+    'apps.auth_api',
     'core',
 ]
 
