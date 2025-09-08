@@ -158,6 +158,8 @@
   background: #f8f9fa;
   flex-wrap: wrap;
   gap: 16px;
+  position: relative;
+  z-index: 998;
 }
 
 .header-left {
@@ -196,6 +198,44 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  z-index: 999;
+  position: relative;
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+
+.user-search-input {
+  padding: 8px 40px 8px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  color: #202124;
+  min-width: 250px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.user-search-input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
+.user-search-input::placeholder {
+  color: #5f6368;
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  color: #5f6368;
+  font-size: 16px;
+  pointer-events: none;
 }
 
 .team-button {

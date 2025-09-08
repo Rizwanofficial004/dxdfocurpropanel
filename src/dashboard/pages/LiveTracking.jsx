@@ -5,7 +5,7 @@ import './LiveTracking.css';
 
 const LiveTracking = () => {
   const { t } = useLanguage();
-  const [selectedTeam, setSelectedTeam] = useState('All Teams');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(16);
 
@@ -37,28 +37,15 @@ const LiveTracking = () => {
               </h1>
             </div>
             <div className="header-controls">
-              <button className="team-button">
-                Choose a team
-              </button>
-              <select 
-                className="team-dropdown" 
-                value={selectedTeam} 
-                onChange={(e) => setSelectedTeam(e.target.value)}
-              >
-                <option>All Teams</option>
-                <option>Development</option>
-                <option>Design</option>
-                <option>Marketing</option>
-              </select>
-              <div className="date-time-controls">
-                <div className="date-picker">
-                  <span className="icon">📅</span>
-                  <span>Date: 08-09-2025</span>
-                </div>
-                <div className="time-picker">
-                  <span className="icon">🕐</span>
-                  <span>03:09:02 PM</span>
-                </div>
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Search user..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="user-search-input"
+                />
+                <span className="search-icon">🔍</span>
               </div>
             </div>
           </div>
