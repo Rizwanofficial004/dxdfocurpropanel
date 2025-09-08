@@ -88,6 +88,9 @@ urlpatterns = [
     path('app-styling-css/', AppStylingCSSAPIView.as_view(), name='app-styling-css'),
     path('app-styling-css/<int:styling_id>/', AppStylingCSSAPIView.as_view(), name='app-styling-css-by-id'),
     
+    # Global Styling API - Simplified access to global application styling
+    path('styling/global/', AppStylingAPIView.as_view(), name='global-styling'),
+    
     # S3 Timer API - S3 Integration for Timer Management (Temporarily disabled)
     # path('Timer/s3/', S3TimerAPIView.as_view(), name='s3-timer-api'),
     # path('Timer/s3/screenshots/', S3ScreenshotAPIView.as_view(), name='s3-screenshot-api'),
