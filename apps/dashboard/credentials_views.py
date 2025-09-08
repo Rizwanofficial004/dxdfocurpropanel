@@ -1,23 +1,317 @@
 """
-Credentials management views for handling service configurations
+Comprehensive credentials management views for handling system configurations
+Supports AWS, Database, OpenAI, and Auth credentials
 """
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 from django.utils.decorators import method_decorator
-from core.credentials import CredentialsManager
+from django.views.decorators.csrf import csrf_exempt
 import os
-import boto3
-import openai
-import requests
-import mysql.connector
-from django.conf import settings
 import logging
+import requests
+try:
+    import boto3
+except ImportError:
+    boto3 = None
+try:
+    import mysql.connector
+except ImportError:
+    mysql = None
+from .models import SystemCredentials
+from .credentials_serializers import (
+    SystemCredentialsSerializer, 
+    SystemCredentialsCreateSerializer, 
+    SystemCredentialsSummarySerializer
+)
 
 logger = logging.getLogger(__name__)
+
+
+class SetAllCredentialsAPIView(APIView):
+    """
+    API View to SET all credential values in one comprehensive request
+    POST: Set AWS, Database, OpenAI, and Auth credentials at once
+    """
+    authentication_classes = []  # No authentication required
+    permission_classes = []       # No permissions required
+    
+    def post(self, request):
+        """Set all credential values in one request"""
+        try:
+            # Get all data from request
+            data = request.data.copy()
+            
+            # Set default credential name if not provided
+            if 'credential_name' not in data or not data['credential_name']:
+                data['credential_name'] = f"Credentials Config {SystemCredentials.objects.count() + 1}"
+            
+            # Set default credential type if not provided
+            if 'credential_type' not in data:
+                # Auto-detect type based on provided fields
+                if data.get('aws_access_key_id') or data.get('aws_secret_access_key'):
+                    data['credential_type'] = 'aws'
+                elif data.get('db_host') or data.get('db_name'):
+                    data['credential_type'] = 'database'
+                elif data.get('openai_api_key'):
+                    data['credential_type'] = 'openai'
+                elif data.get('auth_token'):
+                    data['credential_type'] = 'auth'
+                else:
+                    data['credential_type'] = 'general'
+            
+            # Ensure this credential becomes active
+            data['is_active'] = True
+            
+            # Validate data using serializer
+            serializer = SystemCredentialsCreateSerializer(data=data)
+            
+            if serializer.is_valid():
+                # Deactivate other credentials of the same type if this is set as default
+                credential_type = serializer.validated_data.get('credential_type')
+                if serializer.validated_data.get('is_default', False):
+                    SystemCredentials.objects.filter(
+                        credential_type=credential_type
+                    ).update(is_default=False)
+                
+                # Create the new credentials
+                credentials = SystemCredentials.objects.create(**serializer.validated_data)
+                
+                # Prepare detailed response
+                response_serializer = SystemCredentialsSerializer(credentials)
+                credentials_data = response_serializer.data
+                
+                return Response({
+                    "status": "success",
+                    "message": f"All credential values set successfully for '{credentials.credential_name}'",
+                    "data": {
+                        "credentials": credentials_data,
+                        "summary": {
+                            "credential_name": credentials.credential_name,
+                            "credential_type": credentials.credential_type,
+                            "environment": credentials.environment,
+                            "is_active": credentials.is_active,
+                            "is_default": credentials.is_default,
+                            "total_fields_set": len([k for k in credentials_data.keys() if credentials_data[k] not in [None, '', {}]]),
+                            "created_at": credentials_data['created_at']
+                        }
+                    }
+                }, status=status.HTTP_201_CREATED)
+            
+            else:
+                # Return validation errors with field details
+                error_details = {}
+                for field, errors in serializer.errors.items():
+                    error_details[field] = errors
+                
+                return Response({
+                    "status": "error",
+                    "message": "Invalid credential data provided",
+                    "errors": error_details,
+                    "help": {
+                        "aws": "AWS credentials need: aws_access_key_id, aws_secret_access_key",
+                        "database": "Database credentials need: db_host, db_name, db_username",
+                        "openai": "OpenAI credentials need: openai_api_key (starts with 'sk-')",
+                        "auth": "Auth credentials need: auth_token",
+                        "credential_name": "Credential name is required and should be unique"
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"Error setting credential values: {str(e)}",
+                "debug_info": {
+                    "received_data": request.data,
+                    "error_type": type(e).__name__
+                }
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def get(self, request):
+        """Get template/example for setting all credential values"""
+        try:
+            # Return comprehensive templates for all credential types
+            templates = {
+                "aws_credentials": {
+                    "credential_name": "My AWS Config",
+                    "credential_type": "aws",
+                    "description": "AWS S3 and services configuration",
+                    "aws_access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                    "aws_secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+                    "aws_region": "us-west-2",
+                    "aws_bucket_name": "my-app-bucket",
+                    "environment": "production"
+                },
+                "database_credentials": {
+                    "credential_name": "My Database Config",
+                    "credential_type": "database",
+                    "description": "Production database connection",
+                    "db_host": "localhost",
+                    "db_port": "5432",
+                    "db_name": "myapp_db",
+                    "db_username": "db_user",
+                    "db_password": "secure_password",
+                    "db_type": "postgresql",
+                    "environment": "production"
+                },
+                "openai_credentials": {
+                    "credential_name": "My OpenAI Config",
+                    "credential_type": "openai",
+                    "description": "OpenAI API configuration",
+                    "openai_api_key": "sk-1234567890abcdef1234567890abcdef",
+                    "openai_model": "gpt-4",
+                    "openai_organization": "org-123456789",
+                    "environment": "production"
+                },
+                "auth_credentials": {
+                    "credential_name": "My Auth Config",
+                    "credential_type": "auth",
+                    "description": "Authentication tokens",
+                    "auth_token": "your-auth-token-here",
+                    "auth_refresh_token": "your-refresh-token-here",
+                    "auth_token_expires_at": "2025-12-31T23:59:59Z",
+                    "environment": "production"
+                },
+                "general_credentials": {
+                    "credential_name": "My General Config",
+                    "credential_type": "general",
+                    "description": "General API configuration",
+                    "api_base_url": "https://api.example.com",
+                    "api_timeout": 30,
+                    "debug_mode": False,
+                    "environment": "production"
+                }
+            }
+            
+            return Response({
+                "status": "success",
+                "message": "Templates for setting all credential values",
+                "data": {
+                    "templates": templates,
+                    "usage": {
+                        "method": "POST",
+                        "endpoint": "/api/set-all-credentials/",
+                        "description": "Send JSON data with credentials for any type",
+                        "note": "credential_name is required, credential_type is auto-detected"
+                    },
+                    "credential_types": {
+                        "aws": "AWS S3 and services credentials",
+                        "database": "Database connection credentials", 
+                        "openai": "OpenAI API key and configuration",
+                        "auth": "Authentication tokens",
+                        "general": "General API configuration"
+                    }
+                }
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"Error getting templates: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GetAllCredentialsAPIView(APIView):
+    """
+    API View to GET all credential values that have been set
+    GET: Retrieve all credential configurations with detailed information
+    """
+    authentication_classes = []  # No authentication required
+    permission_classes = []       # No permissions required
+    
+    def get(self, request):
+        """Get all credential values/configurations"""
+        try:
+            # Query parameters for filtering
+            active_only = request.GET.get('active_only', 'false').lower() == 'true'
+            credential_type = request.GET.get('credential_type')
+            credential_id = request.GET.get('credential_id')
+            credential_name = request.GET.get('credential_name')
+            environment = request.GET.get('environment')
+            
+            # Filter credentials based on parameters
+            credentials = SystemCredentials.objects.all()
+            
+            if active_only:
+                credentials = credentials.filter(is_active=True)
+            
+            if credential_type:
+                credentials = credentials.filter(credential_type=credential_type)
+            
+            if credential_id:
+                credentials = credentials.filter(id=credential_id)
+            
+            if credential_name:
+                credentials = credentials.filter(credential_name__icontains=credential_name)
+            
+            if environment:
+                credentials = credentials.filter(environment=environment)
+            
+            # Order by most recently updated and active first
+            credentials = credentials.order_by('-is_active', '-is_default', '-updated_at')
+            
+            # Prepare response data
+            result = []
+            for credential in credentials:
+                serializer = SystemCredentialsSerializer(credential)
+                credential_data = serializer.data
+                
+                # Add summary information
+                credential_data['credential_summary'] = {
+                    "is_currently_active": credential.is_active,
+                    "is_default": credential.is_default,
+                    "total_fields": len([k for k in credential_data.keys() if credential_data[k] is not None]),
+                    "has_aws": bool(credential.aws_access_key_id),
+                    "has_database": bool(credential.db_host and credential.db_name),
+                    "has_openai": bool(credential.openai_api_key),
+                    "has_auth": bool(credential.auth_token),
+                    "created_days_ago": (timezone.now() - credential.created_at).days if credential.created_at else None
+                }
+                
+                result.append(credential_data)
+            
+            # Get active credentials by type for quick reference
+            active_credentials_by_type = {}
+            for cred_type in ['aws', 'database', 'openai', 'auth', 'general']:
+                active_cred = SystemCredentials.get_default_credentials(cred_type)
+                if active_cred:
+                    active_credentials_by_type[cred_type] = {
+                        "id": active_cred.id,
+                        "credential_name": active_cred.credential_name,
+                        "environment": active_cred.environment,
+                        "is_default": active_cred.is_default
+                    }
+            
+            return Response({
+                "status": "success",
+                "message": f"Retrieved {len(result)} credential configuration(s)",
+                "data": {
+                    "credential_configurations": result,
+                    "active_credentials_by_type": active_credentials_by_type,
+                    "total_count": len(result),
+                    "filters_applied": {
+                        "active_only": active_only,
+                        "credential_type": credential_type,
+                        "credential_id": credential_id,
+                        "credential_name": credential_name,
+                        "environment": environment
+                    }
+                }
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"Error retrieving credential values: {str(e)}",
+                "debug_info": {
+                    "query_params": dict(request.GET),
+                    "error_type": type(e).__name__
+                }
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CredentialsStatusView(APIView):

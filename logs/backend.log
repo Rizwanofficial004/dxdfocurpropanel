@@ -7957,3 +7957,111 @@ INFO 2025-09-08 18:52:02,853 basehttp 20964 16712 "POST /api/flexible-get-value/
 INFO 2025-09-08 18:52:08,739 middleware 20964 16712 Request: POST /api/flexible-get-value/
 INFO 2025-09-08 18:52:08,743 middleware 20964 16712 Response: 200 for POST /api/flexible-get-value/
 INFO 2025-09-08 18:52:08,744 basehttp 20964 16712 "POST /api/flexible-get-value/ HTTP/1.1" 200 444
+INFO 2025-09-08 19:21:42,356 middleware 17616 20496 Request: POST /api/auto-set-styling/
+INFO 2025-09-08 19:21:42,404 middleware 17616 20496 Response: 201 for POST /api/auto-set-styling/
+INFO 2025-09-08 19:21:42,406 basehttp 17616 20496 "POST /api/auto-set-styling/ HTTP/1.1" 201 1086
+INFO 2025-09-08 19:22:47,576 middleware 17616 14360 Request: POST /api/auto-set-styling/
+INFO 2025-09-08 19:22:47,617 middleware 17616 14360 Response: 200 for POST /api/auto-set-styling/
+INFO 2025-09-08 19:22:47,618 basehttp 17616 14360 "POST /api/auto-set-styling/ HTTP/1.1" 200 1086
+INFO 2025-09-08 19:22:55,119 middleware 17616 14360 Request: POST /api/auto-set-styling/
+INFO 2025-09-08 19:22:55,145 middleware 17616 14360 Response: 200 for POST /api/auto-set-styling/
+INFO 2025-09-08 19:22:55,146 basehttp 17616 14360 "POST /api/auto-set-styling/ HTTP/1.1" 200 1086
+INFO 2025-09-08 19:23:02,744 middleware 17616 14360 Request: POST /api/auto-get-styling/
+INFO 2025-09-08 19:23:02,752 middleware 17616 14360 Response: 200 for POST /api/auto-get-styling/
+INFO 2025-09-08 19:23:02,753 basehttp 17616 14360 "POST /api/auto-get-styling/ HTTP/1.1" 200 1114
+INFO 2025-09-08 19:26:41,721 middleware 13220 20132 Request: POST /api/quick-set-styling/
+INFO 2025-09-08 19:26:41,786 middleware 13220 20132 Response: 201 for POST /api/quick-set-styling/
+INFO 2025-09-08 19:26:41,787 basehttp 13220 20132 "POST /api/quick-set-styling/ HTTP/1.1" 201 1060
+INFO 2025-09-08 19:26:48,988 middleware 13220 20132 Request: GET /api/app-styling/
+INFO 2025-09-08 19:26:48,997 middleware 13220 20132 Response: 200 for GET /api/app-styling/
+INFO 2025-09-08 19:26:48,998 basehttp 13220 20132 "GET /api/app-styling/ HTTP/1.1" 200 1041
+INFO 2025-09-08 19:26:56,560 middleware 13220 20132 Request: GET /api/app-styling-css/
+INFO 2025-09-08 19:26:56,564 middleware 13220 20132 Response: 200 for GET /api/app-styling-css/
+INFO 2025-09-08 19:26:56,565 basehttp 13220 20132 "GET /api/app-styling-css/ HTTP/1.1" 200 663
+INFO 2025-09-08 19:31:15,487 middleware 3024 21588 Request: GET /api/set-all-styling/
+INFO 2025-09-08 19:31:15,493 middleware 3024 21588 Response: 200 for GET /api/set-all-styling/
+INFO 2025-09-08 19:31:15,493 basehttp 3024 21588 "GET /api/set-all-styling/ HTTP/1.1" 200 1109
+INFO 2025-09-08 19:31:27,142 middleware 3024 21588 Request: POST /api/set-all-styling/
+INFO 2025-09-08 19:31:27,167 middleware 3024 21588 Response: 201 for POST /api/set-all-styling/
+INFO 2025-09-08 19:31:27,168 basehttp 3024 21588 "POST /api/set-all-styling/ HTTP/1.1" 201 1819
+INFO 2025-09-08 19:31:37,357 middleware 3024 21588 Request: POST /api/set-all-styling/
+INFO 2025-09-08 19:31:37,413 middleware 3024 21588 Response: 201 for POST /api/set-all-styling/
+INFO 2025-09-08 19:31:37,414 basehttp 3024 21588 "POST /api/set-all-styling/ HTTP/1.1" 201 1680
+INFO 2025-09-08 19:31:46,472 middleware 3024 21588 Request: GET /api/app-styling/
+INFO 2025-09-08 19:31:46,479 middleware 3024 21588 Response: 200 for GET /api/app-styling/
+INFO 2025-09-08 19:31:46,480 basehttp 3024 21588 "GET /api/app-styling/ HTTP/1.1" 200 986
+INFO 2025-09-08 19:31:54,684 middleware 3024 21588 Request: POST /api/set-all-styling/
+INFO 2025-09-08 19:31:54,688 middleware 3024 21588 Response: 400 for POST /api/set-all-styling/
+WARNING 2025-09-08 19:31:54,690 log 3024 21588 Bad Request: /api/set-all-styling/
+WARNING 2025-09-08 19:31:54,691 basehttp 3024 21588 "POST /api/set-all-styling/ HTTP/1.1" 400 518
+INFO 2025-09-08 19:33:35,356 middleware 3024 3808 Request: POST /api/set-all-styling/
+INFO 2025-09-08 19:33:35,406 middleware 3024 3808 Response: 201 for POST /api/set-all-styling/
+INFO 2025-09-08 19:33:35,407 basehttp 3024 3808 "POST /api/set-all-styling/ HTTP/1.1" 201 1806
+INFO 2025-09-08 19:36:41,604 middleware 21168 11508 Request: GET /api/get-all-styling/
+INFO 2025-09-08 19:36:41,627 middleware 21168 11508 Response: 200 for GET /api/get-all-styling/
+INFO 2025-09-08 19:36:41,628 basehttp 21168 11508 "GET /api/get-all-styling/ HTTP/1.1" 200 7000
+INFO 2025-09-08 19:36:53,370 middleware 21168 11508 Request: GET /api/get-all-styling/
+INFO 2025-09-08 19:36:53,377 middleware 21168 11508 Response: 200 for GET /api/get-all-styling/
+INFO 2025-09-08 19:36:53,378 basehttp 21168 11508 "GET /api/get-all-styling/?active_only=true HTTP/1.1" 200 2063
+INFO 2025-09-08 19:37:02,129 middleware 21168 11508 Request: GET /api/get-all-styling/
+INFO 2025-09-08 19:37:02,152 middleware 21168 11508 Response: 200 for GET /api/get-all-styling/
+INFO 2025-09-08 19:37:02,153 basehttp 21168 11508 "GET /api/get-all-styling/?theme_name=Minimal HTTP/1.1" 200 1955
+INFO 2025-09-08 19:38:03,706 middleware 21168 16344 Request: GET /api/get-all-styling/
+INFO 2025-09-08 19:38:03,718 middleware 21168 16344 Response: 200 for GET /api/get-all-styling/
+INFO 2025-09-08 19:38:03,719 basehttp 21168 16344 "GET /api/get-all-styling/ HTTP/1.1" 200 7000
+INFO 2025-09-08 19:49:06,015 middleware 3304 15876 Request: POST /api/set-all-credentials/
+INFO 2025-09-08 19:49:06,047 middleware 3304 15876 Response: 201 for POST /api/set-all-credentials/
+INFO 2025-09-08 19:49:06,053 basehttp 3304 15876 "POST /api/set-all-credentials/ HTTP/1.1" 201 2149
+INFO 2025-09-08 19:49:06,063 middleware 3304 12740 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,086 middleware 3304 12740 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,087 basehttp 3304 12740 "GET /api/get-all-credentials/ HTTP/1.1" 200 2385
+INFO 2025-09-08 19:49:06,101 middleware 3304 16600 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,123 middleware 3304 16600 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,124 basehttp 3304 16600 "GET /api/get-all-credentials/?type=aws HTTP/1.1" 200 2385
+INFO 2025-09-08 19:49:06,134 middleware 3304 17960 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,156 middleware 3304 17960 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,157 basehttp 3304 17960 "GET /api/get-all-credentials/?type=database HTTP/1.1" 200 2385
+INFO 2025-09-08 19:49:06,167 middleware 3304 15548 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,192 middleware 3304 15548 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,192 basehttp 3304 15548 "GET /api/get-all-credentials/?type=openai HTTP/1.1" 200 2385
+INFO 2025-09-08 19:49:06,204 middleware 3304 9124 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,224 middleware 3304 9124 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:06,225 basehttp 3304 9124 "GET /api/get-all-credentials/?type=auth HTTP/1.1" 200 2385
+INFO 2025-09-08 19:49:06,242 middleware 3304 1232 Request: POST /api/set-all-credentials/
+INFO 2025-09-08 19:49:06,248 middleware 3304 1232 Response: 400 for POST /api/set-all-credentials/
+WARNING 2025-09-08 19:49:06,250 log 3304 1232 Bad Request: /api/set-all-credentials/
+WARNING 2025-09-08 19:49:06,250 basehttp 3304 1232 "POST /api/set-all-credentials/ HTTP/1.1" 400 499
+INFO 2025-09-08 19:49:39,171 middleware 3304 8948 Request: POST /api/set-all-credentials/
+INFO 2025-09-08 19:49:39,192 middleware 3304 8948 Response: 201 for POST /api/set-all-credentials/
+INFO 2025-09-08 19:49:39,193 basehttp 3304 8948 "POST /api/set-all-credentials/ HTTP/1.1" 201 2152
+INFO 2025-09-08 19:49:39,207 middleware 3304 5444 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,235 middleware 3304 5444 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,237 basehttp 3304 5444 "GET /api/get-all-credentials/ HTTP/1.1" 200 4387
+INFO 2025-09-08 19:49:39,259 middleware 3304 10856 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,286 middleware 3304 10856 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,287 basehttp 3304 10856 "GET /api/get-all-credentials/?type=aws HTTP/1.1" 200 4387
+INFO 2025-09-08 19:49:39,311 middleware 3304 1124 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,335 middleware 3304 1124 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,336 basehttp 3304 1124 "GET /api/get-all-credentials/?type=database HTTP/1.1" 200 4387
+INFO 2025-09-08 19:49:39,358 middleware 3304 16512 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,387 middleware 3304 16512 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,389 basehttp 3304 16512 "GET /api/get-all-credentials/?type=openai HTTP/1.1" 200 4387
+INFO 2025-09-08 19:49:39,421 middleware 3304 11036 Request: GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,452 middleware 3304 11036 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-08 19:49:39,453 basehttp 3304 11036 "GET /api/get-all-credentials/?type=auth HTTP/1.1" 200 4387
+INFO 2025-09-08 19:49:39,494 middleware 3304 12392 Request: POST /api/set-all-credentials/
+INFO 2025-09-08 19:49:39,503 middleware 3304 12392 Response: 400 for POST /api/set-all-credentials/
+WARNING 2025-09-08 19:49:39,504 log 3304 12392 Bad Request: /api/set-all-credentials/
+WARNING 2025-09-08 19:49:39,508 basehttp 3304 12392 "POST /api/set-all-credentials/ HTTP/1.1" 400 499
+INFO 2025-09-08 19:57:14,043 middleware 3304 18888 Request: POST /api/set-all-credentials/
+INFO 2025-09-08 19:57:14,080 middleware 3304 18888 Response: 201 for POST /api/set-all-credentials/
+INFO 2025-09-08 19:57:14,082 basehttp 3304 18888 "POST /api/set-all-credentials/ HTTP/1.1" 201 1655
+INFO 2025-09-08 19:57:47,360 middleware 3304 18888 Request: GET /api/set-all-credentials/
+INFO 2025-09-08 19:57:47,361 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
+INFO 2025-09-08 19:57:47,362 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928
+INFO 2025-09-08 19:58:15,074 middleware 3304 18888 Request: POST /api/set-all-credentials/
+INFO 2025-09-08 19:58:15,109 middleware 3304 18888 Response: 201 for POST /api/set-all-credentials/
+INFO 2025-09-08 19:58:15,110 basehttp 3304 18888 "POST /api/set-all-credentials/ HTTP/1.1" 201 1658
+INFO 2025-09-08 19:58:41,726 middleware 3304 18888 Request: GET /api/set-all-credentials/
+INFO 2025-09-08 19:58:41,727 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
+INFO 2025-09-08 19:58:41,727 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928

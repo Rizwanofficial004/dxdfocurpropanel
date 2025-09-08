@@ -358,6 +358,202 @@ class UserTimer(models.Model):
         super().save(*args, **kwargs)
 
 
+class AppStyling(models.Model):
+    """
+    Model to store global application styling/theme configurations
+    This is for general app styling, not user-specific
+    """
+    # Styling identification
+    theme_name = models.CharField(max_length=100, default="Default Theme", help_text="Name of the theme")
+    description = models.CharField(max_length=200, blank=True, help_text="Description of the styling theme")
+    
+    # Color configurations
+    primary_color = models.CharField(max_length=50, default="#1E90FF", help_text="HEX or RGB format (e.g., #1E90FF or rgb(30,144,255))")
+    secondary_color = models.CharField(max_length=50, default="#32CD32", help_text="HEX or RGB format")
+    background_color = models.CharField(max_length=50, default="#FFFFFF", help_text="HEX or RGB format")
+    button_color = models.CharField(max_length=50, default="#007BFF", help_text="HEX or RGB format")
+    text_color = models.CharField(max_length=50, default="#333333", help_text="HEX or RGB format")
+    
+    # Font configurations
+    heading_font_size = models.CharField(max_length=20, default="24px", help_text="Font size in px or rem (e.g., '24px', '1.5rem')")
+    body_font_size = models.CharField(max_length=20, default="16px", help_text="Font size in px or rem")
+    font_family = models.CharField(max_length=100, default="Arial", help_text="Font family name (e.g., 'Roboto', 'Arial')")
+    
+    # Border configurations
+    border_radius = models.CharField(max_length=20, default="5px", blank=True, help_text="Border radius (e.g., '5px')")
+    
+    # Status
+    is_active = models.BooleanField(default=True, help_text="Whether this styling is currently active for the application")
+    is_default = models.BooleanField(default=False, help_text="Whether this is the default theme")
+    
+    # Metadata
+    created_by = models.CharField(max_length=100, blank=True, help_text="Who created this theme")
+    version = models.CharField(max_length=20, default="1.0", help_text="Theme version")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "App Styling"
+        verbose_name_plural = "App Stylings"
+        ordering = ['-is_active', '-is_default', '-updated_at']
+    
+    def __str__(self):
+        status = " (Active)" if self.is_active else ""
+        default = " (Default)" if self.is_default else ""
+        return f"{self.theme_name}{status}{default}"
+    
+    @property
+    def color_palette(self):
+        """Return all colors as a dictionary"""
+        return {
+            'primary': self.primary_color,
+            'secondary': self.secondary_color,
+            'background': self.background_color,
+            'button': self.button_color,
+            'text': self.text_color
+        }
+    
+    @property
+    def font_settings(self):
+        """Return all font settings as a dictionary"""
+        return {
+            'heading_size': self.heading_font_size,
+            'body_size': self.body_font_size,
+            'family': self.font_family
+        }
+    
+    @property
+    def css_variables(self):
+        """Generate CSS custom properties for this styling"""
+        return {
+            '--primary-color': self.primary_color,
+            '--secondary-color': self.secondary_color,
+            '--background-color': self.background_color,
+            '--button-color': self.button_color,
+            '--text-color': self.text_color,
+            '--heading-font-size': self.heading_font_size,
+            '--body-font-size': self.body_font_size,
+            '--font-family': self.font_family,
+            '--border-radius': self.border_radius,
+        }
+    
+    def to_css_string(self):
+        """Generate CSS string with custom properties"""
+        css_vars = self.css_variables
+        css_lines = [f"  {key}: {value};" for key, value in css_vars.items()]
+        return ":root {\n" + "\n".join(css_lines) + "\n}"
+    
+    @classmethod
+    def get_active_theme(cls):
+        """Get the currently active theme"""
+        try:
+            return cls.objects.filter(is_active=True).first()
+        except cls.DoesNotExist:
+            return None
+    
+    @classmethod
+    def get_default_theme(cls):
+        """Get the default theme"""
+        try:
+            return cls.objects.filter(is_default=True).first()
+        except cls.DoesNotExist:
+            return None
+    
+    def save(self, *args, **kwargs):
+        # If this is set as active, deactivate all others
+        if self.is_active:
+            AppStyling.objects.filter(is_active=True).update(is_active=False)
+        
+        # If this is set as default, remove default from all others
+        if self.is_default:
+            AppStyling.objects.filter(is_default=True).update(is_default=False)
+        
+        super().save(*args, **kwargs)
+
+
+class UserStyling(models.Model):
+    """
+    Model to store user-specific styling/theme configurations
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='styling')
+    
+    # Color configurations
+    primary_color = models.CharField(max_length=50, default="#1E90FF", help_text="HEX or RGB format (e.g., #1E90FF or rgb(30,144,255))")
+    secondary_color = models.CharField(max_length=50, default="#32CD32", help_text="HEX or RGB format")
+    background_color = models.CharField(max_length=50, default="#FFFFFF", help_text="HEX or RGB format")
+    button_color = models.CharField(max_length=50, default="#007BFF", help_text="HEX or RGB format")
+    text_color = models.CharField(max_length=50, default="#333333", help_text="HEX or RGB format")
+    
+    # Font configurations
+    heading_font_size = models.CharField(max_length=20, default="24px", help_text="Font size in px or rem (e.g., '24px', '1.5rem')")
+    body_font_size = models.CharField(max_length=20, default="16px", help_text="Font size in px or rem")
+    font_family = models.CharField(max_length=100, default="Arial", help_text="Font family name (e.g., 'Roboto', 'Arial')")
+    
+    # Border configurations
+    border_radius = models.CharField(max_length=20, default="5px", blank=True, help_text="Border radius (e.g., '5px')")
+    
+    # Metadata
+    theme_name = models.CharField(max_length=100, blank=True, help_text="Optional theme name")
+    description = models.CharField(max_length=200, blank=True, help_text="Optional description of the styling")
+    is_active = models.BooleanField(default=True, help_text="Whether this styling is currently active")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "User Styling"
+        verbose_name_plural = "User Stylings"
+        ordering = ['-updated_at']
+    
+    def __str__(self):
+        theme_display = f" ({self.theme_name})" if self.theme_name else ""
+        return f"{self.user.username} - Styling{theme_display}"
+    
+    @property
+    def color_palette(self):
+        """Return all colors as a dictionary"""
+        return {
+            'primary': self.primary_color,
+            'secondary': self.secondary_color,
+            'background': self.background_color,
+            'button': self.button_color,
+            'text': self.text_color
+        }
+    
+    @property
+    def font_settings(self):
+        """Return all font settings as a dictionary"""
+        return {
+            'heading_size': self.heading_font_size,
+            'body_size': self.body_font_size,
+            'family': self.font_family
+        }
+    
+    @property
+    def css_variables(self):
+        """Generate CSS custom properties for this styling"""
+        return {
+            '--primary-color': self.primary_color,
+            '--secondary-color': self.secondary_color,
+            '--background-color': self.background_color,
+            '--button-color': self.button_color,
+            '--text-color': self.text_color,
+            '--heading-font-size': self.heading_font_size,
+            '--body-font-size': self.body_font_size,
+            '--font-family': self.font_family,
+            '--border-radius': self.border_radius,
+        }
+    
+    def to_css_string(self):
+        """Generate CSS string with custom properties"""
+        css_vars = self.css_variables
+        css_lines = [f"  {key}: {value};" for key, value in css_vars.items()]
+        return ":root {\n" + "\n".join(css_lines) + "\n}"
+
+
 class UserNumericValue(models.Model):
     """
     Simple model to store numeric values for each user
@@ -377,3 +573,163 @@ class UserNumericValue(models.Model):
     
     def __str__(self):
         return f"{self.user.username}: {self.value}"
+
+
+class SystemCredentials(models.Model):
+    """
+    Model to store system credentials and configuration values
+    Includes AWS, Database, OpenAI, and Auth tokens
+    """
+    # Credential categories
+    CREDENTIAL_TYPES = [
+        ('aws', 'AWS Credentials'),
+        ('database', 'Database Credentials'),
+        ('openai', 'OpenAI API Key'),
+        ('auth', 'Auth Token'),
+        ('general', 'General Configuration'),
+    ]
+    
+    # Basic information
+    credential_name = models.CharField(max_length=200, unique=True, help_text="Unique name for this credential set")
+    credential_type = models.CharField(max_length=50, choices=CREDENTIAL_TYPES, default='general')
+    description = models.TextField(blank=True, help_text="Description of this credential configuration")
+    
+    # AWS Credentials
+    aws_access_key_id = models.CharField(max_length=500, blank=True, help_text="AWS Access Key ID")
+    aws_secret_access_key = models.CharField(max_length=500, blank=True, help_text="AWS Secret Access Key")
+    aws_region = models.CharField(max_length=50, blank=True, default='us-east-1', help_text="AWS Region")
+    aws_bucket_name = models.CharField(max_length=200, blank=True, help_text="S3 Bucket Name")
+    
+    # Database Credentials
+    db_host = models.CharField(max_length=200, blank=True, help_text="Database Host")
+    db_port = models.CharField(max_length=10, blank=True, default='5432', help_text="Database Port")
+    db_name = models.CharField(max_length=200, blank=True, help_text="Database Name")
+    db_username = models.CharField(max_length=200, blank=True, help_text="Database Username")
+    db_password = models.CharField(max_length=500, blank=True, help_text="Database Password")
+    db_type = models.CharField(max_length=50, blank=True, default='postgresql', help_text="Database Type (postgresql, mysql, etc.)")
+    
+    # OpenAI Configuration
+    openai_api_key = models.CharField(max_length=500, blank=True, help_text="OpenAI API Key")
+    openai_model = models.CharField(max_length=100, blank=True, default='gpt-3.5-turbo', help_text="OpenAI Model")
+    openai_organization = models.CharField(max_length=200, blank=True, help_text="OpenAI Organization ID")
+    
+    # Auth Tokens
+    auth_token = models.CharField(max_length=500, blank=True, help_text="Authentication Token")
+    auth_refresh_token = models.CharField(max_length=500, blank=True, help_text="Refresh Token")
+    auth_token_expires_at = models.DateTimeField(null=True, blank=True, help_text="Token Expiration Time")
+    
+    # General Configuration
+    api_base_url = models.URLField(blank=True, help_text="Base API URL")
+    api_timeout = models.IntegerField(default=30, help_text="API Timeout in seconds")
+    debug_mode = models.BooleanField(default=False, help_text="Enable debug mode")
+    
+    # Status and metadata
+    is_active = models.BooleanField(default=True, help_text="Is this credential set currently active?")
+    is_default = models.BooleanField(default=False, help_text="Is this the default credential set?")
+    environment = models.CharField(max_length=50, default='development', help_text="Environment (development, staging, production)")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.CharField(max_length=200, blank=True, help_text="Who created this configuration")
+    
+    class Meta:
+        verbose_name = "System Credential"
+        verbose_name_plural = "System Credentials"
+        ordering = ['-is_active', '-is_default', '-updated_at']
+    
+    def __str__(self):
+        return f"{self.credential_name} ({self.credential_type}) - {'Active' if self.is_active else 'Inactive'}"
+    
+    def save(self, *args, **kwargs):
+        # Auto-activate if this is the first credential of its type
+        if self.is_active and not self.pk:
+            existing = SystemCredentials.objects.filter(
+                credential_type=self.credential_type, 
+                is_active=True
+            ).exclude(pk=self.pk)
+            if not existing.exists():
+                self.is_default = True
+        
+        # If this is set as default, deactivate others of the same type
+        if self.is_default:
+            SystemCredentials.objects.filter(
+                credential_type=self.credential_type
+            ).exclude(pk=self.pk).update(is_default=False)
+        
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_active_credentials(cls, credential_type=None):
+        """Get active credentials, optionally filtered by type"""
+        queryset = cls.objects.filter(is_active=True)
+        if credential_type:
+            queryset = queryset.filter(credential_type=credential_type)
+        return queryset.order_by('-is_default', '-updated_at')
+    
+    @classmethod
+    def get_default_credentials(cls, credential_type):
+        """Get the default credentials for a specific type"""
+        try:
+            return cls.objects.get(credential_type=credential_type, is_default=True, is_active=True)
+        except cls.DoesNotExist:
+            # Return the most recently active one if no default
+            return cls.objects.filter(credential_type=credential_type, is_active=True).first()
+    
+    @property
+    def aws_credentials_dict(self):
+        """Return AWS credentials as a dictionary"""
+        return {
+            'aws_access_key_id': self.aws_access_key_id,
+            'aws_secret_access_key': self.aws_secret_access_key,
+            'region': self.aws_region,
+            'bucket_name': self.aws_bucket_name
+        }
+    
+    @property
+    def database_credentials_dict(self):
+        """Return database credentials as a dictionary"""
+        return {
+            'host': self.db_host,
+            'port': self.db_port,
+            'database': self.db_name,
+            'username': self.db_username,
+            'password': self.db_password,
+            'type': self.db_type
+        }
+    
+    @property
+    def openai_credentials_dict(self):
+        """Return OpenAI credentials as a dictionary"""
+        return {
+            'api_key': self.openai_api_key,
+            'model': self.openai_model,
+            'organization': self.openai_organization
+        }
+    
+    @property
+    def auth_credentials_dict(self):
+        """Return auth credentials as a dictionary"""
+        return {
+            'token': self.auth_token,
+            'refresh_token': self.auth_refresh_token,
+            'expires_at': self.auth_token_expires_at.isoformat() if self.auth_token_expires_at else None
+        }
+    
+    @property
+    def credentials_summary(self):
+        """Return a summary of all configured credentials"""
+        summary = {
+            'credential_name': self.credential_name,
+            'type': self.credential_type,
+            'environment': self.environment,
+            'is_active': self.is_active,
+            'is_default': self.is_default,
+            'has_aws': bool(self.aws_access_key_id),
+            'has_database': bool(self.db_host and self.db_name),
+            'has_openai': bool(self.openai_api_key),
+            'has_auth': bool(self.auth_token),
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+        return summary
