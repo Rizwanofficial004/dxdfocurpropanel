@@ -30,16 +30,19 @@ const StyleSettings = () => {
 
   // Styling Configuration State
   const [stylingConfig, setStylingConfig] = useState({
-    theme_name: '',
-    description: '',
+    theme_name: 'My Custom Theme pagal',
+    description: 'My custom styling theme',
     primary_color: '#3498db',
     secondary_color: '#e74c3c',
-    background_color: '#ffffff',
-    button_color: '#2ecc71',
-    text_color: '#2c3e50',
+    background_color: '#1f2937',
+    header_color: '#fff',
+    footer_color: '#fff',
+    button_color: '#fff',
+    button_text_color: '#000',
+    text_color: '#000',
     heading_font_size: '28px',
     body_font_size: '16px',
-    font_family: 'Inter',
+    font_family: 'Arial, sans-serif',
     border_radius: '8px'
   });
 
@@ -90,16 +93,19 @@ const StyleSettings = () => {
         const data = await response.json();
         if (data.status === 'success' && data.data) {
           setStylingConfig({
-            theme_name: data.data.theme_name || '',
-            description: data.data.description || '',
+            theme_name: data.data.theme_name || 'My Custom Theme pagal',
+            description: data.data.description || 'My custom styling theme',
             primary_color: data.data.primary_color || '#3498db',
             secondary_color: data.data.secondary_color || '#e74c3c',
-            background_color: data.data.background_color || '#ffffff',
-            button_color: data.data.button_color || '#2ecc71',
-            text_color: data.data.text_color || '#2c3e50',
+            background_color: data.data.background_color || '#1f2937',
+            header_color: data.data.header_color || '#fff',
+            footer_color: data.data.footer_color || '#fff',
+            button_color: data.data.button_color || '#fff',
+            button_text_color: data.data.button_text_color || '#000',
+            text_color: data.data.text_color || '#000',
             heading_font_size: data.data.heading_font_size || '28px',
             body_font_size: data.data.body_font_size || '16px',
-            font_family: data.data.font_family || 'Inter',
+            font_family: data.data.font_family || 'Arial, sans-serif',
             border_radius: data.data.border_radius || '8px'
           });
           setMessage('✅ Styling configuration loaded successfully!');
@@ -292,7 +298,48 @@ const StyleSettings = () => {
                       isDarkMode={isDarkMode}
                       value={stylingConfig.background_color}
                       onChange={(e) => updateStylingConfig('background_color', e.target.value)}
-                      placeholder="#ffffff"
+                      placeholder="#1f2937"
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                </FormField>
+                <FormField>
+                  <Label isDarkMode={isDarkMode}>Header Color</Label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <Input
+                      isDarkMode={isDarkMode}
+                      type="color"
+                      value={validateColor(stylingConfig.header_color)}
+                      onChange={(e) => updateStylingConfig('header_color', e.target.value)}
+                      style={{ width: '60px', height: '40px', padding: '0.25rem' }}
+                    />
+                    <Input
+                      isDarkMode={isDarkMode}
+                      value={stylingConfig.header_color}
+                      onChange={(e) => updateStylingConfig('header_color', e.target.value)}
+                      placeholder="#fff"
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                </FormField>
+              </FormGrid>
+
+              <FormGrid columns="1fr 1fr">
+                <FormField>
+                  <Label isDarkMode={isDarkMode}>Footer Color</Label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <Input
+                      isDarkMode={isDarkMode}
+                      type="color"
+                      value={validateColor(stylingConfig.footer_color)}
+                      onChange={(e) => updateStylingConfig('footer_color', e.target.value)}
+                      style={{ width: '60px', height: '40px', padding: '0.25rem' }}
+                    />
+                    <Input
+                      isDarkMode={isDarkMode}
+                      value={stylingConfig.footer_color}
+                      onChange={(e) => updateStylingConfig('footer_color', e.target.value)}
+                      placeholder="#fff"
                       style={{ flex: 1 }}
                     />
                   </div>
@@ -311,14 +358,33 @@ const StyleSettings = () => {
                       isDarkMode={isDarkMode}
                       value={stylingConfig.button_color}
                       onChange={(e) => updateStylingConfig('button_color', e.target.value)}
-                      placeholder="#2ecc71"
+                      placeholder="#fff"
                       style={{ flex: 1 }}
                     />
                   </div>
                 </FormField>
               </FormGrid>
 
-              <FormGrid columns="1fr">
+              <FormGrid columns="1fr 1fr">
+                <FormField>
+                  <Label isDarkMode={isDarkMode}>Button Text Color</Label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <Input
+                      isDarkMode={isDarkMode}
+                      type="color"
+                      value={validateColor(stylingConfig.button_text_color)}
+                      onChange={(e) => updateStylingConfig('button_text_color', e.target.value)}
+                      style={{ width: '60px', height: '40px', padding: '0.25rem' }}
+                    />
+                    <Input
+                      isDarkMode={isDarkMode}
+                      value={stylingConfig.button_text_color}
+                      onChange={(e) => updateStylingConfig('button_text_color', e.target.value)}
+                      placeholder="#000"
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                </FormField>
                 <FormField>
                   <Label isDarkMode={isDarkMode}>Text Color</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -333,7 +399,7 @@ const StyleSettings = () => {
                       isDarkMode={isDarkMode}
                       value={stylingConfig.text_color}
                       onChange={(e) => updateStylingConfig('text_color', e.target.value)}
-                      placeholder="#2c3e50"
+                      placeholder="#000"
                       style={{ flex: 1 }}
                     />
                   </div>
@@ -360,6 +426,7 @@ const StyleSettings = () => {
                       width: '100%'
                     }}
                   >
+                    <option value="Arial, sans-serif">Arial</option>
                     <option value="Inter">Inter</option>
                     <option value="Roboto">Roboto</option>
                     <option value="Open Sans">Open Sans</option>
