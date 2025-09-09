@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "Global Styling API",
+    "description": "API collection for testing the global styling endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Custom Styling Theme",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"theme_name\": \"My Custom Theme pagal\",\n  \"description\": \"My custom styling theme\",\n  \"header-color\": \"#008000\",\n  \"footer-color\": \"#1f2937\",\n  \"text_color\": \"#000\",\n  \"background_color\": \"#1f2937\",\n  \"button_color\": \"#fff\",\n  \"button-text_color\": \"#000\",\n  \"heading_font_size\": \"28px\",\n  \"body_font_size\": \"16px\",\n  \"font_family\": \"Arial, sans-serif\",\n  \"border_radius\": \"8px\"\n}"
+        },
+        "url": {
+          "raw": "https://dxdtime.ddsolutions.io/api/styling/global/",
+          "protocol": "https",
+          "host": [
+            "dxdtime",
+            "ddsolutions",
+            "io"
+          ],
+          "path": [
+            "api",
+            "styling",
+            "global",
+            ""
+          ]
+        },
+        "description": "Creates a new global styling theme with your custom JSON format"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Active Styling Theme",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://dxdtime.ddsolutions.io/api/styling/global/",
+          "protocol": "https",
+          "host": [
+            "dxdtime",
+            "ddsolutions",
+            "io"
+          ],
+          "path": [
+            "api",
+            "styling",
+            "global",
+            ""
+          ]
+        },
+        "description": "Retrieves the currently active styling theme with CSS variables"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Dark Mode Theme",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"theme_name\": \"Dark Mode Professional\",\n  \"description\": \"Professional dark theme\",\n  \"header-color\": \"#1A1A1A\",\n  \"footer-color\": \"#2D2D2D\",\n  \"text_color\": \"#FFFFFF\",\n  \"background_color\": \"#121212\",\n  \"button_color\": \"#BB86FC\",\n  \"button-text_color\": \"#000000\",\n  \"heading_font_size\": \"26px\",\n  \"body_font_size\": \"15px\",\n  \"font_family\": \"Inter, sans-serif\",\n  \"border_radius\": \"4px\"\n}"
+        },
+        "url": {
+          "raw": "https://dxdtime.ddsolutions.io/api/styling/global/",
+          "protocol": "https",
+          "host": [
+            "dxdtime",
+            "ddsolutions",
+            "io"
+          ],
+          "path": [
+            "api",
+            "styling",
+            "global",
+            ""
+          ]
+        },
+        "description": "Creates a dark mode theme example"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Light Mode Theme",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"theme_name\": \"Clean Light Theme\",\n  \"description\": \"Clean and modern light theme\",\n  \"header-color\": \"#FFFFFF\",\n  \"footer-color\": \"#F8F9FA\",\n  \"text_color\": \"#333333\",\n  \"background_color\": \"#FFFFFF\",\n  \"button_color\": \"#007BFF\",\n  \"button-text_color\": \"#FFFFFF\",\n  \"heading_font_size\": \"24px\",\n  \"body_font_size\": \"16px\",\n  \"font_family\": \"System UI, -apple-system, sans-serif\",\n  \"border_radius\": \"8px\"\n}"
+        },
+        "url": {
+          "raw": "https://dxdtime.ddsolutions.io/api/styling/global/",
+          "protocol": "https",
+          "host": [
+            "dxdtime",
+            "ddsolutions",
+            "io"
+          ],
+          "path": [
+            "api",
+            "styling",
+            "global",
+            ""
+          ]
+        },
+        "description": "Creates a clean light theme example"
+      },
+      "response": []
+    }
+  ]
+}

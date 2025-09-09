@@ -13,8 +13,8 @@ from .serializers import AppStylingSerializer, AppStylingCreateSerializer
 class AppStylingAPIView(APIView):
     """
     API View for managing general application styling configurations
-    GET: Get current active styling configuration
-    POST: Create/Update styling configuration
+    GET: Get current active styling configuration  
+    POST: Create/Update styling configuration (supports custom field mapping)
     """
     authentication_classes = []  # No authentication required for getting styles
     permission_classes = []       # No permissions required for getting styles
@@ -27,10 +27,29 @@ class AppStylingAPIView(APIView):
             
             if active_styling:
                 serializer = AppStylingSerializer(active_styling)
+                styling_data = serializer.data
+                
+                # Also return in custom format for compatibility
+                custom_format = {
+                    "theme_name": styling_data.get("theme_name", "Default Theme"),
+                    "description": styling_data.get("description", "Default application styling"),
+                    "header-color": styling_data.get("primary_color", "#1E90FF"),
+                    "footer-color": styling_data.get("secondary_color", "#32CD32"), 
+                    "text_color": styling_data.get("text_color", "#333333"),
+                    "background_color": styling_data.get("background_color", "#FFFFFF"),
+                    "button_color": styling_data.get("button_color", "#007BFF"),
+                    "button-text_color": styling_data.get("text_color", "#333333"),
+                    "heading_font_size": styling_data.get("heading_font_size", "24px"),
+                    "body_font_size": styling_data.get("body_font_size", "16px"),
+                    "font_family": styling_data.get("font_family", "Arial"),
+                    "border_radius": styling_data.get("border_radius", "5px")
+                }
+                
                 return Response({
                     "status": "success",
                     "message": "Active styling configuration retrieved successfully",
-                    "data": serializer.data
+                    "data": styling_data,
+                    "custom_format": custom_format
                 }, status=status.HTTP_200_OK)
             else:
                 # Return default styling if no active theme
@@ -50,37 +69,29 @@ class AppStylingAPIView(APIView):
                     "is_active": True,
                     "is_default": True,
                     "created_by": "System",
-                    "version": "1.0",
-                    "color_palette": {
-                        "primary": "#1E90FF",
-                        "secondary": "#32CD32",
-                        "background": "#FFFFFF",
-                        "button": "#007BFF",
-                        "text": "#333333"
-                    },
-                    "font_settings": {
-                        "heading_size": "24px",
-                        "body_size": "16px",
-                        "family": "Arial"
-                    },
-                    "css_variables": {
-                        "--primary-color": "#1E90FF",
-                        "--secondary-color": "#32CD32",
-                        "--background-color": "#FFFFFF",
-                        "--button-color": "#007BFF",
-                        "--text-color": "#333333",
-                        "--heading-font-size": "24px",
-                        "--body-font-size": "16px",
-                        "--font-family": "Arial",
-                        "--border-radius": "5px"
-                    },
-                    "created_at": None,
-                    "updated_at": None
+                    "version": "1.0"
                 }
+                
+                custom_format = {
+                    "theme_name": "Default Theme",
+                    "description": "Default application styling",
+                    "header-color": "#1E90FF",
+                    "footer-color": "#32CD32",
+                    "text_color": "#333333", 
+                    "background_color": "#FFFFFF",
+                    "button_color": "#007BFF",
+                    "button-text_color": "#333333",
+                    "heading_font_size": "24px",
+                    "body_font_size": "16px",
+                    "font_family": "Arial",
+                    "border_radius": "5px"
+                }
+                
                 return Response({
                     "status": "success",
                     "message": "No active styling found, returning default configuration",
-                    "data": default_styling
+                    "data": default_styling,
+                    "custom_format": custom_format
                 }, status=status.HTTP_200_OK)
                 
         except Exception as e:
@@ -90,29 +101,98 @@ class AppStylingAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self, request):
-        """Create or update styling configuration"""
-        serializer = AppStylingCreateSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            # Create new styling configuration
-            styling_data = serializer.validated_data
+        """Create or update styling configuration (supports custom field mapping)"""
+        try:
+            data = request.data.copy()
             
-            # Create the new styling
-            app_styling = AppStyling.objects.create(**styling_data)
+            # Map custom field names to model field names BEFORE validation
+            field_mapping = {
+                "header-color": "primary_color",
+                "footer-color": "secondary_color", 
+                "button-text_color": "text_color"  # Keep original text_color, ignore button-text_color
+            }
+            
+            # Convert custom fields to model fields
+            mapped_data = {}
+            for key, value in data.items():
+                if key in field_mapping:
+                    mapped_data[field_mapping[key]] = value
+                elif key != "button-text_color":  # Skip button-text_color since we use text_color
+                    mapped_data[key] = value
+            
+            # Set defaults if not provided
+            if 'theme_name' not in mapped_data or not mapped_data['theme_name']:
+                mapped_data['theme_name'] = f"Custom Theme {AppStyling.objects.count() + 1}"
+            
+            # Make this theme active
+            mapped_data['is_active'] = True
+            
+            # Create the styling directly without serializer to avoid default overrides
+            styling_params = {
+                'theme_name': mapped_data.get('theme_name', 'Custom Theme'),
+                'description': mapped_data.get('description', ''),
+                'primary_color': mapped_data.get('primary_color', '#1E90FF'),
+                'secondary_color': mapped_data.get('secondary_color', '#32CD32'),
+                'background_color': mapped_data.get('background_color', '#FFFFFF'),
+                'button_color': mapped_data.get('button_color', '#007BFF'),
+                'text_color': mapped_data.get('text_color', '#333333'),
+                'heading_font_size': mapped_data.get('heading_font_size', '24px'),
+                'body_font_size': mapped_data.get('body_font_size', '16px'),
+                'font_family': mapped_data.get('font_family', 'Arial'),
+                'border_radius': mapped_data.get('border_radius', '5px'),
+                'is_active': True,
+                'is_default': False,
+                'created_by': mapped_data.get('created_by', ''),
+                'version': mapped_data.get('version', '1.0')
+            }
+            
+            # Deactivate all existing themes
+            AppStyling.objects.all().update(is_active=False)
+            
+            # Create new styling configuration
+            app_styling = AppStyling.objects.create(**styling_params)
             
             response_serializer = AppStylingSerializer(app_styling)
+            styling_data = response_serializer.data
+            
+            # Return both formats
+            custom_format = {
+                "theme_name": styling_data.get("theme_name"),
+                "description": styling_data.get("description", ""),
+                "header-color": styling_data.get("primary_color"),
+                "footer-color": styling_data.get("secondary_color"),
+                "text_color": styling_data.get("text_color"),
+                "background_color": styling_data.get("background_color"),
+                "button_color": styling_data.get("button_color"),
+                "button-text_color": styling_data.get("text_color"),
+                "heading_font_size": styling_data.get("heading_font_size"),
+                "body_font_size": styling_data.get("body_font_size"),
+                "font_family": styling_data.get("font_family"),
+                "border_radius": styling_data.get("border_radius")
+            }
             
             return Response({
                 "status": "success",
                 "message": f"Styling configuration '{app_styling.theme_name}' created successfully",
-                "data": response_serializer.data
+                "data": styling_data,
+                "custom_format": custom_format,
+                "field_mapping": {
+                    "header-color": f"mapped to primary_color: {styling_data.get('primary_color')}",
+                    "footer-color": f"mapped to secondary_color: {styling_data.get('secondary_color')}",
+                    "button-text_color": f"mapped to text_color: {styling_data.get('text_color')}"
+                },
+                "mapped_data_used": mapped_data
             }, status=status.HTTP_201_CREATED)
-        
-        return Response({
-            "status": "error",
-            "message": "Invalid data provided",
-            "errors": serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"Error creating styling configuration: {str(e)}",
+                "debug_info": {
+                    "request_data": request.data,
+                    "error_type": type(e).__name__
+                }
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AppStylingUpdateAPIView(APIView):
