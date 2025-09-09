@@ -108,31 +108,26 @@ const LiveTracking = () => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
 
-  // Get image URL with fallback handling - convert S3 URLs to localhost proxy with encoding
+  // Get image URL - use backend screenshot proxy with AWS credentials
   const getImageUrl = (originalUrl) => {
     if (!originalUrl) return null;
     
-    // Convert S3 URL to localhost proxy URL
-    const s3Pattern = /https:\/\/ddsfocustime\.s3\.eu-north-1\.amazonaws\.com\/(.+)$/;
-    const match = originalUrl.match(s3Pattern);
+    console.log('🔍 Processing image URL:', originalUrl);
     
-    if (match) {
-      // Get the path and keep it as-is (don't convert _at_ to @)
-      let path = match[1];
+    // If it's an S3 URL, use the backend screenshot proxy
+    if (originalUrl.includes('ddsfocustime.s3') && originalUrl.includes('amazonaws.com')) {
+      // Use the backend screenshot proxy that now has AWS credentials
+      const proxyUrl = `${API_CONFIG.BASE_URL}/api/simple-screenshot-proxy/?url=${encodeURIComponent(originalUrl)}`;
       
-      // Create localhost proxy URL (no encoding needed for proxy)
-      const proxyUrl = `http://localhost:5173/${path}`;
-      
-      console.log('🔄 Converting S3 URL to proxy:');
-      console.log('   Original:', originalUrl);
-      console.log('   Extracted path:', path);
-      console.log('   Final proxy URL:', proxyUrl);
+      console.log('🔄 Using backend screenshot proxy:');
+      console.log('   Original S3 URL:', originalUrl);
+      console.log('   Backend Proxy URL:', proxyUrl);
       
       return proxyUrl;
     }
     
-    // Fallback to original URL if pattern doesn't match
-    console.log('⚠️ URL pattern did not match, using original:', originalUrl);
+    // For non-S3 URLs, use as-is
+    console.log('✅ Using original URL:', originalUrl);
     return originalUrl;
   };
 
@@ -357,9 +352,9 @@ const LiveTracking = () => {
                           <div className={`image-error ${hasImageError ? 'show' : ''}`}>
                             <span>📷</span>
                             <p>Screenshot not accessible</p>
-                            <small>CORS/permissions issue with S3 bucket</small>
+                            <small>Backend screenshot proxy with AWS credentials needed</small>
                             <div className="url-display">
-                              <strong>Attempted URL:</strong>
+                              <strong>Backend Proxy URL:</strong>
                               <small className="localhost-url">{getImageUrl(user.latest_file_url)}</small>
                               <strong>Original S3 URL:</strong>
                               <small className="s3-url">{user.latest_file_url}</small>
