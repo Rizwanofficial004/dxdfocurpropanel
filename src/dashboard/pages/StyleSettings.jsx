@@ -103,7 +103,6 @@ const StyleSettings = () => {
         const data = await response.json();
         if (data.status === 'success' && data.data) {
           setStylingConfig({
-<<<<<<< HEAD
             theme_name: data.data.theme_name || 'My Custom Theme pagal',
             description: data.data.description || 'My custom styling theme',
             primary_color: data.data.primary_color || '#3498db',
@@ -114,16 +113,6 @@ const StyleSettings = () => {
             button_color: data.data.button_color || '#fff',
             button_text_color: data.data.button_text_color || '#000',
             text_color: data.data.text_color || '#000',
-=======
-            theme_name: data.data.theme_name || '',
-            description: data.data.description || '',
-            'header-color': data.data['header-color'] || '#000',
-            'footer-color': data.data['footer-color'] || '#000',
-            background_color: data.data.background_color || '#1f2937',
-            button_color: data.data.button_color || '#fff',
-            text_color: data.data.text_color || '#000',
-            'button-text_color': data.data['button-text_color'] || '#000',
->>>>>>> 9e23522e667be48ad2d1bc3643873ad0942583bf
             heading_font_size: data.data.heading_font_size || '28px',
             body_font_size: data.data.body_font_size || '16px',
             font_family: data.data.font_family || 'Arial, sans-serif',

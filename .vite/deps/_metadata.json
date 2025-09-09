@@ -2,54 +2,90 @@
   "hash": "0eb2d5b6",
   "configHash": "3d7567db",
   "lockfileHash": "e66dc87a",
-  "browserHash": "29f354f5",
+  "browserHash": "841aa297",
   "optimized": {
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "6bf1fdb0",
+      "fileHash": "f2f6bca9",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "224042ed",
+      "fileHash": "318a2b88",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "e9f870c2",
+      "fileHash": "05923ad8",
       "needsInterop": false
     },
     "styled-components": {
       "src": "../../node_modules/styled-components/dist/styled-components.browser.esm.js",
       "file": "styled-components.js",
-      "fileHash": "cfa89cde",
+      "fileHash": "5b3eacae",
       "needsInterop": false
     },
     "axios": {
       "src": "../../node_modules/axios/index.js",
       "file": "axios.js",
-      "fileHash": "608e8304",
+      "fileHash": "c75ae154",
       "needsInterop": false
     },
     "gsap": {
       "src": "../../node_modules/gsap/index.js",
       "file": "gsap.js",
-      "fileHash": "9ea80960",
+      "fileHash": "a9d39e8e",
       "needsInterop": false
+    },
+    "@mui/x-data-grid": {
+      "src": "../../node_modules/@mui/x-data-grid/esm/index.js",
+      "file": "@mui_x-data-grid.js",
+      "fileHash": "d78f5fca",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "d8f61cf5",
+      "needsInterop": false
+    },
+    "react-icons/fa": {
+      "src": "../../node_modules/react-icons/fa/index.mjs",
+      "file": "react-icons_fa.js",
+      "fileHash": "332927e3",
+      "needsInterop": false
+    },
+    "@mui/material": {
+      "src": "../../node_modules/@mui/material/esm/index.js",
+      "file": "@mui_material.js",
+      "fileHash": "9b2bfe54",
+      "needsInterop": false
+    },
+    "dayjs": {
+      "src": "../../node_modules/dayjs/dayjs.min.js",
+      "file": "dayjs.js",
+      "fileHash": "3cfce43f",
+      "needsInterop": true
     }
   },
   "chunks": {
-    "chunk-FYGYNQUM": {
-      "file": "chunk-FYGYNQUM.js"
+    "chunk-6JESQRGV": {
+      "file": "chunk-6JESQRGV.js"
     },
-    "chunk-32EALFBN": {
-      "file": "chunk-32EALFBN.js"
+    "chunk-FLARFEFP": {
+      "file": "chunk-FLARFEFP.js"
     },
-    "chunk-G3PMV62Z": {
-      "file": "chunk-G3PMV62Z.js"
+    "chunk-F6675Q4O": {
+      "file": "chunk-F6675Q4O.js"
+    },
+    "chunk-K4NLKXWU": {
+      "file": "chunk-K4NLKXWU.js"
+    },
+    "chunk-V4OQ3NZ2": {
+      "file": "chunk-V4OQ3NZ2.js"
     }
   }
 }
