@@ -108,12 +108,26 @@ const LiveTracking = () => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
 
-  // Get image URL with fallback handling
+  // Get image URL - use backend screenshot proxy with AWS credentials
   const getImageUrl = (originalUrl) => {
     if (!originalUrl) return null;
     
-    // For screenshots that may have CORS issues, try the original URL first
-    // The backend should implement CORS headers for S3 or a proxy endpoint
+    console.log('🔍 Processing image URL:', originalUrl);
+    
+    // If it's an S3 URL, use the backend screenshot proxy
+    if (originalUrl.includes('ddsfocustime.s3') && originalUrl.includes('amazonaws.com')) {
+      // Use the backend screenshot proxy that now has AWS credentials
+      const proxyUrl = `${API_CONFIG.BASE_URL}/api/simple-screenshot-proxy/?url=${encodeURIComponent(originalUrl)}`;
+      
+      console.log('🔄 Using backend screenshot proxy:');
+      console.log('   Original S3 URL:', originalUrl);
+      console.log('   Backend Proxy URL:', proxyUrl);
+      
+      return proxyUrl;
+    }
+    
+    // For non-S3 URLs, use as-is
+    console.log('✅ Using original URL:', originalUrl);
     return originalUrl;
   };
 
@@ -124,11 +138,8 @@ const LiveTracking = () => {
     // Add to error set
     setImageErrors(prev => new Set(prev).add(userIndex));
     
-    // Hide the image and show error state
-    e.target.style.display = 'none';
-    if (e.target.nextSibling) {
-      e.target.nextSibling.style.display = 'flex';
-    }
+    // Keep the image visible (show broken image icon) and show error overlay
+    // Error overlay will show automatically via CSS classes
   };
 
   // Handle successful image load
@@ -309,25 +320,58 @@ const LiveTracking = () => {
                       
                       {user.latest_file_url && (
                         <div className="screenshot-preview">
-                          {!hasImageError && (
-                            <img 
-                              src={getImageUrl(user.latest_file_url)}
-                              alt={`Latest screenshot for ${formatUserEmail(user.user_email)}`}
-                              className="screenshot-image"
-                              onLoad={(e) => handleImageLoad(e, userIndex)}
-                              onError={(e) => handleImageError(e, user.latest_file_url, formatUserEmail(user.user_email), userIndex)}
-                            />
+                          <img 
+                            src={getImageUrl(user.latest_file_url)}
+                            alt={`Latest screenshot for ${formatUserEmail(user.user_email)}`}
+                            className="screenshot-image"
+                            onLoad={(e) => handleImageLoad(e, userIndex)}
+                            onError={(e) => handleImageError(e, user.latest_file_url, formatUserEmail(user.user_email), userIndex)}
+                          />
+                          {hasImageError && (
+                            <div className="placeholder-image">
+                              <svg width="100%" height="100%" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="1"/>
+                                  </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#grid)"/>
+                                <rect x="10" y="10" width="280" height="180" fill="#f8f9fa" stroke="#dadce0" strokeWidth="2" rx="8"/>
+                                <circle cx="150" cy="80" r="25" fill="#e8eaed"/>
+                                <path d="M135 75 L165 75 L155 65 Z" fill="#5f6368"/>
+                                <rect x="125" y="85" width="50" height="30" fill="#e8eaed" rx="4"/>
+                                <text x="150" y="140" textAnchor="middle" fill="#5f6368" fontFamily="Arial, sans-serif" fontSize="12" fontWeight="500">
+                                  Screenshot Preview
+                                </text>
+                                <text x="150" y="160" textAnchor="middle" fill="#9aa0a6" fontFamily="Arial, sans-serif" fontSize="10">
+                                  S3 Access Restricted
+                                </text>
+                              </svg>
+                            </div>
                           )}
-                          <div className={`image-error ${hasImageError ? 'show' : ''}`} style={{display: hasImageError ? 'flex' : 'none'}}>
+                          <div className={`image-error ${hasImageError ? 'show' : ''}`}>
                             <span>📷</span>
                             <p>Screenshot not accessible</p>
-                            <small>CORS/permissions issue with S3 bucket</small>
+                            <small>Backend screenshot proxy with AWS credentials needed</small>
+                            <div className="url-display">
+                              <strong>Backend Proxy URL:</strong>
+                              <small className="localhost-url">{getImageUrl(user.latest_file_url)}</small>
+                              <strong>Original S3 URL:</strong>
+                              <small className="s3-url">{user.latest_file_url}</small>
+                            </div>
                             <button 
                               className="retry-image-button"
                               onClick={() => retryImageLoad(userIndex)}
                               disabled={loading}
                             >
                               {loading ? '🔄' : '↻'} Get Fresh URL
+                            </button>
+                            <button 
+                              className="view-s3-button"
+                              onClick={() => window.open(user.latest_file_url, '_blank')}
+                              style={{marginTop: '8px'}}
+                            >
+                              🔗 View in S3
                             </button>
                           </div>
                         </div>
