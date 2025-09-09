@@ -148,6 +148,7 @@ const SearchIcon = styled.div`
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
+  z-index: 999;
 `;
 
 const DropdownMenu = styled.div`

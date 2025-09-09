@@ -87,7 +87,7 @@ export const SettingsWrapper = styled.div`
   };
   position: relative;
   overflow-x: hidden;
-  z-index: 9999;
+  z-index: 2;
 
   &::before {
     content: '';
@@ -107,7 +107,7 @@ export const SettingsWrapper = styled.div`
 export const SettingsContainer = styled.div`
   margin: 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 `;
 
 // Header Section
