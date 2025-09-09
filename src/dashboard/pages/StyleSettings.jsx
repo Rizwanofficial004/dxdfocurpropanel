@@ -33,23 +33,12 @@ const StyleSettings = () => {
   const [stylingConfig, setStylingConfig] = useState({
     theme_name: 'My Custom Theme pagal',
     description: 'My custom styling theme',
-<<<<<<< HEAD
-    primary_color: '#3498db',
-    secondary_color: '#e74c3c',
-    background_color: '#1f2937',
-    header_color: '#fff',
-    footer_color: '#fff',
-    button_color: '#fff',
-    button_text_color: '#000',
-    text_color: '#000',
-=======
     'header-color': '#000',
     'footer-color': '#000',
     text_color: '#000',
     background_color: '#1f2937',
     button_color: '#fff',
     'button-text_color': '#000',
->>>>>>> 9e23522e667be48ad2d1bc3643873ad0942583bf
     heading_font_size: '28px',
     body_font_size: '16px',
     font_family: 'Arial, sans-serif',
@@ -453,11 +442,7 @@ const StyleSettings = () => {
                       isDarkMode={isDarkMode}
                       value={stylingConfig.text_color}
                       onChange={(e) => updateStylingConfig('text_color', e.target.value)}
-<<<<<<< HEAD
-                      placeholder="#000"
-=======
                       placeholder="#000000"
->>>>>>> 9e23522e667be48ad2d1bc3643873ad0942583bf
                       style={{ flex: 1 }}
                     />
                   </div>
