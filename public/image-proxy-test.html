@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Proxy Test</title>
+</head>
+<body>
+    <h1>S3 Image Proxy Test</h1>
+    <p>Testing direct image loading from S3 through proxy:</p>
+    
+    <div style="margin: 20px 0;">
+        <h3>Test Image:</h3>
+        <img 
+            src="/users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/Create_UI_for_YouTube_AI_Automation_/2025-09-09_16-25-09.webp"
+            alt="Test Screenshot"
+            style="max-width: 500px; border: 2px solid #ddd; border-radius: 8px;"
+            onload="console.log('✅ Image loaded successfully!'); document.getElementById('status').textContent = 'Image loaded successfully!'; document.getElementById('status').style.color = 'green';"
+            onerror="console.log('❌ Image failed to load'); document.getElementById('status').textContent = 'Image failed to load'; document.getElementById('status').style.color = 'red';"
+        />
+        <p id="status" style="font-weight: bold;">Loading...</p>
+    </div>
+    
+    <div style="margin: 20px 0; padding: 15px; background-color: #f0f0f0; border-radius: 5px;">
+        <h3>Debug Info:</h3>
+        <p><strong>Image URL:</strong> <code>http://localhost:5174/users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/Create_UI_for_YouTube_AI_Automation_/2025-09-09_16-25-09.webp</code></p>
+        <p><strong>Expected:</strong> Should load through Vite proxy to S3</p>
+        <p><strong>Check browser console for detailed logs</strong></p>
+    </div>
+</body>
+</html>

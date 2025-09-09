@@ -45,6 +45,10 @@ const Teams = lazy(() =>
   import('./dashboard/pages/Teams').catch(() => ({ default: FallbackTeams }))
 );
 
+const ImageTest = lazy(() =>
+  import('./components/ImageTest').catch(() => ({ default: FallbackImageTest }))
+);
+
 const ThemeProvider = lazy(() =>
   import('./dashboard/context/ThemeContext').then(m => ({ default: m.ThemeProvider })).catch(() => ({ default: SimpleThemeProvider }))
 );
@@ -143,6 +147,7 @@ const FallbackSettings = () => <LoadingSpinner />;
 const FallbackAttendance = () => <LoadingSpinner />;
 const FallbackEmployees = () => <LoadingSpinner />;
 const FallbackTeams = () => <LoadingSpinner />;
+const FallbackImageTest = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
 
@@ -362,6 +367,14 @@ function App() {
                           <Teams />
                         </Suspense>
                       </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/image-test"
+                    element={
+                      <Suspense fallback={<FallbackImageTest />}>
+                        <ImageTest />
+                      </Suspense>
                     }
                   />
                   <Route path="*" element={<Navigate to="/admin-panel" replace />} />

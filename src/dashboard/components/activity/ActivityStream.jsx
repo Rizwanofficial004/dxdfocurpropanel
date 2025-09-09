@@ -126,6 +126,10 @@ const ActivityStream = () => {
   const [screenshotError, setScreenshotError] = useState(null);
   const [calendarView, setCalendarView] = useState(true); // New state for calendar view toggle
   const [userActivityDates, setUserActivityDates] = useState(new Set()); // Activity dates for calendar highlighting
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state
+  const [totalScreenshots, setTotalScreenshots] = useState(0); // Total screenshots count
+  const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
+  const screenshotsPerPage = 50; // Screenshots per page
   const searchContainerRef = useRef(null);
 
   useEffect(() => {
@@ -159,23 +163,21 @@ const ActivityStream = () => {
 
     setIsSearching(true);
     try {
-      // Prepare search parameters
+      // Prepare search parameters for enhanced API
       const searchParams = new URLSearchParams({
         q: query,
         page: 1,
         page_size: 50,
         group_by: 'date',
-        start_date: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`,
-        end_date: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`,
         month: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`,
         year: selectedYear.toString()
       });
 
-      // Try multiple API endpoints with enhanced parameters (Django backend first)
+      // Primary API endpoint (production) first
       const endpoints = [
+        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`,
         `http://127.0.0.1:8000/api/users/search/?${searchParams.toString()}`,
-        `http://localhost:8001/api/users/search/?${searchParams.toString()}`,
-        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`
+        `http://localhost:8001/api/users/search/?${searchParams.toString()}`
       ];
 
       let response = null;
@@ -183,7 +185,7 @@ const ActivityStream = () => {
 
       for (const endpoint of endpoints) {
         try {
-          console.log(`🔍 Trying endpoint: ${endpoint}`);
+          console.log(`🔍 Searching users via: ${endpoint}`);
           response = await fetch(endpoint, {
             method: 'GET',
             headers: {
@@ -193,39 +195,52 @@ const ActivityStream = () => {
           });
           
           if (response.ok) {
-            console.log(`✅ Connected to: ${endpoint}`);
+            console.log(`✅ Search successful via: ${endpoint}`);
             setApiStatus('connected');
             break;
           }
         } catch (error) {
-          console.log(`❌ Failed to connect to: ${endpoint}`);
+          console.log(`❌ Search failed via: ${endpoint}`);
           lastError = error;
           continue;
         }
       }
 
       if (!response || !response.ok) {
-        // Fallback to mock data when API is not available
         console.log('🔄 API unavailable, using mock search data');
         setApiStatus('mock');
+        
+        // Enhanced mock data matching the API structure
         const mockUsers = [
           {
             id: 1,
-            display_name: 'Haseeb Ahmad',
             email: 'haseebcodejourney@gmail.com',
-            original_name: 'haseebcodejourney_at_gmail.com'
+            display_name: 'haseebcodejourney',
+            original_name: 'haseebcodejourney_at_gmail.com',
+            total_screenshots: 10,
+            total_size_mb: 1.52,
+            active_days_count: 2,
+            status: 'active'
           },
           {
             id: 2,
-            display_name: 'Kiran Ahmad', 
             email: 'kiranaiz4@gmail.com',
-            original_name: 'kiranaiz4_at_gmail.com'
+            display_name: 'kiranaiz4', 
+            original_name: 'kiranaiz4_at_gmail.com',
+            total_screenshots: 53,
+            total_size_mb: 7.96,
+            active_days_count: 1,
+            status: 'inactive'
           },
           {
             id: 3,
-            display_name: 'Nawaz Sheikh',
             email: 'nawaz@dxdglobal.com',
-            original_name: 'nawaz_at_dxdglobal.com'
+            display_name: 'nawaz',
+            original_name: 'nawaz_at_dxdglobal.com',
+            total_screenshots: 475,
+            total_size_mb: 88.29,
+            active_days_count: 1,
+            status: 'inactive'
           }
         ];
 
@@ -242,53 +257,47 @@ const ActivityStream = () => {
       }
 
       const data = await response.json();
-      console.log('🔍 Search API Response:', data);
+      console.log('🔍 Enhanced Search API Response:', data);
       
-      if (data.status === 'success' && data.data) {
-        // Handle both user list and screenshot data in response
-        if (data.data.users) {
-          setSearchResults(data.data.users);
-          setShowResults(true);
-        } else if (data.data.screenshots) {
-          // If response contains screenshots directly
-          setSearchResults([{
-            id: 1,
-            display_name: query,
-            email: `${query}@company.com`,
-            screenshots: data.data.screenshots
-          }]);
-          setShowResults(true);
-        } else {
-          setSearchResults([]);
-          setShowResults(false);
-        }
+      if (data.status === 'success' && data.data && data.data.users) {
+        setSearchResults(data.data.users);
+        setShowResults(true);
+        
+        console.log(`✅ Found ${data.data.users.length} users with search query: "${query}"`);
       } else {
         setSearchResults([]);
         setShowResults(false);
+        console.log('🔍 No users found in search results');
       }
     } catch (error) {
       console.error('🚨 Search Error:', error);
       setApiStatus('mock');
       
-      // Always provide fallback mock data on error
+      // Fallback to mock data on error
       const mockUsers = [
         {
           id: 1,
-          display_name: 'Haseeb Ahmad',
           email: 'haseebcodejourney@gmail.com',
-          original_name: 'haseebcodejourney_at_gmail.com'
+          display_name: 'haseebcodejourney',
+          original_name: 'haseebcodejourney_at_gmail.com',
+          total_screenshots: 10,
+          total_size_mb: 1.52
         },
         {
           id: 2,
-          display_name: 'Kiran Ahmad', 
           email: 'kiranaiz4@gmail.com',
-          original_name: 'kiranaiz4_at_gmail.com'
+          display_name: 'kiranaiz4', 
+          original_name: 'kiranaiz4_at_gmail.com',
+          total_screenshots: 53,
+          total_size_mb: 7.96
         },
         {
           id: 3,
-          display_name: 'Nawaz Sheikh',
           email: 'nawaz@dxdglobal.com',
-          original_name: 'nawaz_at_dxdglobal.com'
+          display_name: 'nawaz',
+          original_name: 'nawaz_at_dxdglobal.com',
+          total_screenshots: 475,
+          total_size_mb: 88.29
         }
       ];
 
@@ -304,30 +313,41 @@ const ActivityStream = () => {
     }
   };
 
-  // Fetch user screenshots function
-  const fetchUserScreenshots = async (user) => {
+  // Fetch user screenshots function with enhanced date filtering and pagination
+  const fetchUserScreenshots = async (user, specificDate = null, page = 1) => {
     setIsLoadingScreenshots(true);
     setScreenshotError(null);
     
     try {
       const searchParams = new URLSearchParams({
         q: user.display_name || user.email || user.original_name,
-        page: 1,
-        page_size: 50,
+        page: page,
+        page_size: 500, // Get more to handle client-side pagination
         group_by: 'date',
-        start_date: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`,
-        end_date: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`,
         month: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`,
         year: selectedYear.toString()
       });
 
+      // Add specific date filtering if provided
+      if (specificDate) {
+        const dateStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${specificDate.toString().padStart(2, '0')}`;
+        searchParams.set('start_date', dateStr);
+        searchParams.set('end_date', dateStr);
+      } else {
+        // Get the full month
+        searchParams.set('start_date', `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`);
+        searchParams.set('end_date', `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`);
+      }
+
+      // Primary endpoint with fallbacks
       const endpoints = [
+        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`,
         `http://127.0.0.1:8000/api/users/search/?${searchParams.toString()}`,
-        `http://localhost:8001/api/users/search/?${searchParams.toString()}`,
-        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`
+        `http://localhost:8001/api/users/search/?${searchParams.toString()}`
       ];
 
       let response = null;
+      let endpoint_used = '';
       
       for (const endpoint of endpoints) {
         try {
@@ -341,100 +361,98 @@ const ActivityStream = () => {
           });
           
           if (response.ok) {
+            endpoint_used = endpoint;
+            console.log(`✅ Successfully connected to: ${endpoint}`);
+            setApiStatus('connected');
             break;
           }
         } catch (error) {
-          console.log(`❌ Failed to fetch screenshots from: ${endpoint}`);
+          console.log(`❌ Failed to fetch from: ${endpoint}`, error);
           continue;
         }
       }
 
       if (response && response.ok) {
         const data = await response.json();
-        console.log('📸 Screenshots API Response:', data);
+        console.log('📸 Enhanced API Response:', data);
         
-        if (data.status === 'success' && data.data) {
-          // Extract screenshots and activity dates for calendar highlighting
+        if (data.status === 'success' && data.data && data.data.users) {
           const activityDates = new Set();
           let screenshots = [];
           
-          if (data.data.users && data.data.users.length > 0) {
-            const userData = data.data.users[0]; // Get the first matching user
-            
-            // Parse grouped screenshots for calendar highlighting
+          // Process all users in the response
+          data.data.users.forEach(userData => {
             if (userData.grouped_screenshots) {
-              try {
-                const groupedData = typeof userData.grouped_screenshots === 'string' 
-                  ? JSON.parse(userData.grouped_screenshots.replace(/@{|}/g, match => match === '@{' ? '{' : '}'))
-                  : userData.grouped_screenshots;
+              // Handle the grouped_screenshots object
+              Object.keys(userData.grouped_screenshots).forEach(dateKey => {
+                activityDates.add(dateKey);
                 
-                Object.keys(groupedData).forEach(date => {
-                  activityDates.add(date);
-                });
-                
-                // If we have a specific active date, get screenshots for that date
-                if (activeDate) {
-                  const targetDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
-                  if (groupedData[targetDate]) {
-                    screenshots = Array.isArray(groupedData[targetDate]) ? groupedData[targetDate] : [];
-                  }
-                } else {
-                  // Get all screenshots for the month
-                  Object.values(groupedData).forEach(dateScreenshots => {
-                    if (Array.isArray(dateScreenshots)) {
-                      screenshots = [...screenshots, ...dateScreenshots];
+                const dayData = userData.grouped_screenshots[dateKey];
+                if (dayData && dayData.screenshots && Array.isArray(dayData.screenshots)) {
+                  // Filter for specific date if provided
+                  if (specificDate) {
+                    const targetDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${specificDate.toString().padStart(2, '0')}`;
+                    if (dateKey === targetDate) {
+                      screenshots = [...screenshots, ...dayData.screenshots.map(screenshot => ({
+                        ...screenshot,
+                        id: screenshot.filename || screenshots.length,
+                        timestamp: screenshot.datetime || screenshot.date,
+                        activity_type: 'ACTIVE',
+                        file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A'
+                      }))];
                     }
-                  });
+                  } else {
+                    // Add all screenshots for the month
+                    screenshots = [...screenshots, ...dayData.screenshots.map(screenshot => ({
+                      ...screenshot,
+                      id: screenshot.filename || screenshots.length,
+                      timestamp: screenshot.datetime || screenshot.date,
+                      activity_type: 'ACTIVE',
+                      file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A'
+                    }))];
+                  }
                 }
-              } catch (error) {
-                console.warn('Failed to parse grouped_screenshots:', error);
-              }
+              });
             }
-            
-            // Update calendar days with real activity data
-            setUserActivityDates(activityDates);
-          }
+          });
+          
+          // Update calendar with activity dates
+          setUserActivityDates(activityDates);
+          
+          // Sort screenshots by timestamp (newest first)
+          screenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          
+          // Set all screenshots and pagination info
+          setAllScreenshots(screenshots);
+          setTotalScreenshots(screenshots.length);
+          setCurrentPage(1); // Reset to first page
           
           if (screenshots.length > 0) {
-            setUserScreenshots(screenshots);
+            console.log(`📸 Found ${screenshots.length} total screenshots`);
+            // Set current page screenshots
+            const startIndex = 0;
+            const endIndex = screenshotsPerPage;
+            setUserScreenshots(screenshots.slice(startIndex, endIndex));
           } else {
-            // Mock screenshots for demonstration
-            setUserScreenshots([
-              {
-                id: 1,
-                timestamp: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate || '01'} 17:35:00`,
-                screenshot_url: 'https://via.placeholder.com/400x300/4285f4/ffffff?text=Live+Screenshot',
-                activity_type: 'ACTIVE',
-                file_size: '0.501 MB'
-              },
-              {
-                id: 2,
-                timestamp: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate || '01'} 17:12:00`,
-                screenshot_url: 'https://via.placeholder.com/400x300/34a853/ffffff?text=Work+Activity',
-                activity_type: 'ACTIVE',
-                file_size: '0.479 MB'
-              }
-            ]);
+            console.log('📸 No screenshots found');
+            setUserScreenshots([]);
           }
         } else {
-          throw new Error('No screenshot data found');
+          console.log('📸 No user data in response');
+          setUserScreenshots([]);
+          setAllScreenshots([]);
+          setTotalScreenshots(0);
         }
       } else {
-        throw new Error('Failed to fetch screenshots');
+        throw new Error(`API request failed: ${response?.status || 'Network Error'}`);
       }
     } catch (error) {
       console.error('🚨 Screenshot Error:', error);
-      setScreenshotError('Failed to load screenshots');
-      // Provide mock data on error
-      setUserScreenshots([
-        {
-          id: 1,
-          timestamp: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate || '01'} 17:35:00`,
-          screenshot_url: 'https://via.placeholder.com/400x300/f44336/ffffff?text=Demo+Screenshot',
-          activity_type: 'ACTIVE',
-          file_size: '0.501 MB'
-        }
-      ]);
+      setApiStatus('mock');
+      setScreenshotError(`Failed to load screenshots: ${error.message}`);
+      setUserScreenshots([]);
+      setAllScreenshots([]);
+      setTotalScreenshots(0);
     } finally {
       setIsLoadingScreenshots(false);
     }
@@ -460,10 +478,12 @@ const ActivityStream = () => {
     setShowResults(false);
     setSelectedUser(user);
     setUserActivityDates(new Set()); // Reset activity dates
+    setActiveDate(null); // Reset active date selection
+    setCurrentPage(1); // Reset pagination
     console.log('Selected user:', user);
     
-    // Fetch screenshots for selected user
-    fetchUserScreenshots(user);
+    // Fetch screenshots for selected user (full month initially)
+    fetchUserScreenshots(user, null);
   };
 
   // Generate calendar days for the selected month
@@ -494,40 +514,53 @@ const ActivityStream = () => {
   const handleYearChange = (e) => {
     setSelectedYear(Number(e.target.value));
     setActiveDate(null); // Reset active date when year changes
+    setUserActivityDates(new Set()); // Reset activity dates
+    setCurrentPage(1); // Reset pagination
     // Refresh screenshots if user is selected
     if (selectedUser) {
-      fetchUserScreenshots(selectedUser);
+      fetchUserScreenshots(selectedUser, null);
     }
   };
 
   const handleMonthChange = (e) => {
     setSelectedMonth(Number(e.target.value));
     setActiveDate(null); // Reset active date when month changes
+    setUserActivityDates(new Set()); // Reset activity dates
+    setCurrentPage(1); // Reset pagination
     // Refresh screenshots if user is selected
     if (selectedUser) {
-      fetchUserScreenshots(selectedUser);
+      fetchUserScreenshots(selectedUser, null);
     }
   };
+
+  // Pagination handlers
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
+      setCurrentPage(newPage);
+      const startIndex = (newPage - 1) * screenshotsPerPage;
+      const endIndex = startIndex + screenshotsPerPage;
+      setUserScreenshots(allScreenshots.slice(startIndex, endIndex));
+      
+      // Scroll to top of screenshots section
+      const screenshotsSection = document.querySelector('[data-screenshots-section]');
+      if (screenshotsSection) {
+        screenshotsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  const totalPages = Math.ceil(totalScreenshots / screenshotsPerPage);
 
   // Handle date selection from calendar
   const handleDateSelect = (day) => {
     if (day.isCurrentMonth) {
-      setActiveDate(day.date.toString().padStart(2, '0'));
+      const selectedDateStr = day.date.toString().padStart(2, '0');
+      setActiveDate(selectedDateStr);
+      
       if (selectedUser) {
-        // Update the API call to fetch screenshots for the specific date
-        const searchParams = new URLSearchParams({
-          q: selectedUser.display_name || selectedUser.email || selectedUser.original_name,
-          page: 1,
-          page_size: 50,
-          group_by: 'date',
-          start_date: `${day.year}-${day.month.toString().padStart(2, '0')}-${day.date.toString().padStart(2, '0')}`,
-          end_date: `${day.year}-${day.month.toString().padStart(2, '0')}-${day.date.toString().padStart(2, '0')}`,
-          month: `${day.year}-${day.month.toString().padStart(2, '0')}`,
-          year: day.year.toString()
-        });
-        
-        // Trigger screenshot refresh for the specific date
-        fetchUserScreenshots(selectedUser);
+        // Fetch screenshots specifically for the selected date
+        console.log(`📅 Selected date: ${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDateStr}`);
+        fetchUserScreenshots(selectedUser, day.date);
       }
     }
   };
@@ -584,10 +617,11 @@ const ActivityStream = () => {
           borderRadius: '8px',
           border: '1px solid #e1e5e9',
           overflowX: 'auto',
-          minWidth: 'fit-content'
+          minWidth: 'fit-content',
+          maxWidth: '100%'
         }}>
-          {/* Get first 5 dates of current month for horizontal display */}
-          {calendarDays.filter(day => day.isCurrentMonth).slice(0, 5).map((day, index) => {
+          {/* Show all dates of current month for horizontal display */}
+          {calendarDays.filter(day => day.isCurrentMonth).map((day, index) => {
               const isSelected = activeDate === day.date.toString().padStart(2, '0');
               const isToday = day.isToday;
               
@@ -825,12 +859,26 @@ const ActivityStream = () => {
                   color: '#5f6368'
                 }}>
                   Activity Stream - {getMonthName(selectedMonth)} {selectedYear}
+                  {activeDate && ` (Day ${activeDate})`}
                 </p>
+                {totalScreenshots > 0 && (
+                  <p style={{ 
+                    margin: '4px 0 0 0', 
+                    fontSize: '12px', 
+                    color: '#1a73e8',
+                    fontWeight: '500'
+                  }}>
+                    {totalScreenshots} total screenshots • Page {currentPage} of {totalPages} • Showing {((currentPage - 1) * screenshotsPerPage) + 1}-{Math.min(currentPage * screenshotsPerPage, totalScreenshots)}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => {
                   setSelectedUser(null);
                   setUserScreenshots([]);
+                  setAllScreenshots([]);
+                  setTotalScreenshots(0);
+                  setCurrentPage(1);
                   setSearchValue('');
                 }}
                 style={{
@@ -900,94 +948,330 @@ const ActivityStream = () => {
 
             {/* Screenshots Grid */}
             {!isLoadingScreenshots && !screenshotError && userScreenshots.length > 0 && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '16px',
-                padding: '8px 0'
-              }}>
-                {userScreenshots.map((screenshot, index) => (
-                  <div
-                    key={screenshot.id || index}
-                    style={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e1e5e9',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-                    }}
-                  >
-                    {/* Screenshot Image */}
-                    <div style={{
-                      width: '100%',
-                      height: '120px',
-                      backgroundColor: '#f8f9fa',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative'
-                    }}>
-                      {screenshot.screenshot_url ? (
-                        <img
-                          src={screenshot.screenshot_url}
-                          alt={`Screenshot ${screenshot.timestamp}`}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
-                          }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
+              <div data-screenshots-section>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gap: '20px',
+                  padding: '8px 0',
+                  marginBottom: '30px'
+                }}>
+                  {userScreenshots.map((screenshot, index) => (
+                    <div
+                      key={screenshot.id || screenshot.filename || index}
+                      style={{
+                        backgroundColor: 'white',
+                        border: '1px solid #e1e5e9',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                      }}
+                      onClick={() => {
+                        // Open screenshot in new tab
+                        if (screenshot.screenshot_url) {
+                          window.open(screenshot.screenshot_url, '_blank');
+                        }
+                      }}
+                    >
+                      {/* Screenshot Image */}
                       <div style={{
-                        display: screenshot.screenshot_url ? 'none' : 'flex',
-                        flexDirection: 'column',
+                        width: '100%',
+                        height: '200px',
+                        backgroundColor: '#f8f9fa',
+                        display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#5f6368',
-                        fontSize: '14px'
+                        position: 'relative',
+                        overflow: 'hidden'
                       }}>
-                        <div style={{ fontSize: '24px', marginBottom: '4px' }}>📸</div>
-                        <span>Screenshot</span>
+                        {screenshot.screenshot_url ? (
+                          <img
+                            src={(() => {
+                              // Get current host and port for full URL construction
+                              const currentHost = 'http://localhost:3001/s3-images';
+                              
+                              // Replace S3 URL with current app URL
+                              if (screenshot.screenshot_url.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
+                                // Replace the S3 domain with proxy server URL
+                                const localUrl = screenshot.screenshot_url.replace(
+                                  'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
+                                  currentHost
+                                );
+                                console.log('� Replaced S3 URL with local:', localUrl);
+                                return localUrl;
+                              }
+                              
+                              // Handle other S3 formats
+                              if (screenshot.screenshot_url.includes('s3') && screenshot.screenshot_url.includes('amazonaws.com')) {
+                                const urlParts = screenshot.screenshot_url.split('/');
+                                const pathIndex = urlParts.findIndex(part => part.includes('amazonaws.com'));
+                                if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
+                                  const s3Path = urlParts.slice(pathIndex + 1).join('/');
+                                  console.log('📸 Using direct path for S3:', s3Path);
+                                  return `${currentHost}/${s3Path}`;
+                                }
+                              }
+                              
+                              // Return original URL for non-S3 images
+                              console.log('📸 Using direct URL:', screenshot.screenshot_url);
+                              return screenshot.screenshot_url;
+                            })()}
+                            alt={`Screenshot ${screenshot.timestamp}`}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              transition: 'transform 0.2s',
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              zIndex: 2,
+                              opacity: 0
+                            }}
+                            onLoad={(e) => {
+                              console.log('✅ Image loaded successfully:', e.target.src);
+                              e.target.style.display = 'block';
+                              e.target.style.opacity = '1';
+                              // Hide the placeholder when image loads
+                              const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
+                              if (placeholder && placeholder.querySelector('span')) {
+                                placeholder.style.display = 'none';
+                              }
+                            }}
+                            onError={(e) => {
+                              console.error('❌ Image failed to load:', e.target.src);
+                              console.log('📋 Original URL:', screenshot.screenshot_url);
+                              
+                              // Only try direct S3 URL as fallback
+                              if (!e.target.src.startsWith('https://ddsfocustime.s3.eu-north-1.amazonaws.com')) {
+                                console.log('🔄 Local URL failed, trying direct S3 URL...');
+                                e.target.src = screenshot.screenshot_url;
+                              } else {
+                                // Show placeholder if direct S3 also fails
+                                console.log('❌ All loading attempts failed, showing placeholder');
+                                e.target.style.display = 'none';
+                                const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
+                                if (placeholder && placeholder.querySelector('span')) {
+                                  placeholder.style.display = 'flex';
+                                  placeholder.querySelector('span').textContent = 'Failed to load';
+                                }
+                              }
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.transform = 'scale(1)';
+                            }}
+                          />
+                        ) : null}
+                        <div style={{
+                          display: screenshot.screenshot_url ? 'none' : 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#5f6368',
+                          fontSize: '14px',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: '#f8f9fa',
+                          zIndex: 1
+                        }}>
+                          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
+                          <span>Loading...</span>
+                        </div>
+                        
+                        {/* Overlay with timestamp */}
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '8px',
+                          left: '8px',
+                          right: '8px',
+                          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                          color: 'white',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '500'
+                        }}>
+                          {new Date(screenshot.timestamp).toLocaleTimeString()}
+                        </div>
                       </div>
+
+                      {/* Screenshot Info */}
+                      <div style={{ padding: '16px' }}>
+                        <div style={{
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: '#202124',
+                          marginBottom: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <span style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: screenshot.activity_type === 'ACTIVE' ? '#4caf50' : '#ff9800'
+                          }}></span>
+                          {new Date(screenshot.timestamp).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                        
+                        <div style={{
+                          fontSize: '11px',
+                          color: '#5f6368',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '8px'
+                        }}>
+                          <span style={{
+                            backgroundColor: '#e8f5e8',
+                            color: '#2e7d32',
+                            padding: '2px 6px',
+                            borderRadius: '12px',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}>
+                            {screenshot.activity_type || 'ACTIVE'}
+                          </span>
+                          <span style={{ fontWeight: '500' }}>
+                            {screenshot.file_size || `${screenshot.size_mb || 0} MB`}
+                          </span>
+                        </div>
+                        
+                        {screenshot.filename && (
+                          <div style={{
+                            fontSize: '10px',
+                            color: '#9ca3af',
+                            fontFamily: 'monospace',
+                            wordBreak: 'break-all',
+                            lineHeight: '1.3'
+                          }}>
+                            {screenshot.filename}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '20px 0',
+                    borderTop: '1px solid #e1e5e9',
+                    marginTop: '20px'
+                  }}>
+                    {/* Previous Button */}
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === 1 ? '#f8f9fa' : '#4285f4',
+                        color: currentPage === 1 ? '#9ca3af' : 'white',
+                        border: '1px solid #e1e5e9',
+                        borderRadius: '6px',
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      ← Previous
+                    </button>
+
+                    {/* Page Numbers */}
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
+                        let pageNumber;
+                        if (totalPages <= 7) {
+                          pageNumber = i + 1;
+                        } else if (currentPage <= 4) {
+                          pageNumber = i + 1;
+                        } else if (currentPage >= totalPages - 3) {
+                          pageNumber = totalPages - 6 + i;
+                        } else {
+                          pageNumber = currentPage - 3 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNumber}
+                            onClick={() => handlePageChange(pageNumber)}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              backgroundColor: currentPage === pageNumber ? '#4285f4' : 'white',
+                              color: currentPage === pageNumber ? 'white' : '#202124',
+                              border: '1px solid #e1e5e9',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              fontWeight: currentPage === pageNumber ? '600' : '400',
+                              transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => {
+                              if (currentPage !== pageNumber) {
+                                e.target.style.backgroundColor = '#f8f9fa';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (currentPage !== pageNumber) {
+                                e.target.style.backgroundColor = 'white';
+                              }
+                            }}
+                          >
+                            {pageNumber}
+                          </button>
+                        );
+                      })}
                     </div>
 
-                    {/* Screenshot Info */}
-                    <div style={{ padding: '12px' }}>
-                      <div style={{
-                        fontSize: '12px',
+                    {/* Next Button */}
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#4285f4',
+                        color: currentPage === totalPages ? '#9ca3af' : 'white',
+                        border: '1px solid #e1e5e9',
+                        borderRadius: '6px',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        fontSize: '14px',
                         fontWeight: '500',
-                        color: '#202124',
-                        marginBottom: '4px'
-                      }}>
-                        {new Date(screenshot.timestamp).toLocaleString()}
-                      </div>
-                      <div style={{
-                        fontSize: '11px',
-                        color: '#5f6368',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}>
-                        <span>{screenshot.activity_type || 'ACTIVE'}</span>
-                        <span>{screenshot.file_size || 'N/A'}</span>
-                      </div>
-                    </div>
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      Next →
+                    </button>
                   </div>
-                ))}
+                )}
               </div>
             )}
 
