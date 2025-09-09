@@ -20,7 +20,7 @@ class AppStylingAPIView(APIView):
     permission_classes = []       # No permissions required for getting styles
     
     def get(self, request):
-        """Get current active styling configuration"""
+        """Get current active styling configuration in your custom JSON format"""
         try:
             # Get active theme
             active_styling = AppStyling.get_active_theme()
@@ -29,7 +29,7 @@ class AppStylingAPIView(APIView):
                 serializer = AppStylingSerializer(active_styling)
                 styling_data = serializer.data
                 
-                # Also return in custom format for compatibility
+                # Return in your custom format as primary response
                 custom_format = {
                     "theme_name": styling_data.get("theme_name", "Default Theme"),
                     "description": styling_data.get("description", "Default application styling"),
@@ -48,31 +48,13 @@ class AppStylingAPIView(APIView):
                 return Response({
                     "status": "success",
                     "message": "Active styling configuration retrieved successfully",
-                    "data": styling_data,
-                    "custom_format": custom_format
+                    "data": custom_format,
+                    "database_format": styling_data,
+                    "css_variables": styling_data.get("css_variables", {})
                 }, status=status.HTTP_200_OK)
             else:
-                # Return default styling if no active theme
-                default_styling = {
-                    "id": None,
-                    "theme_name": "Default Theme",
-                    "description": "Default application styling",
-                    "primary_color": "#1E90FF",
-                    "secondary_color": "#32CD32",
-                    "background_color": "#FFFFFF",
-                    "button_color": "#007BFF",
-                    "text_color": "#333333",
-                    "heading_font_size": "24px",
-                    "body_font_size": "16px",
-                    "font_family": "Arial",
-                    "border_radius": "5px",
-                    "is_active": True,
-                    "is_default": True,
-                    "created_by": "System",
-                    "version": "1.0"
-                }
-                
-                custom_format = {
+                # Return default styling if no active theme in custom format
+                default_custom_format = {
                     "theme_name": "Default Theme",
                     "description": "Default application styling",
                     "header-color": "#1E90FF",
@@ -87,11 +69,23 @@ class AppStylingAPIView(APIView):
                     "border_radius": "5px"
                 }
                 
+                default_css_variables = {
+                    "--primary-color": "#1E90FF",
+                    "--secondary-color": "#32CD32",
+                    "--background-color": "#FFFFFF",
+                    "--button-color": "#007BFF",
+                    "--text-color": "#333333",
+                    "--heading-font-size": "24px",
+                    "--body-font-size": "16px",
+                    "--font-family": "Arial",
+                    "--border-radius": "5px"
+                }
+                
                 return Response({
                     "status": "success",
                     "message": "No active styling found, returning default configuration",
-                    "data": default_styling,
-                    "custom_format": custom_format
+                    "data": default_custom_format,
+                    "css_variables": default_css_variables
                 }, status=status.HTTP_200_OK)
                 
         except Exception as e:
