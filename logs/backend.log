@@ -8065,3 +8065,13 @@ INFO 2025-09-08 19:58:15,110 basehttp 3304 18888 "POST /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,726 middleware 3304 18888 Request: GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928
+INFO 2025-09-09 20:19:03,811 users_screenshots_view 18576 3764 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-09 20:19:03,857 users_screenshots_view 18576 3764 Starting to process users_screenshots folder...
+INFO 2025-09-09 20:19:05,473 users_screenshots_view 18576 3764 Processing page with 590 objects
+INFO 2025-09-09 20:19:05,868 users_screenshots_view 18576 3764 S3 Processing Summary:
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total users found: 3
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Active users: 3
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total files: 589
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Processed users_screenshots: 3 users, 589 files, 104.50MB
+INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
