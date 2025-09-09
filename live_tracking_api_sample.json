@@ -1,0 +1,92 @@
+{
+  "status": "success",
+  "data": {
+    "total_employees": {
+      "title": "TOTAL USERS (USERS_SCREENSHOTS)",
+      "count": 3,
+      "growth_rate": "\u2191100.0% growth rate",
+      "icon": "\ud83d\udc64"
+    },
+    "metrics": [
+      {
+        "label": "S3 Users",
+        "value": 3,
+        "type": "number"
+      },
+      {
+        "label": "Total Files",
+        "value": 589,
+        "type": "number"
+      },
+      {
+        "label": "Storage (GB)",
+        "value": 0.1,
+        "type": "number"
+      },
+      {
+        "label": "Last Updated",
+        "value": "09/09/2025",
+        "type": "date"
+      }
+    ],
+    "summary": {
+      "total_count": 3,
+      "s3_users": 3,
+      "s3_files": 589,
+      "s3_size_gb": 0.10205515660345554,
+      "growth_rate": 100.0,
+      "growth_percentage": "100.0%",
+      "active_users": 3,
+      "last_updated": "09/09/2025",
+      "growth_positive": true,
+      "data_source": "Users Screenshots (S3)"
+    },
+    "data_sources": {
+      "s3_files": 589,
+      "s3_users": 3,
+      "s3_last_updated": "09/09/2025",
+      "crm_status": "Not Used",
+      "s3_status": "Connected",
+      "primary_source": "users_screenshots"
+    },
+    "s3_users_sample": [
+      {
+        "user_email": "nawaz_at_dxdglobal.com",
+        "file_count": 475,
+        "total_size_mb": 88.29,
+        "days_active": 1,
+        "latest_file": "2025-09-01_17-21-51.webp",
+        "latest_file_url": "https://ddsfocustime.s3.amazonaws.com/users_screenshots/2025-09-01/nawaz_at_dxdglobal.com/2025-09-01_17-21-51.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250909%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250909T162735Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=348c41538b4158d3d7817f4936f9a8faabb588a6924aae4426fe8e7fd8daa347",
+        "latest_date": "2025-09-01"
+      },
+      {
+        "user_email": "haseebcodejourney_at_gmail.com",
+        "file_count": 61,
+        "total_size_mb": 8.25,
+        "days_active": 2,
+        "latest_file": "2025-09-09_17-05-26.webp",
+        "latest_file_url": "https://ddsfocustime.s3.amazonaws.com/users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250909%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250909T162735Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=65a59c503f23b512999f37705f81affc79b3817726fb1fc93581fd5429b925c8",
+        "latest_date": "2025-09-09"
+      },
+      {
+        "user_email": "kiranaiza4_at_gmail.com",
+        "file_count": 53,
+        "total_size_mb": 7.96,
+        "days_active": 1,
+        "latest_file": "2025-09-01_17-54-52.webp",
+        "latest_file_url": "https://ddsfocustime.s3.amazonaws.com/users_screenshots/2025-09-01/kiranaiza4_at_gmail.com/2025-09-01_17-54-52.webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARSU6EUUWMQ5I2JWC%2F20250909%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20250909T162735Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4812d07da052300697ca0d1fc945ad6a2972ac0841743db91907e24e1057cf85",
+        "latest_date": "2025-09-01"
+      }
+    ]
+  },
+  "meta": {
+    "timestamp": "2025-09-09T16:27:35.179977",
+    "source": "Users Screenshots (S3)",
+    "api_version": "3.0.0",
+    "services_status": {
+      "s3_status": "Connected",
+      "crm_status": "Not Used",
+      "primary_source": "users_screenshots"
+    }
+  }
+}

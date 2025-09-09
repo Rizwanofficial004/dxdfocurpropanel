@@ -131,7 +131,9 @@ export const buildScreenshotProxyUrl = (imagePath) => {
   
   // If it's an S3 URL, convert to proxy format
   if (imagePath.includes('ddsfocustime.s3.amazonaws.com/')) {
-    const s3Path = imagePath.split('ddsfocustime.s3.amazonaws.com/')[1];
+    // Remove AWS signature parameters and extract just the S3 path
+    const s3BaseUrl = imagePath.split('?')[0]; // Remove query parameters
+    const s3Path = s3BaseUrl.split('ddsfocustime.s3.amazonaws.com/')[1];
     return `${baseURL}${API_CONFIG.ENDPOINTS.SCREENSHOT_PROXY}${s3Path}`;
   }
   

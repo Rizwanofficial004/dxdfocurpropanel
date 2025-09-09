@@ -145,7 +145,7 @@ const FocusTimeline = () => {
     try {
       setLoadingSuggestions(true);
       const response = await withRetry(
-        () => normalAxios.get(`http://localhost:8000/api/logs/search/?search=${encodeURIComponent(query)}&limit=10`),
+        () => normalAxios.get(buildApiUrl(`${API_ENDPOINTS.LOGS.SEARCH}?search=${encodeURIComponent(query)}&limit=10`)),
         2, // 2 retries for search
         1000 // 1 second delay
       );
@@ -276,7 +276,7 @@ const FocusTimeline = () => {
       // If it's a project folder, fetch files from the API
       if (task.type === 'project_folder' && user.email && task.name) {
         try {
-          const response = await axios.get(`http://localhost:8000/api/logs/files/?email=${encodeURIComponent(user.email)}&date=${encodeURIComponent(task.name)}&limit=20`, {
+          const response = await axios.get(buildApiUrl(`${API_ENDPOINTS.LOGS.FILES}?email=${encodeURIComponent(user.email)}&date=${encodeURIComponent(task.name)}&limit=20`), {
             timeout: 8000
           });
           
@@ -409,7 +409,7 @@ const FocusTimeline = () => {
       if (!jsonData) {
         try {
           const apiResponse = await axios.get(
-            `http://localhost:8000/api/logs/file-content/?email=${encodeURIComponent(selectedUser?.email)}&file_path=${encodeURIComponent(file.path)}`,
+            buildApiUrl(`${API_ENDPOINTS.LOGS.FILE_CONTENT}?email=${encodeURIComponent(selectedUser?.email)}&file_path=${encodeURIComponent(file.path)}`),
             { timeout: 8000 }
           );
           if (apiResponse.data?.success && apiResponse.data?.content) {
@@ -520,7 +520,7 @@ const FocusTimeline = () => {
       if (file.type === 'file') {
         // Try to fetch actual activity logs from API
         try {
-          const response = await axios.get(`http://localhost:8000/api/logs/activity/?email=${encodeURIComponent(user.email)}&file_path=${encodeURIComponent(file.path)}&limit=50`, {
+          const response = await axios.get(buildApiUrl(`${API_ENDPOINTS.LOGS.ACTIVITY}?email=${encodeURIComponent(user.email)}&file_path=${encodeURIComponent(file.path)}&limit=50`), {
             timeout: 8000
           });
           
@@ -1101,7 +1101,7 @@ const FocusTimeline = () => {
         <SearchInfo theme={theme} isDarkMode={isDarkMode}>
           {backendStatus === 'disconnected' ? (
             <>
-              ❌ <strong>Backend Server Not Running</strong> - Using test data for demonstration (Expected: http://localhost:8000api/logs/search/)
+              ❌ <strong>Backend Server Not Running</strong> - Using test data for demonstration (Expected: {buildApiUrl(API_ENDPOINTS.LOGS.SEARCH)})
             </>
           ) : (
             <>
