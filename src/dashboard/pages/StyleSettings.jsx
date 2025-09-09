@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { gsap } from 'gsap';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { getApiBaseURL } from '../../config/api';
@@ -26,6 +27,7 @@ import {
 
 const StyleSettings = () => {
   const { theme, isDarkMode } = useTheme();
+  const { t } = useLanguage();
   const settingsRef = useRef(null);
   const cardsRef = useRef([]);
 
@@ -107,13 +109,13 @@ const StyleSettings = () => {
             font_family: data.data.font_family || 'Arial, sans-serif',
             border_radius: data.data.border_radius || '8px'
           });
-          setMessage('✅ Styling configuration loaded successfully!');
+          setMessage('✅ ' + t('stylingConfigLoaded'));
           setTimeout(() => setMessage(''), 3000);
         }
       }
     } catch (error) {
       console.error('Error fetching styling config:', error);
-      setMessage('❌ Failed to load styling configuration');
+      setMessage('❌ ' + t('failedToLoadStyling'));
       setTimeout(() => setMessage(''), 3000);
     } finally {
       setFetchingConfig(false);
@@ -158,7 +160,7 @@ const StyleSettings = () => {
         const data = await response.json();
         console.log('✅ API Response Data:', data);
         if (data.status === 'success') {
-          setMessage('✅ Styling configuration saved successfully!');
+          setMessage('✅ ' + t('stylingConfigSaved'));
           setTimeout(() => setMessage(''), 3000);
         }
       } else {
@@ -168,7 +170,7 @@ const StyleSettings = () => {
       }
     } catch (error) {
       console.error('Error saving styling config:', error);
-      setMessage('❌ Failed to save styling configuration');
+      setMessage('❌ ' + t('failedToSaveStyling'));
       setTimeout(() => setMessage(''), 3000);
     } finally {
       setSavingConfig(false);
@@ -203,13 +205,13 @@ const StyleSettings = () => {
   }, []);
 
   return (
-    <DashboardLayout headerTitle="Styling Settings" headerBreadcrumb="Settings › Styling">
+    <DashboardLayout headerTitle={t('stylingSettings')} headerBreadcrumb={t('settings') + ' › ' + t('styling')}>
       <SettingsWrapper isDarkMode={isDarkMode} ref={settingsRef}>
         <SettingsContainer>
           <SettingsHeader>
-            <SettingsTitle isDarkMode={isDarkMode}>🎨 Styling Configuration</SettingsTitle>
+            <SettingsTitle isDarkMode={isDarkMode}>🎨 {t('stylingConfiguration')}</SettingsTitle>
             <SettingsSubtitle isDarkMode={isDarkMode}>
-              Customize the global theme and styling for your application
+              {t('customizeGlobalTheme')}
             </SettingsSubtitle>
           </SettingsHeader>
 
@@ -223,52 +225,52 @@ const StyleSettings = () => {
           )}
 
           <Section isDarkMode={isDarkMode} index={0} ref={el => cardsRef.current[0] = el}>
-            <SectionTitle isDarkMode={isDarkMode}>🎨 Global Theme Configuration</SectionTitle>
+            <SectionTitle isDarkMode={isDarkMode}>🎨 {t('globalThemeConfiguration')}</SectionTitle>
             
             <ConfigCard isDarkMode={isDarkMode} index={0}>
               <ConfigHeader>
                 <ConfigInfo>
-                  <ConfigName isDarkMode={isDarkMode}>Theme Settings</ConfigName>
+                  <ConfigName isDarkMode={isDarkMode}>{t('themeSettings')}</ConfigName>
                   <ConfigDescription isDarkMode={isDarkMode}>
-                    Configure global theme colors, typography, and styling preferences
+                    {t('configureGlobalTheme')}
                   </ConfigDescription>
                 </ConfigInfo>
               </ConfigHeader>
 
               {/* Basic Information */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ color: isDarkMode ? '#f1f5f9' : '#1e293b', marginBottom: '1rem' }}>📋 Basic Information</h4>
+                <h4 style={{ color: isDarkMode ? '#f1f5f9' : '#1e293b', marginBottom: '1rem' }}>📋 {t('basicInformation')}</h4>
               </div>
               
               <FormGrid columns="1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Theme Name</Label>
+                  <Label isDarkMode={isDarkMode}>{t('themeName')}</Label>
                   <Input
                     isDarkMode={isDarkMode}
                     value={stylingConfig.theme_name}
                     onChange={(e) => updateStylingConfig('theme_name', e.target.value)}
-                    placeholder="Enter theme name"
+                    placeholder={t('enterThemeName')}
                   />
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Description</Label>
+                  <Label isDarkMode={isDarkMode}>{t('description')}</Label>
                   <Input
                     isDarkMode={isDarkMode}
                     value={stylingConfig.description}
                     onChange={(e) => updateStylingConfig('description', e.target.value)}
-                    placeholder="Describe your theme"
+                    placeholder={t('describeTheme')}
                   />
                 </FormField>
               </FormGrid>
 
               {/* Color Configuration */}
               <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
-                <h4 style={{ color: isDarkMode ? '#f1f5f9' : '#1e293b', marginBottom: '1rem' }}>🎨 Color Settings</h4>
+                <h4 style={{ color: isDarkMode ? '#f1f5f9' : '#1e293b', marginBottom: '1rem' }}>🎨 {t('colorSettings')}</h4>
               </div>
               
               <FormGrid columns="1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Header Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('headerColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -287,7 +289,7 @@ const StyleSettings = () => {
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Footer Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('footerColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -309,7 +311,7 @@ const StyleSettings = () => {
 
               <FormGrid columns="1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Background Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('backgroundColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -328,7 +330,7 @@ const StyleSettings = () => {
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Header Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('headerColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -350,7 +352,7 @@ const StyleSettings = () => {
 
               <FormGrid columns="1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Footer Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('footerColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -369,7 +371,7 @@ const StyleSettings = () => {
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Button Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('buttonColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -388,7 +390,7 @@ const StyleSettings = () => {
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Button Text Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('buttonTextColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -410,7 +412,7 @@ const StyleSettings = () => {
 
               <FormGrid columns="1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Button Text Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('buttonTextColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -429,7 +431,7 @@ const StyleSettings = () => {
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Text Color</Label>
+                  <Label isDarkMode={isDarkMode}>{t('textColor')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -451,12 +453,12 @@ const StyleSettings = () => {
 
               {/* Typography Configuration */}
               <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
-                <h4 style={{ color: isDarkMode ? '#f1f5f9' : '#1e293b', marginBottom: '1rem' }}>📝 Typography Settings</h4>
+                <h4 style={{ color: isDarkMode ? '#f1f5f9' : '#1e293b', marginBottom: '1rem' }}>📝 {t('typographySettings')}</h4>
               </div>
               
               <FormGrid columns="1fr 1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Font Family</Label>
+                  <Label isDarkMode={isDarkMode}>{t('fontFamily')}</Label>
                   <select 
                     value={stylingConfig.font_family}
                     onChange={(e) => updateStylingConfig('font_family', e.target.value)}
@@ -479,7 +481,7 @@ const StyleSettings = () => {
                   </select>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Heading Font Size</Label>
+                  <Label isDarkMode={isDarkMode}>{t('headingFontSize')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -500,7 +502,7 @@ const StyleSettings = () => {
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Body Font Size</Label>
+                  <Label isDarkMode={isDarkMode}>{t('bodyFontSize')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -525,7 +527,7 @@ const StyleSettings = () => {
               {/* Border Radius */}
               <FormGrid columns="1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Border Radius</Label>
+                  <Label isDarkMode={isDarkMode}>{t('borderRadius')}</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
@@ -557,7 +559,7 @@ const StyleSettings = () => {
                   }}
                   disabled={savingConfig || fetchingConfig}
                 >
-                  {fetchingConfig ? 'Loading...' : 'Reset'}
+                  {fetchingConfig ? t('loading') : t('reset')}
                 </Button>
                 <Button
                   variant="primary"
@@ -565,7 +567,7 @@ const StyleSettings = () => {
                   onClick={saveStylingConfig}
                   disabled={savingConfig || fetchingConfig}
                 >
-                  {savingConfig ? 'Saving...' : 'Save Styling'}
+                  {savingConfig ? t('saving') : t('saveStyling')}
                 </Button>
               </div>
             </ConfigCard>
