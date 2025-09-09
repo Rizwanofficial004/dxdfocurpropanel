@@ -4,6 +4,7 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ChartsSection } from '../components/charts/ChartsSection';
 import { Container } from '../styles/commonStyles';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { lightTheme } from '../../styles/theme';
 import { Cards } from '../components/card/StatsCardsCRM';
 import ActivityStream from '../components/activity/ActivityStream';
@@ -77,6 +78,7 @@ const DashboardComponentsGrid = styled.div`
 
 const Dashboard = () => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   return (
     <DashboardLayout>

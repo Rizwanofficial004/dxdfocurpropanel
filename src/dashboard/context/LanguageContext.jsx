@@ -84,6 +84,11 @@ const translations = {
     thisMonth: 'This Month',
     customRange: 'Custom Range',
     searchEmployeeName: 'Search employee name...',
+    searchEmployee: 'Search Employee',
+    searchForEmployees: 'Search for employees to view their activity stream',
+    selectUserToView: 'Select a user to view their activity stream',
+    foundUsersFor: 'Found {{count}} user(s) for "{{query}}"',
+    noData: 'No data',
     advancedFilter: 'Advanced Filter',
     export: 'Export',
     loadMoreScreenshots: 'Load More Screenshots',
@@ -180,6 +185,100 @@ const translations = {
     businessReviewDesc: 'Review of business performance for the past quarter.',
     teamBuildingWorkshop: 'Team Building Workshop',
     teamBuildingDesc: 'Workshop aimed at improving team collaboration and communication skills.',
+    
+    // QuickView translations
+    quickView: 'QUICK VIEW',
+    search: 'SEARCH',
+    selectDate: 'SELECT DATE',
+    employeesPerPage: 'Employees per page',
+    showing: 'Showing',
+    to: 'to',
+    of: 'of',
+    employees: 'employees',
+    employee: 'Employee',
+    team: 'Team',
+    clockIn: 'Clock In',
+    clockOut: 'Clock Out',
+    hoursWorked: 'Hours Worked',
+    productivity: 'Productivity',
+    status: 'Status',
+    active: 'Active',
+    inactive: 'Inactive',
+    present: 'Present',
+    absent: 'Absent',
+    late: 'Late',
+    onTime: 'On Time',
+    overtime: 'Overtime',
+    undertime: 'Undertime',
+    
+    // Notification banner
+    profileCreated: 'Your user profile has been successfully created.',
+    downloadClient: 'You can now download the client app from',
+    loginExplore: 'and log in with your password to explore the features.',
+    
+    // Common UI elements
+    previous: 'Previous',
+    next: 'Next',
+    page: 'Page',
+    loading: 'Loading...',
+    error: 'Error',
+    success: 'Success',
+    warning: 'Warning',
+    info: 'Info',
+    
+    // Additional common terms
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    add: 'Add',
+    remove: 'Remove',
+    update: 'Update',
+    create: 'Create',
+    confirm: 'Confirm',
+    yes: 'Yes',
+    no: 'No',
+    close: 'Close',
+    open: 'Open',
+    back: 'Back',
+    forward: 'Forward',
+    refresh: 'Refresh',
+    reset: 'Reset',
+    
+    // Dashboard specific translations
+    currentStatus: 'CURRENT STATUS',
+    companyAverage: 'COMPANY AVERAGE',
+    atWork: 'At Work',
+    inMeeting: 'In Meeting',
+    atBreak: 'At Break',
+    idle: 'Idle',
+    off: 'Off',
+    dailyBreaks: 'DAILY BREAKS',
+    meetings: 'MEETINGS',
+    avg: 'Avg',
+    workTimeSpread: 'WORK TIME SPREAD',
+    breaks: 'Breaks',
+    totalEmployees: 'TOTAL EMPLOYEES',
+    totalProjects: 'TOTAL PROJECTS',
+    totalTasks: 'TOTAL TASKS',
+    live: 'LIVE',
+    growthRate: 'growth rate',
+    thanLastMonth: 'than last month',
+    totalCount: 'Total Count',
+    activeUsers: 'Active Users',
+    notStarted: 'Not Started',
+    inProgress: 'In Progress',
+    finished: 'Finished',
+    onHold: 'On Hold',
+    testing: 'Testing',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+    breaksPerDay: 'Breaks/Day',
+    minutesPerBreak: 'Minutes/Break',
+    meetingsPerDay: 'Meetings/Day',
+    minutesPerMeeting: 'Minutes/Meeting',
+    s3Employees: 'S3 Employees',
+    lastUpdated: 'Last Updated'
   },
   
   tr: {
@@ -265,6 +364,11 @@ const translations = {
     thisMonth: 'Bu Ay',
     customRange: 'Özel Aralık',
     searchEmployeeName: 'Çalışan adı ara...',
+    searchEmployee: 'Çalışan Ara',
+    searchForEmployees: 'Aktivite akışlarını görüntülemek için çalışanları arayın',
+    selectUserToView: 'Aktivite akışını görüntülemek için bir kullanıcı seçin',
+    foundUsersFor: '"{{query}}" için {{count}} kullanıcı bulundu',
+    noData: 'Veri Yok',
     advancedFilter: 'Gelişmiş Filtre',
     export: 'Dışa Aktar',
     loadMoreScreenshots: 'Daha Fazla Ekran Görüntüsü Yükle',
@@ -361,6 +465,100 @@ const translations = {
     businessReviewDesc: 'Geçen çeyrek için iş performansının değerlendirilmesi.',
     teamBuildingWorkshop: 'Takım Oluşturma Atölyesi',
     teamBuildingDesc: 'Takım işbirliği ve iletişim becerilerini geliştirmeyi amaçlayan atölye.',
+    
+    // QuickView translations
+    quickView: 'HIZLI GÖRÜNÜM',
+    search: 'ARA',
+    selectDate: 'TARİH SEÇ',
+    employeesPerPage: 'Sayfa başına çalışan',
+    showing: 'Gösterilen',
+    to: 'dan',
+    of: 'toplam',
+    employees: 'çalışan',
+    employee: 'Çalışan',
+    team: 'Takım',
+    clockIn: 'Giriş',
+    clockOut: 'Çıkış',
+    hoursWorked: 'Çalışılan Saat',
+    productivity: 'Verimlilik',
+    status: 'Durum',
+    active: 'Aktif',
+    inactive: 'Pasif',
+    present: 'Mevcut',
+    absent: 'Yok',
+    late: 'Geç',
+    onTime: 'Zamanında',
+    overtime: 'Mesai',
+    undertime: 'Eksik Mesai',
+    
+    // Notification banner
+    profileCreated: 'Kullanıcı profiliniz başarıyla oluşturuldu.',
+    downloadClient: 'Artık istemci uygulamasını şu adresten indirebilirsiniz',
+    loginExplore: 've özelliklerini keşfetmek için şifrenizle giriş yapın.',
+    
+    // Common UI elements
+    previous: 'Önceki',
+    next: 'Sonraki',
+    page: 'Sayfa',
+    loading: 'Yükleniyor...',
+    error: 'Hata',
+    success: 'Başarılı',
+    warning: 'Uyarı',
+    info: 'Bilgi',
+    
+    // Additional common terms
+    save: 'Kaydet',
+    cancel: 'İptal',
+    delete: 'Sil',
+    edit: 'Düzenle',
+    add: 'Ekle',
+    remove: 'Kaldır',
+    update: 'Güncelle',
+    create: 'Oluştur',
+    confirm: 'Onayla',
+    yes: 'Evet',
+    no: 'Hayır',
+    close: 'Kapat',
+    open: 'Aç',
+    back: 'Geri',
+    forward: 'İleri',
+    refresh: 'Yenile',
+    reset: 'Sıfırla',
+    
+    // Dashboard specific translations
+    currentStatus: 'MEVCUT DURUM',
+    companyAverage: 'ŞİRKET ORTALAMASI',
+    atWork: 'İşte',
+    inMeeting: 'Toplantıda',
+    atBreak: 'Molada',
+    idle: 'Boşta',
+    off: 'Kapalı',
+    dailyBreaks: 'GÜNLÜK MOLALAR',
+    meetings: 'TOPLANTI',
+    avg: 'Ort',
+    workTimeSpread: 'ÇALIŞMA ZAMANIN DAĞILIMI',
+    breaks: 'Molalar',
+    totalEmployees: 'TOPLAM ÇALIŞAN',
+    totalProjects: 'TOPLAM PROJE',
+    totalTasks: 'TOPLAM GÖREV',
+    live: 'CANLI',
+    growthRate: 'büyüme oranı',
+    thanLastMonth: 'geçen aydan',
+    totalCount: 'Toplam Sayı',
+    activeUsers: 'Aktif Kullanıcılar',
+    notStarted: 'Başlamadı',
+    inProgress: 'Devam Ediyor',
+    finished: 'Tamamlandı',
+    onHold: 'Beklemede',
+    testing: 'Test Ediliyor',
+    completed: 'Tamamlandı',
+    cancelled: 'İptal Edildi',
+    breaksPerDay: 'Molalar/Gün',
+    minutesPerBreak: 'Dakika/Mola',
+    meetingsPerDay: 'Toplantı/Gün',
+    minutesPerMeeting: 'Dakika/Toplantı',
+    s3Employees: 'S3 Çalışanları',
+    lastUpdated: 'Son Güncelleme'
   }
 };
 
@@ -375,7 +573,17 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  // Initialize language from localStorage or default to 'en'
+  const [language, setLanguageState] = useState(() => {
+    const savedLanguage = localStorage.getItem('language');
+    return savedLanguage || 'en';
+  });
+
+  // Enhanced setLanguage function that persists to localStorage
+  const setLanguage = (newLanguage) => {
+    setLanguageState(newLanguage);
+    localStorage.setItem('language', newLanguage);
+  };
 
   const t = (key) => {
     return translations[language][key] || key;

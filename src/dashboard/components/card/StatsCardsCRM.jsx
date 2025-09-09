@@ -150,7 +150,7 @@ const StatusIndicator = styled.div`
 `;
 
 export const Cards = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [statsData, setStatsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -160,6 +160,7 @@ export const Cards = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setDataSource(t('loading') || 'Loading...');
         console.log('🚀 Starting CRM Comprehensive API fetch...');
         
         const apiBaseURL = getApiBaseURL();
@@ -178,43 +179,43 @@ export const Cards = () => {
             const newStatsData = [
               {
                 icon: total_employees.icon || "👥",
-                title: total_employees.title || 'TOTAL EMPLOYEES',
+                title: t('totalEmployees'),
                 number: total_employees.count || 0,
                 subStats: [
-                  { label: 'Total Count', value: total_employees.metrics?.total_count || 0 },
-                  { label: 'Growth Rate', value: `${total_employees.metrics?.growth_rate || 0}%` },
-                  { label: 'Active Users', value: total_employees.metrics?.active_users || 0 },
-                  { label: 'S3 Employees', value: total_employees.metrics?.s3_employees || 0 }
+                  { label: t('totalCount'), value: total_employees.metrics?.total_count || 0 },
+                  { label: t('growthRate'), value: `${total_employees.metrics?.growth_rate || 0}%` },
+                  { label: t('activeUsers'), value: total_employees.metrics?.active_users || 0 },
+                  { label: t('s3Employees'), value: total_employees.metrics?.s3_employees || 0 }
                 ],
-                change: total_employees.growth_rate || `↑ ${total_employees.metrics?.growth_rate || 0}% growth rate`,
+                change: total_employees.growth_rate || `↑ ${total_employees.metrics?.growth_rate || 0}% ${t('growthRate')}`,
                 changeType: "positive",
                 color: "#3b82f6"
               },
               {
                 icon: total_projects.icon || "📊",
-                title: total_projects.title || 'TOTAL PROJECTS',
+                title: t('totalProjects'),
                 number: total_projects.count || 0,
                 subStats: [
-                  { label: 'Not Started', value: total_projects.metrics?.not_started || 0 },
-                  { label: 'In Progress', value: total_projects.metrics?.in_progress || 0 },
-                  { label: 'Finished', value: total_projects.metrics?.finished || 0 },
-                  { label: 'On Hold', value: total_projects.metrics?.on_hold || 0 }
+                  { label: t('notStarted'), value: total_projects.metrics?.not_started || 0 },
+                  { label: t('inProgress'), value: total_projects.metrics?.in_progress || 0 },
+                  { label: t('finished'), value: total_projects.metrics?.finished || 0 },
+                  { label: t('onHold'), value: total_projects.metrics?.on_hold || 0 }
                 ],
-                change: total_projects.growth_rate || "↑ 5.15% than last month",
+                change: total_projects.growth_rate || `↑ 5.15% ${t('thanLastMonth')}`,
                 changeType: "positive",
                 color: "#10b981"
               },
               {
                 icon: total_tasks.icon || "✅",
-                title: total_tasks.title || 'TOTAL TASKS',
+                title: t('totalTasks'),
                 number: total_tasks.count || 0,
                 subStats: [
-                  { label: 'Not Started', value: total_tasks.metrics?.not_started || 0 },
-                  { label: 'In Progress', value: total_tasks.metrics?.in_progress || 0 },
-                  { label: 'Testing', value: total_tasks.metrics?.testing || 0 },
-                  { label: 'Completed', value: total_tasks.metrics?.completed || 0 }
+                  { label: t('notStarted'), value: total_tasks.metrics?.not_started || 0 },
+                  { label: t('inProgress'), value: total_tasks.metrics?.in_progress || 0 },
+                  { label: t('testing'), value: total_tasks.metrics?.testing || 0 },
+                  { label: t('completed'), value: total_tasks.metrics?.completed || 0 }
                 ],
-                change: total_tasks.growth_rate || "↑ 8.2% than last month",
+                change: total_tasks.growth_rate || `↑ 8.2% ${t('thanLastMonth')}`,
                 changeType: "positive",
                 color: "#f59e0b"
               }
@@ -236,43 +237,43 @@ export const Cards = () => {
         const fallbackStatsData = [
           {
             icon: "👥",
-            title: 'TOTAL EMPLOYEES',
+            title: t('totalEmployees'),
             number: 3,
             subStats: [
-              { label: 'Total Count', value: 3 },
-              { label: 'Growth Rate', value: '10.0%' },
-              { label: 'Active Users', value: 3 },
-              { label: 'Last Updated', value: new Date().toLocaleDateString() }
+              { label: t('totalCount'), value: 3 },
+              { label: t('growthRate'), value: '10.0%' },
+              { label: t('activeUsers'), value: 3 },
+              { label: t('lastUpdated'), value: new Date().toLocaleDateString() }
             ],
-            change: "↑ 10.0% growth rate",
+            change: `↑ 10.0% ${t('growthRate')}`,
             changeType: "positive",
             color: "#3b82f6"
           },
           {
             icon: "📊",
-            title: 'TOTAL PROJECTS',
+            title: t('totalProjects'),
             number: 293,
             subStats: [
-              { label: 'Not Started', value: 2 },
-              { label: 'In Progress', value: 36 },
-              { label: 'Finished', value: 245 },
-              { label: 'On Hold', value: 4 }
+              { label: t('notStarted'), value: 2 },
+              { label: t('inProgress'), value: 36 },
+              { label: t('finished'), value: 245 },
+              { label: t('onHold'), value: 4 }
             ],
-            change: "↑ 5.15% than last month",
+            change: `↑ 5.15% ${t('thanLastMonth')}`,
             changeType: "positive",
             color: "#10b981"
           },
           {
             icon: "✅",
-            title: 'TOTAL TASKS',
+            title: t('totalTasks'),
             number: 1570,
             subStats: [
-              { label: 'Not Started', value: 53 },
-              { label: 'In Progress', value: 54 },
-              { label: 'Testing', value: 1 },
-              { label: 'Completed', value: 1451 }
+              { label: t('notStarted'), value: 53 },
+              { label: t('inProgress'), value: 54 },
+              { label: t('testing'), value: 1 },
+              { label: t('completed'), value: 1451 }
             ],
-            change: "↑ 8.2% than last month",
+            change: `↑ 8.2% ${t('thanLastMonth')}`,
             changeType: "positive",
             color: "#f59e0b"
           }
@@ -287,9 +288,9 @@ export const Cards = () => {
         
         // Emergency fallback
         const emergencyData = [
-          { icon: "👥", title: 'EMPLOYEES', number: 3, color: "#3b82f6" },
-          { icon: "📊", title: 'PROJECTS', number: 293, color: "#10b981" },
-          { icon: "✅", title: 'TASKS', number: 1570, color: "#f59e0b" }
+          { icon: "👥", title: t('totalEmployees'), number: 3, color: "#3b82f6" },
+          { icon: "📊", title: t('totalProjects'), number: 293, color: "#10b981" },
+          { icon: "✅", title: t('totalTasks'), number: 1570, color: "#f59e0b" }
         ];
         
         setStatsData(emergencyData);
@@ -301,7 +302,7 @@ export const Cards = () => {
     };
 
     fetchData();
-  }, []);
+  }, [language, t]);
 
   if (loading) {
     return (
@@ -310,7 +311,7 @@ export const Cards = () => {
           <Card key={index}>
             <Icon color="#6b7280">⏳</Icon>
             <Info>
-              <Title>Loading...</Title>
+              <Title>{t('loading')}</Title>
               <Number>...</Number>
             </Info>
           </Card>

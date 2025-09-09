@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useLanguage } from '../../context/LanguageContext';
 
 // Styled Components
 const CompanyAverageContainer = styled.div`
@@ -225,44 +226,45 @@ const WorkTimeLabel = styled.span`
 `;
 
 const CompanyAverage = () => {
+  const { t } = useLanguage();
   const [selectedDate, setSelectedDate] = useState('2025-09-05');
 
   const dailyBreaksData = {
-    title: 'DAILY BREAKS',
+    title: t('dailyBreaks'),
     subtitle: '30 D AVG',
     icon: '☕',
     stats: [
-      { label: 'Breaks/Day', value: '0', color: '#3b82f6' },
-      { label: 'Minutes/Break', value: '0', color: '#3b82f6' }
+      { label: t('breaksPerDay'), value: '0', color: '#3b82f6' },
+      { label: t('minutesPerBreak'), value: '0', color: '#3b82f6' }
     ],
-    avgLabel: 'Avg'
+    avgLabel: t('avg')
   };
 
   const meetingsData = {
-    title: 'MEETINGS',
+    title: t('meetings'),
     subtitle: '30 D AVG',
     icon: '📅',
     stats: [
-      { label: 'Meetings/Day', value: '0', color: '#3b82f6' },
-      { label: 'Minutes/Meeting', value: '0', color: '#3b82f6' }
+      { label: t('meetingsPerDay'), value: '0', color: '#3b82f6' },
+      { label: t('minutesPerMeeting'), value: '0', color: '#3b82f6' }
     ],
-    avgLabel: 'Avg'
+    avgLabel: t('avg')
   };
 
   const workTimeSpreadData = {
-    title: 'WORK TIME SPREAD',
+    title: t('workTimeSpread'),
     categories: [
-      { label: 'At Work', percentage: '0', color: '#10b981' },
-      { label: 'Meetings', percentage: '0', color: '#3b82f6' },
-      { label: 'Breaks', percentage: '0', color: '#f59e0b' },
-      { label: 'Idle', percentage: '0', color: '#6b7280' }
+      { label: '', percentage: '0', color: '#10b981' },
+      { label: t('meetings'), percentage: '0', color: '#3b82f6' },
+      { label: t('breaks'), percentage: '0', color: '#f59e0b' },
+      { label: t('idle'), percentage: '0', color: '#6b7280' }
     ]
   };
 
   return (
     <CompanyAverageContainer>
       <CompanyAverageHeader>
-        <CompanyAverageTitle>COMPANY AVERAGE</CompanyAverageTitle>
+        <CompanyAverageTitle>{t('companyAverage')}</CompanyAverageTitle>
         <DateInput
           type="date"
           value={selectedDate}

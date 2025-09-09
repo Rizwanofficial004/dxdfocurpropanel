@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useLanguage } from '../../context/LanguageContext';
 
 // Styled Components
 const CurrentStatusContainer = styled.div`
@@ -116,19 +117,21 @@ const ChartNumber = styled.span`
 `;
 
 const CurrentStatus = () => {
+  const { t } = useLanguage();
+  
   const statusData = [
-    { id: 1, label: 'At Work', count: 0, color: '#10b981' },
-    { id: 2, label: 'In Meeting', count: 0, color: '#3b82f6' },
-    { id: 3, label: 'At Break', count: 0, color: '#f59e0b' },
-    { id: 4, label: 'Idle', count: 0, color: '#6b7280' },
-    { id: 5, label: 'Off', count: 1, color: '#ef4444' }
+    { id: 1, label: t('atWork'), count: 0, color: '#10b981' },
+    { id: 2, label: t('inMeeting'), count: 0, color: '#3b82f6' },
+    { id: 3, label: t('atBreak'), count: 0, color: '#f59e0b' },
+    { id: 4, label: t('idle'), count: 0, color: '#6b7280' },
+    { id: 5, label: t('off'), count: 1, color: '#ef4444' }
   ];
 
   const totalCount = statusData.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <CurrentStatusContainer>
-      <CurrentStatusTitle>CURRENT STATUS</CurrentStatusTitle>
+      <CurrentStatusTitle>{t('currentStatus')}</CurrentStatusTitle>
       
       <CurrentStatusContent>
         <StatusListContainer>

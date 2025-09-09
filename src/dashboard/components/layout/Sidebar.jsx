@@ -226,12 +226,12 @@ export const Sidebar = () => {
   };
 
   const navigationItems = [
-    { icon: "📊", label: "DASHBOARD", path: "/dashboard", isActive: true },
+    { icon: "📊", label: t('dashboard').toUpperCase(), path: "/dashboard", isActive: true },
     { icon: "�", label: "LIVE TRACKING", path: "/dashboard/live-tracking" },
-    { icon: "👁️", label: "QUICK VIEW", path: "/dashboard/quick-view" },
+    { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
     { 
       icon: "📈", 
-      label: "REPORTS", 
+      label: t('reports').toUpperCase(), 
       path: "/dashboard/reports", 
       hasArrow: true,
       subItems: [
@@ -245,15 +245,15 @@ export const Sidebar = () => {
         { label: "OT REPORT", path: "/dashboard/reports/overtime" },
       ]
     },
-    { icon: "🌐", label: "SITE", path: "/dashboard/site", hasArrow: true },
+    { icon: "🌐", label: t('site').toUpperCase(), path: "/dashboard/site", hasArrow: true },
     { icon: "�", label: "TASK MANAGEMENT", path: "/dashboard/task-management", hasArrow: true },
-    { icon: "📅", label: "ATTENDANCE", path: "/dashboard/attendence", hasArrow: true },
-    { icon: "👥", label: "EMPLOYEES", path: "/dashboard/employees" },
-    { icon: "🏢", label: "TEAMS", path: "/dashboard/teams" },
+    { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
+    { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employees" },
+    { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
     { icon: "💼", label: "JOBS", path: "/dashboard/jobs", hasArrow: true, badge: "BETA" },
     { 
       icon: "⚙️", 
-      label: "SETTINGS", 
+      label: t('settings').toUpperCase(), 
       path: "/dashboard/settings", 
       hasArrow: true,
       subItems: [

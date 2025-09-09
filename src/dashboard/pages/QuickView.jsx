@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
-import GoogleSearch from '../../components/search/GoogleSearch';
 import {
   QuickViewContainer,
   QuickViewCard,
@@ -54,7 +53,7 @@ const QuickView = () => {
   const [selectedDate, setSelectedDate] = useState('08/09/2025');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  // Mock employee data matching the design
+  // Mock employee data matching the design exactly
   const mockEmployees = [
     {
       id: 1,
@@ -77,70 +76,11 @@ const QuickView = () => {
       first_name: 'LoLL',
       last_name: '',
       username: 'loll'
-    },
-    {
-      id: 2,
-      status: 'ACTIVE',
-      name: 'Nawaz Ahmed',
-      team: 'Development',
-      loggedTime: '8h 15m',
-      activeTime: '7h 45m',
-      productive: '6h 30m',
-      distraction: '1h 15m',
-      neutral: '0h 0m',
-      meeting: '1h 30m',
-      break: '0h 30m',
-      idle: '0h 15m',
-      offline: '0h 0m',
-      productivityPercentage: 85,
-      email: 'nawaz@company.com',
-      organization: 'Tech Solutions',
-      role: 'Developer',
-      first_name: 'Nawaz',
-      last_name: 'Ahmed',
-      username: 'nawaz.ahmed'
-    },
-    {
-      id: 3,
-      status: 'ACTIVE',
-      name: 'Test User',
-      team: 'QA',
-      loggedTime: '6h 30m',
-      activeTime: '6h 0m',
-      productive: '5h 15m',
-      distraction: '0h 45m',
-      neutral: '0h 0m',
-      meeting: '0h 30m',
-      break: '0h 30m',
-      idle: '0h 0m',
-      offline: '0h 0m',
-      productivityPercentage: 88,
-      email: 'testuser@example.com',
-      organization: 'Test Organization',
-      role: 'Tester',
-      first_name: 'Test',
-      last_name: 'User',
-      username: 'testuser'
     }
   ];
 
   const [employees, setEmployees] = useState(mockEmployees);
   const [filteredEmployees, setFilteredEmployees] = useState(mockEmployees);
-
-  // Handle search result selection
-  const handleSearchResultSelect = (user) => {
-    console.log('Selected user:', user);
-    setSelectedEmployee(user);
-    
-    // Filter employees based on selected user
-    const filtered = employees.filter(employee =>
-      employee.id === user.id ||
-      employee.name.toLowerCase().includes(user.first_name?.toLowerCase() || '') ||
-      employee.email === user.email
-    );
-    setFilteredEmployees(filtered.length > 0 ? filtered : employees);
-    setCurrentPage(1); // Reset to first page
-  };
 
   // Handle search
   useEffect(() => {
@@ -155,6 +95,7 @@ const QuickView = () => {
       );
       setFilteredEmployees(filtered);
     }
+    setCurrentPage(1); // Reset to first page when searching
   }, [searchQuery, employees]);
 
   // Calculate pagination
@@ -171,13 +112,13 @@ const QuickView = () => {
             {/* Notification Banner */}
             <NotificationBanner>
               <NotificationContent>
-                <span>Your user profile has been successfully created.</span>
+                <span>{t('profileCreated')}</span>
                 <span>
-                  You can now download the client app from{' '}
+                  {t('downloadClient')}{' '}
                   <DownloadLink href="https://focusro.com/download">
                     https://focusro.com/download
                   </DownloadLink>{' '}
-                  and log in with your password to explore the features.
+                  {t('loginExplore')}
                 </span>
               </NotificationContent>
             </NotificationBanner>
@@ -187,22 +128,23 @@ const QuickView = () => {
               <HeaderTop>
                 <HeaderLeft>
                   <QuickViewTitle>
-                    QUICK VIEW
+                    {t('quickView')}
                     <HelpIcon>?</HelpIcon>
                   </QuickViewTitle>
                 </HeaderLeft>
                 <HeaderControls>
-                  <div style={{ width: '300px' }}>
-                    <GoogleSearch
-                      placeholder="Search employees..."
-                      onResultSelect={handleSearchResultSelect}
-                      showAdvanced={false}
-                      className="quickview-search"
+                  <SearchContainer>
+                    <SearchIcon>🔍</SearchIcon>
+                    <SearchInput
+                      type="text"
+                      placeholder={t('search')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                  </div>
+                  </SearchContainer>
                   <DateControl>
                     <DateIcon>📅</DateIcon>
-                    <span>SELECT DATE</span>
+                    <span>{t('selectDate')}</span>
                   </DateControl>
                   <DateControl>
                     <span>{selectedDate}</span>
@@ -217,8 +159,8 @@ const QuickView = () => {
               <Table>
                 <TableHeader>
                   <TableHeaderRow>
-                    <TableHeaderCell>STATUS</TableHeaderCell>
-                    <TableHeaderCell className="sortable">EMPLOYEE NAME ↑</TableHeaderCell>
+                    <TableHeaderCell>{t('status').toUpperCase()}</TableHeaderCell>
+                    <TableHeaderCell className="sortable">{t('employee').toUpperCase()} NAME ↑</TableHeaderCell>
                     <TableHeaderCell className="sortable">LOGGED TIME ⓘ</TableHeaderCell>
                     <TableHeaderCell className="sortable">ACTIVE TIME ⓘ</TableHeaderCell>
                     <TableHeaderCell>PRODUCTIVE</TableHeaderCell>
@@ -291,7 +233,7 @@ const QuickView = () => {
             {/* Pagination */}
             <PaginationContainer>
               <EmployeesPerPage>
-                <span>Employees per page:</span>
+                <span>{t('employeesPerPage')}:</span>
                 <PerPageSelector
                   value={itemsPerPage}
                   onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -302,7 +244,9 @@ const QuickView = () => {
                 </PerPageSelector>
               </EmployeesPerPage>
               <PaginationRight>
-                <PageInfo>1 - 1 of 1</PageInfo>
+                <PageInfo>
+                  {t('showing')} {startIndex + 1} {t('to')} {Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length} {t('employees')}
+                </PageInfo>
                 <PaginationNav>
                   <NavButton
                     disabled={currentPage === 1}

@@ -216,8 +216,8 @@ const Login = () => {
       <LoginCard>
         <LogoSection>
           {/* <FocusLogo>FOCUS</FocusLogo> */}
-          <Title>Welcome Back</Title>
-          <Subtitle>Sign in to your account to continue</Subtitle>
+          <Title>{t('welcome')}</Title>
+          <Subtitle>{t('subtitle')}</Subtitle>
         </LogoSection>
 
         {/* Demo Credentials Helper */}
@@ -246,12 +246,12 @@ const Login = () => {
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
-            <Label>Email Address</Label>
+            <Label>{t('email')}</Label>
             <InputContainer>
               <Input
                 type="email"
                 name="username"
-                placeholder="Enter your email"
+                placeholder={t('email')}
                 value={formData.username}
                 onChange={handleInputChange}
                 hasError={!!errors.username}
@@ -265,16 +265,16 @@ const Login = () => {
 
           <InputGroup>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Label>Password</Label>
+              <Label>{t('password')}</Label>
               <ForgotLink href="#" onClick={e => e.preventDefault()}>
-                Forgot password?
+                {t('forgot')}
               </ForgotLink>
             </div>
             <InputContainer>
               <Input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                placeholder="Password"
+                placeholder={t('password')}
                 value={formData.password}
                 onChange={handleInputChange}
                 hasError={!!errors.password}
@@ -301,7 +301,7 @@ const Login = () => {
                 checked={formData.rememberMe}
                 onChange={handleInputChange}
               />
-              <CheckboxLabel htmlFor="rememberMe">Remember me</CheckboxLabel>
+              <CheckboxLabel htmlFor="rememberMe">{t('remember')}</CheckboxLabel>
             </CheckboxGroup>
           </CheckboxContainer>
 
@@ -311,10 +311,10 @@ const Login = () => {
             {isLoading ? (
               <>
                 <LoadingSpinner />
-                Signing in...
+                {t('signingIn')}
               </>
             ) : (
-              'LOGIN'
+              t('signIn')
             )}
           </LoginButton>
         </Form>

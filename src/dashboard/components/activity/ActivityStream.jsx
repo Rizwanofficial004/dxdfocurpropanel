@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   Container,
   Title,
@@ -111,6 +112,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // Main component
 const ActivityStream = () => {
+  const { t } = useLanguage();
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonth, setSelectedMonth] = useState(9); // September
   const [activeDate, setActiveDate] = useState('05'); // Set default to 05 like in the image
@@ -579,7 +581,7 @@ const ActivityStream = () => {
       `}</style>
       <Container>
       <Title>
-        Real Time Activity Stream
+        {t('realTimeActivityStream')}
         <span style={{ color: '#9ca3af', fontSize: '15px', marginTop: '1px' }}>ⓘ</span>
       </Title>
 
@@ -598,7 +600,7 @@ const ActivityStream = () => {
 
       <DateNav>
         <EmployeeTab>
-          {selectedUser ? (selectedUser.display_name || selectedUser.email) : (searchValue || 'Search Employee')}
+          {selectedUser ? (selectedUser.display_name || selectedUser.email) : (searchValue || t('searchEmployee'))}
         </EmployeeTab>
         
         <ArrowButton type="button" onClick={() => {
@@ -710,7 +712,7 @@ const ActivityStream = () => {
         >
           <SearchInput
             type="text"
-            placeholder="Search employees by name, email..."
+            placeholder={t('searchEmployeeName')}
             value={searchValue}
             onChange={handleSearchChange}
             onFocus={() => searchValue && setShowResults(true)}
@@ -1317,16 +1319,16 @@ const ActivityStream = () => {
               <>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
                 <EmptyText>
-                  Found {searchResults.length} user(s) for "{searchValue}"
+                  {`Found ${searchResults.length} user(s) for "${searchValue}"`}
                   <br/>
-                  Select a user to view their activity stream
+                  {t('selectUserToView')}
                 </EmptyText>
               </>
             ) : (
               <>
-                <EmptyIcon src="/images/no-data-illustration.svg" alt="No data" />
+                <EmptyIcon src="/images/no-data-illustration.svg" alt={t('noData')} />
                 <EmptyText>
-                  Search for employees to view their activity stream
+                  {t('searchForEmployees')}
                 </EmptyText>
               </>
             )}

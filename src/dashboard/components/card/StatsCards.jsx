@@ -148,7 +148,7 @@ const Change = styled.div`
 `;
 
 export const Cards = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [statsData, setStatsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [usersCount, setUsersCount] = useState(0);
@@ -258,15 +258,15 @@ export const Cards = () => {
           const newStatsData = [
             {
               icon: "👥",
-              title: t('totalUsers') || 'Total Employees',
+              title: t('totalEmployees'),
               number: totalEmployees,
               subStats: [
-                { label: 'Total Count', value: totalEmployees },
-                { label: 'Growth Rate', value: `${growthPercentage}%` },
-                { label: 'Active Users', value: employeesData?.employee_list?.length || employeesFromScreenshots.length },
-                { label: 'Last Updated', value: new Date(employeesData?.last_updated || Date.now()).toLocaleDateString() }
+                { label: t('totalCount'), value: totalEmployees },
+                { label: t('growthRate'), value: `${growthPercentage}%` },
+                { label: t('activeUsers'), value: employeesData?.employee_list?.length || employeesFromScreenshots.length },
+                { label: t('lastUpdated'), value: new Date(employeesData?.last_updated || Date.now()).toLocaleDateString() }
               ],
-              change: `↑ ${growthPercentage}% growth rate`,
+              change: `↑ ${growthPercentage}% ${t('growthRate')}`,
               changeType: "positive",
               color: "#3b82f6" // Blue
             },
@@ -351,70 +351,45 @@ export const Cards = () => {
         const fallbackStatsData = [
           {
             icon: "👥",
-            title: 'Total Employees',
-            number: 32,
+            title: t('totalEmployees'),
+            number: 3,
             subStats: [
-              { label: 'Total Count', value: 32 },
-              { label: 'Growth Rate', value: '10.0%' },
-              { label: 'Active Users', value: 32 },
-              { label: 'Last Updated', value: new Date().toLocaleDateString() }
+              { label: t('totalCount'), value: 3 },
+              { label: t('growthRate'), value: '10.0%' },
+              { label: t('activeUsers'), value: 3 },
+              { label: t('lastUpdated'), value: new Date().toLocaleDateString() }
             ],
-            change: "↑ 10.0% growth rate",
+            change: `↑ 10.0% ${t('growthRate')}`,
             changeType: "positive",
             color: "#3b82f6"
           },
           {
             icon: "📊",
-            title: 'Total Projects',
-            number: 289,
+            title: t('totalProjects'),
+            number: 293,
             subStats: [
-              { label: 'In Progress', value: 34 },
-              { label: 'Finished', value: 243 },
-              { label: 'On Hold', value: 4 },
-              { label: 'Cancelled', value: 6 }
+              { label: t('inProgress'), value: 36 },
+              { label: t('finished'), value: 245 },
+              { label: t('onHold'), value: 4 },
+              { label: t('cancelled'), value: 8 }
             ],
-            change: "↑ 5.15% than last month",
+            change: `↑ 5.15% ${t('thanLastMonth')}`,
             changeType: "positive",
             color: "#10b981"
           },
           {
             icon: "✅",
-            title: 'Total Tasks',
-            number: 1523,
+            title: t('totalTasks'),
+            number: 1570,
             subStats: [
-              { label: 'Not Started', value: 18 },
-              { label: 'In Progress', value: 54 },
-              { label: 'Completed', value: 1426 } 
+              { label: t('notStarted'), value: 53 },
+              { label: t('inProgress'), value: 54 },
+              { label: t('testing'), value: 1 },
+              { label: t('completed'), value: 1451 }
             ],
-            change: "↑ 8.2% than last month",
+            change: `↑ 18.2% ${t('thanLastMonth')}`,
             changeType: "positive",
             color: "#f59e0b"
-          },
-          {
-            icon: "🏢",
-            title: 'Total Clients',
-            number: 437,
-            subStats: [
-              { label: 'Active', value: 281 },
-              { label: 'Inactive', value: 156 },
-              { label: 'Total', value: 437 }
-            ],
-            change: "↑ 12.5% than last month",
-            changeType: "positive",
-            color: "#8b5cf6"
-          },
-          {
-            icon: "💰",
-            title: 'Total Invoices',
-            number: 461,
-            subStats: [
-              { label: 'Total Paid', value: '$3,254,034.93' },
-              { label: 'Overdue', value: '$779,866.40' },
-              { label: 'Total Invoiced', value: '$4,554,607.61' }
-            ],
-            change: "↑ 15.3% than last month",
-            changeType: "positive",
-            color: "#ef4444"
           }
         ];
         
@@ -426,18 +401,18 @@ export const Cards = () => {
     };
 
     fetchData();
-  }, [t]);
+  }, [language, t]);
 
   if (loading) {
     return (
       <CardWrapper>
-        {[1, 2, 3, 4, 5].map((_, index) => (
+        {[1, 2, 3].map((_, index) => (
           <Card key={index} index={index}>
             <Icon>⏳</Icon>
             <Info>
-              <Title>Loading...</Title>
+              <Title>{t('loading')}</Title>
               <Number>...</Number>
-              <Change type="neutral">Fetching data...</Change>
+              <Change type="neutral">{t('loading')}</Change>
             </Info>
           </Card>
         ))}

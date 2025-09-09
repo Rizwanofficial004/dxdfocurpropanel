@@ -2,17 +2,19 @@ import styled from 'styled-components';
 
 export const QuickViewContainer = styled.div`
   width: 100%;
-  padding: 20px;
+  padding: 24px 32px;
   background-color: #f8f9fa;
+  min-height: 100vh;
+  /* max-width: 1200px; */
+  margin: 0 auto;
 `;
 
 export const QuickViewCard = styled.div`
   background: white;
   border: 1px solid #dadce0;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-//   max-width: 1200px;
   margin: 0 auto;
   overflow: hidden;
 `;
@@ -47,7 +49,10 @@ export const DownloadLink = styled.a`
 export const QuickViewHeader = styled.div`
   background: #fafafa;
   border-bottom: 1px solid #e0e0e0;
-  padding: 16px 24px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
 
 export const HeaderTop = styled.div`
@@ -91,7 +96,7 @@ export const HelpIcon = styled.span`
 export const HeaderControls = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   flex-wrap: wrap;
   z-index: 999;
   position: relative;
@@ -165,7 +170,9 @@ export const TableHeader = styled.thead`
   border-bottom: 1px solid #e0e0e0;
 `;
 
-export const TableHeaderRow = styled.tr``;
+export const TableHeaderRow = styled.tr`
+  background: #fafafa;
+`;
 
 export const TableHeaderCell = styled.th`
   padding: 16px 12px;
@@ -205,7 +212,9 @@ export const TableHeaderCell = styled.th`
   }
 `;
 
-export const TableBody = styled.tbody``;
+export const TableBody = styled.tbody`
+  /* Table body styles */
+`;
 
 export const TableRow = styled.tr`
   border-bottom: 1px solid #f1f3f4;
@@ -407,6 +416,12 @@ export const ResponsiveStyles = styled.div`
     
     ${SearchInput} {
       min-width: 100%;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    ${QuickViewContainer} {
+      padding: 24px 64px;
     }
   }
 `;
