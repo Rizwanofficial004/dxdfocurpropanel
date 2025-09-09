@@ -8075,3 +8075,13 @@ INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total files: 
 INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
 INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Processed users_screenshots: 3 users, 589 files, 104.50MB
 INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
+INFO 2025-09-09 20:24:49,126 users_screenshots_view 16336 18044 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-09 20:24:49,155 users_screenshots_view 16336 18044 Starting to process users_screenshots folder...
+INFO 2025-09-09 20:24:50,664 users_screenshots_view 16336 18044 Processing page with 590 objects
+INFO 2025-09-09 20:24:51,510 users_screenshots_view 16336 18044 S3 Processing Summary:
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Total users found: 3
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Active users: 3
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Total files: 589
+INFO 2025-09-09 20:24:51,514 users_screenshots_view 16336 18044   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-09 20:24:51,519 users_screenshots_view 16336 18044 Processed users_screenshots: 3 users, 589 files, 104.50MB
+INFO 2025-09-09 20:24:51,520 users_screenshots_view 16336 18044 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
