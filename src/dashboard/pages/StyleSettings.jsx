@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { gsap } from 'gsap';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { getApiBaseURL } from '../../config/api';
 import {
   SettingsWrapper,
   SettingsContainer,
@@ -16,7 +17,7 @@ import {
   ConfigName,
   ConfigDescription,
   FormGrid,
-  FormField,
+  FormField, 
   Label,
   Input,
   MessageBox,
@@ -30,16 +31,17 @@ const StyleSettings = () => {
 
   // Styling Configuration State
   const [stylingConfig, setStylingConfig] = useState({
-    theme_name: '',
-    description: '',
-    primary_color: '#3498db',
-    secondary_color: '#e74c3c',
-    background_color: '#ffffff',
-    button_color: '#2ecc71',
-    text_color: '#2c3e50',
+    theme_name: 'My Custom Theme pagal',
+    description: 'My custom styling theme',
+    'header-color': '#000',
+    'footer-color': '#000',
+    text_color: '#000',
+    background_color: '#1f2937',
+    button_color: '#fff',
+    'button-text_color': '#000',
     heading_font_size: '28px',
     body_font_size: '16px',
-    font_family: 'Inter',
+    font_family: 'Arial, sans-serif',
     border_radius: '8px'
   });
 
@@ -85,21 +87,22 @@ const StyleSettings = () => {
   const fetchStylingConfig = async () => {
     setFetchingConfig(true);
     try {
-      const response = await fetch('https://dxdtime.ddsolutions.io/api/styling/global/');
+      const response = await fetch(`${getApiBaseURL()}/styling/global/`);
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data) {
           setStylingConfig({
             theme_name: data.data.theme_name || '',
             description: data.data.description || '',
-            primary_color: data.data.primary_color || '#3498db',
-            secondary_color: data.data.secondary_color || '#e74c3c',
-            background_color: data.data.background_color || '#ffffff',
-            button_color: data.data.button_color || '#2ecc71',
-            text_color: data.data.text_color || '#2c3e50',
+            'header-color': data.data['header-color'] || '#000',
+            'footer-color': data.data['footer-color'] || '#000',
+            background_color: data.data.background_color || '#1f2937',
+            button_color: data.data.button_color || '#fff',
+            text_color: data.data.text_color || '#000',
+            'button-text_color': data.data['button-text_color'] || '#000',
             heading_font_size: data.data.heading_font_size || '28px',
             body_font_size: data.data.body_font_size || '16px',
-            font_family: data.data.font_family || 'Inter',
+            font_family: data.data.font_family || 'Arial, sans-serif',
             border_radius: data.data.border_radius || '8px'
           });
           setMessage('✅ Styling configuration loaded successfully!');
@@ -119,22 +122,47 @@ const StyleSettings = () => {
   const saveStylingConfig = async () => {
     setSavingConfig(true);
     try {
-      const response = await fetch('https://dxdtime.ddsolutions.io/api/styling/global/', {
+      // Prepare the POST body with exact field names as specified
+      const postBody = {
+        theme_name: stylingConfig.theme_name,
+        description: stylingConfig.description,
+        "header-color": stylingConfig['header-color'],
+        "footer-color": stylingConfig['footer-color'],
+        text_color: stylingConfig.text_color,
+        background_color: stylingConfig.background_color,
+        button_color: stylingConfig.button_color,
+        "button-text_color": stylingConfig['button-text_color'],
+        heading_font_size: stylingConfig.heading_font_size,
+        body_font_size: stylingConfig.body_font_size,
+        font_family: stylingConfig.font_family,
+        border_radius: stylingConfig.border_radius
+      };
+
+      console.log('🎨 Saving Styling Configuration:');
+      console.log('   API URL:', `${getApiBaseURL()}/styling/global/`);
+      console.log('   POST Body:', JSON.stringify(postBody, null, 2));
+
+      const response = await fetch(`${getApiBaseURL()}/styling/global/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(stylingConfig)
+        body: JSON.stringify(postBody)
       });
 
+      console.log('📡 API Response Status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('✅ API Response Data:', data);
         if (data.status === 'success') {
           setMessage('✅ Styling configuration saved successfully!');
           setTimeout(() => setMessage(''), 3000);
         }
       } else {
-        throw new Error('Failed to save configuration');
+        const errorText = await response.text();
+        console.log('❌ API Error Response:', errorText);
+        throw new Error(`Failed to save configuration: ${response.status}`);
       }
     } catch (error) {
       console.error('Error saving styling config:', error);
@@ -238,39 +266,39 @@ const StyleSettings = () => {
               
               <FormGrid columns="1fr 1fr">
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Primary Color</Label>
+                  <Label isDarkMode={isDarkMode}>Header Color</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
                       type="color"
-                      value={validateColor(stylingConfig.primary_color)}
-                      onChange={(e) => updateStylingConfig('primary_color', e.target.value)}
+                      value={validateColor(stylingConfig['header-color'])}
+                      onChange={(e) => updateStylingConfig('header-color', e.target.value)}
                       style={{ width: '60px', height: '40px', padding: '0.25rem' }}
                     />
                     <Input
                       isDarkMode={isDarkMode}
-                      value={stylingConfig.primary_color}
-                      onChange={(e) => updateStylingConfig('primary_color', e.target.value)}
-                      placeholder="#3498db"
+                      value={stylingConfig['header-color']}
+                      onChange={(e) => updateStylingConfig('header-color', e.target.value)}
+                      placeholder="#000000"
                       style={{ flex: 1 }}
                     />
                   </div>
                 </FormField>
                 <FormField>
-                  <Label isDarkMode={isDarkMode}>Secondary Color</Label>
+                  <Label isDarkMode={isDarkMode}>Footer Color</Label>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <Input
                       isDarkMode={isDarkMode}
                       type="color"
-                      value={validateColor(stylingConfig.secondary_color)}
-                      onChange={(e) => updateStylingConfig('secondary_color', e.target.value)}
+                      value={validateColor(stylingConfig['footer-color'])}
+                      onChange={(e) => updateStylingConfig('footer-color', e.target.value)}
                       style={{ width: '60px', height: '40px', padding: '0.25rem' }}
                     />
                     <Input
                       isDarkMode={isDarkMode}
-                      value={stylingConfig.secondary_color}
-                      onChange={(e) => updateStylingConfig('secondary_color', e.target.value)}
-                      placeholder="#e74c3c"
+                      value={stylingConfig['footer-color']}
+                      onChange={(e) => updateStylingConfig('footer-color', e.target.value)}
+                      placeholder="#000000"
                       style={{ flex: 1 }}
                     />
                   </div>
@@ -316,6 +344,25 @@ const StyleSettings = () => {
                     />
                   </div>
                 </FormField>
+                <FormField>
+                  <Label isDarkMode={isDarkMode}>Button Text Color</Label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <Input
+                      isDarkMode={isDarkMode}
+                      type="color"
+                      value={validateColor(stylingConfig['button-text_color'])}
+                      onChange={(e) => updateStylingConfig('button-text_color', e.target.value)}
+                      style={{ width: '60px', height: '40px', padding: '0.25rem' }}
+                    />
+                    <Input
+                      isDarkMode={isDarkMode}
+                      value={stylingConfig['button-text_color']}
+                      onChange={(e) => updateStylingConfig('button-text_color', e.target.value)}
+                      placeholder="#000000"
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+                </FormField>
               </FormGrid>
 
               <FormGrid columns="1fr">
@@ -333,7 +380,7 @@ const StyleSettings = () => {
                       isDarkMode={isDarkMode}
                       value={stylingConfig.text_color}
                       onChange={(e) => updateStylingConfig('text_color', e.target.value)}
-                      placeholder="#2c3e50"
+                      placeholder="#000000"
                       style={{ flex: 1 }}
                     />
                   </div>
