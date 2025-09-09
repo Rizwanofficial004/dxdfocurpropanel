@@ -63,6 +63,19 @@ class UsersScreenshotsView(APIView):
             logger.error(f"Error generating presigned URL for {key}: {str(e)}")
             return None
 
+    def _generate_direct_s3_url(self, key):
+        """
+        Generate a direct S3 URL without authentication parameters.
+        Format: https://bucket.s3.region.amazonaws.com/key
+        """
+        try:
+            region = 'eu-north-1'  # Your S3 bucket region
+            direct_url = f"https://{self.bucket_name}.s3.{region}.amazonaws.com/{key}"
+            return direct_url
+        except Exception as e:
+            logger.error(f"Error generating direct S3 URL for {key}: {str(e)}")
+            return None
+
 
     def get(self, request):
         """
@@ -275,7 +288,7 @@ class UsersScreenshotsView(APIView):
                                     'filename': filename,
                                     'date': date_part,
                                     'file_key': screenshot_key,
-                                    'file_url': self._generate_presigned_url(screenshot_key),
+                                    'file_url': self._generate_direct_s3_url(screenshot_key),
                                     'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
                                     'last_modified': obj['LastModified'].isoformat()
                                 }
@@ -356,7 +369,7 @@ class UsersScreenshotsView(APIView):
                     'total_size_mb': round(data['total_size'] / (1024 * 1024), 2),
                     'days_active': len(data['dates']),
                     'latest_file': data['latest_file'],
-                    'latest_file_url': self._generate_presigned_url(latest_file_key) if latest_file_key else None,
+                    'latest_file_url': self._generate_direct_s3_url(latest_file_key) if latest_file_key else None,
                     'latest_date': data['latest_date'].strftime("%Y-%m-%d") if data['latest_date'] else None,
                     'screenshots': sorted_screenshots[:10]  # Include up to 10 most recent screenshots with full paths
                 })
