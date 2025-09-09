@@ -52,8 +52,10 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => {
-          console.log('📸 Rewriting users_screenshots path:', path);
-          return path; // Keep the full path as-is
+          // Keep the full path but remove the leading slash
+          const newPath = path.startsWith('/') ? path.substring(1) : path;
+          console.log('📸 Rewriting path:', path, '→', newPath);
+          return newPath;
         },
         configure: (proxy, _options) => {
           proxy.on('error', (err, req, res) => {
@@ -63,18 +65,51 @@ export default defineConfig({
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('🖼️ Proxying Users Screenshots:', req.url);
-            // Clean headers for S3 compatibility
+            // Remove all potentially problematic headers
             proxyReq.removeHeader('origin');
             proxyReq.removeHeader('referer');
             proxyReq.removeHeader('authorization');
-            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+            proxyReq.removeHeader('x-forwarded-for');
+            proxyReq.removeHeader('x-forwarded-host');
+            proxyReq.removeHeader('x-forwarded-proto');
+            proxyReq.removeHeader('host');
+            proxyReq.removeHeader('connection');
+            proxyReq.removeHeader('upgrade-insecure-requests');
+            
+            // Set headers to mimic a direct browser request
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            proxyReq.setHeader('Accept', 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8');
+            proxyReq.setHeader('Accept-Language', 'en-US,en;q=0.9');
+            proxyReq.setHeader('Accept-Encoding', 'gzip, deflate, br');
+            proxyReq.setHeader('Cache-Control', 'no-cache');
+            proxyReq.setHeader('Pragma', 'no-cache');
+            proxyReq.setHeader('Sec-Fetch-Dest', 'image');
+            proxyReq.setHeader('Sec-Fetch-Mode', 'no-cors');
+            proxyReq.setHeader('Sec-Fetch-Site', 'cross-site');
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
             console.log('✅ Users Screenshots Response:', proxyRes.statusCode, req.url);
-            // Add CORS headers
+            
+            // Handle different response codes
+            if (proxyRes.statusCode === 200) {
+              console.log('🎉 Successfully loaded image:', req.url);
+            } else if (proxyRes.statusCode === 403) {
+              console.log('❌ S3 Access Denied for:', req.url);
+            } else if (proxyRes.statusCode === 404) {
+              console.log('❌ Image not found:', req.url);
+            }
+            
+            // Add comprehensive CORS headers
             proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-            proxyRes.headers['Access-Control-Allow-Methods'] = 'GET';
-            proxyRes.headers['Cache-Control'] = 'public, max-age=31536000';
+            proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, HEAD, OPTIONS';
+            proxyRes.headers['Access-Control-Allow-Headers'] = '*';
+            proxyRes.headers['Access-Control-Expose-Headers'] = '*';
+            proxyRes.headers['Cross-Origin-Resource-Policy'] = 'cross-origin';
+            
+            // Set caching headers for images
+            if (proxyRes.statusCode === 200) {
+              proxyRes.headers['Cache-Control'] = 'public, max-age=86400'; // 24 hours
+            }
           });
         },
       },
