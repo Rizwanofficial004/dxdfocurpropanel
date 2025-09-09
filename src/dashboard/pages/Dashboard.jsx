@@ -5,7 +5,7 @@ import { ChartsSection } from '../components/charts/ChartsSection';
 import { Container } from '../styles/commonStyles';
 import { useTheme } from '../context/ThemeContext';
 import { lightTheme } from '../../styles/theme';
-import { Cards } from '../components/card/StatsCards';
+import { Cards } from '../components/card/StatsCardsCRM';
 import ActivityStream from '../components/activity/ActivityStream';
 import FocusTimeline from '../components/foucstimeline/FocusTimeline';
 import AnnouncementTable from '../components/announcement/Announcement';

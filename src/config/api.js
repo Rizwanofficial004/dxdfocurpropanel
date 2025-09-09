@@ -11,20 +11,18 @@ export const getApiBaseURL = () => {
     return import.meta.env.VITE_API_URL;
   }
   
-  // Force production URL for Live Tracking API
-  // Always use the production server for now since local development server is not running
-  console.log('🌐 Using production API server: https://dxdtime.ddsolutions.io/api');
-  return 'https://dxdtime.ddsolutions.io/api';
-  
-  // Commented out localhost check - uncomment when local server is needed
-  /*
+  // Use local development server for CRM comprehensive API
   if (import.meta.env.DEV || 
       window.location.hostname === 'localhost' ||
       window.location.hostname.startsWith('192.168.') ||
       window.location.hostname.startsWith('127.0.')) {
-    return 'http://localhost:8000/api';
+    console.log('🌐 Using local development API server: http://127.0.0.1:8000/api');
+    return 'http://127.0.0.1:8000/api';
   }
-  */
+  
+  // Fallback to production URL
+  console.log('🌐 Using production API server: https://dxdtime.ddsolutions.io/api');
+  return 'https://dxdtime.ddsolutions.io/api';
 };
 
 /**
@@ -84,6 +82,11 @@ export const API_ENDPOINTS = {
   // Settings endpoints
   SETTINGS: {
     BASE: '/settings',
+  },
+  
+  // CRM endpoints
+  CRM: {
+    COMPREHENSIVE: '/dashboard/crm-comprehensive/',
   }
 };
 

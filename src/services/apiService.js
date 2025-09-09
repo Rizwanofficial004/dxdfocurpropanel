@@ -156,6 +156,19 @@ class ApiService {
       throw error;
     }
   }
+
+  /**
+   * Fetch CRM comprehensive dashboard data
+   * @returns {Promise<any>} CRM comprehensive data
+   */
+  async getCrmComprehensive() {
+    try {
+      return await this.get('/dashboard/crm-comprehensive/');
+    } catch (error) {
+      console.error('Failed to fetch CRM comprehensive data:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export singleton instance
