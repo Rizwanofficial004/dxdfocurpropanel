@@ -24,7 +24,7 @@ urlpatterns = [
     ])),
     
     # Dashboard-specific endpoints
-    path('dashboard/employees/', UsersScreenshotsView.as_view(), name='dashboard-employees'),
+    path('api/live-tracking/fast-screenshots/', UsersScreenshotsView.as_view(), name='fast-screenshots'), ##Correct API call 
     
     # Enhanced Users Search with Month Filter
     path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),

@@ -46,7 +46,24 @@ class UsersScreenshotsView(APIView):
             logger.info("S3 client initialized successfully for users_screenshots API")
         except Exception as e:
             logger.error(f"Failed to initialize S3 client: {str(e)}")
-    
+
+    def _generate_presigned_url(self, key, expires_in=3600): ##Abed - Generate URL for S3 proxy
+        """
+        Generate a presigned URL for a private S3 object.
+        Expires in `expires_in` seconds (default 1 hour).
+        """
+        try:
+            url = self.s3_client.generate_presigned_url(
+                ClientMethod='get_object',
+                Params={'Bucket': self.bucket_name, 'Key': key},
+                ExpiresIn=expires_in
+            )
+            return url
+        except Exception as e:
+            logger.error(f"Error generating presigned URL for {key}: {str(e)}")
+            return None
+
+
     def get(self, request):
         """
         GET /api/dashboard/employees/
@@ -302,12 +319,14 @@ class UsersScreenshotsView(APIView):
             sorted_users = sorted(users_data.items(), key=lambda x: x[1]['file_count'], reverse=True)
             
             for user_email, data in sorted_users[:10]:
+                latest_file_key = f"users_screenshots/{max(data['dates'])}/{user_email}/{data['latest_file']}" if data['latest_file'] else None
                 top_users.append({
                     'user_email': user_email,
                     'file_count': data['file_count'],
                     'total_size_mb': round(data['total_size'] / (1024 * 1024), 2),
                     'days_active': len(data['dates']),
                     'latest_file': data['latest_file'],
+                    'latest_file_url': self._generate_presigned_url(latest_file_key) if latest_file_key else None,
                     'latest_date': data['latest_date'].strftime("%Y-%m-%d") if data['latest_date'] else None
                 })
             
