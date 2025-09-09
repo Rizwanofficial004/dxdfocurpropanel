@@ -335,12 +335,12 @@ export const Sidebar = () => {
           <BottomText>Live Chat</BottomText>
         </BottomItem>
         
-        <BottomItem>
+        <BottomItem onClick={() => window.open('https://wa.me/905488612323', '_blank')}>
           <BottomIcon>📞</BottomIcon>
           <BottomText>Schedule a Call</BottomText>
         </BottomItem>
         
-        <BottomItem>
+        <BottomItem onClick={() => window.open('https://drive.google.com/drive/folders/1MVYaOcSkV97iNxzMFJm8dtLeJ2R03NcJ?usp=drive_link', '_blank')}>
           <BottomIcon>📱</BottomIcon>
           <BottomText>Download Client App</BottomText>
         </BottomItem>
