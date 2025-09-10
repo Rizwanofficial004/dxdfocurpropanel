@@ -8104,3 +8104,29 @@ INFO 2025-09-09 23:14:22,639 middleware 11792 23612 Response: 404 for GET /api/s
 WARNING 2025-09-09 23:14:22,640 log 11792 23612 Not Found: /api/simple-screenshot-proxy/
 WARNING 2025-09-09 23:14:22,642 basehttp 11792 23612 "GET /api/simple-screenshot-proxy/?url=https%3A%2F%2Fddsfocustime.s3.eu-north-1.amazonaws.com%2Fusers_screenshots%2F2025-09-09%2Fhaseebcodejourney_at_gmail.com%2F2025-09-09_17-05-26.webp HTTP/1.1" 404 201
 INFO 2025-09-09 23:14:22,945 basehttp 11792 23612 - Broken pipe from ('127.0.0.1', 65143)
+INFO 2025-09-10 12:55:02,635 middleware 27180 17060 Request: GET /
+INFO 2025-09-10 12:55:02,688 middleware 27180 17060 Response: 404 for GET /
+WARNING 2025-09-10 12:55:02,689 log 27180 17060 Not Found: /
+WARNING 2025-09-10 12:55:02,690 basehttp 27180 17060 "GET / HTTP/1.1" 404 14538
+INFO 2025-09-10 12:55:02,992 middleware 27180 17060 Request: GET /favicon.ico
+INFO 2025-09-10 12:55:03,000 middleware 27180 17060 Response: 404 for GET /favicon.ico
+WARNING 2025-09-10 12:55:03,002 log 27180 17060 Not Found: /favicon.ico
+WARNING 2025-09-10 12:55:03,005 basehttp 27180 17060 "GET /favicon.ico HTTP/1.1" 404 14589
+INFO 2025-09-10 12:55:08,274 middleware 27180 17060 Request: GET /api/styling/global/
+INFO 2025-09-10 12:55:08,459 middleware 27180 17060 Response: 200 for GET /api/styling/global/
+INFO 2025-09-10 12:55:08,459 basehttp 27180 17060 "GET /api/styling/global/ HTTP/1.1" 200 10723
+INFO 2025-09-10 12:55:08,644 basehttp 27180 14572 "GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+INFO 2025-09-10 12:55:08,644 basehttp 27180 8040 "GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+INFO 2025-09-10 12:55:08,649 basehttp 27180 17060 "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+INFO 2025-09-10 12:55:08,650 basehttp 27180 17356 "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3426
+INFO 2025-09-10 12:55:08,679 basehttp 27180 14572 "GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1793
+INFO 2025-09-10 12:55:08,684 basehttp 27180 25508 "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3796
+INFO 2025-09-10 12:55:08,700 basehttp 27180 8040 "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+INFO 2025-09-10 12:55:08,702 basehttp 27180 17356 "GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+INFO 2025-09-10 12:55:08,704 basehttp 27180 17060 "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+INFO 2025-09-10 12:55:08,709 basehttp 27180 25508 "GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+INFO 2025-09-10 12:55:08,710 basehttp 27180 14572 "GET /static/rest_framework/js/load-ajax-form.js HTTP/1.1" 200 59
+INFO 2025-09-10 12:55:08,749 basehttp 27180 17028 "GET /static/rest_framework/js/jquery-3.7.1.min.js HTTP/1.1" 200 87533
+INFO 2025-09-10 12:55:23,521 middleware 27180 27388 Request: GET /api/styling/global/
+INFO 2025-09-10 12:55:23,530 middleware 27180 27388 Response: 200 for GET /api/styling/global/
+INFO 2025-09-10 12:55:23,531 basehttp 27180 27388 "GET /api/styling/global/?id=1bef6d5b-b406-4c63-a8cb-c624042b937a&vscodeBrowserReqId=1757498123515 HTTP/1.1" 200 11193
