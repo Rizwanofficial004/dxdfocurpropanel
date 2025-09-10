@@ -18,12 +18,12 @@ import {
 } from './ActivityStream.styles.jsx';
 
 // Helper functions
-const getMonthName = (month) => {
-  return new Date(2000, month - 1, 1).toLocaleString('en-US', { month: 'short' }).toUpperCase();
+const getMonthName = (month, lang) => {
+  return new Date(2000, month - 1, 1).toLocaleString(lang, { month: 'short' }).toUpperCase();
 };
 
-const getFullMonthName = (month) => {
-  return new Date(2000, month - 1, 1).toLocaleString('en-US', { month: 'long' });
+const getFullMonthName = (month, lang) => {
+  return new Date(2000, month - 1, 1).toLocaleString(lang, { month: 'long' });
 };
 
 const getDaysInMonth = (year, month) => {
@@ -103,16 +103,11 @@ const generateCalendarDays = (year, month, activityDates = new Set()) => {
   return calendarDays;
 };
 
-const MONTHS = Array.from({ length: 12 }, (_, i) => ({
-  value: i + 1,
-  label: getMonthName(i + 1)
-}));
-
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // Main component
 const ActivityStream = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonth, setSelectedMonth] = useState(9); // September
   const [activeDate, setActiveDate] = useState('05'); // Set default to 05 like in the image
@@ -133,6 +128,11 @@ const ActivityStream = () => {
   const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
   const screenshotsPerPage = 50; // Screenshots per page
   const searchContainerRef = useRef(null);
+
+  const MONTHS = Array.from({ length: 12 }, (_, i) => ({
+    value: i + 1,
+    label: getMonthName(i + 1, language)
+  }));
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -504,13 +504,13 @@ const ActivityStream = () => {
         const day = (startDay + i).toString().padStart(2, '0');
         return {
           date: day,
-          month: getMonthName(selectedMonth),
+          month: getMonthName(selectedMonth, language),
           year: selectedYear.toString(),
           active: day === activeDate
         };
       }
     );
-  }, [selectedYear, selectedMonth, activeDate]);
+  }, [selectedYear, selectedMonth, activeDate, language]);
 
   // Handle year and month changes
   const handleYearChange = (e) => {
@@ -692,7 +692,7 @@ const ActivityStream = () => {
                     textTransform: 'uppercase',
                     letterSpacing: '0.3px'
                   }}>
-                    {getMonthName(day.month)}
+                    {getMonthName(day.month, language)}
                   </div>
                   {day.hasActivity && (
                     <div style={{
@@ -896,7 +896,7 @@ const ActivityStream = () => {
                   fontSize: '14px', 
                   color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
                 }}>
-                  Activity Stream - {getMonthName(selectedMonth)} {selectedYear}
+                  Activity Stream - {getFullMonthName(selectedMonth, language)} {selectedYear}
                   {activeDate && ` (Day ${activeDate})`}
                 </p>
                 {totalScreenshots > 0 && (
@@ -1055,7 +1055,7 @@ const ActivityStream = () => {
                                   'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
                                   currentHost
                                 );
-                                console.log('� Replaced S3 URL with local:', localUrl);
+                                console.log(' Replaced S3 URL with local:', localUrl);
                                 return localUrl;
                               }
                               
@@ -1176,7 +1176,7 @@ const ActivityStream = () => {
                             borderRadius: '50%',
                             backgroundColor: screenshot.activity_type === 'ACTIVE' ? '#4caf50' : '#ff9800'
                           }}></span>
-                          {new Date(screenshot.timestamp).toLocaleDateString('en-US', {
+                          {new Date(screenshot.timestamp).toLocaleDateString(language, {
                             month: 'short',
                             day: 'numeric',
                             hour: '2-digit',

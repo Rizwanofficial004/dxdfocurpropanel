@@ -13,9 +13,27 @@ const translations = {
     attendance: 'Attendance',
     employees: 'Employees',
     teams: 'Teams',
+    jobs: 'Jobs',
     settings: 'Settings',
     search: 'Search',
     hello: 'Hello',
+    liveChat: 'Live Chat',
+    scheduleCall: 'Schedule Call',
+    downloadClientApp: 'Download Client App',
+
+    // Reports Submenu
+    employeeReports: 'Employee Reports',
+    activityPattern: 'Activity Pattern',
+    advancedReport: 'Advanced Report',
+    timeLogSummary: 'Time Log Summary',
+    dormantEmployees: 'Dormant Employees',
+    highIdleHours: 'High Idle Hours',
+    clientAppActivity: 'Client App Activity',
+    otReport: 'OT Report',
+
+    // Settings Submenu
+    styleSettings: 'Style Settings',
+    credentialsSettings: 'Credentials Settings',
     
     // Login
     welcome: 'Welcome Back',
@@ -259,9 +277,27 @@ const translations = {
     attendance: 'Devam',
     employees: 'Çalışanlar',
     teams: 'Takımlar',
+    jobs: 'İşler',
     settings: 'Ayarlar',
     search: 'Ara',
     hello: 'Merhaba',
+    liveChat: 'Canlı Sohbet',
+    scheduleCall: 'Görüşme Planla',
+    downloadClientApp: 'İstemci Uygulamasını İndir',
+
+    // Reports Submenu
+    employeeReports: 'Çalışan Raporları',
+    activityPattern: 'Aktivite Modeli',
+    advancedReport: 'Gelişmiş Rapor',
+    timeLogSummary: 'Zaman Kaydı Özeti',
+    dormantEmployees: 'Pasif Çalışanlar',
+    highIdleHours: 'Yüksek Boşta Kalma Süreleri',
+    clientAppActivity: 'İstemci Uygulama Aktivitesi',
+    otReport: 'Fazla Mesai Raporu',
+
+    // Settings Submenu
+    styleSettings: 'Stil Ayarları',
+    credentialsSettings: 'Kimlik Bilgileri Ayarları',
     
     // Login
     welcome: 'Tekrar Hoş Geldiniz',
