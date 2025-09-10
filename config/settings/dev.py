@@ -97,6 +97,9 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+# Enable preflight max age to cache OPTIONS requests
+CORS_PREFLIGHT_MAX_AGE = 86400
+
 # Additional CORS headers for better frontend compatibility
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -111,6 +114,8 @@ CORS_ALLOW_HEADERS = [
     'access-control-allow-origin',
     'access-control-allow-headers',
     'access-control-allow-methods',
+    'cache-control',
+    'pragma',
 ]
 
 CORS_ALLOWED_ORIGINS = [
