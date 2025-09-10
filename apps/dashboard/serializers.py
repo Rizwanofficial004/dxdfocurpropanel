@@ -262,9 +262,15 @@ class AppStylingSerializer(serializers.ModelSerializer):
         model = AppStyling
         fields = [
             'id', 'theme_name', 'description', 'primary_color', 'secondary_color',
-            'background_color', 'button_color', 'text_color', 'heading_font_size',
-            'body_font_size', 'font_family', 'border_radius', 'is_active', 'is_default',
-            'created_by', 'version', 'color_palette', 'font_settings', 'css_variables',
+            'background_color', 'button_color', 'text_color', 
+            'submit_button_bg_color', 'submit_button_text_color',
+            'primary_button_bg_color', 'primary_button_text_color',
+            'secondary_button_bg_color', 'secondary_button_text_color',
+            'drawer_background_color', 'drawer_text_color',
+            'icon_color', 'top_color',
+            'heading_font_size', 'body_font_size', 'font_family', 'border_radius', 
+            'is_active', 'is_default', 'created_by', 'version', 
+            'color_palette', 'font_settings', 'css_variables',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
@@ -284,6 +290,18 @@ class AppStylingCreateSerializer(serializers.Serializer):
     background_color = serializers.CharField(max_length=50, required=False, default="#FFFFFF")
     button_color = serializers.CharField(max_length=50, required=False, default="#007BFF")
     text_color = serializers.CharField(max_length=50, required=False, default="#333333")
+    
+    # Extended color fields
+    submit_button_bg_color = serializers.CharField(max_length=50, required=False, default="#28a745")
+    submit_button_text_color = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    primary_button_bg_color = serializers.CharField(max_length=50, required=False, default="#007bff")
+    primary_button_text_color = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    secondary_button_bg_color = serializers.CharField(max_length=50, required=False, default="#6c757d")
+    secondary_button_text_color = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    drawer_background_color = serializers.CharField(max_length=50, required=False, default="#f8f9fa")
+    drawer_text_color = serializers.CharField(max_length=50, required=False, default="#212529")
+    icon_color = serializers.CharField(max_length=50, required=False, default="#6c757d")
+    top_color = serializers.CharField(max_length=50, required=False, default="#ffffff")
     
     # Font fields
     heading_font_size = serializers.CharField(max_length=20, required=False, default="24px")
