@@ -150,14 +150,6 @@ const translations = {
     results: 'results',
     screenshotPreview: 'Screenshot Preview',
     
-    // FocusTimeline specific
-    userActivity: 'User Activity',
-    searchActivity: 'Search activity...',
-    purchasedFromMediaTek: 'Purchased from MediaTek',
-    loremIpsumShort: 'Lorem ipsum dolor sit amet consecte',
-    daysLeftNotification: '3 days left notification to submit new products',
-    minsAgo: '04 Mins Ago',
-    
     // Announcement specific
     announcement: 'Announcement',
     startDate: 'Start Date',
@@ -403,14 +395,6 @@ const translations = {
     task: 'Görev',
     results: 'sonuç',
     screenshotPreview: 'Ekran Görüntüsü Önizlemesi',
-    
-    // FocusTimeline specific
-    userActivity: 'Kullanıcı Aktivitesi',
-    searchActivity: 'Aktivite ara...',
-    purchasedFromMediaTek: 'MediaTek\'ten satın alındı',
-    loremIpsumShort: 'Lorem ipsum dolor sit amet consecte',
-    daysLeftNotification: 'Yeni ürünleri göndermek için 3 gün kaldı bildirimi',
-    minsAgo: '04 Dakika Önce',
     
     // Announcement specific
     announcement: 'Duyuru',

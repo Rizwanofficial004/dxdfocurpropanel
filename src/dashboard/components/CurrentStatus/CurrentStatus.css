@@ -1,17 +1,17 @@
-/* Current Status Component Styles */
+Current Status Component Styles
 .current-status {
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
   height: fit-content;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Dark mode styles */
 [data-theme="dark"] .current-status {
-  background: #1e293b;
+  background: #1d232c;
   border-color: #334155;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
@@ -130,6 +130,7 @@
   font-size: 18px;
   font-weight: 600;
   min-width: 20px;
+  color: #1f2937;
   transition: color 0.3s ease;
 }
 
@@ -147,7 +148,7 @@
 
 /* Dark mode status label */
 [data-theme="dark"] .status-label {
-  color: #94a3b8;
+  color: #f8fafc;
 }
 
 .status-arrow {

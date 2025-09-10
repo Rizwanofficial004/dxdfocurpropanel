@@ -8,7 +8,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { lightTheme } from '../../styles/theme';
 import { Cards } from '../components/card/StatsCardsCRM';
 import ActivityStream from '../components/activity/ActivityStream';
-import FocusTimeline from '../components/foucstimeline/FocusTimeline';
 import AnnouncementTable from '../components/announcement/Announcement';
 import { CurrentStatus, CompanyAverage } from '../components';
 // Import global slider styles
@@ -102,10 +101,6 @@ const Dashboard = () => {
           {/* For Activity Stream */}
           <ContentSection theme={theme}>
             <ActivityStream />
-          </ContentSection>
-        {/* For FocusTimeline  */}
-            <ContentSection theme={theme}>
-            <FocusTimeline />
           </ContentSection>
 
            {/* For Announcement Table  */}

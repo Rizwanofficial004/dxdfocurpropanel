@@ -78,7 +78,6 @@ body {
 }
 
 .dark-theme button {
-  background-color: var(--bg-secondary);
   color: var(--text-primary);
   border-color: var(--border-color);
 }
