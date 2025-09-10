@@ -1,271 +1,856 @@
 import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
-import { useLanguage } from '../context/LanguageContext';
-import {
-  QuickViewContainer,
-  QuickViewCard,
-  NotificationBanner,
-  NotificationContent,
-  DownloadLink,
-  QuickViewHeader,
-  HeaderTop,
-  HeaderLeft,
-  QuickViewTitle,
-  HelpIcon,
-  HeaderControls,
-  SearchContainer,
-  SearchInput,
-  SearchIcon,
-  DateControl,
-  DateIcon,
-  TableContainer,
-  Table,
-  TableHeader,
-  TableHeaderRow,
-  TableHeaderCell,
-  TableBody,
-  TableRow,
-  TableCell,
-  StatusIndicator,
-  EmployeeInfo,
-  EmployeeAvatar,
-  EmployeeName,
-  TeamName,
-  TimeCell,
-  ProductivityBar,
-  ProductivityFill,
-  PercentageText,
-  PaginationContainer,
-  EmployeesPerPage,
-  PerPageSelector,
-  PaginationRight,
-  PageInfo,
-  PaginationNav,
-  NavButton,
-  ResponsiveStyles
-} from './QuickView.styles';
+import styled from 'styled-components';
+import { useLanguage } from '../../contexts/LanguageContext';
+import DashboardLayout from '../layout/DashboardLayout';
+import Container from '../../components/common/Container';
+
+const QuickViewContainer = styled.div`
+  background: ${props => props.theme.colors.background};
+  min-height: 100vh;
+  padding: ${props => props.theme.spacing.lg} 0;
+  transition: background-color 0.3s ease;
+`;
+
+const ContentSection = styled.div`
+  margin-bottom: ${props => props.theme.spacing.xl};
+`;
+
+const QuickViewCard = styled.div`
+  background: ${props => props.theme.colors.surface};
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid ${props => props.theme.colors.border};
+  transition: all 0.3s ease;
+`;
+
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const Title = styled.h3`
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s ease;
+`;
+
+const HeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const SearchInput = styled.input`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  min-width: 200px;
+
+  &::placeholder {
+    color: ${props => props.theme.colors.text.secondary};
+  }
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary}20;
+  }
+`;
+
+const DatePicker = styled.input`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 2px ${props => props.theme.colors.primary}20;
+  }
+`;
+
+const TableContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.theme.colors.surface};
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px;
+`;
+
+const TableHeader = styled.th`
+  text-align: left;
+  padding: 16px 12px;
+  background: ${props => props.theme.colors.background};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+  white-space: nowrap;
+
+  &:first-child {
+    padding-left: 20px;
+  }
+
+  &:last-child {
+    padding-right: 20px;
+  }
+`;
+
+const TableRow = styled.tr`
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${props => props.theme.colors.background};
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid ${props => props.theme.colors.border};
+  }
+`;
+
+const TableCell = styled.td`
+  padding: 16px 12px;
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  border-right: 1px solid ${props => props.theme.colors.border};
+
+  &:first-child {
+    padding-left: 20px;
+  }
+
+  &:last-child {
+    padding-right: 20px;
+    border-right: none;
+  }
+`;
+
+const StatusColumn = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const StatusIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: ${props => props.isOnline ? '#10b981' : '#6b7280'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+`;
+
+const StatusText = styled.span`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const EmployeeColumn = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const EmployeeAvatar = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: ${props => props.theme.colors.primary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+`;
+
+const EmployeeInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const EmployeeName = styled.span`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.primary};
+`;
+
+const TeamName = styled.span`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const TimeCell = styled.span`
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.primary};
+  font-weight: 500;
+`;
+
+const ProgressCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ProgressBar = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: conic-gradient(${props => props.theme.colors.primary} ${props => props.percentage * 3.6}deg, ${props => props.theme.colors.border} 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &::before {
+    content: '';
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: ${props => props.theme.colors.surface};
+    position: absolute;
+  }
+`;
+
+const ProgressText = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.primary};
+  position: relative;
+  z-index: 1;
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding: 16px 0;
+`;
+
+const PaginationInfo = styled.div`
+  color: ${props => props.theme.colors.text.secondary};
+  font-size: 14px;
+`;
+
+const PaginationControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const PaginationButton = styled.button`
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.surface};
+  color: ${props => props.active ? 'white' : props.theme.colors.text.primary};
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 40px;
+
+  &:hover:not(:disabled) {
+    background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.background};
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const ItemsPerPageSelector = styled.select`
+  padding: 6px 8px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 4px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
 
 const QuickView = () => {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState('2025-07-04');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
-  const [selectedDate, setSelectedDate] = useState('08/09/2025');
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  
+  // Timer API state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [timerData, setTimerData] = useState([]);
+  const [apiStatus, setApiStatus] = useState('disconnected'); // 'connected', 'disconnected', 'loading'
 
-  // Simplified employee data with just name and numeric value
-  const mockEmployees = [
+  // Timer API configuration
+  const TIMER_API_BASE_URL = 'https://dxdtime.ddsolutions.io/api/user-timer/';
+
+  // Fetch timer data from API
+  const fetchTimerData = async () => {
+    setLoading(true);
+    setError(null);
+    setApiStatus('loading');
+    try {
+      console.log('🔄 Fetching real users from:', TIMER_API_BASE_URL);
+      const response = await fetch(TIMER_API_BASE_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('📥 Raw API Response:', data);
+      console.log('📊 Response Type:', typeof data);
+      console.log('🔍 Available Keys:', Object.keys(data || {}));
+      
+      // Handle different response formats from the real API
+      if (data && Array.isArray(data) && data.length > 0) {
+        // Handle direct array response
+        console.log('✅ Processing direct array with', data.length, 'users');
+        const transformedData = data.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || `User ${index + 1}`,
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || index + 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }));
+        console.log('🎯 Transformed Users:', transformedData);
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      // Handle various API response formats
+      if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log('✅ Processing success wrapped array with', data.data.length, 'users');
+        const transformedData = data.data.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || `User ${index + 1}`,
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || index + 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }));
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        console.log('✅ Processing wrapped array with', data.data.length, 'users');
+        const transformedData = data.data.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || `User ${index + 1}`,
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || index + 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }));
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      if (data.users && Array.isArray(data.users) && data.users.length > 0) {
+        console.log('✅ Processing users array with', data.users.length, 'users');
+        const transformedData = data.users.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || `User ${index + 1}`,
+          value: 0, // Default timer value for users endpoint
+          user_id: item.id || index + 1,
+          timer_id: null,
+          status: 'active',
+          last_updated: new Date().toISOString()
+        }));
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      // If no valid data found
+      console.warn('⚠️ No valid user data found in API response');
+      console.log('📋 Available keys in response:', Object.keys(data || {}));
+      console.log('🔄 Falling back to local employee data');
+      setApiStatus('disconnected');
+      setError('No users found in API response - using local data');
+      
+    } catch (error) {
+      console.error('❌ Error fetching timer data:', error);
+      setApiStatus('disconnected');
+      setError(`Failed to load timer data: ${error.message}`);
+      console.log('🔄 Using local employee data due to error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Post timer data to API
+  const postTimerData = async (userData) => {
+    try {
+      console.log('🚀 Posting timer data:', userData);
+      const response = await fetch(TIMER_API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} - ${errorData}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Timer data posted successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error posting timer data:', error);
+      throw error;
+    }
+  };
+
+  // Handle applying timer data
+  const handleApply = async (employee, minutes) => {
+    if (!minutes || minutes <= 0) {
+      alert('Please enter a valid timer duration (greater than 0 minutes)');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Convert minutes to seconds for the API
+      const timerData = {
+        user_id: employee.user_id || employee.id,
+        duration_seconds: minutes * 60, // Convert minutes to seconds
+        timer_date: selectedDate,
+        status: 'active'
+      };
+
+      const result = await postTimerData(timerData);
+      
+      if (result) {
+        alert(`✅ Timer set successfully for ${employee.name}!\nDuration: ${minutes} minutes (${timerData.duration_seconds} seconds)`);
+        // Refresh the data to get latest timer info
+        await fetchTimerData();
+      }
+    } catch (error) {
+      console.error('Error setting timer:', error);
+      setError(`Failed to set timer: ${error.message}`);
+      alert(`❌ Failed to set timer for ${employee.name}: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load timer data on component mount
+  useEffect(() => {
+    fetchTimerData();
+  }, []);
+
+  const employeeData = [
     {
       id: 1,
-      name: 'LoLL',
-      value: 0
+      name: 'Ahter Sağlam',
+      team: t('teamNA') || 'Team N/A',
+      status: t('off') || 'OFF',
+      isOnline: false,
+      loggedTime: '0h 0m',
+      activeTime: '0h 0m',
+      productive: 0,
+      distraction: '0h 0m',
+      neutral: '0h 0m',
+      meeting: '0h 0m',
+      break: '0h 0m',
+      idle: '0h 0m',
+      offline: '0h 0m'
     },
     {
       id: 2,
-      name: 'John Smith',
-      value: 0
+      name: 'Atakan İzzet Kahraman',
+      team: t('teamNA') || 'Team N/A',
+      status: t('off') || 'OFF',
+      isOnline: false,
+      loggedTime: '0h 0m',
+      activeTime: '0h 0m',
+      productive: 0,
+      distraction: '0h 0m',
+      neutral: '0h 0m',
+      meeting: '0h 0m',
+      break: '0h 0m',
+      idle: '0h 0m',
+      offline: '0h 0m'
     },
     {
       id: 3,
-      name: 'Sarah Johnson',
-      value: 0
+      name: 'Bahar Dülger',
+      team: t('teamNA') || 'Team N/A',
+      status: t('off') || 'OFF',
+      isOnline: false,
+      loggedTime: '0h 0m',
+      activeTime: '0h 0m',
+      productive: 0,
+      distraction: '0h 0m',
+      neutral: '0h 0m',
+      meeting: '0h 0m',
+      break: '0h 0m',
+      idle: '0h 0m',
+      offline: '0h 0m'
     },
     {
       id: 4,
-      name: 'Mike Wilson',
-      value: 0
+      name: 'Begüm Damla Şen',
+      team: t('teamNA') || 'Team N/A',
+      status: t('off') || 'OFF',
+      isOnline: false,
+      loggedTime: '0h 0m',
+      activeTime: '0h 0m',
+      productive: 0,
+      distraction: '0h 0m',
+      neutral: '0h 0m',
+      meeting: '0h 0m',
+      break: '0h 0m',
+      idle: '0h 0m',
+      offline: '0h 0m'
     },
     {
       id: 5,
-      name: 'Emma Davis',
-      value: 0
+      name: 'Berna Topal',
+      team: t('teamNA') || 'Team N/A',
+      status: t('off') || 'OFF',
+      isOnline: false,
+      loggedTime: '0h 0m',
+      activeTime: '0h 0m',
+      productive: 0,
+      distraction: '0h 0m',
+      neutral: '0h 0m',
+      meeting: '0h 0m',
+      break: '0h 0m',
+      idle: '0h 0m',
+      offline: '0h 0m'
+    },
+    {
+      id: 6,
+      name: 'Beyza Dönmez',
+      team: t('teamNA') || 'Team N/A',
+      status: t('off') || 'OFF',
+      isOnline: false,
+      loggedTime: '0h 0m',
+      activeTime: '0h 0m',
+      productive: 0,
+      distraction: '0h 0m',
+      neutral: '0h 0m',
+      meeting: '0h 0m',
+      break: '0h 0m',
+      idle: '0h 0m',
+      offline: '0h 0m'
     }
   ];
 
-  const [employees, setEmployees] = useState(mockEmployees);
-  const [filteredEmployees, setFilteredEmployees] = useState(mockEmployees);
+  // Use API data if available, otherwise use local employee data
+  const currentEmployeeData = timerData.length > 0 ? timerData : employeeData;
 
-  // Handle input value change for each employee
-  const handleValueChange = (employeeId, newValue) => {
-    const updatedEmployees = employees.map(emp => 
-      emp.id === employeeId ? { ...emp, value: newValue } : emp
-    );
-    setEmployees(updatedEmployees);
-    setFilteredEmployees(updatedEmployees);
-  };
+  const filteredEmployees = currentEmployeeData.filter(employee =>
+    employee.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  // Handle apply action for each employee
-  const handleApply = (employeeId) => {
-    const employee = employees.find(emp => emp.id === employeeId);
-    alert(`Applied value ${employee.value} for ${employee.name}`);
-    // Add your apply logic here
-  };
-
-  // Handle search
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredEmployees(employees);
-    } else {
-      const filtered = employees.filter(employee =>
-        employee.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredEmployees(filtered);
-    }
-    setCurrentPage(1); // Reset to first page when searching
-  }, [searchQuery, employees]);
-
-  // Calculate pagination
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
+  const paginatedEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
 
   return (
-    <DashboardLayout>
-      <ResponsiveStyles>
-        <QuickViewContainer>
-          <QuickViewCard>
-            {/* Notification Banner */}
-            <NotificationBanner>
-              <NotificationContent>
-                <span>{t('profileCreated')}</span>
-                <span>
-                  {t('downloadClient')}{' '}
-                  <DownloadLink href="https://focusro.com/download">
-                    https://focusro.com/download
-                  </DownloadLink>{' '}
-                  {t('loginExplore')}
-                </span>
-              </NotificationContent>
-            </NotificationBanner>
-
-            {/* Header */}
-            <QuickViewHeader>
-              <HeaderTop>
+    <DashboardLayout headerTitle={t('quickView')} headerBreadcrumb={`${t('home')} / ${t('quickView')}`}>
+      <QuickViewContainer>
+        <Container>
+          <ContentSection>
+            <QuickViewCard>
+              <CardHeader>
                 <HeaderLeft>
-                  <QuickViewTitle>
-                    Set Timer
-                    <HelpIcon>?</HelpIcon>
-                  </QuickViewTitle>
+                  <Title>
+                    SET TIMER
+                    <span style={{ fontSize: '14px', opacity: 0.7 }}>ⓘ</span>
+                  </Title>
+                  {loading && (
+                    <span style={{ marginLeft: '10px', color: '#007bff', fontSize: '12px' }}>
+                      🔄 Loading...
+                    </span>
+                  )}
+                  {error && (
+                    <span style={{ marginLeft: '10px', color: '#dc3545', fontSize: '12px' }}>
+                      ⚠️ {error}
+                    </span>
+                  )}
+                  {apiStatus === 'connected' && (
+                    <span style={{ marginLeft: '10px', color: '#28a745', fontSize: '12px' }}>
+                      🟢 API Connected - Real Users
+                    </span>
+                  )}
+                  {apiStatus === 'disconnected' && (
+                    <span style={{ marginLeft: '10px', color: '#ffc107', fontSize: '12px' }}>
+                      🟡 Using Local Data
+                    </span>
+                  )}
                 </HeaderLeft>
-                <HeaderControls>
-                  <SearchContainer>
-                    <SearchIcon>🔍</SearchIcon>
-                    <SearchInput
-                      type="text"
-                      placeholder={t('search')}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                <HeaderRight>
+                  <button
+                    onClick={fetchTimerData}
+                    disabled={loading}
+                    style={{
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '4px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      opacity: loading ? 0.6 : 1,
+                      marginRight: '10px',
+                      fontSize: '12px'
+                    }}
+                  >
+                    🔄 Refresh Users
+                  </button>
+                  <SearchInput
+                    placeholder={t('search').toUpperCase()}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <DatePicker
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
                     />
-                  </SearchContainer>
-                  <DateControl>
-                    <DateIcon>📅</DateIcon>
-                    <span>{t('selectDate')}</span>
-                  </DateControl>
-                  <DateControl>
-                    <span>{selectedDate}</span>
-                    <DateIcon>📅</DateIcon>
-                  </DateControl>
-                </HeaderControls>
-              </HeaderTop>
-            </QuickViewHeader>
+                  </div>
+                </HeaderRight>
+              </CardHeader>
 
-            {/* Table */}
-            <TableContainer>
-              <Table>
-                <TableHeader>
-                  <TableHeaderRow>
-                    <TableHeaderCell>{t('employee').toUpperCase()} NAME</TableHeaderCell>
-                    <TableHeaderCell>VALUE</TableHeaderCell>
-                    <TableHeaderCell>ACTION</TableHeaderCell>
-                  </TableHeaderRow>
-                </TableHeader>
-                <TableBody>
-                  {currentEmployees.map((employee) => (
-                    <TableRow key={employee.id}>
-                      <TableCell>
-                        <EmployeeInfo>
-                          <EmployeeAvatar>
-                            {employee.name.charAt(0)}
-                          </EmployeeAvatar>
-                          <div>
-                            <EmployeeName>{employee.name}</EmployeeName>
-                          </div>
-                        </EmployeeInfo>
-                      </TableCell>
-                      <TableCell>
-                        <input
-                          type="number"
-                          value={employee.value}
-                          onChange={(e) => handleValueChange(employee.id, e.target.value)}
-                          style={{
-                            width: '100px',
-                            padding: '8px',
-                            border: '1px solid #ddd',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          placeholder="Enter value"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <button
-                          onClick={() => handleApply(employee.id, employee.value)}
-                          style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '14px'
-                          }}
-                        >
-                          Apply
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+              <TableContainer>
+                <Table>
+                  <thead>
+                    <tr>
+                      <TableHeader>{t('status').toUpperCase()}</TableHeader>
+                      <TableHeader>{t('employeeName').toUpperCase()} ↑</TableHeader>
+                      <TableHeader>{t('loggedTime').toUpperCase()} ⓘ</TableHeader>
+                      <TableHeader>{t('activeTime').toUpperCase()} ⓘ</TableHeader>
+                      <TableHeader>{t('productive').toUpperCase()}</TableHeader>
+                      <TableHeader>{t('distraction').toUpperCase()}</TableHeader>
+                      <TableHeader>{t('neutral').toUpperCase()}</TableHeader>
+                      <TableHeader>{t('meeting').toUpperCase()}</TableHeader>
+                      <TableHeader>{t('break').toUpperCase()}</TableHeader>
+                      <TableHeader>{t('idle').toUpperCase()} ⓘ</TableHeader>
+                      <TableHeader>{t('offline').toUpperCase()}</TableHeader>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedEmployees.map((employee) => (
+                      <TableRow key={employee.id}>
+                        <TableCell>
+                          <StatusColumn>
+                            <StatusIcon isOnline={employee.isOnline}>
+                              {employee.isOnline ? '●' : '○'}
+                            </StatusIcon>
+                            <StatusText>{employee.status}</StatusText>
+                          </StatusColumn>
+                        </TableCell>
+                        <TableCell> 
+                          <EmployeeColumn>
+                            <EmployeeAvatar>
+                              {employee.name.split(' ').map(n => n[0]).join('')}
+                            </EmployeeAvatar>
+                            <EmployeeInfo>
+                              <EmployeeName>{employee.name}</EmployeeName>
+                              <TeamName>{employee.team}</TeamName>
+                            </EmployeeInfo>
+                          </EmployeeColumn>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.loggedTime}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <ProgressCell>
+                            <ProgressBar percentage={employee.productive}>
+                              <ProgressText>{employee.productive}%</ProgressText>
+                            </ProgressBar>
+                            <TimeCell>{employee.activeTime}</TimeCell>
+                          </ProgressCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.activeTime}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.distraction}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.neutral}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.meeting}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.break}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.idle}</TimeCell>
+                        </TableCell>
+                        <TableCell>
+                          <TimeCell>{employee.offline}</TimeCell>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </tbody>
+                </Table>
+              </TableContainer>
 
-            {/* Pagination */}
-            <PaginationContainer>
-              <EmployeesPerPage>
-                <span>{t('employeesPerPage')}:</span>
-                <PerPageSelector
-                  value={itemsPerPage}
-                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                >
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </PerPageSelector>
-              </EmployeesPerPage>
-              <PaginationRight>
-                <PageInfo>
-                  {t('showing')} {startIndex + 1} {t('to')} {Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length} {t('employees')}
-                </PageInfo>
-                <PaginationNav>
-                  <NavButton
+              <PaginationContainer>
+                <PaginationInfo>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span>
+                      {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length} {t('entries')}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>{t('show')}</span>
+                      <ItemsPerPageSelector
+                        value={itemsPerPage}
+                        onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                      </ItemsPerPageSelector>
+                      <span>{t('entries')}</span>
+                    </div>
+                  </div>
+                </PaginationInfo>
+
+                <PaginationControls>
+                  <PaginationButton
+                    onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
                   >
-                    ‹
-                  </NavButton>
-                  <NavButton
+                    ← {t('previous')}
+                  </PaginationButton>
+
+                  {generatePageNumbers().map((page, index) => (
+                    <PaginationButton
+                      key={index}
+                      active={page === currentPage}
+                      onClick={() => typeof page === 'number' && handlePageChange(page)}
+                      disabled={page === '...'}
+                    >
+                      {page}
+                    </PaginationButton>
+                  ))}
+
+                  <PaginationButton
+                    onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
                   >
-                    ›
-                  </NavButton>
-                </PaginationNav>
-              </PaginationRight>
-            </PaginationContainer>
-          </QuickViewCard>
-        </QuickViewContainer>
-      </ResponsiveStyles>
+                    {t('next')} →
+                  </PaginationButton>
+                </PaginationControls>
+              </PaginationContainer>
+            </QuickViewCard>
+          </ContentSection>
+        </Container>
+      </QuickViewContainer>
     </DashboardLayout>
   );
 };
