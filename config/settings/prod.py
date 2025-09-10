@@ -60,3 +60,49 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Compression and optimization
 MIDDLEWARE = ['django.middleware.gzip.GZipMiddleware'] + MIDDLEWARE
+
+# CORS Configuration for Production
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://dxdtime.ddsolutions.io",
+    "http://dxdtime.ddsolutions.io",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "access-control-allow-origin",
+    "access-control-allow-headers",
+    "access-control-allow-methods",
+    "cache-control",
+    "pragma",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH", 
+    "DELETE",
+    "OPTIONS"
+]
+
+CORS_EXPOSE_HEADERS = [
+    'content-type',
+    'x-csrftoken',
+]
+
+# Enable preflight max age to cache OPTIONS requests
+CORS_PREFLIGHT_MAX_AGE = 86400

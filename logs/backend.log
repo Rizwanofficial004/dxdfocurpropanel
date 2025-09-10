@@ -8065,6 +8065,7 @@ INFO 2025-09-08 19:58:15,110 basehttp 3304 18888 "POST /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,726 middleware 3304 18888 Request: GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928
+<<<<<<< HEAD
 INFO 2025-09-10 15:22:03,353 middleware 17504 11360 Request: POST /api/auto-set-value/
 INFO 2025-09-10 15:22:03,356 user_numeric_views 17504 11360 AutoTokenSetValue API called from IP: 127.0.0.1
 INFO 2025-09-10 15:22:03,361 middleware 17504 11360 Response: 207 for POST /api/auto-set-value/
@@ -8205,3 +8206,70 @@ INFO 2025-09-10 16:16:59,390 middleware 18120 17552 Request: GET /api/user-timer
 INFO 2025-09-10 16:16:59,391 user_timer_views 18120 17552 Timer API GET called from IP: 127.0.0.1
 INFO 2025-09-10 16:16:59,417 middleware 18120 17552 Response: 200 for GET /api/user-timer/
 INFO 2025-09-10 16:16:59,418 basehttp 18120 17552 "GET /api/user-timer/ HTTP/1.1" 200 5965
+=======
+INFO 2025-09-09 20:19:03,811 users_screenshots_view 18576 3764 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-09 20:19:03,857 users_screenshots_view 18576 3764 Starting to process users_screenshots folder...
+INFO 2025-09-09 20:19:05,473 users_screenshots_view 18576 3764 Processing page with 590 objects
+INFO 2025-09-09 20:19:05,868 users_screenshots_view 18576 3764 S3 Processing Summary:
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total users found: 3
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Active users: 3
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total files: 589
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Processed users_screenshots: 3 users, 589 files, 104.50MB
+INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
+INFO 2025-09-09 20:24:49,126 users_screenshots_view 16336 18044 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-09 20:24:49,155 users_screenshots_view 16336 18044 Starting to process users_screenshots folder...
+INFO 2025-09-09 20:24:50,664 users_screenshots_view 16336 18044 Processing page with 590 objects
+INFO 2025-09-09 20:24:51,510 users_screenshots_view 16336 18044 S3 Processing Summary:
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Total users found: 3
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Active users: 3
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Total files: 589
+INFO 2025-09-09 20:24:51,514 users_screenshots_view 16336 18044   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-09 20:24:51,519 users_screenshots_view 16336 18044 Processed users_screenshots: 3 users, 589 files, 104.50MB
+INFO 2025-09-09 20:24:51,520 users_screenshots_view 16336 18044 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
+INFO 2025-09-09 23:09:17,807 middleware 11792 19048 Request: GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:20,477 middleware 11792 19048 Response: 200 for GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:20,479 basehttp 11792 19048 "GET /api/simple-screenshot-proxy/status/?id=858c1a10-4111-4f94-b02e-b5f6d9f81e20&vscodeBrowserReqId=1757448557794 HTTP/1.1" 200 528
+INFO 2025-09-09 23:09:36,318 middleware 11792 28428 Request: GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:37,210 middleware 11792 28428 Response: 200 for GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:37,211 basehttp 11792 28428 "GET /api/simple-screenshot-proxy/status/ HTTP/1.1" 200 528
+INFO 2025-09-09 23:14:09,440 middleware 11792 19900 Request: GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:14:10,736 middleware 11792 19900 Response: 200 for GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:14:10,738 basehttp 11792 19900 "GET /api/simple-screenshot-proxy/status/ HTTP/1.1" 200 528
+INFO 2025-09-09 23:14:11,065 basehttp 11792 19900 - Broken pipe from ('127.0.0.1', 57509)
+INFO 2025-09-09 23:14:21,347 middleware 11792 23612 Request: GET /api/simple-screenshot-proxy/
+INFO 2025-09-09 23:14:21,353 simple_screenshot_proxy 11792 23612 S3 client initialized successfully for screenshot proxy
+INFO 2025-09-09 23:14:21,354 simple_screenshot_proxy 11792 23612 Proxying S3 URL: https://ddsfocustime.s3.eu-north-1.amazonaws.com/users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp
+INFO 2025-09-09 23:14:21,354 simple_screenshot_proxy 11792 23612 Extracted S3 key: users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp
+ERROR 2025-09-09 23:14:22,638 simple_screenshot_proxy 11792 23612 S3 object not found: users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp
+INFO 2025-09-09 23:14:22,639 middleware 11792 23612 Response: 404 for GET /api/simple-screenshot-proxy/
+WARNING 2025-09-09 23:14:22,640 log 11792 23612 Not Found: /api/simple-screenshot-proxy/
+WARNING 2025-09-09 23:14:22,642 basehttp 11792 23612 "GET /api/simple-screenshot-proxy/?url=https%3A%2F%2Fddsfocustime.s3.eu-north-1.amazonaws.com%2Fusers_screenshots%2F2025-09-09%2Fhaseebcodejourney_at_gmail.com%2F2025-09-09_17-05-26.webp HTTP/1.1" 404 201
+INFO 2025-09-09 23:14:22,945 basehttp 11792 23612 - Broken pipe from ('127.0.0.1', 65143)
+INFO 2025-09-10 12:55:02,635 middleware 27180 17060 Request: GET /
+INFO 2025-09-10 12:55:02,688 middleware 27180 17060 Response: 404 for GET /
+WARNING 2025-09-10 12:55:02,689 log 27180 17060 Not Found: /
+WARNING 2025-09-10 12:55:02,690 basehttp 27180 17060 "GET / HTTP/1.1" 404 14538
+INFO 2025-09-10 12:55:02,992 middleware 27180 17060 Request: GET /favicon.ico
+INFO 2025-09-10 12:55:03,000 middleware 27180 17060 Response: 404 for GET /favicon.ico
+WARNING 2025-09-10 12:55:03,002 log 27180 17060 Not Found: /favicon.ico
+WARNING 2025-09-10 12:55:03,005 basehttp 27180 17060 "GET /favicon.ico HTTP/1.1" 404 14589
+INFO 2025-09-10 12:55:08,274 middleware 27180 17060 Request: GET /api/styling/global/
+INFO 2025-09-10 12:55:08,459 middleware 27180 17060 Response: 200 for GET /api/styling/global/
+INFO 2025-09-10 12:55:08,459 basehttp 27180 17060 "GET /api/styling/global/ HTTP/1.1" 200 10723
+INFO 2025-09-10 12:55:08,644 basehttp 27180 14572 "GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+INFO 2025-09-10 12:55:08,644 basehttp 27180 8040 "GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+INFO 2025-09-10 12:55:08,649 basehttp 27180 17060 "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+INFO 2025-09-10 12:55:08,650 basehttp 27180 17356 "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3426
+INFO 2025-09-10 12:55:08,679 basehttp 27180 14572 "GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1793
+INFO 2025-09-10 12:55:08,684 basehttp 27180 25508 "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3796
+INFO 2025-09-10 12:55:08,700 basehttp 27180 8040 "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+INFO 2025-09-10 12:55:08,702 basehttp 27180 17356 "GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+INFO 2025-09-10 12:55:08,704 basehttp 27180 17060 "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+INFO 2025-09-10 12:55:08,709 basehttp 27180 25508 "GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+INFO 2025-09-10 12:55:08,710 basehttp 27180 14572 "GET /static/rest_framework/js/load-ajax-form.js HTTP/1.1" 200 59
+INFO 2025-09-10 12:55:08,749 basehttp 27180 17028 "GET /static/rest_framework/js/jquery-3.7.1.min.js HTTP/1.1" 200 87533
+INFO 2025-09-10 12:55:23,521 middleware 27180 27388 Request: GET /api/styling/global/
+INFO 2025-09-10 12:55:23,530 middleware 27180 27388 Response: 200 for GET /api/styling/global/
+INFO 2025-09-10 12:55:23,531 basehttp 27180 27388 "GET /api/styling/global/?id=1bef6d5b-b406-4c63-a8cb-c624042b937a&vscodeBrowserReqId=1757498123515 HTTP/1.1" 200 11193
+>>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
