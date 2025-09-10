@@ -18,12 +18,7 @@ import re
 from urllib.parse import unquote
 from collections import defaultdict
 import math
-import sys
-import os
-
-# Add the dashboard app to path for imports
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'dashboard'))
-from screenshot_parser import ScreenshotParser
+from apps.dashboard.screenshot_parser import ScreenshotParser
 
 logger = logging.getLogger(__name__)
 
