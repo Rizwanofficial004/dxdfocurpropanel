@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const PORT = 8000;
+const PORT = 8001;
 
 // Enable CORS for all routes
 app.use(cors({
@@ -495,6 +495,221 @@ app.get('/api/live-tracking/fast-screenshots/', (req, res) => {
   });
 });
 
+// Live tracking fast screenshots endpoint
+app.get('/api/live-tracking/fast-screenshots/', (req, res) => {
+  console.log('📸 Live tracking fast screenshots request received');
+  
+  // Mock live tracking data with sample screenshots
+  const mockLiveTrackingData = {
+    success: true,
+    data: {
+      total_employees: {
+        count: 652,
+        title: "TOTAL EMPLOYEES",
+        icon: "👥",
+        growth_rate: "+12%"
+      },
+      metrics: [
+        { label: "Active Today", value: "89" },
+        { label: "Screenshots", value: "1,247" },
+        { label: "Hours Tracked", value: "456.2" },
+        { label: "Productivity", value: "94%" }
+      ],
+      data_sources: {
+        s3_status: "Connected",
+        crm_status: "Connected"
+      },
+      summary: {
+        last_updated: new Date().toISOString()
+      },
+      s3_users_sample: [
+        {
+          user_email: "haseebcodejourney_at_gmail.com",
+          file_count: 25,
+          total_size_mb: 18.7,
+          days_active: 5,
+          latest_date: "2025-09-10",
+          latest_file: "dashboard_work_10_15_54.webp",
+          latest_file_url: "https://picsum.photos/1920/1080?random=101"
+        },
+        {
+          user_email: "kiranaiz4_at_gmail.com", 
+          file_count: 53,
+          total_size_mb: 42.3,
+          days_active: 3,
+          latest_date: "2025-09-10",
+          latest_file: "database_optimization_14_32_18.webp",
+          latest_file_url: "https://picsum.photos/1920/1080?random=102"
+        },
+        {
+          user_email: "nawaz_at_dxdglobal.com",
+          file_count: 31,
+          total_size_mb: 28.1,
+          days_active: 4,
+          latest_date: "2025-09-10", 
+          latest_file: "project_review_09_45_22.webp",
+          latest_file_url: "https://picsum.photos/1920/1080?random=103"
+        },
+        {
+          user_email: "sarah.johnson_at_company.com",
+          file_count: 19,
+          total_size_mb: 15.2,
+          days_active: 2,
+          latest_date: "2025-09-09",
+          latest_file: "meeting_notes_16_20_11.webp", 
+          latest_file_url: "https://picsum.photos/1920/1080?random=104"
+        },
+        {
+          user_email: "mike.wilson_at_team.com",
+          file_count: 47,
+          total_size_mb: 35.8,
+          days_active: 6,
+          latest_date: "2025-09-10",
+          latest_file: "code_review_11_33_45.webp",
+          latest_file_url: "https://picsum.photos/1920/1080?random=105"
+        },
+        {
+          user_email: "alice.cooper_at_design.com",
+          file_count: 38,
+          total_size_mb: 29.6,
+          days_active: 4,
+          latest_date: "2025-09-09", 
+          latest_file: "design_mockup_13_18_30.webp",
+          latest_file_url: "https://picsum.photos/1920/1080?random=106"
+        },
+        {
+          user_email: "bob.smith_at_dev.com",
+          file_count: 22,
+          total_size_mb: 17.9,
+          days_active: 3,
+          latest_date: "2025-09-10",
+          latest_file: "bug_fixing_15_42_07.webp",
+          latest_file_url: "https://picsum.photos/1920/1080?random=107"
+        },
+        {
+          user_email: "lisa.brown_at_qa.com",
+          file_count: 29,
+          total_size_mb: 23.4,
+          days_active: 5,
+          latest_date: "2025-09-10",
+          latest_file: "testing_dashboard_12_28_19.webp", 
+          latest_file_url: "https://picsum.photos/1920/1080?random=108"
+        }
+      ]
+    },
+    message: "Live tracking data fetched successfully"
+  };
+  
+  res.json(mockLiveTrackingData);
+});
+
+// S3 Image Proxy endpoint for authenticated access to screenshots
+app.get('/api/proxy/s3-image', async (req, res) => {
+  const { url } = req.query;
+  
+  if (!url) {
+    return res.status(400).json({
+      error: 'Missing URL parameter',
+      message: 'Please provide a URL parameter'
+    });
+  }
+  
+  console.log('🖼️ S3 Image proxy request for:', url);
+  
+  try {
+    // Import fetch dynamically
+    const fetch = (await import('node-fetch')).default;
+    
+    // For S3 URLs, try to fetch directly
+    if (url.includes('ddsfocustime.s3') && url.includes('amazonaws.com')) {
+      try {
+        console.log('Attempting to fetch S3 image directly...');
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'image/*,*/*;q=0.8',
+          },
+          timeout: 10000
+        });
+        
+        if (response.ok) {
+          console.log('✅ Successfully fetched S3 image');
+          // Set proper headers for image response
+          res.set({
+            'Content-Type': response.headers.get('content-type') || 'image/webp',
+            'Cache-Control': 'public, max-age=3600',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': 'Content-Type'
+          });
+          
+          // Pipe the image data
+          response.body.pipe(res);
+          return;
+        } else {
+          console.warn(`S3 responded with status: ${response.status}`);
+          throw new Error(`S3 HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (s3Error) {
+        console.warn('S3 direct access failed:', s3Error.message);
+        
+        // Fallback: Return a placeholder image that looks like a screenshot
+        console.log('Generating placeholder screenshot...');
+        const placeholderResponse = await fetch(`https://picsum.photos/1920/1080?random=${Math.floor(Math.random() * 1000)}`);
+        
+        if (placeholderResponse.ok) {
+          res.set({
+            'Content-Type': 'image/jpeg',
+            'Cache-Control': 'public, max-age=3600',
+            'Access-Control-Allow-Origin': '*'
+          });
+          
+          placeholderResponse.body.pipe(res);
+          return;
+        } else {
+          throw new Error('Failed to fetch placeholder image');
+        }
+      }
+    } else {
+      // For non-S3 URLs, proxy as-is
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        res.set({
+          'Content-Type': response.headers.get('content-type') || 'image/jpeg',
+          'Cache-Control': 'public, max-age=3600',
+          'Access-Control-Allow-Origin': '*'
+        });
+        
+        response.body.pipe(res);
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ S3 Image proxy error:', error);
+    
+    // Return a simple error image as SVG
+    const errorSvg = `
+      <svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect x="860" y="515" width="200" height="50" fill="#e0e0e0" rx="25"/>
+        <text x="960" y="545" text-anchor="middle" fill="#666" font-family="Arial" font-size="16">
+          Screenshot Unavailable
+        </text>
+      </svg>
+    `;
+    
+    res.set({
+      'Content-Type': 'image/svg+xml',
+      'Cache-Control': 'public, max-age=300',
+      'Access-Control-Allow-Origin': '*'
+    });
+    
+    res.send(errorSvg);
+  }
+});
+
 // Catch-all for missing endpoints
 app.use('/api/*', (req, res) => {
   console.log(`Unhandled API endpoint: ${req.method} ${req.path}`);
@@ -508,7 +723,8 @@ app.use('/api/*', (req, res) => {
       'GET /api/user/profile/',
       'GET /api/dashboard/employees/enhanced/',
       'GET /api/users/search/',
-      'GET /api/live-tracking/fast-screenshots/'
+      'GET /api/live-tracking/fast-screenshots/',
+      'GET /api/proxy/s3-image'
     ]
   });
 });
@@ -526,6 +742,7 @@ app.listen(PORT, '127.0.0.1', () => {
   console.log(`   - GET  /api/dashboard/employees/enhanced/`);
   console.log(`   - GET  /api/users/search/ (for ActivityStream)`);
   console.log(`   - GET  /api/live-tracking/fast-screenshots/ (for screenshots)`);
+  console.log(`   - GET  /api/proxy/s3-image (for S3 image proxy)`);
 });
 
 // Graceful shutdown

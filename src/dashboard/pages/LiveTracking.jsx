@@ -28,8 +28,9 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      const apiUrl = `${API_CONFIG.BASE_URL}/api/live-tracking/fast-screenshots/`;
-      console.log('Fetching live tracking data from:', apiUrl);
+      // Use production API directly for real S3 data
+      const apiUrl = 'https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/';
+      console.log('Fetching live tracking data from production API:', apiUrl);
       
       const response = await axios.get(apiUrl, {
         timeout: 30000,
@@ -108,22 +109,17 @@ const LiveTracking = () => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
 
-  // Get image URL - use backend screenshot proxy with AWS credentials
+  // Get image URL - try direct S3 access first, fallback to local proxy
   const getImageUrl = (originalUrl) => {
     if (!originalUrl) return null;
     
     console.log('🔍 Processing image URL:', originalUrl);
     
-    // If it's an S3 URL, use the backend screenshot proxy
+    // For S3 URLs, try direct access first
     if (originalUrl.includes('ddsfocustime.s3') && originalUrl.includes('amazonaws.com')) {
-      // Use the backend screenshot proxy that now has AWS credentials
-      const proxyUrl = `${API_CONFIG.BASE_URL}/api/simple-screenshot-proxy/?url=${encodeURIComponent(originalUrl)}`;
-      
-      console.log('🔄 Using backend screenshot proxy:');
-      console.log('   Original S3 URL:', originalUrl);
-      console.log('   Backend Proxy URL:', proxyUrl);
-      
-      return proxyUrl;
+      console.log('✅ Using direct S3 URL:', originalUrl);
+      // Return the original S3 URL directly - many S3 buckets allow public read access
+      return originalUrl;
     }
     
     // For non-S3 URLs, use as-is
@@ -131,15 +127,38 @@ const LiveTracking = () => {
     return originalUrl;
   };
 
-  // Handle image loading with better error recovery
+  // Handle image loading with CORS fallback and local proxy
   const handleImageError = (e, originalUrl, userEmail, userIndex) => {
     console.warn(`Failed to load screenshot for ${userEmail}:`, originalUrl);
     
-    // Add to error set
-    setImageErrors(prev => new Set(prev).add(userIndex));
+    // Try loading with crossOrigin set to anonymous
+    if (e.target.crossOrigin !== 'anonymous') {
+      console.log('Retrying with CORS anonymous...');
+      e.target.crossOrigin = 'anonymous';
+      e.target.src = originalUrl;
+      return;
+    }
     
-    // Keep the image visible (show broken image icon) and show error overlay
-    // Error overlay will show automatically via CSS classes
+    // If CORS failed, try without crossOrigin
+    if (e.target.crossOrigin === 'anonymous') {
+      console.log('Retrying without CORS...');
+      e.target.crossOrigin = '';
+      e.target.src = originalUrl;
+      return;
+    }
+    
+    // If direct access failed, try local proxy
+    if (!e.target.src.includes('127.0.0.1:8001')) {
+      console.log('Trying local proxy...');
+      const proxyUrl = `http://127.0.0.1:8001/api/proxy/s3-image?url=${encodeURIComponent(originalUrl)}`;
+      e.target.crossOrigin = '';
+      e.target.src = proxyUrl;
+      return;
+    }
+    
+    // All attempts failed, add to error set
+    console.error('All image loading attempts failed for:', originalUrl);
+    setImageErrors(prev => new Set(prev).add(userIndex));
   };
 
   // Handle successful image load
@@ -324,6 +343,7 @@ const LiveTracking = () => {
                             src={getImageUrl(user.latest_file_url)}
                             alt={`Latest screenshot for ${formatUserEmail(user.user_email)}`}
                             className="screenshot-image"
+                            crossOrigin="anonymous"
                             onLoad={(e) => handleImageLoad(e, userIndex)}
                             onError={(e) => handleImageError(e, user.latest_file_url, formatUserEmail(user.user_email), userIndex)}
                           />
@@ -341,20 +361,20 @@ const LiveTracking = () => {
                                 <path d="M135 75 L165 75 L155 65 Z" fill="#5f6368"/>
                                 <rect x="125" y="85" width="50" height="30" fill="#e8eaed" rx="4"/>
                                 <text x="150" y="140" textAnchor="middle" fill="#5f6368" fontFamily="Arial, sans-serif" fontSize="12" fontWeight="500">
-                                  Screenshot Preview
+                                  Real Screenshot
                                 </text>
                                 <text x="150" y="160" textAnchor="middle" fill="#9aa0a6" fontFamily="Arial, sans-serif" fontSize="10">
-                                  S3 Access Restricted
+                                  Loading from S3...
                                 </text>
                               </svg>
                             </div>
                           )}
                           <div className={`image-error ${hasImageError ? 'show' : ''}`}>
                             <span>📷</span>
-                            <p>Screenshot not accessible</p>
-                            <small>Backend screenshot proxy with AWS credentials needed</small>
+                            <p>Screenshot loading failed</p>
+                            <small>Unable to load real screenshot from S3 - checking proxy connection</small>
                             <div className="url-display">
-                              <strong>Backend Proxy URL:</strong>
+                              <strong>Proxy URL:</strong>
                               <small className="localhost-url">{getImageUrl(user.latest_file_url)}</small>
                               <strong>Original S3 URL:</strong>
                               <small className="s3-url">{user.latest_file_url}</small>
@@ -364,14 +384,14 @@ const LiveTracking = () => {
                               onClick={() => retryImageLoad(userIndex)}
                               disabled={loading}
                             >
-                              {loading ? '🔄' : '↻'} Get Fresh URL
+                              {loading ? '🔄' : '↻'} Retry Loading
                             </button>
                             <button 
                               className="view-s3-button"
                               onClick={() => window.open(user.latest_file_url, '_blank')}
                               style={{marginTop: '8px'}}
                             >
-                              🔗 View in S3
+                              🔗 View Original S3
                             </button>
                           </div>
                         </div>

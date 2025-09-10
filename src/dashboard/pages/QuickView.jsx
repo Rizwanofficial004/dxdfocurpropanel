@@ -53,34 +53,53 @@ const QuickView = () => {
   const [selectedDate, setSelectedDate] = useState('08/09/2025');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  // Mock employee data matching the design exactly
+  // Simplified employee data with just name and numeric value
   const mockEmployees = [
     {
       id: 1,
-      status: 'OFF',
       name: 'LoLL',
-      team: 'Team N/A',
-      loggedTime: '0h 0m',
-      activeTime: '0h 0m',
-      productive: '0h 0m',
-      distraction: '0h 0m',
-      neutral: '0h 0m',
-      meeting: '0h 0m',
-      break: '0h 0m',
-      idle: '0h 0m',
-      offline: '0h 0m',
-      productivityPercentage: 0,
-      email: 'loll@company.com',
-      organization: 'Tech Solutions',
-      role: 'Employee',
-      first_name: 'LoLL',
-      last_name: '',
-      username: 'loll'
+      value: 0
+    },
+    {
+      id: 2,
+      name: 'John Smith',
+      value: 0
+    },
+    {
+      id: 3,
+      name: 'Sarah Johnson',
+      value: 0
+    },
+    {
+      id: 4,
+      name: 'Mike Wilson',
+      value: 0
+    },
+    {
+      id: 5,
+      name: 'Emma Davis',
+      value: 0
     }
   ];
 
   const [employees, setEmployees] = useState(mockEmployees);
   const [filteredEmployees, setFilteredEmployees] = useState(mockEmployees);
+
+  // Handle input value change for each employee
+  const handleValueChange = (employeeId, newValue) => {
+    const updatedEmployees = employees.map(emp => 
+      emp.id === employeeId ? { ...emp, value: newValue } : emp
+    );
+    setEmployees(updatedEmployees);
+    setFilteredEmployees(updatedEmployees);
+  };
+
+  // Handle apply action for each employee
+  const handleApply = (employeeId) => {
+    const employee = employees.find(emp => emp.id === employeeId);
+    alert(`Applied value ${employee.value} for ${employee.name}`);
+    // Add your apply logic here
+  };
 
   // Handle search
   useEffect(() => {
@@ -88,10 +107,7 @@ const QuickView = () => {
       setFilteredEmployees(employees);
     } else {
       const filtered = employees.filter(employee =>
-        employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.role?.toLowerCase().includes(searchQuery.toLowerCase())
+        employee.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredEmployees(filtered);
     }
@@ -128,7 +144,7 @@ const QuickView = () => {
               <HeaderTop>
                 <HeaderLeft>
                   <QuickViewTitle>
-                    {t('quickView')}
+                    Set Timer
                     <HelpIcon>?</HelpIcon>
                   </QuickViewTitle>
                 </HeaderLeft>
@@ -159,70 +175,54 @@ const QuickView = () => {
               <Table>
                 <TableHeader>
                   <TableHeaderRow>
-                    <TableHeaderCell>{t('status').toUpperCase()}</TableHeaderCell>
-                    <TableHeaderCell className="sortable">{t('employee').toUpperCase()} NAME ↑</TableHeaderCell>
-                    <TableHeaderCell className="sortable">LOGGED TIME ⓘ</TableHeaderCell>
-                    <TableHeaderCell className="sortable">ACTIVE TIME ⓘ</TableHeaderCell>
-                    <TableHeaderCell>PRODUCTIVE</TableHeaderCell>
-                    <TableHeaderCell>DISTRACTION</TableHeaderCell>
-                    <TableHeaderCell>NEUTRAL</TableHeaderCell>
-                    <TableHeaderCell>MEETING</TableHeaderCell>
-                    <TableHeaderCell>BREAK</TableHeaderCell>
-                    <TableHeaderCell className="sortable">IDLE ⓘ</TableHeaderCell>
-                    <TableHeaderCell>OFFLINE</TableHeaderCell>
+                    <TableHeaderCell>{t('employee').toUpperCase()} NAME</TableHeaderCell>
+                    <TableHeaderCell>VALUE</TableHeaderCell>
+                    <TableHeaderCell>ACTION</TableHeaderCell>
                   </TableHeaderRow>
                 </TableHeader>
                 <TableBody>
                   {currentEmployees.map((employee) => (
                     <TableRow key={employee.id}>
                       <TableCell>
-                        <StatusIndicator status={employee.status}>
-                          {employee.status}
-                        </StatusIndicator>
-                      </TableCell>
-                      <TableCell>
                         <EmployeeInfo>
                           <EmployeeAvatar>
-                            A
+                            {employee.name.charAt(0)}
                           </EmployeeAvatar>
                           <div>
                             <EmployeeName>{employee.name}</EmployeeName>
-                            <TeamName>{employee.team}</TeamName>
                           </div>
                         </EmployeeInfo>
                       </TableCell>
                       <TableCell>
-                        <TimeCell>{employee.loggedTime}</TimeCell>
+                        <input
+                          type="number"
+                          value={employee.value}
+                          onChange={(e) => handleValueChange(employee.id, e.target.value)}
+                          style={{
+                            width: '100px',
+                            padding: '8px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                          }}
+                          placeholder="Enter value"
+                        />
                       </TableCell>
                       <TableCell>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <ProductivityBar>
-                            <ProductivityFill percentage={employee.productivityPercentage} />
-                          </ProductivityBar>
-                          <PercentageText>{employee.productivityPercentage}%</PercentageText>
-                        </div>
-                        <TimeCell>{employee.activeTime}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.productive}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.distraction}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.neutral}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.meeting}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.break}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.idle}</TimeCell>
-                      </TableCell>
-                      <TableCell>
-                        <TimeCell>{employee.offline}</TimeCell>
+                        <button
+                          onClick={() => handleApply(employee.id, employee.value)}
+                          style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                          }}
+                        >
+                          Apply
+                        </button>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -766,7 +766,7 @@ const ActivityStream = () => {
             }}
             className="search-dropdown"
             >
-              <style>{`
+              <style jsx>{`
                 [data-theme="dark"] .search-dropdown {
                   background-color: #1d232c !important;
                   border-color: #6b7280 !important;
@@ -856,7 +856,7 @@ const ActivityStream = () => {
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
             }}>
-              <style>{`
+              <style jsx>{`
                 @keyframes spin {
                   0% { transform: translateY(-50%) rotate(0deg); }
                   100% { transform: translateY(-50%) rotate(360deg); }
@@ -1024,7 +1024,7 @@ const ActivityStream = () => {
                         }
                       }}
                     >
-                      <style>{`
+                      <style jsx>{`
                         [data-theme="dark"] .screenshot-card {
                           background-color: #1d232c !important;
                           border-color: #6b7280 !important;
