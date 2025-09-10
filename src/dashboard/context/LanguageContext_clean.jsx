@@ -186,10 +186,49 @@ const translations = {
     teamBuildingWorkshop: 'Team Building Workshop',
     teamBuildingDesc: 'Workshop aimed at improving team collaboration and communication skills.',
     
+    // Employee specific
+    employee: 'Employee',
+    team: 'Team',
+    clockIn: 'Clock In',
+    clockOut: 'Clock Out',
+    hoursWorked: 'Hours Worked',
+    productivity: 'Productivity',
+    inactive: 'Inactive',
+    present: 'Present',
+    absent: 'Absent',
+    late: 'Late',
+    onTime: 'On Time',
+    overtime: 'Overtime',
+    undertime: 'Undertime',
+    
     // Notification banner
     profileCreated: 'Your user profile has been successfully created.',
     downloadClient: 'You can now download the client app from',
     loginExplore: 'and log in with your password to explore the features.',
+    
+    // Common UI elements
+    loading: 'Loading...',
+    success: 'Success',
+    warning: 'Warning',
+    
+    // Additional common terms
+    save: 'Save',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    edit: 'Edit',
+    add: 'Add',
+    remove: 'Remove',
+    update: 'Update',
+    create: 'Create',
+    confirm: 'Confirm',
+    yes: 'Yes',
+    no: 'No',
+    close: 'Close',
+    open: 'Open',
+    back: 'Back',
+    forward: 'Forward',
+    refresh: 'Refresh',
+    reset: 'Reset',
     
     // Dashboard specific translations
     currentStatus: 'CURRENT STATUS',
@@ -440,10 +479,50 @@ const translations = {
     teamBuildingWorkshop: 'Takım Oluşturma Atölyesi',
     teamBuildingDesc: 'Takım işbirliği ve iletişim becerilerini geliştirmeyi amaçlayan atölye.',
     
+    // Employee specific
+    employee: 'Çalışan',
+    team: 'Takım',
+    clockIn: 'Giriş',
+    clockOut: 'Çıkış',
+    hoursWorked: 'Çalışılan Saat',
+    productivity: 'Verimlilik',
+    inactive: 'Pasif',
+    present: 'Mevcut',
+    absent: 'Yok',
+    late: 'Geç',
+    onTime: 'Zamanında',
+    overtime: 'Mesai',
+    undertime: 'Eksik Mesai',
+    
     // Notification banner
     profileCreated: 'Kullanıcı profiliniz başarıyla oluşturuldu.',
     downloadClient: 'Artık istemci uygulamasını şu adresten indirebilirsiniz',
     loginExplore: 've özelliklerini keşfetmek için şifrenizle giriş yapın.',
+    
+    // Common UI elements
+    loading: 'Yükleniyor...',
+    success: 'Başarılı',
+    warning: 'Uyarı',
+    error: 'Hata',
+    
+    // Additional common terms
+    save: 'Kaydet',
+    cancel: 'İptal',
+    delete: 'Sil',
+    edit: 'Düzenle',
+    add: 'Ekle',
+    remove: 'Kaldır',
+    update: 'Güncelle',
+    create: 'Oluştur',
+    confirm: 'Onayla',
+    yes: 'Evet',
+    no: 'Hayır',
+    close: 'Kapat',
+    open: 'Aç',
+    back: 'Geri',
+    forward: 'İleri',
+    refresh: 'Yenile',
+    reset: 'Sıfırla',
     
     // Dashboard specific translations
     currentStatus: 'MEVCUT DURUM',

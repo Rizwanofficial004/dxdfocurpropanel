@@ -15,11 +15,12 @@ import { CurrentStatus, CompanyAverage } from '../components';
 import '../styles/globalSliders.css';
 
 const DashboardContainer = styled.div`
-  background: ${lightTheme.colors.background};
+  background: ${props => props.theme.colors.background};
   min-height: 100vh;
   padding: ${props => props.theme.spacing.lg} 0;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 
   &::before {
     content: '';
@@ -33,7 +34,8 @@ const DashboardContainer = styled.div`
     top: 0;
     width: 350px;
     z-index: 0;
-    opacity: 0.3;
+    opacity: ${props => props.theme.mode === 'dark' ? '0.1' : '0.3'};
+    filter: ${props => props.theme.mode === 'dark' ? 'brightness(0.5)' : 'none'};
   }
 
   &::after {
@@ -48,7 +50,8 @@ const DashboardContainer = styled.div`
     bottom: -80px;
     width: 370px;
     z-index: 0;
-    opacity: 0.3;
+    opacity: ${props => props.theme.mode === 'dark' ? '0.1' : '0.3'};
+    filter: ${props => props.theme.mode === 'dark' ? 'brightness(0.5)' : 'none'};
   }
 `;
 

@@ -5,67 +5,253 @@
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Light theme variables */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --primary-color: #2563eb;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --hover-color: #f1f5f9;
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --primary-color: #3b82f6;
+  --success-color: #22c55e;
+  --warning-color: #fbbf24;
+  --error-color: #f87171;
+  --hover-color: #334155;
+  --accent-color: #6366f1;
+  --muted-color: #475569;
+}
+
+/* Base styles that respond to theme */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Global dark mode styles for common elements */
+.dark-theme {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.dark-theme button {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .card,
+.dark-theme .panel {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+/* Enhanced component-specific dark mode styles */
+.dark-theme .sidebar {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .header {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .stats-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  box-shadow: 0 8px 16px var(--shadow-color);
+}
+
+.dark-theme .table {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .table th {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dark-theme .table td {
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.dark-theme .dropdown {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+.dark-theme .modal {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .notification {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Scrollbar styling for dark mode */
+.dark-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark-theme ::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4px;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Chart and graph enhancements for dark mode */
+.dark-theme .chart-container {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .chart-grid {
+  stroke: var(--border-color);
+}
+
+.dark-theme .chart-text {
+  fill: var(--text-secondary);
+}
+
+/* Form controls dark mode */
+.dark-theme .form-control {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-theme .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.dark-theme .form-label {
+  color: var(--text-secondary);
+}
+
+/* Button variants for dark mode */
+.dark-theme .btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.dark-theme .btn-secondary {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-theme .btn-success {
+  background-color: var(--success-color);
+}
+
+.dark-theme .btn-warning {
+  background-color: var(--warning-color);
+}
+
+.dark-theme .btn-danger {
+  background-color: var(--error-color);
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--primary-color);
   text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  transition: color 0.2s ease;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+a:hover {
+  color: var(--primary-color);
+  opacity: 0.8;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: var(--text-primary);
 }
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-color);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: all 0.25s ease;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:hover {
+  background-color: var(--hover-color);
+  border-color: var(--primary-color);
 }
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Remove the media query since we're handling themes manually */

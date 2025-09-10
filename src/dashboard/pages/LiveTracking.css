@@ -4,6 +4,12 @@
   width: 100%;
   padding: 20px;
   background-color: #f8f9fa;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode live tracking page */
+[data-theme="dark"] .live-tracking-page {
+  background-color: #0f172a;
 }
 
 .live-tracking-card {
@@ -15,6 +21,12 @@
   /* max-width: 1200px; */
   margin: 0 auto;
   overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode live tracking card */
+[data-theme="dark"] .live-tracking-card {
+  background: #1e293b;
 }
 
 /* Refresh Button */
@@ -44,6 +56,13 @@
   padding: 20px 24px;
   border-bottom: 1px solid #dadce0;
   background: #fafafa;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode stats section */
+[data-theme="dark"] .stats-section {
+  background: #334155;
+  border-bottom-color: #475569;
 }
 
 /* Always visible compact URL display */
@@ -53,6 +72,13 @@
   background: #f8f9fa;
   border-radius: 4px;
   border: 1px solid #e1e3e6;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode URL section */
+[data-theme="dark"] .image-url-section {
+  background: #475569;
+  border-color: #64748b;
 }
 
 .url-label {
@@ -60,6 +86,12 @@
   font-weight: 500;
   color: #5f6368;
   margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode URL label */
+[data-theme="dark"] .url-label {
+  color: #94a3b8;
 }
 
 .url-display-compact {
@@ -78,12 +110,25 @@
   color: #202124;
   background: white;
   min-width: 0;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .url-input-compact:focus {
   outline: none;
   border-color: #1a73e8;
   box-shadow: 0 0 0 1px #1a73e8;
+}
+
+/* Dark mode URL input */
+[data-theme="dark"] .url-input-compact {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #64748b;
+}
+
+[data-theme="dark"] .url-input-compact:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 1px #60a5fa;
 }
 
 .copy-url-button-compact,
@@ -98,6 +143,21 @@
   transition: all 0.2s;
   text-decoration: none;
   display: flex;
+}
+
+/* Dark mode URL buttons */
+[data-theme="dark"] .copy-url-button-compact,
+[data-theme="dark"] .open-url-button-compact {
+  background: #334155;
+  color: #94a3b8;
+  border-color: #64748b;
+}
+
+[data-theme="dark"] .copy-url-button-compact:hover,
+[data-theme="dark"] .open-url-button-compact:hover {
+  background: #475569;
+  color: #f8fafc;
+}
   align-items: center;
   justify-content: center;
   min-width: 24px;
