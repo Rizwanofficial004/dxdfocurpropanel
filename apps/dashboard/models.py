@@ -367,12 +367,24 @@ class AppStyling(models.Model):
     theme_name = models.CharField(max_length=100, default="Default Theme", help_text="Name of the theme")
     description = models.CharField(max_length=200, blank=True, help_text="Description of the styling theme")
     
-    # Color configurations
+    # Basic Color configurations
     primary_color = models.CharField(max_length=50, default="#1E90FF", help_text="HEX or RGB format (e.g., #1E90FF or rgb(30,144,255))")
     secondary_color = models.CharField(max_length=50, default="#32CD32", help_text="HEX or RGB format")
     background_color = models.CharField(max_length=50, default="#FFFFFF", help_text="HEX or RGB format")
     button_color = models.CharField(max_length=50, default="#007BFF", help_text="HEX or RGB format")
     text_color = models.CharField(max_length=50, default="#333333", help_text="HEX or RGB format")
+    
+    # Extended Color configurations - New Fields
+    submit_button_bg_color = models.CharField(max_length=50, default="#28a745", help_text="Submit button background color")
+    submit_button_text_color = models.CharField(max_length=50, default="#ffffff", help_text="Submit button text color")
+    primary_button_bg_color = models.CharField(max_length=50, default="#007bff", help_text="Primary button background color")
+    primary_button_text_color = models.CharField(max_length=50, default="#ffffff", help_text="Primary button text color")
+    secondary_button_bg_color = models.CharField(max_length=50, default="#6c757d", help_text="Secondary button background color")
+    secondary_button_text_color = models.CharField(max_length=50, default="#ffffff", help_text="Secondary button text color")
+    drawer_background_color = models.CharField(max_length=50, default="#f8f9fa", help_text="Drawer/sidebar background color")
+    drawer_text_color = models.CharField(max_length=50, default="#212529", help_text="Drawer/sidebar text color")
+    icon_color = models.CharField(max_length=50, default="#6c757d", help_text="Default icon color")
+    top_color = models.CharField(max_length=50, default="#007bff", help_text="Top navigation/header color")
     
     # Font configurations
     heading_font_size = models.CharField(max_length=20, default="24px", help_text="Font size in px or rem (e.g., '24px', '1.5rem')")
@@ -412,7 +424,17 @@ class AppStyling(models.Model):
             'secondary': self.secondary_color,
             'background': self.background_color,
             'button': self.button_color,
-            'text': self.text_color
+            'text': self.text_color,
+            'submit_button_bg': self.submit_button_bg_color,
+            'submit_button_text': self.submit_button_text_color,
+            'primary_button_bg': self.primary_button_bg_color,
+            'primary_button_text': self.primary_button_text_color,
+            'secondary_button_bg': self.secondary_button_bg_color,
+            'secondary_button_text': self.secondary_button_text_color,
+            'drawer_background': self.drawer_background_color,
+            'drawer_text': self.drawer_text_color,
+            'icon': self.icon_color,
+            'top': self.top_color
         }
     
     @property
@@ -433,6 +455,16 @@ class AppStyling(models.Model):
             '--background-color': self.background_color,
             '--button-color': self.button_color,
             '--text-color': self.text_color,
+            '--submit-button-bg-color': self.submit_button_bg_color,
+            '--submit-button-text-color': self.submit_button_text_color,
+            '--primary-button-bg-color': self.primary_button_bg_color,
+            '--primary-button-text-color': self.primary_button_text_color,
+            '--secondary-button-bg-color': self.secondary_button_bg_color,
+            '--secondary-button-text-color': self.secondary_button_text_color,
+            '--drawer-background-color': self.drawer_background_color,
+            '--drawer-text-color': self.drawer_text_color,
+            '--icon-color': self.icon_color,
+            '--top-color': self.top_color,
             '--heading-font-size': self.heading_font_size,
             '--body-font-size': self.body_font_size,
             '--font-family': self.font_family,
