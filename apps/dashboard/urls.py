@@ -5,11 +5,10 @@ from .credentials_views import CredentialsStatusView, CredentialsAPIView, SetAll
 from .users_screenshots_view import UsersScreenshotsView
 from .users_search_views import EnhancedUsersSearchView
 from .employees_details_views import EmployeesDetailsView
-# from .user_timer_views import UserTimerAPIView, UserTimerStatsAPIView, TimerQuickActionAPIView
+from .user_timer_views import UserTimerAPIView, UserTimerStatsAPIView, TimerQuickActionAPIView
 from .user_numeric_views import UserNumericValueAPIView, AllUsersNumericValuesAPIView, UserNumericValueByUserAPIView, UserSetupValueAPIView, AllUsersSetupValuesAPIView, AutoTokenSetValueAPIView, AutoTokenGetValueAPIView, FlexibleGetValueAPIView
 from .styling_views import UserStylingAPIView, AllUsersStylingAPIView, UserStylingByUserAPIView, AutoTokenStylingSetAPIView, AutoTokenStylingGetAPIView, UserStylingCSSAPIView
 from .app_styling_views import AppStylingAPIView, AppStylingUpdateAPIView, AllAppStylingsAPIView, AppStylingActivateAPIView, AppStylingCSSAPIView, QuickSetStylingAPIView, SetAllStylingValuesAPIView, GetAllStylingValuesAPIView
-# from .s3_timer_api_views import S3TimerAPIView, S3ScreenshotAPIView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
 from .logs_views import LogsSearchView, LogsSystemView, LogsStatsView
@@ -32,11 +31,11 @@ urlpatterns = [
     # Employees Details API - Combines S3 and CRM Data
     path('Employees/Details/', EmployeesDetailsView.as_view(), name='employees-details'),
     
-    # User Timer API - Full-stack timer for React frontend (temporarily disabled)
-    # path('user-timer/', UserTimerAPIView.as_view(), name='user-timer-api'),
-    # path('user-timer/<int:timer_id>/', UserTimerAPIView.as_view(), name='user-timer-detail'),
-    # path('user-timer/stats/', UserTimerStatsAPIView.as_view(), name='user-timer-stats'),
-    # path('user-timer/quick/', TimerQuickActionAPIView.as_view(), name='user-timer-quick'),
+    # User Timer API - Full-stack timer for React frontend
+    path('user-timer/', UserTimerAPIView.as_view(), name='user-timer-api'),
+    path('user-timer/<int:timer_id>/', UserTimerAPIView.as_view(), name='user-timer-detail'),
+    path('user-timer/stats/', UserTimerStatsAPIView.as_view(), name='user-timer-stats'),
+    path('user-timer/quick/', TimerQuickActionAPIView.as_view(), name='user-timer-quick'),
     
     # User Numeric Value API - Simple numeric values for each user
     path('user-value/', UserNumericValueAPIView.as_view(), name='user-numeric-value'),
@@ -87,10 +86,6 @@ urlpatterns = [
     # App CSS API - Get CSS variables for general app styling (no authentication required)
     path('app-styling-css/', AppStylingCSSAPIView.as_view(), name='app-styling-css'),
     path('app-styling-css/<int:styling_id>/', AppStylingCSSAPIView.as_view(), name='app-styling-css-by-id'),
-    
-    # S3 Timer API - S3 Integration for Timer Management (Temporarily disabled)
-    # path('Timer/s3/', S3TimerAPIView.as_view(), name='s3-timer-api'),
-    # path('Timer/s3/screenshots/', S3ScreenshotAPIView.as_view(), name='s3-screenshot-api'),
     
     # CRM Comprehensive endpoints
     path('dashboard/crm-comprehensive/', CRMComprehensiveDashboardView.as_view(), name='crm-comprehensive-dashboard'),

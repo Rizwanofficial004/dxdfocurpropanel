@@ -8065,3 +8065,143 @@ INFO 2025-09-08 19:58:15,110 basehttp 3304 18888 "POST /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,726 middleware 3304 18888 Request: GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928
+INFO 2025-09-10 15:22:03,353 middleware 17504 11360 Request: POST /api/auto-set-value/
+INFO 2025-09-10 15:22:03,356 user_numeric_views 17504 11360 AutoTokenSetValue API called from IP: 127.0.0.1
+INFO 2025-09-10 15:22:03,361 middleware 17504 11360 Response: 207 for POST /api/auto-set-value/
+INFO 2025-09-10 15:22:03,362 basehttp 17504 11360 "POST /api/auto-set-value/?user_id=123 HTTP/1.1" 207 617
+INFO 2025-09-10 15:22:37,781 middleware 17504 11360 Request: GET /api/auto-set-value/
+INFO 2025-09-10 15:22:37,782 user_numeric_views 17504 11360 AutoTokenSetValue GET API called from IP: 127.0.0.1
+INFO 2025-09-10 15:22:37,785 middleware 17504 11360 Response: 404 for GET /api/auto-set-value/
+WARNING 2025-09-10 15:22:37,809 log 17504 11360 Not Found: /api/auto-set-value/
+WARNING 2025-09-10 15:22:37,810 basehttp 17504 11360 "GET /api/auto-set-value/?user_id=123 HTTP/1.1" 404 134
+INFO 2025-09-10 15:23:38,688 middleware 19184 2468 Request: GET /api/auto-set-value/
+INFO 2025-09-10 15:23:38,690 user_numeric_views 19184 2468 AutoTokenSetValue GET API called from IP: 127.0.0.1
+INFO 2025-09-10 15:23:38,693 middleware 19184 2468 Response: 404 for GET /api/auto-set-value/
+WARNING 2025-09-10 15:23:38,695 log 19184 2468 Not Found: /api/auto-set-value/
+WARNING 2025-09-10 15:23:38,695 basehttp 19184 2468 "GET /api/auto-set-value/?user_id=123 HTTP/1.1" 404 134
+INFO 2025-09-10 15:25:20,310 middleware 19184 20272 Request: GET /api/auto-set-value/
+INFO 2025-09-10 15:25:20,311 user_numeric_views 19184 20272 AutoTokenSetValue GET API called from IP: 127.0.0.1
+INFO 2025-09-10 15:25:20,313 middleware 19184 20272 Response: 404 for GET /api/auto-set-value/
+WARNING 2025-09-10 15:25:20,314 log 19184 20272 Not Found: /api/auto-set-value/
+WARNING 2025-09-10 15:25:20,315 basehttp 19184 20272 "GET /api/auto-set-value/?user_id=123 HTTP/1.1" 404 134
+INFO 2025-09-10 15:25:24,399 middleware 19184 20272 Request: POST /api/auto-set-value/
+INFO 2025-09-10 15:25:24,400 user_numeric_views 19184 20272 AutoTokenSetValue API called from IP: 127.0.0.1
+INFO 2025-09-10 15:25:24,400 middleware 19184 20272 Response: 400 for POST /api/auto-set-value/
+WARNING 2025-09-10 15:25:24,401 log 19184 20272 Bad Request: /api/auto-set-value/
+WARNING 2025-09-10 15:25:24,402 basehttp 19184 20272 "POST /api/auto-set-value/?user_id=123 HTTP/1.1" 400 143
+INFO 2025-09-10 15:32:15,799 middleware 19184 20936 Request: POST /api/user-timer/
+INFO 2025-09-10 15:32:15,906 middleware 19184 20936 Response: 403 for POST /api/user-timer/
+WARNING 2025-09-10 15:32:15,907 log 19184 20936 Forbidden: /api/user-timer/
+WARNING 2025-09-10 15:32:15,908 basehttp 19184 20936 "POST /api/user-timer/ HTTP/1.1" 403 58
+INFO 2025-09-10 15:48:16,467 middleware 18120 23036 Request: POST /api/user-timer/
+INFO 2025-09-10 15:48:16,469 user_timer_views 18120 23036 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 15:48:16,503 user_timer_views 18120 23036 Timer created for user testuser (ID: 1) - Duration: 3600s
+INFO 2025-09-10 15:48:16,512 middleware 18120 23036 Response: 201 for POST /api/user-timer/
+INFO 2025-09-10 15:48:16,515 basehttp 18120 23036 "POST /api/user-timer/ HTTP/1.1" 201 480
+INFO 2025-09-10 15:54:51,746 middleware 18120 18240 Request: POST /api/user-timer/
+INFO 2025-09-10 15:54:51,747 user_timer_views 18120 18240 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 15:54:51,769 user_timer_views 18120 18240 Timer created for user testuser (ID: 1) - Duration: 55s
+INFO 2025-09-10 15:54:51,778 middleware 18120 18240 Response: 201 for POST /api/user-timer/
+INFO 2025-09-10 15:54:51,779 basehttp 18120 18240 "POST /api/user-timer/ HTTP/1.1" 201 478
+INFO 2025-09-10 15:55:11,669 middleware 18120 18240 Request: POST /api/user-timer/
+INFO 2025-09-10 15:55:11,670 user_timer_views 18120 18240 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 15:55:11,670 middleware 18120 18240 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 15:55:11,672 log 18120 18240 Bad Request: /api/user-timer/
+WARNING 2025-09-10 15:55:11,673 basehttp 18120 18240 "POST /api/user-timer/ HTTP/1.1" 400 91
+INFO 2025-09-10 15:55:15,813 middleware 18120 18240 Request: GET /api/user-timer/
+INFO 2025-09-10 15:55:15,814 user_timer_views 18120 18240 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 15:55:15,877 middleware 18120 18240 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 15:55:15,878 basehttp 18120 18240 "GET /api/user-timer/ HTTP/1.1" 200 5490
+INFO 2025-09-10 16:00:19,941 middleware 18120 21896 Request: GET /api/user-timer/
+INFO 2025-09-10 16:00:19,942 user_timer_views 18120 21896 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:00:19,969 middleware 18120 21896 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:00:19,970 basehttp 18120 21896 "GET /api/user-timer/ HTTP/1.1" 200 5490
+INFO 2025-09-10 16:03:00,727 middleware 18120 24236 Request: POST /api/user-timer/
+INFO 2025-09-10 16:03:00,728 user_timer_views 18120 24236 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:03:00,729 middleware 18120 24236 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:03:00,729 log 18120 24236 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:03:00,730 basehttp 18120 24236 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:03:12,642 middleware 18120 24236 Request: POST /api/user-timer/
+INFO 2025-09-10 16:03:12,643 user_timer_views 18120 24236 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:03:12,643 middleware 18120 24236 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:03:12,644 log 18120 24236 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:03:12,645 basehttp 18120 24236 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:03:28,609 middleware 18120 24236 Request: POST /api/user-timer/
+INFO 2025-09-10 16:03:28,610 user_timer_views 18120 24236 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:03:28,611 middleware 18120 24236 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:03:28,612 log 18120 24236 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:03:28,612 basehttp 18120 24236 "POST /api/user-timer/ HTTP/1.1" 400 91
+INFO 2025-09-10 16:03:59,060 middleware 18120 24236 Request: GET /api/user-timer/
+INFO 2025-09-10 16:03:59,060 user_timer_views 18120 24236 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:03:59,088 middleware 18120 24236 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:03:59,089 basehttp 18120 24236 "GET /api/user-timer/ HTTP/1.1" 200 5490
+INFO 2025-09-10 16:05:34,589 middleware 18120 24244 Request: POST /api/user-timer/
+INFO 2025-09-10 16:05:34,590 user_timer_views 18120 24244 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:05:34,591 middleware 18120 24244 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:05:34,591 log 18120 24244 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:05:34,592 basehttp 18120 24244 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:05:54,092 middleware 18120 24244 Request: POST /api/user-timer/
+INFO 2025-09-10 16:05:54,092 user_timer_views 18120 24244 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:05:54,093 middleware 18120 24244 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:05:54,093 log 18120 24244 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:05:54,094 basehttp 18120 24244 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:06:57,839 middleware 18120 22972 Request: POST /api/user-timer/
+INFO 2025-09-10 16:06:57,840 user_timer_views 18120 22972 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:06:57,841 middleware 18120 22972 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:06:57,841 log 18120 22972 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:06:57,842 basehttp 18120 22972 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:06:59,214 middleware 18120 22972 Request: POST /api/user-timer/
+INFO 2025-09-10 16:06:59,215 user_timer_views 18120 22972 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:06:59,216 middleware 18120 22972 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:06:59,217 log 18120 22972 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:06:59,218 basehttp 18120 22972 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:07:06,145 middleware 18120 22972 Request: POST /api/user-timer/
+INFO 2025-09-10 16:07:06,146 user_timer_views 18120 22972 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:07:06,147 middleware 18120 22972 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:07:06,147 log 18120 22972 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:07:06,147 basehttp 18120 22972 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:08:42,395 middleware 18120 23924 Request: POST /api/user-timer/
+INFO 2025-09-10 16:08:42,396 user_timer_views 18120 23924 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:08:42,399 middleware 18120 23924 Response: 404 for POST /api/user-timer/
+WARNING 2025-09-10 16:08:42,399 log 18120 23924 Not Found: /api/user-timer/
+WARNING 2025-09-10 16:08:42,400 basehttp 18120 23924 "POST /api/user-timer/ HTTP/1.1" 404 86
+INFO 2025-09-10 16:09:01,882 middleware 18120 23924 Request: POST /api/user-timer/
+INFO 2025-09-10 16:09:01,883 user_timer_views 18120 23924 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:09:01,883 middleware 18120 23924 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:09:01,884 log 18120 23924 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:09:01,885 basehttp 18120 23924 "POST /api/user-timer/ HTTP/1.1" 400 91
+INFO 2025-09-10 16:09:15,297 middleware 18120 23924 Request: GET /api/user-timer/
+INFO 2025-09-10 16:09:15,298 user_timer_views 18120 23924 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:09:15,325 middleware 18120 23924 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:09:15,326 basehttp 18120 23924 "GET /api/user-timer/ HTTP/1.1" 200 5490
+INFO 2025-09-10 16:09:40,462 middleware 18120 23924 Request: POST /api/user-timer/
+INFO 2025-09-10 16:09:40,463 user_timer_views 18120 23924 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:09:40,464 middleware 18120 23924 Response: 400 for POST /api/user-timer/
+WARNING 2025-09-10 16:09:40,464 log 18120 23924 Bad Request: /api/user-timer/
+WARNING 2025-09-10 16:09:40,465 basehttp 18120 23924 "POST /api/user-timer/ HTTP/1.1" 400 81
+INFO 2025-09-10 16:10:10,462 middleware 18120 23924 Request: GET /api/user-timer/
+INFO 2025-09-10 16:10:10,462 user_timer_views 18120 23924 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:10:10,488 middleware 18120 23924 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:10:10,489 basehttp 18120 23924 "GET /api/user-timer/ HTTP/1.1" 200 5490
+INFO 2025-09-10 16:12:09,615 middleware 18120 20216 Request: GET /api/user-timer/
+INFO 2025-09-10 16:12:09,616 user_timer_views 18120 20216 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:12:09,641 middleware 18120 20216 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:12:09,642 basehttp 18120 20216 "GET /api/user-timer/ HTTP/1.1" 200 5490
+INFO 2025-09-10 16:14:12,235 middleware 18120 20232 Request: POST /api/user-timer/
+INFO 2025-09-10 16:14:12,236 user_timer_views 18120 20232 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:14:12,249 user_timer_views 18120 20232 Timer created for user testuser (ID: 1) - Duration: 3s
+INFO 2025-09-10 16:14:12,257 middleware 18120 20232 Response: 201 for POST /api/user-timer/
+INFO 2025-09-10 16:14:12,259 basehttp 18120 20232 "POST /api/user-timer/ HTTP/1.1" 201 477
+INFO 2025-09-10 16:16:13,970 middleware 18120 17552 Request: GET /api/user-timer/
+INFO 2025-09-10 16:16:13,971 user_timer_views 18120 17552 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:16:14,000 middleware 18120 17552 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:16:14,001 basehttp 18120 17552 "GET /api/user-timer/ HTTP/1.1" 200 5727
+INFO 2025-09-10 16:16:34,272 middleware 18120 17552 Request: POST /api/user-timer/
+INFO 2025-09-10 16:16:34,273 user_timer_views 18120 17552 Timer API POST called from IP: 127.0.0.1
+INFO 2025-09-10 16:16:34,297 user_timer_views 18120 17552 Timer created for user testuser (ID: 1) - Duration: 30s
+INFO 2025-09-10 16:16:34,319 middleware 18120 17552 Response: 201 for POST /api/user-timer/
+INFO 2025-09-10 16:16:34,320 basehttp 18120 17552 "POST /api/user-timer/ HTTP/1.1" 201 478
+INFO 2025-09-10 16:16:59,390 middleware 18120 17552 Request: GET /api/user-timer/
+INFO 2025-09-10 16:16:59,391 user_timer_views 18120 17552 Timer API GET called from IP: 127.0.0.1
+INFO 2025-09-10 16:16:59,417 middleware 18120 17552 Response: 200 for GET /api/user-timer/
+INFO 2025-09-10 16:16:59,418 basehttp 18120 17552 "GET /api/user-timer/ HTTP/1.1" 200 5965

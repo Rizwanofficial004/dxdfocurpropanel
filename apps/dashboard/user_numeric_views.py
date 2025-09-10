@@ -5,8 +5,16 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.db import transaction
+import logging
+import json
 from .models import UserNumericValue
 from .serializers import UserNumericValueSerializer, UserNumericValueCreateSerializer
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 class UserNumericValueAPIView(APIView):
@@ -346,94 +354,461 @@ class AllUsersSetupValuesAPIView(APIView):
 
 class AutoTokenSetValueAPIView(APIView):
     """
-    API View to set numeric value using user_id (automatically gets token)
+    Enhanced API View to set numeric value using user_id (automatically gets token)
     POST: Set value for user by user_id (no token required in header)
+    GET: Get value for user by user_id (no token required in header)
+    
+    Features:
+    - Enhanced validation with detailed error messages
+    - Support for both positive and negative values
+    - Bulk operations support
+    - Detailed logging for debugging
+    - Transaction safety
+    - Value history tracking
+    - GET support for retrieving values
     """
     authentication_classes = []  # No authentication required
     permission_classes = []       # No permissions required
     
-    def post(self, request):
-        """Set numeric value for user using user_id (auto-token retrieval)"""
+    def get(self, request):
+        """Get numeric value for user using user_id (query parameter)"""
+        
+        # Log the incoming request
+        logger.info(f"AutoTokenSetValue GET API called from IP: {self.get_client_ip(request)}")
+        
         try:
-            # Get data from request
-            user_id = request.data.get('user_id')
-            value = request.data.get('value')
-            description = request.data.get('description', '')
+            user_id = request.GET.get('user_id')
             
-            # Validate required fields
             if not user_id:
                 return Response({
                     "status": "error",
-                    "message": "user_id is required"
-                }, status=status.HTTP_400_BAD_REQUEST)
-                
-            if value is None:
-                return Response({
-                    "status": "error",
-                    "message": "value is required"
+                    "message": "user_id query parameter is required",
+                    "error_code": "MISSING_USER_ID",
+                    "example": "?user_id=123",
+                    "timestamp": timezone.now().isoformat()
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Get user by ID
+            # Validate user_id
+            try:
+                user_id = int(user_id)
+                if user_id <= 0:
+                    return Response({
+                        "status": "error",
+                        "message": "user_id must be a positive integer",
+                        "error_code": "INVALID_USER_ID",
+                        "timestamp": timezone.now().isoformat()
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            except (ValueError, TypeError):
+                return Response({
+                    "status": "error",
+                    "message": "user_id must be a valid integer",
+                    "error_code": "INVALID_USER_ID_FORMAT",
+                    "timestamp": timezone.now().isoformat()
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get user
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
                 return Response({
                     "status": "error",
-                    "message": f"User with ID {user_id} not found"
+                    "message": f"User with ID {user_id} not found",
+                    "error_code": "USER_NOT_FOUND",
+                    "timestamp": timezone.now().isoformat()
                 }, status=status.HTTP_404_NOT_FOUND)
             
-            # Get or create token for user
-            token, created = Token.objects.get_or_create(user=user)
+            # Get or create token
+            token, token_created = Token.objects.get_or_create(user=user)
             
-            # Validate value is numeric
+            # Get user numeric value
             try:
-                value = int(value)
-            except (ValueError, TypeError):
+                user_value = UserNumericValue.objects.get(user=user)
+                response_data = {
+                    "id": user_value.id,
+                    "user_id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "value": user_value.value,
+                    "description": user_value.description,
+                    "last_updated": user_value.last_updated.isoformat() if user_value.last_updated else None,
+                    "created_at": user_value.created_at.isoformat() if user_value.created_at else None,
+                    "auto_token": token.key,
+                    "is_configured": True,
+                    "user_status": {
+                        "is_active": user.is_active,
+                        "date_joined": user.date_joined.isoformat() if user.date_joined else None,
+                        "last_login": user.last_login.isoformat() if user.last_login else None
+                    }
+                }
+                
+                return Response({
+                    "status": "success",
+                    "message": f"Value retrieved successfully for {user.username}",
+                    "data": response_data,
+                    "metadata": {
+                        "timestamp": timezone.now().isoformat(),
+                        "api_version": "2.0.0"
+                    }
+                }, status=status.HTTP_200_OK)
+                
+            except UserNumericValue.DoesNotExist:
+                response_data = {
+                    "id": None,
+                    "user_id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "value": 0,
+                    "description": "",
+                    "last_updated": None,
+                    "created_at": None,
+                    "auto_token": token.key,
+                    "is_configured": False,
+                    "user_status": {
+                        "is_active": user.is_active,
+                        "date_joined": user.date_joined.isoformat() if user.date_joined else None,
+                        "last_login": user.last_login.isoformat() if user.last_login else None
+                    }
+                }
+                
+                return Response({
+                    "status": "success",
+                    "message": f"No value set for {user.username} (returning default)",
+                    "data": response_data,
+                    "metadata": {
+                        "timestamp": timezone.now().isoformat(),
+                        "api_version": "2.0.0"
+                    }
+                }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in AutoTokenSetValue GET: {str(e)}", exc_info=True)
+            return Response({
+                "status": "error",
+                "message": "An unexpected error occurred while retrieving the value",
+                "error_code": "INTERNAL_ERROR",
+                "timestamp": timezone.now().isoformat()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def post(self, request):
+        """Set numeric value for user using user_id (auto-token retrieval)"""
+        
+        # Log the incoming request
+        logger.info(f"AutoTokenSetValue API called from IP: {self.get_client_ip(request)}")
+        logger.debug(f"Request data: {json.dumps(request.data, default=str)}")
+        
+        try:
+            # Handle bulk operations
+            if isinstance(request.data, list):
+                return self._handle_bulk_operation(request.data)
+            
+            # Single operation validation
+            validation_result = self._validate_single_request(request.data)
+            if validation_result['error']:
                 return Response({
                     "status": "error",
-                    "message": "value must be a numeric integer"
-                }, status=status.HTTP_400_BAD_REQUEST)
+                    "message": validation_result['message'],
+                    "error_code": validation_result['error_code'],
+                    "timestamp": timezone.now().isoformat()
+                }, status=validation_result['status_code'])
             
-            # Get or create user numeric value
-            user_value, created = UserNumericValue.objects.get_or_create(
-                user=user,
-                defaults={
-                    'value': value,
-                    'description': description
-                }
-            )
+            user_data = validation_result['data']
             
-            # Update if exists
-            if not created:
-                user_value.value = value
-                user_value.description = description
-                user_value.save()
+            # Perform the operation with transaction safety
+            with transaction.atomic():
+                result = self._set_user_value(
+                    user_data['user'],
+                    user_data['value'],
+                    user_data['description'],
+                    user_data['metadata']
+                )
             
-            # Prepare response data
-            response_data = {
-                "id": user_value.id,
-                "user_id": user.id,
-                "username": user.username,
-                "value": user_value.value,
-                "description": user_value.description,
-                "last_updated": user_value.last_updated,
-                "created_at": user_value.created_at,
-                "auto_token": token.key  # Return the token for reference
-            }
-            
-            action = "created" if created else "updated"
+            # Log successful operation
+            logger.info(f"Value {result['action']} for user {result['data']['username']} (ID: {result['data']['user_id']})")
             
             return Response({
                 "status": "success",
-                "message": f"Value {action} successfully for {user.username}",
-                "data": response_data
-            }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+                "message": result['message'],
+                "data": result['data'],
+                "metadata": {
+                    "action": result['action'],
+                    "timestamp": timezone.now().isoformat(),
+                    "api_version": "2.0.0"
+                }
+            }, status=result['status_code'])
             
-        except Exception as e:
+        except ValidationError as e:
+            logger.warning(f"Validation error in AutoTokenSetValue: {str(e)}")
             return Response({
                 "status": "error",
-                "message": f"Error setting value: {str(e)}"
+                "message": f"Validation error: {str(e)}",
+                "error_code": "VALIDATION_ERROR",
+                "timestamp": timezone.now().isoformat()
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in AutoTokenSetValue: {str(e)}", exc_info=True)
+            return Response({
+                "status": "error",
+                "message": "An unexpected error occurred while setting the value",
+                "error_code": "INTERNAL_ERROR",
+                "timestamp": timezone.now().isoformat(),
+                "debug_message": str(e) if logger.level <= logging.DEBUG else None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def _validate_single_request(self, data):
+        """Validate single request data with detailed error messages"""
+        
+        # Extract data
+        user_id = data.get('user_id')
+        value = data.get('value')
+        description = data.get('description', '')
+        metadata = data.get('metadata', {})
+        
+        # Enhanced validation
+        if not user_id:
+            return {
+                'error': True,
+                'message': 'user_id is required and cannot be empty',
+                'error_code': 'MISSING_USER_ID',
+                'status_code': status.HTTP_400_BAD_REQUEST
+            }
+        
+        # Validate user_id is numeric
+        try:
+            user_id = int(user_id)
+            if user_id <= 0:
+                return {
+                    'error': True,
+                    'message': 'user_id must be a positive integer',
+                    'error_code': 'INVALID_USER_ID',
+                    'status_code': status.HTTP_400_BAD_REQUEST
+                }
+        except (ValueError, TypeError):
+            return {
+                'error': True,
+                'message': 'user_id must be a valid integer',
+                'error_code': 'INVALID_USER_ID_FORMAT',
+                'status_code': status.HTTP_400_BAD_REQUEST
+            }
+        
+        if value is None:
+            return {
+                'error': True,
+                'message': 'value is required and cannot be null',
+                'error_code': 'MISSING_VALUE',
+                'status_code': status.HTTP_400_BAD_REQUEST
+            }
+        
+        # Enhanced value validation (support for negative values and decimals)
+        try:
+            # Support both int and float, but convert to int for storage
+            if isinstance(value, str):
+                if '.' in value:
+                    value = float(value)
+                else:
+                    value = int(value)
+            elif isinstance(value, float):
+                value = int(value)  # Truncate decimal part
+            elif not isinstance(value, int):
+                raise ValueError("Invalid value type")
+            
+            # Range validation (prevent extremely large values)
+            if value < -2147483648 or value > 2147483647:
+                return {
+                    'error': True,
+                    'message': 'value must be between -2,147,483,648 and 2,147,483,647',
+                    'error_code': 'VALUE_OUT_OF_RANGE',
+                    'status_code': status.HTTP_400_BAD_REQUEST
+                }
+                
+        except (ValueError, TypeError):
+            return {
+                'error': True,
+                'message': 'value must be a valid number (integer or decimal)',
+                'error_code': 'INVALID_VALUE_FORMAT',
+                'status_code': status.HTTP_400_BAD_REQUEST
+            }
+        
+        # Validate description length
+        if len(description) > 200:
+            return {
+                'error': True,
+                'message': 'description cannot exceed 200 characters',
+                'error_code': 'DESCRIPTION_TOO_LONG',
+                'status_code': status.HTTP_400_BAD_REQUEST
+            }
+        
+        # Get user
+        try:
+            user = User.objects.get(id=user_id)
+            if not user.is_active:
+                return {
+                    'error': True,
+                    'message': f'User with ID {user_id} is inactive',
+                    'error_code': 'USER_INACTIVE',
+                    'status_code': status.HTTP_403_FORBIDDEN
+                }
+        except User.DoesNotExist:
+            return {
+                'error': True,
+                'message': f'User with ID {user_id} not found',
+                'error_code': 'USER_NOT_FOUND',
+                'status_code': status.HTTP_404_NOT_FOUND
+            }
+        
+        return {
+            'error': False,
+            'data': {
+                'user': user,
+                'value': value,
+                'description': description,
+                'metadata': metadata
+            }
+        }
+    
+    def _set_user_value(self, user, value, description, metadata):
+        """Set or update user value with transaction safety"""
+        
+        # Get or create token for user
+        token, token_created = Token.objects.get_or_create(user=user)
+        
+        # Store previous value for history
+        previous_value = None
+        try:
+            existing_value = UserNumericValue.objects.get(user=user)
+            previous_value = existing_value.value
+        except UserNumericValue.DoesNotExist:
+            pass
+        
+        # Get or create user numeric value
+        user_value, created = UserNumericValue.objects.get_or_create(
+            user=user,
+            defaults={
+                'value': value,
+                'description': description
+            }
+        )
+        
+        # Update if exists
+        if not created:
+            user_value.value = value
+            user_value.description = description
+            user_value.save()
+        
+        # Prepare response data with enhanced information
+        response_data = {
+            "id": user_value.id,
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "value": user_value.value,
+            "previous_value": previous_value,
+            "description": user_value.description,
+            "last_updated": user_value.last_updated.isoformat() if user_value.last_updated else None,
+            "created_at": user_value.created_at.isoformat() if user_value.created_at else None,
+            "auto_token": token.key,
+            "token_created": token_created,
+            "metadata": metadata,
+            "user_status": {
+                "is_active": user.is_active,
+                "date_joined": user.date_joined.isoformat() if user.date_joined else None,
+                "last_login": user.last_login.isoformat() if user.last_login else None
+            }
+        }
+        
+        action = "created" if created else "updated"
+        action_message = f"Value {action} successfully for {user.username}"
+        
+        return {
+            'action': action,
+            'message': action_message,
+            'data': response_data,
+            'status_code': status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        }
+    
+    def _handle_bulk_operation(self, data_list):
+        """Handle bulk operations for multiple users"""
+        
+        if not isinstance(data_list, list):
+            return Response({
+                "status": "error",
+                "message": "Bulk data must be an array",
+                "error_code": "INVALID_BULK_FORMAT"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(data_list) > 100:  # Limit bulk operations
+            return Response({
+                "status": "error",
+                "message": "Bulk operations limited to 100 items maximum",
+                "error_code": "BULK_LIMIT_EXCEEDED"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        results = []
+        errors = []
+        
+        with transaction.atomic():
+            for index, item in enumerate(data_list):
+                try:
+                    validation_result = self._validate_single_request(item)
+                    if validation_result['error']:
+                        errors.append({
+                            'index': index,
+                            'data': item,
+                            'error': validation_result['message'],
+                            'error_code': validation_result['error_code']
+                        })
+                        continue
+                    
+                    user_data = validation_result['data']
+                    result = self._set_user_value(
+                        user_data['user'],
+                        user_data['value'],
+                        user_data['description'],
+                        user_data['metadata']
+                    )
+                    
+                    results.append({
+                        'index': index,
+                        'status': 'success',
+                        'action': result['action'],
+                        'data': result['data']
+                    })
+                    
+                except Exception as e:
+                    errors.append({
+                        'index': index,
+                        'data': item,
+                        'error': str(e),
+                        'error_code': 'PROCESSING_ERROR'
+                    })
+        
+        return Response({
+            "status": "completed",
+            "message": f"Bulk operation completed: {len(results)} successful, {len(errors)} errors",
+            "summary": {
+                "total_items": len(data_list),
+                "successful": len(results),
+                "errors": len(errors)
+            },
+            "results": results,
+            "errors": errors,
+            "timestamp": timezone.now().isoformat()
+        }, status=status.HTTP_200_OK if len(errors) == 0 else status.HTTP_207_MULTI_STATUS)
+    
+    def get_client_ip(self, request):
+        """Get client IP address for logging"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
 
 class AutoTokenGetValueAPIView(APIView):
