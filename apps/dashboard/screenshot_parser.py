@@ -25,14 +25,17 @@ class ScreenshotParser:
     def _generate_signed_url(self, key, expires_in=3600):
         """Generate a pre-signed URL for private S3 objects"""
         try:
-            return self.s3_client.generate_presigned_url(
+            signed_url = self.s3_client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": self.bucket_name, "Key": key},
                 ExpiresIn=expires_in
             )
+            logger.info(f"Generated signed URL for {key}: {signed_url[:100]}...")
+            return signed_url
         except Exception as e:
             logger.error(f"Error generating signed URL for {key}: {str(e)}")
-            return None
+            # Return direct URL as fallback
+            return f"https://{self.bucket_name}.s3.eu-north-1.amazonaws.com/{key}"
 
     def _parse_screenshot_details(self, key, obj):
         try:
