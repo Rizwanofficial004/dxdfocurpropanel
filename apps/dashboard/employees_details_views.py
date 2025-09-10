@@ -3,7 +3,7 @@ Employees Details API - Combines S3 and CRM Data
 
 This module provides a comprehensive API endpoint that fetches employee data
 from both AWS S3 bucket and CRM system, combining the information into
-a unified response.
+a unified response. Now enhanced with ScreenshotParser for signed URLs.
 """
 
 from rest_framework.views import APIView
@@ -20,6 +20,7 @@ from urllib.parse import unquote
 from collections import defaultdict
 import os
 from django.conf import settings
+from .screenshot_parser import ScreenshotParser
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,7 @@ class EmployeesDetailsView(APIView):
         super().__init__()
         self.s3_client = None
         self.bucket_name = AWS_CREDENTIALS["bucket_name"]
+        self.screenshot_parser = ScreenshotParser(self.bucket_name)
         self._initialize_s3()
     
     def _initialize_s3(self):
@@ -443,7 +445,8 @@ class EmployeesDetailsView(APIView):
                     'size_bytes': obj['Size'],
                     'size_mb': round(obj['Size'] / (1024 * 1024), 3),
                     'last_modified': obj['LastModified'].isoformat(),
-                    'url': f"https://{self.bucket_name}.s3.eu-north-1.amazonaws.com/{key}"
+                    'url': self.screenshot_parser._generate_signed_url(key),  # Signed URL for frontend
+                    'direct_url': f"https://{self.bucket_name}.s3.eu-north-1.amazonaws.com/{key}"  # Direct URL for reference
                 }
             
             return None
