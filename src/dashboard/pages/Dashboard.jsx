@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ChartsSection } from '../components/charts/ChartsSection';
@@ -10,6 +10,7 @@ import { Cards } from '../components/card/StatsCardsCRM';
 import ActivityStream from '../components/activity/ActivityStream';
 import AnnouncementTable from '../components/announcement/Announcement';
 import { CurrentStatus, CompanyAverage } from '../components';
+import WelcomeModal from '../components/common/WelcomeModal';
 // Import global slider styles
 import '../styles/globalSliders.css';
 
@@ -81,9 +82,23 @@ const DashboardComponentsGrid = styled.div`
 const Dashboard = () => {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  useEffect(() => {
+    const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
+    if (!hasSeenModal) {
+      setShowWelcomeModal(true);
+      localStorage.setItem('hasSeenWelcomeModal', 'true');
+    }
+  }, []);
+
+  const handleCloseModal = () => {
+    setShowWelcomeModal(false);
+  };
 
   return (
     <DashboardLayout>
+      {showWelcomeModal && <WelcomeModal onClose={handleCloseModal} />}
       <DashboardContainer theme={theme}>
         <StyledContainer>
           {/* Dashboard Status and Company Average Components */}

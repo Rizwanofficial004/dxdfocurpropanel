@@ -232,6 +232,7 @@ const translations = {
     minutesPerMeeting: 'Minutes/Meeting',
     s3Employees: 'S3 Employees',
     lastUpdated: 'Last Updated',
+    thirtyDaysAvg: '30 D AVG',
     
     // StyleSettings
     stylingSettings: 'Styling Settings',
@@ -496,6 +497,7 @@ const translations = {
     minutesPerMeeting: 'Dakika/Toplantı',
     s3Employees: 'S3 Çalışanları',
     lastUpdated: 'Son Güncelleme',
+    thirtyDaysAvg: '30 GÜNLÜK ORT',
     
     // StyleSettings
     stylingSettings: 'Stil Ayarları',

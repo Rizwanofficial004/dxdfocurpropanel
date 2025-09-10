@@ -277,7 +277,7 @@ const CompanyAverage = () => {
 
   const dailyBreaksData = {
     title: t('dailyBreaks'),
-    subtitle: '30 D AVG',
+    subtitle: t('thirtyDaysAvg'),
     icon: '☕',
     stats: [
       { label: t('breaksPerDay'), value: '0', color: '#3b82f6' },
@@ -288,7 +288,7 @@ const CompanyAverage = () => {
 
   const meetingsData = {
     title: t('meetings'),
-    subtitle: '30 D AVG',
+    subtitle: t('thirtyDaysAvg'),
     icon: '📅',
     stats: [
       { label: t('meetingsPerDay'), value: '0', color: '#3b82f6' },
@@ -300,7 +300,7 @@ const CompanyAverage = () => {
   const workTimeSpreadData = {
     title: t('workTimeSpread'),
     categories: [
-      { label: '', percentage: '0', color: '#10b981' },
+      { label: t('atWork'), percentage: '0', color: '#10b981' },
       { label: t('meetings'), percentage: '0', color: '#3b82f6' },
       { label: t('breaks'), percentage: '0', color: '#f59e0b' },
       { label: t('idle'), percentage: '0', color: '#6b7280' }
