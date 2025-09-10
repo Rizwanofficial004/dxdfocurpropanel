@@ -5,6 +5,8 @@ from .credentials_views import CredentialsStatusView, CredentialsAPIView, SetAll
 from .users_screenshots_view import UsersScreenshotsView
 from .users_search_views import EnhancedUsersSearchView
 from .employees_details_views import EmployeesDetailsView
+from .simple_screenshot_proxy import SimpleScreenshotProxyView, SimpleScreenshotProxyStatusView
+# from .screenshot_proxy_views import ScreenshotProxyView, ScreenshotProxyStatusView
 # from .user_timer_views import UserTimerAPIView, UserTimerStatsAPIView, TimerQuickActionAPIView
 from .user_numeric_views import UserNumericValueAPIView, AllUsersNumericValuesAPIView, UserNumericValueByUserAPIView, UserSetupValueAPIView, AllUsersSetupValuesAPIView, AutoTokenSetValueAPIView, AutoTokenGetValueAPIView, FlexibleGetValueAPIView
 from .styling_views import UserStylingAPIView, AllUsersStylingAPIView, UserStylingByUserAPIView, AutoTokenStylingSetAPIView, AutoTokenStylingGetAPIView, UserStylingCSSAPIView
@@ -24,7 +26,15 @@ urlpatterns = [
     ])),
     
     # Dashboard-specific endpoints
-    path('dashboard/employees/', UsersScreenshotsView.as_view(), name='dashboard-employees'),
+    path('api/live-tracking/fast-screenshots/', UsersScreenshotsView.as_view(), name='fast-screenshots'), ##Correct API call 
+    
+    # Simple Screenshot Proxy - Handle S3 CORS issues
+    path('api/simple-screenshot-proxy/', SimpleScreenshotProxyView.as_view(), name='simple-screenshot-proxy'),
+    path('api/simple-screenshot-proxy/status/', SimpleScreenshotProxyStatusView.as_view(), name='simple-screenshot-proxy-status'),
+    
+    # Screenshot Proxy - Handle S3 CORS issues (temporarily disabled for testing)
+    # path('api/screenshot-proxy/', ScreenshotProxyView.as_view(), name='screenshot-proxy'),
+    # path('api/screenshot-proxy/status/', ScreenshotProxyStatusView.as_view(), name='screenshot-proxy-status'),
     
     # Enhanced Users Search with Month Filter
     path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),
@@ -87,6 +97,9 @@ urlpatterns = [
     # App CSS API - Get CSS variables for general app styling (no authentication required)
     path('app-styling-css/', AppStylingCSSAPIView.as_view(), name='app-styling-css'),
     path('app-styling-css/<int:styling_id>/', AppStylingCSSAPIView.as_view(), name='app-styling-css-by-id'),
+    
+    # Global Styling API - Simplified access to global application styling
+    path('styling/global/', AppStylingAPIView.as_view(), name='global-styling'),
     
     # S3 Timer API - S3 Integration for Timer Management (Temporarily disabled)
     # path('Timer/s3/', S3TimerAPIView.as_view(), name='s3-timer-api'),

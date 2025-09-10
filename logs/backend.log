@@ -8065,3 +8065,42 @@ INFO 2025-09-08 19:58:15,110 basehttp 3304 18888 "POST /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,726 middleware 3304 18888 Request: GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928
+INFO 2025-09-09 20:19:03,811 users_screenshots_view 18576 3764 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-09 20:19:03,857 users_screenshots_view 18576 3764 Starting to process users_screenshots folder...
+INFO 2025-09-09 20:19:05,473 users_screenshots_view 18576 3764 Processing page with 590 objects
+INFO 2025-09-09 20:19:05,868 users_screenshots_view 18576 3764 S3 Processing Summary:
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total users found: 3
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Active users: 3
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Total files: 589
+INFO 2025-09-09 20:19:05,869 users_screenshots_view 18576 3764   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Processed users_screenshots: 3 users, 589 files, 104.50MB
+INFO 2025-09-09 20:19:05,876 users_screenshots_view 18576 3764 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
+INFO 2025-09-09 20:24:49,126 users_screenshots_view 16336 18044 S3 client initialized successfully for users_screenshots API
+INFO 2025-09-09 20:24:49,155 users_screenshots_view 16336 18044 Starting to process users_screenshots folder...
+INFO 2025-09-09 20:24:50,664 users_screenshots_view 16336 18044 Processing page with 590 objects
+INFO 2025-09-09 20:24:51,510 users_screenshots_view 16336 18044 S3 Processing Summary:
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Total users found: 3
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Active users: 3
+INFO 2025-09-09 20:24:51,512 users_screenshots_view 16336 18044   - Total files: 589
+INFO 2025-09-09 20:24:51,514 users_screenshots_view 16336 18044   - Users data: ['haseebcodejourney_at_gmail.com', 'kiranaiza4_at_gmail.com', 'nawaz_at_dxdglobal.com']
+INFO 2025-09-09 20:24:51,519 users_screenshots_view 16336 18044 Processed users_screenshots: 3 users, 589 files, 104.50MB
+INFO 2025-09-09 20:24:51,520 users_screenshots_view 16336 18044 Users screenshots data retrieved successfully - Total: 3, Active: 3, Growth: 100.0%
+INFO 2025-09-09 23:09:17,807 middleware 11792 19048 Request: GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:20,477 middleware 11792 19048 Response: 200 for GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:20,479 basehttp 11792 19048 "GET /api/simple-screenshot-proxy/status/?id=858c1a10-4111-4f94-b02e-b5f6d9f81e20&vscodeBrowserReqId=1757448557794 HTTP/1.1" 200 528
+INFO 2025-09-09 23:09:36,318 middleware 11792 28428 Request: GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:37,210 middleware 11792 28428 Response: 200 for GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:09:37,211 basehttp 11792 28428 "GET /api/simple-screenshot-proxy/status/ HTTP/1.1" 200 528
+INFO 2025-09-09 23:14:09,440 middleware 11792 19900 Request: GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:14:10,736 middleware 11792 19900 Response: 200 for GET /api/simple-screenshot-proxy/status/
+INFO 2025-09-09 23:14:10,738 basehttp 11792 19900 "GET /api/simple-screenshot-proxy/status/ HTTP/1.1" 200 528
+INFO 2025-09-09 23:14:11,065 basehttp 11792 19900 - Broken pipe from ('127.0.0.1', 57509)
+INFO 2025-09-09 23:14:21,347 middleware 11792 23612 Request: GET /api/simple-screenshot-proxy/
+INFO 2025-09-09 23:14:21,353 simple_screenshot_proxy 11792 23612 S3 client initialized successfully for screenshot proxy
+INFO 2025-09-09 23:14:21,354 simple_screenshot_proxy 11792 23612 Proxying S3 URL: https://ddsfocustime.s3.eu-north-1.amazonaws.com/users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp
+INFO 2025-09-09 23:14:21,354 simple_screenshot_proxy 11792 23612 Extracted S3 key: users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp
+ERROR 2025-09-09 23:14:22,638 simple_screenshot_proxy 11792 23612 S3 object not found: users_screenshots/2025-09-09/haseebcodejourney_at_gmail.com/2025-09-09_17-05-26.webp
+INFO 2025-09-09 23:14:22,639 middleware 11792 23612 Response: 404 for GET /api/simple-screenshot-proxy/
+WARNING 2025-09-09 23:14:22,640 log 11792 23612 Not Found: /api/simple-screenshot-proxy/
+WARNING 2025-09-09 23:14:22,642 basehttp 11792 23612 "GET /api/simple-screenshot-proxy/?url=https%3A%2F%2Fddsfocustime.s3.eu-north-1.amazonaws.com%2Fusers_screenshots%2F2025-09-09%2Fhaseebcodejourney_at_gmail.com%2F2025-09-09_17-05-26.webp HTTP/1.1" 404 201
+INFO 2025-09-09 23:14:22,945 basehttp 11792 23612 - Broken pipe from ('127.0.0.1', 65143)

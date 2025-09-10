@@ -46,7 +46,37 @@ class UsersScreenshotsView(APIView):
             logger.info("S3 client initialized successfully for users_screenshots API")
         except Exception as e:
             logger.error(f"Failed to initialize S3 client: {str(e)}")
-    
+
+    def _generate_presigned_url(self, key, expires_in=3600): ##Abed - Generate URL for S3 proxy
+        """
+        Generate a presigned URL for a private S3 object.
+        Expires in `expires_in` seconds (default 1 hour).
+        """
+        try:
+            url = self.s3_client.generate_presigned_url(
+                ClientMethod='get_object',
+                Params={'Bucket': self.bucket_name, 'Key': key},
+                ExpiresIn=expires_in
+            )
+            return url
+        except Exception as e:
+            logger.error(f"Error generating presigned URL for {key}: {str(e)}")
+            return None
+
+    def _generate_direct_s3_url(self, key):
+        """
+        Generate a direct S3 URL without authentication parameters.
+        Format: https://bucket.s3.region.amazonaws.com/key
+        """
+        try:
+            region = 'eu-north-1'  # Your S3 bucket region
+            direct_url = f"https://{self.bucket_name}.s3.{region}.amazonaws.com/{key}"
+            return direct_url
+        except Exception as e:
+            logger.error(f"Error generating direct S3 URL for {key}: {str(e)}")
+            return None
+
+
     def get(self, request):
         """
         GET /api/dashboard/employees/
@@ -248,8 +278,30 @@ class UsersScreenshotsView(APIView):
                                         'total_size': 0,
                                         'dates': set(),
                                         'latest_file': None,
-                                        'latest_date': None
+                                        'latest_date': None,
+                                        'screenshots': []  # Add list to store all screenshots
                                     }
+                                
+                                # Create screenshot entry
+                                screenshot_key = obj['Key']
+                                screenshot_info = {
+                                    'filename': filename,
+                                    'date': date_part,
+                                    'file_key': screenshot_key,
+                                    'file_url': self._generate_direct_s3_url(screenshot_key),
+                                    'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                    'last_modified': obj['LastModified'].isoformat()
+                                }
+                                
+                                # Add to screenshots list (limit to 20 most recent per user)
+                                users_data[user_email]['screenshots'].append(screenshot_info)
+                                if len(users_data[user_email]['screenshots']) > 20:
+                                    # Keep only the 20 most recent screenshots
+                                    users_data[user_email]['screenshots'] = sorted(
+                                        users_data[user_email]['screenshots'], 
+                                        key=lambda x: x['last_modified'], 
+                                        reverse=True
+                                    )[:20]
                                 
                                 # Update user stats
                                 users_data[user_email]['file_count'] += 1
@@ -297,18 +349,29 @@ class UsersScreenshotsView(APIView):
             last_updated = datetime.strptime(latest_date, "%Y-%m-%d").strftime("%m/%d/%Y")
             s3_last_updated = last_updated
             
-            # Create top users list
+            # Create top users list with screenshots
             top_users = []
             sorted_users = sorted(users_data.items(), key=lambda x: x[1]['file_count'], reverse=True)
             
             for user_email, data in sorted_users[:10]:
+                latest_file_key = f"users_screenshots/{max(data['dates'])}/{user_email}/{data['latest_file']}" if data['latest_file'] else None
+                
+                # Sort screenshots by most recent first
+                sorted_screenshots = sorted(
+                    data['screenshots'], 
+                    key=lambda x: x['last_modified'], 
+                    reverse=True
+                )
+                
                 top_users.append({
                     'user_email': user_email,
                     'file_count': data['file_count'],
                     'total_size_mb': round(data['total_size'] / (1024 * 1024), 2),
                     'days_active': len(data['dates']),
                     'latest_file': data['latest_file'],
-                    'latest_date': data['latest_date'].strftime("%Y-%m-%d") if data['latest_date'] else None
+                    'latest_file_url': self._generate_direct_s3_url(latest_file_key) if latest_file_key else None,
+                    'latest_date': data['latest_date'].strftime("%Y-%m-%d") if data['latest_date'] else None,
+                    'screenshots': sorted_screenshots[:10]  # Include up to 10 most recent screenshots with full paths
                 })
             
             result = {
