@@ -5,7 +5,6 @@ import {
   IllustrationColumn,
   ContentColumn,
   CloseButton,
-  ModalImage,
   ModalTitle,
   ModalDescription,
   OkButton,
@@ -16,7 +15,21 @@ const WelcomeModal = ({ onClose }) => {
     <ModalOverlay>
       <ModalContent>
         <IllustrationColumn>
-          <svg xmlns="" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-monitor" style={{width: '100%', height: 'auto'}}><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <svg
+            width="100%"
+            height="auto"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="#007aff"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points="7 12 10 9 14 13 17 10" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="7" cy="12" r="0.5" fill="#007aff" />
+            <circle cx="10" cy="9" r="0.5" fill="#007aff" />
+            <circle cx="14" cy="13" r="0.5" fill="#007aff" />
+            <circle cx="17" cy="10" r="0.5" fill="#007aff" />
+          </svg>
         </IllustrationColumn>
         <ContentColumn>
           <CloseButton onClick={onClose}>&times;</CloseButton>
