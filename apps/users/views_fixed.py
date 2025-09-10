@@ -3,6 +3,7 @@ Enhanced Users Search API Views with Screenshots, Pagination & Date Grouping
 
 This module provides comprehensive user search functionality that searches through S3 bucket
 to find users and returns their screenshots organized by date/month with pagination.
+Now enhanced with ScreenshotParser for signed URLs.
 """
 
 from rest_framework.views import APIView
@@ -17,6 +18,12 @@ import re
 from urllib.parse import unquote
 from collections import defaultdict
 import math
+import sys
+import os
+
+# Add the dashboard app to path for imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'dashboard'))
+from screenshot_parser import ScreenshotParser
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +59,7 @@ class UsersSearchView(APIView):
         super().__init__()
         self.s3_client = None
         self.bucket_name = AWS_CREDENTIALS["additional_config"]["bucket_name"]
+        self.screenshot_parser = ScreenshotParser(self.bucket_name)
         self._initialize_s3()
     
     def _initialize_s3(self):
@@ -459,8 +467,9 @@ class UsersSearchView(APIView):
                     file_date = date_part
                     file_time = "00:00:00"
                 
-                # Create screenshot URL
-                screenshot_url = f"https://{self.bucket_name}.s3.eu-north-1.amazonaws.com/{key}"
+                # Create screenshot URLs
+                screenshot_url = self.screenshot_parser._generate_signed_url(key)  # Signed URL for frontend
+                direct_url = f"https://{self.bucket_name}.s3.eu-north-1.amazonaws.com/{key}"  # Direct URL for reference
                 
                 # Extract file extension
                 file_extension = filename.split('.')[-1] if '.' in filename else 'unknown'
@@ -491,7 +500,8 @@ class UsersSearchView(APIView):
                     'folder': folder,
                     'user_folder': user_folder,
                     'file_extension': file_extension,
-                    'screenshot_url': screenshot_url
+                    'screenshot_url': screenshot_url,  # Signed URL for frontend access
+                    'direct_url': direct_url  # Direct URL for reference
                 }
                 
         except Exception as e:

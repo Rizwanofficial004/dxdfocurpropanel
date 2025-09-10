@@ -3,6 +3,7 @@ Users Screenshots API View - Exactly like Employees API
 
 This module provides an API endpoint that matches the exact structure
 of the employees API but fetches dynamic data from users_screenshots/ folder only.
+Now enhanced with ScreenshotParser for signed URLs.
 """
 
 from rest_framework.views import APIView
@@ -15,6 +16,7 @@ import boto3
 from botocore.exceptions import ClientError, NoCredentialsError
 import os
 from urllib.parse import quote
+from .screenshot_parser import ScreenshotParser
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ class UsersScreenshotsView(APIView):
         super().__init__()
         self.s3_client = None
         self.bucket_name = 'ddsfocustime'
+        self.screenshot_parser = ScreenshotParser(self.bucket_name)
         self._initialize_s3()
     
     def _initialize_s3(self):
@@ -282,13 +285,14 @@ class UsersScreenshotsView(APIView):
                                         'screenshots': []  # Add list to store all screenshots
                                     }
                                 
-                                # Create screenshot entry
+                                # Create screenshot entry with signed URL
                                 screenshot_key = obj['Key']
                                 screenshot_info = {
                                     'filename': filename,
                                     'date': date_part,
                                     'file_key': screenshot_key,
-                                    'file_url': self._generate_direct_s3_url(screenshot_key),
+                                    'file_url': self.screenshot_parser._generate_signed_url(screenshot_key),  # Signed URL for frontend
+                                    'direct_url': self._generate_direct_s3_url(screenshot_key),  # Direct URL for reference
                                     'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
                                     'last_modified': obj['LastModified'].isoformat()
                                 }
@@ -369,7 +373,8 @@ class UsersScreenshotsView(APIView):
                     'total_size_mb': round(data['total_size'] / (1024 * 1024), 2),
                     'days_active': len(data['dates']),
                     'latest_file': data['latest_file'],
-                    'latest_file_url': self._generate_direct_s3_url(latest_file_key) if latest_file_key else None,
+                    'latest_file_url': self.screenshot_parser._generate_signed_url(latest_file_key) if latest_file_key else None,  # Signed URL for frontend
+                    'direct_file_url': self._generate_direct_s3_url(latest_file_key) if latest_file_key else None,  # Direct URL for reference
                     'latest_date': data['latest_date'].strftime("%Y-%m-%d") if data['latest_date'] else None,
                     'screenshots': sorted_screenshots[:10]  # Include up to 10 most recent screenshots with full paths
                 })
