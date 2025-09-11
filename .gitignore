@@ -1,32 +1,9 @@
-<<<<<<< HEAD
-# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Build outputs
-dist/
-build/
-.vite/
-*.tsbuildinfo
-
-# Environment variables
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-=======
->>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-<<<<<<< HEAD
-=======
 build/
 develop-eggs/
 dist/
@@ -60,20 +37,12 @@ media/
 .env.test.local
 .env.production.local
 .venv
->>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
 
-<<<<<<< HEAD
-# Django
-*.log
-local_settings.py
-db.sqlite3-journal
-media/
-=======
 # Node.js
 node_modules/
 npm-debug.log*
@@ -84,8 +53,7 @@ yarn-error.log*
 dist/
 build/
 .vite/
-src/
->>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
+*.tsbuildinfo
 
 # IDE
 .vscode/
@@ -105,33 +73,39 @@ Thumbs.db
 
 # Testing
 .coverage
-<<<<<<< HEAD
-.pytest_cache/
-test_*.py
-check_*.py
-*_test.py
-coverage.xml
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Temporary files
-*.tmp
-*.temp
-=======
 htmlcov/
 .pytest_cache/
 .cache
 coverage/
+test_*.py
+check_*.py
+*_test.py
+coverage.xml
 
 # Static files
 staticfiles/
 static/
 
 # Logs
+logs/
+*.log
 logs/*.log
->>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
+
+# Temporary files
+*.tmp
+*.temp
+
+# User management scripts (temporary)
+add_new_user.py
+add_user_*.py
+comprehensive_user_check.py
+diagnose_database.py
+monitor_user_activity.py
+monitor_users.py
+show_all_tables.py
+show_credentials.py
+show_registration_tables.py
+show_user_login_data.py
+sql_register_queries.sql
+sql_user_count.py
+user_manager.py
