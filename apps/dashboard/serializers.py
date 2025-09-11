@@ -295,6 +295,18 @@ class AppStylingSerializer(serializers.ModelSerializer):
             # Utility colors
             'white', 'black', 'gray_100', 'gray_200', 'gray_300', 'gray_400', 'gray_500',
             'gray_600', 'gray_700', 'gray_800', 'gray_900',
+            # Login page colors
+            'login_background', 'login_header_bg', 'login_card_bg', 'login_input_bg',
+            'login_input_border', 'login_input_focus', 'login_button_bg', 'login_button_text',
+            'login_button_hover', 'login_text_primary', 'login_text_secondary', 'login_link_color',
+            'login_error_color', 'login_success_color',
+            # Modal colors
+            'modal_overlay_bg', 'modal_content_bg', 'modal_header_bg', 'modal_border_color',
+            'modal_shadow', 'modal_close_bg', 'modal_close_hover',
+            # Form validation colors
+            'input_valid_border', 'input_invalid_border', 'input_placeholder', 'checkbox_bg', 'checkbox_checked',
+            # Language selector colors
+            'language_dropdown_bg', 'language_option_hover', 'language_border',
             # Typography/Layout
             'heading_font_size', 'body_font_size', 'font_family', 'border_radius', 
             # Meta
@@ -407,6 +419,43 @@ class AppStylingCreateSerializer(serializers.Serializer):
     gray_700 = serializers.CharField(max_length=50, required=False, default="#495057")
     gray_800 = serializers.CharField(max_length=50, required=False, default="#343a40")
     gray_900 = serializers.CharField(max_length=50, required=False, default="#212529")
+    
+    # Login page colors
+    login_background = serializers.CharField(max_length=50, required=False, default="#f8f9fa")
+    login_header_bg = serializers.CharField(max_length=50, required=False, default="#006039")
+    login_card_bg = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    login_input_bg = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    login_input_border = serializers.CharField(max_length=50, required=False, default="#ced4da")
+    login_input_focus = serializers.CharField(max_length=50, required=False, default="#80bdff")
+    login_button_bg = serializers.CharField(max_length=50, required=False, default="#006039")
+    login_button_text = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    login_button_hover = serializers.CharField(max_length=50, required=False, default="#005530")
+    login_text_primary = serializers.CharField(max_length=50, required=False, default="#212529")
+    login_text_secondary = serializers.CharField(max_length=50, required=False, default="#6c757d")
+    login_link_color = serializers.CharField(max_length=50, required=False, default="#006039")
+    login_error_color = serializers.CharField(max_length=50, required=False, default="#dc3545")
+    login_success_color = serializers.CharField(max_length=50, required=False, default="#28a745")
+    
+    # Modal colors
+    modal_overlay_bg = serializers.CharField(max_length=50, required=False, default="rgba(0, 0, 0, 0.6)")
+    modal_content_bg = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    modal_header_bg = serializers.CharField(max_length=50, required=False, default="#f8f9fa")
+    modal_border_color = serializers.CharField(max_length=50, required=False, default="#dee2e6")
+    modal_shadow = serializers.CharField(max_length=50, required=False, default="rgba(0, 0, 0, 0.25)")
+    modal_close_bg = serializers.CharField(max_length=50, required=False, default="transparent")
+    modal_close_hover = serializers.CharField(max_length=50, required=False, default="#f8f9fa")
+    
+    # Form validation colors
+    input_valid_border = serializers.CharField(max_length=50, required=False, default="#28a745")
+    input_invalid_border = serializers.CharField(max_length=50, required=False, default="#dc3545")
+    input_placeholder = serializers.CharField(max_length=50, required=False, default="#6c757d")
+    checkbox_bg = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    checkbox_checked = serializers.CharField(max_length=50, required=False, default="#006039")
+    
+    # Language selector colors
+    language_dropdown_bg = serializers.CharField(max_length=50, required=False, default="#ffffff")
+    language_option_hover = serializers.CharField(max_length=50, required=False, default="#f8f9fa")
+    language_border = serializers.CharField(max_length=50, required=False, default="#ced4da")
     
     # Font fields
     heading_font_size = serializers.CharField(max_length=20, required=False, default="24px")

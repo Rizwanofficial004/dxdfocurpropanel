@@ -462,6 +462,43 @@ class AppStyling(models.Model):
     gray_800 = models.CharField(max_length=50, default="#343a40", help_text="Gray 800")
     gray_900 = models.CharField(max_length=50, default="#212529", help_text="Gray 900")
     
+    # Login page colors
+    login_background = models.CharField(max_length=50, default="#E8EDF2", help_text="Login page background color")
+    login_header_bg = models.CharField(max_length=50, default="#1E88E5", help_text="Login header background color")
+    login_card_bg = models.CharField(max_length=50, default="#FFFFFF", help_text="Login card background color")
+    login_input_bg = models.CharField(max_length=50, default="#FFFFFF", help_text="Login input background color")
+    login_input_border = models.CharField(max_length=50, default="#E0E0E0", help_text="Login input border color")
+    login_input_focus = models.CharField(max_length=50, default="#1E88E5", help_text="Login input focus color")
+    login_button_bg = models.CharField(max_length=50, default="#FF7043", help_text="Login button background color")
+    login_button_text = models.CharField(max_length=50, default="#FFFFFF", help_text="Login button text color")
+    login_button_hover = models.CharField(max_length=50, default="#FF5722", help_text="Login button hover color")
+    login_text_primary = models.CharField(max_length=50, default="#333333", help_text="Login primary text color")
+    login_text_secondary = models.CharField(max_length=50, default="#666666", help_text="Login secondary text color")
+    login_link_color = models.CharField(max_length=50, default="#1E88E5", help_text="Login link color")
+    login_error_color = models.CharField(max_length=50, default="#F44336", help_text="Login error color")
+    login_success_color = models.CharField(max_length=50, default="#4CAF50", help_text="Login success color")
+    
+    # Enhanced modal colors
+    modal_overlay_bg = models.CharField(max_length=50, default="rgba(0, 0, 0, 0.6)", help_text="Modal overlay background color")
+    modal_content_bg = models.CharField(max_length=50, default="#FFFFFF", help_text="Modal content background color")
+    modal_header_bg = models.CharField(max_length=50, default="#F5F5F5", help_text="Modal header background color")
+    modal_border_color = models.CharField(max_length=50, default="#E0E0E0", help_text="Modal border color")
+    modal_shadow = models.CharField(max_length=50, default="rgba(0, 0, 0, 0.25)", help_text="Modal shadow color")
+    modal_close_bg = models.CharField(max_length=50, default="#FF5722", help_text="Modal close button background color")
+    modal_close_hover = models.CharField(max_length=50, default="#FF3D00", help_text="Modal close button hover color")
+    
+    # Form validation colors
+    input_valid_border = models.CharField(max_length=50, default="#4CAF50", help_text="Valid input border color")
+    input_invalid_border = models.CharField(max_length=50, default="#F44336", help_text="Invalid input border color")
+    input_placeholder = models.CharField(max_length=50, default="#999999", help_text="Input placeholder text color")
+    checkbox_bg = models.CharField(max_length=50, default="#FFFFFF", help_text="Checkbox background color")
+    checkbox_checked = models.CharField(max_length=50, default="#1E88E5", help_text="Checkbox checked color")
+    
+    # Language selector colors
+    language_dropdown_bg = models.CharField(max_length=50, default="#FFFFFF", help_text="Language dropdown background color")
+    language_option_hover = models.CharField(max_length=50, default="#F5F5F5", help_text="Language option hover color")
+    language_border = models.CharField(max_length=50, default="#E0E0E0", help_text="Language selector border color")
+    
     # Font configurations
     heading_font_size = models.CharField(max_length=20, default="24px", help_text="Font size in px or rem (e.g., '24px', '1.5rem')")
     body_font_size = models.CharField(max_length=20, default="16px", help_text="Font size in px or rem")
@@ -592,6 +629,43 @@ class AppStyling(models.Model):
             'gray_700': self.gray_700,
             'gray_800': self.gray_800,
             'gray_900': self.gray_900,
+            
+            # Login page colors
+            'login_background': self.login_background,
+            'login_header_bg': self.login_header_bg,
+            'login_card_bg': self.login_card_bg,
+            'login_input_bg': self.login_input_bg,
+            'login_input_border': self.login_input_border,
+            'login_input_focus': self.login_input_focus,
+            'login_button_bg': self.login_button_bg,
+            'login_button_text': self.login_button_text,
+            'login_button_hover': self.login_button_hover,
+            'login_text_primary': self.login_text_primary,
+            'login_text_secondary': self.login_text_secondary,
+            'login_link_color': self.login_link_color,
+            'login_error_color': self.login_error_color,
+            'login_success_color': self.login_success_color,
+            
+            # Modal colors
+            'modal_overlay_bg': self.modal_overlay_bg,
+            'modal_content_bg': self.modal_content_bg,
+            'modal_header_bg': self.modal_header_bg,
+            'modal_border_color': self.modal_border_color,
+            'modal_shadow': self.modal_shadow,
+            'modal_close_bg': self.modal_close_bg,
+            'modal_close_hover': self.modal_close_hover,
+            
+            # Form validation colors
+            'input_valid_border': self.input_valid_border,
+            'input_invalid_border': self.input_invalid_border,
+            'input_placeholder': self.input_placeholder,
+            'checkbox_bg': self.checkbox_bg,
+            'checkbox_checked': self.checkbox_checked,
+            
+            # Language selector colors
+            'language_dropdown_bg': self.language_dropdown_bg,
+            'language_option_hover': self.language_option_hover,
+            'language_border': self.language_border,
         }
     
     @property
@@ -703,6 +777,43 @@ class AppStyling(models.Model):
             '--gray-700': self.gray_700,
             '--gray-800': self.gray_800,
             '--gray-900': self.gray_900,
+            
+            # Login page CSS variables
+            '--login-background': self.login_background,
+            '--login-header-bg': self.login_header_bg,
+            '--login-card-bg': self.login_card_bg,
+            '--login-input-bg': self.login_input_bg,
+            '--login-input-border': self.login_input_border,
+            '--login-input-focus': self.login_input_focus,
+            '--login-button-bg': self.login_button_bg,
+            '--login-button-text': self.login_button_text,
+            '--login-button-hover': self.login_button_hover,
+            '--login-text-primary': self.login_text_primary,
+            '--login-text-secondary': self.login_text_secondary,
+            '--login-link-color': self.login_link_color,
+            '--login-error-color': self.login_error_color,
+            '--login-success-color': self.login_success_color,
+            
+            # Modal CSS variables
+            '--modal-overlay-bg': self.modal_overlay_bg,
+            '--modal-content-bg': self.modal_content_bg,
+            '--modal-header-bg': self.modal_header_bg,
+            '--modal-border-color': self.modal_border_color,
+            '--modal-shadow': self.modal_shadow,
+            '--modal-close-bg': self.modal_close_bg,
+            '--modal-close-hover': self.modal_close_hover,
+            
+            # Form validation CSS variables
+            '--input-valid-border': self.input_valid_border,
+            '--input-invalid-border': self.input_invalid_border,
+            '--input-placeholder': self.input_placeholder,
+            '--checkbox-bg': self.checkbox_bg,
+            '--checkbox-checked': self.checkbox_checked,
+            
+            # Language selector CSS variables
+            '--language-dropdown-bg': self.language_dropdown_bg,
+            '--language-option-hover': self.language_option_hover,
+            '--language-border': self.language_border,
             
             # Typography and layout
             '--heading-font-size': self.heading_font_size,
