@@ -386,6 +386,82 @@ class AppStyling(models.Model):
     icon_color = models.CharField(max_length=50, default="#6c757d", help_text="Default icon color")
     top_color = models.CharField(max_length=50, default="#007bff", help_text="Top navigation/header color")
     
+    # DDS Focus Pro Complete Color Palette
+    header_color = models.CharField(max_length=50, default="#003366", help_text="Header color")
+    footer_color = models.CharField(max_length=50, default="#003366", help_text="Footer color")
+    button_text_color = models.CharField(max_length=50, default="#ffffff", help_text="Button text color")
+    
+    # Primary color variants
+    primary_dark = models.CharField(max_length=50, default="#004d2e", help_text="Primary dark variant")
+    primary_darker = models.CharField(max_length=50, default="#003d24", help_text="Primary darker variant")
+    primary_light = models.CharField(max_length=50, default="#00804d", help_text="Primary light variant")
+    primary_hover = models.CharField(max_length=50, default="#005530", help_text="Primary hover state")
+    primary_active = models.CharField(max_length=50, default="#004426", help_text="Primary active state")
+    
+    # Secondary color variants
+    secondary_dark = models.CharField(max_length=50, default="#5a6268", help_text="Secondary dark variant")
+    secondary_light = models.CharField(max_length=50, default="#adb5bd", help_text="Secondary light variant")
+    
+    # Status colors
+    success_color = models.CharField(max_length=50, default="#28a745", help_text="Success state color")
+    warning_color = models.CharField(max_length=50, default="#ffc107", help_text="Warning state color")
+    danger_color = models.CharField(max_length=50, default="#dc3545", help_text="Danger state color")
+    danger_dark = models.CharField(max_length=50, default="#c82333", help_text="Danger dark variant")
+    info_color = models.CharField(max_length=50, default="#17a2b8", help_text="Info state color")
+    
+    # Text and background variants
+    text_light = models.CharField(max_length=50, default="#6c757d", help_text="Light text color")
+    text_dark = models.CharField(max_length=50, default="#212529", help_text="Dark text color")
+    background_light = models.CharField(max_length=50, default="#f8f9fa", help_text="Light background color")
+    background_dark = models.CharField(max_length=50, default="#343a40", help_text="Dark background color")
+    border_color = models.CharField(max_length=50, default="#dee2e6", help_text="Border color")
+    
+    # Button variants
+    button_hover = models.CharField(max_length=50, default="#0056b3", help_text="Button hover state")
+    button_dark = models.CharField(max_length=50, default="#004085", help_text="Dark button variant")
+    button_light = models.CharField(max_length=50, default="#66b3ff", help_text="Light button variant")
+    
+    # Timer state colors
+    state_idle = models.CharField(max_length=50, default="#6c757d", help_text="Timer idle state color")
+    state_work = models.CharField(max_length=50, default="#006039", help_text="Timer work state color")
+    state_break = models.CharField(max_length=50, default="#ffc107", help_text="Timer break state color")
+    state_meeting = models.CharField(max_length=50, default="#17a2b8", help_text="Timer meeting state color")
+    
+    # Drawer specific colors
+    drawer_overlay = models.CharField(max_length=50, default="rgba(0, 0, 0, 0.6)", help_text="Drawer overlay color")
+    drawer_border = models.CharField(max_length=50, default="rgba(0, 96, 57, 0.1)", help_text="Drawer border color")
+    drawer_shadow = models.CharField(max_length=50, default="rgba(0, 96, 57, 0.15)", help_text="Drawer shadow color")
+    
+    # Modal colors
+    modal_background = models.CharField(max_length=50, default="#ffffff", help_text="Modal background color")
+    modal_overlay = models.CharField(max_length=50, default="rgba(0, 0, 0, 0.6)", help_text="Modal overlay color")
+    modal_border = models.CharField(max_length=50, default="#dee2e6", help_text="Modal border color")
+    
+    # Form elements
+    input_background = models.CharField(max_length=50, default="#ffffff", help_text="Input background color")
+    input_border = models.CharField(max_length=50, default="#ced4da", help_text="Input border color")
+    input_focus = models.CharField(max_length=50, default="#80bdff", help_text="Input focus color")
+    input_text = models.CharField(max_length=50, default="#495057", help_text="Input text color")
+    
+    # Navigation colors
+    nav_background = models.CharField(max_length=50, default="#003366", help_text="Navigation background color")
+    nav_text = models.CharField(max_length=50, default="#ffffff", help_text="Navigation text color")
+    nav_hover = models.CharField(max_length=50, default="rgba(255, 255, 255, 0.1)", help_text="Navigation hover color")
+    nav_active = models.CharField(max_length=50, default="#0056b3", help_text="Navigation active color")
+    
+    # Utility colors
+    white = models.CharField(max_length=50, default="#ffffff", help_text="White color")
+    black = models.CharField(max_length=50, default="#000000", help_text="Black color")
+    gray_100 = models.CharField(max_length=50, default="#f8f9fa", help_text="Gray 100")
+    gray_200 = models.CharField(max_length=50, default="#e9ecef", help_text="Gray 200")
+    gray_300 = models.CharField(max_length=50, default="#dee2e6", help_text="Gray 300")
+    gray_400 = models.CharField(max_length=50, default="#ced4da", help_text="Gray 400")
+    gray_500 = models.CharField(max_length=50, default="#adb5bd", help_text="Gray 500")
+    gray_600 = models.CharField(max_length=50, default="#6c757d", help_text="Gray 600")
+    gray_700 = models.CharField(max_length=50, default="#495057", help_text="Gray 700")
+    gray_800 = models.CharField(max_length=50, default="#343a40", help_text="Gray 800")
+    gray_900 = models.CharField(max_length=50, default="#212529", help_text="Gray 900")
+    
     # Font configurations
     heading_font_size = models.CharField(max_length=20, default="24px", help_text="Font size in px or rem (e.g., '24px', '1.5rem')")
     body_font_size = models.CharField(max_length=20, default="16px", help_text="Font size in px or rem")
@@ -420,21 +496,102 @@ class AppStyling(models.Model):
     def color_palette(self):
         """Return all colors as a dictionary"""
         return {
-            'primary': self.primary_color,
-            'secondary': self.secondary_color,
-            'background': self.background_color,
-            'button': self.button_color,
-            'text': self.text_color,
-            'submit_button_bg': self.submit_button_bg_color,
-            'submit_button_text': self.submit_button_text_color,
-            'primary_button_bg': self.primary_button_bg_color,
-            'primary_button_text': self.primary_button_text_color,
-            'secondary_button_bg': self.secondary_button_bg_color,
-            'secondary_button_text': self.secondary_button_text_color,
-            'drawer_background': self.drawer_background_color,
-            'drawer_text': self.drawer_text_color,
-            'icon': self.icon_color,
-            'top': self.top_color
+            # Existing basic colors
+            'primary_color': self.primary_color,
+            'secondary_color': self.secondary_color,
+            'background_color': self.background_color,
+            'button_color': self.button_color,
+            'text_color': self.text_color,
+            
+            # Header and footer
+            'header_color': self.header_color,
+            'footer_color': self.footer_color,
+            'button_text_color': self.button_text_color,
+            
+            # Button variants
+            'submit_button_bg_color': self.submit_button_bg_color,
+            'submit_button_text_color': self.submit_button_text_color,
+            'primary_button_bg_color': self.primary_button_bg_color,
+            'primary_button_text_color': self.primary_button_text_color,
+            'secondary_button_bg_color': self.secondary_button_bg_color,
+            'secondary_button_text_color': self.secondary_button_text_color,
+            
+            # Drawer colors
+            'drawer_background_color': self.drawer_background_color,
+            'drawer_text_color': self.drawer_text_color,
+            'icon_color': self.icon_color,
+            'top_color': self.top_color,
+            
+            # Primary variants
+            'primary_dark': self.primary_dark,
+            'primary_darker': self.primary_darker,
+            'primary_light': self.primary_light,
+            'primary_hover': self.primary_hover,
+            'primary_active': self.primary_active,
+            
+            # Secondary variants
+            'secondary_dark': self.secondary_dark,
+            'secondary_light': self.secondary_light,
+            
+            # Status colors
+            'success_color': self.success_color,
+            'warning_color': self.warning_color,
+            'danger_color': self.danger_color,
+            'danger_dark': self.danger_dark,
+            'info_color': self.info_color,
+            
+            # Text and background variants
+            'text_light': self.text_light,
+            'text_dark': self.text_dark,
+            'background_light': self.background_light,
+            'background_dark': self.background_dark,
+            'border_color': self.border_color,
+            
+            # Button variants
+            'button_hover': self.button_hover,
+            'button_dark': self.button_dark,
+            'button_light': self.button_light,
+            
+            # Timer states
+            'state_idle': self.state_idle,
+            'state_work': self.state_work,
+            'state_break': self.state_break,
+            'state_meeting': self.state_meeting,
+            
+            # Drawer specific
+            'drawer_overlay': self.drawer_overlay,
+            'drawer_border': self.drawer_border,
+            'drawer_shadow': self.drawer_shadow,
+            
+            # Modal colors
+            'modal_background': self.modal_background,
+            'modal_overlay': self.modal_overlay,
+            'modal_border': self.modal_border,
+            
+            # Form elements
+            'input_background': self.input_background,
+            'input_border': self.input_border,
+            'input_focus': self.input_focus,
+            'input_text': self.input_text,
+            
+            # Navigation
+            'nav_background': self.nav_background,
+            'nav_text': self.nav_text,
+            'nav_hover': self.nav_hover,
+            'nav_active': self.nav_active,
+            
+            # Utility colors
+            'white': self.white,
+            'black': self.black,
+            'gray_100': self.gray_100,
+            'gray_200': self.gray_200,
+            'gray_300': self.gray_300,
+            'gray_400': self.gray_400,
+            'gray_500': self.gray_500,
+            'gray_600': self.gray_600,
+            'gray_700': self.gray_700,
+            'gray_800': self.gray_800,
+            'gray_900': self.gray_900,
         }
     
     @property
@@ -450,21 +607,104 @@ class AppStyling(models.Model):
     def css_variables(self):
         """Generate CSS custom properties for this styling"""
         return {
+            # Basic colors
             '--primary-color': self.primary_color,
             '--secondary-color': self.secondary_color,
             '--background-color': self.background_color,
             '--button-color': self.button_color,
             '--text-color': self.text_color,
+            
+            # Header and footer
+            '--header-color': self.header_color,
+            '--footer-color': self.footer_color,
+            '--button-text-color': self.button_text_color,
+            
+            # Button variants
             '--submit-button-bg-color': self.submit_button_bg_color,
             '--submit-button-text-color': self.submit_button_text_color,
             '--primary-button-bg-color': self.primary_button_bg_color,
             '--primary-button-text-color': self.primary_button_text_color,
             '--secondary-button-bg-color': self.secondary_button_bg_color,
             '--secondary-button-text-color': self.secondary_button_text_color,
+            
+            # Drawer colors
             '--drawer-background-color': self.drawer_background_color,
             '--drawer-text-color': self.drawer_text_color,
             '--icon-color': self.icon_color,
             '--top-color': self.top_color,
+            
+            # Primary variants
+            '--primary-dark': self.primary_dark,
+            '--primary-darker': self.primary_darker,
+            '--primary-light': self.primary_light,
+            '--primary-hover': self.primary_hover,
+            '--primary-active': self.primary_active,
+            
+            # Secondary variants
+            '--secondary-dark': self.secondary_dark,
+            '--secondary-light': self.secondary_light,
+            
+            # Status colors
+            '--success-color': self.success_color,
+            '--warning-color': self.warning_color,
+            '--danger-color': self.danger_color,
+            '--danger-dark': self.danger_dark,
+            '--info-color': self.info_color,
+            
+            # Text and background variants
+            '--text-light': self.text_light,
+            '--text-dark': self.text_dark,
+            '--background-light': self.background_light,
+            '--background-dark': self.background_dark,
+            '--border-color': self.border_color,
+            
+            # Button variants
+            '--button-hover': self.button_hover,
+            '--button-dark': self.button_dark,
+            '--button-light': self.button_light,
+            
+            # Timer states
+            '--state-idle': self.state_idle,
+            '--state-work': self.state_work,
+            '--state-break': self.state_break,
+            '--state-meeting': self.state_meeting,
+            
+            # Drawer specific
+            '--drawer-overlay': self.drawer_overlay,
+            '--drawer-border': self.drawer_border,
+            '--drawer-shadow': self.drawer_shadow,
+            
+            # Modal colors
+            '--modal-background': self.modal_background,
+            '--modal-overlay': self.modal_overlay,
+            '--modal-border': self.modal_border,
+            
+            # Form elements
+            '--input-background': self.input_background,
+            '--input-border': self.input_border,
+            '--input-focus': self.input_focus,
+            '--input-text': self.input_text,
+            
+            # Navigation
+            '--nav-background': self.nav_background,
+            '--nav-text': self.nav_text,
+            '--nav-hover': self.nav_hover,
+            '--nav-active': self.nav_active,
+            
+            # Utility colors
+            '--white': self.white,
+            '--black': self.black,
+            '--gray-100': self.gray_100,
+            '--gray-200': self.gray_200,
+            '--gray-300': self.gray_300,
+            '--gray-400': self.gray_400,
+            '--gray-500': self.gray_500,
+            '--gray-600': self.gray_600,
+            '--gray-700': self.gray_700,
+            '--gray-800': self.gray_800,
+            '--gray-900': self.gray_900,
+            
+            # Typography and layout
             '--heading-font-size': self.heading_font_size,
             '--body-font-size': self.body_font_size,
             '--font-family': self.font_family,
