@@ -20,172 +20,94 @@ class AppStylingAPIView(APIView):
     permission_classes = []       # No permissions required for getting styles
     
     def get(self, request):
-        """Get current active styling configuration in your custom JSON format"""
+        """Get current active styling configuration"""
         try:
             # Get active theme
             active_styling = AppStyling.get_active_theme()
             
             if active_styling:
-                serializer = AppStylingSerializer(active_styling)
-                styling_data = serializer.data
+                # Return the color palette directly from the model
+                response_data = active_styling.color_palette
+                response_data.update({
+                    'theme_name': active_styling.theme_name,
+                    'description': active_styling.description or "DDS Focus Pro Complete Theme",
+                    'heading_font_size': active_styling.heading_font_size,
+                    'body_font_size': active_styling.body_font_size,
+                    'font_family': active_styling.font_family,
+                    'border_radius': active_styling.border_radius
+                })
                 
-                # Return in your custom format as primary response
-                custom_format = {
-                    "theme_name": styling_data.get("theme_name", "Default Theme"),
-                    "description": styling_data.get("description", "Default application styling"),
-                    "header-color": styling_data.get("primary_color", "#1E90FF"),
-                    "footer-color": styling_data.get("secondary_color", "#32CD32"), 
-                    "text_color": styling_data.get("text_color", "#333333"),
-                    "background_color": styling_data.get("background_color", "#FFFFFF"),
-                    "button_color": styling_data.get("button_color", "#007BFF"),
-                    "button-text_color": styling_data.get("text_color", "#333333"),
-                    "heading_font_size": styling_data.get("heading_font_size", "24px"),
-                    "body_font_size": styling_data.get("body_font_size", "16px"),
-                    "font_family": styling_data.get("font_family", "Arial"),
-                    "border_radius": styling_data.get("border_radius", "5px")
-                }
-                
-                return Response({
-                    "status": "success",
-                    "message": "Active styling configuration retrieved successfully",
-                    "data": custom_format,
-                    "database_format": styling_data,
-                    "css_variables": styling_data.get("css_variables", {})
-                }, status=status.HTTP_200_OK)
+                return Response(response_data, status=status.HTTP_200_OK)
             else:
-                # Return default styling if no active theme in custom format
-                default_custom_format = {
-                    "theme_name": "Default Theme",
-                    "description": "Default application styling",
-                    "header-color": "#1E90FF",
-                    "footer-color": "#32CD32",
-                    "text_color": "#333333", 
-                    "background_color": "#FFFFFF",
-                    "button_color": "#007BFF",
-                    "button-text_color": "#333333",
-                    "heading_font_size": "24px",
-                    "body_font_size": "16px",
-                    "font_family": "Arial",
-                    "border_radius": "5px"
+                # Return default DDS Focus Pro theme
+                default_theme = {
+                    "theme_name": "DDS Focus Pro Default",
+                    "description": "Default DDS Focus Pro color configuration",
+                    "primary_color": "#006039",
+                    "secondary_color": "#6c757d",
+                    "background_color": "#ECF0F1",
+                    "button_color": "#007bff",
+                    "text_color": "#2C3E50",
+                    "header_color": "#003366",
+                    "footer_color": "#003366",
+                    "button_text_color": "#ffffff",
+                    "heading_font_size": "36px",
+                    "body_font_size": "18px",
+                    "font_family": "Segoe UI, sans-serif",
+                    "border_radius": "10px"
                 }
                 
-                default_css_variables = {
-                    "--primary-color": "#1E90FF",
-                    "--secondary-color": "#32CD32",
-                    "--background-color": "#FFFFFF",
-                    "--button-color": "#007BFF",
-                    "--text-color": "#333333",
-                    "--heading-font-size": "24px",
-                    "--body-font-size": "16px",
-                    "--font-family": "Arial",
-                    "--border-radius": "5px"
-                }
-                
-                return Response({
-                    "status": "success",
-                    "message": "No active styling found, returning default configuration",
-                    "data": default_custom_format,
-                    "css_variables": default_css_variables
-                }, status=status.HTTP_200_OK)
+                return Response(default_theme, status=status.HTTP_200_OK)
                 
         except Exception as e:
             return Response({
-                "status": "error",
-                "message": f"Error retrieving styling configuration: {str(e)}"
+                "error": f"Error retrieving styling: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def post(self, request):
-        """Create or update styling configuration (supports custom field mapping)"""
+        """Create or update styling configuration"""
         try:
             data = request.data.copy()
             
-            # Map custom field names to model field names BEFORE validation
-            field_mapping = {
-                "header-color": "primary_color",
-                "footer-color": "secondary_color", 
-                "button-text_color": "text_color"  # Keep original text_color, ignore button-text_color
-            }
+            # Set default theme name if not provided
+            if 'theme_name' not in data or not data['theme_name']:
+                data['theme_name'] = "DDS Focus Pro Complete Theme"
             
-            # Convert custom fields to model fields
-            mapped_data = {}
-            for key, value in data.items():
-                if key in field_mapping:
-                    mapped_data[field_mapping[key]] = value
-                elif key != "button-text_color":  # Skip button-text_color since we use text_color
-                    mapped_data[key] = value
+            # Ensure this theme becomes active
+            data['is_active'] = True
             
-            # Set defaults if not provided
-            if 'theme_name' not in mapped_data or not mapped_data['theme_name']:
-                mapped_data['theme_name'] = f"Custom Theme {AppStyling.objects.count() + 1}"
+            # Use the serializer to validate the data
+            serializer = AppStylingCreateSerializer(data=data)
             
-            # Make this theme active
-            mapped_data['is_active'] = True
+            if serializer.is_valid():
+                # Deactivate all existing themes
+                AppStyling.objects.all().update(is_active=False)
+                
+                # Create new styling configuration
+                app_styling = AppStyling.objects.create(**serializer.validated_data)
+                
+                # Return the color palette
+                response_data = app_styling.color_palette
+                response_data.update({
+                    'theme_name': app_styling.theme_name,
+                    'description': app_styling.description or "DDS Focus Pro Complete Theme",
+                    'heading_font_size': app_styling.heading_font_size,
+                    'body_font_size': app_styling.body_font_size,
+                    'font_family': app_styling.font_family,
+                    'border_radius': app_styling.border_radius
+                })
+                
+                return Response(response_data, status=status.HTTP_201_CREATED)
             
-            # Create the styling directly without serializer to avoid default overrides
-            styling_params = {
-                'theme_name': mapped_data.get('theme_name', 'Custom Theme'),
-                'description': mapped_data.get('description', ''),
-                'primary_color': mapped_data.get('primary_color', '#1E90FF'),
-                'secondary_color': mapped_data.get('secondary_color', '#32CD32'),
-                'background_color': mapped_data.get('background_color', '#FFFFFF'),
-                'button_color': mapped_data.get('button_color', '#007BFF'),
-                'text_color': mapped_data.get('text_color', '#333333'),
-                'heading_font_size': mapped_data.get('heading_font_size', '24px'),
-                'body_font_size': mapped_data.get('body_font_size', '16px'),
-                'font_family': mapped_data.get('font_family', 'Arial'),
-                'border_radius': mapped_data.get('border_radius', '5px'),
-                'is_active': True,
-                'is_default': False,
-                'created_by': mapped_data.get('created_by', ''),
-                'version': mapped_data.get('version', '1.0')
-            }
-            
-            # Deactivate all existing themes
-            AppStyling.objects.all().update(is_active=False)
-            
-            # Create new styling configuration
-            app_styling = AppStyling.objects.create(**styling_params)
-            
-            response_serializer = AppStylingSerializer(app_styling)
-            styling_data = response_serializer.data
-            
-            # Return both formats
-            custom_format = {
-                "theme_name": styling_data.get("theme_name"),
-                "description": styling_data.get("description", ""),
-                "header-color": styling_data.get("primary_color"),
-                "footer-color": styling_data.get("secondary_color"),
-                "text_color": styling_data.get("text_color"),
-                "background_color": styling_data.get("background_color"),
-                "button_color": styling_data.get("button_color"),
-                "button-text_color": styling_data.get("text_color"),
-                "heading_font_size": styling_data.get("heading_font_size"),
-                "body_font_size": styling_data.get("body_font_size"),
-                "font_family": styling_data.get("font_family"),
-                "border_radius": styling_data.get("border_radius")
-            }
-            
-            return Response({
-                "status": "success",
-                "message": f"Styling configuration '{app_styling.theme_name}' created successfully",
-                "data": styling_data,
-                "custom_format": custom_format,
-                "field_mapping": {
-                    "header-color": f"mapped to primary_color: {styling_data.get('primary_color')}",
-                    "footer-color": f"mapped to secondary_color: {styling_data.get('secondary_color')}",
-                    "button-text_color": f"mapped to text_color: {styling_data.get('text_color')}"
-                },
-                "mapped_data_used": mapped_data
-            }, status=status.HTTP_201_CREATED)
+            else:
+                return Response({
+                    "error": "Invalid data provided",
+                    "details": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
             
         except Exception as e:
             return Response({
-                "status": "error",
-                "message": f"Error creating styling configuration: {str(e)}",
-                "debug_info": {
-                    "request_data": request.data,
-                    "error_type": type(e).__name__
-                }
+                "error": f"Error creating styling: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
