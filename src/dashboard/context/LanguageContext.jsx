@@ -263,7 +263,15 @@ const translations = {
     stylingConfigLoaded: 'Styling configuration loaded successfully!',
     stylingConfigSaved: 'Styling configuration saved successfully!',
     failedToLoadStyling: 'Failed to load styling configuration',
-    failedToSaveStyling: 'Failed to save styling configuration'
+    failedToSaveStyling: 'Failed to save styling configuration',
+
+    // Right Sidebar
+    howItWorks: 'How it Works',
+    claimLicense: 'Claim 2 more free licenses',
+    employeesInfo: 'Here is some information about employees.',
+    liveTrackingInfo: 'Here is some information about live tracking.',
+    quickViewInfo: 'Here is some information about quick view.',
+    claimLicenseInfo: 'Information about claiming licenses.',
   },
   
   tr: {
@@ -528,7 +536,15 @@ const translations = {
     stylingConfigLoaded: 'Stil yapılandırması başarıyla yüklendi!',
     stylingConfigSaved: 'Stil yapılandırması başarıyla kaydedildi!',
     failedToLoadStyling: 'Stil yapılandırması yüklenemedi',
-    failedToSaveStyling: 'Stil yapılandırması kaydedilemedi'
+    failedToSaveStyling: 'Stil yapılandırması kaydedilemedi',
+
+    // Right Sidebar
+    howItWorks: 'Nasıl Çalışır?',
+    claimLicense: '2 ücretsiz lisans daha talep edin',
+    employeesInfo: 'Çalışanlar hakkında bazı bilgiler burada.',
+    liveTrackingInfo: 'Canlı izleme hakkında bazı bilgiler burada.',
+    quickViewInfo: 'Hızlı görünüm hakkında bazı bilgiler burada.',
+    claimLicenseInfo: 'Lisans talep etme hakkında bilgi.',
   }
 };
 
