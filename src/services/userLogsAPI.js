@@ -1,11 +1,11 @@
 // User Logs API Service
 // Handles API calls to the Enhanced Date Range Logs API
 
-const BASE_URL = 'https://dxdtime.ddsolutions.io';
+import { getBaseURL } from '../config/api.js';
 
 class UserLogsAPIService {
   constructor() {
-    this.baseUrl = BASE_URL;
+    this.baseUrl = getBaseURL();
   }
 
   // Get logs with date range and filtering

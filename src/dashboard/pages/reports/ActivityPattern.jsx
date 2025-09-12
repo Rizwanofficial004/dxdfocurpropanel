@@ -5,9 +5,7 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { userLogsAPI } from '../../../services/userLogsAPI';
-
-// Base URL for API calls
-const BASE_URL = 'https://dxdtime.ddsolutions.io';
+import { getBaseURL } from '../../../config/api';
 
 const ActivityPatternContainer = styled.div`
   background: ${props => props.theme.colors.background};
@@ -37,7 +35,8 @@ const FiltersContainer = styled.div`
   padding: 24px;
   margin-bottom: 24px;
   border: 1px solid ${props => props.theme.colors.border};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  z-index: 999;
 `;
 
 const FiltersGrid = styled.div`
@@ -114,8 +113,9 @@ const ContentArea = styled.div`
   background: ${props => props.theme.colors.surface};
   border-radius: 12px;
   border: 1px solid ${props => props.theme.colors.border};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   min-height: 400px;
+  z-index: 999;
   position: relative;
 `;
 
@@ -250,11 +250,12 @@ const LogsContainer = styled.div`
   overflow-y: auto;
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: 8px;
+  z-index: 99999 !important;
 `;
 
 const LogsHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 200px 100px 150px 120px;
+  grid-template-columns: 1fr 200px 100px 150px 120px 100px;
   gap: 16px;
   padding: 16px;
   background: ${props => props.theme.colors.surface};
@@ -267,7 +268,7 @@ const LogsHeader = styled.div`
   z-index: 10;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr 150px 80px;
+    grid-template-columns: 1fr 150px 80px 80px;
     gap: 8px;
     font-size: 12px;
   }
@@ -275,12 +276,13 @@ const LogsHeader = styled.div`
 
 const LogItem = styled.div`
   display: grid;
-  grid-template-columns: 1fr 200px 100px 150px 120px;
+  grid-template-columns: 1fr 200px 100px 150px 120px 100px;
   gap: 16px;
   padding: 12px 16px;
   border-bottom: 1px solid ${props => props.theme.colors.border};
   align-items: center;
   transition: background-color 0.2s;
+  z-index: 999;
 
   &:hover {
     background: ${props => props.theme.colors.background};
@@ -291,7 +293,7 @@ const LogItem = styled.div`
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr 150px 80px;
+    grid-template-columns: 1fr 150px 80px 80px;
     gap: 8px;
     font-size: 12px;
   }
@@ -355,6 +357,45 @@ const LogType = styled.span`
   }
 `;
 
+const DownloadButton = styled.button`
+  background: ${props => props.theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 36px;
+
+  &:hover {
+    background: ${props => props.theme.colors.primaryHover};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 8px;
+    font-size: 14px;
+    min-width: 32px;
+    height: 32px;
+  }
+`;
+
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -380,38 +421,6 @@ const StatValue = styled.div`
 const StatLabel = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.textSecondary};
-`;
-
-const CalendarGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  margin-bottom: 24px;
-`;
-
-const CalendarDay = styled.div`
-  aspect-ratio: 1;
-  background: ${props => {
-    if (props.logCount === 0) return props.theme.colors.surface;
-    if (props.logCount <= 2) return '#e8f5e8';
-    if (props.logCount <= 5) return '#a8e6a8';
-    if (props.logCount <= 10) return '#68d668';
-    return '#28a745';
-  }};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: ${props => props.logCount > 5 ? '#fff' : props.theme.colors.text};
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
 `;
 
 const ErrorMessage = styled.div`
@@ -461,7 +470,6 @@ const ActivityPattern = () => {
   const { theme } = useTheme();
   
   // State management
-  const [activeTab, setActiveTab] = useState('logs'); // 'logs' or 'calendar'
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -471,8 +479,8 @@ const ActivityPattern = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [logsData, setLogsData] = useState([]);
-  const [calendarData, setCalendarData] = useState({});
   const [statistics, setStatistics] = useState({});
+  const [downloadingFile, setDownloadingFile] = useState(null);
 
   // Time range options
   const timeRangeOptions = [
@@ -492,43 +500,23 @@ const ActivityPattern = () => {
 
   // Fetch data when filters change
   useEffect(() => {
-    if (activeTab === 'logs') {
-      fetchLogsData();
-    } else {
-      fetchCalendarData();
-    }
-  }, [timeRange, selectedEmployee, startDate, endDate, activeTab]);
+    fetchLogsData();
+  }, [timeRange, selectedEmployee, startDate, endDate]);
 
   const fetchEmployees = async () => {
     try {
-      const endpoints = [
-        `${BASE_URL}/api/users/search/`,
-        'http://127.0.0.1:8000/api/users/search/',
-        'http://localhost:8000/api/users/search/'
-      ];
-
-      let response = null;
-      for (const endpoint of endpoints) {
-        try {
-          response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            console.log(`✅ Connected to: ${endpoint}`);
-            break;
-          }
-        } catch (error) {
-          console.log(`❌ Failed to fetch from: ${endpoint}`, error);
-          continue;
+      // Use centralized API configuration
+      const endpoint = `${getBaseURL()}/api/users/search/`;
+      
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
-      }
-
-      if (response && response.ok) {
+      });
+      
+      if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data && data.data.users) {
           setEmployees(data.data.users);
@@ -540,14 +528,11 @@ const ActivityPattern = () => {
           ]);
         }
       } else {
-        setEmployees([
-          { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'Haseeb' },
-          { id: 2, email: 'kiranaiza4@gmail.com', display_name: 'Kiran' },
-          { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'Nawaz' }
-        ]);
+        throw new Error(`API Error: ${response.status}`);
       }
     } catch (error) {
       console.error('Error fetching employees:', error);
+      // Fallback data
       setEmployees([
         { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'Haseeb' },
         { id: 2, email: 'kiranaiza4@gmail.com', display_name: 'Kiran' },
@@ -598,35 +583,6 @@ const ActivityPattern = () => {
     }
   };
 
-  const fetchCalendarData = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      const currentDate = new Date();
-      const options = {
-        month: currentDate.getMonth() + 1,
-        year: currentDate.getFullYear()
-      };
-      
-      if (selectedEmployee) {
-        options.userEmail = selectedEmployee;
-      }
-
-      const data = await userLogsAPI.getCalendar(options);
-      
-      setCalendarData(data.calendar || {});
-      setSuccess(`Calendar data for ${options.year}-${options.month.toString().padStart(2, '0')}`);
-      setTimeout(() => setSuccess(''), 3000);
-      
-    } catch (error) {
-      console.error('Error fetching calendar data:', error);
-      setError(error.message || 'Failed to fetch calendar data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const formatFileSize = (sizeInMB) => {
     return userLogsAPI.formatFileSize(sizeInMB);
   };
@@ -636,138 +592,125 @@ const ActivityPattern = () => {
     return `${formatted.date} ${formatted.time}`;
   };
 
-  const generateCalendarDays = () => {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    const days = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-      const dayData = calendarData[dateKey];
-      days.push({
-        day,
-        dateKey,
-        logCount: dayData ? dayData.log_count : 0,
-        data: dayData
-      });
+  const handleDownload = async (log) => {
+    try {
+      setDownloadingFile(log.file_name);
+      setError('');
+      
+      // Use the provided download_url (signed S3 URL)
+      const downloadUrl = log.download_url;
+      
+      if (!downloadUrl) {
+        throw new Error('No download URL available for this file');
+      }
+      
+      console.log('Downloading from URL:', downloadUrl);
+      
+      // Direct download approach - avoid CORS issues
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = log.file_name || 'download.json';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Hide the link and trigger click
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setSuccess(`Download initiated for ${log.file_name || 'file'}...`);
+      setTimeout(() => setSuccess(''), 3000);
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      setError(`Failed to download ${log.file_name || 'file'}: ${error.message}`);
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setDownloadingFile(null);
     }
-    return days;
   };
 
-  const renderLogsView = () => (
-    <>
-      {statistics && Object.keys(statistics).length > 0 && (
-        <StatsGrid theme={theme}>
-          <StatCard theme={theme}>
-            <StatValue theme={theme}>{statistics.total_files || 0}</StatValue>
-            <StatLabel theme={theme}>Total Files</StatLabel>
-          </StatCard>
-          <StatCard theme={theme}>
-            <StatValue theme={theme}>{statistics.unique_users || 0}</StatValue>
-            <StatLabel theme={theme}>Users</StatLabel>
-          </StatCard>
-          <StatCard theme={theme}>
-            <StatValue theme={theme}>{formatFileSize(statistics.total_size_mb || 0)}</StatValue>
-            <StatLabel theme={theme}>Total Size</StatLabel>
-          </StatCard>
-          <StatCard theme={theme}>
-            <StatValue theme={theme}>{statistics.unique_projects || 0}</StatValue>
-            <StatLabel theme={theme}>Projects</StatLabel>
-          </StatCard>
-        </StatsGrid>
-      )}
-
-      <LogsContainer theme={theme}>
-        <LogsHeader theme={theme}>
-          <div>File Name</div>
-          <div>User</div>
-          <div>Size</div>
-          <div>Date</div>
-          <div>Type</div>
-        </LogsHeader>
-        
-        {logsData.length === 0 ? (
-          <NoDataContainer>
-            <NoDataIcon>
-              <DocumentIcon>
-                <ColorfulBlocks>
-                  <ColorBlock />
-                  <ColorBlock />
-                  <ColorBlock />
-                  <ColorBlock />
-                  <ColorBlock />
-                </ColorfulBlocks>
-              </DocumentIcon>
-            </NoDataIcon>
-            <NoDataText>No logs found for the selected criteria</NoDataText>
-          </NoDataContainer>
-        ) : (
-          logsData.map((log, index) => (
-            <LogItem key={index} theme={theme}>
-              <LogFileName theme={theme}>{log.file_name}</LogFileName>
-              <LogUser>{log.user_email}</LogUser>
-              <LogSize theme={theme}>{formatFileSize(log.file_size_mb)}</LogSize>
-              <LogDate theme={theme}>{formatDate(log.last_modified)}</LogDate>
-              <LogType type={log.log_type}>{log.log_type}</LogType>
-            </LogItem>
-          ))
-        )}
-      </LogsContainer>
-    </>
-  );
-
-  const renderCalendarView = () => (
-    <>
-      <CalendarGrid>
-        {generateCalendarDays().map((day) => (
-          <CalendarDay
-            key={day.day}
-            theme={theme}
-            logCount={day.logCount}
-            title={`${day.dateKey}: ${day.logCount} logs`}
-            onClick={() => {
-              if (day.data) {
-                console.log('Day data:', day.data);
-              }
-            }}
-          >
-            {day.day}
-          </CalendarDay>
-        ))}
-      </CalendarGrid>
-      
-      {Object.keys(calendarData).length === 0 && (
-        <NoDataContainer>
-          <NoDataIcon>
-            <DocumentIcon>
-              <ColorfulBlocks>
-                <ColorBlock />
-                <ColorBlock />
-                <ColorBlock />
-                <ColorBlock />
-                <ColorBlock />
-              </ColorfulBlocks>
-            </DocumentIcon>
-          </NoDataIcon>
-          <NoDataText>No calendar data available</NoDataText>
-        </NoDataContainer>
-      )}
-    </>
-  );
-
-  const renderContent = () => {
+  const renderLogsView = () => {
     if (loading) {
       return (
         <LoadingContainer>
           <LoadingSpinner />
-          <p>Loading {activeTab === 'logs' ? 'logs' : 'calendar'} data...</p>
+          <p>Loading logs data...</p>
         </LoadingContainer>
       );
     }
 
-    return activeTab === 'logs' ? renderLogsView() : renderCalendarView();
+    return (
+      <>
+        {statistics && Object.keys(statistics).length > 0 && (
+          <StatsGrid theme={theme}>
+            <StatCard theme={theme}>
+              <StatValue theme={theme}>{statistics.total_files || 0}</StatValue>
+              <StatLabel theme={theme}>Total Files</StatLabel>
+            </StatCard>
+            <StatCard theme={theme}>
+              <StatValue theme={theme}>{statistics.unique_users || 0}</StatValue>
+              <StatLabel theme={theme}>Users</StatLabel>
+            </StatCard>
+            <StatCard theme={theme}>
+              <StatValue theme={theme}>{formatFileSize(statistics.total_size_mb || 0)}</StatValue>
+              <StatLabel theme={theme}>Total Size</StatLabel>
+            </StatCard>
+            <StatCard theme={theme}>
+              <StatValue theme={theme}>{statistics.unique_projects || 0}</StatValue>
+              <StatLabel theme={theme}>Projects</StatLabel>
+            </StatCard>
+          </StatsGrid>
+        )}
+
+        <LogsContainer theme={theme}>
+          <LogsHeader theme={theme}>
+            <div>File Name</div>
+            <div>User</div>
+            <div>Size</div>
+            <div>Date</div>
+            <div>Type</div>
+            <div>Download</div>
+          </LogsHeader>
+          
+          {logsData.length === 0 ? (
+            <NoDataContainer>
+              <NoDataIcon>
+                <DocumentIcon>
+                  <ColorfulBlocks>
+                    <ColorBlock />
+                    <ColorBlock />
+                    <ColorBlock />
+                    <ColorBlock />
+                    <ColorBlock />
+                  </ColorfulBlocks>
+                </DocumentIcon>
+              </NoDataIcon>
+              <NoDataText>No logs found for the selected criteria</NoDataText>
+            </NoDataContainer>
+          ) : (
+            logsData.map((log, index) => (
+              <LogItem key={index} theme={theme}>
+                <LogFileName theme={theme}>{log.file_name}</LogFileName>
+                <LogUser>{log.user_email}</LogUser>
+                <LogSize theme={theme}>{formatFileSize(log.file_size_mb)}</LogSize>
+                <LogDate theme={theme}>{formatDate(log.last_modified)}</LogDate>
+                <LogType type={log.log_type}>{log.log_type}</LogType>
+                <DownloadButton 
+                  onClick={() => handleDownload(log)}
+                  disabled={downloadingFile === log.file_name}
+                  theme={theme}
+                  title={`Download ${log.file_name}`}
+                >
+                  {downloadingFile === log.file_name ? '⏳' : '📥'}
+                </DownloadButton>
+              </LogItem>
+            ))
+          )}
+        </LogsContainer>
+      </>
+    );
   };
 
   return (
@@ -848,25 +791,8 @@ const ActivityPattern = () => {
             </div>
           </FiltersContainer>
 
-          <TabsContainer theme={theme}>
-            <Tab
-              theme={theme}
-              active={activeTab === 'logs'}
-              onClick={() => setActiveTab('logs')}
-            >
-              📋 Logs List
-            </Tab>
-            <Tab
-              theme={theme}
-              active={activeTab === 'calendar'}
-              onClick={() => setActiveTab('calendar')}
-            >
-              📅 Calendar View
-            </Tab>
-          </TabsContainer>
-
           <ContentArea theme={theme}>
-            {renderContent()}
+            {renderLogsView()}
           </ContentArea>
         </ContentSection>
       </ActivityPatternContainer>

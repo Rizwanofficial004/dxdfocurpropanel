@@ -11,16 +11,16 @@ export const getApiBaseURL = () => {
     return import.meta.env.VITE_API_URL;
   }
   
-  // Use local development server for CRM comprehensive API
+  // Use proxy for development (no URL prefix needed)
   if (import.meta.env.DEV || 
       window.location.hostname === 'localhost' ||
       window.location.hostname.startsWith('192.168.') ||
       window.location.hostname.startsWith('127.0.')) {
-    console.log('🌐 Using local development API server: http://127.0.0.1:8000/api');
-    return 'http://127.0.0.1:8000/api';
+    console.log('🌐 Using Vite proxy for API calls: /api');
+    return '/api';
   }
   
-  // Fallback to production URL
+  // Use full URL for production
   console.log('🌐 Using production API server: https://dxdtime.ddsolutions.io/api');
   return 'https://dxdtime.ddsolutions.io/api';
 };
@@ -30,8 +30,21 @@ export const getApiBaseURL = () => {
  * @returns {string} The base URL
  */
 export const getBaseURL = () => {
-  const apiUrl = getApiBaseURL();
-  return apiUrl.replace('/api', '');
+  // Check for custom environment variable first
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace('/api', '');
+  }
+  
+  // Use empty string for development (proxy handles routing)
+  if (import.meta.env.DEV || 
+      window.location.hostname === 'localhost' ||
+      window.location.hostname.startsWith('192.168.') ||
+      window.location.hostname.startsWith('127.0.')) {
+    return '';
+  }
+  
+  // Use full URL for production
+  return 'https://dxdtime.ddsolutions.io';
 };
 
 /**

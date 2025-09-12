@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .loading {
+            color: #007bff;
+            font-weight: bold;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛠️ CORS Fix Verification Test</h1>
+    
+    <div class="test-section">
+        <h2>🔍 Test Results</h2>
+        <div id="status" class="loading">⏳ Ready to test...</div>
+        
+        <div style="margin: 20px 0;">
+            <button onclick="testUserLogsAPI()">📊 Test User Logs API</button>
+            <button onclick="testUsersAPI()">👥 Test Users API</button>
+            <button onclick="testBothAPIs()">🚀 Test Both APIs</button>
+            <button onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 API Response Details</h2>
+        <pre id="response-details">Click a test button to see API response details...</pre>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        const responseDetailsDiv = document.getElementById('response-details');
+
+        function setStatus(message, type = 'loading') {
+            statusDiv.className = type;
+            statusDiv.innerHTML = message;
+        }
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            div.style.margin = '5px 0';
+            resultsDiv.appendChild(div);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+            responseDetailsDiv.textContent = 'Results cleared...';
+            setStatus('🗑️ Results cleared', 'success');
+        }
+
+        async function testUserLogsAPI() {
+            setStatus('🔄 Testing User Logs API...', 'loading');
+            addResult('📊 Testing Enhanced Date Range Logs API...', 'loading');
+            
+            try {
+                const response = await fetch('/api/logs/date-range/?time_range=last_7_days&limit=5', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('✅ User Logs API - SUCCESS!', 'success');
+                    addResult(`✅ User Logs API: HTTP ${response.status} - Found ${data.data?.total_count || 0} logs`, 'success');
+                    
+                    responseDetailsDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                setStatus('❌ User Logs API - FAILED', 'error');
+                addResult(`❌ User Logs API Error: ${error.message}`, 'error');
+                responseDetailsDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testUsersAPI() {
+            setStatus('🔄 Testing Users API...', 'loading');
+            addResult('👥 Testing Users Search API...', 'loading');
+            
+            try {
+                const response = await fetch('/api/users/search/', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setStatus('✅ Users API - SUCCESS!', 'success');
+                    addResult(`✅ Users API: HTTP ${response.status} - Found ${data.data?.users?.length || 0} users`, 'success');
+                    
+                    responseDetailsDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    const errorData = await response.text();
+                    addResult(`⚠️ Users API: HTTP ${response.status} - ${response.statusText}`, 'error');
+                    responseDetailsDiv.textContent = `HTTP ${response.status}: ${errorData}`;
+                }
+            } catch (error) {
+                setStatus('❌ Users API - FAILED', 'error');
+                addResult(`❌ Users API Error: ${error.message}`, 'error');
+                responseDetailsDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testBothAPIs() {
+            clearResults();
+            setStatus('🚀 Testing Both APIs...', 'loading');
+            
+            await testUserLogsAPI();
+            setTimeout(async () => {
+                await testUsersAPI();
+                setStatus('🎉 All API tests completed!', 'success');
+            }, 1000);
+        }
+
+        // Auto-test on page load
+        window.onload = () => {
+            setTimeout(() => {
+                testUserLogsAPI();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
