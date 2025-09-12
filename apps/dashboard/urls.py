@@ -12,6 +12,7 @@ from .app_styling_views import AppStylingAPIView, AppStylingUpdateAPIView, AllAp
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
 from .logs_views import LogsSearchView, LogsSystemView, LogsStatsView
+from .user_logs_api_views import UserLogsAPIView, UserLogContentAPIView, UserActivitySummaryAPIView, LogTypesAPIView, UserLogsStatsAPIView
 
 app_name = 'dashboard'
 
@@ -112,6 +113,14 @@ urlpatterns = [
         path('system/', LogsSystemView.as_view(), name='logs-system'),
         path('stats/', LogsStatsView.as_view(), name='logs-stats'),
     ])),
+
+    # ============= S3 USER LOGS API =============
+    # User Logs API - Retrieve user logs from S3 storage
+    path('user-logs/', UserLogsAPIView.as_view(), name='user-logs'),
+    path('user-logs/content/<path:log_key>/', UserLogContentAPIView.as_view(), name='user-log-content'),
+    path('user-logs/summary/', UserActivitySummaryAPIView.as_view(), name='user-activity-summary'),
+    path('user-logs/types/', LogTypesAPIView.as_view(), name='log-types'),
+    path('user-logs/statistics/', UserLogsStatsAPIView.as_view(), name='user-logs-stats'),
 
     # System endpoints - Credentials Management
     path('credentials/', CredentialsAPIView.as_view(), name='credentials-api'),
