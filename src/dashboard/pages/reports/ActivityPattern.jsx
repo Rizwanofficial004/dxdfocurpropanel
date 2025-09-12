@@ -43,7 +43,7 @@ const FiltersContainer = styled.div`
 
 const FiltersGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 16px;
   align-items: end;
 
@@ -560,6 +560,7 @@ const ActivityPattern = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [timeRange, setTimeRange] = useState('last_7_days');
+  const [selectedLogType, setSelectedLogType] = useState('users_logs'); // Default to users_logs
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -594,7 +595,7 @@ const ActivityPattern = () => {
   // Fetch data when filters change
   useEffect(() => {
     fetchLogsData();
-  }, [timeRange, selectedEmployee, startDate, endDate]);
+  }, [timeRange, selectedEmployee, startDate, endDate, selectedLogType]);
 
   const fetchEmployees = async () => {
     try {
@@ -714,9 +715,15 @@ const ActivityPattern = () => {
 
       const data = await userLogsAPI.getLogs(options);
       
-      setLogsData(data.logs || []);
+      // Filter logs by selected log type
+      let filteredLogs = data.logs || [];
+      if (selectedLogType && selectedLogType !== 'all') {
+        filteredLogs = filteredLogs.filter(log => log.log_type === selectedLogType);
+      }
+      
+      setLogsData(filteredLogs);
       setStatistics(data.statistics || {});
-      setSuccess(`Found ${data.total_count || 0} log files`);
+      setSuccess(`Found ${filteredLogs.length} log files${selectedLogType !== 'all' ? ` (${selectedLogType} type)` : ''}`);
       setTimeout(() => setSuccess(''), 3000);
       
     } catch (error) {
@@ -1139,6 +1146,19 @@ Something went wrong while trying to access the log file.
                   }}
                   min={startDate}
                 />
+              </FilterGroup>
+
+              <FilterGroup>
+                <FilterLabel theme={theme}>Log Type</FilterLabel>
+                <FilterSelect
+                  theme={theme}
+                  value={selectedLogType}
+                  onChange={(e) => setSelectedLogType(e.target.value)}
+                >
+                  <option value="users_logs">👥 Users Logs</option>
+                  <option value="logs">📄 System Logs</option>
+                  <option value="all">🔍 All Types</option>
+                </FilterSelect>
               </FilterGroup>
             </FiltersGrid>
 

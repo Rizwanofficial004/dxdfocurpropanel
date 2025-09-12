@@ -323,12 +323,65 @@ const LogViewModal = ({
   const handleCopyClick = async () => {
     if (logData?.content) {
       try {
-        await navigator.clipboard.writeText(logData.content);
+        // Create a human-readable summary for copying
+        const parsed = JSON.parse(logData.content);
+        let formattedText = `📊 ACTIVITY LOG REPORT\n`;
+        formattedText += `${'='.repeat(50)}\n\n`;
+        
+        if (parsed.session_info) {
+          formattedText += `👤 SESSION INFORMATION:\n`;
+          formattedText += `• User: ${parsed.session_info.email}\n`;
+          formattedText += `• Task: ${parsed.session_info.task_name}\n`;
+          formattedText += `• Task ID: ${parsed.session_info.task_id}\n`;
+          formattedText += `• Staff ID: ${parsed.session_info.staff_id}\n`;
+          formattedText += `• Completed: ${new Date(parsed.session_info.completed_at).toLocaleString()}\n`;
+          if (parsed.session_info.note) {
+            formattedText += `• Note: ${parsed.session_info.note}\n`;
+          }
+          formattedText += `\n`;
+        }
+        
+        if (parsed.program_tracking) {
+          formattedText += `⏱️ PROGRAM TRACKING SUMMARY:\n`;
+          formattedText += `• Duration: ${parsed.program_tracking.session_duration_formatted}\n`;
+          formattedText += `• Programs Tracked: ${parsed.program_tracking.programs_tracked}\n`;
+          formattedText += `• Session Start: ${new Date(parsed.program_tracking.session_start).toLocaleString()}\n`;
+          formattedText += `• Session End: ${new Date(parsed.program_tracking.session_end).toLocaleString()}\n\n`;
+          
+          if (parsed.program_tracking.programs && parsed.program_tracking.programs.length > 0) {
+            formattedText += `💻 PROGRAM DETAILS:\n`;
+            parsed.program_tracking.programs.forEach((program, index) => {
+              formattedText += `\n${index + 1}. ${program.process_name}\n`;
+              formattedText += `   • Time Used: ${program.total_time_formatted}\n`;
+              if (program.window_titles && program.window_titles.length > 0) {
+                formattedText += `   • Windows: ${program.window_titles.join(', ')}\n`;
+              }
+              if (program.browser_domains && program.browser_domains.length > 0) {
+                formattedText += `   • Websites: ${program.browser_domains.join(', ')}\n`;
+              }
+            });
+          }
+        }
+        
+        formattedText += `\n${'='.repeat(50)}\n`;
+        formattedText += `Generated: ${new Date().toLocaleString()}\n`;
+        
+        await navigator.clipboard.writeText(formattedText);
+        
         if (onCopyToClipboard) {
           onCopyToClipboard();
         }
       } catch (err) {
         console.error('Failed to copy to clipboard:', err);
+        // Fallback to raw content
+        try {
+          await navigator.clipboard.writeText(logData.content);
+          if (onCopyToClipboard) {
+            onCopyToClipboard();
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback copy also failed:', fallbackErr);
+        }
       }
     }
   };
@@ -348,17 +401,67 @@ const LogViewModal = ({
       
       return (
         <div>
+          {/* Quick Summary Banner */}
+          {parsed.session_info && parsed.program_tracking && (
+            <div style={{ 
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              padding: '20px',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>
+                📋 {parsed.session_info.task_name}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', fontSize: '14px', opacity: '0.9' }}>
+                <span>👤 {parsed.session_info.email}</span>
+                <span>⏱️ {parsed.program_tracking.session_duration_formatted}</span>
+                <span>💻 {parsed.program_tracking.programs_tracked} programs</span>
+              </div>
+            </div>
+          )}
+
           {/* Session Info Section */}
           {parsed.session_info && (
             <JsonSection>
-              <JsonSectionHeader>📋 Session Information</JsonSectionHeader>
+              <JsonSectionHeader>� Session Information</JsonSectionHeader>
               <JsonSectionContent>
-                <div><strong>Email:</strong> {parsed.session_info.email}</div>
-                <div><strong>Task:</strong> {parsed.session_info.task_name}</div>
-                <div><strong>Task ID:</strong> {parsed.session_info.task_id}</div>
-                <div><strong>Staff ID:</strong> {parsed.session_info.staff_id}</div>
-                <div><strong>Note:</strong> {parsed.session_info.note || 'N/A'}</div>
-                <div><strong>Completed:</strong> {new Date(parsed.session_info.completed_at).toLocaleString()}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>👤 USER</div>
+                    <div style={{ fontWeight: '600', color: '#2d3748' }}>{parsed.session_info.email}</div>
+                  </div>
+                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>💼 TASK</div>
+                    <div style={{ fontWeight: '600', color: '#2d3748' }}>{parsed.session_info.task_name}</div>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ background: '#fff5f5', padding: '12px', borderRadius: '6px', border: '1px solid #fed7d7' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>🔢 TASK ID</div>
+                    <div style={{ fontWeight: '600', color: '#c53030' }}>{parsed.session_info.task_id}</div>
+                  </div>
+                  <div style={{ background: '#f0fff4', padding: '12px', borderRadius: '6px', border: '1px solid #c6f6d5' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>👥 STAFF ID</div>
+                    <div style={{ fontWeight: '600', color: '#38a169' }}>{parsed.session_info.staff_id}</div>
+                  </div>
+                  <div style={{ background: '#f7fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>📅 COMPLETED</div>
+                    <div style={{ fontWeight: '600', color: '#2d3748', fontSize: '11px' }}>
+                      {new Date(parsed.session_info.completed_at).toLocaleDateString()} <br/>
+                      {new Date(parsed.session_info.completed_at).toLocaleTimeString()}
+                    </div>
+                  </div>
+                </div>
+                
+                {parsed.session_info.note && (
+                  <div style={{ background: '#fffbf0', padding: '12px', borderRadius: '6px', border: '1px solid #feeaa7' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>📝 NOTE</div>
+                    <div style={{ color: '#744210', fontStyle: 'italic' }}>{parsed.session_info.note}</div>
+                  </div>
+                )}
               </JsonSectionContent>
             </JsonSection>
           )}
@@ -366,35 +469,77 @@ const LogViewModal = ({
           {/* Program Tracking Section */}
           {parsed.program_tracking && (
             <JsonSection>
-              <JsonSectionHeader>⏱️ Program Tracking</JsonSectionHeader>
+              <JsonSectionHeader>⏱️ Program Tracking Summary</JsonSectionHeader>
               <JsonSectionContent>
-                <div><strong>Duration:</strong> {parsed.program_tracking.session_duration_formatted}</div>
-                <div><strong>Programs Tracked:</strong> {parsed.program_tracking.programs_tracked}</div>
-                <div><strong>Session Start:</strong> {new Date(parsed.program_tracking.session_start).toLocaleString()}</div>
-                <div><strong>Session End:</strong> {new Date(parsed.program_tracking.session_end).toLocaleString()}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ background: '#e6fffa', padding: '16px', borderRadius: '8px', border: '1px solid #81e6d9', textAlign: 'center' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#234e52' }}>{parsed.program_tracking.session_duration_formatted}</div>
+                    <div style={{ fontSize: '12px', color: '#4a5568', marginTop: '4px' }}>⏰ Total Duration</div>
+                  </div>
+                  <div style={{ background: '#f0f4ff', padding: '16px', borderRadius: '8px', border: '1px solid #c3dafe', textAlign: 'center' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#3c366b' }}>{parsed.program_tracking.programs_tracked}</div>
+                    <div style={{ fontSize: '12px', color: '#4a5568', marginTop: '4px' }}>💻 Programs Tracked</div>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>🚀 SESSION START</div>
+                    <div style={{ fontWeight: '600', color: '#2d3748', fontSize: '13px' }}>
+                      {new Date(parsed.program_tracking.session_start).toLocaleDateString()}<br/>
+                      {new Date(parsed.program_tracking.session_start).toLocaleTimeString()}
+                    </div>
+                  </div>
+                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>🏁 SESSION END</div>
+                    <div style={{ fontWeight: '600', color: '#2d3748', fontSize: '13px' }}>
+                      {new Date(parsed.program_tracking.session_end).toLocaleDateString()}<br/>
+                      {new Date(parsed.program_tracking.session_end).toLocaleTimeString()}
+                    </div>
+                  </div>
+                </div>
                 
                 {parsed.program_tracking.programs && parsed.program_tracking.programs.length > 0 && (
-                  <div style={{ marginTop: '12px' }}>
-                    <strong>Programs:</strong>
-                    {parsed.program_tracking.programs.map((program, index) => (
-                      <div key={index} style={{ 
-                        marginLeft: '16px', 
-                        marginTop: '8px',
-                        padding: '8px',
-                        background: '#f7fafc',
-                        borderRadius: '4px',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <div><strong>{program.process_name}</strong></div>
-                        <div>Time: {program.total_time_formatted}</div>
-                        {program.window_titles && program.window_titles.length > 0 && (
-                          <div>Windows: {program.window_titles.join(', ')}</div>
-                        )}
-                        {program.browser_domains && program.browser_domains.length > 0 && (
-                          <div>Domains: {program.browser_domains.join(', ')}</div>
-                        )}
-                      </div>
-                    ))}
+                  <div style={{ marginTop: '16px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#2d3748', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>💻</span> Program Usage Details
+                    </div>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {parsed.program_tracking.programs.map((program, index) => (
+                        <div key={index} style={{ 
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          color: 'white',
+                          padding: '16px',
+                          borderRadius: '8px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <div style={{ fontSize: '16px', fontWeight: '600' }}>{program.process_name}</div>
+                            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' }}>
+                              {program.total_time_formatted}
+                            </div>
+                          </div>
+                          
+                          {program.window_titles && program.window_titles.length > 0 && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <div style={{ fontSize: '12px', opacity: '0.8', marginBottom: '4px' }}>🪟 Windows:</div>
+                              <div style={{ fontSize: '13px', background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px' }}>
+                                {program.window_titles.join(' • ')}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {program.browser_domains && program.browser_domains.length > 0 && (
+                            <div>
+                              <div style={{ fontSize: '12px', opacity: '0.8', marginBottom: '4px' }}>🌐 Websites:</div>
+                              <div style={{ fontSize: '13px', background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px' }}>
+                                {program.browser_domains.join(' • ')}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </JsonSectionContent>
@@ -404,16 +549,37 @@ const LogViewModal = ({
           {/* Session Logs Section */}
           {parsed.session_logs !== undefined && (
             <JsonSection>
-              <JsonSectionHeader>📝 Session Logs</JsonSectionHeader>
+              <JsonSectionHeader>📝 Additional Session Data</JsonSectionHeader>
               <JsonSectionContent>
                 {parsed.session_logs.length === 0 ? (
-                  <div style={{ color: '#a0aec0', fontStyle: 'italic' }}>No session logs recorded</div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '24px', 
+                    color: '#a0aec0', 
+                    fontStyle: 'italic',
+                    background: '#f7fafc',
+                    borderRadius: '6px',
+                    border: '1px dashed #e2e8f0'
+                  }}>
+                    📄 No additional session logs recorded
+                  </div>
                 ) : (
-                  parsed.session_logs.map((log, index) => (
-                    <div key={index} style={{ marginBottom: '8px' }}>
-                      {JSON.stringify(log, null, 2)}
-                    </div>
-                  ))
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {parsed.session_logs.map((log, index) => (
+                      <div key={index} style={{ 
+                        background: '#f8fafc', 
+                        padding: '12px', 
+                        borderRadius: '6px',
+                        border: '1px solid #e2e8f0',
+                        fontFamily: 'monospace',
+                        fontSize: '12px',
+                        color: '#2d3748'
+                      }}>
+                        <div style={{ color: '#718096', marginBottom: '4px' }}>Log Entry #{index + 1}:</div>
+                        {JSON.stringify(log, null, 2)}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </JsonSectionContent>
             </JsonSection>
@@ -537,7 +703,7 @@ const LogViewModal = ({
       <ModalContent theme={theme} onClick={(e) => e.stopPropagation()}>
         <ModalHeader theme={theme}>
           <ModalTitle theme={theme}>
-            View Log: {logData?.fileName || 'Unknown File'}
+            📊 Activity Log Report: {logData?.fileName || 'Unknown File'}
           </ModalTitle>
           <CloseButton theme={theme} onClick={onClose}>
             ×
@@ -552,8 +718,9 @@ const LogViewModal = ({
             theme={theme}
             onClick={handleCopyClick}
             disabled={!logData?.content}
+            title="Copy formatted report to clipboard"
           >
-            📋 Copy to Clipboard
+            📋 Copy Report
           </ModalButton>
           <ModalButton 
             variant="primary" 
