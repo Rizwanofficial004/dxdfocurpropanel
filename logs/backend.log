@@ -8273,3 +8273,5 @@ INFO 2025-09-10 12:55:23,521 middleware 27180 27388 Request: GET /api/styling/gl
 INFO 2025-09-10 12:55:23,530 middleware 27180 27388 Response: 200 for GET /api/styling/global/
 INFO 2025-09-10 12:55:23,531 basehttp 27180 27388 "GET /api/styling/global/?id=1bef6d5b-b406-4c63-a8cb-c624042b937a&vscodeBrowserReqId=1757498123515 HTTP/1.1" 200 11193
 >>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
+INFO 2025-09-12 04:48:11,753 s3_logs_service 17552 4580 Retrieved 10 log files from S3
+INFO 2025-09-12 04:48:30,149 s3_logs_service 24504 9696 Retrieved 11 log files from S3

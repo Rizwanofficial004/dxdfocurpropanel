@@ -13,6 +13,7 @@ from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReport
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
 from .logs_views import LogsSearchView, LogsSystemView, LogsStatsView
 from .user_logs_api_views import UserLogsAPIView, UserLogContentAPIView, UserActivitySummaryAPIView, LogTypesAPIView, UserLogsStatsAPIView
+from .enhanced_logs_api_views import DateRangeLogsAPIView, LogsCalendarAPIView
 
 app_name = 'dashboard'
 
@@ -121,6 +122,11 @@ urlpatterns = [
     path('user-logs/summary/', UserActivitySummaryAPIView.as_view(), name='user-activity-summary'),
     path('user-logs/types/', LogTypesAPIView.as_view(), name='log-types'),
     path('user-logs/statistics/', UserLogsStatsAPIView.as_view(), name='user-logs-stats'),
+
+    # ============= ENHANCED DATE RANGE LOGS API =============
+    # Date Range Logs API - Advanced filtering with date ranges and comprehensive options
+    path('logs/date-range/', DateRangeLogsAPIView.as_view(), name='date-range-logs'),
+    path('logs/calendar/', LogsCalendarAPIView.as_view(), name='logs-calendar'),
 
     # System endpoints - Credentials Management
     path('credentials/', CredentialsAPIView.as_view(), name='credentials-api'),
