@@ -36,7 +36,10 @@ export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => 
       <Header title={headerTitle} breadcrumb={headerBreadcrumb} />
       <LayoutBody>
         <Sidebar />
-        <MainContent isRightSidebarExpanded={isRightSidebarExpanded}>
+        <MainContent 
+          isRightSidebarExpanded={isRightSidebarExpanded}
+          onClick={() => isRightSidebarExpanded && setIsRightSidebarExpanded(false)}
+        >
           {children}
         </MainContent>
         <RightSidebar isExpanded={isRightSidebarExpanded} setIsExpanded={setIsRightSidebarExpanded} />

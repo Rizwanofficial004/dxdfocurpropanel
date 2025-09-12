@@ -108,9 +108,9 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedMonth, setSelectedMonth] = useState(9); // September
-  const [activeDate, setActiveDate] = useState('05'); // Set default to 05 like in the image
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [activeDate, setActiveDate] = useState(new Date().getDate().toString().padStart(2, '0'));
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
@@ -126,8 +126,11 @@ const ActivityStream = () => {
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const [totalScreenshots, setTotalScreenshots] = useState(0); // Total screenshots count
   const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
+  const [allUsers, setAllUsers] = useState([]);
   const screenshotsPerPage = 50; // Screenshots per page
   const searchContainerRef = useRef(null);
+  const dateScrollRef = useRef(null);
+  const activeDateElementRef = useRef(null);
 
   const MONTHS = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -137,57 +140,36 @@ const ActivityStream = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
+      fetchAllUsers();
     }, 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle clicking outside search results
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-        setShowResults(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Search API function with enhanced parameters
-  const searchUsers = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
-      return;
+    if (activeDateElementRef.current) {
+      activeDateElementRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
     }
+  }, [activeDate]);
 
+  
+
+  const fetchAllUsers = async () => {
     setIsSearching(true);
     try {
-      // Prepare search parameters for enhanced API
-      const searchParams = new URLSearchParams({
-        q: query,
-        page: 1,
-        page_size: 50,
-        group_by: 'date',
-        month: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`,
-        year: selectedYear.toString()
-      });
-
-      // Primary API endpoint (production) first
       const endpoints = [
-        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`,
-        `http://127.0.0.1:8000/api/users/search/?${searchParams.toString()}`,
-        `http://localhost:8001/api/users/search/?${searchParams.toString()}`
+        `https://dxdtime.ddsolutions.io/api/users/`,
+        `http://127.0.0.1:8000/api/users/`,
+        `http://localhost:8001/api/users/`
       ];
 
       let response = null;
-      let lastError = null;
-
       for (const endpoint of endpoints) {
         try {
-          console.log(`🔍 Searching users via: ${endpoint}`);
+          console.log(`🔍 Fetching all users via: ${endpoint}`);
           response = await fetch(endpoint, {
             method: 'GET',
             headers: {
@@ -195,124 +177,72 @@ const ActivityStream = () => {
               'Content-Type': 'application/json'
             }
           });
-          
           if (response.ok) {
-            console.log(`✅ Search successful via: ${endpoint}`);
+            console.log(`✅ Fetch successful via: ${endpoint}`);
             setApiStatus('connected');
             break;
           }
         } catch (error) {
-          console.log(`❌ Search failed via: ${endpoint}`);
-          lastError = error;
+          console.log(`❌ Fetch failed via: ${endpoint}`);
           continue;
         }
       }
 
       if (!response || !response.ok) {
-        console.log('🔄 API unavailable, using mock search data');
+        console.log('🔄 API unavailable, using mock user data');
         setApiStatus('mock');
-        
-        // Enhanced mock data matching the API structure
         const mockUsers = [
-          {
-            id: 1,
-            email: 'haseebcodejourney@gmail.com',
-            display_name: 'haseebcodejourney',
-            original_name: 'haseebcodejourney_at_gmail.com',
-            total_screenshots: 10,
-            total_size_mb: 1.52,
-            active_days_count: 2,
-            status: 'active'
-          },
-          {
-            id: 2,
-            email: 'kiranaiz4@gmail.com',
-            display_name: 'kiranaiz4', 
-            original_name: 'kiranaiz4_at_gmail.com',
-            total_screenshots: 53,
-            total_size_mb: 7.96,
-            active_days_count: 1,
-            status: 'inactive'
-          },
-          {
-            id: 3,
-            email: 'nawaz@dxdglobal.com',
-            display_name: 'nawaz',
-            original_name: 'nawaz_at_dxdglobal.com',
-            total_screenshots: 475,
-            total_size_mb: 88.29,
-            active_days_count: 1,
-            status: 'inactive'
-          }
+          { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'haseebcodejourney' },
+          { id: 2, email: 'kiranaiz4@gmail.com', display_name: 'kiranaiz4' },
+          { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'nawaz' }
         ];
-
-        // Filter mock users based on query
-        const filteredUsers = mockUsers.filter(user => 
-          user.display_name.toLowerCase().includes(query.toLowerCase()) ||
-          user.email.toLowerCase().includes(query.toLowerCase()) ||
-          (user.original_name && user.original_name.toLowerCase().includes(query.toLowerCase()))
-        );
-
-        setSearchResults(filteredUsers);
-        setShowResults(filteredUsers.length > 0);
+        setAllUsers(mockUsers);
+        setSearchResults(mockUsers);
+        setShowResults(true);
         return;
       }
 
       const data = await response.json();
-      console.log('🔍 Enhanced Search API Response:', data);
-      
-      if (data.status === 'success' && data.data && data.data.users) {
-        setSearchResults(data.data.users);
+      if (data.status === 'success' && data.data) {
+        setAllUsers(data.data);
+        setSearchResults(data.data);
         setShowResults(true);
-        
-        console.log(`✅ Found ${data.data.users.length} users with search query: "${query}"`);
+        console.log(`✅ Found ${data.data.length} users`);
       } else {
         setSearchResults([]);
         setShowResults(false);
-        console.log('🔍 No users found in search results');
+        console.log('🔍 No users found');
       }
     } catch (error) {
-      console.error('🚨 Search Error:', error);
+      console.error('🚨 Fetch Error:', error);
       setApiStatus('mock');
-      
-      // Fallback to mock data on error
       const mockUsers = [
-        {
-          id: 1,
-          email: 'haseebcodejourney@gmail.com',
-          display_name: 'haseebcodejourney',
-          original_name: 'haseebcodejourney_at_gmail.com',
-          total_screenshots: 10,
-          total_size_mb: 1.52
-        },
-        {
-          id: 2,
-          email: 'kiranaiz4@gmail.com',
-          display_name: 'kiranaiz4', 
-          original_name: 'kiranaiz4_at_gmail.com',
-          total_screenshots: 53,
-          total_size_mb: 7.96
-        },
-        {
-          id: 3,
-          email: 'nawaz@dxdglobal.com',
-          display_name: 'nawaz',
-          original_name: 'nawaz_at_dxdglobal.com',
-          total_screenshots: 475,
-          total_size_mb: 88.29
-        }
+        { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'haseebcodejourney' },
+        { id: 2, email: 'kiranaiz4@gmail.com', display_name: 'kiranaiz4' },
+        { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'nawaz' }
       ];
-
-      const filteredUsers = mockUsers.filter(user => 
-        user.display_name.toLowerCase().includes(query.toLowerCase()) ||
-        user.email.toLowerCase().includes(query.toLowerCase())
-      );
-
-      setSearchResults(filteredUsers);
-      setShowResults(filteredUsers.length > 0);
+      setAllUsers(mockUsers);
+      setSearchResults(mockUsers);
+      setShowResults(true);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  // Search API function with enhanced parameters
+  const searchUsers = async (query) => {
+    if (!query.trim()) {
+      setSearchResults(allUsers);
+      setShowResults(true);
+      return;
+    }
+
+    const filteredUsers = allUsers.filter(user =>
+      (user.display_name && user.display_name.toLowerCase().includes(query.toLowerCase())) ||
+      (user.email && user.email.toLowerCase().includes(query.toLowerCase()))
+    );
+    setSearchResults(filteredUsers);
+    setShowResults(true);
   };
 
   // Fetch user screenshots function with enhanced date filtering and pagination
@@ -493,6 +423,8 @@ const ActivityStream = () => {
     return generateCalendarDays(selectedYear, selectedMonth, userActivityDates);
   }, [selectedYear, selectedMonth, userActivityDates]);
 
+  const currentMonthDays = calendarDays.filter(day => day.isCurrentMonth);
+
   // Get the last 4 days of the selected month (for the original view)
   const dates = useMemo(() => {
     const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
@@ -604,52 +536,63 @@ const ActivityStream = () => {
         </EmployeeTab>
         
         <ArrowButton type="button" onClick={() => {
-          const newDate = new Date(selectedYear, selectedMonth - 1, 1);
-          newDate.setMonth(newDate.getMonth() - 1);
-          setSelectedMonth(newDate.getMonth() + 1);
-          setSelectedYear(newDate.getFullYear());
+          if (dateScrollRef.current) {
+            dateScrollRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+          }
         }}>←</ArrowButton>
         
         {/* Horizontal Date Row */}
-        <div style={{
-          display: 'flex',
-          gap: '6px',
-          backgroundColor: 'white',
-          padding: '8px 12px',
-          borderRadius: '8px',
-          border: '1px solid #e1e5e9',
-          overflowX: 'auto',
-          minWidth: 'fit-content',
-          maxWidth: '100%'
-        }}
-        data-theme-aware="true"
-        className="date-row"
+        <div 
+          ref={dateScrollRef}
+          style={{
+            display: 'flex',
+            gap: '6px',
+            backgroundColor: 'white',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: '1px solid #e1e5e9',
+            overflowX: 'auto',
+            flex: 1,
+            scrollBehavior: 'smooth',
+          }}
+          data-theme-aware="true"
+          className="date-row"
         >
           <style>{`
+            .date-row::-webkit-scrollbar {
+              display: none;
+            }
+            .date-row {
+              -ms-overflow-style: none;  /* IE and Edge */
+              scrollbar-width: none;  /* Firefox */
+            }
             [data-theme="dark"] .date-row {
               background-color: #1d232c !important;
               border-color: #6b7280 !important;
             }
           `}</style>
           {/* Show all dates of current month for horizontal display */}
-          {calendarDays.filter(day => day.isCurrentMonth).map((day, index) => {
+          {currentMonthDays.map((day, index) => {
               const isSelected = activeDate === day.date.toString().padStart(2, '0');
               const isToday = day.isToday;
               
               return (
                 <div
                   key={`${day.year}-${day.month}-${day.date}`}
+                  ref={isSelected ? activeDateElementRef : null}
                   onClick={() => handleDateSelect(day)}
                   style={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '40px',
-                    height: '50px',
-                    fontSize: '11px',
+                    gap: '10px',
+                    flexShrink: 0,
+                    width: '120px', // Increased width
+                    height: '60px', // Increased height
+                    fontSize: '13px', // Increased font size
                     cursor: 'pointer',
-                    borderRadius: '4px',
+                    borderRadius: '9px', // Rounded corners
                     position: 'relative',
                     backgroundColor: isSelected
                       ? '#4285f4' 
@@ -659,7 +602,7 @@ const ActivityStream = () => {
                       : document.documentElement.getAttribute('data-theme') === 'dark' 
                         ? '#fff' 
                         : '#202124',
-                    fontWeight: isSelected ? '600' : '400',
+                    fontWeight: isSelected ? '600' : '500',
                     transition: 'all 0.2s',
                     border: isSelected 
                       ? '1px solid #4285f4' 
@@ -679,28 +622,43 @@ const ActivityStream = () => {
                     }
                   }}
                 >
+                  {/* Left side: Day */}
                   <div style={{
-                    fontSize: '12px',
-                    fontWeight: isSelected ? '600' : '500',
-                    marginBottom: '1px'
+                    fontSize: '22px',
+                    fontWeight: 'bold',
                   }}>
                     {day.date.toString().padStart(2, '0')}
                   </div>
+
+                  {/* Right side: Month and Year */}
                   <div style={{
-                    fontSize: '8px',
-                    opacity: 0.7,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.3px'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    lineHeight: '1.2'
                   }}>
-                    {getMonthName(day.month, language)}
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: 'normal',
+                      textTransform: 'uppercase',
+                    }}>
+                      {getMonthName(day.month, language)}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: 'normal',
+                      opacity: 0.8,
+                    }}>
+                      {day.year}
+                    </div>
                   </div>
                   {day.hasActivity && (
                     <div style={{
                       position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      width: '6px',
-                      height: '6px',
+                      top: '6px',
+                      right: '6px',
+                      width: '7px',
+                      height: '7px',
                       borderRadius: '50%',
                       backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : '#4caf50'
                     }} />
@@ -711,10 +669,9 @@ const ActivityStream = () => {
         </div>
         
         <ArrowButton type="button" onClick={() => {
-          const newDate = new Date(selectedYear, selectedMonth - 1, 1);
-          newDate.setMonth(newDate.getMonth() + 1);
-          setSelectedMonth(newDate.getMonth() + 1);
-          setSelectedYear(newDate.getFullYear());
+          if (dateScrollRef.current) {
+            dateScrollRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+          }
         }}>→</ArrowButton>
       </DateNav>
 
@@ -731,7 +688,7 @@ const ActivityStream = () => {
             placeholder={t('searchEmployeeName')}
             value={searchValue}
             onChange={handleSearchChange}
-            onFocus={() => searchValue && setShowResults(true)}
+            onFocus={() => setShowResults(true)}
           />
           
           {/* API Status Indicator */}
@@ -1286,7 +1243,7 @@ const ActivityStream = () => {
                             onMouseEnter={(e) => {
                               if (currentPage !== pageNumber) {
                                 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                                e.target.style.backgroundColor = isDark ? '#374151' : '#f8f9fa';
+                                e.target.style.backgroundColor = isDark ? '#374151' : '#f5f5f5';
                               }
                             }}
                             onMouseLeave={(e) => {
