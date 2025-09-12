@@ -71,7 +71,7 @@ class AWSCredential(models.Model):
     secret_key = models.CharField(max_length=255)
     
     # Additional configuration
-    region = models.CharField(max_length=50, default='us-east-1')
+    region = models.CharField(max_length=50, default='eu-north-1')
     bucket_name = models.CharField(max_length=255, blank=True)
     
     # Status flags
@@ -980,7 +980,7 @@ class SystemCredentials(models.Model):
     # AWS Credentials
     aws_access_key_id = models.CharField(max_length=500, blank=True, help_text="AWS Access Key ID")
     aws_secret_access_key = models.CharField(max_length=500, blank=True, help_text="AWS Secret Access Key")
-    aws_region = models.CharField(max_length=50, blank=True, default='us-east-1', help_text="AWS Region")
+    aws_region = models.CharField(max_length=50, blank=True, default='eu-north-1', help_text="AWS Region")
     aws_bucket_name = models.CharField(max_length=200, blank=True, help_text="S3 Bucket Name")
     
     # Database Credentials
