@@ -1,0 +1,366 @@
+{
+	"info": {
+		"_postman_id": "8a5c2f3d-9e7b-4f2a-8c1d-5e6f9a0b1c2d",
+		"name": "DDS Focus Pro - Authentication API (Updated)",
+		"description": "Complete authentication endpoints for DDS Focus Pro Panel\n\n**Current Status (Sep 12, 2025):**\n- ✅ Registration API: Working perfectly\n- ⚠️ Login API: Backend bug (HTTP 500)\n- 🔧 Backend fixes: Ready for deployment\n\n**Test Credentials:**\n- Email: testapi@example.com\n- Password: testpassword123",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication Endpoints",
+			"item": [
+				{
+					"name": "🧪 Test Database Connection",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/database-test/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"database-test",
+								""
+							]
+						},
+						"description": "Test database connection and view user statistics"
+					},
+					"response": []
+				},
+				{
+					"name": "✅ Registration (Working)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"postmantest@example.com\",\n  \"email\": \"postmantest@example.com\",\n  \"password\": \"PostmanTest123\",\n  \"password_confirm\": \"PostmanTest123\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Test\",\n  \"organization_name\": \"Test Organization\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Register new user account\n\n**Required Fields:**\n- username (same as email)\n- email\n- password\n- password_confirm ⚠️ (Required but missing from docs)\n- first_name\n- last_name\n- organization_name\n- country\n\n**Expected Response (201):**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"User registered successfully with unique email\",\n  \"user\": {...},\n  \"token\": \"auth_token_here\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "⚠️ Login (Current - Has Backend Bug)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testapi@example.com\",\n  \"password\": \"testpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "⚠️ **BACKEND BUG** - Returns HTTP 500\n\n**Current Issue:**\n- Backend expects `email_or_username` field\n- API validation requires `email` field\n- Results in: `{\"status\":\"error\",\"message\":\"Login failed: 'email_or_username'\"}`\n\n**Request Format:**\n```json\n{\n  \"email\": \"testapi@example.com\",\n  \"password\": \"testpassword123\"\n}\n```\n\n**Current Response (500):**\n```json\n{\n  \"status\": \"error\",\n  \"message\": \"Login failed: 'email_or_username'\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "🔧 Login (Fixed - For Future Use)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email_or_username\": \"testapi@example.com\",\n  \"password\": \"testpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "🔧 **FIXED VERSION** - Will work after backend deployment\n\n**Enhanced Features:**\n- Supports both email and username login\n- Better validation and error messages\n- Comprehensive password strength checks\n\n**Request Format (Flexible):**\n```json\n{\n  \"email_or_username\": \"testapi@example.com\",\n  \"password\": \"testpassword123\"\n}\n```\n\n**Expected Response (200):**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"Login successful\",\n  \"token\": \"jwt_token_here\",\n  \"drf_token\": \"drf_token_here\",\n  \"user\": {...}\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "🔧 Login with Email (Fixed - Alternative)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testapi@example.com\",\n  \"password\": \"testpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "🔧 **FIXED VERSION** - Email-only login format\n\nThis will work after backend deployment. The fixed backend automatically converts email to email_or_username format internally."
+					},
+					"response": []
+				},
+				{
+					"name": "📧 Check Email Availability",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newemail@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/check-email/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"check-email",
+								""
+							]
+						},
+						"description": "Check if email address is already registered\n\n**Expected Response:**\n```json\n{\n  \"status\": \"success\",\n  \"email\": \"newemail@example.com\",\n  \"email_available\": true,\n  \"message\": \"Email is available\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "🔐 Logout (Requires Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/logout/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout",
+								""
+							]
+						},
+						"description": "Logout user and invalidate authentication token\n\n**Note:** Requires authentication token from login/registration response"
+					},
+					"response": []
+				},
+				{
+					"name": "👤 Get User Profile (Requires Token)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								""
+							]
+						},
+						"description": "Get current user profile information\n\n**Note:** Requires authentication token"
+					},
+					"response": []
+				},
+				{
+					"name": "🔄 Change Password (Requires Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"current_password\": \"testpassword123\",\n  \"new_password\": \"NewPassword123\",\n  \"new_password_confirm\": \"NewPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/change-password/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"change-password",
+								""
+							]
+						},
+						"description": "Change user password with validation\n\n**Note:** Requires authentication token and provides new token in response"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set timestamp for unique usernames",
+					"pm.environment.set('timestamp', Date.now());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save authentication token from successful responses",
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    var jsonData = pm.response.json();",
+					"    if (jsonData.token) {",
+					"        pm.environment.set('auth_token', jsonData.token);",
+					"        console.log('Auth token saved:', jsonData.token);",
+					"    }",
+					"    if (jsonData.drf_token) {",
+					"        pm.environment.set('drf_token', jsonData.drf_token);",
+					"        console.log('DRF token saved:', jsonData.drf_token);",
+					"    }",
+					"}",
+					"",
+					"// Log response for debugging",
+					"console.log('Response Status:', pm.response.code);",
+					"console.log('Response Body:', pm.response.text());"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://dxdtime.ddsolutions.io/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "drf_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "timestamp",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
