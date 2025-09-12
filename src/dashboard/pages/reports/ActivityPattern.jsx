@@ -6,6 +6,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { userLogsAPI } from '../../../services/userLogsAPI';
 import { getBaseURL } from '../../../config/api';
+import LogViewModal from '../../components/LogViewModal';
+import { debugS3Url } from '../../../utils/s3Debug';
 
 const ActivityPatternContainer = styled.div`
   background: ${props => props.theme.colors.background};
@@ -255,7 +257,7 @@ const LogsContainer = styled.div`
 
 const LogsHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 200px 100px 150px 120px 100px;
+  grid-template-columns: 1fr 200px 100px 150px 120px 180px;
   gap: 16px;
   padding: 16px;
   background: ${props => props.theme.colors.surface};
@@ -268,7 +270,7 @@ const LogsHeader = styled.div`
   z-index: 10;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr 150px 80px 80px;
+    grid-template-columns: 1fr 150px 80px 140px;
     gap: 8px;
     font-size: 12px;
   }
@@ -276,7 +278,7 @@ const LogsHeader = styled.div`
 
 const LogItem = styled.div`
   display: grid;
-  grid-template-columns: 1fr 200px 100px 150px 120px 100px;
+  grid-template-columns: 1fr 200px 100px 150px 120px 180px;
   gap: 16px;
   padding: 12px 16px;
   border-bottom: 1px solid ${props => props.theme.colors.border};
@@ -293,7 +295,7 @@ const LogItem = styled.div`
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr 150px 80px 80px;
+    grid-template-columns: 1fr 150px 80px 140px;
     gap: 8px;
     font-size: 12px;
   }
@@ -396,6 +398,57 @@ const DownloadButton = styled.button`
   }
 `;
 
+const ViewButton = styled.button`
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 36px;
+  margin-right: 8px;
+
+  &:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 8px;
+    font-size: 14px;
+    min-width: 32px;
+    height: 32px;
+    margin-right: 4px;
+  }
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
+`;
+
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -481,6 +534,13 @@ const ActivityPattern = () => {
   const [logsData, setLogsData] = useState([]);
   const [statistics, setStatistics] = useState({});
   const [downloadingFile, setDownloadingFile] = useState(null);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    loading: false,
+    error: null,
+    logData: null,
+    currentLog: null
+  });
 
   // Time range options
   const timeRangeOptions = [
@@ -606,6 +666,19 @@ const ActivityPattern = () => {
       
       console.log('Downloading from URL:', downloadUrl);
       
+      // Debug the S3 URL to identify signature issues
+      debugS3Url(downloadUrl, log.file_name);
+      
+      // Check if the URL looks like a valid S3 presigned URL
+      if (!downloadUrl.includes('amazonaws.com') && !downloadUrl.includes('s3.')) {
+        throw new Error('Invalid S3 URL format received from server');
+      }
+      
+      // Check if URL has required AWS signature parameters
+      if (!downloadUrl.includes('AWSAccessKeyId') && !downloadUrl.includes('X-Amz-Algorithm')) {
+        console.warn('URL may be missing AWS signature parameters');
+      }
+      
       // Direct download approach - avoid CORS issues
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -613,22 +686,208 @@ const ActivityPattern = () => {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       
+      // Add error event listener to detect failed downloads
+      link.addEventListener('error', (e) => {
+        console.error('Download link error:', e);
+        setError(`Download failed. The signed URL may be invalid or expired. Please contact your administrator.`);
+        setTimeout(() => setError(''), 5000);
+      });
+      
       // Hide the link and trigger click
       link.style.display = 'none';
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
       
-      setSuccess(`Download initiated for ${log.file_name || 'file'}...`);
-      setTimeout(() => setSuccess(''), 3000);
+      // Small delay to ensure DOM manipulation is complete
+      setTimeout(() => {
+        link.click();
+        
+        // Clean up after a delay
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+          }
+        }, 1000);
+      }, 100);
+      
+      setSuccess(`Download initiated for ${log.file_name || 'file'}. If download doesn't start, the signed URL may have expired.`);
+      setTimeout(() => setSuccess(''), 5000);
       
     } catch (error) {
       console.error('Download error:', error);
-      setError(`Failed to download ${log.file_name || 'file'}: ${error.message}`);
-      setTimeout(() => setError(''), 5000);
+      setError(`Failed to download ${log.file_name || 'file'}: ${error.message}
+      
+💡 This appears to be an AWS S3 signature issue. The backend needs to:
+1. Update AWS SDK to latest version
+2. Use AWS Signature Version 4 (AWS4-HMAC-SHA256)  
+3. Regenerate presigned URLs with correct signature`);
+      setTimeout(() => setError(''), 10000);
     } finally {
       setDownloadingFile(null);
     }
+  };
+
+  const handleViewLog = async (log) => {
+    try {
+      // Open modal and set loading state
+      setModalState({
+        isOpen: true,
+        loading: true,
+        error: null,
+        logData: null,
+        currentLog: log
+      });
+      
+      setError('');
+      
+      // Use the provided download_url to fetch and view content
+      const downloadUrl = log.download_url;
+      
+      if (!downloadUrl) {
+        throw new Error('No download URL available for this file');
+      }
+      
+      console.log('Fetching log content from URL:', downloadUrl);
+      
+      // Since S3 CORS is blocking fetch requests, we'll show a message
+      // suggesting to download the file instead, but still try to fetch
+      let content = '';
+      let fetchSuccess = false;
+      
+      try {
+        // Simple fetch attempt with no special headers
+        const response = await fetch(downloadUrl);
+        
+        if (response.ok) {
+          content = await response.text();
+          fetchSuccess = true;
+          console.log('Successfully fetched log content');
+        } else {
+          console.warn('Fetch failed with status:', response.status, response.statusText);
+        }
+      } catch (fetchError) {
+        console.warn('Fetch failed due to CORS/Network:', fetchError.message);
+        
+        // Provide a more specific error message based on the error type
+        let errorMessage = 'Unable to view log content in browser due to S3 CORS restrictions.';
+        
+        if (fetchError.message.includes('CORS')) {
+          errorMessage = 'CORS policy prevents viewing this file directly in the browser.';
+        } else if (fetchError.message.includes('network')) {
+          errorMessage = 'Network error occurred while trying to fetch the log file.';
+        } else if (fetchError.message.includes('Failed to fetch')) {
+          errorMessage = 'S3 bucket CORS configuration blocks browser access to this file.';
+        }
+        
+        // Update modal with helpful error and download option
+        setModalState({
+          isOpen: true,
+          loading: false,
+          error: `${errorMessage} 
+
+📋 Log File: ${log.file_name}
+👤 User: ${log.user_email}
+📊 Size: ${formatFileSize(log.file_size_mb)}
+📅 Date: ${formatDate(log.last_modified)}
+
+💡 Solution: Use the "Download Instead" button below to save the file to your computer, then open it with any text editor or JSON viewer.`,
+          logData: null,
+          currentLog: log
+        });
+        return;
+      }
+      
+      if (!fetchSuccess) {
+        // If we get here, the response wasn't ok but didn't throw
+        setModalState({
+          isOpen: true,
+          loading: false,
+          error: `Unable to fetch log content (HTTP error). 
+
+📋 Log File: ${log.file_name}
+👤 User: ${log.user_email}  
+📊 Size: ${formatFileSize(log.file_size_mb)}
+📅 Date: ${formatDate(log.last_modified)}
+
+💡 The S3 presigned URL works for downloads but not for browser viewing. Please use "Download Instead" to access the file.`,
+          logData: null,
+          currentLog: log
+        });
+        return;
+      }
+      
+      // If we successfully fetched content, format it
+      let formattedContent;
+      try {
+        const jsonContent = JSON.parse(content);
+        formattedContent = JSON.stringify(jsonContent, null, 2);
+      } catch (parseError) {
+        formattedContent = content;
+      }
+      
+      // Update modal with content
+      setModalState({
+        isOpen: true,
+        loading: false,
+        error: null,
+        logData: {
+          fileName: log.file_name,
+          content: formattedContent,
+          isJson: true,
+          fileInfo: {
+            size: formatFileSize(log.file_size_mb),
+            user: log.user_email,
+            date: formatDate(log.last_modified),
+            type: log.log_type
+          }
+        },
+        currentLog: log
+      });
+      
+    } catch (error) {
+      console.error('View log error:', error);
+      
+      // Update modal with error state
+      setModalState({
+        isOpen: true,
+        loading: false,
+        error: `Unexpected error while trying to view the log file.
+
+📋 Error: ${error.message}
+📋 Log File: ${log.file_name}
+
+💡 Please try using the "Download Instead" button to access the file.`,
+        logData: null,
+        currentLog: log
+      });
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalState({
+      isOpen: false,
+      loading: false,
+      error: null,
+      logData: null,
+      currentLog: null
+    });
+  };
+
+  const handleRetryView = () => {
+    if (modalState.currentLog) {
+      handleViewLog(modalState.currentLog);
+    }
+  };
+
+  const handleModalDownload = () => {
+    if (modalState.currentLog) {
+      handleDownload(modalState.currentLog);
+      handleCloseModal(); // Close the modal after initiating download
+    }
+  };
+
+  const handleCopySuccess = () => {
+    setSuccess('Log content copied to clipboard!');
+    setTimeout(() => setSuccess(''), 2000);
   };
 
   const renderLogsView = () => {
@@ -671,7 +930,7 @@ const ActivityPattern = () => {
             <div>Size</div>
             <div>Date</div>
             <div>Type</div>
-            <div>Download</div>
+            <div>Actions</div>
           </LogsHeader>
           
           {logsData.length === 0 ? (
@@ -697,14 +956,24 @@ const ActivityPattern = () => {
                 <LogSize theme={theme}>{formatFileSize(log.file_size_mb)}</LogSize>
                 <LogDate theme={theme}>{formatDate(log.last_modified)}</LogDate>
                 <LogType type={log.log_type}>{log.log_type}</LogType>
-                <DownloadButton 
-                  onClick={() => handleDownload(log)}
-                  disabled={downloadingFile === log.file_name}
-                  theme={theme}
-                  title={`Download ${log.file_name}`}
-                >
-                  {downloadingFile === log.file_name ? '⏳' : '📥'}
-                </DownloadButton>
+                <ButtonsContainer>
+                  <ViewButton 
+                    onClick={() => handleViewLog(log)}
+                    disabled={modalState.loading && modalState.currentLog?.file_name === log.file_name}
+                    theme={theme}
+                    title={`View ${log.file_name}`}
+                  >
+                    {modalState.loading && modalState.currentLog?.file_name === log.file_name ? '⏳' : '👁️'}
+                  </ViewButton>
+                  <DownloadButton 
+                    onClick={() => handleDownload(log)}
+                    disabled={downloadingFile === log.file_name}
+                    theme={theme}
+                    title={`Download ${log.file_name}`}
+                  >
+                    {downloadingFile === log.file_name ? '⏳' : '📥'}
+                  </DownloadButton>
+                </ButtonsContainer>
               </LogItem>
             ))
           )}
@@ -796,6 +1065,18 @@ const ActivityPattern = () => {
           </ContentArea>
         </ContentSection>
       </ActivityPatternContainer>
+
+      {/* Log View Modal */}
+      <LogViewModal
+        isOpen={modalState.isOpen}
+        onClose={handleCloseModal}
+        logData={modalState.logData}
+        loading={modalState.loading}
+        error={modalState.error}
+        onRetry={handleRetryView}
+        onCopyToClipboard={handleCopySuccess}
+        onDownload={handleModalDownload}
+      />
     </DashboardLayout>
   );
 };
