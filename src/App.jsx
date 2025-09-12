@@ -49,6 +49,10 @@ const ImageTest = lazy(() =>
   import('./components/ImageTest').catch(() => ({ default: FallbackImageTest }))
 );
 
+const ActivityPattern = lazy(() =>
+  import('./dashboard/pages/reports/ActivityPattern').catch(() => ({ default: FallbackActivityPattern }))
+);
+
 const ThemeProvider = lazy(() =>
   import('./dashboard/context/ThemeContext').then(m => ({ default: m.ThemeProvider })).catch(() => ({ default: SimpleThemeProvider }))
 );
@@ -148,6 +152,7 @@ const FallbackAttendance = () => <LoadingSpinner />;
 const FallbackEmployees = () => <LoadingSpinner />;
 const FallbackTeams = () => <LoadingSpinner />;
 const FallbackImageTest = () => <LoadingSpinner />;
+const FallbackActivityPattern = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
 
@@ -365,6 +370,16 @@ function App() {
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackTeams />}>
                           <Teams />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/reports/activity-pattern"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackActivityPattern />}>
+                          <ActivityPattern />
                         </Suspense>
                       </ProtectedRoute>
                     }
