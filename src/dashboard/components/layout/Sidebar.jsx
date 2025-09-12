@@ -6,7 +6,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 // Styled Components
 const SidebarContainer = styled.aside`
-  width: 240px;
+  width: ${props => props.$isCollapsed ? '60px' : '240px'};
   height: 100vh;
   position: fixed;
   top: 0;
@@ -30,9 +30,9 @@ const SidebarContainer = styled.aside`
 `;
 
 const LogoSection = styled.div`
-  padding: 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid ${props => props.theme.colors.border};
-  display: flex;
+  display: ${props => props.$isCollapsed ? 'none' : 'flex'};
   align-items: center;
   gap: 8px;
   background: transparent;
@@ -55,6 +55,7 @@ const LogoText = styled.span`
   font-size: 18px;
   font-weight: bold;
   color: ${props => props.theme.colors.text.primary};
+  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
 `;
 
 const Navigation = styled.nav`
@@ -76,8 +77,9 @@ const NavLink = styled.button`
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 20px;
+  gap: ${props => props.$isCollapsed ? '0' : '12px'};
+  padding: ${props => props.$isCollapsed ? '12px 0' : '12px 20px'};
+  justify-content: ${props => props.$isCollapsed ? 'center' : 'flex-start'};
   background: ${props => props.$isActive ? 
     (props.theme.mode === 'dark' ? 'rgba(59, 130, 246, 0.15)' : '#eff6ff') : 
     'transparent'};
@@ -104,7 +106,7 @@ const NavLink = styled.button`
 
 const IconWrapper = styled.span`
   font-size: 14px;
-  width: 18px;
+  width: ${props => props.$isCollapsed ? 'auto' : '18px'};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -116,6 +118,7 @@ const ArrowIcon = styled.span`
   color: ${props => props.$isActive ? props.theme.colors.primary : props.theme.colors.text.light};
   transform: ${props => props.$isRotated ? 'rotate(90deg)' : 'rotate(0deg)'};
   transition: transform 0.3s ease, color 0.3s ease;
+  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
 `;
 
 const SubMenuContainer = styled.div`
@@ -124,6 +127,7 @@ const SubMenuContainer = styled.div`
   max-height: ${props => props.$isOpen ? '500px' : '0'};
   opacity: ${props => props.$isOpen ? '1' : '0'};
   background: ${props => props.theme.colors.background};
+  display: ${props => props.$isCollapsed ? 'none' : 'block'};
 `;
 
 const SubMenuList = styled.ul`
@@ -168,7 +172,10 @@ const SubMenuLink = styled.button`
 
 const BottomSection = styled.div`
   display: flex;
-  padding: 10px;
+  flex-direction: ${props => props.$isCollapsed ? 'column' : 'row'};
+  align-items: ${props => props.$isCollapsed ? 'stretch' : 'center'};
+  gap: ${props => props.$isCollapsed ? '4px' : '6px'};
+  padding: ${props => props.$isCollapsed ? '6px' : '8px'};
   border-top: 1px solid ${props => props.theme.colors.border};
   background: ${props => props.theme.mode === 'dark' ? '#1d232c' : 'transparent'};
   margin-top: auto;
@@ -178,32 +185,32 @@ const BottomItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 2px;
+  margin-bottom: ${props => props.$isCollapsed ? '2px' : '8px'};
   cursor: pointer;
-  padding: 12px;
+  padding: ${props => props.$isCollapsed ? '4px 4px' : '6px'};
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
     background: ${props => props.theme.colors.hover};
   }
 
   &:last-of-type {
-    margin-bottom: 8px;
+    margin-bottom: ${props => props.$isCollapsed ? '2px' : '6px'};
   }
 `;
 
 const BottomIcon = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   background: ${props => props.theme.colors.primary};
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 16px;
+  font-size: 12px;
 `;
 
 const BottomText = styled.span`
@@ -212,6 +219,7 @@ const BottomText = styled.span`
   color: ${props => props.theme.colors.text.secondary};
   text-align: center;
   line-height: 1.2;
+  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
 `;
 
 const VersionText = styled.div`
@@ -222,11 +230,12 @@ const VersionText = styled.div`
   font-weight: 400;
 `;
 
-export const Sidebar = () => {
+export const Sidebar = ({ isCollapsed = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [openDropdowns, setOpenDropdowns] = useState({});
+  // isCollapsed is provided as prop (defaults to false)
 
   const toggleDropdown = (label) => {
     setOpenDropdowns(prev => ({
@@ -278,10 +287,10 @@ export const Sidebar = () => {
   };
 
   return (
-    <SidebarContainer>
+    <SidebarContainer $isCollapsed={isCollapsed}>
       <LogoSection>
         <LogoIcon>F</LogoIcon>
-        <LogoText>FOCUS</LogoText>
+        <LogoText $isCollapsed={isCollapsed}>FOCUS</LogoText>
       </LogoSection>
 
       <Navigation>
@@ -290,7 +299,15 @@ export const Sidebar = () => {
             <NavItem key={index}>
               <NavLink
                 $isActive={location.pathname === item.path}
+                $isCollapsed={isCollapsed}
+                title={isCollapsed ? item.label : undefined}
                 onClick={() => {
+                  if (isCollapsed) {
+                    // When collapsed, always navigate on click (no dropdowns)
+                    handleNavigation(item.path);
+                    return;
+                  }
+
                   if (item.subItems) {
                     toggleDropdown(item.label);
                   } else {
@@ -298,9 +315,9 @@ export const Sidebar = () => {
                   }
                 }}
               >
-                <IconWrapper>{item.icon}</IconWrapper>
-                {item.label}
-                {item.badge && (
+                <IconWrapper $isCollapsed={isCollapsed}>{item.icon}</IconWrapper>
+                {!isCollapsed && item.label}
+                {!isCollapsed && item.badge && (
                   <span style={{
                     background: '#3b82f6',
                     color: 'white',
@@ -316,13 +333,13 @@ export const Sidebar = () => {
                   </span>
                 )}
                 {item.hasArrow && (
-                  <ArrowIcon $isActive={openDropdowns[item.label]} $isRotated={item.subItems && openDropdowns[item.label]}>▶</ArrowIcon>
+                  <ArrowIcon $isActive={openDropdowns[item.label]} $isRotated={item.subItems && openDropdowns[item.label]} $isCollapsed={isCollapsed}>▶</ArrowIcon>
                 )}
               </NavLink>
               
               {/* Dropdown Submenu */}
               {item.subItems && (
-                <SubMenuContainer $isOpen={openDropdowns[item.label]}>
+                <SubMenuContainer $isOpen={openDropdowns[item.label]} $isCollapsed={isCollapsed}>
                   {item.subItems.map((subItem, subIndex) => (
                     <SubMenuLink
                       key={subIndex}
@@ -339,20 +356,20 @@ export const Sidebar = () => {
         </NavList>
       </Navigation>
 
-      <BottomSection>
-        <BottomItem>
+      <BottomSection $isCollapsed={isCollapsed}>
+        <BottomItem style={{ width: isCollapsed ? '100%' : 'auto', padding: isCollapsed ? '8px 6px' : undefined }}>
           <BottomIcon>💬</BottomIcon>
-          <BottomText>{t('liveChat')}</BottomText>
+          <BottomText $isCollapsed={isCollapsed}>{t('liveChat')}</BottomText>
         </BottomItem>
         
-        <BottomItem onClick={() => window.open('https://wa.me/905488612323', '_blank')}>
+        <BottomItem onClick={() => window.open('https://wa.me/905488612323', '_blank') } style={{ width: isCollapsed ? '100%' : 'auto', padding: isCollapsed ? '8px 6px' : undefined }}>
           <BottomIcon>📞</BottomIcon>
-          <BottomText>{t('scheduleCall')}</BottomText>
+          <BottomText $isCollapsed={isCollapsed}>{t('scheduleCall')}</BottomText>
         </BottomItem>
         
-        <BottomItem onClick={() => window.open('https://drive.google.com/drive/folders/1MVYaOcSkV97iNxzMFJm8dtLeJ2R03NcJ?usp=drive_link', '_blank')}>
+        <BottomItem onClick={() => window.open('https://drive.google.com/drive/folders/1MVYaOcSkV97iNxzMFJm8dtLeJ2R03NcJ?usp=drive_link', '_blank') } style={{ width: isCollapsed ? '100%' : 'auto', padding: isCollapsed ? '8px 6px' : undefined }}>
           <BottomIcon>📱</BottomIcon>
-          <BottomText>{t('downloadClientApp')}</BottomText>
+          <BottomText $isCollapsed={isCollapsed}>{t('downloadClientApp')}</BottomText>
         </BottomItem>
         
         {/* <VersionText>V 4.0.2</VersionText> */}

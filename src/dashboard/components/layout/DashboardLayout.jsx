@@ -23,21 +23,25 @@ const MainContent = styled.main`
   background: transparent;
   min-height: calc(100vh - 80px);
   position: relative;
-  margin-left: 240px;
+  margin-left: ${props => props.isSidebarCollapsed ? '60px' : '240px'};
   margin-right: ${props => props.isRightSidebarExpanded ? '280px' : '60px'};
   transition: margin-left 0.3s ease, margin-right 0.3s ease;
 `;
 
 export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => {
   const [isRightSidebarExpanded, setIsRightSidebarExpanded] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const toggleSidebar = () => setIsSidebarCollapsed(prev => !prev);
 
   return (
     <LayoutContainer>
-      <Header title={headerTitle} breadcrumb={headerBreadcrumb} />
+      <Header title={headerTitle} breadcrumb={headerBreadcrumb} isSidebarCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
       <LayoutBody>
-        <Sidebar />
+        <Sidebar isCollapsed={isSidebarCollapsed} />
         <MainContent 
           isRightSidebarExpanded={isRightSidebarExpanded}
+          isSidebarCollapsed={isSidebarCollapsed}
           onClick={() => isRightSidebarExpanded && setIsRightSidebarExpanded(false)}
         >
           {children}
