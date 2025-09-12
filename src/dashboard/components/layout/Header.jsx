@@ -12,8 +12,9 @@ const HeaderContainer = styled.header`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 50;
-  margin-left: 240px;
+  z-index: 101;
+  margin-left: ${props => props.$isCollapsed ? '60px' : '240px'};
+  transition: margin-left 0.25s ease;
 `;
 
 const HeaderContent = styled(FlexContainer)`
@@ -91,6 +92,7 @@ const LogoText = styled.span`
   font-size: 20px;
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary || '#111827'};
+  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
 `;
 
 const Greeting = styled.div`
@@ -589,6 +591,7 @@ const MoonIcon = () => (
 
 export const Header = ({ 
   greeting
+  , isSidebarCollapsed, toggleSidebar
 }) => {
   // Get user info from sessionStorage/localStorage with better handling
   let user = null;
@@ -790,10 +793,10 @@ export const Header = ({
   };
 
   return (
-    <HeaderContainer>
+    <HeaderContainer $isCollapsed={isSidebarCollapsed}>
       <HeaderContent>
         <LeftSection>
-          <MenuButton>
+          <MenuButton onClick={toggleSidebar} title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
             <HamburgerIcon />
           </MenuButton>
           

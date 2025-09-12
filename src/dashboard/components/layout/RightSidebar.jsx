@@ -56,7 +56,7 @@ const pulseAnimation = keyframes`
 // --- Styled Components ---
 const SidebarContainer = styled.aside`
   width: ${props => props.isExpanded ? '280px' : '60px'};
-  height: calc(100vh - 80px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
   border-left: 1px solid ${props => props.theme.colors.border};
@@ -64,10 +64,12 @@ const SidebarContainer = styled.aside`
   transition: width 0.3s ease;
   flex-shrink: 0;
   position: fixed;
-  top: 80px;
+  top: 0;
   right: 0;
   z-index: 100;
   box-shadow: -2px 0 8px rgba(0,0,0,0.05);
+  padding-top: 80px;
+  box-sizing: border-box;
 `;
 
 const NavList = styled.ul`

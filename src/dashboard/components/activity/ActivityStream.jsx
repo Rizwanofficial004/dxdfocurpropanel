@@ -108,9 +108,12 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedMonth, setSelectedMonth] = useState(9); // September
-  const [activeDate, setActiveDate] = useState('05'); // Set default to 05 like in the image
+  const [showHelp, setShowHelp] = useState(false);
+  const helpRef = useRef(null);
+  const today = new Date();
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1); // getMonth() is 0-indexed
+  const [activeDate, setActiveDate] = useState(today.getDate().toString().padStart(2, '0'));
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
@@ -126,8 +129,10 @@ const ActivityStream = () => {
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const [totalScreenshots, setTotalScreenshots] = useState(0); // Total screenshots count
   const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
+  const [allUsers, setAllUsers] = useState([]);
   const screenshotsPerPage = 50; // Screenshots per page
   const searchContainerRef = useRef(null);
+  const dateScrollRef = useRef(null);
 
   const MONTHS = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -137,57 +142,37 @@ const ActivityStream = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
+      fetchAllUsers();
     }, 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle clicking outside search results
+  // Close help popover when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-        setShowResults(false);
+    const onDocClick = (e) => {
+      if (showHelp && helpRef.current && !helpRef.current.contains(e.target)) {
+        setShowHelp(false);
       }
     };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [showHelp]);
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  
 
-  // Search API function with enhanced parameters
-  const searchUsers = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
-      return;
-    }
-
+  const fetchAllUsers = async () => {
     setIsSearching(true);
     try {
-      // Prepare search parameters for enhanced API
-      const searchParams = new URLSearchParams({
-        q: query,
-        page: 1,
-        page_size: 50,
-        group_by: 'date',
-        month: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`,
-        year: selectedYear.toString()
-      });
-
-      // Primary API endpoint (production) first
       const endpoints = [
-        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`,
-        `http://127.0.0.1:8000/api/users/search/?${searchParams.toString()}`,
-        `http://localhost:8001/api/users/search/?${searchParams.toString()}`
+        `https://dxdtime.ddsolutions.io/api/users/`,
+        `http://127.0.0.1:8000/api/users/`,
+        `http://localhost:8001/api/users/`
       ];
 
       let response = null;
-      let lastError = null;
-
       for (const endpoint of endpoints) {
         try {
-          console.log(`🔍 Searching users via: ${endpoint}`);
+          console.log(`🔍 Fetching all users via: ${endpoint}`);
           response = await fetch(endpoint, {
             method: 'GET',
             headers: {
@@ -195,124 +180,72 @@ const ActivityStream = () => {
               'Content-Type': 'application/json'
             }
           });
-          
           if (response.ok) {
-            console.log(`✅ Search successful via: ${endpoint}`);
+            console.log(`✅ Fetch successful via: ${endpoint}`);
             setApiStatus('connected');
             break;
           }
         } catch (error) {
-          console.log(`❌ Search failed via: ${endpoint}`);
-          lastError = error;
+          console.log(`❌ Fetch failed via: ${endpoint}`);
           continue;
         }
       }
 
       if (!response || !response.ok) {
-        console.log('🔄 API unavailable, using mock search data');
+        console.log('🔄 API unavailable, using mock user data');
         setApiStatus('mock');
-        
-        // Enhanced mock data matching the API structure
         const mockUsers = [
-          {
-            id: 1,
-            email: 'haseebcodejourney@gmail.com',
-            display_name: 'haseebcodejourney',
-            original_name: 'haseebcodejourney_at_gmail.com',
-            total_screenshots: 10,
-            total_size_mb: 1.52,
-            active_days_count: 2,
-            status: 'active'
-          },
-          {
-            id: 2,
-            email: 'kiranaiz4@gmail.com',
-            display_name: 'kiranaiz4', 
-            original_name: 'kiranaiz4_at_gmail.com',
-            total_screenshots: 53,
-            total_size_mb: 7.96,
-            active_days_count: 1,
-            status: 'inactive'
-          },
-          {
-            id: 3,
-            email: 'nawaz@dxdglobal.com',
-            display_name: 'nawaz',
-            original_name: 'nawaz_at_dxdglobal.com',
-            total_screenshots: 475,
-            total_size_mb: 88.29,
-            active_days_count: 1,
-            status: 'inactive'
-          }
+          { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'haseebcodejourney' },
+          { id: 2, email: 'kiranaiz4@gmail.com', display_name: 'kiranaiz4' },
+          { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'nawaz' }
         ];
-
-        // Filter mock users based on query
-        const filteredUsers = mockUsers.filter(user => 
-          user.display_name.toLowerCase().includes(query.toLowerCase()) ||
-          user.email.toLowerCase().includes(query.toLowerCase()) ||
-          (user.original_name && user.original_name.toLowerCase().includes(query.toLowerCase()))
-        );
-
-        setSearchResults(filteredUsers);
-        setShowResults(filteredUsers.length > 0);
+        setAllUsers(mockUsers);
+        setSearchResults(mockUsers);
+        setShowResults(true);
         return;
       }
 
       const data = await response.json();
-      console.log('🔍 Enhanced Search API Response:', data);
-      
-      if (data.status === 'success' && data.data && data.data.users) {
-        setSearchResults(data.data.users);
+      if (data.status === 'success' && data.data) {
+        setAllUsers(data.data);
+        setSearchResults(data.data);
         setShowResults(true);
-        
-        console.log(`✅ Found ${data.data.users.length} users with search query: "${query}"`);
+        console.log(`✅ Found ${data.data.length} users`);
       } else {
         setSearchResults([]);
         setShowResults(false);
-        console.log('🔍 No users found in search results');
+        console.log('🔍 No users found');
       }
     } catch (error) {
-      console.error('🚨 Search Error:', error);
+      console.error('🚨 Fetch Error:', error);
       setApiStatus('mock');
-      
-      // Fallback to mock data on error
       const mockUsers = [
-        {
-          id: 1,
-          email: 'haseebcodejourney@gmail.com',
-          display_name: 'haseebcodejourney',
-          original_name: 'haseebcodejourney_at_gmail.com',
-          total_screenshots: 10,
-          total_size_mb: 1.52
-        },
-        {
-          id: 2,
-          email: 'kiranaiz4@gmail.com',
-          display_name: 'kiranaiz4', 
-          original_name: 'kiranaiz4_at_gmail.com',
-          total_screenshots: 53,
-          total_size_mb: 7.96
-        },
-        {
-          id: 3,
-          email: 'nawaz@dxdglobal.com',
-          display_name: 'nawaz',
-          original_name: 'nawaz_at_dxdglobal.com',
-          total_screenshots: 475,
-          total_size_mb: 88.29
-        }
+        { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'haseebcodejourney' },
+        { id: 2, email: 'kiranaiz4@gmail.com', display_name: 'kiranaiz4' },
+        { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'nawaz' }
       ];
-
-      const filteredUsers = mockUsers.filter(user => 
-        user.display_name.toLowerCase().includes(query.toLowerCase()) ||
-        user.email.toLowerCase().includes(query.toLowerCase())
-      );
-
-      setSearchResults(filteredUsers);
-      setShowResults(filteredUsers.length > 0);
+      setAllUsers(mockUsers);
+      setSearchResults(mockUsers);
+      setShowResults(true);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  // Search API function with enhanced parameters
+  const searchUsers = async (query) => {
+    if (!query.trim()) {
+      setSearchResults(allUsers);
+      setShowResults(true);
+      return;
+    }
+
+    const filteredUsers = allUsers.filter(user =>
+      (user.display_name && user.display_name.toLowerCase().includes(query.toLowerCase())) ||
+      (user.email && user.email.toLowerCase().includes(query.toLowerCase()))
+    );
+    setSearchResults(filteredUsers);
+    setShowResults(true);
   };
 
   // Fetch user screenshots function with enhanced date filtering and pagination
@@ -493,6 +426,8 @@ const ActivityStream = () => {
     return generateCalendarDays(selectedYear, selectedMonth, userActivityDates);
   }, [selectedYear, selectedMonth, userActivityDates]);
 
+  const currentMonthDays = calendarDays.filter(day => day.isCurrentMonth);
+
   // Get the last 4 days of the selected month (for the original view)
   const dates = useMemo(() => {
     const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
@@ -582,7 +517,21 @@ const ActivityStream = () => {
       <Container>
       <Title>
         {t('realTimeActivityStream')}
-        <span style={{ color: '#9ca3af', fontSize: '15px', marginTop: '1px' }}>ⓘ</span>
+        <span className="help-icon" ref={helpRef} style={{ marginLeft: 8 }}>
+          <button
+            className="help-button"
+            onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
+            aria-expanded={showHelp}
+            aria-label="Activity Stream Help"
+          >
+            ?
+          </button>
+          {showHelp && (
+            <div className="help-popover" role="dialog" aria-label="Activity Stream Help">
+              <p>{t('activityStreamHelpShort')}</p>
+            </div>
+          )}
+        </span>
       </Title>
 
       <SelectContainer>
@@ -604,35 +553,43 @@ const ActivityStream = () => {
         </EmployeeTab>
         
         <ArrowButton type="button" onClick={() => {
-          const newDate = new Date(selectedYear, selectedMonth - 1, 1);
-          newDate.setMonth(newDate.getMonth() - 1);
-          setSelectedMonth(newDate.getMonth() + 1);
-          setSelectedYear(newDate.getFullYear());
+          if (dateScrollRef.current) {
+            dateScrollRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+          }
         }}>←</ArrowButton>
         
         {/* Horizontal Date Row */}
-        <div style={{
-          display: 'flex',
-          gap: '6px',
-          backgroundColor: 'white',
-          padding: '8px 12px',
-          borderRadius: '8px',
-          border: '1px solid #e1e5e9',
-          overflowX: 'auto',
-          minWidth: 'fit-content',
-          maxWidth: '100%'
-        }}
-        data-theme-aware="true"
-        className="date-row"
+        <div 
+          ref={dateScrollRef}
+          style={{
+            display: 'flex',
+            gap: '6px',
+            backgroundColor: 'white',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: '1px solid #e1e5e9',
+            overflowX: 'auto',
+            flex: 1,
+            scrollBehavior: 'smooth',
+          }}
+          data-theme-aware="true"
+          className="date-row"
         >
           <style>{`
+            .date-row::-webkit-scrollbar {
+              display: none;
+            }
+            .date-row {
+              -ms-overflow-style: none;  /* IE and Edge */
+              scrollbar-width: none;  /* Firefox */
+            }
             [data-theme="dark"] .date-row {
               background-color: #1d232c !important;
               border-color: #6b7280 !important;
             }
           `}</style>
           {/* Show all dates of current month for horizontal display */}
-          {calendarDays.filter(day => day.isCurrentMonth).map((day, index) => {
+          {currentMonthDays.map((day, index) => {
               const isSelected = activeDate === day.date.toString().padStart(2, '0');
               const isToday = day.isToday;
               
@@ -642,35 +599,27 @@ const ActivityStream = () => {
                   onClick={() => handleDateSelect(day)}
                   style={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '40px',
-                    height: '50px',
-                    fontSize: '11px',
+                    gap: '10px',
+                    flexShrink: 0,
+                    width: '120px', 
+                    height: '60px', 
+                    fontSize: '13px', 
                     cursor: 'pointer',
-                    borderRadius: '4px',
+                    borderRadius: '9px', // Rounded corners
                     position: 'relative',
-                    backgroundColor: isSelected
-                      ? '#4285f4' 
-                      : 'transparent',
-                    color: isSelected
-                      ? 'white'
-                      : document.documentElement.getAttribute('data-theme') === 'dark' 
-                        ? '#fff' 
-                        : '#202124',
-                    fontWeight: isSelected ? '600' : '400',
+                    backgroundColor: isSelected ? 'var(--primary-color)' : 'transparent',
+                    color: isSelected ? '#fff' : 'var(--text-primary)',
+                    fontWeight: isSelected ? '600' : '500',
                     transition: 'all 0.2s',
-                    border: isSelected 
-                      ? '1px solid #4285f4' 
-                      : document.documentElement.getAttribute('data-theme') === 'dark' 
-                        ? '1px solid #6b7280' 
-                        : '1px solid #e1e5e9'
+                    border: isSelected ? `1px solid var(--primary-color)` : `1px solid var(--border-color)`
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                      e.target.style.backgroundColor = isDark ? '#374151' : '#f5f5f5';
+                      // Use CSS variable for hover color so it respects theme
+                      e.target.style.backgroundColor = 'var(--hover-color)';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -679,30 +628,45 @@ const ActivityStream = () => {
                     }
                   }}
                 >
+                  {/* Left side: Day */}
                   <div style={{
-                    fontSize: '12px',
-                    fontWeight: isSelected ? '600' : '500',
-                    marginBottom: '1px'
+                    fontSize: '22px',
+                    fontWeight: 'bold',
                   }}>
                     {day.date.toString().padStart(2, '0')}
                   </div>
+
+                  {/* Right side: Month and Year */}
                   <div style={{
-                    fontSize: '8px',
-                    opacity: 0.7,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.3px'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    lineHeight: '1.2'
                   }}>
-                    {getMonthName(day.month, language)}
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: 'normal',
+                      textTransform: 'uppercase',
+                    }}>
+                      {getMonthName(day.month, language)}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: 'normal',
+                      opacity: 0.8,
+                    }}>
+                      {day.year}
+                    </div>
                   </div>
-                  {day.hasActivity && (
+                    {day.hasActivity && (
                     <div style={{
                       position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      width: '6px',
-                      height: '6px',
+                      top: '6px',
+                      right: '6px',
+                      width: '7px',
+                      height: '7px',
                       borderRadius: '50%',
-                      backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : '#4caf50'
+                      backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : 'var(--success-color)'
                     }} />
                   )}
                 </div>
@@ -711,10 +675,9 @@ const ActivityStream = () => {
         </div>
         
         <ArrowButton type="button" onClick={() => {
-          const newDate = new Date(selectedYear, selectedMonth - 1, 1);
-          newDate.setMonth(newDate.getMonth() + 1);
-          setSelectedMonth(newDate.getMonth() + 1);
-          setSelectedYear(newDate.getFullYear());
+          if (dateScrollRef.current) {
+            dateScrollRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+          }
         }}>→</ArrowButton>
       </DateNav>
 
@@ -731,7 +694,7 @@ const ActivityStream = () => {
             placeholder={t('searchEmployeeName')}
             value={searchValue}
             onChange={handleSearchChange}
-            onFocus={() => searchValue && setShowResults(true)}
+            onFocus={() => setShowResults(true)}
           />
           
           {/* API Status Indicator */}
@@ -780,24 +743,18 @@ const ActivityStream = () => {
                   style={{
                     padding: '12px 16px',
                     cursor: 'pointer',
-                    borderBottom: index < searchResults.length - 1 
-                      ? document.documentElement.getAttribute('data-theme') === 'dark' 
-                        ? '1px solid #6b7280' 
-                        : '1px solid #f1f3f4' 
-                      : 'none',
+                    borderBottom: index < searchResults.length - 1 ? `1px solid var(--border-color)` : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
                     transition: 'background-color 0.2s',
-                    backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'transparent'
+                    backgroundColor: 'transparent'
                   }}
                   onMouseEnter={(e) => {
-                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    e.target.style.backgroundColor = isDark ? '#374151' : '#fff';
+                    e.currentTarget.style.backgroundColor = 'var(--hover-color)';
                   }}
                   onMouseLeave={(e) => {
-                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    e.target.style.backgroundColor = isDark ? '#1d232c' : 'transparent';
+                    e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   <div style={{
@@ -818,7 +775,7 @@ const ActivityStream = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ 
                       fontWeight: '500', 
-                      color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgb(255, 255, 255)' : '#000',
+                      color: 'var(--text-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -828,7 +785,7 @@ const ActivityStream = () => {
                     {user.email && user.display_name && (
                       <div style={{ 
                         fontSize: '12px', 
-                        color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgb(255, 255, 255)' : '#5f6368',
+                        color: 'var(--text-secondary)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
@@ -874,27 +831,27 @@ const ActivityStream = () => {
             overflowY: 'auto',
             maxHeight: '600px'
           }}>
-            <div style={{
+                <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               marginBottom: '20px',
               paddingBottom: '10px',
-              borderBottom: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9'
+                  borderBottom: `1px solid var(--border-color)`
             }}>
               <div>
                 <h3 style={{ 
                   margin: 0, 
                   fontSize: '18px', 
                   fontWeight: '600',
-                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'
+                      color: 'var(--text-primary)'
                 }}>
                   {selectedUser.display_name || selectedUser.email}
                 </h3>
                 <p style={{ 
                   margin: '4px 0 0 0', 
                   fontSize: '14px', 
-                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
+                      color: 'var(--text-secondary)'
                 }}>
                   Activity Stream - {getFullMonthName(selectedMonth, language)} {selectedYear}
                   {activeDate && ` (Day ${activeDate})`}
@@ -903,7 +860,7 @@ const ActivityStream = () => {
                   <p style={{ 
                     margin: '4px 0 0 0', 
                     fontSize: '12px', 
-                    color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#1a73e8',
+                        color: 'var(--primary-color)',
                     fontWeight: '500'
                   }}>
                     {totalScreenshots} total screenshots • Page {currentPage} of {totalPages} • Showing {((currentPage - 1) * screenshotsPerPage) + 1}-{Math.min(currentPage * screenshotsPerPage, totalScreenshots)}
@@ -924,7 +881,7 @@ const ActivityStream = () => {
                   border: 'none',
                   fontSize: '20px',
                   cursor: 'pointer',
-                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
+                  color: 'var(--text-secondary)',
                   padding: '4px'
                 }}
               >
@@ -933,14 +890,14 @@ const ActivityStream = () => {
             </div>
 
             {/* Screenshots Loading */}
-            {isLoadingScreenshots && (
+                {isLoadingScreenshots && (
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
+                    color: 'var(--text-secondary)'
               }}>
                 <div style={{
                   width: '40px',
@@ -956,14 +913,14 @@ const ActivityStream = () => {
             )}
 
             {/* Screenshot Error */}
-            {screenshotError && !isLoadingScreenshots && (
+                {screenshotError && !isLoadingScreenshots && (
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                color: '#d93025'
+                    color: 'var(--error-color)'
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
                 <p>{screenshotError}</p>
@@ -1009,13 +966,11 @@ const ActivityStream = () => {
                       className="screenshot-card"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-4px)';
-                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.15)';
+                        e.currentTarget.style.boxShadow = '0 8px 24px var(--shadow-color)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        e.currentTarget.style.boxShadow = isDark ? '0 2px 8px rgba(0, 0, 0, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-color)';
                       }}
                       onClick={() => {
                         // Open screenshot in new tab
@@ -1164,7 +1119,7 @@ const ActivityStream = () => {
                         <div style={{
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
+                          color: 'var(--text-primary)',
                           marginBottom: '8px',
                           display: 'flex',
                           alignItems: 'center',
@@ -1186,7 +1141,7 @@ const ActivityStream = () => {
                         
                         <div style={{
                           fontSize: '11px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
+                          color: 'var(--text-secondary)',
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
@@ -1210,7 +1165,7 @@ const ActivityStream = () => {
                         {screenshot.filename && (
                           <div style={{
                             fontSize: '10px',
-                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#9ca3af',
+                            color: 'var(--text-secondary)',
                             fontFamily: 'monospace',
                             wordBreak: 'break-all',
                             lineHeight: '1.3'
@@ -1231,7 +1186,7 @@ const ActivityStream = () => {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '20px 0',
-                    borderTop: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                      borderTop: `1px solid var(--border-color)`,
                     marginTop: '20px'
                   }}>
                     {/* Previous Button */}
@@ -1240,9 +1195,9 @@ const ActivityStream = () => {
                       disabled={currentPage === 1}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === 1 ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
-                        color: currentPage === 1 ? '#9ca3af' : 'white',
-                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                          color: currentPage === 1 ? 'var(--text-tertiary)' : 'white',
+                          border: `1px solid var(--border-color)`,
                         borderRadius: '6px',
                         cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                         fontSize: '14px',
@@ -1274,9 +1229,9 @@ const ActivityStream = () => {
                             style={{
                               width: '36px',
                               height: '36px',
-                              backgroundColor: currentPage === pageNumber ? '#4285f4' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'white'),
-                              color: currentPage === pageNumber ? 'white' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'),
-                              border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                              backgroundColor: currentPage === pageNumber ? 'var(--primary-color)' : 'var(--bg-secondary)',
+                              color: currentPage === pageNumber ? 'white' : 'var(--text-primary)',
+                              border: `1px solid var(--border-color)`,
                               borderRadius: '6px',
                               cursor: 'pointer',
                               fontSize: '14px',
@@ -1285,14 +1240,12 @@ const ActivityStream = () => {
                             }}
                             onMouseEnter={(e) => {
                               if (currentPage !== pageNumber) {
-                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                                e.target.style.backgroundColor = isDark ? '#374151' : '#f8f9fa';
+                                e.currentTarget.style.backgroundColor = 'var(--hover-color)';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (currentPage !== pageNumber) { 
-                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                                e.target.style.backgroundColor = isDark ? '#1d232c' : 'white';
+                                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
                               }
                             }}
                           >
@@ -1308,9 +1261,9 @@ const ActivityStream = () => {
                       disabled={currentPage === totalPages}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === totalPages ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
-                        color: currentPage === totalPages ? '#9ca3af' : 'white',
-                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                        backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                        color: currentPage === totalPages ? 'var(--text-tertiary)' : 'white',
+                        border: `1px solid var(--border-color)`,
                         borderRadius: '6px',
                         cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                         fontSize: '14px',
