@@ -108,9 +108,9 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [activeDate, setActiveDate] = useState(new Date().getDate().toString().padStart(2, '0'));
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [selectedMonth, setSelectedMonth] = useState(9); // September
+  const [activeDate, setActiveDate] = useState('05'); // Set default to 05 like in the image
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
@@ -130,7 +130,6 @@ const ActivityStream = () => {
   const screenshotsPerPage = 50; // Screenshots per page
   const searchContainerRef = useRef(null);
   const dateScrollRef = useRef(null);
-  const activeDateElementRef = useRef(null);
 
   const MONTHS = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -144,16 +143,6 @@ const ActivityStream = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    if (activeDateElementRef.current) {
-      activeDateElementRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center'
-      });
-    }
-  }, [activeDate]);
 
   
 
@@ -579,7 +568,6 @@ const ActivityStream = () => {
               return (
                 <div
                   key={`${day.year}-${day.month}-${day.date}`}
-                  ref={isSelected ? activeDateElementRef : null}
                   onClick={() => handleDateSelect(day)}
                   style={{
                     display: 'flex',
@@ -588,9 +576,9 @@ const ActivityStream = () => {
                     justifyContent: 'center',
                     gap: '10px',
                     flexShrink: 0,
-                    width: '120px', // Increased width
-                    height: '60px', // Increased height
-                    fontSize: '13px', // Increased font size
+                    width: '120px', 
+                    height: '60px', 
+                    fontSize: '13px', 
                     cursor: 'pointer',
                     borderRadius: '9px', // Rounded corners
                     position: 'relative',
