@@ -5,15 +5,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Lazy load components
-const ActivityStream_Aug = lazy(() =>
-  import('./dashboard/pages/ActivityStream_Aug')
-    .catch(() => ({ default: () => <h2>Loading...</h2> }))
-);
-
-const NotFound = lazy(() => import('./components/NotFound').catch(() => ({ default: FallbackNotFound })));
-
-const FallbackNotFound = () => <h1 style={{textAlign: 'center', marginTop: '20%'}}>Loading 404 Page...</h1>;
-
 const Dashboard = lazy(() =>
   import('./dashboard/pages/Dashboard').catch(() => ({ default: FallbackDashboard }))
 );
@@ -401,11 +392,7 @@ function App() {
                       </Suspense>
                     }
                   />
-                  <Route path="*" element={
-                  <Suspense fallback={<FallbackNotFound />}>
-                    <NotFound />
-                  </Suspense>
-                } />
+                  <Route path="*" element={<Navigate to="/admin-panel" replace />} />
                 </Routes>
               </Router>
             </AppContainer>
