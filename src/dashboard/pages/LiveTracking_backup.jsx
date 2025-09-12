@@ -45,57 +45,21 @@ const LiveTracking = () => {
       setApiData(response.data);
       
       if (response.data && response.data.data && response.data.data.s3_users_sample) {
-        // Create one screenshot entry per user using their latest screenshot
+        // Flatten all screenshots from all users into a single array
         const screenshots = [];
-        console.log('🔍 Raw API data:', response.data.data.s3_users_sample);
-        
         response.data.data.s3_users_sample.forEach(user => {
-          // Get the direct_url from the screenshots array
-          let screenshotUrl = null;
-          let fallbackUrl = null;
-          let latestScreenshot = null;
-          
-          // Find the most recent screenshot with direct_url
-          if (user.screenshots && Array.isArray(user.screenshots) && user.screenshots.length > 0) {
-            // Sort screenshots by last_modified (newest first)
-            const sortedScreenshots = user.screenshots.sort((a, b) => 
-              new Date(b.last_modified) - new Date(a.last_modified)
-            );
-            
-            latestScreenshot = sortedScreenshots[0];
-            screenshotUrl = latestScreenshot.direct_url;
-            fallbackUrl = latestScreenshot.file_url;
+          if (user.screenshots && Array.isArray(user.screenshots)) {
+            user.screenshots.forEach(screenshot => {
+              screenshots.push({
+                ...screenshot,
+                user_email: user.user_email,
+                screenshot_url: screenshot.file_url || screenshot.direct_url,
+                timestamp: new Date(screenshot.last_modified).toISOString(),
+                activity_type: 'ACTIVE',
+                size_mb: screenshot.file_size_mb
+              });
+            });
           }
-          
-          // Fallback to user-level URLs if no screenshots found
-          if (!screenshotUrl) {
-            screenshotUrl = user.direct_file_url || user.latest_file_url;
-            fallbackUrl = user.latest_file_url || user.direct_file_url;
-          }
-          
-          console.log('📸 Processing user:', user.user_email);
-          console.log('📋 Screenshot direct_url:', latestScreenshot?.direct_url);
-          console.log('📋 Using URL:', screenshotUrl);
-          
-          // Test if the URL looks correct
-          if (screenshotUrl && screenshotUrl.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-            console.log('✅ URL format looks correct for:', user.user_email);
-          } else {
-            console.warn('⚠️ Unexpected URL format for:', user.user_email, screenshotUrl);
-          }
-          
-          screenshots.push({
-            user_email: user.user_email,
-            screenshot_url: screenshotUrl,
-            fallback_url: fallbackUrl,
-            filename: latestScreenshot?.filename || user.latest_file,
-            timestamp: new Date(latestScreenshot?.last_modified || user.latest_date).toISOString(),
-            activity_type: 'ACTIVE',
-            size_mb: latestScreenshot?.file_size_mb || user.total_size_mb,
-            file_count: user.file_count,
-            days_active: user.days_active,
-            latest_date: user.latest_date
-          });
         });
         
         // Sort screenshots by timestamp (newest first)
@@ -172,6 +136,88 @@ const LiveTracking = () => {
   const formatUserEmail = (email) => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
+    if (sizeInMB >= 1024) {
+      return `${(sizeInMB / 1024).toFixed(2)} GB`;
+    }
+    return `${sizeInMB.toFixed(2)} MB`;
+  };
+
+  // Format user email for display
+  const formatUserEmail = (email) => {
+    return email?.replace('_at_', '@') || 'Unknown User';
+  };
+
+  // Get image URL - try direct S3 access first, fallback to local proxy
+  const getImageUrl = (originalUrl) => {
+    if (!originalUrl) return null;
+    
+    console.log('🔍 Processing image URL:', originalUrl);
+    
+    // For S3 URLs, try direct access first
+    if (originalUrl.includes('ddsfocustime.s3') && originalUrl.includes('amazonaws.com')) {
+      console.log('✅ Using direct S3 URL:', originalUrl);
+      // Return the original S3 URL directly - many S3 buckets allow public read access
+      return originalUrl;
+    }
+    
+    // For non-S3 URLs, use as-is
+    console.log('✅ Using original URL:', originalUrl);
+    return originalUrl;
+  };
+
+  // Handle image loading with CORS fallback and local proxy
+  const handleImageError = (e, originalUrl, userEmail, userIndex) => {
+    console.warn(`Failed to load screenshot for ${userEmail}:`, originalUrl);
+    
+    // Try loading with crossOrigin set to anonymous
+    if (e.target.crossOrigin !== 'anonymous') {
+      console.log('Retrying with CORS anonymous...');
+      e.target.crossOrigin = 'anonymous';
+      e.target.src = originalUrl;
+      return;
+    }
+    
+    // If CORS failed, try without crossOrigin
+    if (e.target.crossOrigin === 'anonymous') {
+      console.log('Retrying without CORS...');
+      e.target.crossOrigin = '';
+      e.target.src = originalUrl;
+      return;
+    }
+    
+    // If direct access failed, try local proxy
+    if (!e.target.src.includes('127.0.0.1:8001')) {
+      console.log('Trying local proxy...');
+      const proxyUrl = `http://127.0.0.1:8001/api/proxy/s3-image?url=${encodeURIComponent(originalUrl)}`;
+      e.target.crossOrigin = '';
+      e.target.src = proxyUrl;
+      return;
+    }
+    
+    // All attempts failed, add to error set
+    console.error('All image loading attempts failed for:', originalUrl);
+    setImageErrors(prev => new Set(prev).add(userIndex));
+  };
+
+  // Handle successful image load
+  const handleImageLoad = (e, userIndex) => {
+    // Image loaded successfully, remove from error set and ensure error state is hidden
+    setImageErrors(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(userIndex);
+      return newSet;
+    });
+    
+    if (e.target.nextSibling) {
+      e.target.nextSibling.style.display = 'none';
+    }
+  };
+
+  // Retry loading image with fresh URL
+  const retryImageLoad = async (userIndex) => {
+    console.log(`Retrying image load for user ${userIndex}`);
+    await fetchLiveTrackingData(true);
+  };
 
   return (
     <DashboardLayout>
@@ -204,7 +250,7 @@ const LiveTracking = () => {
               <div className="search-container">
                 <input
                   type="text"
-                  placeholder="Search user or filename..."
+                  placeholder="Search user..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="user-search-input"
@@ -302,7 +348,7 @@ const LiveTracking = () => {
                     </div>
                   </div>
                 </div>
-                <p className="no-data-text">No users data available</p>
+                <p className="no-data-text">No screenshots data available</p>
               </div>
             )}
 
@@ -311,7 +357,7 @@ const LiveTracking = () => {
               <>
                 {/* Screenshots Header */}
                 <div className="screenshots-header">
-                  <h3>Live Users ({totalScreenshots} users)</h3>
+                  <h3>Live Screenshots ({totalScreenshots} total)</h3>
                   <div className="pagination-info">
                     Showing {startIndex + 1}-{Math.min(endIndex, totalScreenshots)} of {totalScreenshots}
                   </div>
@@ -389,8 +435,8 @@ const LiveTracking = () => {
                               opacity: 0
                             }}
                             onLoad={(e) => {
-                              console.log('✅ Image loaded successfully for:', screenshot.user_email);
-                              console.log('📋 URL:', e.target.src);
+                              console.log('✅ Image loaded successfully:', e.target.src);
+                              e.target.style.display = 'block';
                               e.target.style.opacity = '1';
                               // Hide the placeholder when image loads
                               const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
@@ -399,24 +445,16 @@ const LiveTracking = () => {
                               }
                             }}
                             onError={(e) => {
-                              console.error('❌ Image failed to load for:', screenshot.user_email);
-                              console.error('📋 Failed URL:', e.target.src);
+                              console.error('❌ Image failed to load:', e.target.src);
+                              console.log('📋 Original URL:', screenshot.screenshot_url);
                               
-                              // Try the fallback URL if available and different
-                              if (screenshot.fallback_url && e.target.src !== screenshot.fallback_url) {
-                                console.log('🔄 Trying fallback URL for:', screenshot.user_email);
-                                console.log('📋 Fallback URL:', screenshot.fallback_url);
-                                e.target.src = screenshot.fallback_url;
-                                return;
-                              }
-                              
-                              // Show error placeholder if all attempts fail
-                              console.log('❌ All image loading attempts failed for:', screenshot.user_email);
+                              // Show placeholder if loading fails
+                              console.log('❌ Loading failed, showing placeholder');
                               e.target.style.display = 'none';
                               const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
                               if (placeholder && placeholder.querySelector('span')) {
                                 placeholder.style.display = 'flex';
-                                placeholder.querySelector('span').textContent = 'Image unavailable';
+                                placeholder.querySelector('span').textContent = 'Failed to load';
                               }
                             }}
                             onMouseEnter={(e) => {
@@ -428,7 +466,7 @@ const LiveTracking = () => {
                           />
                         ) : null}
                         <div style={{
-                          display: screenshot.screenshot_url ? 'flex' : 'flex',
+                          display: screenshot.screenshot_url ? 'none' : 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -442,15 +480,8 @@ const LiveTracking = () => {
                           backgroundColor: '#f8f9fa',
                           zIndex: 1
                         }}>
-                          <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-                            {screenshot.screenshot_url ? '📸' : '❌'}
-                          </div>
-                          <span>{screenshot.screenshot_url ? 'Loading...' : 'No Image'}</span>
-                          {screenshot.screenshot_url && (
-                            <div style={{ fontSize: '10px', marginTop: '4px', textAlign: 'center', padding: '0 8px' }}>
-                              {screenshot.user_email?.split('_at_')[0]}
-                            </div>
-                          )}
+                          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
+                          <span>Loading...</span>
                         </div>
                         
                         {/* Overlay with timestamp */}
@@ -466,14 +497,14 @@ const LiveTracking = () => {
                           fontSize: '11px',
                           fontWeight: '500'
                         }}>
-                          Latest: {new Date(screenshot.latest_date).toLocaleDateString()}
+                          {new Date(screenshot.timestamp).toLocaleTimeString()}
                         </div>
                       </div>
 
                       {/* Screenshot Info */}
                       <div style={{ padding: '16px' }}>
                         <div style={{
-                          fontSize: '14px',
+                          fontSize: '13px',
                           fontWeight: '600',
                           color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
                           marginBottom: '8px',
@@ -487,20 +518,17 @@ const LiveTracking = () => {
                             borderRadius: '50%',
                             backgroundColor: screenshot.activity_type === 'ACTIVE' ? '#4caf50' : '#ff9800'
                           }}></span>
-                          👤 {formatUserEmail(screenshot.user_email)}
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '12px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368',
-                          marginBottom: '8px'
-                        }}>
-                          📁 {screenshot.file_count} files • 📅 {screenshot.days_active} days active
+                          {new Date(screenshot.timestamp).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </div>
                         
                         <div style={{
                           fontSize: '11px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368',
+                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
@@ -514,17 +542,25 @@ const LiveTracking = () => {
                             fontSize: '10px',
                             fontWeight: '500'
                           }}>
-                            Latest: {new Date(screenshot.latest_date).toLocaleDateString()}
+                            {screenshot.activity_type || 'ACTIVE'}
                           </span>
                           <span style={{ fontWeight: '500' }}>
-                            {formatFileSize(screenshot.size_mb || 0)} total
+                            {formatFileSize(screenshot.size_mb || 0)}
                           </span>
+                        </div>
+                        
+                        <div style={{
+                          fontSize: '11px',
+                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
+                          marginBottom: '8px'
+                        }}>
+                          👤 {formatUserEmail(screenshot.user_email)}
                         </div>
                         
                         {screenshot.filename && (
                           <div style={{
                             fontSize: '10px',
-                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#9ca3af',
+                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#9ca3af',
                             fontFamily: 'monospace',
                             wordBreak: 'break-all',
                             lineHeight: '1.3'
@@ -644,7 +680,7 @@ const LiveTracking = () => {
           <div className="pagination-footer">
             <div className="pagination-left">
               <div className="screens-per-page">
-                <span>Users per page:</span>
+                <span>Screens per page:</span>
                 <select 
                   className="screens-selector" 
                   value={itemsPerPage} 
