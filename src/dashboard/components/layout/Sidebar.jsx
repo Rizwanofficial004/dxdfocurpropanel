@@ -237,7 +237,7 @@ export const Sidebar = () => {
 
   const navigationItems = [
     { icon: "📊", label: t('dashboard').toUpperCase(), path: "/dashboard", isActive: true },
-    { icon: "�", label: "LIVE TRACKING", path: "/dashboard/live-tracking" },
+    { icon: "🛰️", label: t('liveTracking').toUpperCase(), path: "/dashboard/live-tracking" },
     { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
     { 
       icon: "📈", 
@@ -245,30 +245,30 @@ export const Sidebar = () => {
       path: "/dashboard/reports", 
       hasArrow: true,
       subItems: [
-        { label: "EMPLOYEE REPORTS", path: "/dashboard/reports/employee" },
-        { label: "ACTIVITY PATTERN", path: "/dashboard/reports/activity-pattern" },
-        { label: "ADVANCED REPORT", path: "/dashboard/reports/advanced" },
-        { label: "TIME LOG SUMMARY", path: "/dashboard/reports/time-log" },
-        { label: "DORMANT EMPLOYEES", path: "/dashboard/reports/dormant" },
-        { label: "HIGH IDLE HOURS", path: "/dashboard/reports/idle" },
-        { label: "CLIENT APP ACTIVITY", path: "/dashboard/reports/client-activity" },
-        { label: "OT REPORT", path: "/dashboard/reports/overtime" },
+        { label: t('employeeReports').toUpperCase(), path: "/dashboard/reports/employee" },
+        { label: t('activityPattern').toUpperCase(), path: "/dashboard/reports/activity-pattern" },
+        { label: t('advancedReport').toUpperCase(), path: "/dashboard/reports/advanced" },
+        { label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
+        { label: t('dormantEmployees').toUpperCase(), path: "/dashboard/reports/dormant" },
+        { label: t('highIdleHours').toUpperCase(), path: "/dashboard/reports/idle" },
+        { label: t('clientAppActivity').toUpperCase(), path: "/dashboard/reports/client-activity" },
+        { label: t('otReport').toUpperCase(), path: "/dashboard/reports/overtime" },
       ]
     },
     { icon: "🌐", label: t('site').toUpperCase(), path: "/dashboard/site", hasArrow: true },
-    { icon: "�", label: "TASK MANAGEMENT", path: "/dashboard/task-management", hasArrow: true },
+    { icon: "📋", label: t('taskManagement').toUpperCase(), path: "/dashboard/task-management", hasArrow: true },
     { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
     { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employees" },
     { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
-    { icon: "💼", label: "JOBS", path: "/dashboard/jobs", hasArrow: true, badge: "BETA" },
+    { icon: "💼", label: t('jobs').toUpperCase(), path: "/dashboard/jobs", hasArrow: true, badge: "BETA" },
     { 
       icon: "⚙️", 
       label: t('settings').toUpperCase(), 
       path: "/dashboard/settings", 
       hasArrow: true,
       subItems: [
-        { label: "STYLE SETTINGS", path: "/dashboard/settings/style" },
-        { label: "CREDENTIALS SETTINGS", path: "/dashboard/settings/credentials" },
+        { label: t('styleSettings').toUpperCase(), path: "/dashboard/settings/style" },
+        { label: t('credentialsSettings').toUpperCase(), path: "/dashboard/settings/credentials" },
       ]
     },
   ];
@@ -352,7 +352,7 @@ export const Sidebar = () => {
         
         <BottomItem onClick={() => window.open('https://drive.google.com/drive/folders/1MVYaOcSkV97iNxzMFJm8dtLeJ2R03NcJ?usp=drive_link', '_blank')}>
           <BottomIcon>📱</BottomIcon>
-          <BottomText>Download Client App</BottomText>
+          <BottomText>{t('downloadClientApp')}</BottomText>
         </BottomItem>
         
         {/* <VersionText>V 4.0.2</VersionText> */}

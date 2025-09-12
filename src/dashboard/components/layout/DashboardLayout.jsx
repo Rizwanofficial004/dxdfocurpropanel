@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { RightSidebar } from './RightSidebar';
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -23,18 +24,22 @@ const MainContent = styled.main`
   min-height: calc(100vh - 80px);
   position: relative;
   margin-left: 240px;
-  transition: margin-left 0.3s ease;
+  margin-right: ${props => props.isRightSidebarExpanded ? '280px' : '60px'};
+  transition: margin-left 0.3s ease, margin-right 0.3s ease;
 `;
 
 export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => {
+  const [isRightSidebarExpanded, setIsRightSidebarExpanded] = useState(false);
+
   return (
     <LayoutContainer>
       <Header title={headerTitle} breadcrumb={headerBreadcrumb} />
       <LayoutBody>
         <Sidebar />
-        <MainContent>
+        <MainContent isRightSidebarExpanded={isRightSidebarExpanded}>
           {children}
         </MainContent>
+        <RightSidebar isExpanded={isRightSidebarExpanded} setIsExpanded={setIsRightSidebarExpanded} />
       </LayoutBody>
     </LayoutContainer>
   );

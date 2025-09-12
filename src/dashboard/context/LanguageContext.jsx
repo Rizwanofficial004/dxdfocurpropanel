@@ -13,9 +13,27 @@ const translations = {
     attendance: 'Attendance',
     employees: 'Employees',
     teams: 'Teams',
+    jobs: 'Jobs',
     settings: 'Settings',
     search: 'Search',
     hello: 'Hello',
+    liveChat: 'Live Chat',
+    scheduleCall: 'Schedule Call',
+    downloadClientApp: 'Download Client App',
+
+    // Reports Submenu
+    employeeReports: 'Employee Reports',
+    activityPattern: 'Activity Pattern',
+    advancedReport: 'Advanced Report',
+    timeLogSummary: 'Time Log Summary',
+    dormantEmployees: 'Dormant Employees',
+    highIdleHours: 'High Idle Hours',
+    clientAppActivity: 'Client App Activity',
+    otReport: 'OT Report',
+
+    // Settings Submenu
+    styleSettings: 'Style Settings',
+    credentialsSettings: 'Credentials Settings',
     
     // Login
     welcome: 'Welcome Back',
@@ -214,6 +232,7 @@ const translations = {
     minutesPerMeeting: 'Minutes/Meeting',
     s3Employees: 'S3 Employees',
     lastUpdated: 'Last Updated',
+    thirtyDaysAvg: '30 D AVG',
     
     // StyleSettings
     stylingSettings: 'Styling Settings',
@@ -244,7 +263,15 @@ const translations = {
     stylingConfigLoaded: 'Styling configuration loaded successfully!',
     stylingConfigSaved: 'Styling configuration saved successfully!',
     failedToLoadStyling: 'Failed to load styling configuration',
-    failedToSaveStyling: 'Failed to save styling configuration'
+    failedToSaveStyling: 'Failed to save styling configuration',
+
+    // Right Sidebar
+    howItWorks: 'How it Works',
+    claimLicense: 'Claim 2 more free licenses',
+    employeesInfo: 'Here is some information about employees.',
+    liveTrackingInfo: 'Here is some information about live tracking.',
+    quickViewInfo: 'Here is some information about quick view.',
+    claimLicenseInfo: 'Information about claiming licenses.',
   },
   
   tr: {
@@ -259,9 +286,27 @@ const translations = {
     attendance: 'Devam',
     employees: 'Çalışanlar',
     teams: 'Takımlar',
+    jobs: 'İşler',
     settings: 'Ayarlar',
     search: 'Ara',
     hello: 'Merhaba',
+    liveChat: 'Canlı Sohbet',
+    scheduleCall: 'Görüşme Planla',
+    downloadClientApp: 'İstemci Uygulamasını İndir',
+
+    // Reports Submenu
+    employeeReports: 'Çalışan Raporları',
+    activityPattern: 'Aktivite Modeli',
+    advancedReport: 'Gelişmiş Rapor',
+    timeLogSummary: 'Zaman Kaydı Özeti',
+    dormantEmployees: 'Pasif Çalışanlar',
+    highIdleHours: 'Yüksek Boşta Kalma Süreleri',
+    clientAppActivity: 'İstemci Uygulama Aktivitesi',
+    otReport: 'Fazla Mesai Raporu',
+
+    // Settings Submenu
+    styleSettings: 'Stil Ayarları',
+    credentialsSettings: 'Kimlik Bilgileri Ayarları',
     
     // Login
     welcome: 'Tekrar Hoş Geldiniz',
@@ -460,6 +505,7 @@ const translations = {
     minutesPerMeeting: 'Dakika/Toplantı',
     s3Employees: 'S3 Çalışanları',
     lastUpdated: 'Son Güncelleme',
+    thirtyDaysAvg: '30 GÜNLÜK ORT',
     
     // StyleSettings
     stylingSettings: 'Stil Ayarları',
@@ -490,7 +536,15 @@ const translations = {
     stylingConfigLoaded: 'Stil yapılandırması başarıyla yüklendi!',
     stylingConfigSaved: 'Stil yapılandırması başarıyla kaydedildi!',
     failedToLoadStyling: 'Stil yapılandırması yüklenemedi',
-    failedToSaveStyling: 'Stil yapılandırması kaydedilemedi'
+    failedToSaveStyling: 'Stil yapılandırması kaydedilemedi',
+
+    // Right Sidebar
+    howItWorks: 'Nasıl Çalışır?',
+    claimLicense: '2 ücretsiz lisans daha talep edin',
+    employeesInfo: 'Çalışanlar hakkında bazı bilgiler burada.',
+    liveTrackingInfo: 'Canlı izleme hakkında bazı bilgiler burada.',
+    quickViewInfo: 'Hızlı görünüm hakkında bazı bilgiler burada.',
+    claimLicenseInfo: 'Lisans talep etme hakkında bilgi.',
   }
 };
 
