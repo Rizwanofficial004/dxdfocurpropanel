@@ -192,7 +192,7 @@ const Login = () => {
       
       // Set appropriate error message
       setErrors({
-        general: error.message || 'Login failed. Please check your credentials.'
+        general: 'Login failed. Please check your credentials.'
       });
     } finally {
       setIsLoading(false);
