@@ -108,6 +108,8 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
+  const [showHelp, setShowHelp] = useState(false);
+  const helpRef = useRef(null);
   const today = new Date();
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1); // getMonth() is 0-indexed
@@ -144,6 +146,17 @@ const ActivityStream = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // Close help popover when clicking outside
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (showHelp && helpRef.current && !helpRef.current.contains(e.target)) {
+        setShowHelp(false);
+      }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [showHelp]);
 
   
 
@@ -504,7 +517,21 @@ const ActivityStream = () => {
       <Container>
       <Title>
         {t('realTimeActivityStream')}
-        <span style={{ color: '#9ca3af', fontSize: '15px', marginTop: '1px' }}>ⓘ</span>
+        <span className="help-icon" ref={helpRef} style={{ marginLeft: 8 }}>
+          <button
+            className="help-button"
+            onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
+            aria-expanded={showHelp}
+            aria-label="Activity Stream Help"
+          >
+            ?
+          </button>
+          {showHelp && (
+            <div className="help-popover" role="dialog" aria-label="Activity Stream Help">
+              <p>{t('activityStreamHelpShort')}</p>
+            </div>
+          )}
+        </span>
       </Title>
 
       <SelectContainer>

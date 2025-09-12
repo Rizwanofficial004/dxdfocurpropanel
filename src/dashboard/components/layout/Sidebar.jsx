@@ -269,7 +269,6 @@ export const Sidebar = ({ isCollapsed = false }) => {
     { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
     { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employees" },
     { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
-    { icon: "💼", label: t('jobs').toUpperCase(), path: "/dashboard/jobs", hasArrow: true, badge: "BETA" },
     { 
       icon: "⚙️", 
       label: t('settings').toUpperCase(), 
