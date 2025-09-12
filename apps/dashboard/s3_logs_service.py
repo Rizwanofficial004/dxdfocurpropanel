@@ -10,6 +10,7 @@ import json
 import csv
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError, NoCredentialsError
+from botocore.config import Config
 from core.credentials import get_aws_client_config
 
 logger = logging.getLogger(__name__)
@@ -20,19 +21,29 @@ class S3UserLogsService:
     def __init__(self, bucket_name=None):
         self.bucket_name = bucket_name or os.getenv("AWS_STORAGE_BUCKET_NAME", "ddsfocustime")
         
-        # Initialize S3 client with credentials
+        # Initialize S3 client with Signature Version 4
         aws_config = get_aws_client_config()
-        self.s3_client = boto3.client('s3', **aws_config)
+        
+        # Force Signature Version 4 for S3
+        config = Config(
+            signature_version='s3v4',
+            s3={
+                'addressing_style': 'virtual'
+            }
+        )
+        
+        self.s3_client = boto3.client('s3', config=config, **aws_config)
         
     def _generate_signed_url(self, key, expires_in=3600):
-        """Generate a pre-signed URL for private S3 objects"""
+        """Generate a pre-signed URL for private S3 objects using AWS Signature Version 4"""
         try:
             signed_url = self.s3_client.generate_presigned_url(
                 "get_object",
                 Params={"Bucket": self.bucket_name, "Key": key},
-                ExpiresIn=expires_in
+                ExpiresIn=expires_in,
+                HttpMethod='GET'
             )
-            logger.debug(f"Generated signed URL for log file: {key}")
+            logger.debug(f"Generated signed URL (v4) for log file: {key}")
             return signed_url
         except Exception as e:
             logger.error(f"Error generating signed URL for {key}: {str(e)}")
