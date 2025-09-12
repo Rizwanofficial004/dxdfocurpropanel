@@ -247,7 +247,8 @@ export const Sidebar = ({ isCollapsed = false }) => {
   const navigationItems = [
     { icon: "📊", label: t('dashboard').toUpperCase(), path: "/dashboard", isActive: true },
     { icon: "🛰️", label: t('liveTracking').toUpperCase(), path: "/dashboard/live-tracking" },
-    { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
+    { icon: "�", label: "OLD SCREENSHOTS", path: "/dashboard/old-screenshots" },
+    { icon: "�👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
     { 
       icon: "📈", 
       label: t('reports').toUpperCase(), 

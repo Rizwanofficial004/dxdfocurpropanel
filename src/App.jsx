@@ -13,6 +13,10 @@ const LiveTracking = lazy(() =>
   import('./dashboard/pages/LiveTracking').catch(() => ({ default: FallbackLiveTracking }))
 );
 
+const OldScreenshots = lazy(() =>
+  import('./dashboard/pages/OldScreenshots').catch(() => ({ default: FallbackOldScreenshots }))
+);
+
 const QuickView = lazy(() =>
   import('./dashboard/pages/QuickView').catch(() => ({ default: FallbackQuickView }))
 );
@@ -143,6 +147,7 @@ const LoadingSpinner = () => (
 // Fallback components with loaders instead of error messages
 const FallbackDashboard = () => <LoadingSpinner />;
 const FallbackLiveTracking = () => <LoadingSpinner />;
+const FallbackOldScreenshots = () => <LoadingSpinner />;
 const FallbackQuickView = () => <LoadingSpinner />;
 const FallbackLogin = () => <LoadingSpinner />;
 const FallbackRegister = () => <LoadingSpinner />;
@@ -260,6 +265,16 @@ function App() {
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackLiveTracking />}>
                           <LiveTracking />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/old-screenshots"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackOldScreenshots />}>
+                          <OldScreenshots />
                         </Suspense>
                       </ProtectedRoute>
                     }
