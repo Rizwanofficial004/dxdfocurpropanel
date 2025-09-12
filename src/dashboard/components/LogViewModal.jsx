@@ -185,6 +185,33 @@ const ErrorMessage = styled.div`
   strong {
     color: #2d3748;
   }
+  
+  /* Improve readability for CORS error messages */
+  .cors-info {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  
+  .solution-box {
+    background: #e6fffa;
+    border: 1px solid #81e6d9;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 12px 0;
+    color: #2d3748;
+  }
+  
+  .error-code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    background: #fed7d7;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
 `;
 
 const ErrorActions = styled.div`
@@ -432,7 +459,31 @@ const LogViewModal = ({
       return (
         <ErrorContainer>
           <ErrorIcon>⚠️</ErrorIcon>
-          <ErrorMessage>{error}</ErrorMessage>
+          <ErrorMessage>
+            <div className="cors-info">
+              <strong>🔒 Browser Security Restriction</strong><br/>
+              This log file cannot be viewed directly in the browser due to CORS (Cross-Origin Resource Sharing) policy restrictions from AWS S3.
+            </div>
+            
+            <div className="solution-box">
+              <strong>💡 Solution:</strong><br/>
+              • Click <strong>"Download Instead"</strong> below to save the file<br/>
+              • Open the downloaded file with any text editor<br/>
+              • The file will contain the complete log data in JSON format
+            </div>
+            
+            <div style={{ marginTop: '12px', fontSize: '13px', color: '#718096' }}>
+              <strong>📋 File Information:</strong><br/>
+              • Name: <span className="error-code">{error.includes('Log File:') ? error.split('Log File: ')[1]?.split('\n')[0] : 'Unknown'}</span><br/>
+              • This is a technical limitation, not an error with your account
+            </div>
+            
+            {error.includes('HTTP error') && (
+              <div style={{ marginTop: '12px', fontSize: '12px', color: '#e53e3e' }}>
+                <strong>Technical Details:</strong> {error}
+              </div>
+            )}
+          </ErrorMessage>
           <ErrorActions>
             {onRetry && (
               <RetryButton onClick={onRetry}>

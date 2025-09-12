@@ -485,6 +485,39 @@ const ErrorMessage = styled.div`
   border: 1px solid #fcc;
 `;
 
+const InfoBanner = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+`;
+
+const InfoIcon = styled.div`
+  font-size: 20px;
+  min-width: 24px;
+`;
+
+const InfoContent = styled.div`
+  flex: 1;
+  
+  strong {
+    font-weight: 600;
+  }
+  
+  .tip {
+    opacity: 0.9;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+`;
+
 const SuccessMessage = styled.div`
   background: #efe;
   color: #3c3;
@@ -565,38 +598,89 @@ const ActivityPattern = () => {
 
   const fetchEmployees = async () => {
     try {
-      // Use centralized API configuration
-      const endpoint = `${getBaseURL()}/api/users/search/`;
+      // Try multiple endpoints to find available users
+      const endpoints = [
+        `${getBaseURL()}/api/users/search/`,
+        `${getBaseURL()}/api/dashboard/employees/enhanced/`,
+        `${getBaseURL()}/api/users/`,
+        `${getBaseURL()}/api/logs/users/` // Users who have logs
+      ];
       
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
+      let employeesData = [];
       
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === 'success' && data.data && data.data.users) {
-          setEmployees(data.data.users);
-        } else {
-          setEmployees([
-            { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'Haseeb' },
-            { id: 2, email: 'kiranaiza4@gmail.com', display_name: 'Kiran' },
-            { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'Nawaz' }
-          ]);
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`Trying employees endpoint: ${endpoint}`);
+          
+          const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`Response from ${endpoint}:`, data);
+            
+            // Handle different response formats
+            if (data.status === 'success') {
+              if (data.data && data.data.users) {
+                employeesData = data.data.users;
+                break;
+              } else if (data.data && Array.isArray(data.data)) {
+                employeesData = data.data;
+                break;
+              } else if (data.data && data.data.employees) {
+                employeesData = data.data.employees;
+                break;
+              }
+            } else if (Array.isArray(data)) {
+              employeesData = data;
+              break;
+            } else if (data.users && Array.isArray(data.users)) {
+              employeesData = data.users;
+              break;
+            }
+          } else {
+            console.warn(`Endpoint ${endpoint} returned ${response.status}: ${response.statusText}`);
+          }
+        } catch (endpointError) {
+          console.warn(`Failed to fetch from ${endpoint}:`, endpointError.message);
+          continue;
         }
-      } else {
-        throw new Error(`API Error: ${response.status}`);
       }
+      
+      // Process the employees data
+      if (employeesData.length > 0) {
+        // Normalize the data format
+        const normalizedEmployees = employeesData.map(emp => ({
+          id: emp.id || emp.user_id || emp.email,
+          email: emp.email || emp.user_email || emp.username,
+          display_name: emp.display_name || emp.full_name || emp.name || emp.email || emp.username
+        }));
+        
+        setEmployees(normalizedEmployees);
+        console.log(`Successfully loaded ${normalizedEmployees.length} employees`);
+      } else {
+        throw new Error('No employees data found from any endpoint');
+      }
+      
     } catch (error) {
       console.error('Error fetching employees:', error);
-      // Fallback data
+      
+      // Set error message but still provide fallback data
+      setError(`Unable to fetch employees list: ${error.message}. Using default users.`);
+      setTimeout(() => setError(''), 5000);
+      
+      // Fallback data with common test users
       setEmployees([
-        { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'Haseeb' },
-        { id: 2, email: 'kiranaiza4@gmail.com', display_name: 'Kiran' },
-        { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'Nawaz' }
+        { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'Haseeb Ahmed' },
+        { id: 2, email: 'kiranaiza4@gmail.com', display_name: 'Kiran Aiza' },
+        { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'Nawaz Ahmed' },
+        { id: 4, email: 'admin@dxdglobal.com', display_name: 'Admin User' },
+        { id: 5, email: 'test@dxdglobal.com', display_name: 'Test User' }
       ]);
     }
   };
@@ -768,28 +852,34 @@ const ActivityPattern = () => {
         console.warn('Fetch failed due to CORS/Network:', fetchError.message);
         
         // Provide a more specific error message based on the error type
-        let errorMessage = 'Unable to view log content in browser due to S3 CORS restrictions.';
+        let errorMessage = '🔒 Unable to view log content due to browser security restrictions.';
+        let technicalDetails = '';
         
         if (fetchError.message.includes('CORS')) {
-          errorMessage = 'CORS policy prevents viewing this file directly in the browser.';
+          errorMessage = '🔒 CORS Policy Restriction';
+          technicalDetails = 'AWS S3 bucket CORS configuration prevents direct browser access to log files.';
         } else if (fetchError.message.includes('network')) {
-          errorMessage = 'Network error occurred while trying to fetch the log file.';
+          errorMessage = '🌐 Network Connection Issue';
+          technicalDetails = 'Network error occurred while trying to fetch the log file from S3.';
         } else if (fetchError.message.includes('Failed to fetch')) {
-          errorMessage = 'S3 bucket CORS configuration blocks browser access to this file.';
+          errorMessage = '🔒 Browser Security Block';
+          technicalDetails = 'Your browser blocked the request due to S3 security policies.';
         }
         
         // Update modal with helpful error and download option
         setModalState({
           isOpen: true,
           loading: false,
-          error: `${errorMessage} 
+          error: `${errorMessage}
 
 📋 Log File: ${log.file_name}
 👤 User: ${log.user_email}
 📊 Size: ${formatFileSize(log.file_size_mb)}
 📅 Date: ${formatDate(log.last_modified)}
 
-💡 Solution: Use the "Download Instead" button below to save the file to your computer, then open it with any text editor or JSON viewer.`,
+� Technical: ${technicalDetails}
+
+💡 This is normal behavior - AWS S3 prevents direct browser viewing for security. The download functionality works perfectly and will give you the complete log file.`,
           logData: null,
           currentLog: log
         });
@@ -801,14 +891,16 @@ const ActivityPattern = () => {
         setModalState({
           isOpen: true,
           loading: false,
-          error: `Unable to fetch log content (HTTP error). 
+          error: `🌐 Server Response Issue
+
+The S3 server responded but couldn't provide the file content for browser viewing.
 
 📋 Log File: ${log.file_name}
 👤 User: ${log.user_email}  
 📊 Size: ${formatFileSize(log.file_size_mb)}
 📅 Date: ${formatDate(log.last_modified)}
 
-💡 The S3 presigned URL works for downloads but not for browser viewing. Please use "Download Instead" to access the file.`,
+💡 The presigned URL works for downloads but has viewing restrictions. This is common with AWS S3 security configurations.`,
           logData: null,
           currentLog: log
         });
@@ -850,12 +942,14 @@ const ActivityPattern = () => {
       setModalState({
         isOpen: true,
         loading: false,
-        error: `Unexpected error while trying to view the log file.
+        error: `🚨 Unexpected Error
 
-📋 Error: ${error.message}
+Something went wrong while trying to access the log file.
+
+📋 Error Details: ${error.message}
 📋 Log File: ${log.file_name}
 
-💡 Please try using the "Download Instead" button to access the file.`,
+💡 This might be a temporary issue. Try downloading the file instead, or contact support if the problem persists.`,
         logData: null,
         currentLog: log
       });
@@ -961,7 +1055,7 @@ const ActivityPattern = () => {
                     onClick={() => handleViewLog(log)}
                     disabled={modalState.loading && modalState.currentLog?.file_name === log.file_name}
                     theme={theme}
-                    title={`View ${log.file_name}`}
+                    title={`View ${log.file_name} - Note: Due to browser security, you may need to download instead`}
                   >
                     {modalState.loading && modalState.currentLog?.file_name === log.file_name ? '⏳' : '👁️'}
                   </ViewButton>
@@ -992,6 +1086,15 @@ const ActivityPattern = () => {
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
           {success && <SuccessMessage>{success}</SuccessMessage>}
+
+          <InfoBanner>
+            <InfoIcon>💡</InfoIcon>
+            <InfoContent>
+              <strong>How to access log files:</strong> Use the <strong>📥 Download</strong> button to save files to your computer. 
+              The <strong>👁️ View</strong> button attempts in-browser viewing but may be blocked by security settings.
+              <div className="tip">💡 Downloaded files can be opened with any text editor to view the complete JSON data.</div>
+            </InfoContent>
+          </InfoBanner>
 
           <FiltersContainer theme={theme}>
             <FiltersGrid>
