@@ -108,9 +108,10 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedMonth, setSelectedMonth] = useState(9); // September
-  const [activeDate, setActiveDate] = useState('05'); // Set default to 05 like in the image
+  const today = new Date();
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1); // getMonth() is 0-indexed
+  const [activeDate, setActiveDate] = useState(today.getDate().toString().padStart(2, '0'));
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
@@ -582,26 +583,16 @@ const ActivityStream = () => {
                     cursor: 'pointer',
                     borderRadius: '9px', // Rounded corners
                     position: 'relative',
-                    backgroundColor: isSelected
-                      ? '#4285f4' 
-                      : 'transparent',
-                    color: isSelected
-                      ? 'white'
-                      : document.documentElement.getAttribute('data-theme') === 'dark' 
-                        ? '#fff' 
-                        : '#202124',
+                    backgroundColor: isSelected ? 'var(--primary-color)' : 'transparent',
+                    color: isSelected ? '#fff' : 'var(--text-primary)',
                     fontWeight: isSelected ? '600' : '500',
                     transition: 'all 0.2s',
-                    border: isSelected 
-                      ? '1px solid #4285f4' 
-                      : document.documentElement.getAttribute('data-theme') === 'dark' 
-                        ? '1px solid #6b7280' 
-                        : '1px solid #e1e5e9'
+                    border: isSelected ? `1px solid var(--primary-color)` : `1px solid var(--border-color)`
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                      e.target.style.backgroundColor = isDark ? '#374151' : '#f5f5f5';
+                      // Use CSS variable for hover color so it respects theme
+                      e.target.style.backgroundColor = 'var(--hover-color)';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -640,7 +631,7 @@ const ActivityStream = () => {
                       {day.year}
                     </div>
                   </div>
-                  {day.hasActivity && (
+                    {day.hasActivity && (
                     <div style={{
                       position: 'absolute',
                       top: '6px',
@@ -648,7 +639,7 @@ const ActivityStream = () => {
                       width: '7px',
                       height: '7px',
                       borderRadius: '50%',
-                      backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : '#4caf50'
+                      backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : 'var(--success-color)'
                     }} />
                   )}
                 </div>
@@ -725,24 +716,18 @@ const ActivityStream = () => {
                   style={{
                     padding: '12px 16px',
                     cursor: 'pointer',
-                    borderBottom: index < searchResults.length - 1 
-                      ? document.documentElement.getAttribute('data-theme') === 'dark' 
-                        ? '1px solid #6b7280' 
-                        : '1px solid #f1f3f4' 
-                      : 'none',
+                    borderBottom: index < searchResults.length - 1 ? `1px solid var(--border-color)` : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
                     transition: 'background-color 0.2s',
-                    backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'transparent'
+                    backgroundColor: 'transparent'
                   }}
                   onMouseEnter={(e) => {
-                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    e.target.style.backgroundColor = isDark ? '#374151' : '#fff';
+                    e.currentTarget.style.backgroundColor = 'var(--hover-color)';
                   }}
                   onMouseLeave={(e) => {
-                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                    e.target.style.backgroundColor = isDark ? '#1d232c' : 'transparent';
+                    e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   <div style={{
@@ -763,7 +748,7 @@ const ActivityStream = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ 
                       fontWeight: '500', 
-                      color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgb(255, 255, 255)' : '#000',
+                      color: 'var(--text-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -773,7 +758,7 @@ const ActivityStream = () => {
                     {user.email && user.display_name && (
                       <div style={{ 
                         fontSize: '12px', 
-                        color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgb(255, 255, 255)' : '#5f6368',
+                        color: 'var(--text-secondary)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
@@ -819,27 +804,27 @@ const ActivityStream = () => {
             overflowY: 'auto',
             maxHeight: '600px'
           }}>
-            <div style={{
+                <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               marginBottom: '20px',
               paddingBottom: '10px',
-              borderBottom: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9'
+                  borderBottom: `1px solid var(--border-color)`
             }}>
               <div>
                 <h3 style={{ 
                   margin: 0, 
                   fontSize: '18px', 
                   fontWeight: '600',
-                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'
+                      color: 'var(--text-primary)'
                 }}>
                   {selectedUser.display_name || selectedUser.email}
                 </h3>
                 <p style={{ 
                   margin: '4px 0 0 0', 
                   fontSize: '14px', 
-                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
+                      color: 'var(--text-secondary)'
                 }}>
                   Activity Stream - {getFullMonthName(selectedMonth, language)} {selectedYear}
                   {activeDate && ` (Day ${activeDate})`}
@@ -848,7 +833,7 @@ const ActivityStream = () => {
                   <p style={{ 
                     margin: '4px 0 0 0', 
                     fontSize: '12px', 
-                    color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#1a73e8',
+                        color: 'var(--primary-color)',
                     fontWeight: '500'
                   }}>
                     {totalScreenshots} total screenshots • Page {currentPage} of {totalPages} • Showing {((currentPage - 1) * screenshotsPerPage) + 1}-{Math.min(currentPage * screenshotsPerPage, totalScreenshots)}
@@ -869,7 +854,7 @@ const ActivityStream = () => {
                   border: 'none',
                   fontSize: '20px',
                   cursor: 'pointer',
-                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
+                  color: 'var(--text-secondary)',
                   padding: '4px'
                 }}
               >
@@ -878,14 +863,14 @@ const ActivityStream = () => {
             </div>
 
             {/* Screenshots Loading */}
-            {isLoadingScreenshots && (
+                {isLoadingScreenshots && (
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
+                    color: 'var(--text-secondary)'
               }}>
                 <div style={{
                   width: '40px',
@@ -901,14 +886,14 @@ const ActivityStream = () => {
             )}
 
             {/* Screenshot Error */}
-            {screenshotError && !isLoadingScreenshots && (
+                {screenshotError && !isLoadingScreenshots && (
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                color: '#d93025'
+                    color: 'var(--error-color)'
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
                 <p>{screenshotError}</p>
@@ -954,13 +939,11 @@ const ActivityStream = () => {
                       className="screenshot-card"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-4px)';
-                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.15)';
+                        e.currentTarget.style.boxShadow = '0 8px 24px var(--shadow-color)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        e.currentTarget.style.boxShadow = isDark ? '0 2px 8px rgba(0, 0, 0, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-color)';
                       }}
                       onClick={() => {
                         // Open screenshot in new tab
@@ -1109,7 +1092,7 @@ const ActivityStream = () => {
                         <div style={{
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
+                          color: 'var(--text-primary)',
                           marginBottom: '8px',
                           display: 'flex',
                           alignItems: 'center',
@@ -1131,7 +1114,7 @@ const ActivityStream = () => {
                         
                         <div style={{
                           fontSize: '11px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
+                          color: 'var(--text-secondary)',
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
@@ -1155,7 +1138,7 @@ const ActivityStream = () => {
                         {screenshot.filename && (
                           <div style={{
                             fontSize: '10px',
-                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#9ca3af',
+                            color: 'var(--text-secondary)',
                             fontFamily: 'monospace',
                             wordBreak: 'break-all',
                             lineHeight: '1.3'
@@ -1176,7 +1159,7 @@ const ActivityStream = () => {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '20px 0',
-                    borderTop: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                      borderTop: `1px solid var(--border-color)`,
                     marginTop: '20px'
                   }}>
                     {/* Previous Button */}
@@ -1185,9 +1168,9 @@ const ActivityStream = () => {
                       disabled={currentPage === 1}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === 1 ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
-                        color: currentPage === 1 ? '#9ca3af' : 'white',
-                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                          color: currentPage === 1 ? 'var(--text-tertiary)' : 'white',
+                          border: `1px solid var(--border-color)`,
                         borderRadius: '6px',
                         cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                         fontSize: '14px',
@@ -1219,9 +1202,9 @@ const ActivityStream = () => {
                             style={{
                               width: '36px',
                               height: '36px',
-                              backgroundColor: currentPage === pageNumber ? '#4285f4' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'white'),
-                              color: currentPage === pageNumber ? 'white' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'),
-                              border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                              backgroundColor: currentPage === pageNumber ? 'var(--primary-color)' : 'var(--bg-secondary)',
+                              color: currentPage === pageNumber ? 'white' : 'var(--text-primary)',
+                              border: `1px solid var(--border-color)`,
                               borderRadius: '6px',
                               cursor: 'pointer',
                               fontSize: '14px',
@@ -1230,14 +1213,12 @@ const ActivityStream = () => {
                             }}
                             onMouseEnter={(e) => {
                               if (currentPage !== pageNumber) {
-                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                                e.target.style.backgroundColor = isDark ? '#374151' : '#f5f5f5';
+                                e.currentTarget.style.backgroundColor = 'var(--hover-color)';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (currentPage !== pageNumber) { 
-                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                                e.target.style.backgroundColor = isDark ? '#1d232c' : 'white';
+                                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
                               }
                             }}
                           >
@@ -1253,9 +1234,9 @@ const ActivityStream = () => {
                       disabled={currentPage === totalPages}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === totalPages ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
-                        color: currentPage === totalPages ? '#9ca3af' : 'white',
-                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                        backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                        color: currentPage === totalPages ? 'var(--text-tertiary)' : 'white',
+                        border: `1px solid var(--border-color)`,
                         borderRadius: '6px',
                         cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                         fontSize: '14px',

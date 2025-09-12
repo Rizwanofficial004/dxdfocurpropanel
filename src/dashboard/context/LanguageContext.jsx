@@ -269,7 +269,9 @@ const translations = {
     howItWorks: 'How it Works',
     claimLicense: 'Claim 2 more free licenses',
     employeesInfo: 'Here is some information about employees.',
-    liveTrackingInfo: 'Here is some information about live tracking.',
+  liveTrackingInfo: 'Here is some information about live tracking.',
+  // Live Tracking help short paragraph
+  liveTrackingHelpShort: 'This panel shows recent screenshots captured from users\' devices for quick visual monitoring. Click refresh to fetch the latest images.',
     quickViewInfo: 'Here is some information about quick view.',
     claimLicenseInfo: 'Information about claiming licenses.',
   },
@@ -543,6 +545,7 @@ const translations = {
     claimLicense: '2 ücretsiz lisans daha talep edin',
     employeesInfo: 'Çalışanlar hakkında bazı bilgiler burada.',
     liveTrackingInfo: 'Canlı izleme hakkında bazı bilgiler burada.',
+  liveTrackingHelpShort: 'Bu panel, kullanıcıların cihazlarından alınan son ekran görüntülerini hızlı görsel izleme için gösterir. En son görüntüler için yenileye tıklayın.',
     quickViewInfo: 'Hızlı görünüm hakkında bazı bilgiler burada.',
     claimLicenseInfo: 'Lisans talep etme hakkında bilgi.',
   }

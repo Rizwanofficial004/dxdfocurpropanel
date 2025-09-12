@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
 import axios from 'axios';
@@ -18,6 +18,8 @@ const LiveTracking = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [imageErrors, setImageErrors] = useState(new Set());
   const [retryCount, setRetryCount] = useState(0);
+  const [showHelp, setShowHelp] = useState(false);
+  const helpRef = useRef(null);
 
   // Fetch data from live tracking API
   const fetchLiveTrackingData = async (showRetryMessage = false) => {
@@ -88,6 +90,17 @@ const LiveTracking = () => {
   useEffect(() => {
     fetchLiveTrackingData();
   }, []);
+
+  // Close help popover when clicking outside
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (showHelp && helpRef.current && !helpRef.current.contains(e.target)) {
+        setShowHelp(false);
+      }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [showHelp]);
 
   // Calculate pagination
   const totalUsers = filteredUsers.length;
@@ -205,7 +218,21 @@ const LiveTracking = () => {
             <div className="header-left">
               <h1 className="live-tracking-title">
                 LIVE TRACKING - SCREENSHOTS {apiData?.data?.total_employees?.icon}
-                <span className="help-icon">?</span>
+                <span className="help-icon" ref={helpRef}>
+                  <button
+                    className="help-button"
+                    onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
+                    aria-expanded={showHelp}
+                    aria-label="Live Tracking Help"
+                  >
+                    ?
+                  </button>
+                  {showHelp && (
+                    <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
+                      <p>{t('liveTrackingHelpShort')}</p>
+                    </div>
+                  )}
+                </span>
               </h1>
             </div>
             <div className="header-controls">
@@ -234,24 +261,16 @@ const LiveTracking = () => {
           {apiData && apiData.data && (
             <div className="stats-section">
               <div className="stats-grid">
-                {/* Total Users Card */}
-                <div className="stat-card">
-                  <div className="stat-icon">{apiData.data.total_employees.icon}</div>
-                  <div className="stat-content">
-                    <h3>{apiData.data.total_employees.count}</h3>
-                    <p>{apiData.data.total_employees.title}</p>
-                    <span className="growth-rate">{apiData.data.total_employees.growth_rate}</span>
-                  </div>
-                </div>
-
-                {/* Metrics Cards */}
-                {apiData.data.metrics.map((metric, index) => (
-                  <div key={index} className="stat-card">
-                    <div className="stat-content">
-                      <h3>{metric.value}</h3>
-                      <p>{metric.label}</p>
+                {/* Metrics Cards (exclude 'S3 Users' label) */}
+                {Array.isArray(apiData.data.metrics) && apiData.data.metrics
+                  .filter(metric => metric.label !== 'S3 Users')
+                  .map((metric, index) => (
+                    <div key={index} className="stat-card">
+                      <div className="stat-content">
+                        <h3>{metric.value}</h3>
+                        <p>{metric.label}</p>
+                      </div>
                     </div>
-                  </div>
                 ))}
               </div>
 
