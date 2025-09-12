@@ -1,11 +1,19 @@
-/* Current Status Component Styles */
+Current Status Component Styles
 .current-status {
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb;
   height: fit-content;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Dark mode styles */
+[data-theme="dark"] .current-status {
+  background: #1d232c;
+  border-color: #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 .current-status-header {
@@ -18,6 +26,12 @@
   color: #374151;
   margin: 0;
   letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode title */
+[data-theme="dark"] .current-status-title {
+  color: #f8fafc;
 }
 
 .current-status-content {
@@ -59,6 +73,12 @@
   font-size: 48px;
   font-weight: 700;
   color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode chart number */
+[data-theme="dark"] .chart-number {
+  color: #f8fafc;
 }
 
 /* Status List Styles */
@@ -89,6 +109,17 @@
   border-color: #bfdbfe;
 }
 
+/* Dark mode status items */
+[data-theme="dark"] .status-item:hover {
+  background-color: #334155;
+  border-color: #475569;
+}
+
+[data-theme="dark"] .status-item.active {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+}
+
 .status-info {
   display: flex;
   align-items: center;
@@ -99,12 +130,25 @@
   font-size: 18px;
   font-weight: 600;
   min-width: 20px;
+  color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode status count */
+[data-theme="dark"] .status-count {
+  color: #f8fafc;
 }
 
 .status-label {
   font-size: 14px;
   color: #374151;
   font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode status label */
+[data-theme="dark"] .status-label {
+  color: #f8fafc;
 }
 
 .status-arrow {
@@ -114,6 +158,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
+  transition: color 0.3s ease;
 }
 
 .status-item:hover .status-arrow {
@@ -122,6 +167,19 @@
 
 .status-item.active .status-arrow {
   color: #3b82f6;
+}
+
+/* Dark mode status arrow */
+[data-theme="dark"] .status-arrow {
+  color: #64748b;
+}
+
+[data-theme="dark"] .status-item:hover .status-arrow {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .status-item.active .status-arrow {
+  color: #60a5fa;
 }
 
 /* Responsive Design */

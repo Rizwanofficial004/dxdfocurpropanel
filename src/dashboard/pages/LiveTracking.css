@@ -4,6 +4,12 @@
   width: 100%;
   padding: 20px;
   background-color: #f8f9fa;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode live tracking page */
+[data-theme="dark"] .live-tracking-page {
+  background-color: #0f172a;
 }
 
 .live-tracking-card {
@@ -15,6 +21,50 @@
   /* max-width: 1200px; */
   margin: 0 auto;
   overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode live tracking card */
+[data-theme="dark"] .live-tracking-card {
+  background: #1d232c;
+}
+
+/* Dark mode text elements */
+[data-theme="dark"] .live-tracking-title {
+  color: #fff;
+}
+
+[data-theme="dark"] .user-search-input {
+  background: #334155;
+  color: #fff;
+  border-color: #6b7280;
+}
+
+[data-theme="dark"] .user-search-input::placeholder {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .user-search-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
+}
+
+[data-theme="dark"] .search-icon {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .card-header {
+  background: #1d232c;
+  border-bottom-color: #6b7280;
+}
+
+[data-theme="dark"] .notification-banner {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .download-link {
+  color: #60a5fa;
 }
 
 /* Refresh Button */
@@ -44,6 +94,45 @@
   padding: 20px 24px;
   border-bottom: 1px solid #dadce0;
   background: #fafafa;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode stats section */
+[data-theme="dark"] .stats-section {
+  background: #1d232c;
+  border-bottom-color: #6b7280;
+}
+
+/* Dark mode stat cards */
+[data-theme="dark"] .stat-card {
+  background: #334155;
+  border-color: #6b7280;
+}
+
+[data-theme="dark"] .stat-content h3 {
+  color: #fff;
+}
+
+[data-theme="dark"] .stat-content p {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .growth-rate {
+  color: #10b981;
+}
+
+/* Dark mode data sources */
+[data-theme="dark"] .data-sources {
+  background: #334155;
+  border-color: #6b7280;
+}
+
+[data-theme="dark"] .source-label {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .source-value {
+  color: #fff;
 }
 
 /* Always visible compact URL display */
@@ -53,6 +142,104 @@
   background: #f8f9fa;
   border-radius: 4px;
   border: 1px solid #e1e3e6;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode URL section */
+[data-theme="dark"] .image-url-section {
+  background: #1d232c;
+  border-color: #6b7280;
+  color: #fff;
+}
+
+/* Dark mode loading and error states */
+[data-theme="dark"] .loading-container {
+  color: #fff;
+}
+
+[data-theme="dark"] .error-message {
+  background: #dc2626;
+  border-color: #b91c1c;
+  color: #fff;
+}
+
+[data-theme="dark"] .error-message p {
+  color: #fff;
+}
+
+/* Dark mode screenshot cards */
+[data-theme="dark"] .screenshot-card {
+  background: #334155;
+  border-color: #6b7280;
+}
+
+[data-theme="dark"] .screenshot-header {
+  border-bottom-color: #6b7280;
+}
+
+[data-theme="dark"] .user-email {
+  color: #fff;
+}
+
+[data-theme="dark"] .user-stats span {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .latest-date {
+  color: #9ca3af;
+  background: #475569;
+}
+
+[data-theme="dark"] .screenshot-footer {
+  background: #475569;
+}
+
+[data-theme="dark"] .filename {
+  color: #9ca3af;
+}
+
+/* Dark mode pagination */
+[data-theme="dark"] .pagination-footer {
+  background: #1d232c;
+  border-top-color: #6b7280;
+}
+
+[data-theme="dark"] .screens-per-page {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .screens-selector {
+  background: #334155;
+  color: #fff;
+  border-color: #6b7280;
+}
+
+[data-theme="dark"] .page-info {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .page-number {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .nav-button {
+  background: #334155;
+  border-color: #6b7280;
+  color: #fff;
+}
+
+[data-theme="dark"] .nav-button:hover:not(:disabled) {
+  background: #475569;
+}
+
+/* Dark mode no data state */
+[data-theme="dark"] .no-data-text {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .document-icon {
+  background: #475569;
+  border-color: #6b7280;
 }
 
 .url-label {
@@ -60,6 +247,12 @@
   font-weight: 500;
   color: #5f6368;
   margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode URL label */
+[data-theme="dark"] .url-label {
+  color: #94a3b8;
 }
 
 .url-display-compact {
@@ -78,12 +271,25 @@
   color: #202124;
   background: white;
   min-width: 0;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .url-input-compact:focus {
   outline: none;
   border-color: #1a73e8;
   box-shadow: 0 0 0 1px #1a73e8;
+}
+
+/* Dark mode URL input */
+[data-theme="dark"] .url-input-compact {
+  background: #334155;
+  color: #f8fafc;
+  border-color: #64748b;
+}
+
+[data-theme="dark"] .url-input-compact:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 1px #60a5fa;
 }
 
 .copy-url-button-compact,
@@ -98,6 +304,24 @@
   transition: all 0.2s;
   text-decoration: none;
   display: flex;
+}
+
+/* Dark mode URL buttons */
+[data-theme="dark"] .copy-url-button-compact,
+[data-theme="dark"] .open-url-button-compact {
+  background: #334155;
+  color: #94a3b8;
+  border-color: #64748b;
+}
+
+[data-theme="dark"] .copy-url-button-compact:hover,
+[data-theme="dark"] .open-url-button-compact:hover {
+  background: #475569;
+  color: #f8fafc;
+}
+
+.copy-url-button-compact,
+.open-url-button-compact {
   align-items: center;
   justify-content: center;
   min-width: 24px;
@@ -444,6 +668,16 @@
   margin-bottom: 12px;
 }
 
+/* Dark mode image error states */
+[data-theme="dark"] .image-error {
+  background: rgba(29, 35, 44, 0.95);
+  color: #fff;
+}
+
+[data-theme="dark"] .image-error small {
+  color: #9ca3af;
+}
+
 .url-display {
   width: 100%;
   margin: 8px 0 12px 0;
@@ -482,6 +716,31 @@
   color: #ea4335;
 }
 
+/* Dark mode URL display */
+[data-theme="dark"] .url-display {
+  background: #1d232c;
+  border-color: #6b7280;
+}
+
+[data-theme="dark"] .url-display strong {
+  color: #3b82f6;
+}
+
+[data-theme="dark"] .url-display .localhost-url,
+[data-theme="dark"] .url-display .s3-url {
+  background: #374151;
+  border-color: #6b7280;
+  color: #fff;
+}
+
+[data-theme="dark"] .url-display .localhost-url {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .url-display .s3-url {
+  color: #f87171;
+}
+
 .retry-image-button {
   background: #1976d2;
   color: white;
@@ -508,6 +767,25 @@
 
 .view-s3-button:hover {
   background: #2d7d3e;
+}
+
+/* Dark mode retry and view buttons */
+[data-theme="dark"] .retry-image-button {
+  background: #3b82f6;
+  color: #fff;
+}
+
+[data-theme="dark"] .retry-image-button:hover {
+  background: #2563eb;
+}
+
+[data-theme="dark"] .view-s3-button {
+  background: #10b981;
+  color: #fff;
+}
+
+[data-theme="dark"] .view-s3-button:hover {
+  background: #059669;
 }
 
 .retry-image-button:hover {
@@ -1287,6 +1565,16 @@
 
 .copy-url-button:hover {
   background: #1565c0;
+}
+
+/* Dark mode copy URL button */
+[data-theme="dark"] .copy-url-button {
+  background: #3b82f6;
+  color: #fff;
+}
+
+[data-theme="dark"] .copy-url-button:hover {
+  background: #2563eb;
 }
 
 .test-url-button {

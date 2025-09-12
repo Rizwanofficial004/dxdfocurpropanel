@@ -28,6 +28,16 @@ const Card = styled.div`
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
+
+  [data-theme="dark"] & {
+    background: #1d232c;
+    border-color: #374151;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+  }
 `;
 
 const CardHeader = styled.div`
@@ -43,6 +53,10 @@ const SubStats = styled.div`
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid ${props => props.theme.colors.border || '#f1f5f9'};
+
+  [data-theme="dark"] & {
+    border-color: #6b7280;
+  }
 `;
 
 const SubStat = styled.div`
@@ -59,6 +73,15 @@ const SubStat = styled.div`
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
+
+  [data-theme="dark"] & {
+     background: #0f172a;
+    border-color: #0f172a;
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+  }
 `;
 
 const SubStatLabel = styled.div`
@@ -67,6 +90,10 @@ const SubStatLabel = styled.div`
   font-weight: 500;
   text-align: center;
   margin-bottom: 0.25rem;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const SubStatValue = styled.div`
@@ -74,6 +101,10 @@ const SubStatValue = styled.div`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary || '#111827'};
   text-align: center;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const Icon = styled.div`
@@ -107,6 +138,10 @@ const Title = styled.div`
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const Number = styled.div`
@@ -114,6 +149,10 @@ const Number = styled.div`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary || '#111827'};
   margin: 0.5rem 0;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const Change = styled.div`
@@ -142,7 +181,7 @@ const StatusIndicator = styled.div`
   top: 1rem;
   right: 1rem;
   padding: 0.25rem 0.5rem;
-  background: ${props => props.isLive ? '#10b981' : '#6b7280'};
+  background: ${props => props.$isLive ? '#10b981' : '#6b7280'};
   color: white;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -324,7 +363,7 @@ export const Cards = () => {
     <CardWrapper>
       {statsData.map((stat, index) => (
         <Card key={index}>
-          <StatusIndicator isLive={dataSource.includes('CRM') || dataSource.includes('S3')}>
+          <StatusIndicator $isLive={dataSource.includes('CRM') || dataSource.includes('S3')}>
             {dataSource.includes('CRM') || dataSource.includes('S3') ? 'LIVE' : 'CACHE'}
           </StatusIndicator>
           
@@ -356,21 +395,7 @@ export const Cards = () => {
         </Card>
       ))}
       
-      {lastUpdated && (
-        <div style={{ 
-          gridColumn: '1 / -1', 
-          textAlign: 'center', 
-          color: '#6b7280', 
-          fontSize: '0.875rem',
-          marginTop: '1rem',
-          padding: '1rem',
-          background: '#f8fafc',
-          borderRadius: '8px',
-          border: '1px solid #f1f5f9'
-        }}>
-          🔄 Last updated: {lastUpdated.toLocaleString()} | Source: {dataSource}
-        </div>
-      )}
+
     </CardWrapper>
   );
 };

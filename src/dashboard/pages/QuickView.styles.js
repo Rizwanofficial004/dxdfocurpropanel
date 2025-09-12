@@ -3,10 +3,14 @@ import styled from 'styled-components';
 export const QuickViewContainer = styled.div`
   width: 100%;
   padding: 24px 32px;
-  background-color: #f8f9fa;
   min-height: 100vh;
   /* max-width: 1200px; */
   margin: 0 auto;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background-color: #1d232c;
+  `}
 `;
 
 export const QuickViewCard = styled.div`
@@ -17,10 +21,16 @@ export const QuickViewCard = styled.div`
   width: 100%;
   margin: 0 auto;
   overflow: hidden;
+  
+  /* Dark mode */
+  [data-theme="dark"] & {
+    background: #1d232c;
+    border-color: #6b7280;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 `;
 
 export const NotificationBanner = styled.div`
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
   border-bottom: 1px solid #42a5f5;
   padding: 16px 24px;
   margin: 0;
@@ -28,6 +38,13 @@ export const NotificationBanner = styled.div`
   font-size: 14px;
   color: #1565c0;
   line-height: 1.5;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: linear-gradient(135deg, #1d232c 0%, #374151 100%);
+    border-bottom-color: #6b7280;
+    color: #fff;
+  `}
 `;
 
 export const NotificationContent = styled.div`
@@ -37,22 +54,35 @@ export const NotificationContent = styled.div`
 `;
 
 export const DownloadLink = styled.a`
-  color: #1976d2;
   text-decoration: underline;
   font-weight: 600;
 
   &:hover {
     text-decoration: underline;
   }
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #60a5fa;
+    
+    &:hover {
+      color: #93c5fd;
+    }
+  `}
 `;
 
 export const QuickViewHeader = styled.div`
-  background: #fafafa;
   border-bottom: 1px solid #e0e0e0;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-bottom-color: #6b7280;
+  `}
 `;
 
 export const HeaderTop = styled.div`
@@ -71,12 +101,16 @@ export const HeaderLeft = styled.div`
 export const QuickViewTitle = styled.h1`
   font-size: 16px;
   font-weight: 700;
-  color: #202124;
   margin: 0;
   letter-spacing: 0.3px;
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #fff;
+  `}
 `;
 
 export const HelpIcon = styled.span`
@@ -91,6 +125,12 @@ export const HelpIcon = styled.span`
   font-size: 10px;
   font-weight: bold;
   cursor: pointer;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #6b7280;
+    color: #fff;
+  `}
 `;
 
 export const HeaderControls = styled.div`
@@ -115,19 +155,33 @@ export const SearchInput = styled.input`
   border-radius: 4px;
   font-size: 14px;
   background: white;
-  color: #202124;
   min-width: 250px;
   outline: none;
   transition: border-color 0.2s;
 
   &:focus {
-    border-color: #1976d2;
     box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
   }
 
   &::placeholder {
     color: #5f6368;
   }
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-color: #6b7280;
+    color: #fff;
+    
+    &:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  `}
 `;
 
 export const SearchIcon = styled.span`
@@ -136,6 +190,11 @@ export const SearchIcon = styled.span`
   color: #5f6368;
   font-size: 16px;
   pointer-events: none;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #9ca3af;
+  `}
 `;
 
 export const DateControl = styled.div`
@@ -149,11 +208,23 @@ export const DateControl = styled.div`
   background: white;
   cursor: pointer;
   color: #3c4043;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-color: #6b7280;
+    color: #fff;
+  `}
 `;
 
 export const DateIcon = styled.span`
   font-size: 14px;
   color: #1a73e8;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #60a5fa;
+  `}
 `;
 
 export const TableContainer = styled.div`
@@ -166,12 +237,21 @@ export const Table = styled.table`
 `;
 
 export const TableHeader = styled.thead`
-  background: #f8f9fa;
   border-bottom: 1px solid #e0e0e0;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-bottom-color: #6b7280;
+  `}
 `;
 
 export const TableHeaderRow = styled.tr`
-  background: #fafafa;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+  `}
 `;
 
 export const TableHeaderCell = styled.th`
@@ -210,6 +290,15 @@ export const TableHeaderCell = styled.th`
       opacity: 0.5;
     }
   }
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #9ca3af;
+    
+    &.sortable:hover {
+      background: #374151;
+    }
+  `}
 `;
 
 export const TableBody = styled.tbody`
@@ -220,19 +309,25 @@ export const TableRow = styled.tr`
   border-bottom: 1px solid #f1f3f4;
   transition: background-color 0.2s;
 
-  &:hover {
-    background: #f8f9fa;
-  }
 
   &:last-child {
     border-bottom: none;
   }
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    border-bottom-color: #6b7280;
+    
+    &:hover {
+      background: #374151;
+    }
+  `}
 `;
 
 export const TableCell = styled.td`
   padding: 16px 12px;
   font-size: 14px;
-  color: #202124;
+
   vertical-align: middle;
 
   &:first-child {
@@ -242,6 +337,11 @@ export const TableCell = styled.td`
   &:last-child {
     padding-right: 24px;
   }
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #fff;
+  `}
 `;
 
 export const StatusIndicator = styled.div`
@@ -278,19 +378,34 @@ export const EmployeeAvatar = styled.div`
 
 export const EmployeeName = styled.div`
   font-weight: 500;
-  color: #202124;
+
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #fff;
+  `}
 `;
 
 export const TeamName = styled.div`
   font-size: 12px;
   color: #5f6368;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #9ca3af;
+  `}
 `;
 
 export const TimeCell = styled.div`
   font-family: 'Roboto Mono', monospace;
   font-size: 13px;
   font-weight: 500;
-  color: #202124;
+
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #fff;
+  `}
 `;
 
 export const ProductivityBar = styled.div`
@@ -300,6 +415,11 @@ export const ProductivityBar = styled.div`
   border-radius: 4px;
   overflow: hidden;
   position: relative;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #6b7280;
+  `}
 `;
 
 export const ProductivityFill = styled.div`
@@ -312,8 +432,13 @@ export const ProductivityFill = styled.div`
 export const PercentageText = styled.span`
   font-size: 13px;
   font-weight: 500;
-  color: #202124;
+
   margin-left: 8px;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #fff;
+  `}
 `;
 
 export const PaginationContainer = styled.div`
@@ -322,8 +447,13 @@ export const PaginationContainer = styled.div`
   justify-content: space-between;
   padding: 12px 24px;
   border-top: 1px solid #dadce0;
-  background: #f8f9fa;
   font-size: 13px;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-top-color: #6b7280;
+  `}
 `;
 
 export const EmployeesPerPage = styled.div`
@@ -331,6 +461,11 @@ export const EmployeesPerPage = styled.div`
   align-items: center;
   gap: 8px;
   color: #5f6368;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #9ca3af;
+  `}
 `;
 
 export const PerPageSelector = styled.select`
@@ -341,6 +476,13 @@ export const PerPageSelector = styled.select`
   background: white;
   cursor: pointer;
   color: #3c4043;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-color: #6b7280;
+    color: #fff;
+  `}
 `;
 
 export const PaginationRight = styled.div`
@@ -352,6 +494,11 @@ export const PaginationRight = styled.div`
 export const PageInfo = styled.span`
   color: #5f6368;
   font-size: 13px;
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    color: #9ca3af;
+  `}
 `;
 
 export const PaginationNav = styled.div`
@@ -380,6 +527,17 @@ export const NavButton = styled.button`
   &:hover:not(:disabled) {
     background: #f5f5f5;
   }
+  
+  /* Dark mode */
+  ${() => document.documentElement.getAttribute('data-theme') === 'dark' && `
+    background: #1d232c;
+    border-color: #6b7280;
+    color: #9ca3af;
+    
+    &:hover:not(:disabled) {
+      background: #374151;
+    }
+  `}
 `;
 
 // Responsive Design

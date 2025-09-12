@@ -10,6 +10,12 @@ const CurrentStatusContainer = styled.div`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   height: auto;
+  
+  [data-theme="dark"] & {
+    background: #1d232c;
+    border-color: #334155;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 const CurrentStatusTitle = styled.h2`
@@ -18,6 +24,10 @@ const CurrentStatusTitle = styled.h2`
   color: #374151;
   margin: 0 0 20px 0;
   letter-spacing: 0.05em;
+  
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const CurrentStatusContent = styled.div`
@@ -71,6 +81,10 @@ const StatusLabel = styled.span`
   font-size: 14px;
   color: #374151;
   font-weight: 400;
+  
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const StatusArrow = styled.div`
@@ -84,6 +98,10 @@ const StatusArrow = styled.div`
   svg {
     width: 12px;
     height: 12px;
+  }
+  
+  [data-theme="dark"] & {
+    color: #f8fafc;
   }
 `;
 
@@ -113,7 +131,7 @@ const ChartCenter = styled.div`
 const ChartNumber = styled.span`
   font-size: 36px;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffffff;
 `;
 
 const CurrentStatus = () => {

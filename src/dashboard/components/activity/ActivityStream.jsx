@@ -573,7 +573,7 @@ const ActivityStream = () => {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
@@ -621,7 +621,16 @@ const ActivityStream = () => {
           overflowX: 'auto',
           minWidth: 'fit-content',
           maxWidth: '100%'
-        }}>
+        }}
+        data-theme-aware="true"
+        className="date-row"
+        >
+          <style>{`
+            [data-theme="dark"] .date-row {
+              background-color: #1d232c !important;
+              border-color: #6b7280 !important;
+            }
+          `}</style>
           {/* Show all dates of current month for horizontal display */}
           {calendarDays.filter(day => day.isCurrentMonth).map((day, index) => {
               const isSelected = activeDate === day.date.toString().padStart(2, '0');
@@ -647,14 +656,21 @@ const ActivityStream = () => {
                       : 'transparent',
                     color: isSelected
                       ? 'white'
-                      : '#202124',
+                      : document.documentElement.getAttribute('data-theme') === 'dark' 
+                        ? '#fff' 
+                        : '#202124',
                     fontWeight: isSelected ? '600' : '400',
                     transition: 'all 0.2s',
-                    border: isSelected ? '1px solid #4285f4' : '1px solid #e1e5e9'
+                    border: isSelected 
+                      ? '1px solid #4285f4' 
+                      : document.documentElement.getAttribute('data-theme') === 'dark' 
+                        ? '1px solid #6b7280' 
+                        : '1px solid #e1e5e9'
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
-                      e.target.style.backgroundColor = '#f5f5f5';
+                      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                      e.target.style.backgroundColor = isDark ? '#374151' : '#f5f5f5';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -747,7 +763,16 @@ const ActivityStream = () => {
               maxHeight: '300px',
               overflowY: 'auto',
               marginTop: '4px'
-            }}>
+            }}
+            className="search-dropdown"
+            >
+              <style jsx>{`
+                [data-theme="dark"] .search-dropdown {
+                  background-color: #1d232c !important;
+                  border-color: #6b7280 !important;
+                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+                }
+              `}</style>
               {searchResults.map((user, index) => (
                 <div
                   key={user.id || index}
@@ -755,14 +780,25 @@ const ActivityStream = () => {
                   style={{
                     padding: '12px 16px',
                     cursor: 'pointer',
-                    borderBottom: index < searchResults.length - 1 ? '1px solid #f1f3f4' : 'none',
+                    borderBottom: index < searchResults.length - 1 
+                      ? document.documentElement.getAttribute('data-theme') === 'dark' 
+                        ? '1px solid #6b7280' 
+                        : '1px solid #f1f3f4' 
+                      : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    transition: 'background-color 0.2s'
+                    transition: 'background-color 0.2s',
+                    backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'transparent'
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) => {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    e.target.style.backgroundColor = isDark ? '#374151' : '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    e.target.style.backgroundColor = isDark ? '#1d232c' : 'transparent';
+                  }}
                 >
                   <div style={{
                     width: '32px',
@@ -782,7 +818,7 @@ const ActivityStream = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ 
                       fontWeight: '500', 
-                      color: '#202124',
+                      color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgb(255, 255, 255)' : '#000',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -792,7 +828,7 @@ const ActivityStream = () => {
                     {user.email && user.display_name && (
                       <div style={{ 
                         fontSize: '12px', 
-                        color: '#5f6368',
+                        color: document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgb(255, 255, 255)' : '#5f6368',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
@@ -844,21 +880,21 @@ const ActivityStream = () => {
               justifyContent: 'space-between',
               marginBottom: '20px',
               paddingBottom: '10px',
-              borderBottom: '1px solid #e1e5e9'
+              borderBottom: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9'
             }}>
               <div>
                 <h3 style={{ 
                   margin: 0, 
                   fontSize: '18px', 
                   fontWeight: '600',
-                  color: '#202124'
+                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'
                 }}>
                   {selectedUser.display_name || selectedUser.email}
                 </h3>
                 <p style={{ 
                   margin: '4px 0 0 0', 
                   fontSize: '14px', 
-                  color: '#5f6368'
+                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
                 }}>
                   Activity Stream - {getMonthName(selectedMonth)} {selectedYear}
                   {activeDate && ` (Day ${activeDate})`}
@@ -867,7 +903,7 @@ const ActivityStream = () => {
                   <p style={{ 
                     margin: '4px 0 0 0', 
                     fontSize: '12px', 
-                    color: '#1a73e8',
+                    color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#1a73e8',
                     fontWeight: '500'
                   }}>
                     {totalScreenshots} total screenshots • Page {currentPage} of {totalPages} • Showing {((currentPage - 1) * screenshotsPerPage) + 1}-{Math.min(currentPage * screenshotsPerPage, totalScreenshots)}
@@ -888,7 +924,7 @@ const ActivityStream = () => {
                   border: 'none',
                   fontSize: '20px',
                   cursor: 'pointer',
-                  color: '#5f6368',
+                  color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
                   padding: '4px'
                 }}
               >
@@ -904,7 +940,7 @@ const ActivityStream = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                color: '#5f6368'
+                color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
               }}>
                 <div style={{
                   width: '40px',
@@ -970,13 +1006,16 @@ const ActivityStream = () => {
                         transition: 'transform 0.2s, box-shadow 0.2s',
                         cursor: 'pointer'
                       }}
+                      className="screenshot-card"
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)';
+                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.15)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                        e.currentTarget.style.boxShadow = isDark ? '0 2px 8px rgba(0, 0, 0, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
                       }}
                       onClick={() => {
                         // Open screenshot in new tab
@@ -985,6 +1024,13 @@ const ActivityStream = () => {
                         }
                       }}
                     >
+                      <style jsx>{`
+                        [data-theme="dark"] .screenshot-card {
+                          background-color: #1d232c !important;
+                          border-color: #6b7280 !important;
+                          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+                        }
+                      `}</style>
                       {/* Screenshot Image */}
                       <div style={{
                         width: '100%',
@@ -1118,7 +1164,7 @@ const ActivityStream = () => {
                         <div style={{
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: '#202124',
+                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
                           marginBottom: '8px',
                           display: 'flex',
                           alignItems: 'center',
@@ -1140,7 +1186,7 @@ const ActivityStream = () => {
                         
                         <div style={{
                           fontSize: '11px',
-                          color: '#5f6368',
+                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368',
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
@@ -1164,7 +1210,7 @@ const ActivityStream = () => {
                         {screenshot.filename && (
                           <div style={{
                             fontSize: '10px',
-                            color: '#9ca3af',
+                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#9ca3af',
                             fontFamily: 'monospace',
                             wordBreak: 'break-all',
                             lineHeight: '1.3'
@@ -1185,7 +1231,7 @@ const ActivityStream = () => {
                     alignItems: 'center',
                     gap: '8px',
                     padding: '20px 0',
-                    borderTop: '1px solid #e1e5e9',
+                    borderTop: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
                     marginTop: '20px'
                   }}>
                     {/* Previous Button */}
@@ -1194,9 +1240,9 @@ const ActivityStream = () => {
                       disabled={currentPage === 1}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === 1 ? '#f8f9fa' : '#4285f4',
+                        backgroundColor: currentPage === 1 ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
                         color: currentPage === 1 ? '#9ca3af' : 'white',
-                        border: '1px solid #e1e5e9',
+                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
                         borderRadius: '6px',
                         cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                         fontSize: '14px',
@@ -1228,9 +1274,9 @@ const ActivityStream = () => {
                             style={{
                               width: '36px',
                               height: '36px',
-                              backgroundColor: currentPage === pageNumber ? '#4285f4' : 'white',
-                              color: currentPage === pageNumber ? 'white' : '#202124',
-                              border: '1px solid #e1e5e9',
+                              backgroundColor: currentPage === pageNumber ? '#4285f4' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'white'),
+                              color: currentPage === pageNumber ? 'white' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'),
+                              border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
                               borderRadius: '6px',
                               cursor: 'pointer',
                               fontSize: '14px',
@@ -1239,12 +1285,14 @@ const ActivityStream = () => {
                             }}
                             onMouseEnter={(e) => {
                               if (currentPage !== pageNumber) {
-                                e.target.style.backgroundColor = '#f8f9fa';
+                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                                e.target.style.backgroundColor = isDark ? '#374151' : '#f8f9fa';
                               }
                             }}
                             onMouseLeave={(e) => {
-                              if (currentPage !== pageNumber) {
-                                e.target.style.backgroundColor = 'white';
+                              if (currentPage !== pageNumber) { 
+                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                                e.target.style.backgroundColor = isDark ? '#1d232c' : 'white';
                               }
                             }}
                           >
@@ -1260,9 +1308,9 @@ const ActivityStream = () => {
                       disabled={currentPage === totalPages}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === totalPages ? '#f8f9fa' : '#4285f4',
+                        backgroundColor: currentPage === totalPages ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
                         color: currentPage === totalPages ? '#9ca3af' : 'white',
-                        border: '1px solid #e1e5e9',
+                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
                         borderRadius: '6px',
                         cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                         fontSize: '14px',
@@ -1285,7 +1333,7 @@ const ActivityStream = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                color: '#5f6368'
+                color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
                 <p>No screenshots found for this period</p>

@@ -10,6 +10,12 @@ const CompanyAverageContainer = styled.div`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   height: fit-content;
+
+  [data-theme="dark"] & {
+    background: #1d232c;
+    border-color: #374151;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  }
 `;
 
 const CompanyAverageHeader = styled.div`
@@ -31,6 +37,10 @@ const CompanyAverageTitle = styled.h2`
   color: #374151;
   margin: 0;
   letter-spacing: 0.05em;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const DateInput = styled.input`
@@ -39,13 +49,19 @@ const DateInput = styled.input`
   border-radius: 4px;
   font-size: 12px;
   color: #374151;
-  background: white;
   cursor: pointer;
   min-width: 120px;
+  background: white;
 
   &:focus {
     outline: none;
     border-color: #3b82f6;
+  }
+
+  [data-theme="dark"] & {
+    background: #374151;
+    border-color: #6b7280;
+    color: #f8fafc;
   }
 `;
 
@@ -69,11 +85,12 @@ const MetricCard = styled.div`
   padding: 16px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  background: #fafafa;
   transition: all 0.2s ease;
+  background: white;
 
-  &:hover {
-    background: white;
+  [data-theme="dark"] & {
+     background: #0f172a;
+    border-color: #0f172a;
   }
 `;
 
@@ -119,12 +136,20 @@ const MetricTitle = styled.h3`
   color: #374151;
   margin: 0;
   letter-spacing: 0.05em;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const MetricSubtitle = styled.span`
   font-size: 9px;
   color: #6b7280;
   font-weight: 500;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const MetricStats = styled.div`
@@ -137,6 +162,10 @@ const StatLabel = styled.span`
   font-size: 11px;
   color: #6b7280;
   font-weight: 500;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const StatValues = styled.div`
@@ -162,13 +191,22 @@ const StatLabelSmall = styled.span`
   color: #6b7280;
   text-align: center;
   white-space: nowrap;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const WorkTimeSpreadCard = styled.div`
   padding: 16px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: white;
+
+  [data-theme="dark"] & {
+    background: #0f172a;
+    border-color: #0f172a;
+  }
 `;
 
 const WorkTimeHeader = styled.div`
@@ -196,6 +234,10 @@ const WorkTimeTitle = styled.h3`
   color: #374151;
   margin: 0;
   letter-spacing: 0.05em;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const WorkTimeStats = styled.div`
@@ -218,11 +260,15 @@ const WorkTimePercentage = styled.span`
   color: ${props => props.color};
 `;
 
-const WorkTimeLabel = styled.span`
+const WorkTimeLabel = styled.span` 
   font-size: 9px;
-  color: #374151;
+  color: #6b7280;
   text-align: center;
   font-weight: 500;
+
+  [data-theme="dark"] & {
+    color: #f8fafc;
+  }
 `;
 
 const CompanyAverage = () => {

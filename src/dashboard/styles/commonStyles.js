@@ -1,43 +1,42 @@
 import styled from 'styled-components';
-import { theme } from './theme';
 
 export const Container = styled.div`
   // max-width: 1200px;
   margin: 0 auto;
-  padding: 0 ${theme.spacing.md};
+  padding: 0 ${props => props.theme.spacing.md};
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const Card = styled.div`
-  background: ${theme.colors.surface};
-  border-radius: ${theme.borderRadius.lg};
-  box-shadow: ${theme.shadows.md};
-  border: 1px solid ${theme.colors.border};
+  background: ${props => props.theme.colors.surface};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  box-shadow: ${props => props.theme.shadows.md};
+  border: 1px solid ${props => props.theme.colors.border};
   overflow: hidden;
   transition: all 0.2s ease-in-out;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   &:hover {
-    box-shadow: ${theme.shadows.lg};
+    box-shadow: ${props => props.theme.shadows.lg};
     transform: translateY(-2px);
   }
 `;
 
 export const CardHeader = styled.div`
-  padding: ${theme.spacing.md} ${theme.spacing.lg};
-  border-bottom: 1px solid ${theme.colors.border};
-  background: ${theme.colors.background};
+  padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.lg};
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.theme.colors.background};
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const CardBody = styled.div`
-  padding: ${theme.spacing.lg};
+  padding: ${props => props.theme.spacing.lg};
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 `;
 
 export const Grid = styled.div`
   display: grid;
-  gap: ${theme.spacing.md};
+  gap: ${props => props.theme.spacing.md};
   grid-template-columns: ${props => props.columns || 'repeat(auto-fit, minmax(300px, 1fr))'};
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
@@ -50,7 +49,7 @@ export const FlexContainer = styled.div`
   display: flex;
   align-items: ${props => props.align || 'center'};
   justify-content: ${props => props.justify || 'flex-start'};
-  gap: ${props => props.gap || theme.spacing.sm};
+  gap: ${props => props.gap || props.theme.spacing.sm};
   flex-direction: ${props => props.direction || 'row'};
   flex-wrap: ${props => props.wrap || 'nowrap'};
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -59,19 +58,19 @@ export const FlexContainer = styled.div`
 export const Button = styled.button`
   background: ${props => {
     switch(props.variant) {
-      case 'secondary': return theme.colors.secondary;
-      case 'success': return theme.colors.success;
-      case 'warning': return theme.colors.warning;
-      case 'error': return theme.colors.error;
-      default: return theme.colors.primary;
+      case 'secondary': return props.theme.colors.secondary;
+      case 'success': return props.theme.colors.success;
+      case 'warning': return props.theme.colors.warning;
+      case 'error': return props.theme.colors.error;
+      default: return props.theme.colors.primary;
     }
   }};
   color: white;
   border: none;
-  border-radius: ${theme.borderRadius.md};
-  padding: ${theme.spacing.xs} ${theme.spacing.md};
-  font-size: ${theme.typography.fontSize.sm};
-  font-weight: ${theme.typography.fontWeight.medium};
+  border-radius: ${props => props.theme.borderRadius.md};
+  padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.md};
+  font-size: ${props => props.theme.typography.fontSize.sm};
+  font-weight: ${props => props.theme.typography.fontWeight.medium};
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -93,17 +92,17 @@ export const Button = styled.button`
 
 export const Typography = styled.div`
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: ${props => theme.typography.fontSize[props.size] || theme.typography.fontSize.base};
-  font-weight: ${props => theme.typography.fontWeight[props.weight] || theme.typography.fontWeight.normal};
+  font-size: ${props => props.theme.typography.fontSize[props.size] || props.theme.typography.fontSize.base};
+  font-weight: ${props => props.theme.typography.fontWeight[props.weight] || props.theme.typography.fontWeight.normal};
   color: ${props => {
     switch(props.color) {
-      case 'secondary': return theme.colors.text.secondary;
-      case 'light': return theme.colors.text.light;
-      case 'primary': return theme.colors.primary;
-      case 'success': return theme.colors.success;
-      case 'warning': return theme.colors.warning;
-      case 'error': return theme.colors.error;
-      default: return theme.colors.text.primary;
+      case 'secondary': return props.theme.colors.text.secondary;
+      case 'light': return props.theme.colors.text.light;
+      case 'primary': return props.theme.colors.primary;
+      case 'success': return props.theme.colors.success;
+      case 'warning': return props.theme.colors.warning;
+      case 'error': return props.theme.colors.error;
+      default: return props.theme.colors.text.primary;
     }
   }};
   line-height: 1.5;
@@ -117,16 +116,16 @@ export const Heading = styled(Typography).attrs(props => ({
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: ${props => {
     switch(props.level) {
-      case 'h1': return theme.typography.fontSize['4xl'];
-      case 'h2': return theme.typography.fontSize['3xl'];
-      case 'h3': return theme.typography.fontSize['2xl'];
-      case 'h4': return theme.typography.fontSize.xl;
-      case 'h5': return theme.typography.fontSize.lg;
-      case 'h6': return theme.typography.fontSize.base;
-      default: return theme.typography.fontSize['2xl'];
+      case 'h1': return props.theme.typography.fontSize['4xl'];
+      case 'h2': return props.theme.typography.fontSize['3xl'];
+      case 'h3': return props.theme.typography.fontSize['2xl'];
+      case 'h4': return props.theme.typography.fontSize.xl;
+      case 'h5': return props.theme.typography.fontSize.lg;
+      case 'h6': return props.theme.typography.fontSize.base;
+      default: return props.theme.typography.fontSize['2xl'];
     }
   }};
-  margin-bottom: ${theme.spacing.sm};
+  margin-bottom: ${props => props.theme.spacing.sm};
 `;
 
 // Enhanced theme detection for compatibility

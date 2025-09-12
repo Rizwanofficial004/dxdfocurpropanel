@@ -8,18 +8,18 @@ import { useLanguage } from '../context/LanguageContext';
 import { lightTheme } from '../../styles/theme';
 import { Cards } from '../components/card/StatsCardsCRM';
 import ActivityStream from '../components/activity/ActivityStream';
-import FocusTimeline from '../components/foucstimeline/FocusTimeline';
 import AnnouncementTable from '../components/announcement/Announcement';
 import { CurrentStatus, CompanyAverage } from '../components';
 // Import global slider styles
 import '../styles/globalSliders.css';
 
 const DashboardContainer = styled.div`
-  background: ${lightTheme.colors.background};
+  background: ${props => props.theme.colors.background};
   min-height: 100vh;
   padding: ${props => props.theme.spacing.lg} 0;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 
   &::before {
     content: '';
@@ -33,7 +33,8 @@ const DashboardContainer = styled.div`
     top: 0;
     width: 350px;
     z-index: 0;
-    opacity: 0.3;
+    opacity: ${props => props.theme.mode === 'dark' ? '0.1' : '0.3'};
+    filter: ${props => props.theme.mode === 'dark' ? 'brightness(0.5)' : 'none'};
   }
 
   &::after {
@@ -48,7 +49,8 @@ const DashboardContainer = styled.div`
     bottom: -80px;
     width: 370px;
     z-index: 0;
-    opacity: 0.3;
+    opacity: ${props => props.theme.mode === 'dark' ? '0.1' : '0.3'};
+    filter: ${props => props.theme.mode === 'dark' ? 'brightness(0.5)' : 'none'};
   }
 `;
 
@@ -99,10 +101,6 @@ const Dashboard = () => {
           {/* For Activity Stream */}
           <ContentSection theme={theme}>
             <ActivityStream />
-          </ContentSection>
-        {/* For FocusTimeline  */}
-            <ContentSection theme={theme}>
-            <FocusTimeline />
           </ContentSection>
 
            {/* For Announcement Table  */}
