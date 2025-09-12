@@ -21,7 +21,8 @@ import jwt
 from django.conf import settings
 from .serializers import (
     UserRegistrationSerializer, 
-    UserLoginSerializer, 
+    UserLoginSerializer,
+    UserLoginEmailSerializer, 
     UserProfileSerializer,
     PasswordChangeSerializer
 )
@@ -43,10 +44,22 @@ class LoginAPIView(APIView):
         POST /api/auth/login/
         
         Authenticate user with email/username and password
-        Uses UserLoginSerializer for validation
+        Supports both email and email_or_username field formats
         """
         try:
-            serializer = UserLoginSerializer(data=request.data)
+            # Determine which serializer to use based on request data
+            if 'email_or_username' in request.data:
+                serializer = UserLoginSerializer(data=request.data)
+            elif 'email' in request.data:
+                # For compatibility, convert email to email_or_username
+                data = request.data.copy()
+                data['email_or_username'] = data['email']
+                serializer = UserLoginSerializer(data=data)
+            else:
+                return Response({
+                    'status': 'error',
+                    'message': 'Either "email" or "email_or_username" field is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             if not serializer.is_valid():
                 return Response({
@@ -56,71 +69,53 @@ class LoginAPIView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             validated_data = serializer.validated_data
-            email_or_username = validated_data['email_or_username']
-            password = validated_data['password']
+            user = validated_data['user']  # UserLoginSerializer returns authenticated user
             
-            # Try to find user by email first, then username
-            user = None
-            try:
-                user = User.objects.get(email=email_or_username)
-            except User.DoesNotExist:
-                try:
-                    user = User.objects.get(username=email_or_username)
-                except User.DoesNotExist:
-                    pass
-            
-            if user and user.check_password(password):
-                if user.is_active:
-                    # Generate or get token
-                    token, created = Token.objects.get_or_create(user=user)
-                    
-                    # Generate JWT token
-                    jwt_payload = {
-                        'user_id': user.id,
+            if user and user.is_active:
+                # Generate or get token
+                token, created = Token.objects.get_or_create(user=user)
+                
+                # Generate JWT token
+                jwt_payload = {
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'exp': datetime.utcnow() + timedelta(days=7),
+                    'iat': datetime.utcnow()
+                }
+                
+                jwt_token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm='HS256')
+                
+                # Update last login time
+                user.last_login = datetime.now()
+                user.save(update_fields=['last_login'])
+                
+                # Log login activity
+                self._log_login_activity(user, request, 'success')
+                
+                return Response({
+                    'status': 'success',
+                    'message': 'Login successful',
+                    'token': jwt_token,
+                    'drf_token': token.key,
+                    'user': {
+                        'id': user.id,
                         'username': user.username,
                         'email': user.email,
-                        'exp': datetime.utcnow() + timedelta(days=7),
-                        'iat': datetime.utcnow()
-                    }
-                    
-                    jwt_token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm='HS256')
-                    
-                    # Update last login time
-                    user.last_login = datetime.now()
-                    user.save(update_fields=['last_login'])
-                    
-                    # Log login activity
-                    self._log_login_activity(user, request, 'success')
-                    
-                    return Response({
-                        'status': 'success',
-                        'message': 'Login successful',
-                        'token': jwt_token,
-                        'drf_token': token.key,
-                        'user': {
-                            'id': user.id,
-                            'username': user.username,
-                            'email': user.email,
-                            'first_name': user.first_name,
-                            'last_name': user.last_name,
-                            'is_staff': user.is_staff,
-                            'is_superuser': user.is_superuser,
-                            'last_login': user.last_login.isoformat() if user.last_login else None,
-                            'date_joined': user.date_joined.isoformat()
-                        },
-                        'login_time': datetime.now().isoformat()
-                    }, status=status.HTTP_200_OK)
-                else:
-                    self._log_login_activity(user, request, 'disabled_account')
-                    return Response({
-                        'status': 'error',
-                        'message': 'User account is disabled'
-                    }, status=status.HTTP_401_UNAUTHORIZED)
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'is_staff': user.is_staff,
+                        'is_superuser': user.is_superuser,
+                        'last_login': user.last_login.isoformat() if user.last_login else None,
+                        'date_joined': user.date_joined.isoformat()
+                    },
+                    'login_time': datetime.now().isoformat()
+                }, status=status.HTTP_200_OK)
             else:
-                self._log_login_activity(None, request, 'invalid_credentials', email_or_username)
+                self._log_login_activity(user, request, 'disabled_account')
                 return Response({
                     'status': 'error',
-                    'message': 'Invalid email/username or password'
+                    'message': 'User account is disabled'
                 }, status=status.HTTP_401_UNAUTHORIZED)
                 
         except Exception as e:

@@ -40,8 +40,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         """
-        Validate username is unique
+        Validate username with comprehensive rules
         """
+        if len(value) < 3:
+            raise serializers.ValidationError("Username must be at least 3 characters long.")
+        
+        if len(value) > 30:
+            raise serializers.ValidationError("Username must not exceed 30 characters.")
+        
+        if not re.match(r'^[a-zA-Z0-9@.+_-]+$', value):
+            raise serializers.ValidationError(
+                "Username may only contain letters, numbers, and @/./+/-/_ characters."
+            )
+        
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
                 "A user with this username already exists. Please choose a different username."
@@ -50,10 +61,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         """
-        Validate password strength
+        Validate password strength with comprehensive rules
         """
         if len(value) < 8:
             raise serializers.ValidationError("Password must be at least 8 characters long.")
+        
+        if len(value) > 128:
+            raise serializers.ValidationError("Password must not exceed 128 characters.")
         
         if not re.search(r'[A-Za-z]', value):
             raise serializers.ValidationError("Password must contain at least one letter.")
@@ -61,6 +75,40 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if not re.search(r'\d', value):
             raise serializers.ValidationError("Password must contain at least one number.")
         
+        # Check for common weak passwords
+        weak_passwords = [
+            'password', '12345678', 'qwerty123', 'abc123456', 
+            'password123', '123456789', 'welcome123'
+        ]
+        if value.lower() in weak_passwords:
+            raise serializers.ValidationError("This password is too common. Please choose a stronger password.")
+        
+        return value
+
+    def validate_first_name(self, value):
+        """
+        Validate first name
+        """
+        if value and len(value) > 30:
+            raise serializers.ValidationError("First name must not exceed 30 characters.")
+        
+        if value and not re.match(r'^[a-zA-Z\s\-\']+$', value):
+            raise serializers.ValidationError(
+                "First name may only contain letters, spaces, hyphens, and apostrophes."
+            )
+        return value
+
+    def validate_last_name(self, value):
+        """
+        Validate last name
+        """
+        if value and len(value) > 30:
+            raise serializers.ValidationError("Last name must not exceed 30 characters.")
+        
+        if value and not re.match(r'^[a-zA-Z\s\-\']+$', value):
+            raise serializers.ValidationError(
+                "Last name may only contain letters, spaces, hyphens, and apostrophes."
+            )
         return value
 
     def validate(self, attrs):
@@ -95,14 +143,78 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.Serializer):
     """
-    Serializer for user login
+    Serializer for user login - supports both email and username
+    """
+    email_or_username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        """
+        Validate login credentials - supports both email and username
+        """
+        email_or_username = attrs.get('email_or_username')
+        password = attrs.get('password')
+
+        if email_or_username and password:
+            # Try to find user by email first, then by username
+            user = None
+            
+            # Check if input looks like an email
+            if '@' in email_or_username:
+                try:
+                    user = User.objects.get(email=email_or_username.lower())
+                except User.DoesNotExist:
+                    pass
+            
+            # If not found by email, try by username
+            if not user:
+                try:
+                    user = User.objects.get(username=email_or_username)
+                except User.DoesNotExist:
+                    pass
+            
+            # If still no user found
+            if not user:
+                if '@' in email_or_username:
+                    raise serializers.ValidationError(
+                        "No account found with this email address. Please check your email or register a new account."
+                    )
+                else:
+                    raise serializers.ValidationError(
+                        "No account found with this username. Please check your username or register a new account."
+                    )
+
+            # Authenticate user
+            authenticated_user = authenticate(username=user.username, password=password)
+            
+            if not authenticated_user:
+                raise serializers.ValidationError(
+                    "Invalid password. Please try again."
+                )
+            
+            if not authenticated_user.is_active:
+                raise serializers.ValidationError(
+                    "This account has been deactivated. Please contact support."
+                )
+            
+            attrs['user'] = authenticated_user
+            return attrs
+        else:
+            raise serializers.ValidationError(
+                "Both email/username and password are required."
+            )
+
+
+class UserLoginEmailSerializer(serializers.Serializer):
+    """
+    Serializer for user login with email only (for compatibility)
     """
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
         """
-        Validate login credentials
+        Validate login credentials using email
         """
         email = attrs.get('email')
         password = attrs.get('password')
@@ -111,26 +223,25 @@ class UserLoginSerializer(serializers.Serializer):
             # Find user by email
             try:
                 user = User.objects.get(email=email.lower())
-                username = user.username
             except User.DoesNotExist:
                 raise serializers.ValidationError(
                     "No account found with this email address. Please check your email or register a new account."
                 )
 
             # Authenticate user
-            user = authenticate(username=username, password=password)
+            authenticated_user = authenticate(username=user.username, password=password)
             
-            if not user:
+            if not authenticated_user:
                 raise serializers.ValidationError(
                     "Invalid email or password. Please try again."
                 )
             
-            if not user.is_active:
+            if not authenticated_user.is_active:
                 raise serializers.ValidationError(
                     "This account has been deactivated. Please contact support."
                 )
             
-            attrs['user'] = user
+            attrs['user'] = authenticated_user
             return attrs
         else:
             raise serializers.ValidationError(

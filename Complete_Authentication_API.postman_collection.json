@@ -1,0 +1,635 @@
+{
+	"info": {
+		"_postman_id": "f1a2b3c4-d5e6-7f8g-9h0i-1j2k3l4m5n6o",
+		"name": "🔐 DDS Focus Pro - Complete Authentication API",
+		"description": "**Complete Authentication System for DDS Focus Pro**\n\n🎯 **Current Status:**\n✅ Registration: Working perfectly\n✅ Token-based Auth: Working with registration tokens\n⚠️ Login: Backend bug (will be fixed after deployment)\n\n💡 **Immediate Solution:**\nUse registration to get authentication tokens, then use those tokens for all authenticated requests.\n\n🚀 **After Backend Deployment:**\nAll endpoints will work perfectly including login.\n\n📧 **Test User:** Use unique emails for each test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🎯 Quick Start Flow",
+			"item": [
+				{
+					"name": "1️⃣ Register New User (Get Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Auto-save tokens from successful registration",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set('auth_token', jsonData.token);",
+									"        pm.environment.set('user_email', jsonData.user.email);",
+									"        pm.environment.set('user_password', 'TestPassword123'); // For login testing",
+									"        console.log('✅ Registration successful!');",
+									"        console.log('Token saved:', jsonData.token);",
+									"        console.log('Email saved:', jsonData.user.email);",
+									"    }",
+									"} else {",
+									"    console.log('❌ Registration failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser_{{timestamp}}@example.com\",\n  \"email\": \"testuser_{{timestamp}}@example.com\",\n  \"password\": \"TestPassword123\",\n  \"password_confirm\": \"TestPassword123\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"organization_name\": \"Test Organization\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Register new user and get authentication token\n\n**What this does:**\n- Creates new user account\n- Returns authentication token\n- Auto-saves token for other requests\n- Uses timestamp to ensure unique email\n\n**Expected Response (201):**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"User registered successfully\",\n  \"user\": {...},\n  \"token\": \"auth_token_here\"\n}\n```\n\n**Next Step:** Use the saved token for authenticated requests"
+					},
+					"response": []
+				},
+				{
+					"name": "2️⃣ Get User Profile (Test Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    console.log('✅ Authentication working!');",
+									"    var jsonData = pm.response.json();",
+									"    console.log('User profile:', JSON.stringify(jsonData.user, null, 2));",
+									"} else {",
+									"    console.log('❌ Authentication failed');",
+									"    console.log('Response:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Test authentication with token from registration\n\n**Prerequisites:** Run \"Register New User\" first to get token\n\n**What this does:**\n- Tests that the authentication token works\n- Returns current user profile information\n- Proves the authentication system is working\n\n**Expected Response (200):**\n```json\n{\n  \"status\": \"success\",\n  \"user\": {\n    \"id\": 13,\n    \"username\": \"user@example.com\",\n    \"email\": \"user@example.com\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\"\n  }\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "3️⃣ Try Login (Current Bug)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    console.log('✅ Login working! Backend has been fixed.');",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set('login_token', jsonData.token);",
+									"        console.log('Login token saved:', jsonData.token);",
+									"    }",
+									"} else if (pm.response.code === 500) {",
+									"    console.log('⚠️ Expected error: Backend bug still present');",
+									"    console.log('Use registration token for authentication');",
+									"} else {",
+									"    console.log('❌ Unexpected error:', pm.response.text());",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "⚠️ **KNOWN BUG** - This will show the backend bug\n\n**Current Issue:**\nBackend expects `email_or_username` but validates `email` field\n\n**Expected Response (500):**\n```json\n{\n  \"status\": \"error\",\n  \"message\": \"Login failed: 'email_or_username'\"\n}\n```\n\n**After Backend Fix:** This will return 200 with auth token\n\n**Workaround:** Use registration endpoint to get tokens"
+					},
+					"response": []
+				}
+			],
+			"description": "🚀 **Quick 3-step flow to test authentication**\n\n1. Register → Get token\n2. Test token → Verify auth works  \n3. Try login → See current bug\n\n**Result:** You'll have working authentication via registration tokens!"
+		},
+		{
+			"name": "🔧 Complete API Endpoints",
+			"item": [
+				{
+					"name": "✅ Registration (Working)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set('auth_token', jsonData.token);",
+									"        console.log('Registration successful, token saved');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"newuser_{{timestamp}}@example.com\",\n  \"email\": \"newuser_{{timestamp}}@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"password_confirm\": \"SecurePassword123\",\n  \"first_name\": \"New\",\n  \"last_name\": \"User\",\n  \"organization_name\": \"My Organization\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "✅ **WORKING PERFECTLY**\n\n**Features:**\n- Email uniqueness validation\n- Password strength checking\n- All required fields validation\n- Automatic token generation\n\n**Required Fields:**\n- username (must match email)\n- email (must be unique)\n- password (min 8 chars, letters + numbers)\n- password_confirm (must match password)\n- first_name, last_name\n- organization_name, country"
+					},
+					"response": []
+				},
+				{
+					"name": "⚠️ Login (Backend Bug)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testuser_20250912_235901_prod@example.com\",\n  \"password\": \"TestPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "⚠️ **BACKEND BUG - WILL FAIL**\n\nCurrently returns HTTP 500 due to field name mismatch.\n\n**The Fix:** Backend code has been updated but needs deployment.\n\n**Workaround:** Use registration endpoint to get authentication tokens."
+					},
+					"response": []
+				},
+				{
+					"name": "🔧 Login (Fixed - After Deployment)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set('auth_token', jsonData.token);",
+									"        pm.environment.set('drf_token', jsonData.drf_token);",
+									"        console.log('✅ Login successful! Tokens saved.');",
+									"    }",
+									"} else {",
+									"    console.log('❌ Login failed. Check if backend is deployed.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email_or_username\": \"testuser_20250912_235901_prod@example.com\",\n  \"password\": \"TestPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "🔧 **WILL WORK AFTER DEPLOYMENT**\n\nEnhanced login with support for both email and username.\n\n**Features after fix:**\n- Supports email_or_username field\n- Backward compatible with email field\n- Better error messages\n- JWT + DRF token support"
+					},
+					"response": []
+				},
+				{
+					"name": "👤 Get Profile (Requires Token)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Get user profile\n\n**Prerequisites:** Valid auth token (from registration)\n\n**Returns:** Complete user profile information"
+					},
+					"response": []
+				},
+				{
+					"name": "🔄 Change Password (Requires Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"current_password\": \"TestPassword123\",\n  \"new_password\": \"NewSecurePassword123\",\n  \"new_password_confirm\": \"NewSecurePassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/change-password/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"change-password",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Change user password\n\n**Features:**\n- Validates current password\n- Password strength checking\n- Returns new token for security\n\n**Prerequisites:** Valid auth token"
+					},
+					"response": []
+				},
+				{
+					"name": "🚪 Logout (Requires Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Token {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/logout/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Logout and invalidate token\n\n**What it does:**\n- Invalidates current authentication token\n- Logs out user securely\n\n**Prerequisites:** Valid auth token"
+					},
+					"response": []
+				},
+				{
+					"name": "📧 Check Email Availability",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"check_{{timestamp}}@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/check-email/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"check-email",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Check if email is available\n\n**Use case:** Before registration, check if email is already taken\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"email_available\": true,\n  \"message\": \"Email is available\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "🧪 Database Test & Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/database-test/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"database-test",
+								""
+							]
+						},
+						"description": "✅ **WORKING** - Test database and show statistics\n\n**Returns:**\n- Database connection status\n- User count and statistics\n- Recent user registrations\n- Duplicate email detection\n- Auth system health check"
+					},
+					"response": []
+				}
+			],
+			"description": "🔧 **All authentication endpoints with current status**\n\n✅ Working: Registration, Profile, Password Change, Logout, Email Check, Database Test\n⚠️ Backend Bug: Login (fix ready for deployment)\n🔧 Enhanced: Better validation and error handling"
+		},
+		{
+			"name": "🧪 Validation Testing",
+			"item": [
+				{
+					"name": "Test: Duplicate Email Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser_20250912_235901_prod@example.com\",\n  \"email\": \"testuser_20250912_235901_prod@example.com\",\n  \"password\": \"TestPassword123\",\n  \"password_confirm\": \"TestPassword123\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"organization_name\": \"Test Org\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "Test registration with existing email - should return 400 error"
+					},
+					"response": []
+				},
+				{
+					"name": "Test: Missing Password Confirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"noconfirm_{{timestamp}}@example.com\",\n  \"email\": \"noconfirm_{{timestamp}}@example.com\",\n  \"password\": \"TestPassword123\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"organization_name\": \"Test Org\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "Test registration without password_confirm - should return 400 error"
+					},
+					"response": []
+				},
+				{
+					"name": "Test: Weak Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"weakpass_{{timestamp}}@example.com\",\n  \"email\": \"weakpass_{{timestamp}}@example.com\",\n  \"password\": \"weak\",\n  \"password_confirm\": \"weak\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"organization_name\": \"Test Org\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								""
+							]
+						},
+						"description": "Test registration with weak password - should return 400 error with validation details"
+					},
+					"response": []
+				}
+			],
+			"description": "🧪 **Test validation rules and error handling**\n\nThese tests verify that the API properly validates input and returns appropriate error messages."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Generate timestamp for unique emails",
+					"pm.environment.set('timestamp', Date.now());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script for all requests",
+					"console.log('Request: ' + pm.request.method + ' ' + pm.request.url.toString());",
+					"console.log('Status: ' + pm.response.code + ' ' + pm.response.status);",
+					"",
+					"// Log response body for debugging",
+					"try {",
+					"    var responseJson = pm.response.json();",
+					"    console.log('Response:', JSON.stringify(responseJson, null, 2));",
+					"} catch (e) {",
+					"    console.log('Response (text):', pm.response.text());",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://dxdtime.ddsolutions.io/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "drf_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_email",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_password",
+			"value": "TestPassword123",
+			"type": "string"
+		},
+		{
+			"key": "timestamp",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
