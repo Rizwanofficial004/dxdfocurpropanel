@@ -357,7 +357,7 @@ export const Input = styled.input`
   font-size: ${lightTheme.typography.fontSize.base};
   font-family: ${lightTheme.typography.fontFamily.primary};
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: ${lightTheme.colors.text.primary};
+  color: white !important; /* White text in normal state */
   position: relative;
   transform: translateZ(0);
 
@@ -371,9 +371,11 @@ export const Input = styled.input`
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
     background: rgba(255, 255, 255, 0.9);
+    color: ${lightTheme.colors.text.primary} !important; /* Dark text on hover */
     
     &::placeholder {
       opacity: 0.8;
+      color: ${lightTheme.colors.text.muted};
     }
   }
 
@@ -382,22 +384,43 @@ export const Input = styled.input`
     border-color: ${lightTheme.colors.input.borderFocus};
     box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.15), 0 8px 20px rgba(74, 144, 226, 0.2);
     background: white;
+    color: ${lightTheme.colors.text.primary} !important; /* Dark text on focus */
     transform: translateY(-2px);
     
     &::placeholder {
       opacity: 0.6;
+      color: ${lightTheme.colors.text.muted};
       transform: translateX(4px);
     }
   }
 
   &:active {
     transform: translateY(-1px);
+    color: ${lightTheme.colors.text.primary} !important; /* Dark text on active */
   }
 
   &.error {
     border-color: ${lightTheme.colors.input.borderError};
     box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
     animation: shake 0.5s ease-in-out;
+    color: white !important; /* Keep white text for error state unless focused/hovered */
+  }
+
+  /* Ensure autofill states follow the same pattern */
+  &:-webkit-autofill {
+    -webkit-text-fill-color: white !important; /* White text for autofill normal state */
+    -webkit-box-shadow: 0 0 0px 1000px ${lightTheme.colors.input.background} inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  &:-webkit-autofill:hover {
+    -webkit-text-fill-color: ${lightTheme.colors.text.primary} !important; /* Dark text on autofill hover */
+    -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.9) inset;
+  }
+
+  &:-webkit-autofill:focus {
+    -webkit-text-fill-color: ${lightTheme.colors.text.primary} !important; /* Dark text on autofill focus */
+    -webkit-box-shadow: 0 0 0px 1000px white inset;
   }
 
   @keyframes shake {

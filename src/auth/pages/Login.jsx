@@ -174,10 +174,10 @@ const Login = () => {
       
       // Update auth context with user data
       login(userData);
-      
+      debugger
       // Show success message
       console.log('🎉 User logged in successfully!');
-      alert(`🎉 Login successful! Welcome back ${userData.user?.first_name || userData.user?.email}!`);
+      alert(`🎉 Login successful! Welcome back ${userData?.first_name || userData?.email}!`);
       
       // Redirect to admin panel
       navigate('/admin-panel', { replace: true });
@@ -192,7 +192,7 @@ const Login = () => {
       
       // Set appropriate error message
       setErrors({
-        general: error.message || 'Login failed. Please check your credentials.'
+        general: 'Login failed. Please check your credentials.'
       });
     } finally {
       setIsLoading(false);
@@ -254,7 +254,7 @@ const Login = () => {
                 placeholder={t('email')}
                 value={formData.username}
                 onChange={handleInputChange}
-                hasError={!!errors.username}
+                //hasError={!!errors.username}
                 required
                 autoComplete="email"
               />
@@ -277,7 +277,7 @@ const Login = () => {
                 placeholder={t('password')}
                 value={formData.password}
                 onChange={handleInputChange}
-                hasError={!!errors.password}
+                //hasError={!!errors.password}
                 required
                 autoComplete="current-password"
               />

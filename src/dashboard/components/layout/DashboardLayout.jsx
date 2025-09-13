@@ -27,6 +27,7 @@ const MainContent = styled.main`
   margin-left: ${props => props.isSidebarCollapsed ? '60px' : '240px'};
   margin-right: ${props => props.isRightSidebarExpanded ? '280px' : '60px'};
   transition: margin-left 0.3s ease, margin-right 0.3s ease;
+  margin-top: 30px;
 `;
 
 const HeaderBorderExtension = styled.div`
