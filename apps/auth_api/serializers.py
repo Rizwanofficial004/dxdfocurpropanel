@@ -8,17 +8,28 @@ import re
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """
-    Serializer for user registration with unique email validation
+    Serializer for user registration with unique email validation and extended profile fields
     """
     password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
     email = serializers.EmailField(required=True)
     first_name = serializers.CharField(required=False, allow_blank=True)
     last_name = serializers.CharField(required=False, allow_blank=True)
+    
+    # Extended profile fields
+    organization_name = serializers.CharField(required=False, allow_blank=True, max_length=100)
+    country = serializers.CharField(required=False, allow_blank=True, max_length=50)
+    phone_number = serializers.CharField(required=False, allow_blank=True, max_length=20)
+    job_title = serializers.CharField(required=False, allow_blank=True, max_length=100)
+    industry = serializers.CharField(required=False, allow_blank=True, max_length=100)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name']
+        fields = [
+            'username', 'email', 'password', 'password_confirm', 
+            'first_name', 'last_name', 'organization_name', 'country',
+            'phone_number', 'job_title', 'industry'
+        ]
 
     def validate_email(self, value):
         """
@@ -111,6 +122,40 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_organization_name(self, value):
+        """
+        Validate organization name
+        """
+        if value and len(value) > 100:
+            raise serializers.ValidationError("Organization name must not exceed 100 characters.")
+        return value
+
+    def validate_country(self, value):
+        """
+        Validate country name
+        """
+        if value and len(value) > 50:
+            raise serializers.ValidationError("Country name must not exceed 50 characters.")
+        
+        if value and not re.match(r'^[a-zA-Z\s\-\']+$', value):
+            raise serializers.ValidationError(
+                "Country name may only contain letters, spaces, hyphens, and apostrophes."
+            )
+        return value
+
+    def validate_phone_number(self, value):
+        """
+        Validate phone number
+        """
+        if value and len(value) > 20:
+            raise serializers.ValidationError("Phone number must not exceed 20 characters.")
+        
+        if value and not re.match(r'^[\d\+\-\(\)\s]+$', value):
+            raise serializers.ValidationError(
+                "Phone number may only contain digits, spaces, hyphens, parentheses, and plus sign."
+            )
+        return value
+
     def validate(self, attrs):
         """
         Validate that passwords match
@@ -124,8 +169,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-        Create new user with validated data
+        Create new user with validated data and extended profile
         """
+        # Extract profile fields
+        profile_fields = {
+            'organization_name': validated_data.pop('organization_name', ''),
+            'country': validated_data.pop('country', ''),
+            'phone_number': validated_data.pop('phone_number', ''),
+            'job_title': validated_data.pop('job_title', ''),
+            'industry': validated_data.pop('industry', '')
+        }
+        
         # Remove password_confirm from validated_data
         validated_data.pop('password_confirm')
         
@@ -137,6 +191,49 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', '')
         )
+        
+        # Force refresh from database to ensure profile exists
+        user.refresh_from_db()
+        
+        # Update user profile with additional fields
+        try:
+            # Try to import and use UserProfile (migration-safe)
+            from apps.users.models import UserProfile
+            from django.db import connection
+            
+            # Check if the table exists before trying to use it
+            table_names = connection.introspection.table_names()
+            if 'users_userprofile' in table_names:
+                # Table exists, proceed with profile creation
+                profile, created = UserProfile.objects.get_or_create(user=user)
+                
+                # Update profile fields
+                updated = False
+                for field, value in profile_fields.items():
+                    if value:  # Only set non-empty values
+                        setattr(profile, field, value)
+                        updated = True
+                
+                if updated:
+                    profile.mark_profile_completed()  # Check if profile is complete
+                    profile.save()
+                    
+                    # Log for debugging
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"Updated profile for {user.username}: org={profile.organization_name}, country={profile.country}")
+            else:
+                # Table doesn't exist yet, log the profile data for later migration
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"UserProfile table not found. Profile data for {user.username}: {profile_fields}")
+                
+        except Exception as e:
+            # Log the error but don't fail registration
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error updating user profile (table may not exist): {str(e)}")
+            # Registration continues successfully even if profile creation fails
         
         return user
 
@@ -251,12 +348,35 @@ class UserLoginEmailSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """
-    Serializer for user profile information
+    Serializer for user profile information including extended profile fields
     """
+    # Extended profile fields from UserProfile model
+    organization_name = serializers.CharField(source='profile.organization_name', required=False, allow_blank=True)
+    country = serializers.CharField(source='profile.country', required=False, allow_blank=True)
+    phone_number = serializers.CharField(source='profile.phone_number', required=False, allow_blank=True)
+    job_title = serializers.CharField(source='profile.job_title', required=False, allow_blank=True)
+    industry = serializers.CharField(source='profile.industry', required=False, allow_blank=True)
+    bio = serializers.CharField(source='profile.bio', required=False, allow_blank=True)
+    
+    # Profile metadata
+    profile_completed = serializers.BooleanField(source='profile.profile_completed', read_only=True)
+    profile_completion_percentage = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'last_login']
-        read_only_fields = ['id', 'username', 'date_joined', 'last_login']
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name', 
+            'date_joined', 'last_login', 'organization_name', 'country',
+            'phone_number', 'job_title', 'industry', 'bio',
+            'profile_completed', 'profile_completion_percentage'
+        ]
+        read_only_fields = ['id', 'username', 'date_joined', 'last_login', 'profile_completed', 'profile_completion_percentage']
+
+    def get_profile_completion_percentage(self, obj):
+        """Get profile completion percentage"""
+        if hasattr(obj, 'profile'):
+            return obj.profile.get_completion_percentage()
+        return 0
 
     def validate_email(self, value):
         """
@@ -268,6 +388,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 "A user with this email address already exists."
             )
         return value.lower()
+
+    def update(self, instance, validated_data):
+        """
+        Update user and profile information
+        """
+        # Extract profile data
+        profile_data = validated_data.pop('profile', {})
+        
+        # Update user fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Update profile fields
+        if profile_data and hasattr(instance, 'profile'):
+            for attr, value in profile_data.items():
+                setattr(instance.profile, attr, value)
+            instance.profile.mark_profile_completed()  # Check completion
+            instance.profile.save()
+        
+        return instance
 
 
 class PasswordChangeSerializer(serializers.Serializer):

@@ -1,5 +1,27 @@
 """
-Authentication API Views for Login/Registration/User Management
+Authentication API Views for Login/Registra        try:
+            # Handle multiple field name variations for login
+            login_field = None
+            
+            if 'email_or_username' in request.data:
+                login_field = request.data.get('email_or_username')
+            elif 'email' in request.data:
+                login_field = request.data.get('email')
+            elif 'username' in request.data:
+                login_field = request.data.get('username')
+            else:
+                return Response({
+                    'status': 'error',
+                    'message': 'Login field required. Use "username", "email", or "email_or_username"'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Prepare data for serializer (always use email_or_username internally)
+            serializer_data = {
+                'email_or_username': login_field,
+                'password': request.data.get('password')
+            }
+            
+            serializer = UserLoginSerializer(data=serializer_data)ment
 Provides comprehensive authentication with unique email validation
 """
 
@@ -47,19 +69,28 @@ class LoginAPIView(APIView):
         Supports both email and email_or_username field formats
         """
         try:
-            # Determine which serializer to use based on request data
+            # Handle multiple field name variations for login
+            login_field = None
+            
             if 'email_or_username' in request.data:
-                serializer = UserLoginSerializer(data=request.data)
+                login_field = request.data.get('email_or_username')
             elif 'email' in request.data:
-                # For compatibility, convert email to email_or_username
-                data = request.data.copy()
-                data['email_or_username'] = data['email']
-                serializer = UserLoginSerializer(data=data)
+                login_field = request.data.get('email')
+            elif 'username' in request.data:
+                login_field = request.data.get('username')
             else:
                 return Response({
                     'status': 'error',
-                    'message': 'Either "email" or "email_or_username" field is required'
+                    'message': 'Login field required. Use "username", "email", or "email_or_username"'
                 }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Prepare data for serializer (always use email_or_username internally)
+            serializer_data = {
+                'email_or_username': login_field,
+                'password': request.data.get('password')
+            }
+            
+            serializer = UserLoginSerializer(data=serializer_data)
             
             if not serializer.is_valid():
                 return Response({
@@ -93,22 +124,42 @@ class LoginAPIView(APIView):
                 # Log login activity
                 self._log_login_activity(user, request, 'success')
                 
+                # Prepare user data with profile information
+                user_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser,
+                    'last_login': user.last_login.isoformat() if user.last_login else None,
+                    'date_joined': user.date_joined.isoformat()
+                }
+                
+                # Add profile information if available
+                try:
+                    if hasattr(user, 'profile'):
+                        user_data.update({
+                            'organization_name': user.profile.organization_name,
+                            'country': user.profile.country,
+                            'phone_number': user.profile.phone_number,
+                            'job_title': user.profile.job_title,
+                            'industry': user.profile.industry,
+                            'profile_completed': user.profile.profile_completed,
+                            'profile_completion_percentage': user.profile.get_completion_percentage()
+                        })
+                except Exception as e:
+                    # Handle case where UserProfile table doesn't exist or other profile errors
+                    logger.warning(f"Profile data not available for user {user.id}: {str(e)}")
+                    pass
+                
                 return Response({
                     'status': 'success',
                     'message': 'Login successful',
                     'token': jwt_token,
                     'drf_token': token.key,
-                    'user': {
-                        'id': user.id,
-                        'username': user.username,
-                        'email': user.email,
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
-                        'is_staff': user.is_staff,
-                        'is_superuser': user.is_superuser,
-                        'last_login': user.last_login.isoformat() if user.last_login else None,
-                        'date_joined': user.date_joined.isoformat()
-                    },
+                    'user': user_data,
                     'login_time': datetime.now().isoformat()
                 }, status=status.HTTP_200_OK)
             else:
@@ -211,31 +262,45 @@ class RegisterAPIView(APIView):
             validated_data = serializer.validated_data
             
             try:
-                # Create user (serializer already validates uniqueness)
-                user = User.objects.create_user(
-                    username=validated_data['username'],
-                    email=validated_data['email'],
-                    password=validated_data['password'],
-                    first_name=validated_data.get('first_name', ''),
-                    last_name=validated_data.get('last_name', '')
-                )
+                # Use serializer to create user (this will handle profile fields)
+                user = serializer.save()
                 
                 # Generate authentication token
                 token, created = Token.objects.get_or_create(user=user)
+                
+                # Prepare user data with profile information
+                user_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'date_joined': user.date_joined.isoformat(),
+                }
+                
+                # Add profile information if available
+                try:
+                    if hasattr(user, 'profile'):
+                        user_data.update({
+                            'organization_name': user.profile.organization_name,
+                            'country': user.profile.country,
+                            'phone_number': user.profile.phone_number,
+                            'job_title': user.profile.job_title,
+                            'industry': user.profile.industry,
+                            'profile_completed': user.profile.profile_completed,
+                            'profile_completion_percentage': user.profile.get_completion_percentage()
+                        })
+                except Exception as e:
+                    # Handle case where UserProfile table doesn't exist or other profile errors
+                    logger.warning(f"Profile data not available for user {user.id}: {str(e)}")
+                    pass
                 
                 logger.info(f"New user registered with unique email: {validated_data['email']}")
                 
                 return Response({
                     'status': 'success',
-                    'message': 'User registered successfully with unique email',
-                    'user': {
-                        'id': user.id,
-                        'username': user.username,
-                        'email': user.email,
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
-                        'date_joined': user.date_joined.isoformat()
-                    },
+                    'message': 'User registered successfully with unique email and profile information',
+                    'user': user_data,
                     'token': token.key
                 }, status=status.HTTP_201_CREATED)
                 
