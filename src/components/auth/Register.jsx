@@ -108,12 +108,16 @@ const Register = () => {
     email: '',
     username: '',
     password: '',
+    passwordConfirm: '',
+    firstName: '',
+    lastName: '',
     organizationName: '',
     country: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({
@@ -121,6 +125,59 @@ const Register = () => {
       [e.target.name]: e.target.value
     });
     setError('');
+    // Clear field-specific error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors({
+        ...fieldErrors,
+        [e.target.name]: ''
+      });
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.email) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    
+    if (!formData.username) {
+      errors.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      errors.username = 'Username must be at least 3 characters';
+    }
+    
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      errors.password = 'Password must be at least 8 characters';
+    }
+    
+    if (!formData.passwordConfirm) {
+      errors.passwordConfirm = 'Password confirmation is required';
+    } else if (formData.password !== formData.passwordConfirm) {
+      errors.passwordConfirm = 'Passwords do not match';
+    }
+    
+    if (!formData.firstName) {
+      errors.firstName = 'First name is required';
+    }
+    
+    if (!formData.lastName) {
+      errors.lastName = 'Last name is required';
+    }
+    
+    if (!formData.organizationName) {
+      errors.organizationName = 'Organization name is required';
+    }
+    
+    if (!formData.country) {
+      errors.country = 'Country is required';
+    }
+    
+    return errors;
   };
 
   const handleSubmit = async (e) => {
@@ -128,37 +185,60 @@ const Register = () => {
     setLoading(true);
     setError('');
     setSuccess('');
+    setFieldErrors({});
+
+    // Validate form
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await authService.register(formData);
       
-      // Show success toast
-      toast.success('Registration successful! Redirecting to login...', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true
-      });
+      if (response.status === 'success') {
+        // Show success message
+        setSuccess('Registration successful! You are now logged in.');
+        
+        // Show success toast
+        toast.success('Registration successful! Welcome to the platform!', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
 
-      // Clear form
-      setFormData({
-        email: '',
-        username: '',
-        password: '',
-        organizationName: '',
-        country: ''
-      });
+        // Clear form
+        setFormData({
+          email: '',
+          username: '',
+          password: '',
+          passwordConfirm: '',
+          firstName: '',
+          lastName: '',
+          organizationName: '',
+          country: ''
+        });
 
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+        // Redirect to dashboard after a short delay
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
       
     } catch (error) {
+      console.error('Registration error:', error);
+      
+      const errorMessage = error.message || 'Registration failed. Please try again.';
+      
       // Show error toast
-      toast.error(error.message || 'Registration failed. Please try again.', {
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -167,7 +247,7 @@ const Register = () => {
         draggable: true
       });
       
-      setError(error.message || 'Registration failed. Please try again.');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -179,7 +259,7 @@ const Register = () => {
       <Title>Create Account</Title>
       <Form onSubmit={handleSubmit}>
         <FormGroup>
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email *</Label>
           <Input
             type="email"
             id="email"
@@ -189,10 +269,11 @@ const Register = () => {
             required
             placeholder="Enter your email"
           />
+          {fieldErrors.email && <ErrorMessage>{fieldErrors.email}</ErrorMessage>}
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="username">Username *</Label>
           <Input
             type="text"
             id="username"
@@ -201,11 +282,41 @@ const Register = () => {
             onChange={handleChange}
             required
             placeholder="Choose a username"
+            minLength="3"
           />
+          {fieldErrors.username && <ErrorMessage>{fieldErrors.username}</ErrorMessage>}
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="firstName">First Name *</Label>
+          <Input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+            placeholder="Enter your first name"
+          />
+          {fieldErrors.firstName && <ErrorMessage>{fieldErrors.firstName}</ErrorMessage>}
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="lastName">Last Name *</Label>
+          <Input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+            placeholder="Enter your last name"
+          />
+          {fieldErrors.lastName && <ErrorMessage>{fieldErrors.lastName}</ErrorMessage>}
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="password">Password *</Label>
           <Input
             type="password"
             id="password"
@@ -213,12 +324,28 @@ const Register = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            placeholder="Create a password"
+            placeholder="Create a password (min. 8 characters)"
+            minLength="8"
           />
+          {fieldErrors.password && <ErrorMessage>{fieldErrors.password}</ErrorMessage>}
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="organizationName">Organization Name</Label>
+          <Label htmlFor="passwordConfirm">Confirm Password *</Label>
+          <Input
+            type="password"
+            id="passwordConfirm"
+            name="passwordConfirm"
+            value={formData.passwordConfirm}
+            onChange={handleChange}
+            required
+            placeholder="Confirm your password"
+          />
+          {fieldErrors.passwordConfirm && <ErrorMessage>{fieldErrors.passwordConfirm}</ErrorMessage>}
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="organizationName">Organization Name *</Label>
           <Input
             type="text"
             id="organizationName"
@@ -228,10 +355,11 @@ const Register = () => {
             required
             placeholder="Enter organization name"
           />
+          {fieldErrors.organizationName && <ErrorMessage>{fieldErrors.organizationName}</ErrorMessage>}
         </FormGroup>
 
         <FormGroup>
-          <Label htmlFor="country">Country</Label>
+          <Label htmlFor="country">Country *</Label>
           <Select
             id="country"
             name="country"
@@ -240,9 +368,19 @@ const Register = () => {
             required
           >
             <option value="">Select a country</option>
+            <option value="USA">United States</option>
             <option value="Pakistan">Pakistan</option>
-            {/* Add more countries as needed */}
+            <option value="Turkey">Turkey</option>
+            <option value="Germany">Germany</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+            <option value="India">India</option>
+            <option value="France">France</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="Other">Other</option>
           </Select>
+          {fieldErrors.country && <ErrorMessage>{fieldErrors.country}</ErrorMessage>}
         </FormGroup>
 
         {error && <ErrorMessage>{error}</ErrorMessage>}

@@ -46,13 +46,11 @@ class AuthService {
       console.log('🌐 API Base URL:', this.baseURL);
       console.log('🎯 Login endpoint:', buildApiUrl(API_ENDPOINTS.AUTH.LOGIN));
       
-      // Try multiple possible endpoints
+      // Only try endpoints that will work with our proxy setup
       const possibleEndpoints = [
-        API_ENDPOINTS.AUTH.LOGIN,        // /auth/login/
-        '/auth/token/',                  // Django REST Auth token endpoint
-        '/api-token-auth/',              // DRF token auth
-        '/login/',                       // Simple login
-        '/token/',                       // JWT token endpoint
+        API_ENDPOINTS.AUTH.LOGIN,        // /auth/login/ (primary endpoint)
+        '/auth/token/',                  // Django REST Auth token endpoint  
+        '/auth/login/',                  // Alternative login endpoint
       ];
 
       let response;
@@ -60,7 +58,8 @@ class AuthService {
       
       for (const endpoint of possibleEndpoints) {
         try {
-          console.log(`🔍 Trying endpoint: ${buildApiUrl(endpoint)}`);
+          const fullUrl = buildApiUrl(endpoint);
+          console.log(`🔍 Trying endpoint: ${fullUrl}`);
           
           const requestBody = {
             username: username,
@@ -70,22 +69,18 @@ class AuthService {
           };
           
           console.log('📤 Request body:', requestBody);
-          console.log('📋 Request headers:', {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          });
           
-          response = await fetch(buildApiUrl(endpoint), {
+          response = await fetch(fullUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest', // Help with CORS
             },
             body: JSON.stringify(requestBody),
           });
 
           console.log(`📡 Response status for ${endpoint}:`, response.status);
-          console.log(`📡 Response headers:`, Object.fromEntries(response.headers.entries()));
           
           if (response.ok) {
             usedEndpoint = endpoint;
@@ -156,62 +151,245 @@ class AuthService {
     try {
       console.log('📝 Attempting API registration...');
       
-      const response = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.REGISTER || '/auth/register/'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          username: userData.email,  // Add username field as required by API
-          email: userData.email,
-          password: userData.password,
-          organization_name: userData.organization,
-          country: userData.country,
-          first_name: userData.firstName || '',
-          last_name: userData.lastName || ''
-        }),
+      // Transform frontend data to API format
+      const apiData = {
+        email: userData.email,
+        username: userData.username || userData.email, // Use email as username if not provided
+        password: userData.password,
+        password_confirm: userData.passwordConfirm || userData.password,
+        first_name: userData.firstName,
+        last_name: userData.lastName,
+        organization_name: userData.organizationName,
+        country: userData.country
+      };
+
+      console.log('🚀 Sending registration data:', apiData);
+      console.log('📋 Field validation:', {
+        hasEmail: !!apiData.email,
+        hasUsername: !!apiData.username,
+        hasPassword: !!apiData.password,
+        hasPasswordConfirm: !!apiData.password_confirm,
+        hasFirstName: !!apiData.first_name,
+        hasLastName: !!apiData.last_name,
+        hasOrgName: !!apiData.organization_name,
+        hasCountry: !!apiData.country,
+        passwordsMatch: apiData.password === apiData.password_confirm
       });
+      
+      // Force proxy usage in development
+      let registrationUrl;
+      if (import.meta.env.DEV || window.location.hostname === 'localhost') {
+        registrationUrl = '/api/auth/register/';
+        console.log('🔧 Using proxy URL for development:', registrationUrl);
+      } else {
+        registrationUrl = buildApiUrl(API_ENDPOINTS.AUTH.REGISTER || '/auth/register/');
+        console.log('🌐 Using full URL for production:', registrationUrl);
+      }
+      
+      console.log('🌐 Final registration URL:', registrationUrl);
+      console.log('🔧 Base URL:', getApiBaseURL());
+      console.log('🏠 Window location:', window.location.hostname);
+      console.log('🛠️ Environment:', import.meta.env.DEV ? 'Development' : 'Production');
+      
+      // Try multiple endpoints if first fails
+      const endpointsToTry = [
+        registrationUrl,
+        '/auth/register/',
+        '/api/register/',
+        '/register/'
+      ];
+      
+      let response;
+      let lastError;
+      
+      for (const endpoint of endpointsToTry) {
+        try {
+          console.log(`🔍 Trying endpoint: ${endpoint}`);
+          
+          response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify(apiData),
+          });
+
+          console.log(`📊 Response status for ${endpoint}:`, response.status);
+          
+          // If we get 404, try next endpoint
+          if (response.status === 404) {
+            console.log(`❌ Endpoint ${endpoint} not found, trying next...`);
+            continue;
+          }
+          
+          // If we get here, we have a response (could be success or error)
+          break;
+          
+        } catch (error) {
+          console.error(`❌ Network error for ${endpoint}:`, error.message);
+          lastError = error;
+          continue;
+        }
+      }
+      
+      // If no response was obtained, throw the last error
+      if (!response) {
+        throw lastError || new Error('All registration endpoints failed');
+      }
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.message || 'Registration failed');
+        const errorText = await response.text();
+        console.error('❌ Registration API error response:', errorText);
+        console.error('📊 Response status:', response.status);
+        console.error('📋 Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        // Check if response is HTML (error page)
+        if (errorText.startsWith('<html') || errorText.startsWith('<!DOCTYPE')) {
+          console.error('❌ Server returned HTML error page instead of JSON');
+          throw new Error(`Server error: Received HTML error page (status ${response.status}). The API endpoint may not exist or may be misconfigured.`);
+        }
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { message: errorText.substring(0, 200) + (errorText.length > 200 ? '...' : '') };
+        }
+        
+        console.error('❌ Parsed error data:', errorData);
+        
+        // Handle specific API error format
+        if (errorData.errors) {
+          const fieldErrors = [];
+          const structuredErrors = {};
+          
+          Object.keys(errorData.errors).forEach(field => {
+            if (Array.isArray(errorData.errors[field])) {
+              errorData.errors[field].forEach(err => {
+                fieldErrors.push(`${field}: ${err}`);
+                structuredErrors[field] = err;
+              });
+            } else {
+              fieldErrors.push(`${field}: ${errorData.errors[field]}`);
+              structuredErrors[field] = errorData.errors[field];
+            }
+          });
+          
+          // Create a custom error with structured field errors
+          const error = new Error(fieldErrors.join(', ') || errorData.message || 'Registration validation failed');
+          error.fieldErrors = structuredErrors;
+          throw error;
+        }
+        
+        // Handle specific error cases
+        if (response.status === 400) {
+          const errorMessage = errorData.message || errorData.detail || errorData.error || 'Invalid registration data. Please check all required fields.';
+          throw new Error(errorMessage);
+        } else if (response.status === 409) {
+          throw new Error('User with this email already exists');
+        } else if (response.status === 422) {
+          throw new Error('Validation error: ' + (errorData.message || 'Invalid data format'));
+        } else {
+          throw new Error(errorData.detail || errorData.message || errorData.error || `Registration failed (${response.status})`);
+        }
       }
 
       const data = await response.json();
-      console.log('✅ API registration successful');
+      console.log('✅ API registration successful:', data);
       
-      return this.handleSuccessfulLogin(data, false);
+      // Handle successful registration response
+      if (data.status === 'success' && data.token) {
+        // Store the token directly in localStorage
+        localStorage.setItem('access_token', data.token);
+        localStorage.setItem('refresh_token', data.token); // Use same token as refresh
+        
+        // Store user data directly in localStorage
+        const userData = {
+          id: data.user.id,
+          username: data.user.username,
+          email: data.user.email,
+          first_name: data.user.first_name,
+          last_name: data.user.last_name,
+          organization_name: data.user.organization_name,
+          country: data.user.country,
+          profile_completed: data.user.profile_completed,
+          profile_completion_percentage: data.user.profile_completion_percentage,
+          token: data.token
+        };
+        
+        localStorage.setItem('user_data', JSON.stringify(userData));
+        
+        // Update instance properties
+        this.token = data.token;
+        this.refreshToken = data.token;
+        
+        return {
+          success: true,
+          user: userData,
+          token: data.token,
+          message: data.message
+        };
+      }
+      
+      throw new Error(data.message || 'Registration failed');
       
     } catch (error) {
       console.error('❌ API registration error:', error);
       
-      // For demo purposes, simulate successful registration
-      console.log('🔓 API unavailable, simulating registration success');
+      // If proxy failed, try direct API call as last resort
+      if (error.message.includes('HTML error page') || error.message.includes('Failed to fetch')) {
+        try {
+          console.log('🔄 Trying direct API call as fallback...');
+          const directResponse = await fetch('https://dxdtime.ddsolutions.io/api/auth/register/', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify(apiData),
+          });
+
+          if (directResponse.ok) {
+            const directData = await directResponse.json();
+            console.log('✅ Direct API registration successful');
+            return this.handleSuccessfulLogin(directData, false);
+          } else {
+            const directError = await directResponse.text();
+            console.log('❌ Direct API also failed:', directError);
+          }
+        } catch (directError) {
+          console.error('❌ Direct API call failed:', directError);
+        }
+      }
+      
+      // For development/demo purposes, simulate successful registration when API is unavailable
+      console.log('🔓 API unavailable, simulating registration success for development');
       
       const mockUserData = {
-        id: Math.floor(Math.random() * 1000),
-        username: userData.email,
-        email: userData.email,
-        first_name: userData.firstName || 'User',
-        last_name: userData.lastName || '',
-        role: 'admin',
-        is_superuser: true,
-        is_staff: true,
-        is_active: true,
-        permissions: ['read', 'write', 'delete', 'admin'],
+        user: {
+          id: Math.floor(Math.random() * 1000),
+          username: userData.username || userData.email,
+          email: userData.email,
+          first_name: userData.firstName || userData.first_name,
+          last_name: userData.lastName || userData.last_name,
+          organization_name: userData.organizationName || userData.organization_name,
+          country: userData.country,
+          is_active: true,
+          date_joined: new Date().toISOString(),
+          profile_completed: true,
+          profile_completion_percentage: 50.0
+        },
         token: 'mock-jwt-token-' + Date.now(),
-        refresh_token: 'mock-refresh-token-' + Date.now(),
-        expires_in: 3600,
-        profile_picture: null,
-        last_login: new Date().toISOString(),
-        organization_name: userData.organization,
-        country: userData.country,
+        status: 'success',
+        message: 'User registered successfully (development mode)',
         isAuthenticated: true,
         source: 'mock'
       };
       
-      return mockUserData;
+      return this.handleSuccessfulLogin(mockUserData, false);
     }
   }
 

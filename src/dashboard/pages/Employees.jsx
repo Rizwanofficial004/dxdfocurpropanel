@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import EmployeeCards from '../components/employees/EmployeeCards';
+import toastService from '../../services/toastService';
 import {
   EmployeesPageWrapper,
   PageHeader,
@@ -1120,10 +1121,10 @@ const Employees = () => {
       const employeesWithScreenshots = freshData.filter(emp => emp.screenshot_count > 0).length;
       const totalScreenshots = freshData.reduce((sum, emp) => sum + (emp.screenshot_count || 0), 0);
       
-      alert(`✅ Successfully refreshed!\n📊 Loaded ${freshData.length} employees from CRM\n📸 ${employeesWithScreenshots} employees have screenshot data\n📈 Total screenshots: ${totalScreenshots.toLocaleString()}`);
+      toastService.success(`✅ Successfully refreshed!\n📊 Loaded ${freshData.length} employees from CRM\n📸 ${employeesWithScreenshots} employees have screenshot data\n📈 Total screenshots: ${totalScreenshots.toLocaleString()}`);
     } catch (error) {
       console.error('❌ Manual refresh failed:', error);
-      alert(`❌ Refresh failed: ${error.message}`);
+      toastService.error(`❌ Refresh failed: ${error.message}`);
     } finally {
       setLoading(false);
     }

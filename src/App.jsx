@@ -30,20 +30,12 @@ const EnhancedLogin = lazy(() =>
   import('./components/auth/EnhancedLogin').catch(() => ({ default: FallbackLogin }))
 );
 
-const LoginAPITester = lazy(() =>
-  import('./components/LoginAPITester').catch(() => ({ default: FallbackLogin }))
-);
-
 const Register = lazy(() =>
   import('./auth/pages/Register').catch(() => ({ default: FallbackRegister }))
 );
 
 const EnhancedRegister = lazy(() =>
   import('./components/auth/EnhancedRegister').catch(() => ({ default: FallbackRegister }))
-);
-
-const RegistrationAPITester = lazy(() =>
-  import('./components/RegistrationAPITester').catch(() => ({ default: FallbackRegister }))
 );
 
 const ThemeDemo = lazy(() =>
@@ -66,12 +58,29 @@ const Teams = lazy(() =>
   import('./dashboard/pages/Teams').catch(() => ({ default: FallbackTeams }))
 );
 
+const ActivityPattern = lazy(() =>
+  import('./dashboard/pages/reports/ActivityPattern').catch(() => ({ default: FallbackActivityPattern }))
+);
+
+// Tester Components
+const LoginAPITester = lazy(() =>
+  import('./components/LoginAPITester').catch(() => ({ default: FallbackLogin }))
+);
+
+const RegistrationAPITester = lazy(() =>
+  import('./components/RegistrationAPITester').catch(() => ({ default: FallbackRegister }))
+);
+
 const ImageTest = lazy(() =>
   import('./components/ImageTest').catch(() => ({ default: FallbackImageTest }))
 );
 
-const ActivityPattern = lazy(() =>
-  import('./dashboard/pages/reports/ActivityPattern').catch(() => ({ default: FallbackActivityPattern }))
+const APIConnectionTest = lazy(() =>
+  import('./components/APIConnectionTest').catch(() => ({ default: FallbackLogin }))
+);
+
+const SimpleLoginTest = lazy(() =>
+  import('./components/SimpleLoginTest').catch(() => ({ default: FallbackLogin }))
 );
 
 const ThemeProvider = lazy(() =>
@@ -173,8 +182,8 @@ const FallbackSettings = () => <LoadingSpinner />;
 const FallbackAttendance = () => <LoadingSpinner />;
 const FallbackEmployees = () => <LoadingSpinner />;
 const FallbackTeams = () => <LoadingSpinner />;
-const FallbackImageTest = () => <LoadingSpinner />;
 const FallbackActivityPattern = () => <LoadingSpinner />;
+const FallbackImageTest = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
 
@@ -258,14 +267,6 @@ function App() {
                     }
                   />
                   <Route
-                    path="/test-login"
-                    element={
-                      <Suspense fallback={<FallbackLogin />}>
-                        <LoginAPITester />
-                      </Suspense>
-                    }
-                  />
-                  <Route
                     path="/register"
                     element={
                       <Suspense fallback={<FallbackRegister />}>
@@ -274,10 +275,10 @@ function App() {
                     }
                   />
                   <Route
-                    path="/register-enhanced"
+                    path="/test-login"
                     element={
-                      <Suspense fallback={<FallbackRegister />}>
-                        <EnhancedRegister />
+                      <Suspense fallback={<FallbackLogin />}>
+                        <LoginAPITester />
                       </Suspense>
                     }
                   />
@@ -286,6 +287,14 @@ function App() {
                     element={
                       <Suspense fallback={<FallbackRegister />}>
                         <RegistrationAPITester />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/register-enhanced"
+                    element={
+                      <Suspense fallback={<FallbackRegister />}>
+                        <EnhancedRegister />
                       </Suspense>
                     }
                   />

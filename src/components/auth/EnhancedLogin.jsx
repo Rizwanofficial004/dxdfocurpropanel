@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import enhancedAuthService, { LoginError } from '../../services/authService_enhanced';
 
 // Styled Components
@@ -218,7 +218,7 @@ const InputHint = styled.div`
 
 const EnhancedLogin = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
   
   const [formData, setFormData] = useState({
     email_or_username: '',

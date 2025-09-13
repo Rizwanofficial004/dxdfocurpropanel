@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { settingsAPI } from '../../services/settingsAPI';
+import { settingsAPI } from '../services/settingsAPI';
 
 const TestContainer = styled.div`
   max-width: 800px;

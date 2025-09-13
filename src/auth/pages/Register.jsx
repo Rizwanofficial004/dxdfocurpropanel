@@ -109,6 +109,16 @@ const Register = () => {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
+    } else {
+      // Enhanced password validation to match API requirements
+      const hasLetter = /[a-zA-Z]/.test(formData.password);
+      const hasNumber = /\d/.test(formData.password);
+      
+      if (!hasLetter) {
+        newErrors.password = 'Password must contain at least one letter';
+      } else if (!hasNumber) {
+        newErrors.password = 'Password must contain at least one number';
+      }
     }
 
     if (!formData.passwordConfirm) {
@@ -133,6 +143,73 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'email':
+        if (!value) {
+          error = 'Email address is required';
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+        
+      case 'username':
+        if (!value) {
+          error = 'Username is required';
+        } else if (value.length < 3) {
+          error = 'Username must be at least 3 characters';
+        }
+        break;
+        
+      case 'password':
+        if (!value) {
+          error = 'Password is required';
+        } else if (value.length < 8) {
+          error = 'Password must be at least 8 characters';
+        } else {
+          const hasLetter = /[a-zA-Z]/.test(value);
+          const hasNumber = /\d/.test(value);
+          
+          if (!hasLetter) {
+            error = 'Password must contain at least one letter';
+          } else if (!hasNumber) {
+            error = 'Password must contain at least one number';
+          }
+        }
+        break;
+        
+      case 'passwordConfirm':
+        if (!value) {
+          error = 'Password confirmation is required';
+        } else if (formData.password !== value) {
+          error = 'Passwords do not match';
+        }
+        break;
+        
+      case 'firstName':
+        if (!value.trim()) {
+          error = 'First name is required';
+        }
+        break;
+        
+      case 'lastName':
+        if (!value.trim()) {
+          error = 'Last name is required';
+        }
+        break;
+        
+      case 'organizationName':
+        if (!value.trim()) {
+          error = 'Organization name is required';
+        }
+        break;
+    }
+    
+    return error;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -140,11 +217,19 @@ const Register = () => {
       [name]: value
     }));
     
-    // Clear specific field error when user starts typing
-    if (errors[name]) {
+    // Real-time validation
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: fieldError
+    }));
+    
+    // Also validate password confirmation when password changes
+    if (name === 'password' && formData.passwordConfirm) {
+      const confirmError = validateField('passwordConfirm', formData.passwordConfirm);
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        passwordConfirm: confirmError
       }));
     }
   };
@@ -173,7 +258,7 @@ const Register = () => {
       // Use the authentication service for registration
       const userData = await authService.register({
         email: formData.email,
-        username: formData.username,
+        username: formData.username || formData.email, // Use email as username if not provided
         password: formData.password,
         passwordConfirm: formData.passwordConfirm,
         firstName: formData.firstName,
@@ -202,14 +287,75 @@ const Register = () => {
       console.error('❌ Registration failed:', error);
       console.error('🔍 Error details:', {
         message: error.message,
+        fieldErrors: error.fieldErrors,
         name: error.name,
         stack: error.stack
       });
       
-      // Set appropriate error message
-      setErrors({
-        general: error.message || 'Registration failed. Please try again.'
-      });
+      // Handle structured field errors from API
+      if (error.fieldErrors && Object.keys(error.fieldErrors).length > 0) {
+        const formErrors = {};
+        
+        // Map API field names to form field names
+        const fieldMap = {
+          'password': 'password',
+          'email': 'email',
+          'username': 'username',
+          'first_name': 'firstName',
+          'last_name': 'lastName',
+          'organization_name': 'organizationName',
+          'country': 'country'
+        };
+        
+        Object.keys(error.fieldErrors).forEach(apiField => {
+          const formField = fieldMap[apiField] || apiField;
+          formErrors[formField] = error.fieldErrors[apiField];
+        });
+        
+        setErrors(formErrors);
+        toastService.error('🚫 Please fix the validation errors and try again.');
+        
+      } else {
+        // Parse and display API validation errors from message
+        const errorMessage = error.message || 'Registration failed. Please try again.';
+        
+        // Check if it's a field validation error from API (format: "field: error message")
+        if (errorMessage.includes(':')) {
+          const fieldErrors = {};
+          
+          const errorParts = errorMessage.split(',');
+          errorParts.forEach(part => {
+            const [field, message] = part.split(':').map(s => s.trim());
+            if (field && message) {
+              // Map API field names to form field names
+              const fieldMap = {
+                'password': 'password',
+                'email': 'email',
+                'username': 'username',
+                'first_name': 'firstName',
+                'last_name': 'lastName',
+                'organization_name': 'organizationName',
+                'country': 'country'
+              };
+              const formField = fieldMap[field] || field;
+              fieldErrors[formField] = message;
+            }
+          });
+          
+          // If we parsed field errors, use them; otherwise use general error
+          if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+            toastService.error('🚫 Please fix the validation errors and try again.');
+          } else {
+            setErrors({ general: errorMessage });
+            toastService.error('🚫 Registration failed: ' + errorMessage);
+          }
+        } else {
+          // General error
+          setErrors({ general: errorMessage });
+          toastService.error('🚫 Registration failed: ' + errorMessage);
+        }
+      }
     } finally {
       setIsLoading(false);
     }

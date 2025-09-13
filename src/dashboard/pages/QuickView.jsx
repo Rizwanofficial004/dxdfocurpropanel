@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import toastService from '../../services/toastService';
 
 // Main Page Wrapper
 const EmployeesPageWrapper = styled.div`
@@ -476,7 +477,7 @@ const QuickView = () => {
         [userId]: false
       }));
       console.log(`⏰ Timer completed for ${username}!`);
-      alert(`Timer completed for ${username}! (${timerSeconds} seconds)`);
+      toastService.success(`⏰ Timer completed for ${username}! (${timerSeconds} seconds)`);
     }, timerSeconds * 1000);
   };
 

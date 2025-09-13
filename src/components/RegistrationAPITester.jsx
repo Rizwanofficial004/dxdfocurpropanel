@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import enhancedAuthService from '../../services/authService_enhanced';
-import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
+import enhancedAuthService from '../services/authService_enhanced';
+import { buildApiUrl, API_ENDPOINTS } from '../config/api';
 
 // Styled Components
 const Container = styled.div`

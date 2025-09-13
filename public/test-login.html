@@ -347,7 +347,12 @@
             const password = document.getElementById('password').value;
             
             if (!credential || !password) {
-                alert('Please fill in both credential and password fields');
+                // Create a temporary notification instead of alert
+                const notification = document.createElement('div');
+                notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 9999; font-family: Arial, sans-serif;';
+                notification.textContent = '⚠️ Please fill in both credential and password fields';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
                 return;
             }
 

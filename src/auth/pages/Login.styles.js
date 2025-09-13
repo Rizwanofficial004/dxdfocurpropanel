@@ -350,83 +350,26 @@ export const InputContainer = styled.div`
 
 export const Input = styled.input`
   width: 100%;
-  padding: 16px 20px;
-  border: 2px solid ${props => props.hasError ? lightTheme.colors.input.borderError : lightTheme.colors.input.border};
-  border-radius: ${lightTheme.borderRadius.lg};
-  background: ${lightTheme.colors.input.background};
-  font-size: ${lightTheme.typography.fontSize.base};
-  font-family: ${lightTheme.typography.fontFamily.primary};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: white !important; /* White text in normal state */
-  position: relative;
-  transform: translateZ(0);
-
-  &::placeholder {
-    color: ${lightTheme.colors.text.muted};
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover {
-    border-color: ${lightTheme.colors.borderHover};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
-    background: rgba(255, 255, 255, 0.9);
-    color: ${lightTheme.colors.text.primary} !important; /* Dark text on hover */
-    
-    &::placeholder {
-      opacity: 0.8;
-      color: ${lightTheme.colors.text.muted};
-    }
-  }
+  padding: 15px 50px 15px 20px;
+  border: 2px solid ${props => props.hasError ? '#D0021B' : '#E1E8ED'};
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: white;
+  color: #000;
 
   &:focus {
     outline: none;
-    border-color: ${lightTheme.colors.input.borderFocus};
-    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.15), 0 8px 20px rgba(74, 144, 226, 0.2);
-    background: white;
-    color: ${lightTheme.colors.text.primary} !important; /* Dark text on focus */
-    transform: translateY(-2px);
-    
-    &::placeholder {
-      opacity: 0.6;
-      color: ${lightTheme.colors.text.muted};
-      transform: translateX(4px);
-    }
+    border-color: ${props => props.hasError ? '#D0021B' : '#4A90E2'};
+    box-shadow: 0 0 0 3px ${props => props.hasError ? 'rgba(208, 2, 27, 0.1)' : 'rgba(74, 144, 226, 0.1)'};
   }
 
-  &:active {
-    transform: translateY(-1px);
-    color: ${lightTheme.colors.text.primary} !important; /* Dark text on active */
+  &:hover {
+    border-color: #4A90E2;
   }
 
-  &.error {
-    border-color: ${lightTheme.colors.input.borderError};
-    box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
-    animation: shake 0.5s ease-in-out;
-    color: white !important; /* Keep white text for error state unless focused/hovered */
-  }
-
-  /* Ensure autofill states follow the same pattern */
-  &:-webkit-autofill {
-    -webkit-text-fill-color: white !important; /* White text for autofill normal state */
-    -webkit-box-shadow: 0 0 0px 1000px ${lightTheme.colors.input.background} inset;
-    transition: background-color 5000s ease-in-out 0s;
-  }
-
-  &:-webkit-autofill:hover {
-    -webkit-text-fill-color: ${lightTheme.colors.text.primary} !important; /* Dark text on autofill hover */
-    -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.9) inset;
-  }
-
-  &:-webkit-autofill:focus {
-    -webkit-text-fill-color: ${lightTheme.colors.text.primary} !important; /* Dark text on autofill focus */
-    -webkit-box-shadow: 0 0 0px 1000px white inset;
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
+  &::placeholder {
+    color: #999;
   }
 `;
 
@@ -440,35 +383,18 @@ export const InputIcon = styled.div`
 
 export const PasswordToggle = styled.button`
   position: absolute;
-  right: 16px;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
-  color: ${lightTheme.colors.text.muted};
   cursor: pointer;
-  font-size: 16px;
-  padding: 8px;
-  border-radius: 50%;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  color: #666;
+  font-size: 18px;
+  padding: 4px;
 
   &:hover {
-    color: ${lightTheme.colors.primary};
-    background: rgba(74, 144, 226, 0.1);
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-    background: rgba(74, 144, 226, 0.2);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+    color: #333;
   }
 `;
 

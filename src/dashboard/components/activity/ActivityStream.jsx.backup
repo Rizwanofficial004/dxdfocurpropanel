@@ -14,6 +14,7 @@ import { retryApiCall, retryExtremeApiCall } from '../../../config/apiConfig';
 import ImageModal from '../common/ImageModal';
 import Pagination from './Pagination';
 import DateSelector from './DateSelector';
+import toastService from '../../../services/toastService';
 import {
   Wrapper,
   Container,
@@ -560,7 +561,7 @@ const ActivityStream = () => {
     try {
       const imageUrl = getImageUrl(screenshot);
       if (!imageUrl) {
-        alert('❌ No valid image URL found for download');
+        toastService.error('❌ No valid image URL found for download');
         return;
       }
 
