@@ -8275,3 +8275,1498 @@ INFO 2025-09-10 12:55:23,531 basehttp 27180 27388 "GET /api/styling/global/?id=1
 >>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
 INFO 2025-09-12 04:48:11,753 s3_logs_service 17552 4580 Retrieved 10 log files from S3
 INFO 2025-09-12 04:48:30,149 s3_logs_service 24504 9696 Retrieved 11 log files from S3
+INFO 2025-09-13 09:28:22,719 middleware 11188 24316 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:28:23,010 middleware 11188 24316 Response: 404 for GET /api/users/search_s3/
+WARNING 2025-09-13 09:28:23,011 log 11188 24316 Not Found: /api/users/search_s3/
+WARNING 2025-09-13 09:28:23,012 basehttp 11188 24316 "GET /api/users/search_s3/?q=nawaz&year=2025&month=9 HTTP/1.1" 404 23228
+INFO 2025-09-13 09:28:30,833 middleware 11188 24316 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:28:30,848 middleware 11188 24316 Response: 404 for GET /api/users/search_s3/
+WARNING 2025-09-13 09:28:30,849 log 11188 24316 Not Found: /api/users/search_s3/
+WARNING 2025-09-13 09:28:30,849 basehttp 11188 24316 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8 HTTP/1.1" 404 23228
+INFO 2025-09-13 09:34:47,843 middleware 1376 20312 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:34:48,774 monthwise_views 1376 20312 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:34:48,775 monthwise_views 1376 20312 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:34:51,240 monthwise_views 1376 20312 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:34:51,248 views 1376 20312 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:34:51,484 middleware 1376 20312 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:34:51,486 basehttp 1376 20312 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=7b4e487a-be21-46bd-a410-d6d24305ad24&vscodeBrowserReqId=1757745287756 HTTP/1.1" 200 13858
+INFO 2025-09-13 09:36:26,323 middleware 1376 20312 Request: GET /api/users/search/
+INFO 2025-09-13 09:36:26,339 users_search_views 1376 20312 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:36:26,340 users_search_views 1376 20312 Enhanced search for 'test' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-09-13 09:36:26,341 users_search_views 1376 20312 Searching screenshots in prefix: users_screenshots/
+INFO 2025-09-13 09:36:29,556 users_search_views 1376 20312 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:36:29,562 views 1376 20312 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:36:29,604 middleware 1376 20312 Response: 200 for GET /api/users/search/
+INFO 2025-09-13 09:36:29,606 basehttp 1376 20312 "GET /api/users/search/?q=test&id=86ec0f6d-6c69-47e4-ba34-c15be411f1fe&vscodeBrowserReqId=1757745386313 HTTP/1.1" 200 121839
+INFO 2025-09-13 09:36:33,259 middleware 1376 20312 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:36:33,268 monthwise_views 1376 20312 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:36:33,269 monthwise_views 1376 20312 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:36:34,532 monthwise_views 1376 20312 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:36:34,544 views 1376 20312 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:36:34,553 middleware 1376 20312 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:36:34,554 basehttp 1376 20312 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=86ec0f6d-6c69-47e4-ba34-c15be411f1fe&vscodeBrowserReqId=1757745393252 HTTP/1.1" 200 13858
+INFO 2025-09-13 09:37:52,169 middleware 24296 20488 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:37:52,608 monthwise_views 24296 20488 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:37:52,609 monthwise_views 24296 20488 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:37:54,189 monthwise_views 24296 20488 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:37:54,194 views 24296 20488 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:37:54,240 middleware 24296 20488 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:37:54,241 basehttp 24296 20488 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=1364dd53-cdb8-40bb-9e49-71f9f9713179&vscodeBrowserReqId=1757745472150 HTTP/1.1" 200 13858
+INFO 2025-09-13 09:37:59,123 middleware 24296 20488 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:37:59,133 monthwise_views 24296 20488 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:37:59,135 monthwise_views 24296 20488 Monthwise search for 'nawaz' - Year: 2025, Month: 09, Page: 1, Size: 50
+INFO 2025-09-13 09:38:00,891 monthwise_views 24296 20488 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:38:00,904 views 24296 20488 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:38:00,910 middleware 24296 20488 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:38:00,911 basehttp 24296 20488 "GET /api/users/search_s3/?q=nawaz&year=2025&month=9&id=1364dd53-cdb8-40bb-9e49-71f9f9713179&vscodeBrowserReqId=1757745479114 HTTP/1.1" 200 13864
+INFO 2025-09-13 09:38:05,260 middleware 24296 20488 Request: GET /api/users/monthwise-stats/
+INFO 2025-09-13 09:38:05,271 monthwise_views 24296 20488 S3 client initialized successfully for monthwise stats
+INFO 2025-09-13 09:38:13,227 monthwise_views 24296 20488 S3 client initialized successfully for monthwise stats
+INFO 2025-09-13 09:38:13,239 views 24296 20488 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:38:13,246 middleware 24296 20488 Response: 200 for GET /api/users/monthwise-stats/
+INFO 2025-09-13 09:38:13,248 basehttp 24296 20488 "GET /api/users/monthwise-stats/?year=2025&month=9&id=1364dd53-cdb8-40bb-9e49-71f9f9713179&vscodeBrowserReqId=1757745485250 HTTP/1.1" 200 12076
+INFO 2025-09-13 09:38:39,865 middleware 1376 20012 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:38:39,872 monthwise_views 1376 20012 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:38:39,872 monthwise_views 1376 20012 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:38:41,124 middleware 1376 20012 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:38:41,125 basehttp 1376 20012 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8 HTTP/1.1" 200 465
+INFO 2025-09-13 09:44:23,857 middleware 13364 22932 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:44:24,539 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:44:24,540 monthwise_views 13364 22932 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:44:25,624 monthwise_views 13364 22932 Found 41 total users in S3
+INFO 2025-09-13 09:44:25,625 monthwise_views 13364 22932 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:44:25,625 monthwise_views 13364 22932 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:44:25,929 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:44:25,937 views 13364 22932 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:44:25,991 middleware 13364 22932 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:44:25,993 basehttp 13364 22932 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=38b4630d-4540-46e4-bb90-bc4fc6ed181b&vscodeBrowserReqId=1757745863840 HTTP/1.1" 200 14818
+INFO 2025-09-13 09:44:34,902 middleware 13364 22932 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:44:34,914 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:44:34,916 monthwise_views 13364 22932 Monthwise search for 'gmail' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:44:36,163 monthwise_views 13364 22932 Found 41 total users in S3
+INFO 2025-09-13 09:44:36,163 monthwise_views 13364 22932 Found 32 users matching 'gmail'
+INFO 2025-09-13 09:44:36,164 monthwise_views 13364 22932 Matching users: ['begumdamlasen_at_gmail.com', 'bilgeryilmaz_at_gmail.com', 'cagla.shr_at_gmail.com', 'danish.ali9801_at_gmail.com', 'eliff.ugrl_at_gmail.com']
+INFO 2025-09-13 09:44:43,105 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:44:43,116 views 13364 22932 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:44:43,125 middleware 13364 22932 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:44:43,127 basehttp 13364 22932 "GET /api/users/search_s3/?q=gmail&year=2025&month=8&id=b8e5f505-f328-46b0-bb61-dc83408a2b96&vscodeBrowserReqId=1757745874892 HTTP/1.1" 200 15289
+INFO 2025-09-13 09:44:45,833 middleware 13364 22932 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:44:45,849 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:44:45,850 monthwise_views 13364 22932 Monthwise search for 'amirhaque67' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:44:47,408 monthwise_views 13364 22932 Found 41 total users in S3
+INFO 2025-09-13 09:44:47,409 monthwise_views 13364 22932 Found 0 users matching 'amirhaque67'
+WARNING 2025-09-13 09:44:47,409 monthwise_views 13364 22932 No users found matching 'amirhaque67'. Sample users: ['atakankahraman35_at_outlook.com', 'begumdamlasen_at_gmail.com', 'beyza-donmez-_at_hotmail.com', 'bilgeryilmaz_at_gmail.com', 'cagla.shr_at_gmail.com']
+INFO 2025-09-13 09:44:47,418 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:44:47,430 views 13364 22932 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:44:47,441 middleware 13364 22932 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:44:47,442 basehttp 13364 22932 "GET /api/users/search_s3/?q=amirhaque67&year=2025&month=8&id=b8e5f505-f328-46b0-bb61-dc83408a2b96&vscodeBrowserReqId=1757745885826 HTTP/1.1" 200 14743
+INFO 2025-09-13 09:45:18,203 middleware 13364 22932 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:45:18,214 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:45:18,214 monthwise_views 13364 22932 Monthwise search for 'nawaz_at_dxdglobal' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:45:19,242 monthwise_views 13364 22932 Found 41 total users in S3
+INFO 2025-09-13 09:45:19,243 monthwise_views 13364 22932 Found 1 users matching 'nawaz_at_dxdglobal'
+INFO 2025-09-13 09:45:19,243 monthwise_views 13364 22932 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:45:19,517 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:45:19,524 views 13364 22932 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:45:19,530 middleware 13364 22932 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:45:19,531 basehttp 13364 22932 "GET /api/users/search_s3/?q=nawaz_at_dxdglobal&year=2025&month=8&id=b8e5f505-f328-46b0-bb61-dc83408a2b96&vscodeBrowserReqId=1757745918194 HTTP/1.1" 200 14922
+INFO 2025-09-13 09:45:31,076 middleware 13364 22932 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:45:31,083 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:45:31,084 monthwise_views 13364 22932 Monthwise search for 'nawaz' - Year: 2024, Month: 12, Page: 1, Size: 50
+INFO 2025-09-13 09:45:32,581 monthwise_views 13364 22932 Found 41 total users in S3
+INFO 2025-09-13 09:45:32,582 monthwise_views 13364 22932 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:45:32,582 monthwise_views 13364 22932 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:45:32,809 monthwise_views 13364 22932 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:45:32,823 views 13364 22932 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:45:32,830 middleware 13364 22932 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:45:32,831 basehttp 13364 22932 "GET /api/users/search_s3/?q=nawaz&year=2024&month=12&id=b8e5f505-f328-46b0-bb61-dc83408a2b96&vscodeBrowserReqId=1757745931064 HTTP/1.1" 200 14829
+INFO 2025-09-13 09:46:28,506 middleware 30804 1508 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:46:28,961 monthwise_views 30804 1508 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:46:28,962 monthwise_views 30804 1508 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:46:30,083 monthwise_views 30804 1508 Found 41 total users in S3
+INFO 2025-09-13 09:46:30,083 monthwise_views 30804 1508 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:46:30,084 monthwise_views 30804 1508 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:46:30,230 middleware 30804 1508 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:46:30,231 basehttp 30804 1508 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8 HTTP/1.1" 200 736
+INFO 2025-09-13 09:51:35,665 middleware 30804 8720 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:51:35,699 monthwise_views 30804 8720 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:51:35,753 monthwise_views 30804 8720 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:51:37,527 monthwise_views 30804 8720 Found 41 total users in S3
+INFO 2025-09-13 09:51:37,527 monthwise_views 30804 8720 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:51:37,528 monthwise_views 30804 8720 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:51:37,774 monthwise_views 30804 8720 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:51:37,784 views 30804 8720 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:51:37,832 middleware 30804 8720 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:51:37,833 basehttp 30804 8720 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=ff11005c-a293-46e2-81ca-307b17eb2ab2&vscodeBrowserReqId=1757746295633 HTTP/1.1" 200 14818
+INFO 2025-09-13 09:52:54,247 middleware 13364 22712 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:52:54,266 monthwise_views 13364 22712 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:52:54,267 monthwise_views 13364 22712 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:52:55,531 monthwise_views 13364 22712 Found 41 total users in S3
+INFO 2025-09-13 09:52:55,531 monthwise_views 13364 22712 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:52:55,531 monthwise_views 13364 22712 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:52:55,783 monthwise_views 13364 22712 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:52:55,798 views 13364 22712 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:52:55,805 middleware 13364 22712 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:52:55,807 basehttp 13364 22712 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=0c8069f9-6afc-4939-b009-24a69368f5f9&vscodeBrowserReqId=1757746374226 HTTP/1.1" 200 14818
+INFO 2025-09-13 09:53:23,272 middleware 30804 15728 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:53:23,281 monthwise_views 30804 15728 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:53:23,282 monthwise_views 30804 15728 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:53:24,318 monthwise_views 30804 15728 Found 41 total users in S3
+INFO 2025-09-13 09:53:24,319 monthwise_views 30804 15728 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:53:24,319 monthwise_views 30804 15728 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:53:24,597 middleware 30804 15728 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:53:24,599 basehttp 30804 15728 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8 HTTP/1.1" 200 736
+INFO 2025-09-13 09:58:03,661 middleware 10244 27584 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:58:04,404 monthwise_views 10244 27584 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:58:04,405 monthwise_views 10244 27584 Monthwise search for 'begumdamlasen' - Year: 2025, Month: 06, Page: 1, Size: 50
+INFO 2025-09-13 09:58:05,966 monthwise_views 10244 27584 Found 41 total users in S3
+INFO 2025-09-13 09:58:05,967 monthwise_views 10244 27584 Found 1 users matching 'begumdamlasen'
+INFO 2025-09-13 09:58:05,967 monthwise_views 10244 27584 Matching users: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-13 09:58:05,967 monthwise_views 10244 27584 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025-06/
+INFO 2025-09-13 09:58:06,243 monthwise_views 10244 27584 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025_Haziran_
+INFO 2025-09-13 09:58:06,426 monthwise_views 10244 27584 Checking prefix: screenshots/begumdamlasen_at_gmail.com/Haziran_2025_
+WARNING 2025-09-13 09:58:06,582 monthwise_views 10244 27584 No screenshot data found for begumdamlasen_at_gmail.com in 2025-06
+INFO 2025-09-13 09:58:06,700 monthwise_views 10244 27584 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:58:06,706 views 10244 27584 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:58:06,754 middleware 10244 27584 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:58:06,755 basehttp 10244 27584 "GET /api/users/search_s3/?q=begumdamlasen&year=2025&month=6&id=6c94d414-9f5a-4a69-b8fc-3d168c48ae2f&vscodeBrowserReqId=1757746683627 HTTP/1.1" 200 14886
+INFO 2025-09-13 09:58:24,438 middleware 10244 27584 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:58:24,451 monthwise_views 10244 27584 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:58:24,452 monthwise_views 10244 27584 Monthwise search for 'begumdamlasen' - Year: 2025, Month: 07, Page: 1, Size: 50
+INFO 2025-09-13 09:58:25,810 monthwise_views 10244 27584 Found 41 total users in S3
+INFO 2025-09-13 09:58:25,811 monthwise_views 10244 27584 Found 1 users matching 'begumdamlasen'
+INFO 2025-09-13 09:58:25,811 monthwise_views 10244 27584 Matching users: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-13 09:58:25,812 monthwise_views 10244 27584 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025-07/
+INFO 2025-09-13 09:58:26,016 monthwise_views 10244 27584 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 09:58:26,200 monthwise_views 10244 27584 Checking prefix: screenshots/begumdamlasen_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 09:58:26,358 monthwise_views 10244 27584 No screenshot data found for begumdamlasen_at_gmail.com in 2025-07
+INFO 2025-09-13 09:58:26,368 monthwise_views 10244 27584 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:58:26,378 views 10244 27584 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:58:26,388 middleware 10244 27584 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:58:26,389 basehttp 10244 27584 "GET /api/users/search_s3/?q=begumdamlasen&year=2025&month=7&id=39992404-e7e1-4b35-99f3-f668b819aaf1&vscodeBrowserReqId=1757746704427 HTTP/1.1" 200 14886
+INFO 2025-09-13 09:58:42,764 middleware 10244 27584 Request: GET /api/users/search_s3/
+INFO 2025-09-13 09:58:42,772 monthwise_views 10244 27584 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:58:42,773 monthwise_views 10244 27584 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 09:58:43,940 monthwise_views 10244 27584 Found 41 total users in S3
+INFO 2025-09-13 09:58:43,940 monthwise_views 10244 27584 Found 1 users matching 'nawaz'
+INFO 2025-09-13 09:58:43,941 monthwise_views 10244 27584 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 09:58:43,941 monthwise_views 10244 27584 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-08/
+WARNING 2025-09-13 09:58:44,650 monthwise_views 10244 27584 No screenshot data found for nawaz_at_dxdglobal.com in 2025-08
+INFO 2025-09-13 09:58:44,659 monthwise_views 10244 27584 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 09:58:44,668 views 10244 27584 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 09:58:44,673 middleware 10244 27584 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 09:58:44,675 basehttp 10244 27584 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8&id=87fae556-d71b-4c9e-9c81-307cf64783c4&vscodeBrowserReqId=1757746722756 HTTP/1.1" 200 14818
+INFO 2025-09-13 10:01:03,773 middleware 22840 20768 Request: GET /api/users/search_s3/
+INFO 2025-09-13 10:01:04,761 monthwise_views 22840 20768 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:01:04,762 monthwise_views 22840 20768 Monthwise search for 'begumdamlasen' - Year: 2025, Month: 06, Page: 1, Size: 50
+INFO 2025-09-13 10:01:06,330 monthwise_views 22840 20768 Found 41 total users in S3
+INFO 2025-09-13 10:01:06,330 monthwise_views 22840 20768 Found 1 users matching 'begumdamlasen'
+INFO 2025-09-13 10:01:06,331 monthwise_views 22840 20768 Matching users: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-13 10:01:06,332 monthwise_views 22840 20768 DEBUG: Looking for folders under: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-13 10:01:06,505 monthwise_views 22840 20768 DEBUG: Found 15 folders for user begumdamlasen_at_gmail.com
+INFO 2025-09-13 10:01:06,661 monthwise_views 22840 20768 DEBUG:   ... and 5 more folders
+INFO 2025-09-13 10:01:06,661 monthwise_views 22840 20768 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025-06/
+INFO 2025-09-13 10:01:06,812 monthwise_views 22840 20768 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025_Haziran_
+INFO 2025-09-13 10:01:07,017 monthwise_views 22840 20768 Checking prefix: screenshots/begumdamlasen_at_gmail.com/Haziran_2025_
+WARNING 2025-09-13 10:01:07,222 monthwise_views 22840 20768 No screenshot data found for begumdamlasen_at_gmail.com in 2025-06
+INFO 2025-09-13 10:01:07,359 monthwise_views 22840 20768 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:01:07,368 views 22840 20768 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:01:07,429 middleware 22840 20768 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 10:01:07,431 basehttp 22840 20768 "GET /api/users/search_s3/?q=begumdamlasen&year=2025&month=6&id=3748736f-48c3-47ab-8d3e-f7a09fcb4af9&vscodeBrowserReqId=1757746863678 HTTP/1.1" 200 14886
+INFO 2025-09-13 10:02:47,520 middleware 12916 21636 Request: GET /api/users/search_s3/
+INFO 2025-09-13 10:02:48,222 monthwise_views 12916 21636 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:02:48,223 monthwise_views 12916 21636 Monthwise search for 'begumdamlasen' - Year: 2025, Month: 06, Page: 1, Size: 50
+INFO 2025-09-13 10:02:49,543 monthwise_views 12916 21636 Found 41 total users in S3
+INFO 2025-09-13 10:02:49,543 monthwise_views 12916 21636 Found 1 users matching 'begumdamlasen'
+INFO 2025-09-13 10:02:49,544 monthwise_views 12916 21636 Matching users: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-13 10:02:49,544 monthwise_views 12916 21636 DEBUG: Looking for folders under: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-13 10:02:49,753 monthwise_views 12916 21636 DEBUG: Found 15 folders for user begumdamlasen_at_gmail.com
+INFO 2025-09-13 10:02:49,906 monthwise_views 12916 21636 DEBUG:   ... and 5 more folders
+INFO 2025-09-13 10:02:49,907 monthwise_views 12916 21636 Looking for Turkish month: haziran
+INFO 2025-09-13 10:02:54,913 monthwise_views 12916 21636 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025-06/
+INFO 2025-09-13 10:02:55,045 monthwise_views 12916 21636 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025_Haziran_
+INFO 2025-09-13 10:02:55,167 monthwise_views 12916 21636 Checking prefix: screenshots/begumdamlasen_at_gmail.com/Haziran_2025_
+WARNING 2025-09-13 10:02:55,362 monthwise_views 12916 21636 No screenshot data found for begumdamlasen_at_gmail.com in 2025-06
+INFO 2025-09-13 10:02:55,446 monthwise_views 12916 21636 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:02:55,453 views 12916 21636 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:02:55,492 middleware 12916 21636 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 10:02:55,494 basehttp 12916 21636 "GET /api/users/search_s3/?q=begumdamlasen&year=2025&month=6&id=be19b50e-d8ca-42cb-bbc0-b70168b3e422&vscodeBrowserReqId=1757746967504 HTTP/1.1" 200 14886
+INFO 2025-09-13 10:04:58,946 middleware 28216 17588 Request: GET /api/users/search_s3/
+INFO 2025-09-13 10:04:59,348 monthwise_views 28216 17588 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:04:59,350 monthwise_views 28216 17588 Monthwise search for 'nawaz' - Year: 2025, Month: 08, Page: 1, Size: 50
+INFO 2025-09-13 10:05:00,664 monthwise_views 28216 17588 Found 41 total users in S3
+INFO 2025-09-13 10:05:00,664 monthwise_views 28216 17588 Found 1 users matching 'nawaz'
+INFO 2025-09-13 10:05:00,665 monthwise_views 28216 17588 Matching users: ['nawaz_at_dxdglobal.com']
+INFO 2025-09-13 10:05:00,666 monthwise_views 28216 17588 DEBUG: Looking for folders under: screenshots/nawaz_at_dxdglobal.com/
+INFO 2025-09-13 10:05:00,890 monthwise_views 28216 17588 DEBUG: Found 6 folders for user nawaz_at_dxdglobal.com
+INFO 2025-09-13 10:05:00,891 monthwise_views 28216 17588 DEBUG:   - Create_a_card_API_(Total_Employee,_Total_Projects_etc)
+INFO 2025-09-13 10:05:00,891 monthwise_views 28216 17588 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
+INFO 2025-09-13 10:05:00,915 monthwise_views 28216 17588 DEBUG:   - Please_make_Fix_Search_Issue_on_Admin_Panel
+INFO 2025-09-13 10:05:00,916 monthwise_views 28216 17588 DEBUG:   - cyprushaber.com
+INFO 2025-09-13 10:05:00,917 monthwise_views 28216 17588 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:05:00,931 monthwise_views 28216 17588 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-08/
+WARNING 2025-09-13 10:05:01,505 monthwise_views 28216 17588 No screenshot data found for nawaz_at_dxdglobal.com in 2025-08
+INFO 2025-09-13 10:05:01,508 middleware 28216 17588 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 10:05:01,511 basehttp 28216 17588 "GET /api/users/search_s3/?q=nawaz&year=2025&month=8 HTTP/1.1" 200 736
+INFO 2025-09-13 10:05:27,407 middleware 10708 9776 Request: GET /api/users/search_s3/
+INFO 2025-09-13 10:05:27,801 monthwise_views 10708 9776 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:05:27,802 middleware 10708 9776 Response: 400 for GET /api/users/search_s3/
+WARNING 2025-09-13 10:05:27,803 log 10708 9776 Bad Request: /api/users/search_s3/
+WARNING 2025-09-13 10:05:27,804 basehttp 10708 9776 "GET /api/users/search_s3/?q=&year=2025&month=7 HTTP/1.1" 400 418
+INFO 2025-09-13 10:12:29,070 middleware 11384 18344 Request: GET /api/users/search_s3/
+INFO 2025-09-13 10:12:29,592 monthwise_views 11384 18344 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:12:29,594 monthwise_views 11384 18344 Monthwise search for '' - Year: 2025, Month: 07, Page: 1, Size: 50
+INFO 2025-09-13 10:12:30,851 monthwise_views 11384 18344 Found 41 total users in S3
+INFO 2025-09-13 10:12:30,851 monthwise_views 11384 18344 Getting all 41 users for month 2025-07
+INFO 2025-09-13 10:12:30,852 monthwise_views 11384 18344 Processing users: ['atakankahraman35_at_outlook.com', 'begumdamlasen_at_gmail.com', 'beyza-donmez-_at_hotmail.com', 'bilgeryilmaz_at_gmail.com', 'cagla.shr_at_gmail.com']
+INFO 2025-09-13 10:12:30,853 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/atakankahraman35_at_outlook.com/
+INFO 2025-09-13 10:12:31,036 monthwise_views 11384 18344 DEBUG: Found 15 folders for user atakankahraman35_at_outlook.com
+INFO 2025-09-13 10:12:31,180 monthwise_views 11384 18344 DEBUG:   ... and 5 more folders
+INFO 2025-09-13 10:12:31,180 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:36,183 monthwise_views 11384 18344 Checking prefix: screenshots/atakankahraman35_at_outlook.com/2025-07/
+INFO 2025-09-13 10:12:36,376 monthwise_views 11384 18344 Checking prefix: screenshots/atakankahraman35_at_outlook.com/2025_Temmuz_
+INFO 2025-09-13 10:12:36,497 monthwise_views 11384 18344 Checking prefix: screenshots/atakankahraman35_at_outlook.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:36,627 monthwise_views 11384 18344 No screenshot data found for atakankahraman35_at_outlook.com in 2025-07
+INFO 2025-09-13 10:12:36,628 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-13 10:12:36,757 monthwise_views 11384 18344 DEBUG: Found 15 folders for user begumdamlasen_at_gmail.com
+INFO 2025-09-13 10:12:36,887 monthwise_views 11384 18344 DEBUG:   ... and 5 more folders
+INFO 2025-09-13 10:12:36,887 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:39,268 monthwise_views 11384 18344 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:39,736 monthwise_views 11384 18344 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:40,266 monthwise_views 11384 18344 Checking prefix: screenshots/begumdamlasen_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:40,443 monthwise_views 11384 18344 No screenshot data found for begumdamlasen_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:40,444 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/beyza-donmez-_at_hotmail.com/
+INFO 2025-09-13 10:12:40,651 monthwise_views 11384 18344 DEBUG: Found 1 folders for user beyza-donmez-_at_hotmail.com
+INFO 2025-09-13 10:12:40,665 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:40,666 monthwise_views 11384 18344 Checking prefix: screenshots/beyza-donmez-_at_hotmail.com/2025-07/
+INFO 2025-09-13 10:12:40,895 monthwise_views 11384 18344 Checking prefix: screenshots/beyza-donmez-_at_hotmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:41,017 monthwise_views 11384 18344 Checking prefix: screenshots/beyza-donmez-_at_hotmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:41,172 monthwise_views 11384 18344 No screenshot data found for beyza-donmez-_at_hotmail.com in 2025-07
+INFO 2025-09-13 10:12:41,172 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/bilgeryilmaz_at_gmail.com/
+INFO 2025-09-13 10:12:41,467 monthwise_views 11384 18344 DEBUG: Found 2 folders for user bilgeryilmaz_at_gmail.com
+INFO 2025-09-13 10:12:41,491 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:41,492 monthwise_views 11384 18344 Checking prefix: screenshots/bilgeryilmaz_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:41,774 monthwise_views 11384 18344 Checking prefix: screenshots/bilgeryilmaz_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:41,979 monthwise_views 11384 18344 Checking prefix: screenshots/bilgeryilmaz_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:42,185 monthwise_views 11384 18344 No screenshot data found for bilgeryilmaz_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:42,186 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/cagla.shr_at_gmail.com/
+INFO 2025-09-13 10:12:42,493 monthwise_views 11384 18344 DEBUG: Found 20 folders for user cagla.shr_at_gmail.com
+INFO 2025-09-13 10:12:42,635 monthwise_views 11384 18344 DEBUG:   ... and 10 more folders
+INFO 2025-09-13 10:12:42,635 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:47,785 monthwise_views 11384 18344 Checking prefix: screenshots/cagla.shr_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:47,957 monthwise_views 11384 18344 Checking prefix: screenshots/cagla.shr_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:48,226 monthwise_views 11384 18344 Checking prefix: screenshots/cagla.shr_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:48,533 monthwise_views 11384 18344 No screenshot data found for cagla.shr_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:48,533 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/danish.ali9801_at_gmail.com/
+INFO 2025-09-13 10:12:48,738 monthwise_views 11384 18344 DEBUG: Found 1 folders for user danish.ali9801_at_gmail.com
+INFO 2025-09-13 10:12:48,739 monthwise_views 11384 18344 DEBUG:   - Create_a_website_AI
+INFO 2025-09-13 10:12:48,739 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:48,739 monthwise_views 11384 18344 Checking prefix: screenshots/danish.ali9801_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:48,943 monthwise_views 11384 18344 Checking prefix: screenshots/danish.ali9801_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:49,147 monthwise_views 11384 18344 Checking prefix: screenshots/danish.ali9801_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:49,352 monthwise_views 11384 18344 No screenshot data found for danish.ali9801_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:49,353 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/ddsfocustime/
+INFO 2025-09-13 10:12:49,500 monthwise_views 11384 18344 DEBUG: Found 1 folders for user ddsfocustime
+INFO 2025-09-13 10:12:49,501 monthwise_views 11384 18344 DEBUG:   - screenshot-inventory
+INFO 2025-09-13 10:12:49,501 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:49,501 monthwise_views 11384 18344 Checking prefix: screenshots/ddsfocustime/2025-07/
+INFO 2025-09-13 10:12:49,762 monthwise_views 11384 18344 Checking prefix: screenshots/ddsfocustime/2025_Temmuz_
+INFO 2025-09-13 10:12:49,968 monthwise_views 11384 18344 Checking prefix: screenshots/ddsfocustime/Temmuz_2025_
+WARNING 2025-09-13 10:12:50,273 monthwise_views 11384 18344 No screenshot data found for ddsfocustime in 2025-07
+INFO 2025-09-13 10:12:50,274 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/deniz_at_deluxebilisim.com/
+INFO 2025-09-13 10:12:50,478 monthwise_views 11384 18344 DEBUG: Found 5 folders for user deniz_at_deluxebilisim.com
+INFO 2025-09-13 10:12:50,504 monthwise_views 11384 18344 DEBUG:   - Haziran_2022_Çekim_Görselleri_Post
+INFO 2025-09-13 10:12:50,531 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:51,936 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025-07/
+INFO 2025-09-13 10:12:52,117 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025_Temmuz_
+INFO 2025-09-13 10:12:52,424 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_deluxebilisim.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:52,833 monthwise_views 11384 18344 No screenshot data found for deniz_at_deluxebilisim.com in 2025-07
+INFO 2025-09-13 10:12:52,834 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/deniz_at_dxdglobal.com/
+INFO 2025-09-13 10:12:53,039 monthwise_views 11384 18344 DEBUG: Found 1 folders for user deniz_at_dxdglobal.com
+INFO 2025-09-13 10:12:53,063 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:53,063 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_dxdglobal.com/2025-07/
+INFO 2025-09-13 10:12:53,448 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_dxdglobal.com/2025_Temmuz_
+INFO 2025-09-13 10:12:53,652 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_dxdglobal.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:53,881 monthwise_views 11384 18344 No screenshot data found for deniz_at_dxdglobal.com in 2025-07
+INFO 2025-09-13 10:12:53,881 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/eliff.ugrl_at_gmail.com/
+INFO 2025-09-13 10:12:54,064 monthwise_views 11384 18344 DEBUG: Found 16 folders for user eliff.ugrl_at_gmail.com
+INFO 2025-09-13 10:12:54,211 monthwise_views 11384 18344 DEBUG:   ... and 6 more folders
+INFO 2025-09-13 10:12:54,211 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:54,212 monthwise_views 11384 18344 Checking prefix: screenshots/eliff.ugrl_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:54,473 monthwise_views 11384 18344 Checking prefix: screenshots/eliff.ugrl_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:54,676 monthwise_views 11384 18344 Checking prefix: screenshots/eliff.ugrl_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:54,983 monthwise_views 11384 18344 No screenshot data found for eliff.ugrl_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:54,984 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/fatih.onk_at_deluxebilisim.com/
+INFO 2025-09-13 10:12:55,194 monthwise_views 11384 18344 DEBUG: Found 2 folders for user fatih.onk_at_deluxebilisim.com
+INFO 2025-09-13 10:12:55,209 monthwise_views 11384 18344 DEBUG:   - Kariyer_KKTC_Web_Sitesi
+INFO 2025-09-13 10:12:55,210 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:55,210 monthwise_views 11384 18344 Checking prefix: screenshots/fatih.onk_at_deluxebilisim.com/2025-07/
+INFO 2025-09-13 10:12:55,393 monthwise_views 11384 18344 Checking prefix: screenshots/fatih.onk_at_deluxebilisim.com/2025_Temmuz_
+INFO 2025-09-13 10:12:55,599 monthwise_views 11384 18344 Checking prefix: screenshots/fatih.onk_at_deluxebilisim.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:55,803 monthwise_views 11384 18344 No screenshot data found for fatih.onk_at_deluxebilisim.com in 2025-07
+INFO 2025-09-13 10:12:55,803 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/frknaydinresmi_at_gmail.com/
+INFO 2025-09-13 10:12:56,002 monthwise_views 11384 18344 DEBUG: Found 2 folders for user frknaydinresmi_at_gmail.com
+INFO 2025-09-13 10:12:56,030 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:56,030 monthwise_views 11384 18344 Checking prefix: screenshots/frknaydinresmi_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:56,196 monthwise_views 11384 18344 Checking prefix: screenshots/frknaydinresmi_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:56,352 monthwise_views 11384 18344 Checking prefix: screenshots/frknaydinresmi_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:56,521 monthwise_views 11384 18344 No screenshot data found for frknaydinresmi_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:56,522 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/gulaysencer95_at_gmail.com/
+INFO 2025-09-13 10:12:56,726 monthwise_views 11384 18344 DEBUG: Found 1 folders for user gulaysencer95_at_gmail.com
+INFO 2025-09-13 10:12:56,749 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:56,750 monthwise_views 11384 18344 Checking prefix: screenshots/gulaysencer95_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:57,044 monthwise_views 11384 18344 Checking prefix: screenshots/gulaysencer95_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:57,294 monthwise_views 11384 18344 Checking prefix: screenshots/gulaysencer95_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:57,544 monthwise_views 11384 18344 No screenshot data found for gulaysencer95_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:57,545 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/gulinsosyalmedya_at_gmail.com/
+INFO 2025-09-13 10:12:57,829 monthwise_views 11384 18344 DEBUG: Found 5 folders for user gulinsosyalmedya_at_gmail.com
+INFO 2025-09-13 10:12:57,901 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:12:59,122 monthwise_views 11384 18344 Checking prefix: screenshots/gulinsosyalmedya_at_gmail.com/2025-07/
+INFO 2025-09-13 10:12:59,284 monthwise_views 11384 18344 Checking prefix: screenshots/gulinsosyalmedya_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:12:59,591 monthwise_views 11384 18344 Checking prefix: screenshots/gulinsosyalmedya_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:12:59,898 monthwise_views 11384 18344 No screenshot data found for gulinsosyalmedya_at_gmail.com in 2025-07
+INFO 2025-09-13 10:12:59,899 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/gulsummelisa.23_at_gmail.com/
+INFO 2025-09-13 10:13:00,207 monthwise_views 11384 18344 DEBUG: Found 19 folders for user gulsummelisa.23_at_gmail.com
+INFO 2025-09-13 10:13:00,334 monthwise_views 11384 18344 DEBUG:   ... and 9 more folders
+INFO 2025-09-13 10:13:00,334 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:01,943 monthwise_views 11384 18344 Checking prefix: screenshots/gulsummelisa.23_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:02,077 monthwise_views 11384 18344 Checking prefix: screenshots/gulsummelisa.23_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:02,254 monthwise_views 11384 18344 Checking prefix: screenshots/gulsummelisa.23_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:02,458 monthwise_views 11384 18344 No screenshot data found for gulsummelisa.23_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:02,464 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/haseebcodejourney_at_gmail.com/
+INFO 2025-09-13 10:13:02,663 monthwise_views 11384 18344 DEBUG: Found 10 folders for user haseebcodejourney_at_gmail.com
+INFO 2025-09-13 10:13:02,724 monthwise_views 11384 18344 DEBUG:   - 2025-06-10
+INFO 2025-09-13 10:13:02,754 monthwise_views 11384 18344 DEBUG:   - AI_SASS_Product_Wordpress_Website
+INFO 2025-09-13 10:13:02,761 monthwise_views 11384 18344 DEBUG:   - Create_UI_for_YouTube_AI_Automation_
+INFO 2025-09-13 10:13:02,762 monthwise_views 11384 18344 DEBUG:   - DDSFocusPro_v1.3
+INFO 2025-09-13 10:13:02,763 monthwise_views 11384 18344 DEBUG:   - DDSFocusPro_v1.4
+INFO 2025-09-13 10:13:02,763 monthwise_views 11384 18344 DEBUG:   - DDSFocusPro_v1.5
+INFO 2025-09-13 10:13:02,811 monthwise_views 11384 18344 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
+INFO 2025-09-13 10:13:02,812 monthwise_views 11384 18344 DEBUG:   - Development_Version_2_For_DDSFocus_Pro
+INFO 2025-09-13 10:13:02,812 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:02,813 monthwise_views 11384 18344 Checking prefix: screenshots/haseebcodejourney_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:03,175 monthwise_views 11384 18344 Checking prefix: screenshots/haseebcodejourney_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:03,321 monthwise_views 11384 18344 Checking prefix: screenshots/haseebcodejourney_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:13:03,386 middleware 11384 26308 Request: GET /api/users/monthwise-stats/
+INFO 2025-09-13 10:13:03,398 monthwise_views 11384 26308 S3 client initialized successfully for monthwise stats
+WARNING 2025-09-13 10:13:03,477 monthwise_views 11384 18344 No screenshot data found for haseebcodejourney_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:03,477 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/hidayetemiryigit_at_gmail.com/
+INFO 2025-09-13 10:13:03,767 monthwise_views 11384 18344 DEBUG: Found 1 folders for user hidayetemiryigit_at_gmail.com
+INFO 2025-09-13 10:13:03,768 monthwise_views 11384 18344 DEBUG:   - arsinconstruction.com_
+INFO 2025-09-13 10:13:03,769 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:03,770 monthwise_views 11384 18344 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:03,994 monthwise_views 11384 18344 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:04,231 monthwise_views 11384 18344 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:04,372 monthwise_views 11384 18344 No screenshot data found for hidayetemiryigit_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:04,372 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/huseyinturguterek_at_gmail.com/
+INFO 2025-09-13 10:13:04,502 monthwise_views 11384 18344 DEBUG: Found 12 folders for user huseyinturguterek_at_gmail.com
+INFO 2025-09-13 10:13:04,644 monthwise_views 11384 18344 DEBUG:   ... and 2 more folders
+INFO 2025-09-13 10:13:04,645 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:12,078 monthwise_views 11384 18344 Checking prefix: screenshots/huseyinturguterek_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:12,232 monthwise_views 11384 18344 Checking prefix: screenshots/huseyinturguterek_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:12,363 monthwise_views 11384 18344 Checking prefix: screenshots/huseyinturguterek_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:12,488 monthwise_views 11384 18344 No screenshot data found for huseyinturguterek_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:12,493 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/ilahe.avci2004_at_gmail.com/
+INFO 2025-09-13 10:13:12,736 monthwise_views 11384 18344 DEBUG: Found 7 folders for user ilahe.avci2004_at_gmail.com
+INFO 2025-09-13 10:13:12,837 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:12,837 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:14,153 monthwise_views 11384 26308 S3 client initialized successfully for monthwise stats
+INFO 2025-09-13 10:13:14,161 views 11384 26308 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:13:14,195 middleware 11384 26308 Response: 200 for GET /api/users/monthwise-stats/
+INFO 2025-09-13 10:13:14,197 basehttp 11384 26308 "GET /api/users/monthwise-stats/?year=2025&month=7&id=5efdf599-b476-4f93-ad39-166ffd792b11&vscodeBrowserReqId=1757747583373 HTTP/1.1" 200 12066
+INFO 2025-09-13 10:13:15,529 monthwise_views 11384 18344 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:15,746 monthwise_views 11384 18344 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:15,882 monthwise_views 11384 18344 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:16,852 monthwise_views 11384 18344 No screenshot data found for ilahe.avci2004_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:16,854 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/ilahe_at_dxdglobal.com/
+INFO 2025-09-13 10:13:16,999 monthwise_views 11384 18344 DEBUG: Found 2 folders for user ilahe_at_dxdglobal.com
+INFO 2025-09-13 10:13:17,032 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:17,033 monthwise_views 11384 18344 Checking prefix: screenshots/ilahe_at_dxdglobal.com/2025-07/
+INFO 2025-09-13 10:13:17,177 monthwise_views 11384 18344 Checking prefix: screenshots/ilahe_at_dxdglobal.com/2025_Temmuz_
+INFO 2025-09-13 10:13:17,293 monthwise_views 11384 18344 Checking prefix: screenshots/ilahe_at_dxdglobal.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:17,602 monthwise_views 11384 18344 No screenshot data found for ilahe_at_dxdglobal.com in 2025-07
+INFO 2025-09-13 10:13:17,603 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/kadir.beskardes11_at_gmail.com/
+INFO 2025-09-13 10:13:17,774 monthwise_views 11384 18344 DEBUG: Found 4 folders for user kadir.beskardes11_at_gmail.com
+INFO 2025-09-13 10:13:17,775 monthwise_views 11384 18344 DEBUG:   - Admin_Panel_Web_Front-end_Optimization
+INFO 2025-09-13 10:13:17,775 monthwise_views 11384 18344 DEBUG:   - Create_Patient_Module_
+INFO 2025-09-13 10:13:17,775 monthwise_views 11384 18344 DEBUG:   - arsinconstruction.com_
+INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:18,027 monthwise_views 11384 18344 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:18,227 monthwise_views 11384 18344 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:18,436 monthwise_views 11384 18344 No screenshot data found for kadir.beskardes11_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:18,436 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/kadircagtas_at_gmail.com/
+INFO 2025-09-13 10:13:18,597 monthwise_views 11384 18344 DEBUG: Found 2 folders for user kadircagtas_at_gmail.com
+INFO 2025-09-13 10:13:18,598 monthwise_views 11384 18344 DEBUG:   - baniocyprus.com
+INFO 2025-09-13 10:13:18,599 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:18,600 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:18,601 monthwise_views 11384 18344 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:18,757 monthwise_views 11384 18344 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:18,953 monthwise_views 11384 18344 Checking prefix: screenshots/kadircagtas_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:19,259 monthwise_views 11384 18344 No screenshot data found for kadircagtas_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:19,260 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/kevserhuseyin18_at_gmail.com/
+INFO 2025-09-13 10:13:19,457 monthwise_views 11384 18344 DEBUG: Found 18 folders for user kevserhuseyin18_at_gmail.com
+INFO 2025-09-13 10:13:19,597 monthwise_views 11384 18344 DEBUG:   ... and 8 more folders
+INFO 2025-09-13 10:13:19,597 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:26,965 monthwise_views 11384 18344 Checking prefix: screenshots/kevserhuseyin18_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:27,135 monthwise_views 11384 18344 Checking prefix: screenshots/kevserhuseyin18_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:27,443 monthwise_views 11384 18344 Checking prefix: screenshots/kevserhuseyin18_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:27,648 monthwise_views 11384 18344 No screenshot data found for kevserhuseyin18_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:27,649 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/m.balkilic_at_deluxebilisim.com/
+INFO 2025-09-13 10:13:27,958 monthwise_views 11384 18344 DEBUG: Found 5 folders for user m.balkilic_at_deluxebilisim.com
+INFO 2025-09-13 10:13:27,994 monthwise_views 11384 18344 DEBUG:   - 2025_YILI_TEMMUZ_DDS_MARKETING
+INFO 2025-09-13 10:13:28,053 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:28,053 monthwise_views 11384 18344 FOUND MATCHING MONTH FOLDER: 2025_YILI_TEMMUZ_DDS_MARKETING
+INFO 2025-09-13 10:13:30,835 monthwise_views 11384 18344 Checking prefix: screenshots/m.balkilic_at_deluxebilisim.com/2025-07/
+INFO 2025-09-13 10:13:31,050 monthwise_views 11384 18344 Checking prefix: screenshots/m.balkilic_at_deluxebilisim.com/2025_Temmuz_
+INFO 2025-09-13 10:13:31,254 monthwise_views 11384 18344 Checking prefix: screenshots/m.balkilic_at_deluxebilisim.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:31,459 monthwise_views 11384 18344 No screenshot data found for m.balkilic_at_deluxebilisim.com in 2025-07
+INFO 2025-09-13 10:13:31,460 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/m.fidan.firat_at_gmail.com/
+INFO 2025-09-13 10:13:31,665 monthwise_views 11384 18344 DEBUG: Found 2 folders for user m.fidan.firat_at_gmail.com
+INFO 2025-09-13 10:13:31,694 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:35,083 monthwise_views 11384 18344 Checking prefix: screenshots/m.fidan.firat_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:35,346 monthwise_views 11384 18344 Checking prefix: screenshots/m.fidan.firat_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:35,542 monthwise_views 11384 18344 Checking prefix: screenshots/m.fidan.firat_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:35,662 monthwise_views 11384 18344 No screenshot data found for m.fidan.firat_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:35,663 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/mahboub.sad_at_gmail.com/
+INFO 2025-09-13 10:13:35,784 monthwise_views 11384 18344 DEBUG: Found 4 folders for user mahboub.sad_at_gmail.com
+INFO 2025-09-13 10:13:35,803 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:35,832 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:35,833 monthwise_views 11384 18344 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:35,842 middleware 11384 19244 Request: GET /api/users/search_s3/
+INFO 2025-09-13 10:13:35,854 monthwise_views 11384 19244 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:13:35,855 monthwise_views 11384 19244 Monthwise search for '' - Year: 2025, Month: 07, Page: 1, Size: 50
+INFO 2025-09-13 10:13:35,987 monthwise_views 11384 18344 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:36,106 monthwise_views 11384 18344 Checking prefix: screenshots/mahboub.sad_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:36,260 monthwise_views 11384 18344 No screenshot data found for mahboub.sad_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:36,269 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/mervegucluu.0044_at_gmail.com/
+INFO 2025-09-13 10:13:36,437 monthwise_views 11384 18344 DEBUG: Found 4 folders for user mervegucluu.0044_at_gmail.com
+INFO 2025-09-13 10:13:36,493 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:36,494 monthwise_views 11384 18344 Checking prefix: screenshots/mervegucluu.0044_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:36,613 monthwise_views 11384 18344 Checking prefix: screenshots/mervegucluu.0044_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:36,740 monthwise_views 11384 18344 Checking prefix: screenshots/mervegucluu.0044_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:36,966 monthwise_views 11384 18344 No screenshot data found for mervegucluu.0044_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:36,967 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/metinagacdelen_at_gmail.com/
+INFO 2025-09-13 10:13:37,152 monthwise_views 11384 18344 DEBUG: Found 2 folders for user metinagacdelen_at_gmail.com
+INFO 2025-09-13 10:13:37,157 monthwise_views 11384 19244 Found 41 total users in S3
+INFO 2025-09-13 10:13:37,171 monthwise_views 11384 19244 Getting all 41 users for month 2025-07
+INFO 2025-09-13 10:13:37,185 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:37,185 monthwise_views 11384 19244 Processing users: ['atakankahraman35_at_outlook.com', 'begumdamlasen_at_gmail.com', 'beyza-donmez-_at_hotmail.com', 'bilgeryilmaz_at_gmail.com', 'cagla.shr_at_gmail.com']
+INFO 2025-09-13 10:13:37,185 monthwise_views 11384 18344 Checking prefix: screenshots/metinagacdelen_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:37,186 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/atakankahraman35_at_outlook.com/
+INFO 2025-09-13 10:13:37,324 monthwise_views 11384 18344 Checking prefix: screenshots/metinagacdelen_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:37,380 monthwise_views 11384 19244 DEBUG: Found 15 folders for user atakankahraman35_at_outlook.com
+INFO 2025-09-13 10:13:37,458 monthwise_views 11384 18344 Checking prefix: screenshots/metinagacdelen_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:13:37,520 monthwise_views 11384 19244 DEBUG:   ... and 5 more folders
+INFO 2025-09-13 10:13:37,520 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+WARNING 2025-09-13 10:13:37,591 monthwise_views 11384 18344 No screenshot data found for metinagacdelen_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:37,592 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/mirzashazif123_at_gmail.com/
+INFO 2025-09-13 10:13:37,788 monthwise_views 11384 18344 DEBUG: Found 1 folders for user mirzashazif123_at_gmail.com
+INFO 2025-09-13 10:13:37,789 monthwise_views 11384 18344 DEBUG:   - Wordpress_Website_TRNCNews
+INFO 2025-09-13 10:13:37,790 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:37,792 monthwise_views 11384 18344 Checking prefix: screenshots/mirzashazif123_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:38,017 monthwise_views 11384 18344 Checking prefix: screenshots/mirzashazif123_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:38,826 monthwise_views 11384 18344 Checking prefix: screenshots/mirzashazif123_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:39,043 monthwise_views 11384 18344 No screenshot data found for mirzashazif123_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:39,044 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/mohsinabbass688630_at_gmail.com/
+INFO 2025-09-13 10:13:39,297 monthwise_views 11384 18344 DEBUG: Found 4 folders for user mohsinabbass688630_at_gmail.com
+INFO 2025-09-13 10:13:39,297 monthwise_views 11384 18344 DEBUG:   - Header_Needs_to_be_fixed
+INFO 2025-09-13 10:13:39,298 monthwise_views 11384 18344 DEBUG:   - Wordpress_General_Update_Themes_&_Plugins_
+INFO 2025-09-13 10:13:39,298 monthwise_views 11384 18344 DEBUG:   - Wordpress_Website_TRNCNews
+INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:39,440 monthwise_views 11384 18344 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:39,566 monthwise_views 11384 18344 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:39,705 monthwise_views 11384 18344 No screenshot data found for mohsinabbass688630_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:39,720 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/nawaz_at_dxdglobal.com/
+INFO 2025-09-13 10:13:40,141 monthwise_views 11384 18344 DEBUG: Found 6 folders for user nawaz_at_dxdglobal.com
+INFO 2025-09-13 10:13:40,142 monthwise_views 11384 18344 DEBUG:   - Create_a_card_API_(Total_Employee,_Total_Projects_etc)
+INFO 2025-09-13 10:13:40,142 monthwise_views 11384 18344 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
+INFO 2025-09-13 10:13:40,158 monthwise_views 11384 18344 DEBUG:   - Please_make_Fix_Search_Issue_on_Admin_Panel
+INFO 2025-09-13 10:13:40,158 monthwise_views 11384 18344 DEBUG:   - cyprushaber.com
+INFO 2025-09-13 10:13:40,159 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:40,159 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:41,038 monthwise_views 11384 18344 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-07/
+INFO 2025-09-13 10:13:41,210 monthwise_views 11384 18344 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025_Temmuz_
+INFO 2025-09-13 10:13:41,422 monthwise_views 11384 18344 Checking prefix: screenshots/nawaz_at_dxdglobal.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:41,693 monthwise_views 11384 18344 No screenshot data found for nawaz_at_dxdglobal.com in 2025-07
+INFO 2025-09-13 10:13:41,732 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/omerfrkyalcin_at_gmail.com/
+INFO 2025-09-13 10:13:41,883 monthwise_views 11384 18344 DEBUG: Found 16 folders for user omerfrkyalcin_at_gmail.com
+INFO 2025-09-13 10:13:42,020 monthwise_views 11384 18344 DEBUG:   ... and 6 more folders
+INFO 2025-09-13 10:13:42,021 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:47,045 monthwise_views 11384 19244 Checking prefix: screenshots/atakankahraman35_at_outlook.com/2025-07/
+INFO 2025-09-13 10:13:47,200 monthwise_views 11384 19244 Checking prefix: screenshots/atakankahraman35_at_outlook.com/2025_Temmuz_
+INFO 2025-09-13 10:13:47,335 monthwise_views 11384 19244 Checking prefix: screenshots/atakankahraman35_at_outlook.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:47,505 monthwise_views 11384 19244 No screenshot data found for atakankahraman35_at_outlook.com in 2025-07
+INFO 2025-09-13 10:13:47,557 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-13 10:13:47,746 monthwise_views 11384 19244 DEBUG: Found 15 folders for user begumdamlasen_at_gmail.com
+INFO 2025-09-13 10:13:47,901 monthwise_views 11384 19244 DEBUG:   ... and 5 more folders
+INFO 2025-09-13 10:13:47,902 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:52,121 monthwise_views 11384 19244 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:52,341 monthwise_views 11384 19244 Checking prefix: screenshots/begumdamlasen_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:52,465 monthwise_views 11384 19244 Checking prefix: screenshots/begumdamlasen_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:52,590 monthwise_views 11384 19244 No screenshot data found for begumdamlasen_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:52,592 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/beyza-donmez-_at_hotmail.com/
+INFO 2025-09-13 10:13:52,721 monthwise_views 11384 19244 DEBUG: Found 1 folders for user beyza-donmez-_at_hotmail.com
+INFO 2025-09-13 10:13:52,736 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:52,737 monthwise_views 11384 19244 Checking prefix: screenshots/beyza-donmez-_at_hotmail.com/2025-07/
+INFO 2025-09-13 10:13:52,861 monthwise_views 11384 19244 Checking prefix: screenshots/beyza-donmez-_at_hotmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:52,981 monthwise_views 11384 19244 Checking prefix: screenshots/beyza-donmez-_at_hotmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:53,192 monthwise_views 11384 19244 No screenshot data found for beyza-donmez-_at_hotmail.com in 2025-07
+INFO 2025-09-13 10:13:53,192 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/bilgeryilmaz_at_gmail.com/
+INFO 2025-09-13 10:13:53,453 monthwise_views 11384 19244 DEBUG: Found 2 folders for user bilgeryilmaz_at_gmail.com
+INFO 2025-09-13 10:13:53,483 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:53,483 monthwise_views 11384 19244 Checking prefix: screenshots/bilgeryilmaz_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:53,609 monthwise_views 11384 19244 Checking prefix: screenshots/bilgeryilmaz_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:53,760 monthwise_views 11384 19244 Checking prefix: screenshots/bilgeryilmaz_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:53,963 monthwise_views 11384 19244 No screenshot data found for bilgeryilmaz_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:54,013 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/cagla.shr_at_gmail.com/
+INFO 2025-09-13 10:13:54,158 monthwise_views 11384 19244 DEBUG: Found 20 folders for user cagla.shr_at_gmail.com
+INFO 2025-09-13 10:13:54,312 monthwise_views 11384 19244 DEBUG:   ... and 10 more folders
+INFO 2025-09-13 10:13:54,312 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:57,593 monthwise_views 11384 18344 Checking prefix: screenshots/omerfrkyalcin_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:57,959 monthwise_views 11384 18344 Checking prefix: screenshots/omerfrkyalcin_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:58,162 monthwise_views 11384 18344 Checking prefix: screenshots/omerfrkyalcin_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:58,289 monthwise_views 11384 18344 No screenshot data found for omerfrkyalcin_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:58,291 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/ozgunhulyakaraoglan_at_gmail.com/
+INFO 2025-09-13 10:13:58,456 monthwise_views 11384 18344 DEBUG: Found 7 folders for user ozgunhulyakaraoglan_at_gmail.com
+INFO 2025-09-13 10:13:58,772 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:58,773 monthwise_views 11384 18344 Checking prefix: screenshots/ozgunhulyakaraoglan_at_gmail.com/2025-07/
+INFO 2025-09-13 10:13:58,980 monthwise_views 11384 18344 Checking prefix: screenshots/ozgunhulyakaraoglan_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:13:59,292 monthwise_views 11384 18344 Checking prefix: screenshots/ozgunhulyakaraoglan_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:13:59,493 monthwise_views 11384 18344 No screenshot data found for ozgunhulyakaraoglan_at_gmail.com in 2025-07
+INFO 2025-09-13 10:13:59,493 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/rignimeyikur02_at_gmail.com/
+INFO 2025-09-13 10:13:59,699 monthwise_views 11384 18344 DEBUG: Found 6 folders for user rignimeyikur02_at_gmail.com
+INFO 2025-09-13 10:13:59,788 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:13:59,789 monthwise_views 11384 18344 Checking prefix: screenshots/rignimeyikur02_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:00,009 monthwise_views 11384 18344 Checking prefix: screenshots/rignimeyikur02_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:00,214 monthwise_views 11384 18344 Checking prefix: screenshots/rignimeyikur02_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:00,358 monthwise_views 11384 18344 No screenshot data found for rignimeyikur02_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:00,359 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/selimyalcnts_at_gmail.com/
+INFO 2025-09-13 10:14:00,492 monthwise_views 11384 18344 DEBUG: Found 2 folders for user selimyalcnts_at_gmail.com
+INFO 2025-09-13 10:14:00,493 monthwise_views 11384 18344 DEBUG:   - arsinconstruction.com_
+INFO 2025-09-13 10:14:00,493 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:00,494 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:00,494 monthwise_views 11384 18344 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:00,665 monthwise_views 11384 18344 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:00,792 monthwise_views 11384 18344 Checking prefix: screenshots/selimyalcnts_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:00,908 monthwise_views 11384 18344 No screenshot data found for selimyalcnts_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:00,908 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/tugbacalik84_at_gmail.com/
+INFO 2025-09-13 10:14:01,071 monthwise_views 11384 18344 DEBUG: Found 40 folders for user tugbacalik84_at_gmail.com
+INFO 2025-09-13 10:14:01,216 monthwise_views 11384 18344 DEBUG:   ... and 30 more folders
+INFO 2025-09-13 10:14:01,217 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:02,080 monthwise_views 11384 19244 Checking prefix: screenshots/cagla.shr_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:02,217 monthwise_views 11384 19244 Checking prefix: screenshots/cagla.shr_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:02,397 monthwise_views 11384 19244 Checking prefix: screenshots/cagla.shr_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:02,635 monthwise_views 11384 19244 No screenshot data found for cagla.shr_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:02,635 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/danish.ali9801_at_gmail.com/
+INFO 2025-09-13 10:14:02,886 monthwise_views 11384 19244 DEBUG: Found 1 folders for user danish.ali9801_at_gmail.com
+INFO 2025-09-13 10:14:02,886 monthwise_views 11384 19244 DEBUG:   - Create_a_website_AI
+INFO 2025-09-13 10:14:02,887 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:02,887 monthwise_views 11384 19244 Checking prefix: screenshots/danish.ali9801_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:03,049 monthwise_views 11384 19244 Checking prefix: screenshots/danish.ali9801_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:03,184 monthwise_views 11384 19244 Checking prefix: screenshots/danish.ali9801_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:03,340 monthwise_views 11384 19244 No screenshot data found for danish.ali9801_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:03,341 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/ddsfocustime/
+INFO 2025-09-13 10:14:03,466 monthwise_views 11384 19244 DEBUG: Found 1 folders for user ddsfocustime
+INFO 2025-09-13 10:14:03,466 monthwise_views 11384 19244 DEBUG:   - screenshot-inventory
+INFO 2025-09-13 10:14:03,467 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:03,467 monthwise_views 11384 19244 Checking prefix: screenshots/ddsfocustime/2025-07/
+INFO 2025-09-13 10:14:03,597 monthwise_views 11384 19244 Checking prefix: screenshots/ddsfocustime/2025_Temmuz_
+INFO 2025-09-13 10:14:03,760 monthwise_views 11384 19244 Checking prefix: screenshots/ddsfocustime/Temmuz_2025_
+WARNING 2025-09-13 10:14:04,090 monthwise_views 11384 19244 No screenshot data found for ddsfocustime in 2025-07
+INFO 2025-09-13 10:14:04,090 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/deniz_at_deluxebilisim.com/
+INFO 2025-09-13 10:14:04,305 monthwise_views 11384 19244 DEBUG: Found 5 folders for user deniz_at_deluxebilisim.com
+INFO 2025-09-13 10:14:04,336 monthwise_views 11384 19244 DEBUG:   - Haziran_2022_Çekim_Görselleri_Post
+INFO 2025-09-13 10:14:04,365 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:05,952 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025-07/
+INFO 2025-09-13 10:14:06,145 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025_Temmuz_
+INFO 2025-09-13 10:14:06,320 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_deluxebilisim.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:06,482 monthwise_views 11384 19244 No screenshot data found for deniz_at_deluxebilisim.com in 2025-07
+INFO 2025-09-13 10:14:06,483 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/deniz_at_dxdglobal.com/
+INFO 2025-09-13 10:14:06,630 monthwise_views 11384 19244 DEBUG: Found 1 folders for user deniz_at_dxdglobal.com
+INFO 2025-09-13 10:14:06,644 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:06,645 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_dxdglobal.com/2025-07/
+INFO 2025-09-13 10:14:06,827 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_dxdglobal.com/2025_Temmuz_
+INFO 2025-09-13 10:14:06,962 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_dxdglobal.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:07,111 monthwise_views 11384 19244 No screenshot data found for deniz_at_dxdglobal.com in 2025-07
+INFO 2025-09-13 10:14:07,112 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/eliff.ugrl_at_gmail.com/
+INFO 2025-09-13 10:14:07,254 monthwise_views 11384 19244 DEBUG: Found 16 folders for user eliff.ugrl_at_gmail.com
+INFO 2025-09-13 10:14:07,402 monthwise_views 11384 19244 DEBUG:   ... and 6 more folders
+INFO 2025-09-13 10:14:07,402 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:07,403 monthwise_views 11384 19244 Checking prefix: screenshots/eliff.ugrl_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:08,299 monthwise_views 11384 19244 Checking prefix: screenshots/eliff.ugrl_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:08,508 monthwise_views 11384 19244 Checking prefix: screenshots/eliff.ugrl_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:08,825 monthwise_views 11384 19244 No screenshot data found for eliff.ugrl_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:08,826 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/fatih.onk_at_deluxebilisim.com/
+INFO 2025-09-13 10:14:09,053 monthwise_views 11384 19244 DEBUG: Found 2 folders for user fatih.onk_at_deluxebilisim.com
+INFO 2025-09-13 10:14:09,068 monthwise_views 11384 19244 DEBUG:   - Kariyer_KKTC_Web_Sitesi
+INFO 2025-09-13 10:14:09,068 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:09,069 monthwise_views 11384 19244 Checking prefix: screenshots/fatih.onk_at_deluxebilisim.com/2025-07/
+INFO 2025-09-13 10:14:09,202 monthwise_views 11384 19244 Checking prefix: screenshots/fatih.onk_at_deluxebilisim.com/2025_Temmuz_
+INFO 2025-09-13 10:14:09,354 monthwise_views 11384 19244 Checking prefix: screenshots/fatih.onk_at_deluxebilisim.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:09,515 monthwise_views 11384 19244 No screenshot data found for fatih.onk_at_deluxebilisim.com in 2025-07
+INFO 2025-09-13 10:14:09,531 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/frknaydinresmi_at_gmail.com/
+INFO 2025-09-13 10:14:09,666 monthwise_views 11384 19244 DEBUG: Found 2 folders for user frknaydinresmi_at_gmail.com
+INFO 2025-09-13 10:14:09,695 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:09,695 monthwise_views 11384 19244 Checking prefix: screenshots/frknaydinresmi_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:09,845 monthwise_views 11384 19244 Checking prefix: screenshots/frknaydinresmi_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:09,991 monthwise_views 11384 19244 Checking prefix: screenshots/frknaydinresmi_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:10,165 monthwise_views 11384 19244 No screenshot data found for frknaydinresmi_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:10,166 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/gulaysencer95_at_gmail.com/
+INFO 2025-09-13 10:14:10,326 monthwise_views 11384 19244 DEBUG: Found 1 folders for user gulaysencer95_at_gmail.com
+INFO 2025-09-13 10:14:10,349 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:10,350 monthwise_views 11384 19244 Checking prefix: screenshots/gulaysencer95_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:10,588 monthwise_views 11384 19244 Checking prefix: screenshots/gulaysencer95_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:10,758 monthwise_views 11384 19244 Checking prefix: screenshots/gulaysencer95_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:10,990 monthwise_views 11384 19244 No screenshot data found for gulaysencer95_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:10,990 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/gulinsosyalmedya_at_gmail.com/
+INFO 2025-09-13 10:14:11,269 monthwise_views 11384 19244 DEBUG: Found 5 folders for user gulinsosyalmedya_at_gmail.com
+INFO 2025-09-13 10:14:11,343 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:12,921 monthwise_views 11384 19244 Checking prefix: screenshots/gulinsosyalmedya_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:13,935 monthwise_views 11384 19244 Checking prefix: screenshots/gulinsosyalmedya_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:14,100 monthwise_views 11384 19244 Checking prefix: screenshots/gulinsosyalmedya_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:14,249 monthwise_views 11384 19244 No screenshot data found for gulinsosyalmedya_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:14,250 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/gulsummelisa.23_at_gmail.com/
+INFO 2025-09-13 10:14:14,405 monthwise_views 11384 19244 DEBUG: Found 19 folders for user gulsummelisa.23_at_gmail.com
+INFO 2025-09-13 10:14:14,552 monthwise_views 11384 19244 DEBUG:   ... and 9 more folders
+INFO 2025-09-13 10:14:14,552 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:18,229 monthwise_views 11384 18344 Checking prefix: screenshots/tugbacalik84_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:18,405 monthwise_views 11384 18344 Checking prefix: screenshots/tugbacalik84_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:18,732 monthwise_views 11384 19244 Checking prefix: screenshots/gulsummelisa.23_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:18,947 monthwise_views 11384 19244 Checking prefix: screenshots/gulsummelisa.23_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:19,153 monthwise_views 11384 19244 Checking prefix: screenshots/gulsummelisa.23_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:19,358 monthwise_views 11384 19244 No screenshot data found for gulsummelisa.23_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:19,359 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/haseebcodejourney_at_gmail.com/
+INFO 2025-09-13 10:14:19,665 monthwise_views 11384 19244 DEBUG: Found 10 folders for user haseebcodejourney_at_gmail.com
+INFO 2025-09-13 10:14:19,666 monthwise_views 11384 18344 Checking prefix: screenshots/tugbacalik84_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:14:19,666 monthwise_views 11384 19244 DEBUG:   - 2025-06-10
+INFO 2025-09-13 10:14:19,682 monthwise_views 11384 19244 DEBUG:   - AI_SASS_Product_Wordpress_Website
+INFO 2025-09-13 10:14:19,682 monthwise_views 11384 19244 DEBUG:   - Create_UI_for_YouTube_AI_Automation_
+INFO 2025-09-13 10:14:19,682 monthwise_views 11384 19244 DEBUG:   - DDSFocusPro_v1.3
+INFO 2025-09-13 10:14:19,683 monthwise_views 11384 19244 DEBUG:   - DDSFocusPro_v1.4
+INFO 2025-09-13 10:14:19,683 monthwise_views 11384 19244 DEBUG:   - DDSFocusPro_v1.5
+INFO 2025-09-13 10:14:19,697 monthwise_views 11384 19244 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
+INFO 2025-09-13 10:14:19,697 monthwise_views 11384 19244 DEBUG:   - Development_Version_2_For_DDSFocus_Pro
+INFO 2025-09-13 10:14:19,697 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:19,698 monthwise_views 11384 19244 Checking prefix: screenshots/haseebcodejourney_at_gmail.com/2025-07/
+WARNING 2025-09-13 10:14:19,784 monthwise_views 11384 18344 No screenshot data found for tugbacalik84_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:19,786 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/umutgny160_at_gmail.com/
+INFO 2025-09-13 10:14:19,830 monthwise_views 11384 19244 Checking prefix: screenshots/haseebcodejourney_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:19,904 monthwise_views 11384 18344 DEBUG: Found 1 folders for user umutgny160_at_gmail.com
+INFO 2025-09-13 10:14:19,917 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:19,917 monthwise_views 11384 18344 Checking prefix: screenshots/umutgny160_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:19,950 monthwise_views 11384 19244 Checking prefix: screenshots/haseebcodejourney_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:14:20,069 monthwise_views 11384 18344 Checking prefix: screenshots/umutgny160_at_gmail.com/2025_Temmuz_
+WARNING 2025-09-13 10:14:20,075 monthwise_views 11384 19244 No screenshot data found for haseebcodejourney_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:20,076 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/hidayetemiryigit_at_gmail.com/
+INFO 2025-09-13 10:14:20,280 monthwise_views 11384 19244 DEBUG: Found 1 folders for user hidayetemiryigit_at_gmail.com
+INFO 2025-09-13 10:14:20,281 monthwise_views 11384 18344 Checking prefix: screenshots/umutgny160_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:14:20,282 monthwise_views 11384 19244 DEBUG:   - arsinconstruction.com_
+INFO 2025-09-13 10:14:20,286 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:20,286 monthwise_views 11384 19244 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/2025-07/
+WARNING 2025-09-13 10:14:20,483 monthwise_views 11384 18344 No screenshot data found for umutgny160_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:20,484 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/yunussemrekatirci_at_gmail.com/
+INFO 2025-09-13 10:14:20,485 monthwise_views 11384 19244 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:20,689 monthwise_views 11384 19244 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:14:20,690 monthwise_views 11384 18344 DEBUG: Found 5 folders for user yunussemrekatirci_at_gmail.com
+INFO 2025-09-13 10:14:20,742 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:20,757 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:20,758 monthwise_views 11384 18344 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025-07/
+WARNING 2025-09-13 10:14:20,821 monthwise_views 11384 19244 No screenshot data found for hidayetemiryigit_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:20,822 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/huseyinturguterek_at_gmail.com/
+INFO 2025-09-13 10:14:21,098 monthwise_views 11384 18344 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:21,099 monthwise_views 11384 19244 DEBUG: Found 12 folders for user huseyinturguterek_at_gmail.com
+INFO 2025-09-13 10:14:21,237 monthwise_views 11384 19244 DEBUG:   ... and 2 more folders
+INFO 2025-09-13 10:14:21,237 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:21,280 monthwise_views 11384 18344 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:21,509 monthwise_views 11384 18344 No screenshot data found for yunussemrekatirci_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:21,510 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/yurukelmenekse_at_gmail.com/
+INFO 2025-09-13 10:14:21,668 monthwise_views 11384 18344 DEBUG: Found 2 folders for user yurukelmenekse_at_gmail.com
+INFO 2025-09-13 10:14:21,695 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:21,696 monthwise_views 11384 18344 Checking prefix: screenshots/yurukelmenekse_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:21,861 monthwise_views 11384 18344 Checking prefix: screenshots/yurukelmenekse_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:21,975 monthwise_views 11384 18344 Checking prefix: screenshots/yurukelmenekse_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:22,097 monthwise_views 11384 18344 No screenshot data found for yurukelmenekse_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:22,098 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/zainhere41_at_gmail.com/
+INFO 2025-09-13 10:14:22,265 monthwise_views 11384 18344 DEBUG: Found 1 folders for user zainhere41_at_gmail.com
+INFO 2025-09-13 10:14:22,266 monthwise_views 11384 18344 DEBUG:   - Woocomerce_N8N_automations
+INFO 2025-09-13 10:14:22,266 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:22,267 monthwise_views 11384 18344 Checking prefix: screenshots/zainhere41_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:22,387 monthwise_views 11384 18344 Checking prefix: screenshots/zainhere41_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:22,512 monthwise_views 11384 18344 Checking prefix: screenshots/zainhere41_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:22,698 monthwise_views 11384 18344 No screenshot data found for zainhere41_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:22,698 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/zeynepbaygin60_at_gmail.com/
+INFO 2025-09-13 10:14:22,870 monthwise_views 11384 18344 DEBUG: Found 1 folders for user zeynepbaygin60_at_gmail.com
+INFO 2025-09-13 10:14:22,885 monthwise_views 11384 18344 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:24,410 monthwise_views 11384 18344 Checking prefix: screenshots/zeynepbaygin60_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:24,548 monthwise_views 11384 18344 Checking prefix: screenshots/zeynepbaygin60_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:24,773 monthwise_views 11384 18344 Checking prefix: screenshots/zeynepbaygin60_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:24,941 monthwise_views 11384 18344 No screenshot data found for zeynepbaygin60_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:24,951 monthwise_views 11384 18344 S3 client initialized successfully for monthwise users search
+INFO 2025-09-13 10:14:24,959 views 11384 18344 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:14:24,981 middleware 11384 18344 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 10:14:24,983 basehttp 11384 18344 - Broken pipe from ('127.0.0.1', 56928)
+INFO 2025-09-13 10:14:25,255 middleware 11384 27636 Request: GET /api/users/monthwise-stats/
+INFO 2025-09-13 10:14:25,263 monthwise_views 11384 27636 S3 client initialized successfully for monthwise stats
+INFO 2025-09-13 10:14:28,748 monthwise_views 11384 19244 Checking prefix: screenshots/huseyinturguterek_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:28,862 monthwise_views 11384 19244 Checking prefix: screenshots/huseyinturguterek_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:29,088 monthwise_views 11384 19244 Checking prefix: screenshots/huseyinturguterek_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:29,294 monthwise_views 11384 19244 No screenshot data found for huseyinturguterek_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:29,295 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/ilahe.avci2004_at_gmail.com/
+INFO 2025-09-13 10:14:29,497 monthwise_views 11384 19244 DEBUG: Found 7 folders for user ilahe.avci2004_at_gmail.com
+INFO 2025-09-13 10:14:29,588 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:29,588 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:33,628 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:33,795 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:34,003 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/Temmuz_2025_
+INFO 2025-09-13 10:14:34,144 middleware 11384 27636 Response: 200 for GET /api/users/monthwise-stats/
+INFO 2025-09-13 10:14:34,145 basehttp 11384 27636 "GET /api/users/monthwise-stats/?year=2025&month=7 HTTP/1.1" 200 538
+WARNING 2025-09-13 10:14:35,134 monthwise_views 11384 19244 No screenshot data found for ilahe.avci2004_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:35,135 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/ilahe_at_dxdglobal.com/
+INFO 2025-09-13 10:14:35,334 monthwise_views 11384 19244 DEBUG: Found 2 folders for user ilahe_at_dxdglobal.com
+INFO 2025-09-13 10:14:35,369 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:35,369 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe_at_dxdglobal.com/2025-07/
+INFO 2025-09-13 10:14:35,538 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe_at_dxdglobal.com/2025_Temmuz_
+INFO 2025-09-13 10:14:35,685 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe_at_dxdglobal.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:35,946 monthwise_views 11384 19244 No screenshot data found for ilahe_at_dxdglobal.com in 2025-07
+INFO 2025-09-13 10:14:35,946 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/kadir.beskardes11_at_gmail.com/
+INFO 2025-09-13 10:14:36,151 monthwise_views 11384 19244 DEBUG: Found 4 folders for user kadir.beskardes11_at_gmail.com
+INFO 2025-09-13 10:14:36,151 monthwise_views 11384 19244 DEBUG:   - Admin_Panel_Web_Front-end_Optimization
+INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - Create_Patient_Module_
+INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - arsinconstruction.com_
+INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:36,153 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:36,153 monthwise_views 11384 19244 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:36,460 monthwise_views 11384 19244 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:36,663 monthwise_views 11384 19244 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:36,869 monthwise_views 11384 19244 No screenshot data found for kadir.beskardes11_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:36,870 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/kadircagtas_at_gmail.com/
+INFO 2025-09-13 10:14:37,176 monthwise_views 11384 19244 DEBUG: Found 2 folders for user kadircagtas_at_gmail.com
+INFO 2025-09-13 10:14:37,176 monthwise_views 11384 19244 DEBUG:   - baniocyprus.com
+INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:37,482 monthwise_views 11384 19244 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:37,687 monthwise_views 11384 19244 Checking prefix: screenshots/kadircagtas_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:37,892 monthwise_views 11384 19244 No screenshot data found for kadircagtas_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:37,892 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/kevserhuseyin18_at_gmail.com/
+INFO 2025-09-13 10:14:38,199 monthwise_views 11384 19244 DEBUG: Found 18 folders for user kevserhuseyin18_at_gmail.com
+INFO 2025-09-13 10:14:38,331 monthwise_views 11384 19244 DEBUG:   ... and 8 more folders
+INFO 2025-09-13 10:14:38,331 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:43,442 monthwise_views 11384 19244 Checking prefix: screenshots/kevserhuseyin18_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:43,662 monthwise_views 11384 19244 Checking prefix: screenshots/kevserhuseyin18_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:43,830 monthwise_views 11384 19244 Checking prefix: screenshots/kevserhuseyin18_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:44,035 monthwise_views 11384 19244 No screenshot data found for kevserhuseyin18_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:44,035 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/m.balkilic_at_deluxebilisim.com/
+INFO 2025-09-13 10:14:44,239 monthwise_views 11384 19244 DEBUG: Found 5 folders for user m.balkilic_at_deluxebilisim.com
+INFO 2025-09-13 10:14:44,255 monthwise_views 11384 19244 DEBUG:   - 2025_YILI_TEMMUZ_DDS_MARKETING
+INFO 2025-09-13 10:14:44,295 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:44,296 monthwise_views 11384 19244 FOUND MATCHING MONTH FOLDER: 2025_YILI_TEMMUZ_DDS_MARKETING
+INFO 2025-09-13 10:14:45,832 monthwise_views 11384 19244 Checking prefix: screenshots/m.balkilic_at_deluxebilisim.com/2025-07/
+INFO 2025-09-13 10:14:45,980 monthwise_views 11384 19244 Checking prefix: screenshots/m.balkilic_at_deluxebilisim.com/2025_Temmuz_
+INFO 2025-09-13 10:14:46,186 monthwise_views 11384 19244 Checking prefix: screenshots/m.balkilic_at_deluxebilisim.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:46,390 monthwise_views 11384 19244 No screenshot data found for m.balkilic_at_deluxebilisim.com in 2025-07
+INFO 2025-09-13 10:14:46,391 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/m.fidan.firat_at_gmail.com/
+INFO 2025-09-13 10:14:46,542 monthwise_views 11384 19244 DEBUG: Found 2 folders for user m.fidan.firat_at_gmail.com
+INFO 2025-09-13 10:14:46,575 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:48,925 monthwise_views 11384 19244 Checking prefix: screenshots/m.fidan.firat_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:49,155 monthwise_views 11384 19244 Checking prefix: screenshots/m.fidan.firat_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:49,564 monthwise_views 11384 19244 Checking prefix: screenshots/m.fidan.firat_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:49,691 monthwise_views 11384 19244 No screenshot data found for m.fidan.firat_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:49,694 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/mahboub.sad_at_gmail.com/
+INFO 2025-09-13 10:14:50,077 monthwise_views 11384 19244 DEBUG: Found 4 folders for user mahboub.sad_at_gmail.com
+INFO 2025-09-13 10:14:50,089 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:50,117 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:50,117 monthwise_views 11384 19244 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:50,281 monthwise_views 11384 19244 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:50,590 monthwise_views 11384 19244 Checking prefix: screenshots/mahboub.sad_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:50,897 monthwise_views 11384 19244 No screenshot data found for mahboub.sad_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:50,897 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/mervegucluu.0044_at_gmail.com/
+INFO 2025-09-13 10:14:51,316 monthwise_views 11384 19244 DEBUG: Found 4 folders for user mervegucluu.0044_at_gmail.com
+INFO 2025-09-13 10:14:51,382 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:51,382 monthwise_views 11384 19244 Checking prefix: screenshots/mervegucluu.0044_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:51,943 monthwise_views 11384 19244 Checking prefix: screenshots/mervegucluu.0044_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:52,231 monthwise_views 11384 19244 Checking prefix: screenshots/mervegucluu.0044_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:52,431 monthwise_views 11384 19244 No screenshot data found for mervegucluu.0044_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:52,432 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/metinagacdelen_at_gmail.com/
+INFO 2025-09-13 10:14:52,636 monthwise_views 11384 19244 DEBUG: Found 2 folders for user metinagacdelen_at_gmail.com
+INFO 2025-09-13 10:14:52,663 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:52,663 monthwise_views 11384 19244 Checking prefix: screenshots/metinagacdelen_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:52,842 monthwise_views 11384 19244 Checking prefix: screenshots/metinagacdelen_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:53,045 monthwise_views 11384 19244 Checking prefix: screenshots/metinagacdelen_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:53,353 monthwise_views 11384 19244 No screenshot data found for metinagacdelen_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:53,354 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/mirzashazif123_at_gmail.com/
+INFO 2025-09-13 10:14:53,559 monthwise_views 11384 19244 DEBUG: Found 1 folders for user mirzashazif123_at_gmail.com
+INFO 2025-09-13 10:14:53,560 monthwise_views 11384 19244 DEBUG:   - Wordpress_Website_TRNCNews
+INFO 2025-09-13 10:14:53,560 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:53,561 monthwise_views 11384 19244 Checking prefix: screenshots/mirzashazif123_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:53,762 monthwise_views 11384 19244 Checking prefix: screenshots/mirzashazif123_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:53,968 monthwise_views 11384 19244 Checking prefix: screenshots/mirzashazif123_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:54,275 monthwise_views 11384 19244 No screenshot data found for mirzashazif123_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:54,275 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/mohsinabbass688630_at_gmail.com/
+INFO 2025-09-13 10:14:54,582 monthwise_views 11384 19244 DEBUG: Found 4 folders for user mohsinabbass688630_at_gmail.com
+INFO 2025-09-13 10:14:54,582 monthwise_views 11384 19244 DEBUG:   - Header_Needs_to_be_fixed
+INFO 2025-09-13 10:14:54,583 monthwise_views 11384 19244 DEBUG:   - Wordpress_General_Update_Themes_&_Plugins_
+INFO 2025-09-13 10:14:54,584 monthwise_views 11384 19244 DEBUG:   - Wordpress_Website_TRNCNews
+INFO 2025-09-13 10:14:54,585 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:54,585 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:54,586 monthwise_views 11384 19244 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025-07/
+INFO 2025-09-13 10:14:54,889 monthwise_views 11384 19244 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:14:55,198 monthwise_views 11384 19244 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:55,901 monthwise_views 11384 19244 No screenshot data found for mohsinabbass688630_at_gmail.com in 2025-07
+INFO 2025-09-13 10:14:55,901 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/nawaz_at_dxdglobal.com/
+INFO 2025-09-13 10:14:56,130 monthwise_views 11384 19244 DEBUG: Found 6 folders for user nawaz_at_dxdglobal.com
+INFO 2025-09-13 10:14:56,130 monthwise_views 11384 19244 DEBUG:   - Create_a_card_API_(Total_Employee,_Total_Projects_etc)
+INFO 2025-09-13 10:14:56,131 monthwise_views 11384 19244 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
+INFO 2025-09-13 10:14:56,171 monthwise_views 11384 19244 DEBUG:   - Please_make_Fix_Search_Issue_on_Admin_Panel
+INFO 2025-09-13 10:14:56,172 monthwise_views 11384 19244 DEBUG:   - cyprushaber.com
+INFO 2025-09-13 10:14:56,173 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:56,175 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:14:58,337 monthwise_views 11384 19244 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-07/
+INFO 2025-09-13 10:14:58,576 monthwise_views 11384 19244 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025_Temmuz_
+INFO 2025-09-13 10:14:58,780 monthwise_views 11384 19244 Checking prefix: screenshots/nawaz_at_dxdglobal.com/Temmuz_2025_
+WARNING 2025-09-13 10:14:58,985 monthwise_views 11384 19244 No screenshot data found for nawaz_at_dxdglobal.com in 2025-07
+INFO 2025-09-13 10:14:58,986 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/omerfrkyalcin_at_gmail.com/
+INFO 2025-09-13 10:14:59,295 monthwise_views 11384 19244 DEBUG: Found 16 folders for user omerfrkyalcin_at_gmail.com
+INFO 2025-09-13 10:14:59,444 monthwise_views 11384 19244 DEBUG:   ... and 6 more folders
+INFO 2025-09-13 10:14:59,444 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:14,662 monthwise_views 11384 19244 Checking prefix: screenshots/omerfrkyalcin_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:14,860 monthwise_views 11384 19244 Checking prefix: screenshots/omerfrkyalcin_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:15,062 monthwise_views 11384 19244 Checking prefix: screenshots/omerfrkyalcin_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:15,336 monthwise_views 11384 19244 No screenshot data found for omerfrkyalcin_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:15,338 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/ozgunhulyakaraoglan_at_gmail.com/
+INFO 2025-09-13 10:15:15,474 monthwise_views 11384 19244 DEBUG: Found 7 folders for user ozgunhulyakaraoglan_at_gmail.com
+INFO 2025-09-13 10:15:15,703 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:15,703 monthwise_views 11384 19244 Checking prefix: screenshots/ozgunhulyakaraoglan_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:15,880 monthwise_views 11384 19244 Checking prefix: screenshots/ozgunhulyakaraoglan_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:16,027 monthwise_views 11384 19244 Checking prefix: screenshots/ozgunhulyakaraoglan_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:16,189 monthwise_views 11384 19244 No screenshot data found for ozgunhulyakaraoglan_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:16,190 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/rignimeyikur02_at_gmail.com/
+INFO 2025-09-13 10:15:16,395 monthwise_views 11384 19244 DEBUG: Found 6 folders for user rignimeyikur02_at_gmail.com
+INFO 2025-09-13 10:15:16,552 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:16,553 monthwise_views 11384 19244 Checking prefix: screenshots/rignimeyikur02_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:16,805 monthwise_views 11384 19244 Checking prefix: screenshots/rignimeyikur02_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:17,109 monthwise_views 11384 19244 Checking prefix: screenshots/rignimeyikur02_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:17,315 monthwise_views 11384 19244 No screenshot data found for rignimeyikur02_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:17,316 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/selimyalcnts_at_gmail.com/
+INFO 2025-09-13 10:15:17,519 monthwise_views 11384 19244 DEBUG: Found 2 folders for user selimyalcnts_at_gmail.com
+INFO 2025-09-13 10:15:17,519 monthwise_views 11384 19244 DEBUG:   - arsinconstruction.com_
+INFO 2025-09-13 10:15:17,520 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:15:17,520 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:17,521 monthwise_views 11384 19244 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:17,652 monthwise_views 11384 19244 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:17,779 monthwise_views 11384 19244 Checking prefix: screenshots/selimyalcnts_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:17,929 monthwise_views 11384 19244 No screenshot data found for selimyalcnts_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:17,930 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/tugbacalik84_at_gmail.com/
+INFO 2025-09-13 10:15:18,072 monthwise_views 11384 19244 DEBUG: Found 40 folders for user tugbacalik84_at_gmail.com
+INFO 2025-09-13 10:15:18,334 monthwise_views 11384 19244 DEBUG:   ... and 30 more folders
+INFO 2025-09-13 10:15:18,335 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:46,025 monthwise_views 11384 19244 Checking prefix: screenshots/tugbacalik84_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:46,293 monthwise_views 11384 19244 Checking prefix: screenshots/tugbacalik84_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:48,038 monthwise_views 11384 19244 Checking prefix: screenshots/tugbacalik84_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:48,245 monthwise_views 11384 19244 No screenshot data found for tugbacalik84_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:48,246 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/umutgny160_at_gmail.com/
+INFO 2025-09-13 10:15:48,546 monthwise_views 11384 19244 DEBUG: Found 1 folders for user umutgny160_at_gmail.com
+INFO 2025-09-13 10:15:48,579 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:48,580 monthwise_views 11384 19244 Checking prefix: screenshots/umutgny160_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:48,854 monthwise_views 11384 19244 Checking prefix: screenshots/umutgny160_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:49,064 monthwise_views 11384 19244 Checking prefix: screenshots/umutgny160_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:49,262 monthwise_views 11384 19244 No screenshot data found for umutgny160_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:49,263 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/yunussemrekatirci_at_gmail.com/
+INFO 2025-09-13 10:15:49,466 monthwise_views 11384 19244 DEBUG: Found 5 folders for user yunussemrekatirci_at_gmail.com
+INFO 2025-09-13 10:15:49,534 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:15:49,556 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:49,556 monthwise_views 11384 19244 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:49,773 monthwise_views 11384 19244 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:49,978 monthwise_views 11384 19244 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:50,183 monthwise_views 11384 19244 No screenshot data found for yunussemrekatirci_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:50,183 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/yurukelmenekse_at_gmail.com/
+INFO 2025-09-13 10:15:50,388 monthwise_views 11384 19244 DEBUG: Found 2 folders for user yurukelmenekse_at_gmail.com
+INFO 2025-09-13 10:15:50,811 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:50,812 monthwise_views 11384 19244 Checking prefix: screenshots/yurukelmenekse_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:51,005 monthwise_views 11384 19244 Checking prefix: screenshots/yurukelmenekse_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:51,312 monthwise_views 11384 19244 Checking prefix: screenshots/yurukelmenekse_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:51,620 monthwise_views 11384 19244 No screenshot data found for yurukelmenekse_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:51,621 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/zainhere41_at_gmail.com/
+INFO 2025-09-13 10:15:51,747 monthwise_views 11384 19244 DEBUG: Found 1 folders for user zainhere41_at_gmail.com
+INFO 2025-09-13 10:15:51,748 monthwise_views 11384 19244 DEBUG:   - Woocomerce_N8N_automations
+INFO 2025-09-13 10:15:51,748 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:51,749 monthwise_views 11384 19244 Checking prefix: screenshots/zainhere41_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:51,873 monthwise_views 11384 19244 Checking prefix: screenshots/zainhere41_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:52,129 monthwise_views 11384 19244 Checking prefix: screenshots/zainhere41_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:52,333 monthwise_views 11384 19244 No screenshot data found for zainhere41_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:52,334 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/zeynepbaygin60_at_gmail.com/
+INFO 2025-09-13 10:15:52,642 monthwise_views 11384 19244 DEBUG: Found 1 folders for user zeynepbaygin60_at_gmail.com
+INFO 2025-09-13 10:15:52,679 monthwise_views 11384 19244 Looking for Turkish month: temmuz
+INFO 2025-09-13 10:15:54,072 monthwise_views 11384 19244 Checking prefix: screenshots/zeynepbaygin60_at_gmail.com/2025-07/
+INFO 2025-09-13 10:15:54,291 monthwise_views 11384 19244 Checking prefix: screenshots/zeynepbaygin60_at_gmail.com/2025_Temmuz_
+INFO 2025-09-13 10:15:54,490 monthwise_views 11384 19244 Checking prefix: screenshots/zeynepbaygin60_at_gmail.com/Temmuz_2025_
+WARNING 2025-09-13 10:15:54,656 monthwise_views 11384 19244 No screenshot data found for zeynepbaygin60_at_gmail.com in 2025-07
+INFO 2025-09-13 10:15:54,658 middleware 11384 19244 Response: 200 for GET /api/users/search_s3/
+INFO 2025-09-13 10:15:54,660 basehttp 11384 19244 - Broken pipe from ('127.0.0.1', 56953)
+INFO 2025-09-13 10:23:53,489 middleware 31356 24400 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:23:54,595 real_s3_api 31356 24400 S3 client initialized for real structure API
+INFO 2025-09-13 10:23:55,013 middleware 31356 24400 Response: 403 for GET /api/users/screenshots/
+WARNING 2025-09-13 10:23:55,014 log 31356 24400 Forbidden: /api/users/screenshots/
+WARNING 2025-09-13 10:23:55,016 basehttp 31356 24400 "GET /api/users/screenshots/?year=2025&month=8 HTTP/1.1" 403 58
+INFO 2025-09-13 10:24:35,650 middleware 31356 24400 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:24:35,659 real_s3_api 31356 24400 S3 client initialized for real structure API
+INFO 2025-09-13 10:24:35,661 middleware 31356 24400 Response: 403 for GET /api/users/screenshots/
+WARNING 2025-09-13 10:24:35,661 log 31356 24400 Forbidden: /api/users/screenshots/
+WARNING 2025-09-13 10:24:35,662 basehttp 31356 24400 "GET /api/users/screenshots/?year=2025&month=8 HTTP/1.1" 403 58
+INFO 2025-09-13 10:25:01,449 middleware 31356 24400 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:25:01,461 real_s3_api 31356 24400 S3 client initialized for real structure API
+INFO 2025-09-13 10:25:01,462 middleware 31356 24400 Response: 403 for GET /api/users/screenshots/
+WARNING 2025-09-13 10:25:01,463 log 31356 24400 Forbidden: /api/users/screenshots/
+WARNING 2025-09-13 10:25:01,465 basehttp 31356 24400 "GET /api/users/screenshots/?year=2025&month=7 HTTP/1.1" 403 58
+INFO 2025-09-13 10:25:18,480 middleware 31356 1988 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:25:18,502 real_s3_api 31356 1988 S3 client initialized for real structure API
+INFO 2025-09-13 10:25:18,506 middleware 31356 1988 Response: 403 for GET /api/users/screenshots/
+WARNING 2025-09-13 10:25:18,508 log 31356 1988 Forbidden: /api/users/screenshots/
+WARNING 2025-09-13 10:25:18,510 basehttp 31356 1988 "GET /api/users/screenshots/?year=2025&month=7&q=asistanlik HTTP/1.1" 403 58
+INFO 2025-09-13 10:25:44,890 middleware 31356 24400 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:25:44,921 real_s3_api 31356 24400 S3 client initialized for real structure API
+INFO 2025-09-13 10:25:44,926 middleware 31356 24400 Response: 403 for GET /api/users/screenshots/
+WARNING 2025-09-13 10:25:44,928 log 31356 24400 Forbidden: /api/users/screenshots/
+WARNING 2025-09-13 10:25:44,932 basehttp 31356 24400 "GET /api/users/screenshots/?year=2025&month=7 HTTP/1.1" 403 58
+INFO 2025-09-13 10:27:24,124 middleware 21872 5100 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:27:25,059 real_s3_api 21872 5100 S3 client initialized for real structure API
+INFO 2025-09-13 10:27:26,991 real_s3_api 21872 5100 Found 5 total folders
+INFO 2025-09-13 10:27:27,146 real_s3_api 21872 5100 S3 client initialized for real structure API
+INFO 2025-09-13 10:27:27,162 views 21872 5100 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:27:27,228 middleware 21872 5100 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-13 10:27:27,230 basehttp 21872 5100 - Broken pipe from ('127.0.0.1', 57285)
+INFO 2025-09-13 10:28:18,313 middleware 28728 27868 Request: GET /api/users/monthwise-stats/
+INFO 2025-09-13 10:28:18,949 monthwise_views 28728 27868 S3 client initialized successfully for monthwise stats
+INFO 2025-09-13 10:28:28,688 middleware 28728 27868 Response: 200 for GET /api/users/monthwise-stats/
+INFO 2025-09-13 10:28:28,691 basehttp 28728 27868 "GET /api/users/monthwise-stats/?year=2025&month=7 HTTP/1.1" 200 538
+INFO 2025-09-13 10:33:26,146 middleware 22276 28588 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:33:26,866 real_s3_api 22276 28588 S3 client initialized for bucket: ddsfocustime
+INFO 2025-09-13 10:33:28,747 real_s3_api 22276 28588 Found 5 total folders
+INFO 2025-09-13 10:33:28,748 real_s3_api 22276 28588 Total folders found in S3: 5
+INFO 2025-09-13 10:33:28,749 real_s3_api 22276 28588 Sample folders: ['logs', 'screenshots', 'tab_activity', 'users_logs', 'users_screenshots']
+INFO 2025-09-13 10:33:28,750 real_s3_api 22276 28588 Matching folders for Temmuz 2025: 0
+INFO 2025-09-13 10:33:28,751 real_s3_api 22276 28588 No _DDS_ folders found, trying broader search...
+INFO 2025-09-13 10:33:29,151 real_s3_api 22276 28588 S3 client initialized for bucket: ddsfocustime
+INFO 2025-09-13 10:33:29,166 views 22276 28588 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:33:29,221 middleware 22276 28588 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-13 10:33:29,223 basehttp 22276 28588 - Broken pipe from ('127.0.0.1', 57401)
+INFO 2025-09-13 10:34:55,190 middleware 8992 5276 Request: GET /api/users/debug-s3/
+INFO 2025-09-13 10:34:55,863 debug_s3_api 8992 5276 Debug S3 client initialized
+INFO 2025-09-13 10:34:58,872 debug_s3_api 8992 5276 Debug S3 client initialized
+INFO 2025-09-13 10:34:58,881 views 8992 5276 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:34:58,924 middleware 8992 5276 Response: 200 for GET /api/users/debug-s3/
+INFO 2025-09-13 10:34:58,926 basehttp 8992 5276 - Broken pipe from ('127.0.0.1', 57455)
+INFO 2025-09-13 10:35:53,679 middleware 24620 22472 Request: GET /api/users/screenshots/
+INFO 2025-09-13 10:35:54,725 real_s3_api 24620 22472 S3 client initialized for bucket: ddsfocustime
+INFO 2025-09-13 10:35:56,743 real_s3_api 24620 22472 Found 5 top-level folders
+INFO 2025-09-13 10:35:56,784 real_s3_api 24620 22472 Searching subfolders in: screenshots
+INFO 2025-09-13 10:35:56,931 real_s3_api 24620 22472 Found 41 subfolders in screenshots
+INFO 2025-09-13 10:35:56,931 real_s3_api 24620 22472 Searching subfolders in: users_screenshots
+INFO 2025-09-13 10:35:57,126 real_s3_api 24620 22472 Found 4 subfolders in users_screenshots
+INFO 2025-09-13 10:35:57,131 real_s3_api 24620 22472 Total folders found in S3 (including subfolders): 50
+INFO 2025-09-13 10:35:57,169 real_s3_api 24620 22472 Sample folders: ['logs', 'screenshots', 'tab_activity', 'users_logs', 'users_screenshots', 'screenshots/atakankahraman35_at_outlook.com', 'screenshots/begumdamlasen_at_gmail.com', 'screenshots/beyza-donmez-_at_hotmail.com', 'screenshots/bilgeryilmaz_at_gmail.com', 'screenshots/cagla.shr_at_gmail.com', 'screenshots/danish.ali9801_at_gmail.com', 'screenshots/ddsfocustime', 'screenshots/deniz_at_deluxebilisim.com', 'screenshots/deniz_at_dxdglobal.com', 'screenshots/eliff.ugrl_at_gmail.com', 'screenshots/fatih.onk_at_deluxebilisim.com', 'screenshots/frknaydinresmi_at_gmail.com', 'screenshots/gulaysencer95_at_gmail.com', 'screenshots/gulinsosyalmedya_at_gmail.com', 'screenshots/gulsummelisa.23_at_gmail.com']
+INFO 2025-09-13 10:35:57,198 real_s3_api 24620 22472 Matching folders for Temmuz 2025: 0
+INFO 2025-09-13 10:35:57,200 real_s3_api 24620 22472 No _DDS_ folders found, trying broader search...
+INFO 2025-09-13 10:35:57,204 middleware 24620 22472 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-13 10:35:57,214 basehttp 24620 22472 "GET /api/users/screenshots/?year=2025&month=7 HTTP/1.1" 200 316
+INFO 2025-09-13 10:47:38,806 middleware 21944 14444 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:47:39,859 user_monthly_api 21944 14444 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 10:47:39,860 user_monthly_api 21944 14444 Getting monthly screenshots for August 2025
+INFO 2025-09-13 10:47:41,680 user_monthly_api 21944 14444 Found 41 total users in screenshots folder
+INFO 2025-09-13 10:47:41,682 user_monthly_api 21944 14444 Checking data for user atakankahraman35_at_outlook.com in 2025-08
+INFO 2025-09-13 10:47:41,864 user_monthly_api 21944 14444 Checking data for user begumdamlasen_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:42,041 user_monthly_api 21944 14444 Checking data for user beyza-donmez-_at_hotmail.com in 2025-08
+INFO 2025-09-13 10:47:42,255 user_monthly_api 21944 14444 Checking data for user bilgeryilmaz_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:42,425 user_monthly_api 21944 14444 Checking data for user cagla.shr_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:42,588 user_monthly_api 21944 14444 Checking data for user danish.ali9801_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:42,760 user_monthly_api 21944 14444 Checking data for user ddsfocustime in 2025-08
+INFO 2025-09-13 10:47:42,883 user_monthly_api 21944 14444 Checking data for user deniz_at_deluxebilisim.com in 2025-08
+INFO 2025-09-13 10:47:43,056 user_monthly_api 21944 14444 Checking data for user deniz_at_dxdglobal.com in 2025-08
+INFO 2025-09-13 10:47:43,175 user_monthly_api 21944 14444 Checking data for user eliff.ugrl_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:43,353 user_monthly_api 21944 14444 Checking data for user fatih.onk_at_deluxebilisim.com in 2025-08
+INFO 2025-09-13 10:47:43,479 user_monthly_api 21944 14444 Checking data for user frknaydinresmi_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:43,628 user_monthly_api 21944 14444 Checking data for user gulaysencer95_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:43,772 user_monthly_api 21944 14444 Checking data for user gulinsosyalmedya_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:43,965 user_monthly_api 21944 14444 Checking data for user gulsummelisa.23_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:44,108 user_monthly_api 21944 14444 Checking data for user haseebcodejourney_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:44,253 user_monthly_api 21944 14444 Checking data for user hidayetemiryigit_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:44,420 user_monthly_api 21944 14444 Checking data for user huseyinturguterek_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:44,554 user_monthly_api 21944 14444 Checking data for user ilahe.avci2004_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:44,786 user_monthly_api 21944 14444 Checking data for user ilahe_at_dxdglobal.com in 2025-08
+INFO 2025-09-13 10:47:44,991 user_monthly_api 21944 14444 Checking data for user kadir.beskardes11_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:45,197 user_monthly_api 21944 14444 Checking data for user kadircagtas_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:45,399 user_monthly_api 21944 14444 Checking data for user kevserhuseyin18_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:45,605 user_monthly_api 21944 14444 Checking data for user m.balkilic_at_deluxebilisim.com in 2025-08
+INFO 2025-09-13 10:47:45,915 user_monthly_api 21944 14444 Checking data for user m.fidan.firat_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:46,119 user_monthly_api 21944 14444 Checking data for user mahboub.sad_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:46,323 user_monthly_api 21944 14444 Checking data for user mervegucluu.0044_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:46,525 user_monthly_api 21944 14444 Checking data for user metinagacdelen_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:46,732 user_monthly_api 21944 14444 Checking data for user mirzashazif123_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:47,038 user_monthly_api 21944 14444 Checking data for user mohsinabbass688630_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:47,385 user_monthly_api 21944 14444 Checking data for user nawaz_at_dxdglobal.com in 2025-08
+INFO 2025-09-13 10:47:47,566 user_monthly_api 21944 14444 Checking data for user omerfrkyalcin_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:47,705 user_monthly_api 21944 14444 Checking data for user ozgunhulyakaraoglan_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:47,849 user_monthly_api 21944 14444 Checking data for user rignimeyikur02_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:47,994 user_monthly_api 21944 14444 Checking data for user selimyalcnts_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:48,124 user_monthly_api 21944 14444 Checking data for user tugbacalik84_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:48,273 user_monthly_api 21944 14444 Checking data for user umutgny160_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:48,418 user_monthly_api 21944 14444 Checking data for user yunussemrekatirci_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:48,558 user_monthly_api 21944 14444 Checking data for user yurukelmenekse_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:48,704 user_monthly_api 21944 14444 Checking data for user zainhere41_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:48,986 user_monthly_api 21944 14444 Checking data for user zeynepbaygin60_at_gmail.com in 2025-08
+INFO 2025-09-13 10:47:49,298 user_monthly_api 21944 14444 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 10:47:49,308 views 21944 14444 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:47:49,349 middleware 21944 14444 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:47:49,351 basehttp 21944 14444 - Broken pipe from ('127.0.0.1', 62328)
+INFO 2025-09-13 10:48:01,085 middleware 21944 31708 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:48:01,105 user_monthly_api 21944 31708 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 10:48:01,107 user_monthly_api 21944 31708 Getting monthly screenshots for August 2025
+INFO 2025-09-13 10:48:02,955 user_monthly_api 21944 31708 Found 41 total users in screenshots folder
+INFO 2025-09-13 10:48:02,956 user_monthly_api 21944 31708 Filtered to 1 users matching 'begum'
+INFO 2025-09-13 10:48:02,957 user_monthly_api 21944 31708 Checking data for user begumdamlasen_at_gmail.com in 2025-08
+INFO 2025-09-13 10:48:03,125 user_monthly_api 21944 31708 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 10:48:03,148 views 21944 31708 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 10:48:03,157 middleware 21944 31708 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:48:03,158 basehttp 21944 31708 "GET /api/users/monthly-screenshots/?year=2025&month=8&user=begum&id=335357ac-8fad-4ba1-9024-0de227d50a92&vscodeBrowserReqId=1757749681069 HTTP/1.1" 200 11725
+INFO 2025-09-13 10:50:21,813 middleware 21944 29556 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:50:21,826 user_monthly_api 21944 29556 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 10:50:21,827 user_monthly_api 21944 29556 Getting monthly screenshots for August 2025
+INFO 2025-09-13 10:50:24,003 user_monthly_api 21944 29556 Found 41 total users in screenshots folder
+INFO 2025-09-13 10:50:24,051 user_monthly_api 21944 29556 Filtered to 0 users matching 'begumdamlasen@gmail.com'
+INFO 2025-09-13 10:50:24,096 middleware 21944 29556 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:50:24,100 basehttp 21944 29556 "GET //api/users/monthly-screenshots/?year=2025&month=8&user=begumdamlasen@gmail.com HTTP/1.1" 200 358
+INFO 2025-09-13 10:51:29,827 middleware 21944 8700 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:51:29,839 user_monthly_api 21944 8700 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 10:51:29,840 user_monthly_api 21944 8700 Getting monthly screenshots for August 2025
+INFO 2025-09-13 10:51:32,126 user_monthly_api 21944 8700 Found 41 total users in screenshots folder
+INFO 2025-09-13 10:51:32,131 user_monthly_api 21944 8700 Filtered to 0 users matching 'begumdamlasen@gmail.com'
+INFO 2025-09-13 10:51:32,139 middleware 21944 8700 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 10:51:32,143 basehttp 21944 8700 "GET /api/users/monthly-screenshots/?year=2025&month=8&user=begumdamlasen@gmail.com HTTP/1.1" 200 358
+INFO 2025-09-13 11:01:51,568 middleware 29452 22572 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:01:51,900 user_monthly_api 29452 22572 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:01:51,900 user_monthly_api 29452 22572 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:01:53,046 user_monthly_api 29452 22572 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:01:53,046 user_monthly_api 29452 22572 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:01:53,047 user_monthly_api 29452 22572 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:01:55,761 user_monthly_api 29452 22572 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:01:55,767 views 29452 22572 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 11:01:55,790 middleware 29452 22572 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:01:55,792 basehttp 29452 22572 - Broken pipe from ('127.0.0.1', 59254)
+INFO 2025-09-13 11:02:24,844 middleware 29452 5572 Request: GET /
+INFO 2025-09-13 11:02:24,862 middleware 29452 5572 Response: 404 for GET /
+WARNING 2025-09-13 11:02:24,863 log 29452 5572 Not Found: /
+WARNING 2025-09-13 11:02:24,864 basehttp 29452 5572 "GET /?id=3d12dcdb-f9e0-426b-bb6f-95e22328d28f&vscodeBrowserReqId=1757750544837 HTTP/1.1" 404 12821
+INFO 2025-09-13 11:06:11,006 middleware 29452 5572 Request: GET /api/users/
+INFO 2025-09-13 11:06:11,017 views 29452 5572 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 11:06:11,026 views 29452 5572 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 11:06:11,042 middleware 29452 5572 Response: 400 for GET /api/users/
+WARNING 2025-09-13 11:06:11,043 log 29452 5572 Bad Request: /api/users/
+WARNING 2025-09-13 11:06:11,044 basehttp 29452 5572 "GET /api/users/?id=ad0cbd61-7394-4175-9681-ec895e0da73e&vscodeBrowserReqId=1757750771000 HTTP/1.1" 400 13100
+INFO 2025-09-13 11:06:34,659 user_monthly_api 18980 10756 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:06:34,660 user_monthly_api 18980 10756 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:06:35,652 user_monthly_api 18980 10756 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:06:35,653 user_monthly_api 18980 10756 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:06:35,653 user_monthly_api 18980 10756 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:06:41,470 middleware 29480 30352 Request: GET /api/users/search_s3/
+INFO 2025-09-13 11:06:42,359 middleware 29480 30352 Response: 404 for GET /api/users/search_s3/
+WARNING 2025-09-13 11:06:42,360 log 29480 30352 Not Found: /api/users/search_s3/
+INFO 2025-09-13 11:06:42,834 user_monthly_api 13180 29624 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:06:43,520 middleware 13424 30240 Request: GET /api/users/search_s3/
+INFO 2025-09-13 11:06:43,925 user_monthly_api 13180 29624 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:06:44,389 middleware 13424 30240 Response: 404 for GET /api/users/search_s3/
+WARNING 2025-09-13 11:06:44,389 log 13424 30240 Not Found: /api/users/search_s3/
+INFO 2025-09-13 11:08:29,569 middleware 31244 6308 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:08:30,871 user_monthly_api 31244 6308 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:08:30,872 user_monthly_api 31244 6308 Getting monthly screenshots for August 2025
+INFO 2025-09-13 11:08:31,909 user_monthly_api 31244 6308 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:09:06,271 middleware 31244 6308 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:09:06,272 basehttp 31244 6308 "GET /api/users/monthly-screenshots/?year=2025&month=8 HTTP/1.1" 200 15971
+INFO 2025-09-13 11:11:00,803 middleware 31244 27008 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:11:00,809 user_monthly_api 31244 27008 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:11:00,810 user_monthly_api 31244 27008 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:11:01,975 user_monthly_api 31244 27008 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:11:01,975 user_monthly_api 31244 27008 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:11:01,976 user_monthly_api 31244 27008 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:11:05,095 middleware 31244 27008 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:11:05,096 basehttp 31244 27008 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=begumdamlasen HTTP/1.1" 200 1437
+INFO 2025-09-13 11:16:00,065 middleware 31244 18540 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:16:00,072 user_monthly_api 31244 18540 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:16:00,073 user_monthly_api 31244 18540 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:16:01,394 user_monthly_api 31244 18540 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:16:01,395 user_monthly_api 31244 18540 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:16:01,395 user_monthly_api 31244 18540 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:06,723 user_monthly_api 31244 18540 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:16:06,730 views 31244 18540 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 11:16:06,758 middleware 31244 18540 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:16:06,759 basehttp 31244 18540 - Broken pipe from ('127.0.0.1', 50208)
+INFO 2025-09-13 11:16:10,415 middleware 31244 2988 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:16:10,421 user_monthly_api 31244 2988 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:16:10,422 user_monthly_api 31244 2988 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:16:11,477 user_monthly_api 31244 2988 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:16:11,478 user_monthly_api 31244 2988 Checking real structure for user atakankahraman35_at_outlook.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:13,116 user_monthly_api 31244 2988 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:15,014 user_monthly_api 31244 2988 Checking real structure for user beyza-donmez-_at_hotmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:15,150 user_monthly_api 31244 2988 Checking real structure for user bilgeryilmaz_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:15,305 user_monthly_api 31244 2988 Checking real structure for user cagla.shr_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:16,232 user_monthly_api 31244 2988 Checking real structure for user danish.ali9801_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:16,410 user_monthly_api 31244 2988 Checking real structure for user ddsfocustime - looking for Haziran 2025
+INFO 2025-09-13 11:16:16,545 user_monthly_api 31244 2988 Checking real structure for user deniz_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:16,688 user_monthly_api 31244 2988 Checking real structure for user deniz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:16,823 user_monthly_api 31244 2988 Checking real structure for user eliff.ugrl_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:17,180 user_monthly_api 31244 2988 Checking real structure for user fatih.onk_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:17,314 user_monthly_api 31244 2988 Checking real structure for user frknaydinresmi_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:17,436 user_monthly_api 31244 2988 Checking real structure for user gulaysencer95_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:17,585 user_monthly_api 31244 2988 Checking real structure for user gulinsosyalmedya_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:18,288 user_monthly_api 31244 2988 Checking real structure for user gulsummelisa.23_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:19,033 user_monthly_api 31244 2988 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:19,176 user_monthly_api 31244 2988 Checking real structure for user hidayetemiryigit_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:19,346 user_monthly_api 31244 2988 Checking real structure for user huseyinturguterek_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:19,474 user_monthly_api 31244 2988 Checking real structure for user ilahe.avci2004_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:20,736 user_monthly_api 31244 2988 Checking real structure for user ilahe_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:21,025 user_monthly_api 31244 2988 Checking real structure for user kadir.beskardes11_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:21,160 user_monthly_api 31244 2988 Checking real structure for user kadircagtas_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:21,366 user_monthly_api 31244 2988 Checking real structure for user kevserhuseyin18_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:21,601 user_monthly_api 31244 2988 Checking real structure for user m.balkilic_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:22,230 user_monthly_api 31244 2988 Checking real structure for user m.fidan.firat_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:22,357 user_monthly_api 31244 2988 Checking real structure for user mahboub.sad_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:22,472 user_monthly_api 31244 2988 Checking real structure for user mervegucluu.0044_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:22,611 user_monthly_api 31244 2988 Checking real structure for user metinagacdelen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:22,737 user_monthly_api 31244 2988 Checking real structure for user mirzashazif123_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:22,915 user_monthly_api 31244 2988 Checking real structure for user mohsinabbass688630_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:23,087 user_monthly_api 31244 2988 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:23,229 user_monthly_api 31244 2988 Checking real structure for user omerfrkyalcin_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:23,372 user_monthly_api 31244 2988 Checking real structure for user ozgunhulyakaraoglan_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:23,530 user_monthly_api 31244 2988 Checking real structure for user rignimeyikur02_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:23,706 user_monthly_api 31244 2988 Checking real structure for user selimyalcnts_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:23,855 user_monthly_api 31244 2988 Checking real structure for user tugbacalik84_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:24,646 user_monthly_api 31244 2988 Checking real structure for user umutgny160_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:24,861 user_monthly_api 31244 2988 Checking real structure for user yunussemrekatirci_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:25,274 user_monthly_api 31244 2988 Checking real structure for user yurukelmenekse_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:25,414 user_monthly_api 31244 2988 Checking real structure for user zainhere41_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:25,541 user_monthly_api 31244 2988 Checking real structure for user zeynepbaygin60_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:16:25,696 user_monthly_api 31244 2988 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:16:25,714 views 31244 2988 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 11:16:25,730 middleware 31244 2988 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:16:25,732 basehttp 31244 2988 - Broken pipe from ('127.0.0.1', 50213)
+INFO 2025-09-13 11:17:04,963 middleware 31244 29476 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:17:04,970 user_monthly_api 31244 29476 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:17:04,971 user_monthly_api 31244 29476 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:17:06,198 user_monthly_api 31244 29476 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:17:06,234 user_monthly_api 31244 29476 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:17:06,237 user_monthly_api 31244 29476 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:08,513 middleware 31244 29476 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:17:08,514 basehttp 31244 29476 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=begumdamlasen&page=1 HTTP/1.1" 200 1437
+INFO 2025-09-13 11:17:46,143 middleware 31244 29476 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:17:46,164 user_monthly_api 31244 29476 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:17:46,165 user_monthly_api 31244 29476 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:17:47,040 user_monthly_api 31244 29476 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:17:47,041 user_monthly_api 31244 29476 Checking real structure for user atakankahraman35_at_outlook.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:48,654 user_monthly_api 31244 29476 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:50,261 user_monthly_api 31244 29476 Checking real structure for user beyza-donmez-_at_hotmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:50,418 user_monthly_api 31244 29476 Checking real structure for user bilgeryilmaz_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:50,539 user_monthly_api 31244 29476 Checking real structure for user cagla.shr_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:51,451 user_monthly_api 31244 29476 Checking real structure for user danish.ali9801_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:51,622 user_monthly_api 31244 29476 Checking real structure for user ddsfocustime - looking for Haziran 2025
+INFO 2025-09-13 11:17:51,792 user_monthly_api 31244 29476 Checking real structure for user deniz_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:51,922 user_monthly_api 31244 29476 Checking real structure for user deniz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:52,053 user_monthly_api 31244 29476 Checking real structure for user eliff.ugrl_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:52,383 user_monthly_api 31244 29476 Checking real structure for user fatih.onk_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:52,511 user_monthly_api 31244 29476 Checking real structure for user frknaydinresmi_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:52,639 user_monthly_api 31244 29476 Checking real structure for user gulaysencer95_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:52,761 user_monthly_api 31244 29476 Checking real structure for user gulinsosyalmedya_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:53,498 user_monthly_api 31244 29476 Checking real structure for user gulsummelisa.23_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:54,269 user_monthly_api 31244 29476 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:54,402 user_monthly_api 31244 29476 Checking real structure for user hidayetemiryigit_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:54,566 user_monthly_api 31244 29476 Checking real structure for user huseyinturguterek_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:54,751 user_monthly_api 31244 29476 Checking real structure for user ilahe.avci2004_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:56,215 user_monthly_api 31244 29476 Checking real structure for user ilahe_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:56,375 user_monthly_api 31244 29476 Checking real structure for user kadir.beskardes11_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:56,557 user_monthly_api 31244 29476 Checking real structure for user kadircagtas_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:56,724 user_monthly_api 31244 29476 Checking real structure for user kevserhuseyin18_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:56,900 user_monthly_api 31244 29476 Checking real structure for user m.balkilic_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:57,624 user_monthly_api 31244 29476 Checking real structure for user m.fidan.firat_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:57,775 user_monthly_api 31244 29476 Checking real structure for user mahboub.sad_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:57,989 user_monthly_api 31244 29476 Checking real structure for user mervegucluu.0044_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:58,140 user_monthly_api 31244 29476 Checking real structure for user metinagacdelen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:58,331 user_monthly_api 31244 29476 Checking real structure for user mirzashazif123_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:58,457 user_monthly_api 31244 29476 Checking real structure for user mohsinabbass688630_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:58,601 user_monthly_api 31244 29476 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:58,721 user_monthly_api 31244 29476 Checking real structure for user omerfrkyalcin_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:58,956 user_monthly_api 31244 29476 Checking real structure for user ozgunhulyakaraoglan_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:59,081 user_monthly_api 31244 29476 Checking real structure for user rignimeyikur02_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:59,330 user_monthly_api 31244 29476 Checking real structure for user selimyalcnts_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:17:59,457 user_monthly_api 31244 29476 Checking real structure for user tugbacalik84_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:18:00,225 user_monthly_api 31244 29476 Checking real structure for user umutgny160_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:18:00,372 user_monthly_api 31244 29476 Checking real structure for user yunussemrekatirci_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:18:00,739 user_monthly_api 31244 29476 Checking real structure for user yurukelmenekse_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:18:00,907 user_monthly_api 31244 29476 Checking real structure for user zainhere41_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:18:01,030 user_monthly_api 31244 29476 Checking real structure for user zeynepbaygin60_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:18:01,174 middleware 31244 29476 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:18:01,175 basehttp 31244 29476 "GET /api/users/monthly-screenshots/?year=2025&month=6&page=1 HTTP/1.1" 200 6831
+INFO 2025-09-13 11:19:01,969 middleware 31244 14228 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:19:01,976 user_monthly_api 31244 14228 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:19:01,976 user_monthly_api 31244 14228 Getting monthly screenshots for August 2025
+INFO 2025-09-13 11:19:03,099 user_monthly_api 31244 14228 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:19:32,487 middleware 31244 14228 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:19:32,489 basehttp 31244 14228 "GET /api/users/monthly-screenshots/?year=2025&month=8&page=1 HTTP/1.1" 200 15971
+INFO 2025-09-13 11:20:42,246 middleware 31244 9860 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:20:42,251 user_monthly_api 31244 9860 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:20:42,251 user_monthly_api 31244 9860 Getting monthly screenshots for August 2025
+INFO 2025-09-13 11:20:43,282 user_monthly_api 31244 9860 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:21:13,069 middleware 31244 9860 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:21:13,071 basehttp 31244 9860 "GET /api/users/monthly-screenshots/?year=2025&month=8&page=2 HTTP/1.1" 200 15971
+INFO 2025-09-13 11:22:08,328 middleware 31244 31232 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:22:08,363 user_monthly_api 31244 31232 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:22:08,391 user_monthly_api 31244 31232 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:22:09,477 user_monthly_api 31244 31232 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:22:09,491 user_monthly_api 31244 31232 Checking real structure for user atakankahraman35_at_outlook.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:11,192 user_monthly_api 31244 31232 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:12,968 user_monthly_api 31244 31232 Checking real structure for user beyza-donmez-_at_hotmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:13,127 user_monthly_api 31244 31232 Checking real structure for user bilgeryilmaz_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:13,314 user_monthly_api 31244 31232 Checking real structure for user cagla.shr_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:14,159 user_monthly_api 31244 31232 Checking real structure for user danish.ali9801_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:14,362 user_monthly_api 31244 31232 Checking real structure for user ddsfocustime - looking for Haziran 2025
+INFO 2025-09-13 11:22:14,493 user_monthly_api 31244 31232 Checking real structure for user deniz_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:14,633 user_monthly_api 31244 31232 Checking real structure for user deniz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:14,830 user_monthly_api 31244 31232 Checking real structure for user eliff.ugrl_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:15,192 user_monthly_api 31244 31232 Checking real structure for user fatih.onk_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:15,387 user_monthly_api 31244 31232 Checking real structure for user frknaydinresmi_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:15,576 user_monthly_api 31244 31232 Checking real structure for user gulaysencer95_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:15,776 user_monthly_api 31244 31232 Checking real structure for user gulinsosyalmedya_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:16,699 user_monthly_api 31244 31232 Checking real structure for user gulsummelisa.23_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:17,413 user_monthly_api 31244 31232 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:17,580 user_monthly_api 31244 31232 Checking real structure for user hidayetemiryigit_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:17,736 user_monthly_api 31244 31232 Checking real structure for user huseyinturguterek_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:17,908 user_monthly_api 31244 31232 Checking real structure for user ilahe.avci2004_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:19,182 user_monthly_api 31244 31232 Checking real structure for user ilahe_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:19,314 user_monthly_api 31244 31232 Checking real structure for user kadir.beskardes11_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:19,487 user_monthly_api 31244 31232 Checking real structure for user kadircagtas_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:19,701 user_monthly_api 31244 31232 Checking real structure for user kevserhuseyin18_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:19,914 user_monthly_api 31244 31232 Checking real structure for user m.balkilic_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:20,670 user_monthly_api 31244 31232 Checking real structure for user m.fidan.firat_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:20,800 user_monthly_api 31244 31232 Checking real structure for user mahboub.sad_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:20,935 user_monthly_api 31244 31232 Checking real structure for user mervegucluu.0044_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:21,069 user_monthly_api 31244 31232 Checking real structure for user metinagacdelen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:21,233 user_monthly_api 31244 31232 Checking real structure for user mirzashazif123_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:21,360 user_monthly_api 31244 31232 Checking real structure for user mohsinabbass688630_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:21,525 user_monthly_api 31244 31232 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:21,673 user_monthly_api 31244 31232 Checking real structure for user omerfrkyalcin_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:21,870 user_monthly_api 31244 31232 Checking real structure for user ozgunhulyakaraoglan_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:22,051 user_monthly_api 31244 31232 Checking real structure for user rignimeyikur02_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:22,178 user_monthly_api 31244 31232 Checking real structure for user selimyalcnts_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:22,309 user_monthly_api 31244 31232 Checking real structure for user tugbacalik84_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:23,057 user_monthly_api 31244 31232 Checking real structure for user umutgny160_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:23,227 user_monthly_api 31244 31232 Checking real structure for user yunussemrekatirci_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:23,578 user_monthly_api 31244 31232 Checking real structure for user yurukelmenekse_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:23,778 user_monthly_api 31244 31232 Checking real structure for user zainhere41_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:23,909 user_monthly_api 31244 31232 Checking real structure for user zeynepbaygin60_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:22:24,044 middleware 31244 31232 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:22:24,046 basehttp 31244 31232 "GET /api/users/monthly-screenshots/?year=2025&month=6&page=2 HTTP/1.1" 200 6831
+INFO 2025-09-13 11:22:59,297 middleware 31244 31232 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:22:59,303 user_monthly_api 31244 31232 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:22:59,304 user_monthly_api 31244 31232 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:23:00,297 user_monthly_api 31244 31232 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:23:00,297 user_monthly_api 31244 31232 Checking real structure for user atakankahraman35_at_outlook.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:02,415 user_monthly_api 31244 31232 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:04,926 user_monthly_api 31244 31232 Checking real structure for user beyza-donmez-_at_hotmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:05,099 user_monthly_api 31244 31232 Checking real structure for user bilgeryilmaz_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:05,227 user_monthly_api 31244 31232 Checking real structure for user cagla.shr_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:06,292 user_monthly_api 31244 31232 Checking real structure for user danish.ali9801_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:06,447 user_monthly_api 31244 31232 Checking real structure for user ddsfocustime - looking for Haziran 2025
+INFO 2025-09-13 11:23:06,583 user_monthly_api 31244 31232 Checking real structure for user deniz_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:06,742 user_monthly_api 31244 31232 Checking real structure for user deniz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:06,874 user_monthly_api 31244 31232 Checking real structure for user eliff.ugrl_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:07,279 user_monthly_api 31244 31232 Checking real structure for user fatih.onk_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:07,421 user_monthly_api 31244 31232 Checking real structure for user frknaydinresmi_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:07,602 user_monthly_api 31244 31232 Checking real structure for user gulaysencer95_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:07,741 user_monthly_api 31244 31232 Checking real structure for user gulinsosyalmedya_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:08,924 user_monthly_api 31244 31232 Checking real structure for user gulsummelisa.23_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:10,239 user_monthly_api 31244 31232 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:10,399 user_monthly_api 31244 31232 Checking real structure for user hidayetemiryigit_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:10,538 user_monthly_api 31244 31232 Checking real structure for user huseyinturguterek_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:10,711 user_monthly_api 31244 31232 Checking real structure for user ilahe.avci2004_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:12,918 user_monthly_api 31244 31232 Checking real structure for user ilahe_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:13,067 user_monthly_api 31244 31232 Checking real structure for user kadir.beskardes11_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:13,292 user_monthly_api 31244 31232 Checking real structure for user kadircagtas_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:13,424 user_monthly_api 31244 31232 Checking real structure for user kevserhuseyin18_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:13,559 user_monthly_api 31244 31232 Checking real structure for user m.balkilic_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:14,811 user_monthly_api 31244 31232 Checking real structure for user m.fidan.firat_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:14,975 user_monthly_api 31244 31232 Checking real structure for user mahboub.sad_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:15,205 user_monthly_api 31244 31232 Checking real structure for user mervegucluu.0044_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:15,413 user_monthly_api 31244 31232 Checking real structure for user metinagacdelen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:15,641 user_monthly_api 31244 31232 Checking real structure for user mirzashazif123_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:15,779 user_monthly_api 31244 31232 Checking real structure for user mohsinabbass688630_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:15,925 user_monthly_api 31244 31232 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:16,098 user_monthly_api 31244 31232 Checking real structure for user omerfrkyalcin_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:16,250 user_monthly_api 31244 31232 Checking real structure for user ozgunhulyakaraoglan_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:16,374 user_monthly_api 31244 31232 Checking real structure for user rignimeyikur02_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:16,568 user_monthly_api 31244 31232 Checking real structure for user selimyalcnts_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:16,697 user_monthly_api 31244 31232 Checking real structure for user tugbacalik84_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:18,743 user_monthly_api 31244 31232 Checking real structure for user umutgny160_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:18,901 user_monthly_api 31244 31232 Checking real structure for user yunussemrekatirci_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:19,253 user_monthly_api 31244 31232 Checking real structure for user yurukelmenekse_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:19,423 user_monthly_api 31244 31232 Checking real structure for user zainhere41_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:19,582 user_monthly_api 31244 31232 Checking real structure for user zeynepbaygin60_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:19,819 middleware 31244 31232 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:23:19,821 basehttp 31244 31232 "GET /api/users/monthly-screenshots/?year=2025&month=6&page=1 HTTP/1.1" 200 6831
+INFO 2025-09-13 11:23:40,916 middleware 31244 31232 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:23:40,921 user_monthly_api 31244 31232 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:23:40,922 user_monthly_api 31244 31232 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:23:41,897 user_monthly_api 31244 31232 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:23:41,897 user_monthly_api 31244 31232 Checking real structure for user atakankahraman35_at_outlook.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:43,622 user_monthly_api 31244 31232 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:45,489 user_monthly_api 31244 31232 Checking real structure for user beyza-donmez-_at_hotmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:45,630 user_monthly_api 31244 31232 Checking real structure for user bilgeryilmaz_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:45,787 user_monthly_api 31244 31232 Checking real structure for user cagla.shr_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:46,442 user_monthly_api 31244 31232 Checking real structure for user danish.ali9801_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:46,579 user_monthly_api 31244 31232 Checking real structure for user ddsfocustime - looking for Haziran 2025
+INFO 2025-09-13 11:23:46,703 user_monthly_api 31244 31232 Checking real structure for user deniz_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:46,853 user_monthly_api 31244 31232 Checking real structure for user deniz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:46,978 user_monthly_api 31244 31232 Checking real structure for user eliff.ugrl_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:47,320 user_monthly_api 31244 31232 Checking real structure for user fatih.onk_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:47,478 user_monthly_api 31244 31232 Checking real structure for user frknaydinresmi_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:47,662 user_monthly_api 31244 31232 Checking real structure for user gulaysencer95_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:47,819 user_monthly_api 31244 31232 Checking real structure for user gulinsosyalmedya_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:48,675 user_monthly_api 31244 31232 Checking real structure for user gulsummelisa.23_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:49,398 user_monthly_api 31244 31232 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:49,614 user_monthly_api 31244 31232 Checking real structure for user hidayetemiryigit_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:49,747 user_monthly_api 31244 31232 Checking real structure for user huseyinturguterek_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:49,881 user_monthly_api 31244 31232 Checking real structure for user ilahe.avci2004_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:51,535 user_monthly_api 31244 31232 Checking real structure for user ilahe_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:51,711 user_monthly_api 31244 31232 Checking real structure for user kadir.beskardes11_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:51,867 user_monthly_api 31244 31232 Checking real structure for user kadircagtas_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:51,992 user_monthly_api 31244 31232 Checking real structure for user kevserhuseyin18_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:52,125 user_monthly_api 31244 31232 Checking real structure for user m.balkilic_at_deluxebilisim.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,023 user_monthly_api 31244 31232 Checking real structure for user m.fidan.firat_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,167 user_monthly_api 31244 31232 Checking real structure for user mahboub.sad_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,298 user_monthly_api 31244 31232 Checking real structure for user mervegucluu.0044_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,467 user_monthly_api 31244 31232 Checking real structure for user metinagacdelen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,595 user_monthly_api 31244 31232 Checking real structure for user mirzashazif123_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,713 user_monthly_api 31244 31232 Checking real structure for user mohsinabbass688630_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:53,834 user_monthly_api 31244 31232 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:54,083 user_monthly_api 31244 31232 Checking real structure for user omerfrkyalcin_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:54,339 user_monthly_api 31244 31232 Checking real structure for user ozgunhulyakaraoglan_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:54,491 user_monthly_api 31244 31232 Checking real structure for user rignimeyikur02_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:54,737 user_monthly_api 31244 31232 Checking real structure for user selimyalcnts_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:54,909 user_monthly_api 31244 31232 Checking real structure for user tugbacalik84_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:55,844 user_monthly_api 31244 31232 Checking real structure for user umutgny160_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:55,992 user_monthly_api 31244 31232 Checking real structure for user yunussemrekatirci_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:56,424 user_monthly_api 31244 31232 Checking real structure for user yurukelmenekse_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:56,578 user_monthly_api 31244 31232 Checking real structure for user zainhere41_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:56,737 user_monthly_api 31244 31232 Checking real structure for user zeynepbaygin60_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:23:56,868 middleware 31244 31232 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:23:56,870 basehttp 31244 31232 "GET /api/users/monthly-screenshots/?year=2025&month=6&page=2 HTTP/1.1" 200 6831
+INFO 2025-09-13 11:24:26,699 middleware 31244 31232 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:24:26,704 user_monthly_api 31244 31232 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:24:26,704 user_monthly_api 31244 31232 Getting monthly screenshots for August 2025
+INFO 2025-09-13 11:24:27,668 user_monthly_api 31244 31232 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:24:46,392 middleware 31244 11788 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:24:46,397 user_monthly_api 31244 11788 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:24:46,398 user_monthly_api 31244 11788 Getting monthly screenshots for August 2025
+INFO 2025-09-13 11:24:47,299 user_monthly_api 31244 11788 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:25:05,928 middleware 31244 31232 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:25:05,929 basehttp 31244 31232 code 400, message Bad request syntax ('{')
+WARNING 2025-09-13 11:25:05,930 basehttp 31244 31232 "{" 400 -
+INFO 2025-09-13 11:25:05,930 basehttp 31244 31232 - Broken pipe from ('127.0.0.1', 50262)
+INFO 2025-09-13 11:25:21,083 middleware 31244 11788 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:25:21,084 basehttp 31244 11788 "GET /api/users/monthly-screenshots/?year=2025&month=8&page=1 HTTP/1.1" 200 15971
+INFO 2025-09-13 11:29:08,435 middleware 31244 30396 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:29:08,443 user_monthly_api 31244 30396 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:29:08,446 user_monthly_api 31244 30396 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:29:09,462 user_monthly_api 31244 30396 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:29:09,496 user_monthly_api 31244 30396 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:29:09,512 user_monthly_api 31244 30396 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:29:11,989 middleware 31244 30396 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:29:11,990 basehttp 31244 30396 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=begumdamlasen HTTP/1.1" 200 1437
+INFO 2025-09-13 11:29:20,187 middleware 31244 30396 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:29:20,193 user_monthly_api 31244 30396 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:29:20,194 user_monthly_api 31244 30396 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:29:21,160 user_monthly_api 31244 30396 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:29:21,161 user_monthly_api 31244 30396 Filtered to 1 users matching 'beg'
+INFO 2025-09-13 11:29:21,161 user_monthly_api 31244 30396 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:29:23,018 middleware 31244 30396 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:29:23,019 basehttp 31244 30396 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=beg HTTP/1.1" 200 1437
+INFO 2025-09-13 11:29:31,055 middleware 31244 30396 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:29:31,065 user_monthly_api 31244 30396 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:29:31,066 user_monthly_api 31244 30396 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:29:31,960 user_monthly_api 31244 30396 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:29:31,960 user_monthly_api 31244 30396 Filtered to 4 users matching 'na'
+INFO 2025-09-13 11:29:31,961 user_monthly_api 31244 30396 Checking real structure for user frknaydinresmi_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:29:32,088 user_monthly_api 31244 30396 Checking real structure for user metinagacdelen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:29:32,249 user_monthly_api 31244 30396 Checking real structure for user mohsinabbass688630_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:29:32,383 user_monthly_api 31244 30396 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:29:32,554 middleware 31244 30396 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:29:32,555 basehttp 31244 30396 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=na HTTP/1.1" 200 354
+INFO 2025-09-13 11:30:55,458 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:30:55,466 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:30:55,466 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:30:56,567 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:30:56,568 user_monthly_api 31244 19392 Filtered to 0 users matching 'naaw'
+INFO 2025-09-13 11:30:56,569 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:30:56,571 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=naaw HTTP/1.1" 200 354
+INFO 2025-09-13 11:30:59,523 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:30:59,531 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:30:59,532 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:31:00,330 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:31:00,330 user_monthly_api 31244 19392 Filtered to 1 users matching 'naw'
+INFO 2025-09-13 11:31:00,331 user_monthly_api 31244 19392 Checking real structure for user nawaz_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:00,519 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:00,520 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=naw HTTP/1.1" 200 354
+INFO 2025-09-13 11:31:07,106 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:07,111 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:31:07,112 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:31:08,246 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:31:08,247 user_monthly_api 31244 19392 Filtered to 2 users matching 'ha'
+INFO 2025-09-13 11:31:08,247 user_monthly_api 31244 19392 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:08,408 user_monthly_api 31244 19392 Checking real structure for user mirzashazif123_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:08,551 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:08,552 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=ha HTTP/1.1" 200 354
+INFO 2025-09-13 11:31:14,062 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:14,074 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:31:14,075 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:31:15,115 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:31:15,115 user_monthly_api 31244 19392 Filtered to 3 users matching 'be'
+INFO 2025-09-13 11:31:15,116 user_monthly_api 31244 19392 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:17,660 user_monthly_api 31244 19392 Checking real structure for user beyza-donmez-_at_hotmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:17,824 user_monthly_api 31244 19392 Checking real structure for user kadir.beskardes11_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:18,011 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:18,012 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=be HTTP/1.1" 200 1437
+INFO 2025-09-13 11:31:27,228 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:27,245 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:31:27,247 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:31:28,305 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:31:28,305 user_monthly_api 31244 19392 Filtered to 2 users matching 'ila'
+INFO 2025-09-13 11:31:28,306 user_monthly_api 31244 19392 Checking real structure for user ilahe.avci2004_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:29,934 user_monthly_api 31244 19392 Checking real structure for user ilahe_at_dxdglobal.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:30,076 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:30,077 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=ila HTTP/1.1" 200 1196
+INFO 2025-09-13 11:31:40,672 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:40,680 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:31:40,680 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:31:41,613 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:31:41,614 user_monthly_api 31244 19392 Filtered to 1 users matching 'has'
+INFO 2025-09-13 11:31:41,615 user_monthly_api 31244 19392 Checking real structure for user haseebcodejourney_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:31:41,749 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:31:41,750 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=has HTTP/1.1" 200 354
+INFO 2025-09-13 11:32:34,842 middleware 31244 19392 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:32:34,849 user_monthly_api 31244 19392 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:32:34,850 user_monthly_api 31244 19392 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:32:35,772 user_monthly_api 31244 19392 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:32:35,773 user_monthly_api 31244 19392 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:32:35,773 user_monthly_api 31244 19392 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:32:38,484 middleware 31244 19392 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:32:38,485 basehttp 31244 19392 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=begumdamlasen HTTP/1.1" 200 1437
+INFO 2025-09-13 11:40:07,545 middleware 31244 9008 Request: GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:40:07,555 user_monthly_api 31244 9008 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:40:07,556 user_monthly_api 31244 9008 Getting monthly screenshots for June 2025
+INFO 2025-09-13 11:40:09,604 user_monthly_api 31244 9008 Found 41 total users in screenshots folder
+INFO 2025-09-13 11:40:09,604 user_monthly_api 31244 9008 Filtered to 1 users matching 'begumdamlasen'
+INFO 2025-09-13 11:40:09,605 user_monthly_api 31244 9008 Checking real structure for user begumdamlasen_at_gmail.com - looking for Haziran 2025
+INFO 2025-09-13 11:40:15,469 user_monthly_api 31244 9008 S3 client initialized for user monthly screenshots - bucket: ddsfocustime
+INFO 2025-09-13 11:40:15,475 views 31244 9008 S3 client initialized successfully for enhanced users search
+INFO 2025-09-13 11:40:15,479 middleware 31244 9008 Response: 200 for GET /api/users/monthly-screenshots/
+INFO 2025-09-13 11:40:15,480 basehttp 31244 9008 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=begumdamlasen&page=1&id=823505ef-5328-4a9b-885b-05664dda61a5&vscodeBrowserReqId=1757752807536 HTTP/1.1" 200 14387
