@@ -25,8 +25,24 @@ const Login = lazy(() =>
   import('./auth/pages/Login').catch(() => ({ default: FallbackLogin }))
 );
 
+const EnhancedLogin = lazy(() =>
+  import('./components/auth/EnhancedLogin').catch(() => ({ default: FallbackLogin }))
+);
+
+const LoginAPITester = lazy(() =>
+  import('./components/LoginAPITester').catch(() => ({ default: FallbackLogin }))
+);
+
 const Register = lazy(() =>
   import('./auth/pages/Register').catch(() => ({ default: FallbackRegister }))
+);
+
+const EnhancedRegister = lazy(() =>
+  import('./components/auth/EnhancedRegister').catch(() => ({ default: FallbackRegister }))
+);
+
+const RegistrationAPITester = lazy(() =>
+  import('./components/RegistrationAPITester').catch(() => ({ default: FallbackRegister }))
 );
 
 const ThemeDemo = lazy(() =>
@@ -232,10 +248,42 @@ function App() {
                     }
                   />
                   <Route
+                    path="/login-enhanced"
+                    element={
+                      <Suspense fallback={<FallbackLogin />}>
+                        <EnhancedLogin />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/test-login"
+                    element={
+                      <Suspense fallback={<FallbackLogin />}>
+                        <LoginAPITester />
+                      </Suspense>
+                    }
+                  />
+                  <Route
                     path="/register"
                     element={
                       <Suspense fallback={<FallbackRegister />}>
                         <Register />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/register-enhanced"
+                    element={
+                      <Suspense fallback={<FallbackRegister />}>
+                        <EnhancedRegister />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/test-registration"
+                    element={
+                      <Suspense fallback={<FallbackRegister />}>
+                        <RegistrationAPITester />
                       </Suspense>
                     }
                   />
