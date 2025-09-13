@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import authService from '../services/authService';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import enhancedAuthService from '../../services/authService_enhanced';
+import { buildApiUrl, API_ENDPOINTS } from '../../config/api';
 
 // Styled Components
 const Container = styled.div`
@@ -186,7 +186,7 @@ const RegistrationAPITester = () => {
     try {
       console.log('🧪 Testing registration with enhanced auth service...');
       
-      const result = await authService.register(formData);
+      const result = await enhancedAuthService.register(formData);
       
       setResponse(JSON.stringify(result, null, 2));
       console.log('✅ Registration test successful:', result);
