@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../dashboard/context/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import authService, { DUMMY_CREDENTIALS } from '../../services/authService';
+import toastService from '../../services/toastService';
 import {
   LoginContainer,
   LoginCard,
@@ -96,14 +97,14 @@ const Login = () => {
       if (response.ok) {
         const data = JSON.parse(responseText);
         console.log('✅ Direct API test successful:', data);
-        alert('✅ Direct API test successful! Check console for details.');
+        toastService.success('✅ Direct API test successful! Check console for details.');
       } else {
         console.error('❌ Direct API test failed:', response.status, responseText);
-        alert(`❌ Direct API test failed: ${response.status} - ${responseText}`);
+        toastService.error(`❌ Direct API test failed: ${response.status} - ${responseText}`);
       }
     } catch (error) {
       console.error('🚫 Direct API test error:', error);
-      alert(`🚫 Direct API test error: ${error.message}`);
+      toastService.error(`🚫 Direct API test error: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -177,7 +178,7 @@ const Login = () => {
       debugger
       // Show success message
       console.log('🎉 User logged in successfully!');
-      alert(`🎉 Login successful! Welcome back ${userData?.first_name || userData?.email}!`);
+      toastService.success(`🎉 Login successful! Welcome back ${userData?.first_name || userData?.email}!`);
       
       // Redirect to admin panel
       navigate('/admin-panel', { replace: true });

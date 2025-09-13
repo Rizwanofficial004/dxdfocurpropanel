@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import styled, { createGlobalStyle } from 'styled-components';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ToastProvider from './components/ToastProvider';
 
 // Lazy load components
 const Dashboard = lazy(() =>
@@ -231,11 +232,12 @@ const AppContainer = styled.div`
 function App() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <AuthProvider>
-        <LanguageProvider>
-          <ThemeProvider>
-            <GlobalStyle />
-            <AppContainer className="wrapper has-mask">
+      <ToastProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <ThemeProvider>
+              <GlobalStyle />
+              <AppContainer className="wrapper has-mask">
               <Router>
                 <Routes>
                   <Route path="/" element={<Navigate to="/admin-panel" replace />} />
@@ -458,12 +460,11 @@ function App() {
                   <Route path="*" element={<Navigate to="/admin-panel" replace />} />
                 </Routes>
               </Router>
-            </AppContainer>
-          </ThemeProvider>
-        </LanguageProvider>
-      </AuthProvider>
+              </AppContainer>
+            </ThemeProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      </ToastProvider>
     </Suspense>
   );
-}
-
-export default App;
+}export default App;
