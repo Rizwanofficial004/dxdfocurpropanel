@@ -9770,3 +9770,13 @@ INFO 2025-09-13 11:40:15,469 user_monthly_api 31244 9008 S3 client initialized f
 INFO 2025-09-13 11:40:15,475 views 31244 9008 S3 client initialized successfully for enhanced users search
 INFO 2025-09-13 11:40:15,479 middleware 31244 9008 Response: 200 for GET /api/users/monthly-screenshots/
 INFO 2025-09-13 11:40:15,480 basehttp 31244 9008 "GET /api/users/monthly-screenshots/?year=2025&month=6&user=begumdamlasen&page=1&id=823505ef-5328-4a9b-885b-05664dda61a5&vscodeBrowserReqId=1757752807536 HTTP/1.1" 200 14387
+INFO 2025-09-14 00:24:57,158 serializers 25196 28616 Updated profile for serializer_test: org=Serializer Test Org, country=USA
+INFO 2025-09-14 00:26:17,941 middleware 21368 22424 Request: POST /api/auth/register/
+INFO 2025-09-14 00:26:19,673 serializers 21368 22424 Updated profile for abcdde: org=Test abcdde, country=USA
+INFO 2025-09-14 00:26:19,690 views 21368 22424 New user registered with unique email: abcdde@example.com
+INFO 2025-09-14 00:26:19,692 middleware 21368 22424 Response: 201 for POST /api/auth/register/
+INFO 2025-09-14 00:26:19,694 basehttp 21368 22424 "POST /api/auth/register/ HTTP/1.1" 201 477
+INFO 2025-09-14 00:27:06,112 middleware 21368 22424 Request: POST /api/auth/login/
+INFO 2025-09-14 00:27:07,754 views 21368 22424 Login attempt: User=abcdde, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.46.0
+INFO 2025-09-14 00:27:07,755 middleware 21368 22424 Response: 200 for POST /api/auth/login/
+INFO 2025-09-14 00:27:07,755 basehttp 21368 22424 "POST /api/auth/login/ HTTP/1.1" 200 771
