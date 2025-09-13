@@ -138,16 +138,21 @@ class LoginAPIView(APIView):
                 }
                 
                 # Add profile information if available
-                if hasattr(user, 'profile'):
-                    user_data.update({
-                        'organization_name': user.profile.organization_name,
-                        'country': user.profile.country,
-                        'phone_number': user.profile.phone_number,
-                        'job_title': user.profile.job_title,
-                        'industry': user.profile.industry,
-                        'profile_completed': user.profile.profile_completed,
-                        'profile_completion_percentage': user.profile.get_completion_percentage()
-                    })
+                try:
+                    if hasattr(user, 'profile'):
+                        user_data.update({
+                            'organization_name': user.profile.organization_name,
+                            'country': user.profile.country,
+                            'phone_number': user.profile.phone_number,
+                            'job_title': user.profile.job_title,
+                            'industry': user.profile.industry,
+                            'profile_completed': user.profile.profile_completed,
+                            'profile_completion_percentage': user.profile.get_completion_percentage()
+                        })
+                except Exception as e:
+                    # Handle case where UserProfile table doesn't exist or other profile errors
+                    logger.warning(f"Profile data not available for user {user.id}: {str(e)}")
+                    pass
                 
                 return Response({
                     'status': 'success',
@@ -274,16 +279,21 @@ class RegisterAPIView(APIView):
                 }
                 
                 # Add profile information if available
-                if hasattr(user, 'profile'):
-                    user_data.update({
-                        'organization_name': user.profile.organization_name,
-                        'country': user.profile.country,
-                        'phone_number': user.profile.phone_number,
-                        'job_title': user.profile.job_title,
-                        'industry': user.profile.industry,
-                        'profile_completed': user.profile.profile_completed,
-                        'profile_completion_percentage': user.profile.get_completion_percentage()
-                    })
+                try:
+                    if hasattr(user, 'profile'):
+                        user_data.update({
+                            'organization_name': user.profile.organization_name,
+                            'country': user.profile.country,
+                            'phone_number': user.profile.phone_number,
+                            'job_title': user.profile.job_title,
+                            'industry': user.profile.industry,
+                            'profile_completed': user.profile.profile_completed,
+                            'profile_completion_percentage': user.profile.get_completion_percentage()
+                        })
+                except Exception as e:
+                    # Handle case where UserProfile table doesn't exist or other profile errors
+                    logger.warning(f"Profile data not available for user {user.id}: {str(e)}")
+                    pass
                 
                 logger.info(f"New user registered with unique email: {validated_data['email']}")
                 

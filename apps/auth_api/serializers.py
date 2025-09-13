@@ -197,31 +197,43 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         
         # Update user profile with additional fields
         try:
-            # Try to get or create profile
+            # Try to import and use UserProfile (migration-safe)
             from apps.users.models import UserProfile
-            profile, created = UserProfile.objects.get_or_create(user=user)
+            from django.db import connection
             
-            # Update profile fields
-            updated = False
-            for field, value in profile_fields.items():
-                if value:  # Only set non-empty values
-                    setattr(profile, field, value)
-                    updated = True
-            
-            if updated:
-                profile.mark_profile_completed()  # Check if profile is complete
-                profile.save()
+            # Check if the table exists before trying to use it
+            table_names = connection.introspection.table_names()
+            if 'users_userprofile' in table_names:
+                # Table exists, proceed with profile creation
+                profile, created = UserProfile.objects.get_or_create(user=user)
                 
-                # Log for debugging
+                # Update profile fields
+                updated = False
+                for field, value in profile_fields.items():
+                    if value:  # Only set non-empty values
+                        setattr(profile, field, value)
+                        updated = True
+                
+                if updated:
+                    profile.mark_profile_completed()  # Check if profile is complete
+                    profile.save()
+                    
+                    # Log for debugging
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"Updated profile for {user.username}: org={profile.organization_name}, country={profile.country}")
+            else:
+                # Table doesn't exist yet, log the profile data for later migration
                 import logging
                 logger = logging.getLogger(__name__)
-                logger.info(f"Updated profile for {user.username}: org={profile.organization_name}, country={profile.country}")
+                logger.warning(f"UserProfile table not found. Profile data for {user.username}: {profile_fields}")
                 
         except Exception as e:
             # Log the error but don't fail registration
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f"Error updating user profile: {str(e)}")
+            logger.error(f"Error updating user profile (table may not exist): {str(e)}")
+            # Registration continues successfully even if profile creation fails
         
         return user
 
