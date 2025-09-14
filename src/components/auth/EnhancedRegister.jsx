@@ -4,7 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/AuthContext';
-import enhancedAuthService, { RegistrationError } from '../../services/authService_enhanced';
+import enhancedAuthService, { RegistrationError } from '../../services/authService_enhanced.js';
 
 // Styled Components
 const Container = styled.div`
