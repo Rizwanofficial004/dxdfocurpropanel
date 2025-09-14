@@ -276,6 +276,20 @@ const translations = {
   activityStreamHelpShort: 'Shows a quick overview of recent user activity and highlighted days. Select a date or user to load screenshots for that period.',
     quickViewInfo: 'Here is some information about quick view.',
     claimLicenseInfo: 'Information about claiming licenses.',
+
+    // Documentation
+    documentation: 'Documentation',
+    completeGuide: 'Complete guide to using DXD Focus for employee monitoring and productivity tracking',
+    searchDocumentation: 'Search documentation...',
+    categories: 'Categories',
+    gettingStarted: 'Getting Started',
+    dashboardOverview: 'Dashboard Overview',
+    liveTrackingDoc: 'Live Tracking',
+    reportsAnalytics: 'Reports & Analytics',
+    employeeManagement: 'Employee Management',
+    settingsConfiguration: 'Settings & Configuration',
+    apiDocumentation: 'API Documentation',
+    troubleshooting: 'Troubleshooting',
   },
   
   tr: {
@@ -552,6 +566,20 @@ const translations = {
   activityStreamHelpShort: 'Son kullanıcı aktivitelerinin ve vurgulanan günlerin hızlı bir özetini gösterir. O döneme ait ekran görüntülerini yüklemek için bir tarih veya kullanıcı seçin.',
     quickViewInfo: 'Hızlı görünüm hakkında bazı bilgiler burada.',
     claimLicenseInfo: 'Lisans talep etme hakkında bilgi.',
+
+    // Documentation
+    documentation: 'Dokümantasyon',
+    completeGuide: 'Çalışan izleme ve verimlilik takibi için DXD Focus kullanma rehberi',
+    searchDocumentation: 'Dokümantasyon ara...',
+    categories: 'Kategoriler',
+    gettingStarted: 'Başlangıç',
+    dashboardOverview: 'Kontrol Paneli Genel Bakış',
+    liveTrackingDoc: 'Canlı İzleme',
+    reportsAnalytics: 'Raporlar ve Analitik',
+    employeeManagement: 'Çalışan Yönetimi',
+    settingsConfiguration: 'Ayarlar ve Yapılandırma',
+    apiDocumentation: 'API Dokümantasyonu',
+    troubleshooting: 'Sorun Giderme',
   }
 };
 

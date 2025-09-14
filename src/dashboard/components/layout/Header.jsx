@@ -801,8 +801,8 @@ export const Header = ({
           </MenuButton>
           
           <Logo>
-            <LogoIcon></LogoIcon>
-            <LogoText>DDS Admin</LogoText>
+            {/* <LogoIcon></LogoIcon> */}
+            {/* <LogoText>DDS Admin</LogoText> */}
           </Logo>
           
           {/* <Greeting>{greeting || `${t('hello')} Thomas 👋`}</Greeting> */}

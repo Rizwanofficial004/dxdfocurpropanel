@@ -62,6 +62,10 @@ const ActivityPattern = lazy(() =>
   import('./dashboard/pages/reports/ActivityPattern').catch(() => ({ default: FallbackActivityPattern }))
 );
 
+const Documentation = lazy(() =>
+  import('./dashboard/pages/Documentation').catch(() => ({ default: FallbackDocumentation }))
+);
+
 // Tester Components
 const LoginAPITester = lazy(() =>
   import('./components/LoginAPITester').catch(() => ({ default: FallbackLogin }))
@@ -183,6 +187,7 @@ const FallbackAttendance = () => <LoadingSpinner />;
 const FallbackEmployees = () => <LoadingSpinner />;
 const FallbackTeams = () => <LoadingSpinner />;
 const FallbackActivityPattern = () => <LoadingSpinner />;
+const FallbackDocumentation = () => <LoadingSpinner />;
 const FallbackImageTest = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
@@ -454,6 +459,16 @@ function App() {
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackActivityPattern />}>
                           <ActivityPattern />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/documentation"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackDocumentation />}>
+                          <Documentation />
                         </Suspense>
                       </ProtectedRoute>
                     }

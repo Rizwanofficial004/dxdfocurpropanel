@@ -3,8 +3,54 @@ import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import LogoDark from '../../../assets/dxd-logo-dark.png';
+import LogoLight from '../../../assets/dxd-logo-white.png';
 
-// Styled Components
+// Logo Component
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: ${props => props.$isCollapsed ? 'center' : 'center'};
+  width: 100%;
+`;
+
+const LogoImage = styled.img`
+  height: ${props => props.$isCollapsed ? '32px' : '75px'};
+  width: auto;
+  object-fit: contain;
+  transition: height 0.2s ease;
+`;
+
+const LogoText = styled.span`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${props => props.theme.colors.text.primary};
+  margin-left: 12px;
+  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
+  letter-spacing: -0.5px;
+`;
+
+const Logo = ({ isCollapsed = false }) => {
+  const { theme } = useTheme();
+  
+  // Select logo based on theme mode
+  const logoSrc = theme.mode === 'dark' ? LogoDark : LogoLight;
+  
+  return (
+    <LogoContainer $isCollapsed={isCollapsed}>
+      <LogoImage 
+        src={logoSrc} 
+        alt="DXD Logo" 
+        $isCollapsed={isCollapsed}
+      />
+      {/* <LogoText $isCollapsed={isCollapsed} theme={theme}>
+        DXD
+      </LogoText> */}
+    </LogoContainer>
+  );
+};
+
+// Sidebar Styled Components
 const SidebarContainer = styled.aside`
   width: ${props => props.$isCollapsed ? '60px' : '240px'};
   height: 100vh;
@@ -34,28 +80,7 @@ const LogoSection = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.border};
   display: ${props => props.$isCollapsed ? 'none' : 'flex'};
   align-items: center;
-  gap: 8px;
   background: transparent;
-`;
-
-const LogoIcon = styled.div`
-  width: 32px;
-  height: 32px;
-  background: ${props => props.theme.colors.primary};
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 14px;
-`;
-
-const LogoText = styled.span`
-  font-size: 18px;
-  font-weight: bold;
-  color: ${props => props.theme.colors.text.primary};
-  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
 `;
 
 const Navigation = styled.nav`
@@ -230,12 +255,12 @@ const VersionText = styled.div`
   font-weight: 400;
 `;
 
+// Main Sidebar Component
 export const Sidebar = ({ isCollapsed = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [openDropdowns, setOpenDropdowns] = useState({});
-  // isCollapsed is provided as prop (defaults to false)
 
   const toggleDropdown = (label) => {
     setOpenDropdowns(prev => ({
@@ -247,8 +272,8 @@ export const Sidebar = ({ isCollapsed = false }) => {
   const navigationItems = [
     { icon: "📊", label: t('dashboard').toUpperCase(), path: "/dashboard", isActive: true },
     { icon: "🛰️", label: t('liveTracking').toUpperCase(), path: "/dashboard/live-tracking" },
-    { icon: "�", label: "OLD SCREENSHOTS", path: "/dashboard/old-screenshots" },
-    { icon: "�👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
+    { icon: "📷", label: "OLD SCREENSHOTS", path: "/dashboard/old-screenshots" },
+    { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
     { 
       icon: "📈", 
       label: t('reports').toUpperCase(), 
@@ -270,6 +295,7 @@ export const Sidebar = ({ isCollapsed = false }) => {
     { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
     { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employees" },
     { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
+    { icon: "📚", label: "DOCUMENTATION", path: "/dashboard/documentation" },
     { 
       icon: "⚙️", 
       label: t('settings').toUpperCase(), 
@@ -288,9 +314,8 @@ export const Sidebar = ({ isCollapsed = false }) => {
 
   return (
     <SidebarContainer $isCollapsed={isCollapsed}>
-      <LogoSection>
-        <LogoIcon>F</LogoIcon>
-        <LogoText $isCollapsed={isCollapsed}>FOCUS</LogoText>
+      <LogoSection $isCollapsed={isCollapsed}>
+        <Logo isCollapsed={isCollapsed} />
       </LogoSection>
 
       <Navigation>
@@ -340,15 +365,18 @@ export const Sidebar = ({ isCollapsed = false }) => {
               {/* Dropdown Submenu */}
               {item.subItems && (
                 <SubMenuContainer $isOpen={openDropdowns[item.label]} $isCollapsed={isCollapsed}>
-                  {item.subItems.map((subItem, subIndex) => (
-                    <SubMenuLink
-                      key={subIndex}
-                      onClick={() => handleNavigation(subItem.path)}
-                      $isActive={location.pathname === subItem.path}
-                    >
-                      {subItem.label}
-                    </SubMenuLink>
-                  ))}
+                  <SubMenuList>
+                    {item.subItems.map((subItem, subIndex) => (
+                      <SubMenuItem key={subIndex}>
+                        <SubMenuLink
+                          onClick={() => handleNavigation(subItem.path)}
+                          $isActive={location.pathname === subItem.path}
+                        >
+                          {subItem.label}
+                        </SubMenuLink>
+                      </SubMenuItem>
+                    ))}
+                  </SubMenuList>
                 </SubMenuContainer>
               )}
             </NavItem>
