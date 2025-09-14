@@ -85,15 +85,55 @@ const Dashboard = () => {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
 
   useEffect(() => {
-    const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
-    if (!hasSeenModal) {
-      setShowWelcomeModal(true);
-      localStorage.setItem('hasSeenWelcomeModal', 'true');
-    }
+    const checkFirstVisit = () => {
+      const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
+      const userFirstVisit = localStorage.getItem('userFirstVisit');
+      const dashboardData = localStorage.getItem('dashboardData');
+      
+      // Check if this is truly a new user (no previous dashboard data and no modal seen)
+      const isNewUser = !hasSeenModal && !dashboardData;
+      
+      // For debugging: Check URL params for force showing modal
+      const urlParams = new URLSearchParams(window.location.search);
+      const forceWelcome = urlParams.get('welcome') === 'true';
+      
+      if (isNewUser || forceWelcome) {
+        // Mark that we've detected a first visit (unless forced)
+        if (!forceWelcome) {
+          localStorage.setItem('userFirstVisit', new Date().toISOString());
+        }
+        
+        // Small delay to ensure the page has loaded properly
+        const timer = setTimeout(() => {
+          setShowWelcomeModal(true);
+        }, 1000);
+        
+        return () => clearTimeout(timer);
+      }
+    };
+
+    checkFirstVisit();
   }, []);
 
   const handleCloseModal = () => {
     setShowWelcomeModal(false);
+    // Only mark as seen when user actually closes the modal
+    localStorage.setItem('hasSeenWelcomeModal', 'true');
+    // Set some basic dashboard data to prevent modal from showing again
+    localStorage.setItem('dashboardData', JSON.stringify({ initialized: true, timestamp: new Date().toISOString() }));
+    
+    // Remove any URL params used for testing
+    const url = new URL(window.location);
+    url.searchParams.delete('welcome');
+    window.history.replaceState({}, '', url);
+  };
+
+  // Developer function to reset welcome modal (can be called from console)
+  window.resetWelcomeModal = () => {
+    localStorage.removeItem('hasSeenWelcomeModal');
+    localStorage.removeItem('userFirstVisit');
+    localStorage.removeItem('dashboardData');
+    console.log('Welcome modal reset. Refresh the page or visit ?welcome=true to see it again.');
   };
 
   return (

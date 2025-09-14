@@ -162,25 +162,21 @@ const Login = () => {
         rememberMe: formData.rememberMe
       });
       
-      // Use the authentication service for login
-      const userData = await authService.login(
-        formData.username, 
-        formData.password, 
-        formData.rememberMe
-      );
+      // Use the AuthContext login method directly (it handles both API and fallback)
+      const result = await login({
+        username: formData.username,
+        password: formData.password,
+        rememberMe: formData.rememberMe
+      });
       
-      console.log('✅ Authentication successful:', userData);
-      console.log('👤 User data:', userData.user);
-      console.log('🔑 Token received:', userData.token ? 'Yes' : 'No');
+      console.log('✅ Authentication successful:', result);
       
-      // Update auth context with user data
-      login(userData);
-      debugger
       // Show success message
+      const userName = result?.user?.first_name || result?.user?.name || result?.username || formData.username;
       console.log('🎉 User logged in successfully!');
-      toastService.success(`🎉 Login successful! Welcome back ${userData?.first_name || userData?.email}!`);
+      toastService.success(`🎉 Login successful! Welcome back ${userName}!`);
       
-      // Redirect to admin panel
+      // Navigate to dashboard (AuthContext will handle the redirect automatically via ProtectedRoute)
       navigate('/admin-panel', { replace: true });
       
     } catch (error) {
@@ -193,7 +189,7 @@ const Login = () => {
       
       // Set appropriate error message
       setErrors({
-        general: 'Login failed. Please check your credentials.'
+        general: error.message || 'Login failed. Please check your credentials.'
       });
     } finally {
       setIsLoading(false);
