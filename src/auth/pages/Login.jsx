@@ -218,7 +218,7 @@ const Login = () => {
         </LogoSection>
 
         {/* Demo Credentials Helper */}
-        <DemoSection>
+        {/* <DemoSection>
           <DemoTitle>Demo Access</DemoTitle>
           <DemoText>API Backend: Django REST API</DemoText>
           <DemoText>Fallback Credentials Available</DemoText>
@@ -239,7 +239,7 @@ const Login = () => {
               </DemoFillButton>
             </DemoCredentials>
           )}
-        </DemoSection>
+        </DemoSection> */}
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
