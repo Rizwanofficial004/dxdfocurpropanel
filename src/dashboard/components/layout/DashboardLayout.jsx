@@ -24,8 +24,8 @@ const MainContent = styled.main`
   background: transparent;
   min-height: calc(100vh - 80px);
   position: relative;
-  margin-left: ${props => props.isSidebarCollapsed ? '60px' : '240px'};
-  margin-right: ${props => props.isRightSidebarExpanded ? '280px' : '60px'};
+  margin-left: ${props => props.$isSidebarCollapsed ? '60px' : '240px'};
+  margin-right: ${props => props.$isRightSidebarExpanded ? '280px' : '60px'};
   transition: margin-left 0.3s ease, margin-right 0.3s ease;
   margin-top: 30px;
 `;
@@ -33,8 +33,8 @@ const MainContent = styled.main`
 const HeaderBorderExtension = styled.div`
   position: absolute;
   top: 60px; /* Approximate height of the header */
-  left: ${props => props.isSidebarCollapsed ? '60px' : '240px'};
-  width: ${props => props.isSidebarCollapsed ? 'calc(100% - 60px)' : 'calc(100% - 240px)'};
+  left: ${props => props.$isSidebarCollapsed ? '60px' : '240px'};
+  width: ${props => props.$isSidebarCollapsed ? 'calc(100% - 60px)' : 'calc(100% - 240px)'};
   height: 1px;
   background-color: ${props => props.theme.colors.border};
   z-index: 100; /* Slightly lower than header's z-index (101) */
@@ -51,12 +51,12 @@ export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => 
   return (
     <LayoutContainer theme={theme}>
       <Header title={headerTitle} breadcrumb={headerBreadcrumb} isSidebarCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
-      <HeaderBorderExtension isSidebarCollapsed={isSidebarCollapsed} theme={theme} />
+      <HeaderBorderExtension $isSidebarCollapsed={isSidebarCollapsed} theme={theme} />
       <LayoutBody>
         <Sidebar isCollapsed={isSidebarCollapsed} />
         <MainContent 
-          isRightSidebarExpanded={isRightSidebarExpanded}
-          isSidebarCollapsed={isSidebarCollapsed}
+          $isRightSidebarExpanded={isRightSidebarExpanded}
+          $isSidebarCollapsed={isSidebarCollapsed}
           onClick={() => isRightSidebarExpanded && setIsRightSidebarExpanded(false)}
         >
           {children}
