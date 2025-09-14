@@ -1,689 +1,496 @@
-import React, { useState, useRef, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
-import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 const OldScreenshots = () => {
-  const { t, language } = useLanguage();
-  const [showHelp, setShowHelp] = useState(false);
-  const helpRef = useRef(null);
+  const themeContext = useTheme();
+  const { isDarkMode = false, theme = {} } = themeContext || {};
   
-  // Calendar state
-  const today = new Date();
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedMonth, setSelectedMonth] = useState('SEP');
-  const [activeDate, setActiveDate] = useState('01');
-  const [searchValue, setSearchValue] = useState('');
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [screenshots, setScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [employees, setEmployees] = useState([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [selectedUser, setSelectedUser] = useState('');
+  const [screenshots, setScreenshots] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  
+  // Top 6 users with their screenshot counts for August 2025
+  const topUsers = [
+    { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
+    { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com (9,999 screenshots)', searchName: 'ilahe_at_dxdglobal.com', count: 9999, displayEmail: 'ilahe@dxdglobal.com' },
+    { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com (7,383 screenshots)', searchName: 'gulsummelisa.23_at_gmail.com', count: 7383, displayEmail: 'gulsummelisa.23@gmail.com' },
+    { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com (4,705 screenshots)', searchName: 'begumdamlasen_at_gmail.com', count: 4705, displayEmail: 'begumdamlasen@gmail.com' },
+    { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com (4,082 screenshots)', searchName: 'cagla.shr_at_gmail.com', count: 4082, displayEmail: 'cagla.shr@gmail.com' },
+    { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com (3,680 screenshots)', searchName: 'atakankahraman35_at_outlook.com', count: 3680, displayEmail: 'atakankahraman35@outlook.com' },
+    { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com (1,734 screenshots)', searchName: 'kadircagtas_at_gmail.com', count: 1734, displayEmail: 'kadircagtas@gmail.com' }
+  ];
 
-  // Fetch employees from API
-  const fetchEmployees = async (searchQuery = '') => {
-    setLoadingEmployees(true);
-    try {
-      const response = await fetch(`https://dxdtime.ddsolutions.io/api/users/search/?q=${searchQuery}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch employees');
-      }
-      
-      const data = await response.json();
-      
-      // Transform API data to match our component structure
-      const transformedEmployees = data.map((user, index) => ({
-        id: user.id || index,
-        name: user.username || user.first_name + ' ' + user.last_name || 'Unknown User',
-        email: user.email || 'No email',
-        avatar: (user.first_name || user.username || 'U').charAt(0).toUpperCase(),
-        color: getRandomColor(index)
-      }));
-      
-      setEmployees(transformedEmployees);
-    } catch (err) {
-      console.error('Error fetching employees:', err);
-      setError('Failed to load employees. Please try again.');
-      setEmployees([]);
-    } finally {
-      setLoadingEmployees(false);
-    }
-  };
-
-  // Generate consistent colors for avatars
-  const getRandomColor = (index) => {
-    const colors = ['#4285f4', '#7c4dff', '#00acc1', '#ff9800', '#4caf50', '#f44336', '#9c27b0', '#2196f3'];
-    return colors[index % colors.length];
-  };
-
-  // Load initial employees on component mount
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
-  // Debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchEmployees(searchValue);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchValue]);
-
-  // Function to fetch screenshots from server
-  const fetchScreenshots = async (employee, date) => {
+  const fetchUserScreenshots = async (searchName, page = 1) => {
+    if (!searchName) return;
+    
     setLoading(true);
     setError(null);
     
     try {
-      // Construct the API endpoint for screenshots
-      const formattedDate = `${selectedYear}-${getMonthNumber(selectedMonth)}-${date}`;
-      const response = await fetch(`https://dxdtime.ddsolutions.io/api/screenshots/${employee.id}?date=${formattedDate}`);
+      // Use proxy to avoid CORS issues
+      const baseUrl = '/api/users/screenshots/';
+      const params = new URLSearchParams({
+        q: searchName,
+        page: page,
+        page_size: 12 // Show 12 screenshots per page
+      });
+      
+      const fullUrl = `${baseUrl}?${params}`;
+      console.log('🔍 Fetching screenshots via proxy:', fullUrl);
+      console.log('📊 Search parameters:', { searchName, page, pageSize: 12 });
+      
+      const response = await fetch(fullUrl);
       
       if (!response.ok) {
-        if (response.status === 404) {
-          // No screenshots found for this date
-          setScreenshots([]);
-          return;
-        }
-        throw new Error('Failed to fetch screenshots');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
-      setScreenshots(data.screenshots || data.results || data || []);
+      console.log('✅ API Response:', data);
+      
+      if (data.status === 'success' && data.data) {
+        const screenshots = Array.isArray(data.data.screenshots) ? data.data.screenshots : [];
+        const totalCount = data.data.total_count || 0;
+        const totalPages = Math.ceil(totalCount / 12);
+        
+        console.log(`📸 Found ${totalCount} total screenshots, showing page ${page} of ${totalPages}`);
+        console.log(`🖼️ Screenshots on this page: ${screenshots.length}`);
+        
+        setScreenshots(screenshots);
+        setTotalCount(totalCount);
+        setTotalPages(totalPages);
+        setCurrentPage(page);
+      } else {
+        console.log('❌ Invalid API response structure:', data);
+        setScreenshots([]);
+        setTotalCount(0);
+        setTotalPages(0);
+      }
+      
     } catch (err) {
-      console.error('Error fetching screenshots:', err);
-      setError('Failed to load screenshots. Please try again.');
+      console.error(`❌ Error fetching screenshots:`, err);
+      setError(`Failed to load screenshots: ${err.message}`);
       setScreenshots([]);
+      setTotalCount(0);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to convert month name to number
-  const getMonthNumber = (monthName) => {
-    const months = {
-      'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
-      'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
-      'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
-    };
-    return months[monthName] || '01';
-  };
-
-  // Handle employee selection
-  const handleEmployeeSelect = (employee) => {
-    setSelectedEmployee(employee);
-    fetchScreenshots(employee, activeDate);
-  };
-
-  // Handle date selection
-  const handleDateSelect = (date) => {
-    setActiveDate(date);
-    if (selectedEmployee) {
-      fetchScreenshots(selectedEmployee, date);
+  const handleUserChange = (event) => {
+    const userEmail = event.target.value;
+    setSelectedUser(userEmail);
+    
+    if (userEmail) {
+      const user = topUsers.find(u => u.value === userEmail);
+      if (user && user.searchName) {
+        setCurrentPage(1);
+        fetchUserScreenshots(user.searchName, 1);
+      }
+    } else {
+      setScreenshots([]);
+      setCurrentPage(1);
+      setTotalPages(0);
+      setTotalCount(0);
     }
   };
 
-  // Generate days for the current month
-  const generateDaysForMonth = () => {
-    const days = [];
-    for (let i = 1; i <= 31; i++) {
-      days.push(i.toString().padStart(2, '0'));
+  const handlePageChange = (page) => {
+    if (selectedUser) {
+      const user = topUsers.find(u => u.value === selectedUser);
+      if (user && user.searchName) {
+        fetchUserScreenshots(user.searchName, page);
+      }
     }
-    return days;
   };
 
-  const monthDays = generateDaysForMonth();
+  const getInitials = (email) => {
+    if (!email) return '';
+    const parts = email.split('@')[0];
+    return parts.charAt(0).toUpperCase();
+  };
+
+  const getAvatarColor = (email) => {
+    const colors = [
+      '#3b82f6', '#ef4444', '#10b981', '#f59e0b', 
+      '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'
+    ];
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+      hash = email.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const testAllUsers = async () => {
+    console.log('🧪 Testing all 6 users via proxy...');
+    
+    for (const user of topUsers.slice(1)) { // Skip the first empty option
+      console.log(`\n🔍 Testing user: ${user.displayEmail} (${user.searchName})`);
+      
+      try {
+        // Use proxy to avoid CORS issues
+        const baseUrl = '/api/users/screenshots/';
+        const params = new URLSearchParams({
+          q: user.searchName,
+          page: 1,
+          page_size: 5 // Just get a few for testing
+        });
+        
+        const response = await fetch(`${baseUrl}?${params}`);
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data) {
+          console.log(`✅ ${user.displayEmail}: ${data.data.total_count} screenshots found`);
+        } else {
+          console.log(`❌ ${user.displayEmail}: No data returned`, data);
+        }
+      } catch (err) {
+        console.log(`❌ ${user.displayEmail}: Error - ${err.message}`);
+      }
+      
+      // Small delay between requests
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    console.log('\n✅ User testing completed! Check console for results.');
+  };
 
   return (
     <DashboardLayout>
-      <div style={{
-        background: '#f8f9fa',
+      <div style={{ 
+        padding: '24px', 
+        background: isDarkMode ? theme.colors?.background || '#1a1d29' : '#f8fafc', 
         minHeight: '100vh',
-        color: '#2d3748',
-        fontFamily: 'Arial, sans-serif'
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        {/* Header Section */}
-        <div style={{
-          padding: '20px 40px',
-          borderBottom: '1px solid #e2e8f0',
-          background: 'white',
-          display: 'flex',
+        
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: '600', 
+            color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#1e293b',
+            margin: '0 0 8px 0'
+          }}>
+            Top Users Screenshots (August 2025)
+          </h1>
+          <p style={{ 
+            color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#64748b', 
+            fontSize: '14px',
+            margin: '0 0 16px 0'
+          }}>
+            Select a user to view their activity stream
+          </p>
+        </div>
+
+        {/* Controls */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '16px', 
+          marginBottom: '24px',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          flexWrap: 'wrap'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: '500',
-              margin: 0,
-              color: '#2d3748'
-            }}>
-              Real Time Activity Stream
-            </h1>
-            
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                style={{
-                  background: 'white',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  color: '#374151',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
-              >
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-              </select>
-              
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                style={{
-                  background: 'white',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  color: '#374151',
-                  padding: '8px 12px',
-                  fontSize: '14px',
-                  outline: 'none'
-                }}
-              >
-                <option value="JAN">JAN</option>
-                <option value="FEB">FEB</option>
-                <option value="MAR">MAR</option>
-                <option value="APR">APR</option>
-                <option value="MAY">MAY</option>
-                <option value="JUN">JUN</option>
-                <option value="JUL">JUL</option>
-                <option value="AUG">AUG</option>
-                <option value="SEP">SEP</option>
-                <option value="OCT">OCT</option>
-                <option value="NOV">NOV</option>
-                <option value="DEC">DEC</option>
-              </select>
-            </div>
-          </div>
-          
-          <button
-            onClick={() => setShowHelp(!showHelp)}
+          {/* Year Dropdown */}
+          <select style={{
+            padding: '8px 12px',
+            border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
+            borderRadius: '6px',
+            background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+            fontSize: '14px',
+            color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+            minWidth: '80px'
+          }}>
+            <option>2025</option>
+          </select>
+
+          {/* Month Dropdown */}
+          <select style={{
+            padding: '8px 12px',
+            border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
+            borderRadius: '6px',
+            background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+            fontSize: '14px',
+            color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+            minWidth: '80px'
+          }}>
+            <option>AUG</option>
+          </select>
+
+          {/* User Dropdown */}
+          <select 
+            value={selectedUser}
+            onChange={handleUserChange}
             style={{
-              background: '#f3f4f6',
-              border: '1px solid #d1d5db',
+              padding: '8px 12px',
+              border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
               borderRadius: '6px',
-              color: '#374151',
-              padding: '8px 16px',
-              cursor: 'pointer',
-              fontSize: '14px'
+              background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+              fontSize: '14px',
+              color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+              minWidth: '300px',
+              flex: 1
             }}
           >
-            ?
-          </button>
-        </div>
-
-        {/* Date Navigation */}
-        <div style={{
-          padding: '20px 40px',
-          borderBottom: '1px solid #e2e8f0',
-          background: 'white'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <div style={{
-              fontSize: '14px',
-              color: '#6b7280',
-              marginRight: '20px',
-              fontWeight: '500'
-            }}>
-              Search<br/>Employee
-            </div>
-            
-            <button style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#6b7280',
-              fontSize: '18px',
-              cursor: 'pointer',
-              padding: '10px'
-            }}>
-              ←
-            </button>
-            
-            {monthDays.slice(0, 26).map((day, index) => (
-              <div
-                key={day}
-                onClick={() => handleDateSelect(day)}
-                style={{
-                  background: activeDate === day ? '#e0f2fe' : 'white',
-                  border: activeDate === day ? '2px solid #0284c7' : '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  minWidth: '50px',
-                  transition: 'all 0.2s ease',
-                  position: 'relative'
-                }}
-              >
-                <div style={{
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  color: '#1f2937'
-                }}>
-                  {day}
-                </div>
-                <div style={{
-                  fontSize: '10px',
-                  color: '#6b7280',
-                  marginTop: '2px'
-                }}>
-                  {selectedMonth}
-                </div>
-                {/* Green dot indicator for day 01 and 10 */}
-                {(day === '01' || day === '10') && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    width: '6px',
-                    height: '6px',
-                    background: '#10b981',
-                    borderRadius: '50%'
-                  }}></div>
-                )}
-              </div>
+            {topUsers.map((user, index) => (
+              <option key={index} value={user.value}>
+                {user.label}
+              </option>
             ))}
-            
-            <button style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#6b7280',
-              fontSize: '18px',
-              cursor: 'pointer',
-              padding: '10px'
-            }}>
-              →
-            </button>
-          </div>
+          </select>
         </div>
 
-        {/* Main Content */}
-        <div style={{
-          display: 'flex',
-          height: 'calc(100vh - 180px)'
-        }}>
-          {/* Left Sidebar - Employee Search */}
-          <div style={{
-            width: '350px',
-            background: 'white',
-            borderRight: '1px solid #e5e7eb',
-            padding: '20px'
-          }}>
-            <div style={{
-              marginBottom: '20px'
-            }}>
-              <input
-                type="text"
-                placeholder="Search employee name..."
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: 'white',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  color: '#374151',
-                  padding: '12px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-
-            {/* Employee List */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              maxHeight: '500px',
-              overflowY: 'auto'
-            }}>
-              {loadingEmployees ? (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '40px'
-                }}>
-                  <div style={{
-                    width: '30px',
-                    height: '30px',
-                    border: '3px solid #e5e7eb',
-                    borderTop: '3px solid #3b82f6',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                    margin: '0 auto 15px'
-                  }}></div>
-                  <p style={{ color: '#6b7280', fontSize: '14px' }}>Loading employees...</p>
-                </div>
-              ) : employees.length > 0 ? (
-                employees.map((employee) => (
-                <div
-                  key={employee.id}
-                  onClick={() => handleEmployeeSelect(employee)}
-                  style={{
-                    background: selectedEmployee?.id === employee.id ? '#f0f9ff' : 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}
-                >
+        {/* Content Area */}
+        <div style={{ display: 'flex', gap: '24px' }}>
+          
+          {/* Left Side - User Info (when user selected) */}
+          {selectedUser && (
+            <div style={{ width: '280px' }}>
+              <div style={{
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                borderRadius: '8px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`,
+                padding: '16px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                   <div style={{
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: employee.color,
+                    background: getAvatarColor(selectedUser),
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
-                    fontWeight: 'bold',
+                    fontWeight: '600',
                     fontSize: '16px'
                   }}>
-                    {employee.avatar}
+                    {getInitials(selectedUser)}
                   </div>
                   <div>
-                    <div style={{
-                      color: '#1f2937',
-                      fontSize: '14px',
-                      fontWeight: '500'
-                    }}>
-                      {employee.name}
+                    <div style={{ fontWeight: '600', fontSize: '14px', color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#1f2937' }}>
+                      {selectedUser.split('@')[0]}
                     </div>
-                    <div style={{
-                      color: '#6b7280',
-                      fontSize: '12px'
-                    }}>
-                      {employee.email}
+                    <div style={{ fontSize: '12px', color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>
+                      {selectedUser}
                     </div>
                   </div>
                 </div>
-              ))
-              ) : (
-                <div style={{
+                
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280',
                   textAlign: 'center',
-                  padding: '40px'
+                  padding: '12px 0'
                 }}>
-                  <p style={{ color: '#6b7280', fontSize: '14px' }}>
-                    {searchValue ? 'No employees found' : 'No employees available'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Content Area */}
-          <div style={{
-            flex: 1,
-            background: '#f8f9fa',
-            padding: '20px'
-          }}>
-            {selectedEmployee ? (
-              <div>
-                <div style={{
-                  background: 'white',
-                  borderRadius: '8px',
-                  padding: '20px',
-                  marginBottom: '20px',
-                  border: '1px solid #e5e7eb'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '15px',
-                    marginBottom: '15px'
-                  }}>
-                    <div style={{
-                      width: '50px',
-                      height: '50px',
-                      borderRadius: '50%',
-                      background: selectedEmployee.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '20px'
-                    }}>
-                      {selectedEmployee.avatar}
-                    </div>
-                    <div>
-                      <h2 style={{
-                        color: '#1f2937',
-                        fontSize: '20px',
-                        margin: 0,
-                        marginBottom: '5px'
-                      }}>
-                        {selectedEmployee.name}
-                      </h2>
-                      <p style={{
-                        color: '#6b7280',
-                        fontSize: '14px',
-                        margin: 0
-                      }}>
-                        Screenshots for {selectedMonth} {activeDate}, {selectedYear}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Screenshots Section */}
-                <div style={{
-                  background: 'white',
-                  borderRadius: '8px',
-                  padding: '20px',
-                  border: '1px solid #e5e7eb'
-                }}>
-                  {loading ? (
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '40px'
-                    }}>
-                      <div style={{
-                        width: '40px',
-                        height: '40px',
-                        border: '4px solid #e5e7eb',
-                        borderTop: '4px solid #3b82f6',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite',
-                        margin: '0 auto 20px'
-                      }}></div>
-                      <p style={{ color: '#6b7280' }}>Loading screenshots...</p>
-                    </div>
-                  ) : error ? (
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '40px',
-                      color: '#dc2626'
-                    }}>
-                      <p>{error}</p>
-                      <button
-                        onClick={() => fetchScreenshots(selectedEmployee, activeDate)}
-                        style={{
-                          background: '#3b82f6',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          padding: '10px 20px',
-                          cursor: 'pointer',
-                          marginTop: '10px'
-                        }}
-                      >
-                        Retry
-                      </button>
-                    </div>
-                  ) : screenshots.length > 0 ? (
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                      gap: '15px'
-                    }}>
-                      {screenshots.map((screenshot, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            background: 'white'
-                          }}
-                        >
-                          <img
-                            src={screenshot.url}
-                            alt={`Screenshot ${index + 1}`}
-                            style={{
-                              width: '100%',
-                              height: '150px',
-                              objectFit: 'cover'
-                            }}
-                          />
-                          <div style={{
-                            padding: '10px',
-                            fontSize: '12px',
-                            color: '#6b7280'
-                          }}>
-                            {screenshot.timestamp || `Screenshot ${index + 1}`}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '40px'
-                    }}>
-                      <div style={{
-                        fontSize: '48px',
-                        marginBottom: '20px'
-                      }}>
-                        📷
-                      </div>
-                      <h3 style={{
-                        color: '#6b7280',
-                        fontSize: '16px',
-                        fontWeight: '400',
-                        margin: 0
-                      }}>
-                        No screenshots found for this date
-                      </h3>
-                    </div>
-                  )}
+                  Found {totalCount} screenshot(s) for August 2025
+                  <br />
+                  {selectedUser && 'Select to view their activity stream'}
                 </div>
               </div>
-            ) : (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                textAlign: 'center'
+            </div>
+          )}
+
+          {/* Right Side - Screenshots Grid */}
+          <div style={{ flex: 1 }}>
+            
+            {/* Error State */}
+            {error && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px',
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                borderRadius: '8px',
+                border: `1px solid ${isDarkMode ? '#ef4444' : '#fecaca'}`,
+                color: '#dc2626'
               }}>
-                <div>
-                  <img 
-                    src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjYwIiB5PSI2NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOUI5QjlCIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ObyBkYXRhPC90ZXh0Pgo8L3N2Zz4K"
-                    alt="No data"
-                    style={{
-                      marginBottom: '20px',
-                      opacity: 0.7
-                    }}
-                  />
-                  <h2 style={{
-                    color: '#9ca3af',
-                    fontSize: '18px',
-                    fontWeight: '400',
-                    margin: 0
-                  }}>
-                    Search for employees to view their activity stream
-                  </h2>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+                <h3>Error Loading Screenshots</h3>
+                <p>{error}</p>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '60px',
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                borderRadius: '8px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+                <h3 style={{ color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151' }}>Loading Screenshots...</h3>
+                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>Fetching August 2025 data</p>
+              </div>
+            )}
+
+            {/* Screenshots Grid */}
+            {!loading && !error && screenshots.length > 0 && (
+              <div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                  gap: '16px',
+                  marginBottom: '24px'
+                }}>
+                  {screenshots.map((screenshot, index) => (
+                    <div
+                      key={screenshot.full_key || index}
+                      style={{
+                        background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                        borderRadius: '8px',
+                        border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`,
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        ':hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }}
+                      onClick={() => screenshot.screenshot_url && window.open(screenshot.screenshot_url, '_blank')}
+                    >
+                      <div style={{
+                        height: '150px',
+                        background: screenshot.screenshot_url 
+                          ? `url(${screenshot.screenshot_url}) center/cover`
+                          : (isDarkMode ? '#4b5563' : '#f3f4f6'),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {!screenshot.screenshot_url && (
+                          <div style={{ fontSize: '24px', color: '#9ca3af' }}>📷</div>
+                        )}
+                      </div>
+                      <div style={{ padding: '12px' }}>
+                        <div style={{ fontSize: '12px', color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280', marginBottom: '4px' }}>
+                          {screenshot.datetime}
+                        </div>
+                        <div style={{ fontSize: '11px', color: isDarkMode ? theme.colors?.text?.light || '#6b7280' : '#9ca3af' }}>
+                          {screenshot.size_mb}MB
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '24px'
+                  }}>
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage <= 1}
+                      style={{
+                        padding: '8px 12px',
+                        border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#d1d5db'}`,
+                        borderRadius: '6px',
+                        background: currentPage <= 1 ? (isDarkMode ? '#374151' : '#f9fafb') : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
+                        color: currentPage <= 1 ? (isDarkMode ? '#6b7280' : '#9ca3af') : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
+                        cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Previous
+                    </button>
+                    
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          style={{
+                            padding: '8px 12px',
+                            border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#d1d5db'}`,
+                            borderRadius: '6px',
+                            background: currentPage === pageNum ? '#3b82f6' : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
+                            color: currentPage === pageNum ? 'white' : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            minWidth: '40px'
+                          }}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                    
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage >= totalPages}
+                      style={{
+                        padding: '8px 12px',
+                        border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#d1d5db'}`,
+                        borderRadius: '6px',
+                        background: currentPage >= totalPages ? (isDarkMode ? '#374151' : '#f9fafb') : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
+                        color: currentPage >= totalPages ? (isDarkMode ? '#6b7280' : '#9ca3af') : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
+                        cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loading && !error && screenshots.length === 0 && selectedUser && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '60px',
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                borderRadius: '8px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
+                <h3 style={{ color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151' }}>No Screenshots Found</h3>
+                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>No screenshots available for this user in August 2025</p>
+              </div>
+            )}
+
+            {/* Default State */}
+            {!selectedUser && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '80px',
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                borderRadius: '8px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`
+              }}>
+                <div style={{ fontSize: '64px', marginBottom: '24px' }}>👥</div>
+                <h3 style={{ color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151', marginBottom: '8px' }}>Select a User</h3>
+                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>Choose a user from the dropdown to view their August 2025 screenshots</p>
               </div>
             )}
           </div>
         </div>
-
-        {/* Help Modal */}
-        {showHelp && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000
-          }}>
-            <div
-              ref={helpRef}
-              style={{
-                background: 'white',
-                color: '#1f2937',
-                padding: '30px',
-                borderRadius: '12px',
-                maxWidth: '500px',
-                width: '90%',
-                border: '1px solid #e5e7eb'
-              }}
-            >
-              <h3 style={{ marginTop: 0, color: '#1f2937' }}>Help - Real Time Activity Stream</h3>
-              <ul style={{ lineHeight: '1.6', color: '#374151' }}>
-                <li>Select year and month from the dropdown menus</li>
-                <li>Navigate through dates using the date cards</li>
-                <li>Search for employees in real-time using the search box</li>
-                <li>Click on an employee to view their screenshots</li>
-                <li>Screenshots are automatically fetched from the server</li>
-                <li>Use different dates to view screenshots from different days</li>
-                <li>Employee data is loaded dynamically from the API</li>
-              </ul>
-              <button
-                onClick={() => setShowHelp(false)}
-                style={{
-                  padding: '10px 20px',
-                  background: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  marginTop: '15px'
-                }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     </DashboardLayout>
   );

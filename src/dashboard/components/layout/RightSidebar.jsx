@@ -55,7 +55,7 @@ const pulseAnimation = keyframes`
 
 // --- Styled Components ---
 const SidebarContainer = styled.aside`
-  width: ${props => props.isExpanded ? '280px' : '60px'};
+  width: ${props => props.$isExpanded ? '280px' : '60px'};
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -87,20 +87,20 @@ const NavLink = styled.button`
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px ${props => props.isExpanded ? '20px' : '0'};
-  justify-content: ${props => props.isExpanded ? 'flex-start' : 'center'};
-  background: ${props => props.isActive ? props.theme.colors.background : 'transparent'};
-  color: ${props => props.isActive ? props.theme.colors.primary : props.theme.colors.text.secondary};
+  padding: 12px ${props => props.$isExpanded ? '20px' : '0'};
+  justify-content: ${props => props.$isExpanded ? 'flex-start' : 'center'};
+  background: ${props => props.$isActive ? props.theme.colors.background : 'transparent'};
+  color: ${props => props.$isActive ? props.theme.colors.primary : props.theme.colors.text.secondary};
   border: none;
   font-size: 14px;
-  font-weight: ${props => props.isActive ? '600' : '500'};
+  font-weight: ${props => props.$isActive ? '600' : '500'};
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   
-  ${props => props.isBlinking && css`
+  ${props => props.$isBlinking && css`
     animation: ${pulseAnimation} 2s infinite;
     border-radius: 4px; // To make the shadow look nice
   `}
@@ -123,7 +123,7 @@ const ContentContainer = styled.div`
   padding: 15px 20px;
   border-top: 1px solid ${props => props.theme.colors.border};
   background-color: ${props => props.theme.colors.background};
-  display: ${props => props.show ? 'block' : 'none'};
+  display: ${props => props.$show ? 'block' : 'none'};
 
   p {
     font-size: 13px;
@@ -180,21 +180,21 @@ export const RightSidebar = ({ isExpanded, setIsExpanded }) => {
     };
 
     return (
-        <SidebarContainer isExpanded={isExpanded}>
+        <SidebarContainer $isExpanded={isExpanded}>
             <NavList>
                 {menuItems.map(item => (
                     <NavItem key={item.id}>
                         <NavLink 
                             onClick={() => handleItemClick(item)} 
-                            isExpanded={isExpanded} 
-                            isActive={openItem === item.id}
-                            isBlinking={item.id === 'how-it-works'}
+                            $isExpanded={isExpanded} 
+                            $isActive={openItem === item.id}
+                            $isBlinking={item.id === 'how-it-works'}
                         >
                             <IconWrapper>{item.icon}</IconWrapper>
                             {isExpanded && item.label}
                         </NavLink>
                         {isExpanded && item.content && (
-                            <ContentContainer show={openItem === item.id}>
+                            <ContentContainer $show={openItem === item.id}>
                                 <ContentTitle>{item.label}</ContentTitle>
                                 <p>{item.content}</p>
                                 {item.video && <div className="video-placeholder">Video Placeholder</div>}
