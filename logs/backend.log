@@ -9780,3 +9780,817 @@ INFO 2025-09-14 00:27:06,112 middleware 21368 22424 Request: POST /api/auth/logi
 INFO 2025-09-14 00:27:07,754 views 21368 22424 Login attempt: User=abcdde, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.46.0
 INFO 2025-09-14 00:27:07,755 middleware 21368 22424 Response: 200 for POST /api/auth/login/
 INFO 2025-09-14 00:27:07,755 basehttp 21368 22424 "POST /api/auth/login/ HTTP/1.1" 200 771
+INFO 2025-09-14 01:53:12,276 middleware 24128 21912 Request: GET /api/users/screenshots/
+INFO 2025-09-14 01:53:14,063 user_screenshots_api 24128 21912 S3 client initialized successfully
+INFO 2025-09-14 01:53:14,285 user_screenshots_api 24128 21912 Found 41 user folders in screenshots/
+INFO 2025-09-14 01:53:14,286 user_screenshots_api 24128 21912 Searching screenshots for 41 users
+INFO 2025-09-14 01:53:24,094 middleware 24128 20792 Request: GET /api/users/screenshots/
+INFO 2025-09-14 01:53:26,742 user_screenshots_api 24128 20792 S3 client initialized successfully
+INFO 2025-09-14 01:53:26,981 user_screenshots_api 24128 20792 Found 41 user folders in screenshots/
+INFO 2025-09-14 01:53:26,982 user_screenshots_api 24128 20792 Searching screenshots for 41 users
+INFO 2025-09-14 01:56:37,884 middleware 6176 24148 Request: GET /api/users/screenshots/
+INFO 2025-09-14 01:56:39,503 user_screenshots_api 6176 24148 S3 client initialized successfully
+INFO 2025-09-14 01:56:39,943 user_screenshots_api 6176 24148 Found 41 user folders in screenshots/
+INFO 2025-09-14 01:56:39,944 user_screenshots_api 6176 24148 Searching screenshots for 41 users
+INFO 2025-09-14 01:58:20,470 middleware 6176 8880 Request: GET /api/users/screenshots/
+INFO 2025-09-14 01:58:21,689 user_screenshots_api 6176 8880 S3 client initialized successfully
+INFO 2025-09-14 01:58:21,852 user_screenshots_api 6176 8880 Found 41 user folders in screenshots/
+INFO 2025-09-14 01:58:21,853 user_screenshots_api 6176 8880 Searching screenshots for 41 users
+INFO 2025-09-14 01:58:33,216 middleware 6176 24852 Request: GET /api/users/screenshots/
+INFO 2025-09-14 01:58:34,551 user_screenshots_api 6176 24852 S3 client initialized successfully
+INFO 2025-09-14 01:58:34,766 user_screenshots_api 6176 24852 Found 41 user folders in screenshots/
+INFO 2025-09-14 01:58:34,795 user_screenshots_api 6176 24852 Searching screenshots for 41 users
+INFO 2025-09-14 02:00:06,714 middleware 6176 27752 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:00:13,307 user_screenshots_api 6176 27752 S3 client initialized successfully
+INFO 2025-09-14 02:00:14,066 user_screenshots_api 6176 27752 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:00:14,089 user_screenshots_api 6176 27752 Searching screenshots for 41 users
+INFO 2025-09-14 02:00:42,303 middleware 6176 28380 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:00:43,844 user_screenshots_api 6176 28380 S3 client initialized successfully
+INFO 2025-09-14 02:00:44,814 user_screenshots_api 6176 28380 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:00:44,815 user_screenshots_api 6176 28380 Searching screenshots for 41 users
+INFO 2025-09-14 02:07:02,588 middleware 23488 17816 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:07:04,301 user_screenshots_api 23488 17816 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:07:04,567 user_screenshots_api 23488 17816 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:07:04,567 user_screenshots_api 23488 17816 Searching screenshots for 41 users
+INFO 2025-09-14 02:10:00,039 middleware 23488 23756 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:10:01,023 user_screenshots_api 23488 23756 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:10:01,188 user_screenshots_api 23488 23756 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:10:01,188 user_screenshots_api 23488 23756 Searching screenshots for 41 users
+INFO 2025-09-14 02:10:30,344 middleware 23488 21956 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:10:31,402 user_screenshots_api 23488 21956 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:10:31,681 user_screenshots_api 23488 21956 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:10:31,682 user_screenshots_api 23488 21956 Searching screenshots for 41 users
+INFO 2025-09-14 02:11:08,129 middleware 25280 11260 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:11:09,682 user_screenshots_api 25280 11260 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:11:09,995 user_screenshots_api 25280 11260 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:11:09,996 user_screenshots_api 25280 11260 Searching screenshots for 41 users
+INFO 2025-09-14 02:15:15,190 middleware 18816 30184 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:15:16,452 user_screenshots_api 18816 30184 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:15:16,644 user_screenshots_api 18816 30184 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:15:16,645 user_screenshots_api 18816 30184 Searching screenshots for 41 users
+INFO 2025-09-14 02:15:16,645 user_screenshots_api 18816 30184 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:15:24,238 user_screenshots_api 18816 30184 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:15:24,239 user_screenshots_api 18816 30184 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:15:24,248 middleware 18816 30184 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:15:24,250 basehttp 18816 30184 "GET /api/users/screenshots/?page=1&page_size=5 HTTP/1.1" 200 5103
+INFO 2025-09-14 02:16:09,693 middleware 29644 13292 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:16:11,348 user_screenshots_api 29644 13292 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:16:11,658 user_screenshots_api 29644 13292 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:16:11,659 user_screenshots_api 29644 13292 Searching screenshots for 41 users
+INFO 2025-09-14 02:16:11,659 user_screenshots_api 29644 13292 Prioritized 1 matching user folders
+INFO 2025-09-14 02:16:11,660 user_screenshots_api 29644 13292 Processing user 1/41: kadircagtas_at_gmail.com
+INFO 2025-09-14 02:16:18,079 user_screenshots_api 29644 13292 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:16:18,079 user_screenshots_api 29644 13292 Search completed. Found 1734 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:16:18,085 middleware 29644 13292 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:16:18,086 basehttp 29644 13292 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 35317
+INFO 2025-09-14 02:17:19,297 middleware 29644 4216 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:17:20,296 user_screenshots_api 29644 4216 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:17:20,452 user_screenshots_api 29644 4216 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:17:20,454 user_screenshots_api 29644 4216 Searching screenshots for 41 users
+INFO 2025-09-14 02:17:20,455 user_screenshots_api 29644 4216 Prioritized 1 matching user folders
+INFO 2025-09-14 02:17:20,455 user_screenshots_api 29644 4216 Processing user 1/41: kadircagtas_at_gmail.com
+INFO 2025-09-14 02:17:38,455 user_screenshots_api 29644 4216 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:17:38,455 user_screenshots_api 29644 4216 Search completed. Found 1734 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:17:38,458 middleware 29644 4216 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:17:38,459 basehttp 29644 4216 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=35&page_size=50 HTTP/1.1" 200 23173
+INFO 2025-09-14 02:18:11,835 middleware 29644 4216 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:18:12,927 user_screenshots_api 29644 4216 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:18:13,095 user_screenshots_api 29644 4216 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:18:13,095 user_screenshots_api 29644 4216 Searching screenshots for 41 users
+INFO 2025-09-14 02:18:13,095 user_screenshots_api 29644 4216 Prioritized 1 matching user folders
+INFO 2025-09-14 02:18:13,096 user_screenshots_api 29644 4216 Processing user 1/41: kadircagtas_at_gmail.com
+INFO 2025-09-14 02:18:22,211 middleware 29644 24924 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:18:23,271 user_screenshots_api 29644 24924 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:18:23,446 user_screenshots_api 29644 24924 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:18:23,447 user_screenshots_api 29644 24924 Searching screenshots for 41 users
+INFO 2025-09-14 02:18:23,447 user_screenshots_api 29644 24924 Prioritized 1 matching user folders
+INFO 2025-09-14 02:18:23,447 user_screenshots_api 29644 24924 Processing user 1/41: kadircagtas_at_gmail.com
+INFO 2025-09-14 02:18:27,874 user_screenshots_api 29644 4216 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:18:27,881 user_screenshots_api 29644 4216 Search completed. Found 1734 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:18:27,922 middleware 29644 4216 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:18:27,944 basehttp 29644 4216 code 400, message Bad request syntax ('{')
+WARNING 2025-09-14 02:18:27,976 basehttp 29644 4216 "{" 400 -
+INFO 2025-09-14 02:18:28,016 basehttp 29644 4216 - Broken pipe from ('127.0.0.1', 54568)
+INFO 2025-09-14 02:18:30,056 user_screenshots_api 29644 24924 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:18:30,056 user_screenshots_api 29644 24924 Search completed. Found 1734 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:18:30,059 middleware 29644 24924 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:18:30,059 basehttp 29644 24924 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=36&page_size=50 HTTP/1.1" 200 875
+INFO 2025-09-14 02:18:39,186 middleware 29644 24924 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:18:40,528 user_screenshots_api 29644 24924 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:18:40,775 user_screenshots_api 29644 24924 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:18:40,776 user_screenshots_api 29644 24924 Searching screenshots for 41 users
+INFO 2025-09-14 02:18:40,776 user_screenshots_api 29644 24924 Prioritized 1 matching user folders
+INFO 2025-09-14 02:18:40,776 user_screenshots_api 29644 24924 Processing user 1/41: kadircagtas_at_gmail.com
+INFO 2025-09-14 02:19:03,752 user_screenshots_api 29644 24924 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:19:03,753 user_screenshots_api 29644 24924 Search completed. Found 1734 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:19:03,755 middleware 29644 24924 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:19:03,756 basehttp 29644 24924 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=38&page_size=50 HTTP/1.1" 200 876
+INFO 2025-09-14 02:19:49,564 middleware 29644 30236 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:19:50,883 user_screenshots_api 29644 30236 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:19:51,069 user_screenshots_api 29644 30236 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:19:51,070 user_screenshots_api 29644 30236 Searching screenshots for 41 users
+INFO 2025-09-14 02:19:51,070 user_screenshots_api 29644 30236 Prioritized 0 matching user folders
+INFO 2025-09-14 02:19:51,071 user_screenshots_api 29644 30236 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:20:02,074 user_screenshots_api 29644 30236 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:20:02,075 user_screenshots_api 29644 30236 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:20:02,076 middleware 29644 30236 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:20:02,077 basehttp 29644 30236 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com/&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 884
+INFO 2025-09-14 02:20:57,323 middleware 29644 22708 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:20:58,337 user_screenshots_api 29644 22708 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:20:58,570 user_screenshots_api 29644 22708 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:20:58,571 user_screenshots_api 29644 22708 Searching screenshots for 41 users
+INFO 2025-09-14 02:20:58,571 user_screenshots_api 29644 22708 Prioritized 0 matching user folders
+INFO 2025-09-14 02:20:58,572 user_screenshots_api 29644 22708 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:21:10,600 user_screenshots_api 29644 22708 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:21:10,600 user_screenshots_api 29644 22708 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:21:10,603 middleware 29644 22708 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:21:10,604 basehttp 29644 22708 "GET /api/users/screenshots/?q=ilahe_at_dxdglobal.com/&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 866
+INFO 2025-09-14 02:40:26,180 middleware 5608 26524 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:40:27,937 user_screenshots_api 5608 26524 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:40:28,238 user_screenshots_api 5608 26524 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:40:28,238 user_screenshots_api 5608 26524 Searching screenshots for 41 users
+INFO 2025-09-14 02:40:28,238 user_screenshots_api 5608 26524 Prioritized 0 matching user folders
+INFO 2025-09-14 02:40:28,239 user_screenshots_api 5608 26524 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:40:38,056 user_screenshots_api 5608 26524 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:40:38,057 user_screenshots_api 5608 26524 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:40:38,058 middleware 5608 26524 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:40:38,059 basehttp 5608 26524 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com/&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=05 HTTP/1.1" 200 882
+INFO 2025-09-14 02:40:56,095 middleware 5608 26524 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:40:57,167 user_screenshots_api 5608 26524 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:40:57,426 user_screenshots_api 5608 26524 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:40:57,427 user_screenshots_api 5608 26524 Searching screenshots for 41 users
+INFO 2025-09-14 02:40:57,427 user_screenshots_api 5608 26524 Prioritized 0 matching user folders
+INFO 2025-09-14 02:40:57,427 user_screenshots_api 5608 26524 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:41:14,477 user_screenshots_api 5608 26524 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:41:14,477 user_screenshots_api 5608 26524 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:41:14,478 middleware 5608 26524 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:41:14,479 basehttp 5608 26524 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com/&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 884
+INFO 2025-09-14 02:43:50,236 middleware 5608 22184 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:43:51,271 user_screenshots_api 5608 22184 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:43:51,498 user_screenshots_api 5608 22184 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:43:51,498 user_screenshots_api 5608 22184 Searching screenshots for 41 users
+INFO 2025-09-14 02:43:51,499 user_screenshots_api 5608 22184 Prioritized 1 matching user folders
+INFO 2025-09-14 02:43:51,499 user_screenshots_api 5608 22184 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:43:59,483 user_screenshots_api 5608 22184 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:43:59,484 user_screenshots_api 5608 22184 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:43:59,493 middleware 5608 22184 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:43:59,494 basehttp 5608 22184 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&page=1&page_size=5 HTTP/1.1" 200 5178
+INFO 2025-09-14 02:43:59,500 middleware 5608 15436 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:44:00,304 user_screenshots_api 5608 15436 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:44:00,512 user_screenshots_api 5608 15436 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:44:00,512 user_screenshots_api 5608 15436 Searching screenshots for 41 users
+INFO 2025-09-14 02:44:00,513 user_screenshots_api 5608 15436 Prioritized 0 matching user folders
+INFO 2025-09-14 02:44:00,513 user_screenshots_api 5608 15436 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:08,258 user_screenshots_api 5608 15436 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:08,259 user_screenshots_api 5608 15436 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:44:08,260 middleware 5608 15436 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:44:08,261 basehttp 5608 15436 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com%2F&page=1&page_size=5 HTTP/1.1" 200 863
+INFO 2025-09-14 02:44:08,265 middleware 5608 31056 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:44:09,617 user_screenshots_api 5608 31056 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:44:09,928 user_screenshots_api 5608 31056 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:44:09,929 user_screenshots_api 5608 31056 Searching screenshots for 41 users
+INFO 2025-09-14 02:44:09,929 user_screenshots_api 5608 31056 Prioritized 1 matching user folders
+INFO 2025-09-14 02:44:09,929 user_screenshots_api 5608 31056 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:19,959 user_screenshots_api 5608 31056 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:19,959 user_screenshots_api 5608 31056 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:44:19,969 middleware 5608 31056 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:44:19,970 basehttp 5608 31056 "GET /api/users/screenshots/?q=atakankahraman35&page=1&page_size=5 HTTP/1.1" 200 5149
+INFO 2025-09-14 02:44:19,987 middleware 5608 14660 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:44:21,088 user_screenshots_api 5608 14660 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:44:21,295 user_screenshots_api 5608 14660 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:44:21,295 user_screenshots_api 5608 14660 Searching screenshots for 41 users
+INFO 2025-09-14 02:44:21,296 user_screenshots_api 5608 14660 Prioritized 1 matching user folders
+INFO 2025-09-14 02:44:21,296 user_screenshots_api 5608 14660 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:30,848 user_screenshots_api 5608 14660 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:30,848 user_screenshots_api 5608 14660 Search completed. Found 3680 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:44:30,853 middleware 5608 14660 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:44:30,854 basehttp 5608 14660 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=5 HTTP/1.1" 200 5216
+INFO 2025-09-14 02:44:30,860 middleware 5608 14604 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:44:32,043 user_screenshots_api 5608 14604 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:44:32,175 user_screenshots_api 5608 14604 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:44:32,176 user_screenshots_api 5608 14604 Searching screenshots for 41 users
+INFO 2025-09-14 02:44:32,176 user_screenshots_api 5608 14604 Prioritized 1 matching user folders
+INFO 2025-09-14 02:44:32,176 user_screenshots_api 5608 14604 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:44,825 user_screenshots_api 5608 14604 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:44,826 user_screenshots_api 5608 14604 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:44:44,874 middleware 5608 14604 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:44:44,903 basehttp 5608 14604 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&page=1&page_size=5 HTTP/1.1" 200 5179
+INFO 2025-09-14 02:44:44,971 middleware 5608 7344 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:44:45,914 user_screenshots_api 5608 7344 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:44:46,075 user_screenshots_api 5608 7344 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:44:46,075 user_screenshots_api 5608 7344 Searching screenshots for 41 users
+INFO 2025-09-14 02:44:46,076 user_screenshots_api 5608 7344 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:55,753 user_screenshots_api 5608 7344 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:44:55,754 user_screenshots_api 5608 7344 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:44:55,764 middleware 5608 7344 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:44:55,765 basehttp 5608 7344 "GET /api/users/screenshots/?page=1&page_size=10 HTTP/1.1" 200 9414
+INFO 2025-09-14 02:45:58,619 middleware 5608 11196 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:45:59,796 user_screenshots_api 5608 11196 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:46:00,021 user_screenshots_api 5608 11196 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:46:00,022 user_screenshots_api 5608 11196 Searching screenshots for 41 users
+INFO 2025-09-14 02:46:00,022 user_screenshots_api 5608 11196 Prioritized 0 matching user folders
+INFO 2025-09-14 02:46:00,022 user_screenshots_api 5608 11196 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:46:08,264 user_screenshots_api 5608 11196 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:46:08,265 user_screenshots_api 5608 11196 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:46:08,266 middleware 5608 11196 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:46:08,267 basehttp 5608 11196 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com/&start_date=2025-09-01&end_date=2025-09-02&page=1&page_size=50 HTTP/1.1" 200 883
+INFO 2025-09-14 02:51:28,099 middleware 5608 30000 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:51:29,431 user_screenshots_api 5608 30000 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:51:29,615 user_screenshots_api 5608 30000 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:51:29,637 user_screenshots_api 5608 30000 Searching screenshots for 41 users
+INFO 2025-09-14 02:51:29,637 user_screenshots_api 5608 30000 Prioritized 1 matching user folders
+INFO 2025-09-14 02:51:29,638 user_screenshots_api 5608 30000 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:51:43,093 user_screenshots_api 5608 30000 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:51:43,094 user_screenshots_api 5608 30000 Search completed. Found 3680 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:51:43,098 middleware 5608 30000 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:51:43,099 basehttp 5608 30000 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=atakankahraman35_at_outlook.com HTTP/1.1" 200 18208
+INFO 2025-09-14 02:51:43,616 middleware 5608 23868 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:51:44,879 user_screenshots_api 5608 23868 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:51:45,077 user_screenshots_api 5608 23868 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:51:45,078 user_screenshots_api 5608 23868 Searching screenshots for 41 users
+INFO 2025-09-14 02:51:45,078 user_screenshots_api 5608 23868 Prioritized 1 matching user folders
+INFO 2025-09-14 02:51:45,079 user_screenshots_api 5608 23868 Processing user 1/41: begumdamlasen_at_gmail.com
+INFO 2025-09-14 02:51:50,715 user_screenshots_api 5608 23868 Reached max objects limit, stopping at user begumdamlasen_at_gmail.com
+INFO 2025-09-14 02:51:50,715 user_screenshots_api 5608 23868 Search completed. Found 4705 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:51:50,721 middleware 5608 23868 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:51:50,721 basehttp 5608 23868 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=begumdamlasen_at_gmail.com HTTP/1.1" 200 17794
+INFO 2025-09-14 02:51:51,239 middleware 5608 18928 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:51:52,412 user_screenshots_api 5608 18928 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:51:52,659 user_screenshots_api 5608 18928 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:51:52,659 user_screenshots_api 5608 18928 Searching screenshots for 41 users
+INFO 2025-09-14 02:51:52,660 user_screenshots_api 5608 18928 Prioritized 1 matching user folders
+INFO 2025-09-14 02:51:52,660 user_screenshots_api 5608 18928 Processing user 1/41: beyza-donmez-_at_hotmail.com
+INFO 2025-09-14 02:51:59,656 user_screenshots_api 5608 18928 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:51:59,657 user_screenshots_api 5608 18928 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:51:59,659 middleware 5608 18928 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:51:59,660 basehttp 5608 18928 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=beyza-donmez-_at_hotmail.com HTTP/1.1" 200 875
+INFO 2025-09-14 02:52:00,178 middleware 5608 13496 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:52:01,796 user_screenshots_api 5608 13496 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:52:01,972 user_screenshots_api 5608 13496 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:52:01,972 user_screenshots_api 5608 13496 Searching screenshots for 41 users
+INFO 2025-09-14 02:52:01,973 user_screenshots_api 5608 13496 Prioritized 1 matching user folders
+INFO 2025-09-14 02:52:01,973 user_screenshots_api 5608 13496 Processing user 1/41: bilgeryilmaz_at_gmail.com
+INFO 2025-09-14 02:52:11,089 user_screenshots_api 5608 13496 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:52:11,089 user_screenshots_api 5608 13496 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:52:11,092 middleware 5608 13496 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:52:11,093 basehttp 5608 13496 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=bilgeryilmaz_at_gmail.com HTTP/1.1" 200 869
+INFO 2025-09-14 02:52:11,619 middleware 5608 27404 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:52:12,722 user_screenshots_api 5608 27404 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:52:12,931 user_screenshots_api 5608 27404 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:52:12,932 user_screenshots_api 5608 27404 Searching screenshots for 41 users
+INFO 2025-09-14 02:52:12,933 user_screenshots_api 5608 27404 Prioritized 1 matching user folders
+INFO 2025-09-14 02:52:12,933 user_screenshots_api 5608 27404 Processing user 1/41: cagla.shr_at_gmail.com
+INFO 2025-09-14 02:52:21,537 user_screenshots_api 5608 27404 Reached max objects limit, stopping at user cagla.shr_at_gmail.com
+INFO 2025-09-14 02:52:21,537 user_screenshots_api 5608 27404 Search completed. Found 4082 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:52:21,544 middleware 5608 27404 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:52:21,545 basehttp 5608 27404 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=cagla.shr_at_gmail.com HTTP/1.1" 200 16029
+INFO 2025-09-14 02:52:22,064 middleware 5608 31560 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:52:23,070 user_screenshots_api 5608 31560 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:52:23,286 user_screenshots_api 5608 31560 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:52:23,286 user_screenshots_api 5608 31560 Searching screenshots for 41 users
+INFO 2025-09-14 02:52:23,286 user_screenshots_api 5608 31560 Prioritized 1 matching user folders
+INFO 2025-09-14 02:52:23,287 user_screenshots_api 5608 31560 Processing user 1/41: danish.ali9801_at_gmail.com
+INFO 2025-09-14 02:52:32,431 user_screenshots_api 5608 31560 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:52:32,432 user_screenshots_api 5608 31560 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:52:32,433 middleware 5608 31560 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:52:32,434 basehttp 5608 31560 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=danish.ali9801_at_gmail.com HTTP/1.1" 200 873
+INFO 2025-09-14 02:52:32,940 middleware 5608 18484 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:52:34,432 user_screenshots_api 5608 18484 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:52:34,636 user_screenshots_api 5608 18484 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:52:34,636 user_screenshots_api 5608 18484 Searching screenshots for 41 users
+INFO 2025-09-14 02:52:34,637 user_screenshots_api 5608 18484 Prioritized 1 matching user folders
+INFO 2025-09-14 02:52:34,637 user_screenshots_api 5608 18484 Processing user 1/41: ddsfocustime
+INFO 2025-09-14 02:52:48,265 user_screenshots_api 5608 18484 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:52:48,265 user_screenshots_api 5608 18484 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:52:48,266 middleware 5608 18484 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:52:48,267 basehttp 5608 18484 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=ddsfocustime HTTP/1.1" 200 844
+INFO 2025-09-14 02:52:48,779 middleware 5608 15072 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:52:49,752 user_screenshots_api 5608 15072 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:52:50,085 user_screenshots_api 5608 15072 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:52:50,085 user_screenshots_api 5608 15072 Searching screenshots for 41 users
+INFO 2025-09-14 02:52:50,086 user_screenshots_api 5608 15072 Prioritized 1 matching user folders
+INFO 2025-09-14 02:52:50,086 user_screenshots_api 5608 15072 Processing user 1/41: deniz_at_deluxebilisim.com
+INFO 2025-09-14 02:53:01,657 user_screenshots_api 5608 15072 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:53:01,658 user_screenshots_api 5608 15072 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:53:01,660 middleware 5608 15072 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:53:01,662 basehttp 5608 15072 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=deniz_at_deluxebilisim.com HTTP/1.1" 200 872
+INFO 2025-09-14 02:53:02,178 middleware 5608 20196 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:53:03,306 user_screenshots_api 5608 20196 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:53:03,614 user_screenshots_api 5608 20196 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:53:03,615 user_screenshots_api 5608 20196 Searching screenshots for 41 users
+INFO 2025-09-14 02:53:03,615 user_screenshots_api 5608 20196 Prioritized 1 matching user folders
+INFO 2025-09-14 02:53:03,615 user_screenshots_api 5608 20196 Processing user 1/41: deniz_at_dxdglobal.com
+INFO 2025-09-14 02:53:13,938 user_screenshots_api 5608 20196 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:53:13,939 user_screenshots_api 5608 20196 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:53:13,940 middleware 5608 20196 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:53:13,941 basehttp 5608 20196 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=deniz_at_dxdglobal.com HTTP/1.1" 200 864
+INFO 2025-09-14 02:53:14,464 middleware 5608 2796 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:53:16,002 user_screenshots_api 5608 2796 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:53:16,214 user_screenshots_api 5608 2796 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:53:16,216 user_screenshots_api 5608 2796 Searching screenshots for 41 users
+INFO 2025-09-14 02:53:16,217 user_screenshots_api 5608 2796 Prioritized 0 matching user folders
+INFO 2025-09-14 02:53:16,218 user_screenshots_api 5608 2796 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:53:27,723 user_screenshots_api 5608 2796 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:53:27,723 user_screenshots_api 5608 2796 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:53:27,725 middleware 5608 2796 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:53:27,726 basehttp 5608 2796 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=elif.ugrl_at_gmail.com HTTP/1.1" 200 864
+INFO 2025-09-14 02:53:28,247 middleware 5608 3664 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:53:29,315 user_screenshots_api 5608 3664 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:53:29,522 user_screenshots_api 5608 3664 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:53:29,523 user_screenshots_api 5608 3664 Searching screenshots for 41 users
+INFO 2025-09-14 02:53:29,524 user_screenshots_api 5608 3664 Prioritized 1 matching user folders
+INFO 2025-09-14 02:53:29,524 user_screenshots_api 5608 3664 Processing user 1/41: fatih.onk_at_deluxebilisim.com
+INFO 2025-09-14 02:53:39,047 user_screenshots_api 5608 3664 Reached max objects limit, stopping at user fatih.onk_at_deluxebilisim.com
+INFO 2025-09-14 02:53:39,048 user_screenshots_api 5608 3664 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:53:39,050 middleware 5608 3664 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:53:39,051 basehttp 5608 3664 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=fatih.onk_at_deluxebilisim.com HTTP/1.1" 200 878
+INFO 2025-09-14 02:53:39,557 middleware 5608 24588 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:53:40,681 user_screenshots_api 5608 24588 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:53:41,092 user_screenshots_api 5608 24588 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:53:41,093 user_screenshots_api 5608 24588 Searching screenshots for 41 users
+INFO 2025-09-14 02:53:41,093 user_screenshots_api 5608 24588 Prioritized 1 matching user folders
+INFO 2025-09-14 02:53:41,094 user_screenshots_api 5608 24588 Processing user 1/41: frknaydinresmi_at_gmail.com
+INFO 2025-09-14 02:53:50,628 user_screenshots_api 5608 24588 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:53:50,629 user_screenshots_api 5608 24588 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:53:50,630 middleware 5608 24588 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:53:50,631 basehttp 5608 24588 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=frknaydinresmi_at_gmail.com HTTP/1.1" 200 873
+INFO 2025-09-14 02:53:51,150 middleware 5608 29804 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:53:52,664 user_screenshots_api 5608 29804 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:53:52,969 user_screenshots_api 5608 29804 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:53:52,976 user_screenshots_api 5608 29804 Searching screenshots for 41 users
+INFO 2025-09-14 02:53:53,008 user_screenshots_api 5608 29804 Prioritized 1 matching user folders
+INFO 2025-09-14 02:53:53,034 user_screenshots_api 5608 29804 Processing user 1/41: gulaysencer95_at_gmail.com
+INFO 2025-09-14 02:54:04,412 user_screenshots_api 5608 29804 Reached max objects limit, stopping at user gulaysencer95_at_gmail.com
+INFO 2025-09-14 02:54:04,413 user_screenshots_api 5608 29804 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:54:04,414 middleware 5608 29804 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:54:04,416 basehttp 5608 29804 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=gulaysencer95_at_gmail.com HTTP/1.1" 200 872
+INFO 2025-09-14 02:54:04,941 middleware 5608 11164 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:54:05,972 user_screenshots_api 5608 11164 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:54:06,186 user_screenshots_api 5608 11164 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:54:06,187 user_screenshots_api 5608 11164 Searching screenshots for 41 users
+INFO 2025-09-14 02:54:06,188 user_screenshots_api 5608 11164 Prioritized 0 matching user folders
+INFO 2025-09-14 02:54:06,189 user_screenshots_api 5608 11164 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:54:13,984 user_screenshots_api 5608 11164 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:54:13,985 user_screenshots_api 5608 11164 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:54:13,986 middleware 5608 11164 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:54:13,987 basehttp 5608 11164 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=gulinsoyalmedya_at_gmail.com HTTP/1.1" 200 875
+INFO 2025-09-14 02:54:14,492 middleware 5608 7300 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:54:15,534 user_screenshots_api 5608 7300 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:54:15,707 user_screenshots_api 5608 7300 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:54:15,708 user_screenshots_api 5608 7300 Searching screenshots for 41 users
+INFO 2025-09-14 02:54:15,709 user_screenshots_api 5608 7300 Prioritized 1 matching user folders
+INFO 2025-09-14 02:54:15,710 user_screenshots_api 5608 7300 Processing user 1/41: gulsummelisa.23_at_gmail.com
+INFO 2025-09-14 02:54:26,554 user_screenshots_api 5608 7300 Reached max objects limit, stopping at user gulsummelisa.23_at_gmail.com
+INFO 2025-09-14 02:54:26,554 user_screenshots_api 5608 7300 Search completed. Found 7383 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:54:26,564 middleware 5608 7300 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:54:26,565 basehttp 5608 7300 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=gulsummelisa.23_at_gmail.com HTTP/1.1" 200 17960
+INFO 2025-09-14 02:54:27,091 middleware 5608 11796 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:54:28,364 user_screenshots_api 5608 11796 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:54:28,706 user_screenshots_api 5608 11796 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:54:28,706 user_screenshots_api 5608 11796 Searching screenshots for 41 users
+INFO 2025-09-14 02:54:28,707 user_screenshots_api 5608 11796 Prioritized 1 matching user folders
+INFO 2025-09-14 02:54:28,707 user_screenshots_api 5608 11796 Processing user 1/41: haseebcodejourney_at_gmail.com
+INFO 2025-09-14 02:54:35,631 user_screenshots_api 5608 11796 Reached max objects limit, stopping at user haseebcodejourney_at_gmail.com
+INFO 2025-09-14 02:54:35,633 user_screenshots_api 5608 11796 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:54:35,634 middleware 5608 11796 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:54:35,635 basehttp 5608 11796 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=haseebcodejourney_at_gmail.com HTTP/1.1" 200 879
+INFO 2025-09-14 02:54:36,149 middleware 5608 2596 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:54:37,529 user_screenshots_api 5608 2596 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:54:37,823 user_screenshots_api 5608 2596 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:54:37,824 user_screenshots_api 5608 2596 Searching screenshots for 41 users
+INFO 2025-09-14 02:54:37,825 user_screenshots_api 5608 2596 Prioritized 1 matching user folders
+INFO 2025-09-14 02:54:37,825 user_screenshots_api 5608 2596 Processing user 1/41: hidayetemiryigit_at_gmail.com
+INFO 2025-09-14 02:54:50,687 user_screenshots_api 5608 2596 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:54:50,688 user_screenshots_api 5608 2596 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:54:50,689 middleware 5608 2596 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:54:50,690 basehttp 5608 2596 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=hidayetemiryigit_at_gmail.com HTTP/1.1" 200 878
+INFO 2025-09-14 02:54:51,208 middleware 5608 28036 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:54:52,665 user_screenshots_api 5608 28036 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:54:52,932 user_screenshots_api 5608 28036 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:54:52,932 user_screenshots_api 5608 28036 Searching screenshots for 41 users
+INFO 2025-09-14 02:54:52,933 user_screenshots_api 5608 28036 Prioritized 0 matching user folders
+INFO 2025-09-14 02:54:52,933 user_screenshots_api 5608 28036 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:07,387 user_screenshots_api 5608 28036 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:07,388 user_screenshots_api 5608 28036 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:55:07,389 middleware 5608 28036 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:55:07,390 basehttp 5608 28036 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=huseyintuyemez_at_gmail.com HTTP/1.1" 200 874
+INFO 2025-09-14 02:55:07,896 middleware 5608 25560 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:55:08,979 user_screenshots_api 5608 25560 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:55:09,155 user_screenshots_api 5608 25560 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:55:09,156 user_screenshots_api 5608 25560 Searching screenshots for 41 users
+INFO 2025-09-14 02:55:09,157 user_screenshots_api 5608 25560 Prioritized 1 matching user folders
+INFO 2025-09-14 02:55:09,158 user_screenshots_api 5608 25560 Processing user 1/41: ilahe_at_dxdglobal.com
+INFO 2025-09-14 02:55:22,050 user_screenshots_api 5608 25560 Reached max objects limit, stopping at user ilahe_at_dxdglobal.com
+INFO 2025-09-14 02:55:22,051 user_screenshots_api 5608 25560 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:55:22,061 middleware 5608 25560 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:55:22,064 basehttp 5608 25560 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=ilahe_at_dxdglobal.com HTTP/1.1" 200 14942
+INFO 2025-09-14 02:55:22,598 middleware 5608 25952 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:55:23,709 user_screenshots_api 5608 25952 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:55:23,900 user_screenshots_api 5608 25952 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:55:23,900 user_screenshots_api 5608 25952 Searching screenshots for 41 users
+INFO 2025-09-14 02:55:23,901 user_screenshots_api 5608 25952 Prioritized 0 matching user folders
+INFO 2025-09-14 02:55:23,901 user_screenshots_api 5608 25952 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:35,264 user_screenshots_api 5608 25952 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:35,265 user_screenshots_api 5608 25952 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:55:35,266 middleware 5608 25952 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:55:35,267 basehttp 5608 25952 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=info_at_deluxebilisim.com HTTP/1.1" 200 870
+INFO 2025-09-14 02:55:35,797 middleware 5608 9844 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:55:36,814 user_screenshots_api 5608 9844 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:55:36,942 user_screenshots_api 5608 9844 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:55:36,943 user_screenshots_api 5608 9844 Searching screenshots for 41 users
+INFO 2025-09-14 02:55:36,943 user_screenshots_api 5608 9844 Prioritized 1 matching user folders
+INFO 2025-09-14 02:55:36,944 user_screenshots_api 5608 9844 Processing user 1/41: kadircagtas_at_gmail.com
+INFO 2025-09-14 02:55:47,991 user_screenshots_api 5608 9844 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:47,991 user_screenshots_api 5608 9844 Search completed. Found 1734 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:55:47,995 middleware 5608 9844 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:55:47,996 basehttp 5608 9844 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=kadircagtas_at_gmail.com HTTP/1.1" 200 14620
+INFO 2025-09-14 02:55:48,502 middleware 5608 28388 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:55:49,597 user_screenshots_api 5608 28388 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:55:49,804 user_screenshots_api 5608 28388 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:55:49,804 user_screenshots_api 5608 28388 Searching screenshots for 41 users
+INFO 2025-09-14 02:55:49,805 user_screenshots_api 5608 28388 Prioritized 0 matching user folders
+INFO 2025-09-14 02:55:49,805 user_screenshots_api 5608 28388 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:56,068 user_screenshots_api 5608 28388 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:55:56,068 user_screenshots_api 5608 28388 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:55:56,069 middleware 5608 28388 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:55:56,070 basehttp 5608 28388 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=kadriyeyildirimyigit_at_gmail.com HTTP/1.1" 200 885
+INFO 2025-09-14 02:55:56,590 middleware 5608 27968 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:55:57,747 user_screenshots_api 5608 27968 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:55:58,098 user_screenshots_api 5608 27968 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:55:58,098 user_screenshots_api 5608 27968 Searching screenshots for 41 users
+INFO 2025-09-14 02:55:58,099 user_screenshots_api 5608 27968 Prioritized 0 matching user folders
+INFO 2025-09-14 02:55:58,099 user_screenshots_api 5608 27968 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:16,424 user_screenshots_api 5608 27968 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:16,425 user_screenshots_api 5608 27968 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:56:16,426 middleware 5608 27968 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:56:16,428 basehttp 5608 27968 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=kayyummeliksah_at_gmail.com HTTP/1.1" 200 874
+INFO 2025-09-14 02:56:16,943 middleware 5608 6060 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:56:17,994 user_screenshots_api 5608 6060 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:56:18,171 user_screenshots_api 5608 6060 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:56:18,172 user_screenshots_api 5608 6060 Searching screenshots for 41 users
+INFO 2025-09-14 02:56:18,172 user_screenshots_api 5608 6060 Prioritized 0 matching user folders
+INFO 2025-09-14 02:56:18,173 user_screenshots_api 5608 6060 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:28,908 user_screenshots_api 5608 6060 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:28,908 user_screenshots_api 5608 6060 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:56:28,909 middleware 5608 6060 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:56:28,911 basehttp 5608 6060 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=melihcelebi_at_deluxebilisim.com HTTP/1.1" 200 884
+INFO 2025-09-14 02:56:29,435 middleware 5608 20216 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:56:30,489 user_screenshots_api 5608 20216 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:56:30,638 user_screenshots_api 5608 20216 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:56:30,639 user_screenshots_api 5608 20216 Searching screenshots for 41 users
+INFO 2025-09-14 02:56:30,640 user_screenshots_api 5608 20216 Prioritized 0 matching user folders
+INFO 2025-09-14 02:56:30,640 user_screenshots_api 5608 20216 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:41,717 user_screenshots_api 5608 20216 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:41,717 user_screenshots_api 5608 20216 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:56:41,718 middleware 5608 20216 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:56:41,719 basehttp 5608 20216 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=melihkuru_at_deluxebilisim.com HTTP/1.1" 200 880
+INFO 2025-09-14 02:56:42,239 middleware 5608 10600 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:56:43,561 user_screenshots_api 5608 10600 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:56:43,771 user_screenshots_api 5608 10600 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:56:43,772 user_screenshots_api 5608 10600 Searching screenshots for 41 users
+INFO 2025-09-14 02:56:43,772 user_screenshots_api 5608 10600 Prioritized 0 matching user folders
+INFO 2025-09-14 02:56:43,773 user_screenshots_api 5608 10600 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:55,150 user_screenshots_api 5608 10600 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:56:55,151 user_screenshots_api 5608 10600 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:56:55,152 middleware 5608 10600 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:56:55,153 basehttp 5608 10600 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=mertaltekin_at_deluxebilisim.com HTTP/1.1" 200 884
+INFO 2025-09-14 02:56:55,667 middleware 5608 21972 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:56:56,878 user_screenshots_api 5608 21972 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:56:57,182 user_screenshots_api 5608 21972 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:56:57,183 user_screenshots_api 5608 21972 Searching screenshots for 41 users
+INFO 2025-09-14 02:56:57,183 user_screenshots_api 5608 21972 Prioritized 0 matching user folders
+INFO 2025-09-14 02:56:57,184 user_screenshots_api 5608 21972 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:07,540 user_screenshots_api 5608 21972 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:07,540 user_screenshots_api 5608 21972 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:57:07,541 middleware 5608 21972 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:57:07,542 basehttp 5608 21972 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=mustafaemirpolat_at_gmail.com HTTP/1.1" 200 878
+INFO 2025-09-14 02:57:08,047 middleware 5608 20196 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:57:09,366 user_screenshots_api 5608 20196 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:57:09,514 user_screenshots_api 5608 20196 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:57:09,514 user_screenshots_api 5608 20196 Searching screenshots for 41 users
+INFO 2025-09-14 02:57:09,515 user_screenshots_api 5608 20196 Prioritized 0 matching user folders
+INFO 2025-09-14 02:57:09,515 user_screenshots_api 5608 20196 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:16,581 user_screenshots_api 5608 20196 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:16,581 user_screenshots_api 5608 20196 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:57:16,582 middleware 5608 20196 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:57:16,583 basehttp 5608 20196 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=mutalip_at_deluxebilisim.com HTTP/1.1" 200 875
+INFO 2025-09-14 02:57:17,106 middleware 5608 2344 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:57:18,118 user_screenshots_api 5608 2344 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:57:18,268 user_screenshots_api 5608 2344 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:57:18,268 user_screenshots_api 5608 2344 Searching screenshots for 41 users
+INFO 2025-09-14 02:57:18,268 user_screenshots_api 5608 2344 Prioritized 0 matching user folders
+INFO 2025-09-14 02:57:18,269 user_screenshots_api 5608 2344 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:27,865 user_screenshots_api 5608 2344 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:27,866 user_screenshots_api 5608 2344 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:57:27,867 middleware 5608 2344 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:57:27,867 basehttp 5608 2344 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=orhanbayrak_at_gmail.com HTTP/1.1" 200 867
+INFO 2025-09-14 02:57:28,389 middleware 5608 17876 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:57:29,414 user_screenshots_api 5608 17876 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:57:29,634 user_screenshots_api 5608 17876 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:57:29,635 user_screenshots_api 5608 17876 Searching screenshots for 41 users
+INFO 2025-09-14 02:57:29,635 user_screenshots_api 5608 17876 Prioritized 0 matching user folders
+INFO 2025-09-14 02:57:29,635 user_screenshots_api 5608 17876 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:38,694 user_screenshots_api 5608 17876 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:38,694 user_screenshots_api 5608 17876 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:57:38,696 middleware 5608 17876 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:57:38,697 basehttp 5608 17876 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=ozgearslancoban_at_gmail.com HTTP/1.1" 200 874
+INFO 2025-09-14 02:57:39,216 middleware 5608 20104 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:57:40,343 user_screenshots_api 5608 20104 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:57:40,556 user_screenshots_api 5608 20104 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:57:40,557 user_screenshots_api 5608 20104 Searching screenshots for 41 users
+INFO 2025-09-14 02:57:40,557 user_screenshots_api 5608 20104 Prioritized 0 matching user folders
+INFO 2025-09-14 02:57:40,557 user_screenshots_api 5608 20104 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:46,583 user_screenshots_api 5608 20104 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:57:46,584 user_screenshots_api 5608 20104 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:57:46,585 middleware 5608 20104 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:57:46,586 basehttp 5608 20104 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=ramazanayyildiz_at_gmail.com HTTP/1.1" 200 875
+INFO 2025-09-14 02:57:47,094 middleware 5608 14680 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:57:48,143 user_screenshots_api 5608 14680 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:57:48,383 user_screenshots_api 5608 14680 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:57:48,383 user_screenshots_api 5608 14680 Searching screenshots for 41 users
+INFO 2025-09-14 02:57:48,384 user_screenshots_api 5608 14680 Prioritized 0 matching user folders
+INFO 2025-09-14 02:57:48,384 user_screenshots_api 5608 14680 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:00,204 user_screenshots_api 5608 14680 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:00,204 user_screenshots_api 5608 14680 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:58:00,206 middleware 5608 14680 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:58:00,207 basehttp 5608 14680 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=safakakbas_at_gmail.com HTTP/1.1" 200 866
+INFO 2025-09-14 02:58:00,715 middleware 5608 24108 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:58:01,803 user_screenshots_api 5608 24108 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:58:02,106 user_screenshots_api 5608 24108 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:58:02,107 user_screenshots_api 5608 24108 Searching screenshots for 41 users
+INFO 2025-09-14 02:58:02,107 user_screenshots_api 5608 24108 Prioritized 0 matching user folders
+INFO 2025-09-14 02:58:02,108 user_screenshots_api 5608 24108 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:15,150 user_screenshots_api 5608 24108 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:15,150 user_screenshots_api 5608 24108 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:58:15,151 middleware 5608 24108 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:58:15,152 basehttp 5608 24108 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=seheryildiz_at_deluxebilisim.com HTTP/1.1" 200 884
+INFO 2025-09-14 02:58:15,657 middleware 5608 25328 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:58:16,478 user_screenshots_api 5608 25328 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:58:16,638 user_screenshots_api 5608 25328 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:58:16,639 user_screenshots_api 5608 25328 Searching screenshots for 41 users
+INFO 2025-09-14 02:58:16,639 user_screenshots_api 5608 25328 Prioritized 0 matching user folders
+INFO 2025-09-14 02:58:16,640 user_screenshots_api 5608 25328 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:23,476 user_screenshots_api 5608 25328 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:23,476 user_screenshots_api 5608 25328 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:58:23,477 middleware 5608 25328 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:58:23,479 basehttp 5608 25328 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=serdaraydin_at_deluxebilisim.com HTTP/1.1" 200 883
+INFO 2025-09-14 02:58:23,994 middleware 5608 24244 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:58:25,269 user_screenshots_api 5608 24244 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:58:25,447 user_screenshots_api 5608 24244 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:58:25,448 user_screenshots_api 5608 24244 Searching screenshots for 41 users
+INFO 2025-09-14 02:58:25,448 user_screenshots_api 5608 24244 Prioritized 0 matching user folders
+INFO 2025-09-14 02:58:25,448 user_screenshots_api 5608 24244 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:39,031 user_screenshots_api 5608 24244 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:39,032 user_screenshots_api 5608 24244 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:58:39,033 middleware 5608 24244 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:58:39,034 basehttp 5608 24244 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=sermansahin_at_gmail.com HTTP/1.1" 200 868
+INFO 2025-09-14 02:58:39,554 middleware 5608 25100 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:58:40,962 user_screenshots_api 5608 25100 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:58:41,217 user_screenshots_api 5608 25100 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:58:41,217 user_screenshots_api 5608 25100 Searching screenshots for 41 users
+INFO 2025-09-14 02:58:41,218 user_screenshots_api 5608 25100 Prioritized 0 matching user folders
+INFO 2025-09-14 02:58:41,218 user_screenshots_api 5608 25100 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:52,720 user_screenshots_api 5608 25100 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:58:52,721 user_screenshots_api 5608 25100 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:58:52,722 middleware 5608 25100 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:58:52,723 basehttp 5608 25100 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=sinanozdemir_at_deluxebilisim.com HTTP/1.1" 200 886
+INFO 2025-09-14 02:58:53,237 middleware 5608 22092 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:58:54,526 user_screenshots_api 5608 22092 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:58:54,840 user_screenshots_api 5608 22092 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:58:54,841 user_screenshots_api 5608 22092 Searching screenshots for 41 users
+INFO 2025-09-14 02:58:54,841 user_screenshots_api 5608 22092 Prioritized 0 matching user folders
+INFO 2025-09-14 02:58:54,842 user_screenshots_api 5608 22092 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:02,574 user_screenshots_api 5608 22092 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:02,574 user_screenshots_api 5608 22092 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:59:02,575 middleware 5608 22092 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:59:02,576 basehttp 5608 22092 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=test_at_deluxebilisim.com HTTP/1.1" 200 869
+INFO 2025-09-14 02:59:03,099 middleware 5608 6328 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:59:04,148 user_screenshots_api 5608 6328 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:59:04,327 user_screenshots_api 5608 6328 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:59:04,327 user_screenshots_api 5608 6328 Searching screenshots for 41 users
+INFO 2025-09-14 02:59:04,328 user_screenshots_api 5608 6328 Prioritized 0 matching user folders
+INFO 2025-09-14 02:59:04,328 user_screenshots_api 5608 6328 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:17,422 user_screenshots_api 5608 6328 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:17,422 user_screenshots_api 5608 6328 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:59:17,423 middleware 5608 6328 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:59:17,424 basehttp 5608 6328 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=umutesen_at_deluxebilisim.com HTTP/1.1" 200 877
+INFO 2025-09-14 02:59:17,932 middleware 5608 9796 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:59:19,311 user_screenshots_api 5608 9796 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:59:19,615 user_screenshots_api 5608 9796 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:59:19,615 user_screenshots_api 5608 9796 Searching screenshots for 41 users
+INFO 2025-09-14 02:59:19,615 user_screenshots_api 5608 9796 Prioritized 0 matching user folders
+INFO 2025-09-14 02:59:19,616 user_screenshots_api 5608 9796 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:32,063 user_screenshots_api 5608 9796 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:32,064 user_screenshots_api 5608 9796 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:59:32,066 middleware 5608 9796 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:59:32,067 basehttp 5608 9796 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=yusufcemilozden_at_gmail.com HTTP/1.1" 200 876
+INFO 2025-09-14 02:59:32,584 middleware 5608 328 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:59:33,843 user_screenshots_api 5608 328 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:59:34,050 user_screenshots_api 5608 328 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:59:34,051 user_screenshots_api 5608 328 Searching screenshots for 41 users
+INFO 2025-09-14 02:59:34,051 user_screenshots_api 5608 328 Prioritized 0 matching user folders
+INFO 2025-09-14 02:59:34,051 user_screenshots_api 5608 328 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:50,159 user_screenshots_api 5608 328 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 02:59:50,160 user_screenshots_api 5608 328 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 02:59:50,161 middleware 5608 328 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 02:59:50,162 basehttp 5608 328 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=zeynepozturkmen_at_deluxebilisim.com HTTP/1.1" 200 892
+INFO 2025-09-14 02:59:50,680 middleware 5608 7856 Request: GET /api/users/screenshots/
+INFO 2025-09-14 02:59:51,871 user_screenshots_api 5608 7856 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 02:59:52,098 user_screenshots_api 5608 7856 Found 41 user folders in screenshots/
+INFO 2025-09-14 02:59:52,099 user_screenshots_api 5608 7856 Searching screenshots for 41 users
+INFO 2025-09-14 02:59:52,099 user_screenshots_api 5608 7856 Prioritized 0 matching user folders
+INFO 2025-09-14 02:59:52,100 user_screenshots_api 5608 7856 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:00:03,071 user_screenshots_api 5608 7856 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:00:03,072 user_screenshots_api 5608 7856 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:00:03,073 middleware 5608 7856 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:00:03,074 basehttp 5608 7856 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=zynp.ozturkmen_at_deluxebilisim.com HTTP/1.1" 200 889
+INFO 2025-09-14 03:01:03,958 middleware 5608 29576 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:01:05,492 user_screenshots_api 5608 29576 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:01:05,695 user_screenshots_api 5608 29576 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:01:05,696 user_screenshots_api 5608 29576 Searching screenshots for 41 users
+INFO 2025-09-14 03:01:05,696 user_screenshots_api 5608 29576 Prioritized 1 matching user folders
+INFO 2025-09-14 03:01:05,696 user_screenshots_api 5608 29576 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:01:19,026 user_screenshots_api 5608 29576 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:01:19,027 user_screenshots_api 5608 29576 Search completed. Found 3680 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:01:19,033 middleware 5608 29576 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:01:19,034 basehttp 5608 29576 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=atakankahraman35_at_outlook.com HTTP/1.1" 200 18208
+INFO 2025-09-14 03:01:19,553 middleware 5608 27720 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:01:20,786 user_screenshots_api 5608 27720 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:01:20,952 user_screenshots_api 5608 27720 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:01:20,952 user_screenshots_api 5608 27720 Searching screenshots for 41 users
+INFO 2025-09-14 03:01:20,952 user_screenshots_api 5608 27720 Prioritized 1 matching user folders
+INFO 2025-09-14 03:01:20,953 user_screenshots_api 5608 27720 Processing user 1/41: begumdamlasen_at_gmail.com
+INFO 2025-09-14 03:01:30,424 user_screenshots_api 5608 27720 Reached max objects limit, stopping at user begumdamlasen_at_gmail.com
+INFO 2025-09-14 03:01:30,425 user_screenshots_api 5608 27720 Search completed. Found 4705 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:01:30,433 middleware 5608 27720 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:01:30,434 basehttp 5608 27720 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=begumdamlasen_at_gmail.com HTTP/1.1" 200 17795
+INFO 2025-09-14 03:01:30,956 middleware 5608 30216 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:01:31,960 user_screenshots_api 5608 30216 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:01:32,093 user_screenshots_api 5608 30216 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:01:32,093 user_screenshots_api 5608 30216 Searching screenshots for 41 users
+INFO 2025-09-14 03:01:32,094 user_screenshots_api 5608 30216 Prioritized 1 matching user folders
+INFO 2025-09-14 03:01:32,094 user_screenshots_api 5608 30216 Processing user 1/41: beyza-donmez-_at_hotmail.com
+INFO 2025-09-14 03:01:48,256 user_screenshots_api 5608 30216 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:01:48,256 user_screenshots_api 5608 30216 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:01:48,257 middleware 5608 30216 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:01:48,258 basehttp 5608 30216 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=beyza-donmez-_at_hotmail.com HTTP/1.1" 200 876
+INFO 2025-09-14 03:01:48,783 middleware 5608 22452 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:01:49,828 user_screenshots_api 5608 22452 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:01:50,032 user_screenshots_api 5608 22452 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:01:50,033 user_screenshots_api 5608 22452 Searching screenshots for 41 users
+INFO 2025-09-14 03:01:50,033 user_screenshots_api 5608 22452 Prioritized 1 matching user folders
+INFO 2025-09-14 03:01:50,034 user_screenshots_api 5608 22452 Processing user 1/41: bilgeryilmaz_at_gmail.com
+INFO 2025-09-14 03:02:00,421 user_screenshots_api 5608 22452 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:02:00,421 user_screenshots_api 5608 22452 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:02:00,422 middleware 5608 22452 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:02:00,424 basehttp 5608 22452 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=bilgeryilmaz_at_gmail.com HTTP/1.1" 200 869
+INFO 2025-09-14 03:02:00,928 middleware 5608 10632 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:02:02,150 user_screenshots_api 5608 10632 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:02:02,320 user_screenshots_api 5608 10632 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:02:02,321 user_screenshots_api 5608 10632 Searching screenshots for 41 users
+INFO 2025-09-14 03:02:02,321 user_screenshots_api 5608 10632 Prioritized 1 matching user folders
+INFO 2025-09-14 03:02:02,321 user_screenshots_api 5608 10632 Processing user 1/41: cagla.shr_at_gmail.com
+INFO 2025-09-14 03:02:14,965 user_screenshots_api 5608 10632 Reached max objects limit, stopping at user cagla.shr_at_gmail.com
+INFO 2025-09-14 03:02:14,966 user_screenshots_api 5608 10632 Search completed. Found 4082 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:02:14,973 middleware 5608 10632 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:02:14,975 basehttp 5608 10632 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=cagla.shr_at_gmail.com HTTP/1.1" 200 16030
+INFO 2025-09-14 03:02:15,480 middleware 5608 30256 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:02:16,758 user_screenshots_api 5608 30256 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:02:16,963 user_screenshots_api 5608 30256 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:02:16,964 user_screenshots_api 5608 30256 Searching screenshots for 41 users
+INFO 2025-09-14 03:02:16,964 user_screenshots_api 5608 30256 Prioritized 1 matching user folders
+INFO 2025-09-14 03:02:16,965 user_screenshots_api 5608 30256 Processing user 1/41: danish.ali9801_at_gmail.com
+INFO 2025-09-14 03:02:25,175 user_screenshots_api 5608 30256 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:02:25,176 user_screenshots_api 5608 30256 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:02:25,177 middleware 5608 30256 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:02:25,178 basehttp 5608 30256 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=danish.ali9801_at_gmail.com HTTP/1.1" 200 873
+INFO 2025-09-14 03:02:25,685 middleware 5608 24728 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:02:26,893 user_screenshots_api 5608 24728 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:02:27,100 user_screenshots_api 5608 24728 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:02:27,101 user_screenshots_api 5608 24728 Searching screenshots for 41 users
+INFO 2025-09-14 03:02:27,101 user_screenshots_api 5608 24728 Prioritized 1 matching user folders
+INFO 2025-09-14 03:02:27,102 user_screenshots_api 5608 24728 Processing user 1/41: ddsfocustime
+INFO 2025-09-14 03:02:39,048 user_screenshots_api 5608 24728 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:02:39,082 user_screenshots_api 5608 24728 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:02:39,105 middleware 5608 24728 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:02:39,122 basehttp 5608 24728 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=ddsfocustime HTTP/1.1" 200 844
+INFO 2025-09-14 03:02:39,650 middleware 5608 4320 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:02:41,024 user_screenshots_api 5608 4320 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:02:41,238 user_screenshots_api 5608 4320 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:02:41,239 user_screenshots_api 5608 4320 Searching screenshots for 41 users
+INFO 2025-09-14 03:02:41,239 user_screenshots_api 5608 4320 Prioritized 1 matching user folders
+INFO 2025-09-14 03:02:41,239 user_screenshots_api 5608 4320 Processing user 1/41: deniz_at_deluxebilisim.com
+INFO 2025-09-14 03:02:53,244 user_screenshots_api 5608 4320 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:02:53,245 user_screenshots_api 5608 4320 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:02:53,246 middleware 5608 4320 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:02:53,247 basehttp 5608 4320 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=deniz_at_deluxebilisim.com HTTP/1.1" 200 872
+INFO 2025-09-14 03:02:53,766 middleware 5608 18640 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:02:54,746 user_screenshots_api 5608 18640 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:02:54,952 user_screenshots_api 5608 18640 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:02:54,953 user_screenshots_api 5608 18640 Searching screenshots for 41 users
+INFO 2025-09-14 03:02:54,953 user_screenshots_api 5608 18640 Prioritized 1 matching user folders
+INFO 2025-09-14 03:02:54,954 user_screenshots_api 5608 18640 Processing user 1/41: deniz_at_dxdglobal.com
+INFO 2025-09-14 03:03:07,931 user_screenshots_api 5608 18640 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:03:07,932 user_screenshots_api 5608 18640 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:03:07,933 middleware 5608 18640 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:03:07,934 basehttp 5608 18640 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=deniz_at_dxdglobal.com HTTP/1.1" 200 863
+INFO 2025-09-14 03:03:08,461 middleware 5608 16192 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:03:10,048 user_screenshots_api 5608 16192 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:03:10,211 user_screenshots_api 5608 16192 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:03:10,211 user_screenshots_api 5608 16192 Searching screenshots for 41 users
+INFO 2025-09-14 03:03:10,212 user_screenshots_api 5608 16192 Prioritized 0 matching user folders
+INFO 2025-09-14 03:03:10,212 user_screenshots_api 5608 16192 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:03:24,923 user_screenshots_api 5608 16192 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:03:24,923 user_screenshots_api 5608 16192 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:03:24,924 middleware 5608 16192 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:03:24,925 basehttp 5608 16192 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=elif.ugrl_at_gmail.com HTTP/1.1" 200 864
+INFO 2025-09-14 03:03:25,440 middleware 5608 27916 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:03:26,692 user_screenshots_api 5608 27916 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:03:26,926 user_screenshots_api 5608 27916 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:03:26,926 user_screenshots_api 5608 27916 Searching screenshots for 41 users
+INFO 2025-09-14 03:03:26,926 user_screenshots_api 5608 27916 Prioritized 1 matching user folders
+INFO 2025-09-14 03:03:26,927 user_screenshots_api 5608 27916 Processing user 1/41: fatih.onk_at_deluxebilisim.com
+INFO 2025-09-14 03:03:38,007 user_screenshots_api 5608 27916 Reached max objects limit, stopping at user fatih.onk_at_deluxebilisim.com
+INFO 2025-09-14 03:03:38,007 user_screenshots_api 5608 27916 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:03:38,008 middleware 5608 27916 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:03:38,009 basehttp 5608 27916 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=fatih.onk_at_deluxebilisim.com HTTP/1.1" 200 880
+INFO 2025-09-14 03:03:38,535 middleware 5608 15228 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:03:39,702 user_screenshots_api 5608 15228 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:03:39,903 user_screenshots_api 5608 15228 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:03:39,903 user_screenshots_api 5608 15228 Searching screenshots for 41 users
+INFO 2025-09-14 03:03:39,903 user_screenshots_api 5608 15228 Prioritized 1 matching user folders
+INFO 2025-09-14 03:03:39,904 user_screenshots_api 5608 15228 Processing user 1/41: frknaydinresmi_at_gmail.com
+INFO 2025-09-14 03:03:54,024 user_screenshots_api 5608 15228 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:03:54,025 user_screenshots_api 5608 15228 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:03:54,026 middleware 5608 15228 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:03:54,027 basehttp 5608 15228 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=frknaydinresmi_at_gmail.com HTTP/1.1" 200 874
+INFO 2025-09-14 03:03:54,544 middleware 5608 8904 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:03:55,676 user_screenshots_api 5608 8904 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:03:55,883 user_screenshots_api 5608 8904 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:03:55,884 user_screenshots_api 5608 8904 Searching screenshots for 41 users
+INFO 2025-09-14 03:03:55,884 user_screenshots_api 5608 8904 Prioritized 1 matching user folders
+INFO 2025-09-14 03:03:55,885 user_screenshots_api 5608 8904 Processing user 1/41: gulaysencer95_at_gmail.com
+INFO 2025-09-14 03:04:07,738 user_screenshots_api 5608 8904 Reached max objects limit, stopping at user gulaysencer95_at_gmail.com
+INFO 2025-09-14 03:04:07,738 user_screenshots_api 5608 8904 Search completed. Found 0 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:04:07,739 middleware 5608 8904 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:04:07,740 basehttp 5608 8904 "GET /api/users/screenshots/?start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20&q=gulaysencer95_at_gmail.com HTTP/1.1" 200 872
+INFO 2025-09-14 03:04:37,929 middleware 5608 9596 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:04:39,395 user_screenshots_api 5608 9596 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:04:39,601 user_screenshots_api 5608 9596 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:04:39,601 user_screenshots_api 5608 9596 Searching screenshots for 41 users
+INFO 2025-09-14 03:04:39,602 user_screenshots_api 5608 9596 Prioritized 1 matching user folders
+INFO 2025-09-14 03:04:39,602 user_screenshots_api 5608 9596 Processing user 1/41: atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:04:50,625 user_screenshots_api 5608 9596 Reached max objects limit, stopping at user atakankahraman35_at_outlook.com
+INFO 2025-09-14 03:04:50,626 user_screenshots_api 5608 9596 Search completed. Found 3680 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:04:50,631 middleware 5608 9596 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:04:50,632 basehttp 5608 9596 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 44182
+INFO 2025-09-14 03:06:50,645 middleware 5608 21136 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:06:51,760 user_screenshots_api 5608 21136 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:06:52,000 user_screenshots_api 5608 21136 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:06:52,000 user_screenshots_api 5608 21136 Searching screenshots for 41 users
+INFO 2025-09-14 03:06:52,001 user_screenshots_api 5608 21136 Prioritized 1 matching user folders
+INFO 2025-09-14 03:06:52,001 user_screenshots_api 5608 21136 Processing user 1/41: ilahe_at_dxdglobal.com
+INFO 2025-09-14 03:07:04,159 user_screenshots_api 5608 21136 Reached max objects limit, stopping at user ilahe_at_dxdglobal.com
+INFO 2025-09-14 03:07:04,159 user_screenshots_api 5608 21136 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:07:04,169 middleware 5608 21136 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:07:04,170 basehttp 5608 21136 "GET /api/users/screenshots/?q=ilahe_at_dxdglobal.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 36062
+INFO 2025-09-14 03:07:52,982 middleware 5608 22320 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:07:54,079 user_screenshots_api 5608 22320 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:07:54,228 user_screenshots_api 5608 22320 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:07:54,229 user_screenshots_api 5608 22320 Searching screenshots for 41 users
+INFO 2025-09-14 03:07:54,229 user_screenshots_api 5608 22320 Prioritized 1 matching user folders
+INFO 2025-09-14 03:07:54,229 user_screenshots_api 5608 22320 Processing user 1/41: ilahe_at_dxdglobal.com
+INFO 2025-09-14 03:08:05,915 user_screenshots_api 5608 22320 Reached max objects limit, stopping at user ilahe_at_dxdglobal.com
+INFO 2025-09-14 03:08:05,916 user_screenshots_api 5608 22320 Search completed. Found 9999 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:08:05,928 middleware 5608 22320 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:08:05,929 basehttp 5608 22320 "GET /api/users/screenshots/?q=ilahe_at_dxdglobal.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=205 HTTP/1.1" 200 145167
+INFO 2025-09-14 03:09:59,505 middleware 5608 28432 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:10:01,397 user_screenshots_api 5608 28432 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:10:01,571 user_screenshots_api 5608 28432 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:10:01,575 user_screenshots_api 5608 28432 Searching screenshots for 41 users
+INFO 2025-09-14 03:10:01,576 user_screenshots_api 5608 28432 Prioritized 1 matching user folders
+INFO 2025-09-14 03:10:01,578 user_screenshots_api 5608 28432 Processing user 1/41: cagla.shr_at_gmail.com
+INFO 2025-09-14 03:10:16,548 user_screenshots_api 5608 28432 Reached max objects limit, stopping at user cagla.shr_at_gmail.com
+INFO 2025-09-14 03:10:16,549 user_screenshots_api 5608 28432 Search completed. Found 4082 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:10:16,560 middleware 5608 28432 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:10:16,562 basehttp 5608 28432 "GET /api/users/screenshots/?q=cagla.shr_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=205 HTTP/1.1" 200 156221
+INFO 2025-09-14 03:10:42,445 middleware 5608 28432 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:10:44,114 user_screenshots_api 5608 28432 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:10:44,442 user_screenshots_api 5608 28432 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:10:44,443 user_screenshots_api 5608 28432 Searching screenshots for 41 users
+INFO 2025-09-14 03:10:44,444 user_screenshots_api 5608 28432 Prioritized 1 matching user folders
+INFO 2025-09-14 03:10:44,444 user_screenshots_api 5608 28432 Processing user 1/41: cagla.shr_at_gmail.com
+INFO 2025-09-14 03:11:01,670 user_screenshots_api 5608 28432 Reached max objects limit, stopping at user cagla.shr_at_gmail.com
+INFO 2025-09-14 03:11:01,670 user_screenshots_api 5608 28432 Search completed. Found 4082 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:11:01,678 middleware 5608 28432 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:11:01,679 basehttp 5608 28432 "GET /api/users/screenshots/?q=cagla.shr_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=20 HTTP/1.1" 200 16030
+INFO 2025-09-14 03:20:08,948 middleware 5608 27088 Request: GET /api/users/screenshots/
+INFO 2025-09-14 03:20:11,013 user_screenshots_api 5608 27088 S3 client initialized successfully with environment credentials
+INFO 2025-09-14 03:20:11,209 user_screenshots_api 5608 27088 Found 41 user folders in screenshots/
+INFO 2025-09-14 03:20:11,209 user_screenshots_api 5608 27088 Searching screenshots for 41 users
+INFO 2025-09-14 03:20:11,210 user_screenshots_api 5608 27088 Prioritized 1 matching user folders
+INFO 2025-09-14 03:20:11,211 user_screenshots_api 5608 27088 Processing user 1/41: cagla.shr_at_gmail.com
+INFO 2025-09-14 03:20:22,063 user_screenshots_api 5608 27088 Reached max objects limit, stopping at user cagla.shr_at_gmail.com
+INFO 2025-09-14 03:20:22,064 user_screenshots_api 5608 27088 Search completed. Found 4082 screenshots after scanning 10000 objects
+INFO 2025-09-14 03:20:22,072 middleware 5608 27088 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-14 03:20:22,073 basehttp 5608 27088 "GET /api/users/screenshots/?q=cagla.shr_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 38769
