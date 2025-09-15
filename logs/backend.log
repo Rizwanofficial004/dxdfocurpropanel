@@ -10745,3 +10745,73 @@ INFO 2025-09-15 12:55:18,518 user_screenshots_api 33588 32620 Processing user 1/
 INFO 2025-09-15 12:55:59,864 user_screenshots_api 33588 32620 Found 14004 matching screenshots for user atakankahraman35_at_outlook.com
 INFO 2025-09-15 12:55:59,865 user_screenshots_api 33588 32620 Search completed. Found 14004 screenshots after scanning 64564 objects
 INFO 2025-09-15 12:55:59,865 user_screenshots_api 33588 32620 Specific user search for 'atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 14004 screenshots found
+INFO 2025-09-15 21:31:51,533 user_screenshots_api 26860 12624 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:31:51,539 user_screenshots_api 26860 12624 OPTIMIZED: Direct search for user folders: ['ilahe_at_dxdglobal.com']
+INFO 2025-09-15 21:31:51,539 user_screenshots_api 26860 12624 Using date-based prefix filtering for 1 date ranges
+INFO 2025-09-15 21:31:51,819 user_screenshots_api 26860 12624 No direct match found, searching in all user folders for 'ilahe_at_dxdglobal.com'
+INFO 2025-09-15 21:31:52,046 user_screenshots_api 26860 12624 Found 41 user folders in screenshots/
+INFO 2025-09-15 21:31:52,047 user_screenshots_api 26860 12624 Using date-based prefix filtering for 1 date ranges
+INFO 2025-09-15 21:31:52,235 user_screenshots_api 26860 12624 Search completed. Found 0 screenshots after scanning 0 objects
+INFO 2025-09-15 21:31:52,235 user_screenshots_api 26860 12624 Specific user search for 'ilahe_at_dxdglobal.com' from 2025-08-01 to 2025-08-31: 0 screenshots found
+INFO 2025-09-15 21:31:52,562 user_screenshots_api 26860 12624 Found 41 user folders in screenshots/
+INFO 2025-09-15 21:32:36,725 user_screenshots_api 20036 26172 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:32:47,574 user_screenshots_api 30540 4264 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:33:35,007 user_screenshots_api 23764 16528 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:33:35,012 user_screenshots_api 23764 16528 OPTIMIZED: Direct search for user folders: ['ilahe_at_dxdglobal.com']
+INFO 2025-09-15 21:33:35,012 user_screenshots_api 23764 16528 Scanning user folder: screenshots/ilahe_at_dxdglobal.com/
+INFO 2025-09-15 21:38:45,513 user_screenshots_api 23764 16528 Found 144135 screenshots for user ilahe_at_dxdglobal.com
+INFO 2025-09-15 21:38:45,514 user_screenshots_api 23764 16528 Search completed. Found 144135 screenshots after scanning 246714 objects
+INFO 2025-09-15 21:38:45,514 user_screenshots_api 23764 16528 Specific user search for 'ilahe_at_dxdglobal.com' from 2025-08-01 to 2025-08-31: 144135 screenshots found
+INFO 2025-09-15 21:41:02,842 user_screenshots_api 10528 28500 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:41:02,849 user_screenshots_api 10528 28500 OPTIMIZED: Direct search for user folders: ['ilahe_at_dxdglobal.com']
+INFO 2025-09-15 21:41:02,850 user_screenshots_api 10528 28500 Scanning user folder: screenshots/ilahe_at_dxdglobal.com/
+INFO 2025-09-15 21:46:07,223 user_screenshots_api 10528 28500 Found 144135 screenshots for user ilahe_at_dxdglobal.com
+INFO 2025-09-15 21:46:07,223 user_screenshots_api 10528 28500 Search completed. Found 144135 screenshots after scanning 246714 objects
+INFO 2025-09-15 21:46:07,224 user_screenshots_api 10528 28500 Specific user search for 'ilahe_at_dxdglobal.com' from 2025-08-01 to 2025-08-31: 144135 screenshots found
+INFO 2025-09-15 21:46:58,442 middleware 27504 20664 Request: GET /api/users/screenshots/
+INFO 2025-09-15 21:47:00,235 user_screenshots_api 27504 20664 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:47:00,240 user_screenshots_api 27504 20664 OPTIMIZED: Direct search for user folders: ['ilahe_at_dxdglobal.com']
+INFO 2025-09-15 21:47:00,241 user_screenshots_api 27504 20664 Scanning user folder: screenshots/ilahe_at_dxdglobal.com/
+INFO 2025-09-15 21:52:02,919 user_screenshots_api 27504 20664 Found 144135 screenshots for user ilahe_at_dxdglobal.com
+INFO 2025-09-15 21:52:02,920 user_screenshots_api 27504 20664 Search completed. Found 144135 screenshots after scanning 246714 objects
+INFO 2025-09-15 21:52:02,920 user_screenshots_api 27504 20664 Specific user search for 'ilahe_at_dxdglobal.com' from 2025-08-01 to 2025-08-31: 144135 screenshots found
+INFO 2025-09-15 21:52:03,077 middleware 27504 20664 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-15 21:52:03,079 basehttp 27504 20664 "GET /api/users/screenshots/?q=ilahe_at_dxdglobal.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 36079
+INFO 2025-09-15 21:53:12,513 middleware 27504 3740 Request: GET /api/users/screenshots/
+INFO 2025-09-15 21:53:13,838 user_screenshots_api 27504 3740 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:53:13,839 user_screenshots_api 27504 3740 OPTIMIZED: Direct search for user folders: ['atakankahraman35_at_outlook.com']
+INFO 2025-09-15 21:53:13,840 user_screenshots_api 27504 3740 Scanning user folder: screenshots/atakankahraman35_at_outlook.com/
+INFO 2025-09-15 21:54:42,484 user_screenshots_api 27504 3740 Found 14004 screenshots for user atakankahraman35_at_outlook.com
+INFO 2025-09-15 21:54:42,485 user_screenshots_api 27504 3740 Search completed. Found 14004 screenshots after scanning 65404 objects
+INFO 2025-09-15 21:54:42,486 user_screenshots_api 27504 3740 Specific user search for 'atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 14004 screenshots found
+INFO 2025-09-15 21:54:42,539 middleware 27504 3740 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-15 21:54:42,542 basehttp 27504 3740 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 44186
+INFO 2025-09-15 21:56:02,426 middleware 27504 13544 Request: GET /api/users/screenshots/
+INFO 2025-09-15 21:56:04,645 user_screenshots_api 27504 13544 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 21:56:04,647 user_screenshots_api 27504 13544 OPTIMIZED: Direct search for user folders: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-15 21:56:04,650 user_screenshots_api 27504 13544 Scanning user folder: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-15 22:03:30,703 user_screenshots_api 27504 13544 Found 207684 screenshots for user begumdamlasen_at_gmail.com
+INFO 2025-09-15 22:03:30,703 user_screenshots_api 27504 13544 Search completed. Found 207684 screenshots after scanning 566336 objects
+INFO 2025-09-15 22:03:30,704 user_screenshots_api 27504 13544 Specific user search for 'begumdamlasen_at_gmail.com' from 2025-08-01 to 2025-08-31: 207684 screenshots found
+INFO 2025-09-15 22:03:30,982 middleware 27504 13544 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-15 22:03:30,983 basehttp 27504 13544 "GET /api/users/screenshots/?q=begumdamlasen_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 36904
+INFO 2025-09-15 22:06:25,856 user_screenshots_api 12092 5320 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 22:06:26,151 user_screenshots_api 12092 5320 Found 41 user folders in screenshots/
+INFO 2025-09-15 22:06:26,158 user_screenshots_api 12092 5320 OPTIMIZED: Direct search for user folders: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-15 22:06:26,158 user_screenshots_api 12092 5320 Scanning user folder: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-15 22:13:05,804 user_screenshots_api 12092 5320 Found 207684 screenshots for user begumdamlasen_at_gmail.com
+INFO 2025-09-15 22:13:05,804 user_screenshots_api 12092 5320 Search completed. Found 207684 screenshots after scanning 566640 objects
+INFO 2025-09-15 22:13:05,805 user_screenshots_api 12092 5320 Specific user search for 'begumdamlasen_at_gmail.com' from 2025-08-01 to 2025-08-31: 207684 screenshots found
+INFO 2025-09-15 22:13:06,160 user_screenshots_api 12092 5320 OPTIMIZED: Direct search for user folders: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-15 22:13:06,160 user_screenshots_api 12092 5320 Scanning user folder: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-15 22:25:51,583 user_screenshots_api 31844 21660 S3 client initialized successfully with environment credentials
+INFO 2025-09-15 22:25:51,924 user_screenshots_api 31844 21660 Found 41 user folders in screenshots/
+INFO 2025-09-15 22:25:51,929 user_screenshots_api 31844 21660 OPTIMIZED: Direct search for user folders: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-15 22:25:51,930 user_screenshots_api 31844 21660 Scanning user folder: screenshots/begumdamlasen_at_gmail.com/
+INFO 2025-09-15 22:34:53,667 user_screenshots_api 31844 21660 Found 134333 screenshots for user begumdamlasen_at_gmail.com
+INFO 2025-09-15 22:34:53,668 user_screenshots_api 31844 21660 Search completed. Found 134333 screenshots after scanning 566847 objects
+INFO 2025-09-15 22:34:53,668 user_screenshots_api 31844 21660 Specific user search for 'begumdamlasen_at_gmail.com' from 2025-09-01 to 2025-09-15: 134333 screenshots found
+INFO 2025-09-16 00:00:40,369 user_screenshots_api 22560 8328 S3 client initialized successfully with environment credentials
+INFO 2025-09-16 00:00:40,679 user_screenshots_api 22560 8328 Found 41 user folders in screenshots/
+INFO 2025-09-16 00:00:40,682 user_screenshots_api 22560 8328 OPTIMIZED: Direct search for user folders: ['begumdamlasen_at_gmail.com']
+INFO 2025-09-16 00:00:40,682 user_screenshots_api 22560 8328 Scanning user folder: screenshots/begumdamlasen_at_gmail.com/

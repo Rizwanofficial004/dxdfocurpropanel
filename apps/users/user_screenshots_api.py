@@ -264,10 +264,106 @@ class UserScreenshotsAPI(APIView):
             logger.error(f"Error getting user folders: {str(e)}")
             return []
 
+    def _search_user_folder_optimized(self, bucket_name, user_folder, search_query, start_date_obj, end_date_obj):
+        """
+        OPTIMIZED: Search a specific user folder with optional date range prefix filtering
+        FIXED: Handle subdirectory structures (e.g., screenshots/user/project_folder/files)
+        """
+        screenshots = []
+        objects_scanned = 0
+        
+        try:
+            prefix = f'screenshots/{user_folder}/'
+            
+            # Since we found that files can be in subdirectories, we need to scan the entire user folder
+            # but still apply date filtering during processing (not as S3 prefix filter)
+            logger.info(f"Scanning user folder: {prefix}")
+            
+            folder_screenshots = self._scan_s3_prefix(bucket_name, prefix, search_query, start_date_obj, end_date_obj, user_folder)
+            screenshots.extend(folder_screenshots['screenshots'])
+            objects_scanned += folder_screenshots['objects_scanned']
+                
+        except Exception as e:
+            logger.error(f"Error searching user folder {user_folder}: {str(e)}")
+        
+        return {
+            'screenshots': screenshots,
+            'objects_scanned': objects_scanned
+        }
+    
+    def _generate_date_prefixes_for_range(self, start_date, end_date):
+        """
+        Generate S3 prefixes for date range to optimize scanning
+        For example: 2025-08-01 to 2025-08-31 -> ['2025-08']
+        """
+        prefixes = []
+        current_date = start_date.replace(day=1)  # Start from first day of month
+        
+        while current_date <= end_date:
+            # Add year-month prefix
+            month_prefix = current_date.strftime('%Y-%m')
+            if month_prefix not in prefixes:
+                prefixes.append(month_prefix)
+            
+            # Move to next month
+            if current_date.month == 12:
+                current_date = current_date.replace(year=current_date.year + 1, month=1)
+            else:
+                current_date = current_date.replace(month=current_date.month + 1)
+        
+        return prefixes
+    
+    def _scan_s3_prefix(self, bucket_name, prefix, search_query, start_date_obj, end_date_obj, user_folder):
+        """
+        Scan a specific S3 prefix and return matching screenshots
+        """
+        screenshots = []
+        objects_scanned = 0
+        
+        try:
+            paginator = self.s3_client.get_paginator('list_objects_v2')
+            
+            for page_iterator in paginator.paginate(
+                Bucket=bucket_name,
+                Prefix=prefix,
+                PaginationConfig={'PageSize': 1000}
+            ):
+                if 'Contents' not in page_iterator:
+                    continue
+                
+                for obj in page_iterator['Contents']:
+                    objects_scanned += 1
+                    key = obj['Key']
+                    
+                    # Skip folders (keys ending with /)
+                    if key.endswith('/'):
+                        continue
+                    
+                    # Skip non-image files
+                    if not any(key.lower().endswith(ext) for ext in ['.webp', '.jpg', '.jpeg', '.png']):
+                        continue
+                    
+                    # Parse screenshot details
+                    screenshot_info = self._parse_screenshot_details_for_screenshots_folder(key, obj, user_folder)
+                    
+                    # Check if screenshot should be included
+                    if self._should_include_screenshot(screenshot_info, search_query, start_date_obj, end_date_obj):
+                        # Add user email to screenshot info
+                        screenshot_info['user_email'] = self._extract_user_email_from_folder(user_folder)
+                        screenshots.append(screenshot_info)
+                        
+        except Exception as e:
+            logger.error(f"Error scanning S3 prefix {prefix}: {str(e)}")
+        
+        return {
+            'screenshots': screenshots,
+            'objects_scanned': objects_scanned
+        }
+
     def _search_screenshots(self, search_query, page, page_size, start_date='', end_date=''):
         """
         Search for individual screenshots from ALL users with pagination
-        Enhanced to handle large datasets and provide accurate counts
+        OPTIMIZED: Direct folder targeting for specific users and date-based prefix filtering
         """
         if not self.s3_client:
             return {
@@ -302,22 +398,8 @@ class UserScreenshotsAPI(APIView):
         is_specific_user_search = search_query and search_query.strip()
         is_date_filtered = start_date_obj or end_date_obj
         
-        # If searching for specific user with date filter, be more efficient
-        if is_specific_user_search and is_date_filtered:
-            logger.info(f"Optimized search for user '{search_query}' with date filter {start_date} to {end_date}")
-            # For specific user searches, we can be more thorough since we're targeting one user
-            max_objects_per_request = 100000  # Much higher limit for specific searches
-        else:
-            # For general searches, use reasonable limit
-            max_objects_per_request = 25000  # Increased from 10k to 25k for better coverage
-        
         try:
-            # Get all user folders first
-            user_folders = self._get_all_user_folders()
-            
-            logger.info(f"Searching screenshots for {len(user_folders)} users")
-            
-            # If we have a specific user search, filter to only matching users for efficiency
+            # OPTIMIZATION 1: If specific user search, target that user directly
             if is_specific_user_search:
                 search_lower = search_query.lower().strip()
                 
@@ -325,98 +407,77 @@ class UserScreenshotsAPI(APIView):
                 search_normalized = search_lower.replace('@', '_at_')
                 search_email = search_lower.replace('_at_', '@')
                 
-                matching_folders = []
-                for folder in user_folders:
-                    folder_lower = folder.lower()
-                    folder_email = folder.replace('_at_', '@').lower()
-                    
-                    if (search_normalized in folder_lower or 
-                        search_email in folder_email or
-                        search_lower == folder_lower or
-                        search_lower == folder_email):
-                        matching_folders.append(folder)
+                # Try direct folder access first (much faster)
+                target_user_folders = [search_normalized]
+                if search_normalized != search_email.replace('@', '_at_'):
+                    target_user_folders.append(search_email.replace('@', '_at_'))
                 
-                if matching_folders:
-                    user_folders = matching_folders
-                    logger.info(f"Filtered to {len(user_folders)} matching user folders for efficient search")
-                else:
-                    logger.info(f"No matching user folders found for '{search_query}'")
-                    return {
-                        'screenshots': [],
-                        'total_count': 0,
-                        'objects_scanned': 0
-                    }
+                logger.info(f"OPTIMIZED: Direct search for user folders: {target_user_folders}")
+                
+                # Search directly in target user folders
+                for target_folder in target_user_folders:
+                    folder_screenshots = self._search_user_folder_optimized(
+                        bucket_name, target_folder, search_query, start_date_obj, end_date_obj
+                    )
+                    screenshots.extend(folder_screenshots['screenshots'])
+                    objects_scanned += folder_screenshots['objects_scanned']
+                    
+                    # If we found screenshots, we found the right user
+                    if folder_screenshots['screenshots']:
+                        logger.info(f"Found {len(folder_screenshots['screenshots'])} screenshots for user {target_folder}")
+                        break
+                
+                # If no direct match found, fallback to searching all folders (but limit scope)
+                if not screenshots:
+                    logger.info(f"No direct match found, searching in all user folders for '{search_query}'")
+                    user_folders = self._get_all_user_folders()
+                    
+                    matching_folders = []
+                    for folder in user_folders[:50]:  # Limit to first 50 folders for performance
+                        folder_lower = folder.lower()
+                        folder_email = folder.replace('_at_', '@').lower()
+                        
+                        if (search_normalized in folder_lower or 
+                            search_email in folder_email or
+                            search_lower == folder_lower or
+                            search_lower == folder_email):
+                            matching_folders.append(folder)
+                    
+                    # Search in matching folders
+                    for folder in matching_folders[:5]:  # Limit to 5 best matches
+                        folder_screenshots = self._search_user_folder_optimized(
+                            bucket_name, folder, search_query, start_date_obj, end_date_obj
+                        )
+                        screenshots.extend(folder_screenshots['screenshots'])
+                        objects_scanned += folder_screenshots['objects_scanned']
+            else:
+                # OPTIMIZATION 2: For general search, use pagination-aware approach
+                logger.info("General search across all users with pagination optimization")
+                user_folders = self._get_all_user_folders()
+                
+                # Calculate how many users to search based on pagination needs
+                estimated_screenshots_per_user = 10  # Conservative estimate
+                users_needed_for_page = max(10, (page * page_size) // estimated_screenshots_per_user)
+                max_users_to_search = min(len(user_folders), users_needed_for_page + 20)
+                
+                logger.info(f"Searching first {max_users_to_search} users for page {page}")
+                
+                # Search in user folders with limit
+                for i, user_folder in enumerate(user_folders[:max_users_to_search]):
+                    if i % 10 == 0:
+                        logger.info(f"Processing user {i+1}/{max_users_to_search}: {user_folder}")
+                    
+                    folder_screenshots = self._search_user_folder_optimized(
+                        bucket_name, user_folder, search_query, start_date_obj, end_date_obj
+                    )
+                    screenshots.extend(folder_screenshots['screenshots'])
+                    objects_scanned += folder_screenshots['objects_scanned']
+                    
+                    # Stop if we have enough screenshots for current page + next page
+                    if len(screenshots) >= (page + 1) * page_size:
+                        logger.info(f"Collected enough screenshots ({len(screenshots)}), stopping search")
+                        break
             
-            # Search in each user folder
-            for i, user_folder in enumerate(user_folders):
-                # Log progress every 5 users for general search, every user for specific search
-                if (is_specific_user_search) or (i % 5 == 0):
-                    logger.info(f"Processing user {i+1}/{len(user_folders)}: {user_folder}")
-                
-                # For specific user searches, don't apply object limit too early
-                if not is_specific_user_search and objects_scanned >= max_objects_per_request:
-                    logger.info(f"Reached max objects limit ({max_objects_per_request}), stopping search")
-                    break
-                
-                try:
-                    # Search in screenshots/user_folder/
-                    prefix = f'screenshots/{user_folder}/'
-                    
-                    paginator = self.s3_client.get_paginator('list_objects_v2')
-                    
-                    user_screenshot_count = 0
-                    for page_iterator in paginator.paginate(
-                        Bucket=bucket_name,
-                        Prefix=prefix,
-                        PaginationConfig={'PageSize': 1000}
-                    ):
-                        if 'Contents' not in page_iterator:
-                            continue
-                        
-                        for obj in page_iterator['Contents']:
-                            objects_scanned += 1
-                            
-                            # For non-specific searches, apply limit
-                            if not is_specific_user_search and objects_scanned >= max_objects_per_request:
-                                logger.info(f"Reached max objects limit, stopping at user {user_folder}")
-                                break
-                                
-                            key = obj['Key']
-                            
-                            # Skip folders (keys ending with /)
-                            if key.endswith('/'):
-                                continue
-                            
-                            # Skip non-image files
-                            if not any(key.lower().endswith(ext) for ext in ['.webp', '.jpg', '.jpeg', '.png']):
-                                continue
-                            
-                            # Parse screenshot details
-                            screenshot_info = self._parse_screenshot_details_for_screenshots_folder(key, obj, user_folder)
-                            
-                            # Check if screenshot should be included
-                            if self._should_include_screenshot(screenshot_info, search_query, start_date_obj, end_date_obj):
-                                # Add user email to screenshot info
-                                screenshot_info['user_email'] = self._extract_user_email_from_folder(user_folder)
-                                screenshots.append(screenshot_info)
-                                user_screenshot_count += 1
-                        
-                        # Break from paginator if we hit the limit (only for non-specific searches)
-                        if not is_specific_user_search and objects_scanned >= max_objects_per_request:
-                            break
-                    
-                    # Log user results for specific searches
-                    if is_specific_user_search and user_screenshot_count > 0:
-                        logger.info(f"Found {user_screenshot_count} matching screenshots for user {user_folder}")
-                                
-                except Exception as e:
-                    logger.error(f"Error searching in user folder {user_folder}: {str(e)}")
-                    continue
-                    
-                # Break from user loop if we hit the limit (only for non-specific searches)
-                if not is_specific_user_search and objects_scanned >= max_objects_per_request:
-                    break
-        
         except Exception as e:
             logger.error(f"Error searching screenshots: {str(e)}")
             return {
@@ -444,7 +505,7 @@ class UserScreenshotsAPI(APIView):
             'screenshots': paginated_screenshots,
             'total_count': total_count,
             'objects_scanned': objects_scanned,
-            'users_searched': min(i + 1, len(user_folders)) if 'i' in locals() else 0
+            'users_searched': len(user_folders) if 'user_folders' in locals() else 0
         }
     
     def get(self, request):
