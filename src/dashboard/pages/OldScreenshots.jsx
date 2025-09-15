@@ -2,6 +2,255 @@
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useTheme } from '../context/ThemeContext';
 
+// Screenshot Modal Component
+const ScreenshotModal = ({ screenshot, screenshots, currentIndex, isOpen, onClose, onPrevious, onNext, isDarkMode, theme }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowLeft') onPrevious();
+    if (e.key === 'ArrowRight') onNext();
+  };
+
+  // Reset loading state when screenshot changes
+  useEffect(() => {
+    if (screenshot) {
+      setImageLoading(true);
+      setImageError(false);
+    }
+  }, [screenshot]);
+
+  // Add keyboard listeners when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isOpen]);
+
+  // Don't render if modal is closed or no screenshot
+  if (!isOpen || !screenshot) {
+    return null;
+  }
+
+  return (
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: 'rgba(0, 0, 0, 0.9)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        backdropFilter: 'blur(5px)'
+      }}
+      onClick={(e) => {
+        // Close modal when clicking on backdrop
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          border: 'none',
+          borderRadius: '50%',
+          width: '50px',
+          height: '50px',
+          color: 'white',
+          fontSize: '24px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000
+        }}
+      >
+        ×
+      </button>
+
+      {/* Navigation Buttons */}
+      {screenshots && screenshots.length > 1 && currentIndex > 0 && (
+        <button
+          onClick={onPrevious}
+          style={{
+            position: 'absolute',
+            left: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '50px',
+            height: '50px',
+            color: 'white',
+            fontSize: '24px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000
+          }}
+        >
+          ‹
+        </button>
+      )}
+
+      {screenshots && screenshots.length > 1 && currentIndex < screenshots.length - 1 && (
+        <button
+          onClick={onNext}
+          style={{
+            position: 'absolute',
+            right: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '50px',
+            height: '50px',
+            color: 'white',
+            fontSize: '24px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000
+          }}
+        >
+          ›
+        </button>
+      )}
+
+      {/* Image Container */}
+      <div style={{
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        
+        {/* Loading State */}
+        {imageLoading && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: '300px',
+            minHeight: '200px',
+            color: 'white',
+            fontSize: '18px'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              border: '3px solid rgba(255, 255, 255, 0.3)',
+              borderTop: '3px solid white',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              marginRight: '12px'
+            }}></div>
+            Loading image...
+          </div>
+        )}
+
+        {/* Error State */}
+        {imageError && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: '300px',
+            minHeight: '200px',
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            color: 'white',
+            textAlign: 'center',
+            padding: '40px'
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
+            <div style={{ fontSize: '18px', marginBottom: '8px' }}>Could not load image</div>
+            <div style={{ fontSize: '14px', opacity: 0.8 }}>The screenshot may have been moved or deleted</div>
+          </div>
+        )}
+
+        {/* Main Image */}
+        {!imageError && (
+          <img
+            src={screenshot.screenshot_url}
+            alt={`Screenshot from ${screenshot.datetime}`}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '80vh',
+              objectFit: 'contain',
+              borderRadius: '8px',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+              display: imageLoading ? 'none' : 'block'
+            }}
+            onLoad={() => {
+              setImageLoading(false);
+              setImageError(false);
+            }}
+            onError={() => {
+              setImageLoading(false);
+              setImageError(true);
+            }}
+          />
+        )}
+
+        {/* Image Info */}
+        {!imageError && (
+          <div style={{
+            background: 'rgba(0, 0, 0, 0.8)',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            textAlign: 'center',
+            color: 'white'
+          }}>
+            <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
+              {screenshot.datetime}
+            </div>
+            <div style={{ fontSize: '14px', opacity: 0.9 }}>
+              Size: {screenshot.size_mb}MB
+              {screenshots && screenshots.length > 1 && (
+                <> • {currentIndex + 1} of {screenshots.length}</>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* CSS Animation */}
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 const OldScreenshots = () => {
   const themeContext = useTheme();
   const { isDarkMode = false, theme = {} } = themeContext || {};
@@ -14,16 +263,127 @@ const OldScreenshots = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   
-  // Top 6 users with their screenshot counts for August 2025
-  const topUsers = [
-    { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
-    { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com (9,999 screenshots)', searchName: 'ilahe_at_dxdglobal.com', count: 9999, displayEmail: 'ilahe@dxdglobal.com' },
-    { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com (7,383 screenshots)', searchName: 'gulsummelisa.23_at_gmail.com', count: 7383, displayEmail: 'gulsummelisa.23@gmail.com' },
-    { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com (4,705 screenshots)', searchName: 'begumdamlasen_at_gmail.com', count: 4705, displayEmail: 'begumdamlasen@gmail.com' },
-    { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com (4,082 screenshots)', searchName: 'cagla.shr_at_gmail.com', count: 4082, displayEmail: 'cagla.shr@gmail.com' },
-    { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com (3,680 screenshots)', searchName: 'atakankahraman35_at_outlook.com', count: 3680, displayEmail: 'atakankahraman35@outlook.com' },
-    { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com (1,734 screenshots)', searchName: 'kadircagtas_at_gmail.com', count: 1734, displayEmail: 'kadircagtas@gmail.com' }
-  ];
+  // Users state
+  const [topUsers, setTopUsers] = useState([
+    { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' }
+  ]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedScreenshot, setSelectedScreenshot] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Debug modal state changes
+  useEffect(() => {
+    console.log('🎭 Modal state changed:', { modalOpen, hasSelectedScreenshot: !!selectedScreenshot, currentImageIndex });
+  }, [modalOpen, selectedScreenshot, currentImageIndex]);
+  
+  // Modal functions
+  const openModal = (screenshot, index) => {
+    console.log('🖼️ Opening modal for screenshot:', screenshot.datetime, 'at index:', index);
+    console.log('📸 Screenshot data:', screenshot);
+    console.log('🔢 Modal state before:', { modalOpen, selectedScreenshot, currentImageIndex });
+    
+    setSelectedScreenshot(screenshot);
+    setCurrentImageIndex(index);
+    setModalOpen(true);
+    
+    console.log('✅ Modal should now be open');
+  };
+
+  const closeModal = () => {
+    console.log('❌ Closing modal');
+    setModalOpen(false);
+    setSelectedScreenshot(null);
+    setCurrentImageIndex(0);
+  };
+
+  const goToPrevious = () => {
+    if (currentImageIndex > 0) {
+      const newIndex = currentImageIndex - 1;
+      setCurrentImageIndex(newIndex);
+      setSelectedScreenshot(screenshots[newIndex]);
+    }
+  };
+
+  const goToNext = () => {
+    if (currentImageIndex < screenshots.length - 1) {
+      const newIndex = currentImageIndex + 1;
+      setCurrentImageIndex(newIndex);
+      setSelectedScreenshot(screenshots[newIndex]);
+    }
+  };
+
+  // Fetch top users from API
+  const fetchTopUsers = async () => {
+    setUsersLoading(true);
+    try {
+      // Use proxy to fetch users
+      const baseUrl = '/api/users/top-screenshot-users/';
+      console.log('🔍 Fetching top users via proxy:', baseUrl);
+      
+      const response = await fetch(baseUrl);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Top Users API Response:', data);
+      
+      if (data.status === 'success' && data.data && Array.isArray(data.data.users)) {
+        const users = data.data.users.map(user => ({
+          value: user.email,
+          label: `${user.email}${user.screenshot_count ? ` (${user.screenshot_count.toLocaleString()} screenshots)` : ''}`,
+          searchName: user.email.replace('@', '_at_').replace(/\./g, '_'),
+          count: user.screenshot_count || 0,
+          displayEmail: user.email
+        }));
+        
+        // Add the default "Select a user" option at the beginning
+        const allUsers = [
+          { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
+          ...users
+        ];
+        
+        setTopUsers(allUsers);
+        console.log(`📊 Loaded ${users.length} top users:`, users.map(u => `${u.displayEmail} (${u.count})`));
+      } else {
+        console.log('❌ Invalid users API response structure:', data);
+        // Fallback to static users if API fails
+        setTopUsers([
+          { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
+          { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 9999, displayEmail: 'ilahe@dxdglobal.com' },
+          { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com (7,383 screenshots)', searchName: 'gulsummelisa.23_at_gmail.com', count: 7383, displayEmail: 'gulsummelisa.23@gmail.com' },
+          { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 4705, displayEmail: 'begumdamlasen@gmail.com' },
+          { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com (4,082 screenshots)', searchName: 'cagla.shr_at_gmail.com', count: 4082, displayEmail: 'cagla.shr@gmail.com' },
+          { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com (3,680 screenshots)', searchName: 'atakankahraman35_at_outlook.com', count: 3680, displayEmail: 'atakankahraman35@outlook.com' },
+          { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com (1,734 screenshots)', searchName: 'kadircagtas_at_gmail.com', count: 1734, displayEmail: 'kadircagtas@gmail.com' }
+        ]);
+      }
+      
+    } catch (err) {
+      console.error(`❌ Error fetching top users:`, err);
+      // Fallback to static users if API fails
+      setTopUsers([
+        { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
+        { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 9999, displayEmail: 'ilahe@dxdglobal.com' },
+        { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com (7,383 screenshots)', searchName: 'gulsummelisa.23_at_gmail.com', count: 7383, displayEmail: 'gulsummelisa.23@gmail.com' },
+        { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 4705, displayEmail: 'begumdamlasen@gmail.com' },
+        { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com (4,082 screenshots)', searchName: 'cagla.shr_at_gmail.com', count: 4082, displayEmail: 'cagla.shr@gmail.com' },
+        { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com (3,680 screenshots)', searchName: 'atakankahraman35_at_outlook.com', count: 3680, displayEmail: 'atakankahraman35@outlook.com' },
+        { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com (1,734 screenshots)', searchName: 'kadircagtas_at_gmail.com', count: 1734, displayEmail: 'kadircagtas@gmail.com' }
+      ]);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  // Load users on component mount
+  useEffect(() => {
+    fetchTopUsers();
+  }, []);
 
   const fetchUserScreenshots = async (searchName, page = 1) => {
     if (!searchName) return;
@@ -186,7 +546,7 @@ const OldScreenshots = () => {
             fontSize: '14px',
             margin: '0 0 16px 0'
           }}>
-            Select a user to view their activity stream
+            {usersLoading ? 'Loading top users...' : 'Select a user to view their activity stream'}
           </p>
         </div>
 
@@ -228,22 +588,32 @@ const OldScreenshots = () => {
           <select 
             value={selectedUser}
             onChange={handleUserChange}
+            disabled={usersLoading}
             style={{
               padding: '8px 12px',
               border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
               borderRadius: '6px',
-              background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+              background: usersLoading 
+                ? (isDarkMode ? '#2d3748' : '#f7fafc') 
+                : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
               fontSize: '14px',
-              color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+              color: usersLoading 
+                ? (isDarkMode ? '#718096' : '#a0aec0')
+                : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
               minWidth: '300px',
-              flex: 1
+              flex: 1,
+              cursor: usersLoading ? 'not-allowed' : 'pointer'
             }}
           >
-            {topUsers.map((user, index) => (
-              <option key={index} value={user.value}>
-                {user.label}
-              </option>
-            ))}
+            {usersLoading ? (
+              <option>Loading users...</option>
+            ) : (
+              topUsers.map((user, index) => (
+                <option key={index} value={user.value}>
+                  {user.label}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
@@ -341,7 +711,14 @@ const OldScreenshots = () => {
                   gap: '16px',
                   marginBottom: '24px'
                 }}>
-                  {screenshots.map((screenshot, index) => (
+                  {screenshots.map((screenshot, index) => {
+                    console.log(`🖼️ Rendering screenshot ${index}:`, {
+                      url: screenshot.screenshot_url,
+                      datetime: screenshot.datetime,
+                      size: screenshot.size_mb
+                    });
+                    
+                    return (
                     <div
                       key={screenshot.full_key || index}
                       style={{
@@ -350,26 +727,102 @@ const OldScreenshots = () => {
                         border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`,
                         overflow: 'hidden',
                         cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        ':hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
+                        transition: 'all 0.2s ease',
+                        transform: 'scale(1)',
                       }}
-                      onClick={() => screenshot.screenshot_url && window.open(screenshot.screenshot_url, '_blank')}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                        e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+                        // Show overlay
+                        const overlay = e.currentTarget.querySelector('[data-overlay]');
+                        if (overlay) overlay.style.opacity = '1';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
+                        // Hide overlay
+                        const overlay = e.currentTarget.querySelector('[data-overlay]');
+                        if (overlay) overlay.style.opacity = '0';
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('🖱️ Screenshot clicked:', index, screenshot.datetime);
+                        openModal(screenshot, index);
+                      }}
                     >
                       <div style={{
                         height: '150px',
-                        background: screenshot.screenshot_url 
-                          ? `url(${screenshot.screenshot_url}) center/cover`
-                          : (isDarkMode ? '#4b5563' : '#f3f4f6'),
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        background: isDarkMode ? '#4b5563' : '#f3f4f6'
                       }}>
-                        {!screenshot.screenshot_url && (
+                        {screenshot.screenshot_url ? (
+                          <>
+                            <img 
+                              src={screenshot.screenshot_url}
+                              alt={`Screenshot from ${screenshot.datetime}`}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                pointerEvents: 'none', // Prevent direct image interaction
+                                display: 'block'
+                              }}
+                              onLoad={(e) => {
+                                console.log('✅ Image loaded successfully:', screenshot.screenshot_url);
+                              }}
+                              onError={(e) => {
+                                console.log('❌ Image failed to load:', screenshot.screenshot_url);
+                                e.target.style.display = 'none';
+                                // Show fallback icon
+                                const fallback = e.target.nextElementSibling;
+                                if (fallback) fallback.style.display = 'flex';
+                              }}
+                            />
+                            <div style={{ 
+                              fontSize: '24px', 
+                              color: '#9ca3af',
+                              display: 'none',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0
+                            }}>📷</div>
+                          </>
+                        ) : (
                           <div style={{ fontSize: '24px', color: '#9ca3af' }}>📷</div>
                         )}
+                        
+                        {/* Click overlay */}
+                        <div 
+                          data-overlay
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'rgba(0, 0, 0, 0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            opacity: 0,
+                            transition: 'opacity 0.2s ease',
+                            color: 'white',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            pointerEvents: 'none'
+                          }}
+                        >
+                          🔍 Click to view
+                        </div>
                       </div>
                       <div style={{ padding: '12px' }}>
                         <div style={{ fontSize: '12px', color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280', marginBottom: '4px' }}>
@@ -380,7 +833,8 @@ const OldScreenshots = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Pagination */}
@@ -491,6 +945,25 @@ const OldScreenshots = () => {
             )}
           </div>
         </div>
+
+        {/* Screenshot Modal */}
+        {console.log('🎭 Rendering modal with props:', { 
+          modalOpen, 
+          hasSelectedScreenshot: !!selectedScreenshot,
+          currentImageIndex,
+          screenshotsLength: screenshots.length 
+        })}
+        <ScreenshotModal
+          screenshot={selectedScreenshot}
+          screenshots={screenshots}
+          currentIndex={currentImageIndex}
+          isOpen={modalOpen}
+          onClose={closeModal}
+          onPrevious={goToPrevious}
+          onNext={goToNext}
+          isDarkMode={isDarkMode}
+          theme={theme}
+        />
       </div>
     </DashboardLayout>
   );
