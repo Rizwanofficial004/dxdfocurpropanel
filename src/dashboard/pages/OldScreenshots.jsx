@@ -369,12 +369,12 @@ const OldScreenshots = () => {
         // Fallback to static users if API fails
         setTopUsers([
           { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
-          { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 9999, displayEmail: 'ilahe@dxdglobal.com' },
-          { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com (7,383 screenshots)', searchName: 'gulsummelisa.23_at_gmail.com', count: 7383, displayEmail: 'gulsummelisa.23@gmail.com' },
-          { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 4705, displayEmail: 'begumdamlasen@gmail.com' },
-          { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com (4,082 screenshots)', searchName: 'cagla.shr_at_gmail.com', count: 4082, displayEmail: 'cagla.shr@gmail.com' },
-          { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com (3,680 screenshots)', searchName: 'atakankahraman35_at_outlook.com', count: 3680, displayEmail: 'atakankahraman35@outlook.com' },
-          { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com (1,734 screenshots)', searchName: 'kadircagtas_at_gmail.com', count: 1734, displayEmail: 'kadircagtas@gmail.com' }
+          { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdlobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
+          { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com', searchName: 'gulsummelisa.23_at_gmail.com', count: 0, displayEmail: 'gulsummelisa.23@gmail.com' },
+          { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
+          { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
+          { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com', searchName: 'atakankahraman35_at_outlook.com', count: 0, displayEmail: 'atakankahraman35@outlook.com' },
+          { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' }
         ]);
       }
       
@@ -383,12 +383,12 @@ const OldScreenshots = () => {
       // Fallback to static users if API fails
       setTopUsers([
         { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
-        { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 9999, displayEmail: 'ilahe@dxdglobal.com' },
-        { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com (7,383 screenshots)', searchName: 'gulsummelisa.23_at_gmail.com', count: 7383, displayEmail: 'gulsummelisa.23@gmail.com' },
-        { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 4705, displayEmail: 'begumdamlasen@gmail.com' },
-        { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com (4,082 screenshots)', searchName: 'cagla.shr_at_gmail.com', count: 4082, displayEmail: 'cagla.shr@gmail.com' },
-        { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com (3,680 screenshots)', searchName: 'atakankahraman35_at_outlook.com', count: 3680, displayEmail: 'atakankahraman35@outlook.com' },
-        { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com (1,734 screenshots)', searchName: 'kadircagtas_at_gmail.com', count: 1734, displayEmail: 'kadircagtas@gmail.com' }
+        { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
+        { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com', searchName: 'gulsummelisa.23_at_gmail.com', count: 0, displayEmail: 'gulsummelisa.23@gmail.com' },
+        { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
+        { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
+        { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com', searchName: 'atakankahraman35_at_outlook.com', count: 0, displayEmail: 'atakankahraman35@outlook.com' },
+        { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' }
       ]);
     } finally {
       setUsersLoading(false);
