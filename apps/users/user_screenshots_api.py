@@ -267,6 +267,7 @@ class UserScreenshotsAPI(APIView):
     def _search_screenshots(self, search_query, page, page_size, start_date='', end_date=''):
         """
         Search for individual screenshots from ALL users with pagination
+        Enhanced to handle large datasets and provide accurate counts
         """
         if not self.s3_client:
             return {
@@ -296,7 +297,19 @@ class UserScreenshotsAPI(APIView):
         
         screenshots = []
         objects_scanned = 0
-        max_objects_per_request = 10000  # Limit to prevent timeouts
+        
+        # For specific user search with date range, search more efficiently  
+        is_specific_user_search = search_query and search_query.strip()
+        is_date_filtered = start_date_obj or end_date_obj
+        
+        # If searching for specific user with date filter, be more efficient
+        if is_specific_user_search and is_date_filtered:
+            logger.info(f"Optimized search for user '{search_query}' with date filter {start_date} to {end_date}")
+            # For specific user searches, we can be more thorough since we're targeting one user
+            max_objects_per_request = 100000  # Much higher limit for specific searches
+        else:
+            # For general searches, use reasonable limit
+            max_objects_per_request = 25000  # Increased from 10k to 25k for better coverage
         
         try:
             # Get all user folders first
@@ -304,30 +317,44 @@ class UserScreenshotsAPI(APIView):
             
             logger.info(f"Searching screenshots for {len(user_folders)} users")
             
-            # If we have a specific user search, prioritize that user
-            if search_query and search_query.strip():
-                # Move matching user folders to the front
+            # If we have a specific user search, filter to only matching users for efficiency
+            if is_specific_user_search:
                 search_lower = search_query.lower().strip()
-                prioritized_folders = []
-                other_folders = []
                 
+                # Handle both email formats: user@domain.com and user_at_domain.com
+                search_normalized = search_lower.replace('@', '_at_')
+                search_email = search_lower.replace('_at_', '@')
+                
+                matching_folders = []
                 for folder in user_folders:
-                    if search_lower in folder.lower():
-                        prioritized_folders.append(folder)
-                    else:
-                        other_folders.append(folder)
+                    folder_lower = folder.lower()
+                    folder_email = folder.replace('_at_', '@').lower()
+                    
+                    if (search_normalized in folder_lower or 
+                        search_email in folder_email or
+                        search_lower == folder_lower or
+                        search_lower == folder_email):
+                        matching_folders.append(folder)
                 
-                user_folders = prioritized_folders + other_folders
-                logger.info(f"Prioritized {len(prioritized_folders)} matching user folders")
+                if matching_folders:
+                    user_folders = matching_folders
+                    logger.info(f"Filtered to {len(user_folders)} matching user folders for efficient search")
+                else:
+                    logger.info(f"No matching user folders found for '{search_query}'")
+                    return {
+                        'screenshots': [],
+                        'total_count': 0,
+                        'objects_scanned': 0
+                    }
             
             # Search in each user folder
             for i, user_folder in enumerate(user_folders):
-                # Log progress every 5 users
-                if i % 5 == 0:
+                # Log progress every 5 users for general search, every user for specific search
+                if (is_specific_user_search) or (i % 5 == 0):
                     logger.info(f"Processing user {i+1}/{len(user_folders)}: {user_folder}")
                 
-                # Stop if we've scanned too many objects to prevent timeout
-                if objects_scanned >= max_objects_per_request:
+                # For specific user searches, don't apply object limit too early
+                if not is_specific_user_search and objects_scanned >= max_objects_per_request:
                     logger.info(f"Reached max objects limit ({max_objects_per_request}), stopping search")
                     break
                 
@@ -337,6 +364,7 @@ class UserScreenshotsAPI(APIView):
                     
                     paginator = self.s3_client.get_paginator('list_objects_v2')
                     
+                    user_screenshot_count = 0
                     for page_iterator in paginator.paginate(
                         Bucket=bucket_name,
                         Prefix=prefix,
@@ -348,8 +376,8 @@ class UserScreenshotsAPI(APIView):
                         for obj in page_iterator['Contents']:
                             objects_scanned += 1
                             
-                            # Stop if we've scanned too many objects
-                            if objects_scanned >= max_objects_per_request:
+                            # For non-specific searches, apply limit
+                            if not is_specific_user_search and objects_scanned >= max_objects_per_request:
                                 logger.info(f"Reached max objects limit, stopping at user {user_folder}")
                                 break
                                 
@@ -371,17 +399,22 @@ class UserScreenshotsAPI(APIView):
                                 # Add user email to screenshot info
                                 screenshot_info['user_email'] = self._extract_user_email_from_folder(user_folder)
                                 screenshots.append(screenshot_info)
+                                user_screenshot_count += 1
                         
-                        # Break from paginator if we hit the limit
-                        if objects_scanned >= max_objects_per_request:
+                        # Break from paginator if we hit the limit (only for non-specific searches)
+                        if not is_specific_user_search and objects_scanned >= max_objects_per_request:
                             break
+                    
+                    # Log user results for specific searches
+                    if is_specific_user_search and user_screenshot_count > 0:
+                        logger.info(f"Found {user_screenshot_count} matching screenshots for user {user_folder}")
                                 
                 except Exception as e:
                     logger.error(f"Error searching in user folder {user_folder}: {str(e)}")
                     continue
                     
-                # Break from user loop if we hit the limit
-                if objects_scanned >= max_objects_per_request:
+                # Break from user loop if we hit the limit (only for non-specific searches)
+                if not is_specific_user_search and objects_scanned >= max_objects_per_request:
                     break
         
         except Exception as e:
@@ -393,6 +426,10 @@ class UserScreenshotsAPI(APIView):
             }
         
         logger.info(f"Search completed. Found {len(screenshots)} screenshots after scanning {objects_scanned} objects")
+        
+        # If this was a specific user search and we have date filters, provide more details
+        if is_specific_user_search and is_date_filtered:
+            logger.info(f"Specific user search for '{search_query}' from {start_date} to {end_date}: {len(screenshots)} screenshots found")
         
         # Sort screenshots by datetime (newest first)
         screenshots.sort(key=lambda x: x.get('datetime', ''), reverse=True)
