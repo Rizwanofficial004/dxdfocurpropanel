@@ -374,7 +374,10 @@ const OldScreenshots = () => {
           { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
           { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
           { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com', searchName: 'atakankahraman35_at_outlook.com', count: 0, displayEmail: 'atakankahraman35@outlook.com' },
-          { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' }
+          { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' },
+          { value: 'mohsinabbass688630@gmail.com', label: 'mohsinabbass688630@gmail.com', searchName: 'mohsinabbass688630_at_gmail.com', count: 0, displayEmail: 'mohsinabbass688630@gmail.com' },
+          { value: 'yunussemrekatirci@gmail.com', label: 'yunussemrekatirci@gmail.com', searchName: 'yunussemrekatirci_at_gmail.com', count: 0, displayEmail: 'yunussemrekatirci@gmail.com' },
+          { value: 'rignimeyikur02@gmail.com', label: 'rignimeyikur02@gmail.com', searchName: 'rignimeyikur02_at_gmail.com', count: 0, displayEmail: 'rignimeyikur02@gmail.com' }
         ]);
       }
       
@@ -388,7 +391,10 @@ const OldScreenshots = () => {
         { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
         { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
         { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com', searchName: 'atakankahraman35_at_outlook.com', count: 0, displayEmail: 'atakankahraman35@outlook.com' },
-        { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' }
+        { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' },
+        { value: 'mohsinabbass688630@gmail.com', label: 'mohsinabbass688630@gmail.com', searchName: 'mohsinabbass688630_at_gmail.com', count: 0, displayEmail: 'mohsinabbass688630@gmail.com' },
+        { value: 'yunussemrekatirci@gmail.com', label: 'yunussemrekatirci@gmail.com', searchName: 'yunussemrekatirci_at_gmail.com', count: 0, displayEmail: 'yunussemrekatirci@gmail.com' },
+        { value: 'rignimeyikur02@gmail.com', label: 'rignimeyikur02@gmail.com', searchName: 'rignimeyikur02_at_gmail.com', count: 0, displayEmail: 'rignimeyikur02@gmail.com' }
       ]);
     } finally {
       setUsersLoading(false);
@@ -851,126 +857,6 @@ const OldScreenshots = () => {
                 ))
               )}
             </select>
-          </div>
-
-          {/* Day Selection Grid - Similar to the image */}
-          <div style={{
-            background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
-            borderRadius: '8px',
-            border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`,
-            padding: '16px',
-            marginBottom: '16px'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '12px'
-            }}>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: '600',
-                color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#1f2937'
-              }}>
-                Search Employee
-              </div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <button style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280'
-                }}>
-                  ←
-                </button>
-                <button style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280'
-                }}>
-                  →
-                </button>
-              </div>
-            </div>
-            
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))',
-              gap: '8px',
-              maxHeight: '200px',
-              overflowY: 'auto'
-            }}>
-              {generateDateButtons().map((dateBtn) => (
-                <button
-                  key={dateBtn.day}
-                  onClick={() => !dateBtn.isFuture && handleDaySelect(dateBtn.day)}
-                  disabled={dateBtn.isFuture}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    padding: '8px 4px',
-                    border: `1px solid ${
-                      dateBtn.isSelected 
-                        ? '#3b82f6' 
-                        : dateBtn.isToday 
-                          ? '#10b981' 
-                          : (isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb')
-                    }`,
-                    borderRadius: '6px',
-                    background: dateBtn.isSelected
-                      ? '#3b82f6'
-                      : dateBtn.isToday
-                        ? '#ecfdf5'
-                        : dateBtn.isFuture
-                          ? (isDarkMode ? '#2d3748' : '#f9fafb')
-                          : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
-                    color: dateBtn.isSelected
-                      ? 'white'
-                      : dateBtn.isToday
-                        ? '#059669'
-                        : dateBtn.isFuture
-                          ? (isDarkMode ? '#4a5568' : '#9ca3af')
-                          : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
-                    cursor: dateBtn.isFuture ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: dateBtn.isSelected || dateBtn.isToday ? '600' : '400',
-                    opacity: dateBtn.isFuture ? 0.5 : 1,
-                    transition: 'all 0.2s ease',
-                    minHeight: '50px'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!dateBtn.isFuture && !dateBtn.isSelected) {
-                      e.target.style.background = isDarkMode ? '#4b5563' : '#f3f4f6';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!dateBtn.isFuture && !dateBtn.isSelected) {
-                      e.target.style.background = dateBtn.isToday 
-                        ? '#ecfdf5' 
-                        : (isDarkMode ? theme.colors?.surface || '#374151' : 'white');
-                    }
-                  }}
-                >
-                  <div style={{ fontSize: '14px', fontWeight: '600' }}>
-                    {dateBtn.dayNum.toString().padStart(2, '0')}
-                  </div>
-                  <div style={{ fontSize: '10px', opacity: 0.8 }}>
-                    {getMonthName(selectedMonth)}
-                  </div>
-                  <div style={{ fontSize: '10px', opacity: 0.6 }}>
-                    {selectedYear}
-                  </div>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
