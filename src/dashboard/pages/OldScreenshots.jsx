@@ -263,6 +263,15 @@ const OldScreenshots = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   
+  // Date filtering state
+  const [startDate, setStartDate] = useState('2025-08-01');
+  const [endDate, setEndDate] = useState('2025-08-31');
+  const [selectedYear, setSelectedYear] = useState('2025');
+  const [selectedMonth, setSelectedMonth] = useState('08');
+  const [selectedDay, setSelectedDay] = useState('01');
+  const [dateSelectionMode, setDateSelectionMode] = useState('month'); // 'month' or 'day'
+  const [searchPerformance, setSearchPerformance] = useState(null);
+  
   // Users state
   const [topUsers, setTopUsers] = useState([
     { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' }
@@ -273,11 +282,17 @@ const OldScreenshots = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(50); // Dynamic page size - default 50
   
   // Debug modal state changes
   useEffect(() => {
     console.log('🎭 Modal state changed:', { modalOpen, hasSelectedScreenshot: !!selectedScreenshot, currentImageIndex });
   }, [modalOpen, selectedScreenshot, currentImageIndex]);
+
+  // Debug page size changes
+  useEffect(() => {
+    console.log('📏 PageSize state updated to:', pageSize);
+  }, [pageSize]);
   
   // Modal functions
   const openModal = (screenshot, index) => {
@@ -385,59 +400,103 @@ const OldScreenshots = () => {
     fetchTopUsers();
   }, []);
 
-  const fetchUserScreenshots = async (searchName, page = 1) => {
+  const fetchUserScreenshots = async (searchName, page = 1, startDate = '2025-08-01', endDate = '2025-08-31') => {
+    return fetchUserScreenshotsWithPageSize(searchName, page, startDate, endDate, pageSize);
+  };
+
+  const fetchUserScreenshotsWithPageSize = async (searchName, page = 1, startDate = '2025-08-01', endDate = '2025-08-31', customPageSize = null) => {
     if (!searchName) return;
+    
+    const actualPageSize = customPageSize || pageSize;
     
     setLoading(true);
     setError(null);
     
     try {
-      // Use proxy to avoid CORS issues
-      const baseUrl = '/api/users/screenshots/';
+      // Use the new API endpoint with date filtering and increased timeout
+      const baseUrl = 'https://dxdtime.ddsolutions.io/api/users/screenshots/';
       const params = new URLSearchParams({
         q: searchName,
+        start_date: startDate,
+        end_date: endDate,
         page: page,
-        page_size: 12 // Show 12 screenshots per page
+        page_size: actualPageSize // Use the passed page size or current state
       });
       
       const fullUrl = `${baseUrl}?${params}`;
-      console.log('🔍 Fetching screenshots via proxy:', fullUrl);
-      console.log('📊 Search parameters:', { searchName, page, pageSize: 12 });
+      console.log('🔍 Fetching screenshots from new API:', fullUrl);
+      console.log('📊 Search parameters:', { searchName, startDate, endDate, page, pageSize: actualPageSize });
+      console.log('📏 Using pageSize:', actualPageSize, 'Type:', typeof actualPageSize);
+      console.log('🎯 EXPECTING TO RECEIVE:', actualPageSize, 'screenshots');
       
-      const response = await fetch(fullUrl);
+      // Increased timeout for large data sets
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
+      const response = await fetch(fullUrl, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('✅ API Response:', data);
+      console.log('✅ New API Response:', data);
       
       if (data.status === 'success' && data.data) {
         const screenshots = Array.isArray(data.data.screenshots) ? data.data.screenshots : [];
         const totalCount = data.data.total_count || 0;
-        const totalPages = Math.ceil(totalCount / 12);
+        const pagination = data.data.pagination || {};
+        const totalPages = pagination.total_pages || Math.ceil(totalCount / actualPageSize);
         
         console.log(`📸 Found ${totalCount} total screenshots, showing page ${page} of ${totalPages}`);
         console.log(`🖼️ Screenshots on this page: ${screenshots.length}`);
+        console.log(`⚡ Search performance:`, data.data.search_performance);
         
         setScreenshots(screenshots);
         setTotalCount(totalCount);
         setTotalPages(totalPages);
         setCurrentPage(page);
+        setSearchPerformance(data.data.search_performance || null);
+        
+        console.log('✅ Page Size Verification:', {
+          requested_pageSize: actualPageSize,
+          actual_screenshots_received: screenshots.length,
+          total_available: totalCount,
+          current_page: page,
+          total_pages: totalPages,
+          match: actualPageSize === screenshots.length || screenshots.length < actualPageSize,
+          SUCCESS: screenshots.length === actualPageSize ? 'YES - Got exactly what was requested!' : 
+                   screenshots.length < actualPageSize ? `PARTIAL - Only ${screenshots.length} available (less than ${actualPageSize} requested)` :
+                   'ERROR - Got more than requested'
+        });
       } else {
         console.log('❌ Invalid API response structure:', data);
         setScreenshots([]);
         setTotalCount(0);
         setTotalPages(0);
+        setSearchPerformance(null);
       }
       
     } catch (err) {
-      console.error(`❌ Error fetching screenshots:`, err);
-      setError(`Failed to load screenshots: ${err.message}`);
+      if (err.name === 'AbortError') {
+        console.error(`⏰ Request timeout after 60 seconds for ${searchName}`);
+        setError(`Request timeout - The search is taking too long. Please try a smaller date range or try again later.`);
+      } else {
+        console.error(`❌ Error fetching screenshots:`, err);
+        setError(`Failed to load screenshots: ${err.message}`);
+      }
       setScreenshots([]);
       setTotalCount(0);
       setTotalPages(0);
+      setSearchPerformance(null);
     } finally {
       setLoading(false);
     }
@@ -451,13 +510,14 @@ const OldScreenshots = () => {
       const user = topUsers.find(u => u.value === userEmail);
       if (user && user.searchName) {
         setCurrentPage(1);
-        fetchUserScreenshots(user.searchName, 1);
+        fetchUserScreenshots(user.searchName, 1, startDate, endDate);
       }
     } else {
       setScreenshots([]);
       setCurrentPage(1);
       setTotalPages(0);
       setTotalCount(0);
+      setSearchPerformance(null);
     }
   };
 
@@ -465,9 +525,117 @@ const OldScreenshots = () => {
     if (selectedUser) {
       const user = topUsers.find(u => u.value === selectedUser);
       if (user && user.searchName) {
-        fetchUserScreenshots(user.searchName, page);
+        fetchUserScreenshots(user.searchName, page, startDate, endDate);
       }
     }
+  };
+
+  const handlePageSizeChange = (event) => {
+    const newPageSize = parseInt(event.target.value);
+    console.log('📏 Page size changing from', pageSize, 'to', newPageSize);
+    
+    // Update state first
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+    
+    // Use the new page size directly in the API call instead of relying on state
+    if (selectedUser) {
+      const user = topUsers.find(u => u.value === selectedUser);
+      if (user && user.searchName) {
+        console.log('🔄 Fetching screenshots with new page size:', newPageSize);
+        // Call fetchUserScreenshots with the new page size directly
+        fetchUserScreenshotsWithPageSize(user.searchName, 1, startDate, endDate, newPageSize);
+      }
+    }
+  };
+
+  const handleYearChange = (event) => {
+    const year = event.target.value;
+    setSelectedYear(year);
+    updateDateRange(year, selectedMonth);
+  };
+
+  const handleMonthChange = (event) => {
+    const month = event.target.value;
+    setSelectedMonth(month);
+    updateDateRange(selectedYear, month);
+  };
+
+  const updateDateRange = (year, month, day = null) => {
+    let newStartDate, newEndDate;
+    
+    if (dateSelectionMode === 'day' && day) {
+      // Single day selection
+      newStartDate = `${year}-${month}-${day}`;
+      newEndDate = `${year}-${month}-${day}`;
+    } else {
+      // Full month selection
+      const daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+      newStartDate = `${year}-${month}-01`;
+      newEndDate = `${year}-${month}-${daysInMonth.toString().padStart(2, '0')}`;
+    }
+    
+    setStartDate(newStartDate);
+    setEndDate(newEndDate);
+    
+    // If user is selected, refresh data with new date range
+    if (selectedUser) {
+      const user = topUsers.find(u => u.value === selectedUser);
+      if (user && user.searchName) {
+        setCurrentPage(1);
+        fetchUserScreenshots(user.searchName, 1, newStartDate, newEndDate);
+      }
+    }
+  };
+
+  const handleDaySelect = (day) => {
+    setSelectedDay(day);
+    setDateSelectionMode('day');
+    updateDateRange(selectedYear, selectedMonth, day);
+  };
+
+  const handleMonthModeToggle = () => {
+    setDateSelectionMode('month');
+    updateDateRange(selectedYear, selectedMonth);
+  };
+
+  const getMonthName = (monthNum) => {
+    const months = {
+      '01': 'JAN', '02': 'FEB', '03': 'MAR', '04': 'APR',
+      '05': 'MAY', '06': 'JUN', '07': 'JUL', '08': 'AUG',
+      '09': 'SEP', '10': 'OCT', '11': 'NOV', '12': 'DEC'
+    };
+    return months[monthNum] || monthNum;
+  };
+
+  const generateDateButtons = () => {
+    const year = parseInt(selectedYear);
+    const month = parseInt(selectedMonth);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDay = today.getDate();
+    
+    const buttons = [];
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayStr = day.toString().padStart(2, '0');
+      const isToday = year === currentYear && month === currentMonth && day === currentDay;
+      const isFuture = year > currentYear || 
+                      (year === currentYear && month > currentMonth) ||
+                      (year === currentYear && month === currentMonth && day > currentDay);
+      
+      buttons.push({
+        day: dayStr,
+        dayNum: day,
+        isToday,
+        isFuture,
+        isSelected: dayStr === selectedDay
+      });
+    }
+    
+    return buttons;
   };
 
   const getInitials = (email) => {
@@ -489,16 +657,18 @@ const OldScreenshots = () => {
   };
 
   const testAllUsers = async () => {
-    console.log('🧪 Testing all 6 users via proxy...');
+    console.log('🧪 Testing all users with new date-filtered API...');
+    console.log(`📅 Date range: ${startDate} to ${endDate}`);
     
     for (const user of topUsers.slice(1)) { // Skip the first empty option
       console.log(`\n🔍 Testing user: ${user.displayEmail} (${user.searchName})`);
       
       try {
-        // Use proxy to avoid CORS issues
-        const baseUrl = '/api/users/screenshots/';
+        const baseUrl = 'https://dxdtime.ddsolutions.io/api/users/screenshots/';
         const params = new URLSearchParams({
           q: user.searchName,
+          start_date: startDate,
+          end_date: endDate,
           page: 1,
           page_size: 5 // Just get a few for testing
         });
@@ -507,7 +677,14 @@ const OldScreenshots = () => {
         const data = await response.json();
         
         if (data.status === 'success' && data.data) {
-          console.log(`✅ ${user.displayEmail}: ${data.data.total_count} screenshots found`);
+          const totalCount = data.data.total_count || 0;
+          const searchTime = data.data.search_performance?.search_time_ms || 0;
+          const objectsScanned = data.data.search_performance?.objects_scanned || 0;
+          
+          console.log(`✅ ${user.displayEmail}:`);
+          console.log(`   📸 Screenshots: ${totalCount.toLocaleString()}`);
+          console.log(`   ⏱️ Search time: ${searchTime}ms`);
+          console.log(`   🔍 Objects scanned: ${objectsScanned.toLocaleString()}`);
         } else {
           console.log(`❌ ${user.displayEmail}: No data returned`, data);
         }
@@ -516,7 +693,7 @@ const OldScreenshots = () => {
       }
       
       // Small delay between requests
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
     
     console.log('\n✅ User testing completed! Check console for results.');
@@ -539,82 +716,262 @@ const OldScreenshots = () => {
             color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#1e293b',
             margin: '0 0 8px 0'
           }}>
-            Top Users Screenshots (August 2025)
+            User Screenshots ({dateSelectionMode === 'day' ? `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}` : `${getMonthName(selectedMonth)} ${selectedYear}`})
           </h1>
           <p style={{ 
             color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#64748b', 
             fontSize: '14px',
             margin: '0 0 16px 0'
           }}>
-            {usersLoading ? 'Loading top users...' : 'Select a user to view their activity stream'}
+            {usersLoading ? 'Loading top users...' : 
+              dateSelectionMode === 'day' 
+                ? `Select a user to view their screenshots from ${startDate}`
+                : `Select a user to view their screenshots from ${startDate} to ${endDate}`
+            }
           </p>
         </div>
 
         {/* Controls */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '16px', 
-          marginBottom: '24px',
-          alignItems: 'center',
-          flexWrap: 'wrap'
-        }}>
-          {/* Year Dropdown */}
-          <select style={{
-            padding: '8px 12px',
-            border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
-            borderRadius: '6px',
-            background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
-            fontSize: '14px',
-            color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
-            minWidth: '80px'
+        <div style={{ marginBottom: '24px' }}>
+          {/* Month/Year Controls */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '16px', 
+            marginBottom: '16px',
+            alignItems: 'center',
+            flexWrap: 'wrap'
           }}>
-            <option>2025</option>
-          </select>
+            {/* Year Dropdown */}
+            <select 
+              value={selectedYear}
+              onChange={handleYearChange}
+              style={{
+                padding: '8px 12px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
+                borderRadius: '6px',
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                fontSize: '14px',
+                color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+                minWidth: '80px',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+            </select>
 
-          {/* Month Dropdown */}
-          <select style={{
-            padding: '8px 12px',
-            border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
-            borderRadius: '6px',
-            background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
-            fontSize: '14px',
-            color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
-            minWidth: '80px'
-          }}>
-            <option>AUG</option>
-          </select>
+            {/* Month Dropdown */}
+            <select 
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              style={{
+                padding: '8px 12px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
+                borderRadius: '6px',
+                background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                fontSize: '14px',
+                color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+                minWidth: '100px',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="01">JAN</option>
+              <option value="02">FEB</option>
+              <option value="03">MAR</option>
+              <option value="04">APR</option>
+              <option value="05">MAY</option>
+              <option value="06">JUN</option>
+              <option value="07">JUL</option>
+              <option value="08">AUG</option>
+              <option value="09">SEP</option>
+              <option value="10">OCT</option>
+              <option value="11">NOV</option>
+              <option value="12">DEC</option>
+            </select>
 
-          {/* User Dropdown */}
-          <select 
-            value={selectedUser}
-            onChange={handleUserChange}
-            disabled={usersLoading}
-            style={{
+            {/* Mode Toggle */}
+            <button
+              onClick={handleMonthModeToggle}
+              style={{
+                padding: '8px 16px',
+                border: `1px solid ${dateSelectionMode === 'month' ? '#3b82f6' : (isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db')}`,
+                borderRadius: '6px',
+                background: dateSelectionMode === 'month' ? '#3b82f6' : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
+                color: dateSelectionMode === 'month' ? 'white' : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
+                fontSize: '12px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              Full Month
+            </button>
+
+            {/* Date Range Display */}
+            <div style={{
               padding: '8px 12px',
-              border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
+              background: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+              border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
               borderRadius: '6px',
-              background: usersLoading 
-                ? (isDarkMode ? '#2d3748' : '#f7fafc') 
-                : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
-              fontSize: '14px',
-              color: usersLoading 
-                ? (isDarkMode ? '#718096' : '#a0aec0')
-                : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
-              minWidth: '300px',
-              flex: 1,
-              cursor: usersLoading ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {usersLoading ? (
-              <option>Loading users...</option>
-            ) : (
-              topUsers.map((user, index) => (
-                <option key={index} value={user.value}>
-                  {user.label}
-                </option>
-              ))
-            )}
-          </select>
+              fontSize: '12px',
+              color: isDarkMode ? '#93c5fd' : '#2563eb',
+              fontFamily: 'monospace'
+            }}>
+              📅 {startDate} {startDate !== endDate ? `→ ${endDate}` : ''}
+            </div>
+
+            {/* User Dropdown */}
+            <select 
+              value={selectedUser}
+              onChange={handleUserChange}
+              disabled={usersLoading}
+              style={{
+                padding: '8px 12px',
+                border: `1px solid ${isDarkMode ? theme.colors?.border || '#374151' : '#d1d5db'}`,
+                borderRadius: '6px',
+                background: usersLoading 
+                  ? (isDarkMode ? '#2d3748' : '#f7fafc') 
+                  : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
+                fontSize: '14px',
+                color: usersLoading 
+                  ? (isDarkMode ? '#718096' : '#a0aec0')
+                  : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
+                minWidth: '300px',
+                flex: 1,
+                cursor: usersLoading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {usersLoading ? (
+                <option>Loading users...</option>
+              ) : (
+                topUsers.map((user, index) => (
+                  <option key={index} value={user.value}>
+                    {user.label}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+
+          {/* Day Selection Grid - Similar to the image */}
+          <div style={{
+            background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+            borderRadius: '8px',
+            border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`,
+            padding: '16px',
+            marginBottom: '16px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '12px'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#1f2937'
+              }}>
+                Search Employee
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <button style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280'
+                }}>
+                  ←
+                </button>
+                <button style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280'
+                }}>
+                  →
+                </button>
+              </div>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))',
+              gap: '8px',
+              maxHeight: '200px',
+              overflowY: 'auto'
+            }}>
+              {generateDateButtons().map((dateBtn) => (
+                <button
+                  key={dateBtn.day}
+                  onClick={() => !dateBtn.isFuture && handleDaySelect(dateBtn.day)}
+                  disabled={dateBtn.isFuture}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: '8px 4px',
+                    border: `1px solid ${
+                      dateBtn.isSelected 
+                        ? '#3b82f6' 
+                        : dateBtn.isToday 
+                          ? '#10b981' 
+                          : (isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb')
+                    }`,
+                    borderRadius: '6px',
+                    background: dateBtn.isSelected
+                      ? '#3b82f6'
+                      : dateBtn.isToday
+                        ? '#ecfdf5'
+                        : dateBtn.isFuture
+                          ? (isDarkMode ? '#2d3748' : '#f9fafb')
+                          : (isDarkMode ? theme.colors?.surface || '#374151' : 'white'),
+                    color: dateBtn.isSelected
+                      ? 'white'
+                      : dateBtn.isToday
+                        ? '#059669'
+                        : dateBtn.isFuture
+                          ? (isDarkMode ? '#4a5568' : '#9ca3af')
+                          : (isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'),
+                    cursor: dateBtn.isFuture ? 'not-allowed' : 'pointer',
+                    fontSize: '12px',
+                    fontWeight: dateBtn.isSelected || dateBtn.isToday ? '600' : '400',
+                    opacity: dateBtn.isFuture ? 0.5 : 1,
+                    transition: 'all 0.2s ease',
+                    minHeight: '50px'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!dateBtn.isFuture && !dateBtn.isSelected) {
+                      e.target.style.background = isDarkMode ? '#4b5563' : '#f3f4f6';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!dateBtn.isFuture && !dateBtn.isSelected) {
+                      e.target.style.background = dateBtn.isToday 
+                        ? '#ecfdf5' 
+                        : (isDarkMode ? theme.colors?.surface || '#374151' : 'white');
+                    }
+                  }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                    {dateBtn.dayNum.toString().padStart(2, '0')}
+                  </div>
+                  <div style={{ fontSize: '10px', opacity: 0.8 }}>
+                    {getMonthName(selectedMonth)}
+                  </div>
+                  <div style={{ fontSize: '10px', opacity: 0.6 }}>
+                    {selectedYear}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Content Area */}
@@ -660,11 +1017,46 @@ const OldScreenshots = () => {
                   textAlign: 'center',
                   padding: '12px 0'
                 }}>
-                  Found {totalCount} screenshot(s) for August 2025
+                  Found {totalCount.toLocaleString()} screenshot(s) 
                   <br />
-                  {selectedUser && 'Select to view their activity stream'}
+                  for {dateSelectionMode === 'day' ? `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}` : `${getMonthName(selectedMonth)} ${selectedYear}`}
+                  <br />
+                  <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                    ({dateSelectionMode === 'day' ? startDate : `${startDate} to ${endDate}`})
+                  </span>
                 </div>
               </div>
+              
+              {/* Search Performance Indicator */}
+              {searchPerformance && (
+                <div style={{
+                  background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
+                  borderRadius: '8px',
+                  border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`,
+                  padding: '12px',
+                  marginTop: '12px'
+                }}>
+                  <div style={{ 
+                    fontSize: '11px', 
+                    fontWeight: '600', 
+                    color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#1f2937',
+                    marginBottom: '8px'
+                  }}>
+                    🚀 Search Performance
+                  </div>
+                  <div style={{ 
+                    fontSize: '10px', 
+                    color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280',
+                    lineHeight: '1.4'
+                  }}>
+                    ⏱️ {searchPerformance.search_time_ms}ms
+                    <br />
+                    🔍 {searchPerformance.objects_scanned?.toLocaleString()} objects scanned
+                    <br />
+                    📷 {searchPerformance.screenshots_found?.toLocaleString()} screenshots found
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -698,7 +1090,13 @@ const OldScreenshots = () => {
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
                 <h3 style={{ color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151' }}>Loading Screenshots...</h3>
-                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>Fetching August 2025 data</p>
+                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>
+                  Fetching {dateSelectionMode === 'day' ? `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}` : `${getMonthName(selectedMonth)} ${selectedYear}`} data from S3
+                  <br />
+                  <span style={{ fontSize: '12px', marginTop: '8px', display: 'block' }}>
+                    Large datasets may take up to 60 seconds to load
+                  </span>
+                </p>
               </div>
             )}
 
@@ -712,7 +1110,7 @@ const OldScreenshots = () => {
                   marginBottom: '24px'
                 }}>
                   {screenshots.map((screenshot, index) => {
-                    console.log(`🖼️ Rendering screenshot ${index}:`, {
+                    console.log(`🖼️ Rendering screenshot ${index + 1}/${screenshots.length}:`, {
                       url: screenshot.screenshot_url,
                       datetime: screenshot.datetime,
                       size: screenshot.size_mb
@@ -836,6 +1234,64 @@ const OldScreenshots = () => {
                     );
                   })}
                 </div>
+                {/* Log final rendering confirmation */}
+                {console.log(`🎨 FINAL RENDERING COMPLETE: ${screenshots.length} screenshots displayed on page ${currentPage} (requested: ${pageSize}, actual pageSize used: ${pageSize})`)}
+
+                {/* Page Size Selector and Pagination Info */}
+                {screenshots.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginTop: '20px',
+                    padding: '16px',
+                    background: isDarkMode ? theme.colors?.surface || '#374151' : '#f9fafb',
+                    borderRadius: '8px',
+                    border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#e5e7eb'}`
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      <label style={{
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151'
+                      }}>
+                        Screenshots per page:
+                      </label>
+                      <select
+                        value={pageSize}
+                        onChange={handlePageSizeChange}
+                        style={{
+                          padding: '6px 12px',
+                          border: `1px solid ${isDarkMode ? theme.colors?.border || '#4b5563' : '#d1d5db'}`,
+                          borderRadius: '6px',
+                          background: isDarkMode ? theme.colors?.background || '#1f2937' : 'white',
+                          color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151',
+                          fontSize: '14px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value={50}>50 per page</option>
+                        <option value={100}>100 per page</option>
+                        <option value={200}>200 per page</option>
+                        <option value={250}>250 per page</option>
+                        <option value={350}>350 per page</option>
+                        <option value={450}>450 per page</option>
+                        <option value={500}>500 per page</option>
+                      </select>
+                    </div>
+                    
+                    <div style={{
+                      fontSize: '14px',
+                      color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280'
+                    }}>
+                      Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} screenshots
+                    </div>
+                  </div>
+                )}
 
                 {/* Pagination */}
                 {totalPages > 1 && (
@@ -925,7 +1381,13 @@ const OldScreenshots = () => {
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
                 <h3 style={{ color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151' }}>No Screenshots Found</h3>
-                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>No screenshots available for this user in August 2025</p>
+                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>
+                  No screenshots available for this user on {dateSelectionMode === 'day' ? `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}` : `${getMonthName(selectedMonth)} ${selectedYear}`}
+                  <br />
+                  <span style={{ fontSize: '12px', marginTop: '8px', display: 'block' }}>
+                    Date range: {dateSelectionMode === 'day' ? startDate : `${startDate} to ${endDate}`}
+                  </span>
+                </p>
               </div>
             )}
 
@@ -940,7 +1402,13 @@ const OldScreenshots = () => {
               }}>
                 <div style={{ fontSize: '64px', marginBottom: '24px' }}>👥</div>
                 <h3 style={{ color: isDarkMode ? theme.colors?.text?.primary || '#ffffff' : '#374151', marginBottom: '8px' }}>Select a User</h3>
-                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>Choose a user from the dropdown to view their August 2025 screenshots</p>
+                <p style={{ color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280' }}>
+                  Choose a user from the dropdown to view their {dateSelectionMode === 'day' ? `${selectedDay} ${getMonthName(selectedMonth)} ${selectedYear}` : `${getMonthName(selectedMonth)} ${selectedYear}`} screenshots
+                  <br />
+                  <span style={{ fontSize: '12px', marginTop: '8px', display: 'block' }}>
+                    Current range: {dateSelectionMode === 'day' ? startDate : `${startDate} to ${endDate}`}
+                  </span>
+                </p>
               </div>
             )}
           </div>
