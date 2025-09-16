@@ -9780,3 +9780,56 @@ INFO 2025-09-14 00:27:06,112 middleware 21368 22424 Request: POST /api/auth/logi
 INFO 2025-09-14 00:27:07,754 views 21368 22424 Login attempt: User=abcdde, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.46.0
 INFO 2025-09-14 00:27:07,755 middleware 21368 22424 Response: 200 for POST /api/auth/login/
 INFO 2025-09-14 00:27:07,755 basehttp 21368 22424 "POST /api/auth/login/ HTTP/1.1" 200 771
+INFO 2025-09-16 14:42:49,764 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:42:49,788 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:42:49,789 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:42:49,789 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:42:54,675 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:42:54,681 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:42:54,682 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:42:54,682 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:42:55,741 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:42:55,748 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:42:55,749 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:42:55,749 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:42:56,611 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:42:56,616 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:42:56,616 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:42:56,617 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:42:57,121 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:42:57,128 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:42:57,128 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:42:57,129 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:42:59,083 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:42:59,089 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:42:59,090 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:42:59,090 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:43:13,759 middleware 20848 20200 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:43:13,766 middleware 20848 20200 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:43:13,766 log 20848 20200 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:43:13,767 basehttp 20848 20200 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:44:32,737 middleware 20304 10924 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:44:32,747 middleware 20304 10924 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:44:32,748 log 20304 10924 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:44:32,748 basehttp 20304 10924 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:46:44,195 middleware 20304 29076 Request: GET /api/users/screenshots/
+INFO 2025-09-16 14:46:44,201 middleware 20304 29076 Response: 404 for GET /api/users/screenshots/
+WARNING 2025-09-16 14:46:44,202 log 20304 29076 Not Found: /api/users/screenshots/
+WARNING 2025-09-16 14:46:44,202 basehttp 20304 29076 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 404 32988
+INFO 2025-09-16 14:55:45,575 user_screenshots_api 16828 32076 S3 client initialized successfully for user screenshots API
+INFO 2025-09-16 14:55:45,575 user_screenshots_api 16828 32076 UserScreenshots API - Query: kadircagtas_at_gmail.com, Date range: 2025-08-01 to 2025-08-31, Page: 1, Page size: 10
+INFO 2025-09-16 15:00:42,683 middleware 22116 12016 Request: GET /api/users/screenshots/
+INFO 2025-09-16 15:00:42,874 user_screenshots_api 22116 12016 S3 client initialized successfully for user screenshots API
+INFO 2025-09-16 15:00:42,874 user_screenshots_api 22116 12016 UserScreenshots API - Query: kadircagtas_at_gmail.com, Date range: 2025-08-01 to 2025-08-31, Page: 1, Page size: 250
+INFO 2025-09-16 15:00:51,572 middleware 22116 12016 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-16 15:00:51,574 basehttp 22116 12016 "GET /api/users/screenshots/?q=kadircagtas_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 200 195417
+INFO 2025-09-16 15:01:27,462 middleware 22116 12016 Request: GET /api/users/screenshots/
+INFO 2025-09-16 15:01:27,466 user_screenshots_api 22116 12016 S3 client initialized successfully for user screenshots API
+INFO 2025-09-16 15:01:27,467 user_screenshots_api 22116 12016 UserScreenshots API - Query: ilahe.avci2004_at_gmail.com, Date range: 2025-08-01 to 2025-08-31, Page: 1, Page size: 250
+INFO 2025-09-16 15:01:41,991 middleware 22116 12016 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-16 15:01:41,992 basehttp 22116 12016 "GET /api/users/screenshots/?q=ilahe.avci2004_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 200 207175
+INFO 2025-09-16 15:02:13,862 middleware 22116 12016 Request: GET /api/users/screenshots/
+INFO 2025-09-16 15:02:13,867 user_screenshots_api 22116 12016 S3 client initialized successfully for user screenshots API
+INFO 2025-09-16 15:02:13,868 user_screenshots_api 22116 12016 UserScreenshots API - Query: ilahe_at_dxdglobal.com, Date range: 2025-08-01 to 2025-08-31, Page: 1, Page size: 250
+INFO 2025-09-16 15:02:31,057 middleware 22116 12016 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-16 15:02:31,058 basehttp 22116 12016 "GET /api/users/screenshots/?q=ilahe_at_dxdglobal.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=250 HTTP/1.1" 200 210911
