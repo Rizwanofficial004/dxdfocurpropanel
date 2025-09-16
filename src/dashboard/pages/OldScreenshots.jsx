@@ -197,8 +197,8 @@ const ScreenshotModal = ({ screenshot, screenshots, currentIndex, isOpen, onClos
         {/* Main Image */}
         {!imageError && (
           <img
-            src={screenshot.screenshot_url}
-            alt={`Screenshot from ${screenshot.datetime}`}
+            src={screenshot.file_url}
+            alt={`Screenshot from ${screenshot.date}`}
             style={{
               maxWidth: '90vw',
               maxHeight: '80vh',
@@ -228,10 +228,10 @@ const ScreenshotModal = ({ screenshot, screenshots, currentIndex, isOpen, onClos
             color: 'white'
           }}>
             <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
-              {screenshot.datetime}
+              {screenshot.date}
             </div>
             <div style={{ fontSize: '14px', opacity: 0.9 }}>
-              Size: {screenshot.size_mb}MB
+              Size: {screenshot.file_size_mb}MB
               {screenshots && screenshots.length > 1 && (
                 <> • {currentIndex + 1} of {screenshots.length}</>
               )}
@@ -296,7 +296,7 @@ const OldScreenshots = () => {
   
   // Modal functions
   const openModal = (screenshot, index) => {
-    console.log('🖼️ Opening modal for screenshot:', screenshot.datetime, 'at index:', index);
+    console.log('🖼️ Opening modal for screenshot:', screenshot.date, 'at index:', index);
     console.log('📸 Screenshot data:', screenshot);
     console.log('🔢 Modal state before:', { modalOpen, selectedScreenshot, currentImageIndex });
     
@@ -334,9 +334,9 @@ const OldScreenshots = () => {
   const fetchTopUsers = async () => {
     setUsersLoading(true);
     try {
-      // Use proxy to fetch users
-      const baseUrl = '/api/users/top-screenshot-users/';
-      console.log('🔍 Fetching top users via proxy:', baseUrl);
+      // Use direct API endpoint instead of proxy
+      const baseUrl = 'https://dxdtime.ddsolutions.io/api/users/top-screenshot-users/';
+      console.log('🔍 Fetching top users from API:', baseUrl);
       
       const response = await fetch(baseUrl);
       
@@ -369,7 +369,7 @@ const OldScreenshots = () => {
         // Fallback to static users if API fails
         setTopUsers([
           { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
-          { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdlobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
+          { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
           { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com', searchName: 'gulsummelisa.23_at_gmail.com', count: 0, displayEmail: 'gulsummelisa.23@gmail.com' },
           { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
           { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
@@ -460,8 +460,8 @@ const OldScreenshots = () => {
       
       if (data.status === 'success' && data.data) {
         const screenshots = Array.isArray(data.data.screenshots) ? data.data.screenshots : [];
-        const totalCount = data.data.total_count || 0;
         const pagination = data.data.pagination || {};
+        const totalCount = pagination.total_screenshots || 0;
         const totalPages = pagination.total_pages || Math.ceil(totalCount / actualPageSize);
         
         console.log(`📸 Found ${totalCount} total screenshots, showing page ${page} of ${totalPages}`);
@@ -685,7 +685,8 @@ const OldScreenshots = () => {
         const data = await response.json();
         
         if (data.status === 'success' && data.data) {
-          const totalCount = data.data.total_count || 0;
+          const pagination = data.data.pagination || {};
+          const totalCount = pagination.total_screenshots || 0;
           const searchTime = data.data.search_performance?.search_time_ms || 0;
           const objectsScanned = data.data.search_performance?.objects_scanned || 0;
           
@@ -999,14 +1000,14 @@ const OldScreenshots = () => {
                 }}>
                   {screenshots.map((screenshot, index) => {
                     console.log(`🖼️ Rendering screenshot ${index + 1}/${screenshots.length}:`, {
-                      url: screenshot.screenshot_url,
-                      datetime: screenshot.datetime,
-                      size: screenshot.size_mb
+                      url: screenshot.file_url,
+                      date: screenshot.date,
+                      size: screenshot.file_size_mb
                     });
                     
                     return (
                     <div
-                      key={screenshot.full_key || index}
+                      key={screenshot.file_key || index}
                       style={{
                         background: isDarkMode ? theme.colors?.surface || '#374151' : 'white',
                         borderRadius: '8px',
@@ -1033,7 +1034,7 @@ const OldScreenshots = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('🖱️ Screenshot clicked:', index, screenshot.datetime);
+                        console.log('🖱️ Screenshot clicked:', index, screenshot.date);
                         openModal(screenshot, index);
                       }}
                     >
@@ -1046,11 +1047,11 @@ const OldScreenshots = () => {
                         overflow: 'hidden',
                         background: isDarkMode ? '#4b5563' : '#f3f4f6'
                       }}>
-                        {screenshot.screenshot_url ? (
+                        {screenshot.file_url ? (
                           <>
                             <img 
-                              src={screenshot.screenshot_url}
-                              alt={`Screenshot from ${screenshot.datetime}`}
+                              src={screenshot.file_url}
+                              alt={`Screenshot from ${screenshot.date}`}
                               style={{
                                 width: '100%',
                                 height: '100%',
@@ -1059,10 +1060,10 @@ const OldScreenshots = () => {
                                 display: 'block'
                               }}
                               onLoad={(e) => {
-                                console.log('✅ Image loaded successfully:', screenshot.screenshot_url);
+                                console.log('✅ Image loaded successfully:', screenshot.file_url);
                               }}
                               onError={(e) => {
-                                console.log('❌ Image failed to load:', screenshot.screenshot_url);
+                                console.log('❌ Image failed to load:', screenshot.file_url);
                                 e.target.style.display = 'none';
                                 // Show fallback icon
                                 const fallback = e.target.nextElementSibling;
@@ -1112,10 +1113,10 @@ const OldScreenshots = () => {
                       </div>
                       <div style={{ padding: '12px' }}>
                         <div style={{ fontSize: '12px', color: isDarkMode ? theme.colors?.text?.secondary || '#94a3b8' : '#6b7280', marginBottom: '4px' }}>
-                          {screenshot.datetime}
+                          {screenshot.date}
                         </div>
                         <div style={{ fontSize: '11px', color: isDarkMode ? theme.colors?.text?.light || '#6b7280' : '#9ca3af' }}>
-                          {screenshot.size_mb}MB
+                          {screenshot.file_size_mb}MB
                         </div>
                       </div>
                     </div>
