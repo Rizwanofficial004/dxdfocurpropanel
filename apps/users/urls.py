@@ -12,6 +12,9 @@ urlpatterns = [
     # Alternative search endpoint
     path('users/', UsersSearchView.as_view(), name='users-default'),
     
+    # User Screenshots API - Individual user screenshots with pagination
+    path('users/screenshots/', UserScreenshotsAPI.as_view(), name='user-screenshots'),
+    
     # User-based Monthly Screenshots API - Works with actual user structure
     path('users/monthly-screenshots/', UserMonthlyScreenshotsAPI.as_view(), name='user-monthly-screenshots'),
     

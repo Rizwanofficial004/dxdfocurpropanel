@@ -8065,7 +8065,6 @@ INFO 2025-09-08 19:58:15,110 basehttp 3304 18888 "POST /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,726 middleware 3304 18888 Request: GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 middleware 3304 18888 Response: 200 for GET /api/set-all-credentials/
 INFO 2025-09-08 19:58:41,727 basehttp 3304 18888 "GET /api/set-all-credentials/ HTTP/1.1" 200 1928
-<<<<<<< HEAD
 INFO 2025-09-10 15:22:03,353 middleware 17504 11360 Request: POST /api/auto-set-value/
 INFO 2025-09-10 15:22:03,356 user_numeric_views 17504 11360 AutoTokenSetValue API called from IP: 127.0.0.1
 INFO 2025-09-10 15:22:03,361 middleware 17504 11360 Response: 207 for POST /api/auto-set-value/
@@ -8206,7 +8205,6 @@ INFO 2025-09-10 16:16:59,390 middleware 18120 17552 Request: GET /api/user-timer
 INFO 2025-09-10 16:16:59,391 user_timer_views 18120 17552 Timer API GET called from IP: 127.0.0.1
 INFO 2025-09-10 16:16:59,417 middleware 18120 17552 Response: 200 for GET /api/user-timer/
 INFO 2025-09-10 16:16:59,418 basehttp 18120 17552 "GET /api/user-timer/ HTTP/1.1" 200 5965
-=======
 INFO 2025-09-09 20:19:03,811 users_screenshots_view 18576 3764 S3 client initialized successfully for users_screenshots API
 INFO 2025-09-09 20:19:03,857 users_screenshots_view 18576 3764 Starting to process users_screenshots folder...
 INFO 2025-09-09 20:19:05,473 users_screenshots_view 18576 3764 Processing page with 590 objects
@@ -8272,7 +8270,6 @@ INFO 2025-09-10 12:55:08,749 basehttp 27180 17028 "GET /static/rest_framework/js
 INFO 2025-09-10 12:55:23,521 middleware 27180 27388 Request: GET /api/styling/global/
 INFO 2025-09-10 12:55:23,530 middleware 27180 27388 Response: 200 for GET /api/styling/global/
 INFO 2025-09-10 12:55:23,531 basehttp 27180 27388 "GET /api/styling/global/?id=1bef6d5b-b406-4c63-a8cb-c624042b937a&vscodeBrowserReqId=1757498123515 HTTP/1.1" 200 11193
->>>>>>> 719ed874e1bacb506108897b7fe2fc23ce4de4db
 INFO 2025-09-12 04:48:11,753 s3_logs_service 17552 4580 Retrieved 10 log files from S3
 INFO 2025-09-12 04:48:30,149 s3_logs_service 24504 9696 Retrieved 11 log files from S3
 INFO 2025-09-13 09:28:22,719 middleware 11188 24316 Request: GET /api/users/search_s3/
@@ -8503,7 +8500,7 @@ INFO 2025-09-13 10:05:00,891 monthwise_views 28216 17588 DEBUG:   - Create_a_car
 INFO 2025-09-13 10:05:00,891 monthwise_views 28216 17588 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
 INFO 2025-09-13 10:05:00,915 monthwise_views 28216 17588 DEBUG:   - Please_make_Fix_Search_Issue_on_Admin_Panel
 INFO 2025-09-13 10:05:00,916 monthwise_views 28216 17588 DEBUG:   - cyprushaber.com
-INFO 2025-09-13 10:05:00,917 monthwise_views 28216 17588 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:05:00,917 monthwise_views 28216 17588 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:05:00,931 monthwise_views 28216 17588 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-08/
 WARNING 2025-09-13 10:05:01,505 monthwise_views 28216 17588 No screenshot data found for nawaz_at_dxdglobal.com in 2025-08
 INFO 2025-09-13 10:05:01,508 middleware 28216 17588 Response: 200 for GET /api/users/search_s3/
@@ -8575,7 +8572,7 @@ INFO 2025-09-13 10:12:49,968 monthwise_views 11384 18344 Checking prefix: screen
 WARNING 2025-09-13 10:12:50,273 monthwise_views 11384 18344 No screenshot data found for ddsfocustime in 2025-07
 INFO 2025-09-13 10:12:50,274 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/deniz_at_deluxebilisim.com/
 INFO 2025-09-13 10:12:50,478 monthwise_views 11384 18344 DEBUG: Found 5 folders for user deniz_at_deluxebilisim.com
-INFO 2025-09-13 10:12:50,504 monthwise_views 11384 18344 DEBUG:   - Haziran_2022_Çekim_Görselleri_Post
+INFO 2025-09-13 10:12:50,504 monthwise_views 11384 18344 DEBUG:   - Haziran_2022_ï¿½ekim_Gï¿½rselleri_Post
 INFO 2025-09-13 10:12:50,531 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:12:51,936 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025-07/
 INFO 2025-09-13 10:12:52,117 monthwise_views 11384 18344 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025_Temmuz_
@@ -8668,7 +8665,7 @@ INFO 2025-09-13 10:13:12,363 monthwise_views 11384 18344 Checking prefix: screen
 WARNING 2025-09-13 10:13:12,488 monthwise_views 11384 18344 No screenshot data found for huseyinturguterek_at_gmail.com in 2025-07
 INFO 2025-09-13 10:13:12,493 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/ilahe.avci2004_at_gmail.com/
 INFO 2025-09-13 10:13:12,736 monthwise_views 11384 18344 DEBUG: Found 7 folders for user ilahe.avci2004_at_gmail.com
-INFO 2025-09-13 10:13:12,837 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:12,837 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:13:12,837 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:13:14,153 monthwise_views 11384 26308 S3 client initialized successfully for monthwise stats
 INFO 2025-09-13 10:13:14,161 views 11384 26308 S3 client initialized successfully for enhanced users search
@@ -8690,7 +8687,7 @@ INFO 2025-09-13 10:13:17,774 monthwise_views 11384 18344 DEBUG: Found 4 folders 
 INFO 2025-09-13 10:13:17,775 monthwise_views 11384 18344 DEBUG:   - Admin_Panel_Web_Front-end_Optimization
 INFO 2025-09-13 10:13:17,775 monthwise_views 11384 18344 DEBUG:   - Create_Patient_Module_
 INFO 2025-09-13 10:13:17,775 monthwise_views 11384 18344 DEBUG:   - arsinconstruction.com_
-INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:13:17,776 monthwise_views 11384 18344 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025-07/
 INFO 2025-09-13 10:13:18,027 monthwise_views 11384 18344 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025_Temmuz_
@@ -8699,7 +8696,7 @@ WARNING 2025-09-13 10:13:18,436 monthwise_views 11384 18344 No screenshot data f
 INFO 2025-09-13 10:13:18,436 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/kadircagtas_at_gmail.com/
 INFO 2025-09-13 10:13:18,597 monthwise_views 11384 18344 DEBUG: Found 2 folders for user kadircagtas_at_gmail.com
 INFO 2025-09-13 10:13:18,598 monthwise_views 11384 18344 DEBUG:   - baniocyprus.com
-INFO 2025-09-13 10:13:18,599 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:18,599 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:13:18,600 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:13:18,601 monthwise_views 11384 18344 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025-07/
 INFO 2025-09-13 10:13:18,757 monthwise_views 11384 18344 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025_Temmuz_
@@ -8731,7 +8728,7 @@ INFO 2025-09-13 10:13:35,542 monthwise_views 11384 18344 Checking prefix: screen
 WARNING 2025-09-13 10:13:35,662 monthwise_views 11384 18344 No screenshot data found for m.fidan.firat_at_gmail.com in 2025-07
 INFO 2025-09-13 10:13:35,663 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/mahboub.sad_at_gmail.com/
 INFO 2025-09-13 10:13:35,784 monthwise_views 11384 18344 DEBUG: Found 4 folders for user mahboub.sad_at_gmail.com
-INFO 2025-09-13 10:13:35,803 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:35,803 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:13:35,832 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:13:35,833 monthwise_views 11384 18344 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025-07/
 INFO 2025-09-13 10:13:35,842 middleware 11384 19244 Request: GET /api/users/search_s3/
@@ -8774,7 +8771,7 @@ INFO 2025-09-13 10:13:39,297 monthwise_views 11384 18344 DEBUG: Found 4 folders 
 INFO 2025-09-13 10:13:39,297 monthwise_views 11384 18344 DEBUG:   - Header_Needs_to_be_fixed
 INFO 2025-09-13 10:13:39,298 monthwise_views 11384 18344 DEBUG:   - Wordpress_General_Update_Themes_&_Plugins_
 INFO 2025-09-13 10:13:39,298 monthwise_views 11384 18344 DEBUG:   - Wordpress_Website_TRNCNews
-INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:13:39,299 monthwise_views 11384 18344 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025-07/
 INFO 2025-09-13 10:13:39,440 monthwise_views 11384 18344 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025_Temmuz_
@@ -8786,7 +8783,7 @@ INFO 2025-09-13 10:13:40,142 monthwise_views 11384 18344 DEBUG:   - Create_a_car
 INFO 2025-09-13 10:13:40,142 monthwise_views 11384 18344 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
 INFO 2025-09-13 10:13:40,158 monthwise_views 11384 18344 DEBUG:   - Please_make_Fix_Search_Issue_on_Admin_Panel
 INFO 2025-09-13 10:13:40,158 monthwise_views 11384 18344 DEBUG:   - cyprushaber.com
-INFO 2025-09-13 10:13:40,159 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:13:40,159 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:13:40,159 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:13:41,038 monthwise_views 11384 18344 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-07/
 INFO 2025-09-13 10:13:41,210 monthwise_views 11384 18344 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025_Temmuz_
@@ -8847,7 +8844,7 @@ WARNING 2025-09-13 10:14:00,358 monthwise_views 11384 18344 No screenshot data f
 INFO 2025-09-13 10:14:00,359 monthwise_views 11384 18344 DEBUG: Looking for folders under: screenshots/selimyalcnts_at_gmail.com/
 INFO 2025-09-13 10:14:00,492 monthwise_views 11384 18344 DEBUG: Found 2 folders for user selimyalcnts_at_gmail.com
 INFO 2025-09-13 10:14:00,493 monthwise_views 11384 18344 DEBUG:   - arsinconstruction.com_
-INFO 2025-09-13 10:14:00,493 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:00,493 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:00,494 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:00,494 monthwise_views 11384 18344 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025-07/
 INFO 2025-09-13 10:14:00,665 monthwise_views 11384 18344 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025_Temmuz_
@@ -8879,7 +8876,7 @@ INFO 2025-09-13 10:14:03,760 monthwise_views 11384 19244 Checking prefix: screen
 WARNING 2025-09-13 10:14:04,090 monthwise_views 11384 19244 No screenshot data found for ddsfocustime in 2025-07
 INFO 2025-09-13 10:14:04,090 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/deniz_at_deluxebilisim.com/
 INFO 2025-09-13 10:14:04,305 monthwise_views 11384 19244 DEBUG: Found 5 folders for user deniz_at_deluxebilisim.com
-INFO 2025-09-13 10:14:04,336 monthwise_views 11384 19244 DEBUG:   - Haziran_2022_Çekim_Görselleri_Post
+INFO 2025-09-13 10:14:04,336 monthwise_views 11384 19244 DEBUG:   - Haziran_2022_ï¿½ekim_Gï¿½rselleri_Post
 INFO 2025-09-13 10:14:04,365 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:05,952 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025-07/
 INFO 2025-09-13 10:14:06,145 monthwise_views 11384 19244 Checking prefix: screenshots/deniz_at_deluxebilisim.com/2025_Temmuz_
@@ -8972,7 +8969,7 @@ INFO 2025-09-13 10:14:20,484 monthwise_views 11384 18344 DEBUG: Looking for fold
 INFO 2025-09-13 10:14:20,485 monthwise_views 11384 19244 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/2025_Temmuz_
 INFO 2025-09-13 10:14:20,689 monthwise_views 11384 19244 Checking prefix: screenshots/hidayetemiryigit_at_gmail.com/Temmuz_2025_
 INFO 2025-09-13 10:14:20,690 monthwise_views 11384 18344 DEBUG: Found 5 folders for user yunussemrekatirci_at_gmail.com
-INFO 2025-09-13 10:14:20,742 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:20,742 monthwise_views 11384 18344 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:20,757 monthwise_views 11384 18344 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:20,758 monthwise_views 11384 18344 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025-07/
 WARNING 2025-09-13 10:14:20,821 monthwise_views 11384 19244 No screenshot data found for hidayetemiryigit_at_gmail.com in 2025-07
@@ -9017,7 +9014,7 @@ INFO 2025-09-13 10:14:29,088 monthwise_views 11384 19244 Checking prefix: screen
 WARNING 2025-09-13 10:14:29,294 monthwise_views 11384 19244 No screenshot data found for huseyinturguterek_at_gmail.com in 2025-07
 INFO 2025-09-13 10:14:29,295 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/ilahe.avci2004_at_gmail.com/
 INFO 2025-09-13 10:14:29,497 monthwise_views 11384 19244 DEBUG: Found 7 folders for user ilahe.avci2004_at_gmail.com
-INFO 2025-09-13 10:14:29,588 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:29,588 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:29,588 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:33,628 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/2025-07/
 INFO 2025-09-13 10:14:33,795 monthwise_views 11384 19244 Checking prefix: screenshots/ilahe.avci2004_at_gmail.com/2025_Temmuz_
@@ -9037,7 +9034,7 @@ INFO 2025-09-13 10:14:36,151 monthwise_views 11384 19244 DEBUG: Found 4 folders 
 INFO 2025-09-13 10:14:36,151 monthwise_views 11384 19244 DEBUG:   - Admin_Panel_Web_Front-end_Optimization
 INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - Create_Patient_Module_
 INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - arsinconstruction.com_
-INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:36,152 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:36,153 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:36,153 monthwise_views 11384 19244 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025-07/
 INFO 2025-09-13 10:14:36,460 monthwise_views 11384 19244 Checking prefix: screenshots/kadir.beskardes11_at_gmail.com/2025_Temmuz_
@@ -9046,7 +9043,7 @@ WARNING 2025-09-13 10:14:36,869 monthwise_views 11384 19244 No screenshot data f
 INFO 2025-09-13 10:14:36,870 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/kadircagtas_at_gmail.com/
 INFO 2025-09-13 10:14:37,176 monthwise_views 11384 19244 DEBUG: Found 2 folders for user kadircagtas_at_gmail.com
 INFO 2025-09-13 10:14:37,176 monthwise_views 11384 19244 DEBUG:   - baniocyprus.com
-INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:37,177 monthwise_views 11384 19244 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025-07/
 INFO 2025-09-13 10:14:37,482 monthwise_views 11384 19244 Checking prefix: screenshots/kadircagtas_at_gmail.com/2025_Temmuz_
@@ -9078,7 +9075,7 @@ INFO 2025-09-13 10:14:49,564 monthwise_views 11384 19244 Checking prefix: screen
 WARNING 2025-09-13 10:14:49,691 monthwise_views 11384 19244 No screenshot data found for m.fidan.firat_at_gmail.com in 2025-07
 INFO 2025-09-13 10:14:49,694 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/mahboub.sad_at_gmail.com/
 INFO 2025-09-13 10:14:50,077 monthwise_views 11384 19244 DEBUG: Found 4 folders for user mahboub.sad_at_gmail.com
-INFO 2025-09-13 10:14:50,089 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:50,089 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:50,117 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:50,117 monthwise_views 11384 19244 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025-07/
 INFO 2025-09-13 10:14:50,281 monthwise_views 11384 19244 Checking prefix: screenshots/mahboub.sad_at_gmail.com/2025_Temmuz_
@@ -9111,7 +9108,7 @@ INFO 2025-09-13 10:14:54,582 monthwise_views 11384 19244 DEBUG: Found 4 folders 
 INFO 2025-09-13 10:14:54,582 monthwise_views 11384 19244 DEBUG:   - Header_Needs_to_be_fixed
 INFO 2025-09-13 10:14:54,583 monthwise_views 11384 19244 DEBUG:   - Wordpress_General_Update_Themes_&_Plugins_
 INFO 2025-09-13 10:14:54,584 monthwise_views 11384 19244 DEBUG:   - Wordpress_Website_TRNCNews
-INFO 2025-09-13 10:14:54,585 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:54,585 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:54,585 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:54,586 monthwise_views 11384 19244 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025-07/
 INFO 2025-09-13 10:14:54,889 monthwise_views 11384 19244 Checking prefix: screenshots/mohsinabbass688630_at_gmail.com/2025_Temmuz_
@@ -9123,7 +9120,7 @@ INFO 2025-09-13 10:14:56,130 monthwise_views 11384 19244 DEBUG:   - Create_a_car
 INFO 2025-09-13 10:14:56,131 monthwise_views 11384 19244 DEBUG:   - DSSFocus_Pro_Admin_Panel_Task
 INFO 2025-09-13 10:14:56,171 monthwise_views 11384 19244 DEBUG:   - Please_make_Fix_Search_Issue_on_Admin_Panel
 INFO 2025-09-13 10:14:56,172 monthwise_views 11384 19244 DEBUG:   - cyprushaber.com
-INFO 2025-09-13 10:14:56,173 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:14:56,173 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:14:56,175 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:14:58,337 monthwise_views 11384 19244 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025-07/
 INFO 2025-09-13 10:14:58,576 monthwise_views 11384 19244 Checking prefix: screenshots/nawaz_at_dxdglobal.com/2025_Temmuz_
@@ -9154,7 +9151,7 @@ WARNING 2025-09-13 10:15:17,315 monthwise_views 11384 19244 No screenshot data f
 INFO 2025-09-13 10:15:17,316 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/selimyalcnts_at_gmail.com/
 INFO 2025-09-13 10:15:17,519 monthwise_views 11384 19244 DEBUG: Found 2 folders for user selimyalcnts_at_gmail.com
 INFO 2025-09-13 10:15:17,519 monthwise_views 11384 19244 DEBUG:   - arsinconstruction.com_
-INFO 2025-09-13 10:15:17,520 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:15:17,520 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:15:17,520 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:15:17,521 monthwise_views 11384 19244 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025-07/
 INFO 2025-09-13 10:15:17,652 monthwise_views 11384 19244 Checking prefix: screenshots/selimyalcnts_at_gmail.com/2025_Temmuz_
@@ -9177,7 +9174,7 @@ INFO 2025-09-13 10:15:49,064 monthwise_views 11384 19244 Checking prefix: screen
 WARNING 2025-09-13 10:15:49,262 monthwise_views 11384 19244 No screenshot data found for umutgny160_at_gmail.com in 2025-07
 INFO 2025-09-13 10:15:49,263 monthwise_views 11384 19244 DEBUG: Looking for folders under: screenshots/yunussemrekatirci_at_gmail.com/
 INFO 2025-09-13 10:15:49,466 monthwise_views 11384 19244 DEBUG: Found 5 folders for user yunussemrekatirci_at_gmail.com
-INFO 2025-09-13 10:15:49,534 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_düzenlemeler_
+INFO 2025-09-13 10:15:49,534 monthwise_views 11384 19244 DEBUG:   - dxdglobal.com_&_deluxebilisim.com_genel_dï¿½zenlemeler_
 INFO 2025-09-13 10:15:49,556 monthwise_views 11384 19244 Looking for Turkish month: temmuz
 INFO 2025-09-13 10:15:49,556 monthwise_views 11384 19244 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025-07/
 INFO 2025-09-13 10:15:49,773 monthwise_views 11384 19244 Checking prefix: screenshots/yunussemrekatirci_at_gmail.com/2025_Temmuz_
@@ -9773,12 +9770,11 @@ INFO 2025-09-13 11:40:15,480 basehttp 31244 9008 "GET /api/users/monthly-screens
 INFO 2025-09-14 00:24:57,158 serializers 25196 28616 Updated profile for serializer_test: org=Serializer Test Org, country=USA
 INFO 2025-09-14 00:26:17,941 middleware 21368 22424 Request: POST /api/auth/register/
 INFO 2025-09-14 00:26:19,673 serializers 21368 22424 Updated profile for abcdde: org=Test abcdde, country=USA
-INFO 2025-09-14 00:26:19,690 views 21368 22424 New user registered with unique email: abcdde@example.com
-INFO 2025-09-14 00:26:19,692 middleware 21368 22424 Response: 201 for POST /api/auth/register/
-INFO 2025-09-14 00:26:19,694 basehttp 21368 22424 "POST /api/auth/register/ HTTP/1.1" 201 477
 INFO 2025-09-14 00:27:06,112 middleware 21368 22424 Request: POST /api/auth/login/
 INFO 2025-09-14 00:27:07,754 views 21368 22424 Login attempt: User=abcdde, Result=success, IP=127.0.0.1, UA=PostmanRuntime/7.46.0
 INFO 2025-09-14 00:27:07,755 middleware 21368 22424 Response: 200 for POST /api/auth/login/
+INFO 2025-09-14 00:27:07,755 basehttp 21368 22424 "POST /api/auth/login/ HTTP/1.1" 200 771
+INFO 2025-09-14 01:53:12,276 middleware 24128 21912 Request: GET /api/users/screenshots/in/
 INFO 2025-09-14 00:27:07,755 basehttp 21368 22424 "POST /api/auth/login/ HTTP/1.1" 200 771
 INFO 2025-09-14 01:53:12,276 middleware 24128 21912 Request: GET /api/users/screenshots/
 INFO 2025-09-14 01:53:14,063 user_screenshots_api 24128 21912 S3 client initialized successfully
@@ -10967,110 +10963,3 @@ INFO 2025-09-16 02:23:41,006 user_screenshots_api 25404 33012 Scanning user fold
 INFO 2025-09-16 02:31:37,893 user_screenshots_api 25404 33012 Found 160256 screenshots for user gulsummelisa.23_at_gmail.com
 INFO 2025-09-16 02:31:37,894 user_screenshots_api 25404 33012 Search completed. Found 160256 screenshots after scanning 376842 objects
 INFO 2025-09-16 02:31:37,894 user_screenshots_api 25404 33012 Specific user search for 'gulsummelisa.23_at_gmail.com' from 2025-08-01 to 2025-08-31: 160256 screenshots found
-INFO 2025-09-16 13:25:08,165 middleware 14876 13140 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:25:11,165 user_screenshots_api 14876 13140 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:25:11,180 user_screenshots_api 14876 13140 OPTIMIZED: Direct search for user folders: ['atakankahraman35_at_outlook.com']
-INFO 2025-09-16 13:25:11,180 user_screenshots_api 14876 13140 Scanning user folder: screenshots/atakankahraman35_at_outlook.com/
-INFO 2025-09-16 13:25:32,952 middleware 14876 3728 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:25:34,667 user_screenshots_api 14876 3728 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:25:34,697 user_screenshots_api 14876 3728 OPTIMIZED: Direct search for user folders: ['atakankahraman35_at_outlook.com']
-INFO 2025-09-16 13:25:34,710 user_screenshots_api 14876 3728 Scanning user folder: screenshots/atakankahraman35_at_outlook.com/
-INFO 2025-09-16 13:26:07,484 user_screenshots_api 14876 13140 Found 14004 screenshots for user atakankahraman35_at_outlook.com
-INFO 2025-09-16 13:26:07,498 user_screenshots_api 14876 13140 Search completed. Found 14004 screenshots after scanning 66057 objects
-INFO 2025-09-16 13:26:07,513 user_screenshots_api 14876 13140 Specific user search for 'atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 14004 screenshots found
-INFO 2025-09-16 13:26:07,579 middleware 14876 13140 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:26:07,683 basehttp 14876 13140 - Broken pipe from ('127.0.0.1', 50987)
-INFO 2025-09-16 13:26:31,508 user_screenshots_api 14876 3728 Found 14004 screenshots for user atakankahraman35_at_outlook.com
-INFO 2025-09-16 13:26:31,509 user_screenshots_api 14876 3728 Search completed. Found 14004 screenshots after scanning 66060 objects
-INFO 2025-09-16 13:26:31,509 user_screenshots_api 14876 3728 Specific user search for 'atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 14004 screenshots found
-INFO 2025-09-16 13:26:31,533 middleware 14876 3728 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:26:31,534 basehttp 14876 3728 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 44186
-INFO 2025-09-16 13:27:06,011 middleware 14876 13368 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:27:07,236 user_screenshots_api 14876 13368 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:27:07,236 user_screenshots_api 14876 13368 OPTIMIZED: Direct search for user folders: ['mohsinabbass688630_at_gmail.com']
-INFO 2025-09-16 13:27:07,237 user_screenshots_api 14876 13368 Scanning user folder: screenshots/mohsinabbass688630_at_gmail.com/
-INFO 2025-09-16 13:27:35,731 user_screenshots_api 14876 13368 Found 23948 screenshots for user mohsinabbass688630_at_gmail.com
-INFO 2025-09-16 13:27:35,732 user_screenshots_api 14876 13368 Search completed. Found 23948 screenshots after scanning 38303 objects
-INFO 2025-09-16 13:27:35,732 user_screenshots_api 14876 13368 Specific user search for 'mohsinabbass688630@gmail.com' from 2025-08-01 to 2025-08-31: 23948 screenshots found
-INFO 2025-09-16 13:27:35,759 middleware 14876 13368 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:27:35,760 basehttp 14876 13368 "GET /api/users/screenshots/?q=mohsinabbass688630@gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 37761
-INFO 2025-09-16 13:30:15,652 middleware 17192 16788 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:30:17,279 user_screenshots_api 17192 16788 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:30:17,313 user_screenshots_api 17192 16788 OPTIMIZED: Direct search for user folders: ['mohsinabbass688630_at_gmail.com']
-INFO 2025-09-16 13:30:17,329 user_screenshots_api 17192 16788 Scanning user folder: screenshots/mohsinabbass688630_at_gmail.com/
-INFO 2025-09-16 13:30:42,946 user_screenshots_api 17192 16788 Found 23948 screenshots for user mohsinabbass688630_at_gmail.com
-INFO 2025-09-16 13:30:42,946 user_screenshots_api 17192 16788 Search completed. Found 23948 screenshots after scanning 38303 objects
-INFO 2025-09-16 13:30:42,947 user_screenshots_api 17192 16788 Specific user search for 'mohsinabbass688630@gmail.com' from 2025-08-01 to 2025-08-31: 23948 screenshots found
-INFO 2025-09-16 13:30:42,971 middleware 17192 16788 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:30:42,973 basehttp 17192 16788 "GET /api/users/screenshots/?q=mohsinabbass688630@gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 37761
-INFO 2025-09-16 13:31:42,383 middleware 17192 4076 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:31:43,617 user_screenshots_api 17192 4076 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:31:43,629 user_screenshots_api 17192 4076 OPTIMIZED: Direct search for user folders: ['q=ilahe.avci2004_at_gmail.com']
-INFO 2025-09-16 13:31:43,631 user_screenshots_api 17192 4076 Scanning user folder: screenshots/q=ilahe.avci2004_at_gmail.com/
-INFO 2025-09-16 13:31:43,782 user_screenshots_api 17192 4076 No direct match found, searching in all user folders for 'q=ilahe.avci2004_at_gmail.com'
-INFO 2025-09-16 13:31:43,926 user_screenshots_api 17192 4076 Found 41 user folders in screenshots/
-INFO 2025-09-16 13:31:43,927 user_screenshots_api 17192 4076 Search completed. Found 0 screenshots after scanning 0 objects
-INFO 2025-09-16 13:31:43,927 user_screenshots_api 17192 4076 Specific user search for 'q=ilahe.avci2004_at_gmail.com' from 2025-08-01 to 2025-08-31: 0 screenshots found
-INFO 2025-09-16 13:31:43,928 middleware 17192 4076 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:31:43,929 basehttp 17192 4076 "GET /api/users/screenshots/?q=q=ilahe.avci2004_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 872
-INFO 2025-09-16 13:32:05,575 middleware 9152 16824 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:32:07,763 user_screenshots_api 9152 16824 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:32:07,767 user_screenshots_api 9152 16824 OPTIMIZED: Direct search for user folders: ['q=ilahe.avci2004_at_gmail.com']
-INFO 2025-09-16 13:32:07,768 user_screenshots_api 9152 16824 Scanning user folder: screenshots/q=ilahe.avci2004_at_gmail.com/
-INFO 2025-09-16 13:32:08,083 user_screenshots_api 9152 16824 No direct match found, searching in all user folders for 'q=ilahe.avci2004_at_gmail.com'
-INFO 2025-09-16 13:32:08,231 user_screenshots_api 9152 16824 Found 41 user folders in screenshots/
-INFO 2025-09-16 13:32:08,232 user_screenshots_api 9152 16824 Search completed. Found 0 screenshots after scanning 0 objects
-INFO 2025-09-16 13:32:08,232 user_screenshots_api 9152 16824 Specific user search for 'q=ilahe.avci2004_at_gmail.com' from 2025-08-01 to 2025-08-31: 0 screenshots found
-INFO 2025-09-16 13:32:08,233 middleware 9152 16824 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:32:08,234 basehttp 9152 16824 "GET /api/users/screenshots/?q=q=ilahe.avci2004_at_gmail.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 872
-INFO 2025-09-16 13:33:03,612 middleware 9152 16824 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:33:04,848 user_screenshots_api 9152 16824 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:33:04,849 user_screenshots_api 9152 16824 OPTIMIZED: Direct search for user folders: ['q=atakankahraman35_at_outlook.com']
-INFO 2025-09-16 13:33:04,849 user_screenshots_api 9152 16824 Scanning user folder: screenshots/q=atakankahraman35_at_outlook.com/
-INFO 2025-09-16 13:33:04,988 user_screenshots_api 9152 16824 No direct match found, searching in all user folders for 'q=atakankahraman35_at_outlook.com'
-INFO 2025-09-16 13:33:05,140 user_screenshots_api 9152 16824 Found 41 user folders in screenshots/
-INFO 2025-09-16 13:33:05,141 user_screenshots_api 9152 16824 Search completed. Found 0 screenshots after scanning 0 objects
-INFO 2025-09-16 13:33:05,141 user_screenshots_api 9152 16824 Specific user search for 'q=atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 0 screenshots found
-INFO 2025-09-16 13:33:05,142 middleware 9152 16824 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:33:05,143 basehttp 9152 16824 "GET /api/users/screenshots/?q=q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 880
-INFO 2025-09-16 13:44:14,181 middleware 15848 6540 Request: GET /api/users/screenshots/
-INFO 2025-09-16 13:44:15,806 user_screenshots_api 15848 6540 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 13:44:15,811 user_screenshots_api 15848 6540 OPTIMIZED: Direct search for user folders: ['q=atakankahraman35_at_outlook.com']
-INFO 2025-09-16 13:44:15,811 user_screenshots_api 15848 6540 Scanning user folder: screenshots/q=atakankahraman35_at_outlook.com/
-INFO 2025-09-16 13:44:16,041 user_screenshots_api 15848 6540 No direct match found, searching in all user folders for 'q=atakankahraman35_at_outlook.com'
-INFO 2025-09-16 13:44:16,204 user_screenshots_api 15848 6540 Found 41 user folders in screenshots/
-INFO 2025-09-16 13:44:16,225 user_screenshots_api 15848 6540 Search completed. Found 0 screenshots after scanning 0 objects
-INFO 2025-09-16 13:44:16,238 user_screenshots_api 15848 6540 Specific user search for 'q=atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 0 screenshots found
-INFO 2025-09-16 13:44:16,256 middleware 15848 6540 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 13:44:16,290 basehttp 15848 6540 "GET /api/users/screenshots/?q=q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 880
-INFO 2025-09-16 17:44:46,174 user_screenshots_api 2504 17912 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 17:45:41,710 user_screenshots_api 17592 19452 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 17:45:41,714 user_screenshots_api 17592 19452 OPTIMIZED: Direct search for user folders: ['atakankahraman35_at_outlook.com']
-INFO 2025-09-16 17:45:41,715 user_screenshots_api 17592 19452 Scanning user folder: screenshots/atakankahraman35_at_outlook.com/
-INFO 2025-09-16 17:46:29,451 user_screenshots_api 17592 19452 Found 14004 screenshots for user atakankahraman35_at_outlook.com
-INFO 2025-09-16 17:46:29,452 user_screenshots_api 17592 19452 Search completed. Found 14004 screenshots after scanning 66588 objects
-INFO 2025-09-16 17:46:29,452 user_screenshots_api 17592 19452 Specific user search for 'atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 14004 screenshots found
-INFO 2025-09-16 17:47:45,852 middleware 18328 2916 Request: GET /api/users/screenshots/
-INFO 2025-09-16 17:47:47,419 user_screenshots_api 18328 2916 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 17:47:47,423 user_screenshots_api 18328 2916 OPTIMIZED: Direct search for user folders: ['atakankahraman35_at_outlook.com']
-INFO 2025-09-16 17:47:47,423 user_screenshots_api 18328 2916 Scanning user folder: screenshots/atakankahraman35_at_outlook.com/
-INFO 2025-09-16 17:48:37,650 user_screenshots_api 18328 2916 Found 14004 screenshots for user atakankahraman35_at_outlook.com
-INFO 2025-09-16 17:48:37,651 user_screenshots_api 18328 2916 Search completed. Found 14004 screenshots after scanning 66588 objects
-INFO 2025-09-16 17:48:37,651 user_screenshots_api 18328 2916 Specific user search for 'atakankahraman35_at_outlook.com' from 2025-08-01 to 2025-08-31: 14004 screenshots found
-INFO 2025-09-16 17:48:37,671 middleware 18328 2916 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 17:48:37,672 basehttp 18328 2916 "GET /api/users/screenshots/?q=atakankahraman35_at_outlook.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 44186
-INFO 2025-09-16 17:50:39,961 middleware 18328 12076 Request: GET /api/users/screenshots/
-INFO 2025-09-16 17:50:41,853 user_screenshots_api 18328 12076 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 17:50:41,854 user_screenshots_api 18328 12076 OPTIMIZED: Direct search for user folders: ['ilahe_at_dxdglobal.com']
-INFO 2025-09-16 17:50:41,854 user_screenshots_api 18328 12076 Scanning user folder: screenshots/ilahe_at_dxdglobal.com/
-INFO 2025-09-16 17:53:49,432 user_screenshots_api 18328 12076 Found 144135 screenshots for user ilahe_at_dxdglobal.com
-INFO 2025-09-16 17:53:49,432 user_screenshots_api 18328 12076 Search completed. Found 144135 screenshots after scanning 251847 objects
-INFO 2025-09-16 17:53:49,433 user_screenshots_api 18328 12076 Specific user search for 'ilahe@dxdglobal.com' from 2025-08-01 to 2025-08-31: 144135 screenshots found
-INFO 2025-09-16 17:53:49,595 middleware 18328 12076 Response: 200 for GET /api/users/screenshots/
-INFO 2025-09-16 17:53:49,596 basehttp 18328 12076 "GET /api/users/screenshots/?q=ilahe@dxdglobal.com&start_date=2025-08-01&end_date=2025-08-31&page=1&page_size=50 HTTP/1.1" 200 36073
-INFO 2025-09-16 17:55:19,091 user_screenshots_api 15320 18932 S3 client initialized successfully with environment credentials
-INFO 2025-09-16 17:55:19,095 user_screenshots_api 15320 18932 OPTIMIZED: Direct search for user folders: ['ilahe_at_dxdglobal.com']
-INFO 2025-09-16 17:55:19,096 user_screenshots_api 15320 18932 Scanning user folder: screenshots/ilahe_at_dxdglobal.com/
-INFO 2025-09-16 17:58:37,906 user_screenshots_api 15320 18932 Found 144135 screenshots for user ilahe_at_dxdglobal.com
-INFO 2025-09-16 17:58:37,907 user_screenshots_api 15320 18932 Search completed. Found 144135 screenshots after scanning 251847 objects
-INFO 2025-09-16 17:58:37,907 user_screenshots_api 15320 18932 Specific user search for 'ilahe@dxdglobal.com' from 2025-08-01 to 2025-08-31: 144135 screenshots found
