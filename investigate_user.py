@@ -38,7 +38,7 @@ def investigate_user_folder():
     
     aws_creds = get_aws_credentials()
     bucket_name = aws_creds['bucket_name']
-    user_folder = 'ilahe_at_dxdglobal.com'
+    user_folder = 'atakankahraman35_at_outlook.com'
     
     print(f"🔍 Investigating user folder: {user_folder}")
     print(f"📦 Bucket: {bucket_name}")
