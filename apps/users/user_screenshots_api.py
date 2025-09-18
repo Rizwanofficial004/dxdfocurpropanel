@@ -40,7 +40,7 @@ class UserScreenshotsAPI(APIView):
     GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
     
     Returns screenshots for a specific user with pagination and date filtering
-    Default page size: 50, Maximum: 50
+    Default page size: 25, Maximum: 500
     """
     
     permission_classes = [AllowAny]
@@ -74,7 +74,7 @@ class UserScreenshotsAPI(APIView):
         GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
         
         Fetch screenshots for a specific user with pagination and date filtering
-        Default page size: 50, Maximum: 50
+        Default page size: 25, Maximum: 500
         Enhanced to handle .webp files and multiple date formats
         """
         try:
@@ -95,8 +95,8 @@ class UserScreenshotsAPI(APIView):
                 page_size = int(request.GET.get('page_size', 25))
                 if page_size < 1:
                     page_size = 25
-                elif page_size > 50:  # Limit max page size
-                    page_size = 50
+                elif page_size > 500:  # Limit max page size to 500
+                    page_size = 500
             except (ValueError, TypeError):
                 page_size = 25
             

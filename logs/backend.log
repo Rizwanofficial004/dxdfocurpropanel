@@ -15681,3 +15681,18 @@ INFO 2025-09-18 13:24:36,735 user_screenshots_api 6944 17264 Got 50 from screens
 INFO 2025-09-18 13:24:36,736 user_screenshots_api 6944 17264 Fetched 50 screenshots starting from offset 2888
 INFO 2025-09-18 13:24:36,738 middleware 6944 17264 Response: 200 for GET /api/users/screenshots/
 INFO 2025-09-18 13:24:36,739 basehttp 6944 17264 - Broken pipe from ('127.0.0.1', 58701)
+INFO 2025-09-18 15:41:42,025 middleware 18548 5124 Request: GET /api/users/screenshots/
+INFO 2025-09-18 15:41:43,074 user_screenshots_api 18548 5124 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-18 15:41:43,076 user_screenshots_api 18548 5124 UserScreenshots API - Query: ilahe_at_dxdglobal.com, Date range: 2025-08-01 to 2025-08-31, Offset: 0, Page size: 500
+INFO 2025-09-18 15:41:43,077 user_screenshots_api 18548 5124 AWS Config - Bucket: ddsfocustime, Region: eu-north-1
+INFO 2025-09-18 15:41:43,077 user_screenshots_api 18548 5124 AWS Access Key configured: Yes
+INFO 2025-09-18 15:41:43,082 user_screenshots_api 18548 5124 Fast search for user: ilahe_at_dxdglobal.com, offset: 0, size: 500
+INFO 2025-09-18 15:41:43,083 user_screenshots_api 18548 5124 Date filter: 2025-08-01 to 2025-08-31
+INFO 2025-09-18 15:41:43,083 user_screenshots_api 18548 5124 Offset fetch: starting from 0, fetching 500
+INFO 2025-09-18 15:41:48,303 user_screenshots_api 18548 5124 Got 0 from users_screenshots folder
+INFO 2025-09-18 15:41:48,303 user_screenshots_api 18548 5124 Offset fetch: searching user folder: screenshots/ilahe_at_dxdglobal.com/
+INFO 2025-09-18 15:41:51,127 user_screenshots_api 18548 5124 Offset screenshots fetch: processed 499, collected 500
+INFO 2025-09-18 15:41:51,127 user_screenshots_api 18548 5124 Got 500 from screenshots folder
+INFO 2025-09-18 15:41:51,128 user_screenshots_api 18548 5124 Fetched 500 screenshots starting from offset 0
+INFO 2025-09-18 15:41:51,137 middleware 18548 5124 Response: 200 for GET /api/users/screenshots/
+INFO 2025-09-18 15:41:51,140 basehttp 18548 5124 "GET /api/users/screenshots/?q=ilahe_at_dxdglobal.com&start_date=2025-08-01&end_date=2025-08-31&page_size=500&offset=0 HTTP/1.1" 200 439144
