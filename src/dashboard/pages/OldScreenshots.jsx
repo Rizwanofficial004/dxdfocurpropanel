@@ -2,6 +2,24 @@
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useTheme } from '../context/ThemeContext';
 
+// Add CSS animation for loading spinner
+const spinKeyframes = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+// Inject the keyframes into the document head
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = spinKeyframes;
+  if (!document.head.querySelector('style[data-spin-animation]')) {
+    styleElement.setAttribute('data-spin-animation', 'true');
+    document.head.appendChild(styleElement);
+  }
+}
+
 // Screenshot Modal Component
 const ScreenshotModal = ({ screenshot, screenshots, currentIndex, isOpen, onClose, onPrevious, onNext, isDarkMode, theme }) => {
   const [imageLoading, setImageLoading] = useState(true);
@@ -284,6 +302,11 @@ const OldScreenshots = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(50); // Dynamic page size - default 50
   
+  // Load More functionality state
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreScreenshots, setHasMoreScreenshots] = useState(false);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  
   // Debug modal state changes
   useEffect(() => {
     console.log('🎭 Modal state changed:', { modalOpen, hasSelectedScreenshot: !!selectedScreenshot, currentImageIndex });
@@ -334,57 +357,28 @@ const OldScreenshots = () => {
   const fetchTopUsers = async () => {
     setUsersLoading(true);
     try {
-      // Use proxy to fetch users
-      const baseUrl = '/api/users/top-screenshot-users/';
-      console.log('🔍 Fetching top users via proxy:', baseUrl);
+      // For now, use the static user list since the API endpoint structure is unclear
+      // TODO: Update this when the correct user list endpoint is confirmed
+      console.log('🔍 Using static user list (API endpoint needs confirmation)');
       
-      const response = await fetch(baseUrl);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('✅ Top Users API Response:', data);
-      
-      if (data.status === 'success' && data.data && Array.isArray(data.data.users)) {
-        const users = data.data.users.map(user => ({
-          value: user.email,
-          label: `${user.email}${user.screenshot_count ? ` (${user.screenshot_count.toLocaleString()} screenshots)` : ''}`,
-          searchName: user.email.replace('@', '_at_').replace(/\./g, '_'),
-          count: user.screenshot_count || 0,
-          displayEmail: user.email
-        }));
-        
-        // Add the default "Select a user" option at the beginning
-        const allUsers = [
-          { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
-          ...users
-        ];
-        
-        setTopUsers(allUsers);
-        console.log(`📊 Loaded ${users.length} top users:`, users.map(u => `${u.displayEmail} (${u.count})`));
-      } else {
-        console.log('❌ Invalid users API response structure:', data);
-        // Fallback to static users if API fails
-        setTopUsers([
-          { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
-          { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdlobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
-          { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com', searchName: 'gulsummelisa.23_at_gmail.com', count: 0, displayEmail: 'gulsummelisa.23@gmail.com' },
-          { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
-          { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
-          { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com', searchName: 'atakankahraman35_at_outlook.com', count: 0, displayEmail: 'atakankahraman35@outlook.com' },
-          { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' },
-          { value: 'mohsinabbass688630@gmail.com', label: 'mohsinabbass688630@gmail.com', searchName: 'mohsinabbass688630_at_gmail.com', count: 0, displayEmail: 'mohsinabbass688630@gmail.com' },
-          { value: 'yunussemrekatirci@gmail.com', label: 'yunussemrekatirci@gmail.com', searchName: 'yunussemrekatirci_at_gmail.com', count: 0, displayEmail: 'yunussemrekatirci@gmail.com' },
-          { value: 'rignimeyikur02@gmail.com', label: 'rignimeyikur02@gmail.com', searchName: 'rignimeyikur02_at_gmail.com', count: 0, displayEmail: 'rignimeyikur02@gmail.com' },
-          { value: 'ilahe.avci2004@gmail.com', label: 'ilahe.avci2004@gmail.com', searchName: 'ilahe.avci2004_at_gmail.com', count: 0, displayEmail: 'ilahe.avci2004@gmail.com' }
-        ]);
-      }
+      // Static user list as fallback
+      setTopUsers([
+        { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
+        { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
+        { value: 'gulsummelisa.23@gmail.com', label: 'gulsummelisa.23@gmail.com', searchName: 'gulsummelisa.23_at_gmail.com', count: 0, displayEmail: 'gulsummelisa.23@gmail.com' },
+        { value: 'begumdamlasen@gmail.com', label: 'begumdamlasen@gmail.com', searchName: 'begumdamlasen_at_gmail.com', count: 0, displayEmail: 'begumdamlasen@gmail.com' },
+        { value: 'cagla.shr@gmail.com', label: 'cagla.shr@gmail.com', searchName: 'cagla.shr_at_gmail.com', count: 0, displayEmail: 'cagla.shr@gmail.com' },
+        { value: 'atakankahraman35@outlook.com', label: 'atakankahraman35@outlook.com', searchName: 'atakankahraman35_at_outlook.com', count: 0, displayEmail: 'atakankahraman35@outlook.com' },
+        { value: 'kadircagtas@gmail.com', label: 'kadircagtas@gmail.com', searchName: 'kadircagtas_at_gmail.com', count: 0, displayEmail: 'kadircagtas@gmail.com' },
+        { value: 'mohsinabbass688630@gmail.com', label: 'mohsinabbass688630@gmail.com', searchName: 'mohsinabbass688630_at_gmail.com', count: 0, displayEmail: 'mohsinabbass688630@gmail.com' },
+        { value: 'yunussemrekatirci@gmail.com', label: 'yunussemrekatirci@gmail.com', searchName: 'yunussemrekatirci_at_gmail.com', count: 0, displayEmail: 'yunussemrekatirci@gmail.com' },
+        { value: 'rignimeyikur02@gmail.com', label: 'rignimeyikur02@gmail.com', searchName: 'rignimeyikur02_at_gmail.com', count: 0, displayEmail: 'rignimeyikur02@gmail.com' },
+        { value: 'ilahe.avci2004@gmail.com', label: 'ilahe.avci2004@gmail.com', searchName: 'ilahe.avci2004_at_gmail.com', count: 0, displayEmail: 'ilahe.avci2004@gmail.com' }
+      ]);
       
     } catch (err) {
-      console.error(`❌ Error fetching top users:`, err);
-      // Fallback to static users if API fails
+      console.error(`❌ Error in fetchTopUsers:`, err);
+      // Fallback to static users if any error occurs
       setTopUsers([
         { value: '', label: 'Select a user to view screenshots', searchName: '', count: 0, displayEmail: '' },
         { value: 'ilahe@dxdglobal.com', label: 'ilahe@dxdglobal.com', searchName: 'ilahe_at_dxdglobal.com', count: 0, displayEmail: 'ilahe@dxdglobal.com' },
@@ -412,34 +406,38 @@ const OldScreenshots = () => {
     return fetchUserScreenshotsWithPageSize(searchName, page, startDate, endDate, pageSize);
   };
 
-  const fetchUserScreenshotsWithPageSize = async (searchName, page = 1, startDate = '2025-08-01', endDate = '2025-08-31', customPageSize = null) => {
+  const fetchUserScreenshotsWithPageSize = async (searchName, page = 1, startDate = '2025-08-01', endDate = '2025-08-31', customPageSize = null, isLoadMore = false) => {
     if (!searchName) return;
     
     const actualPageSize = customPageSize || pageSize;
+    const offsetValue = isLoadMore ? currentOffset : 0;
     
-    setLoading(true);
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+      setCurrentOffset(0); // Reset offset for new searches
+    }
     setError(null);
     
     try {
-      // Use the new API endpoint with date filtering and increased timeout
-      const baseUrl = 'https://dxdtime.ddsolutions.io/api/users/screenshots/';
+      // Use proxy to fetch screenshots with offset for pagination
+      const baseUrl = '/api/users/screenshots/';
       const params = new URLSearchParams({
         q: searchName,
         start_date: startDate,
         end_date: endDate,
-        page: page,
-        page_size: actualPageSize // Use the passed page size or current state
+        page_size: actualPageSize,
+        offset: offsetValue
       });
       
       const fullUrl = `${baseUrl}?${params}`;
-      console.log('🔍 Fetching screenshots from new API:', fullUrl);
-      console.log('📊 Search parameters:', { searchName, startDate, endDate, page, pageSize: actualPageSize });
-      console.log('📏 Using pageSize:', actualPageSize, 'Type:', typeof actualPageSize);
-      console.log('🎯 EXPECTING TO RECEIVE:', actualPageSize, 'screenshots');
+      console.log(`🔍 Fetching screenshots via proxy (${isLoadMore ? 'Load More' : 'Initial'}):`, fullUrl);
+      console.log('📊 Search parameters:', { searchName, startDate, endDate, pageSize: actualPageSize, offset: offsetValue });
       
       // Increased timeout for large data sets
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
       
       const response = await fetch(fullUrl, {
         signal: controller.signal,
@@ -456,40 +454,42 @@ const OldScreenshots = () => {
       }
       
       const data = await response.json();
-      console.log('✅ New API Response:', data);
+      console.log(`✅ Proxy API Response (${isLoadMore ? 'Load More' : 'Initial'}):`, data);
       
       if (data.status === 'success' && data.data) {
-        const screenshots = Array.isArray(data.data.screenshots) ? data.data.screenshots : [];
+        const newScreenshots = Array.isArray(data.data.screenshots) ? data.data.screenshots : [];
         const totalCount = data.data.total_count || 0;
-        const pagination = data.data.pagination || {};
-        const totalPages = pagination.total_pages || Math.ceil(totalCount / actualPageSize);
         
-        console.log(`📸 Found ${totalCount} total screenshots, showing page ${page} of ${totalPages}`);
-        console.log(`🖼️ Screenshots on this page: ${screenshots.length}`);
-        console.log(`⚡ Search performance:`, data.data.search_performance);
+        if (isLoadMore) {
+          // Append new screenshots to existing ones
+          setScreenshots(prevScreenshots => [...prevScreenshots, ...newScreenshots]);
+          setCurrentOffset(offsetValue + newScreenshots.length);
+          
+          // Check if there are more screenshots to load
+          const totalLoaded = offsetValue + newScreenshots.length;
+          setHasMoreScreenshots(totalLoaded < totalCount);
+          
+          console.log(`📸 Loaded ${newScreenshots.length} more screenshots. Total loaded: ${totalLoaded} of ${totalCount}`);
+        } else {
+          // Replace screenshots for initial load
+          setScreenshots(newScreenshots);
+          setCurrentOffset(newScreenshots.length);
+          setHasMoreScreenshots(newScreenshots.length < totalCount);
+          
+          console.log(`📸 Initial load: ${newScreenshots.length} screenshots of ${totalCount} total`);
+        }
         
-        setScreenshots(screenshots);
         setTotalCount(totalCount);
-        setTotalPages(totalPages);
-        setCurrentPage(page);
         setSearchPerformance(data.data.search_performance || null);
         
-        console.log('✅ Page Size Verification:', {
-          requested_pageSize: actualPageSize,
-          actual_screenshots_received: screenshots.length,
-          total_available: totalCount,
-          current_page: page,
-          total_pages: totalPages,
-          match: actualPageSize === screenshots.length || screenshots.length < actualPageSize,
-          SUCCESS: screenshots.length === actualPageSize ? 'YES - Got exactly what was requested!' : 
-                   screenshots.length < actualPageSize ? `PARTIAL - Only ${screenshots.length} available (less than ${actualPageSize} requested)` :
-                   'ERROR - Got more than requested'
-        });
       } else {
         console.log('❌ Invalid API response structure:', data);
-        setScreenshots([]);
-        setTotalCount(0);
-        setTotalPages(0);
+        if (!isLoadMore) {
+          setScreenshots([]);
+          setTotalCount(0);
+          setHasMoreScreenshots(false);
+          setCurrentOffset(0);
+        }
         setSearchPerformance(null);
       }
       
@@ -501,12 +501,30 @@ const OldScreenshots = () => {
         console.error(`❌ Error fetching screenshots:`, err);
         setError(`Failed to load screenshots: ${err.message}`);
       }
-      setScreenshots([]);
-      setTotalCount(0);
-      setTotalPages(0);
-      setSearchPerformance(null);
+      
+      if (!isLoadMore) {
+        setScreenshots([]);
+        setTotalCount(0);
+        setHasMoreScreenshots(false);
+        setCurrentOffset(0);
+        setSearchPerformance(null);
+      }
     } finally {
-      setLoading(false);
+      if (isLoadMore) {
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Handle Load More button click
+  const handleLoadMore = () => {
+    if (selectedUser && !loadingMore) {
+      const user = topUsers.find(u => u.value === selectedUser);
+      if (user && user.searchName) {
+        fetchUserScreenshotsWithPageSize(user.searchName, 1, startDate, endDate, pageSize, true);
+      }
     }
   };
 
@@ -665,14 +683,14 @@ const OldScreenshots = () => {
   };
 
   const testAllUsers = async () => {
-    console.log('🧪 Testing all users with new date-filtered API...');
+    console.log('🧪 Testing all users with proxy API...');
     console.log(`📅 Date range: ${startDate} to ${endDate}`);
     
     for (const user of topUsers.slice(1)) { // Skip the first empty option
       console.log(`\n🔍 Testing user: ${user.displayEmail} (${user.searchName})`);
       
       try {
-        const baseUrl = 'https://dxdtime.ddsolutions.io/api/users/screenshots/';
+        const baseUrl = '/api/users/screenshots/';
         const params = new URLSearchParams({
           q: user.searchName,
           start_date: startDate,
@@ -1124,6 +1142,101 @@ const OldScreenshots = () => {
                 </div>
                 {/* Log final rendering confirmation */}
                 {console.log(`🎨 FINAL RENDERING COMPLETE: ${screenshots.length} screenshots displayed on page ${currentPage} (requested: ${pageSize}, actual pageSize used: ${pageSize})`)}
+
+                {/* Load More Button */}
+                {console.log('🔍 Load More Debug:', { 
+                  hasMoreScreenshots, 
+                  screenshotsLength: screenshots.length, 
+                  totalCount, 
+                  currentOffset,
+                  loadingMore 
+                })}
+                {hasMoreScreenshots && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '24px',
+                    marginBottom: '20px'
+                  }}>
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      style={{
+                        padding: '12px 24px',
+                        border: 'none',
+                        borderRadius: '8px',
+                        background: loadingMore 
+                          ? (isDarkMode ? '#4b5563' : '#e5e7eb')
+                          : '#3b82f6',
+                        color: loadingMore 
+                          ? (isDarkMode ? '#9ca3af' : '#6b7280')
+                          : 'white',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        cursor: loadingMore ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        minWidth: '140px',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {loadingMore ? (
+                        <>
+                          <div style={{
+                            width: '16px',
+                            height: '16px',
+                            border: '2px solid transparent',
+                            borderTop: '2px solid currentColor',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                          }} />
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          📷 Load More Screenshots
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* Debug Load More Button (always visible for testing) */}
+                {screenshots.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '12px',
+                    marginBottom: '20px'
+                  }}>
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      style={{
+                        padding: '8px 16px',
+                        border: '1px solid #3b82f6',
+                        borderRadius: '6px',
+                        background: loadingMore 
+                          ? (isDarkMode ? '#4b5563' : '#f3f4f6')
+                          : 'transparent',
+                        color: loadingMore 
+                          ? (isDarkMode ? '#9ca3af' : '#6b7280')
+                          : '#3b82f6',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        cursor: loadingMore ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      {loadingMore ? 'Testing Load More...' : 'Load More'}
+                    </button>
+                  </div>
+                )}
 
                 {/* Page Size Selector and Pagination Info */}
                 {screenshots.length > 0 && (
