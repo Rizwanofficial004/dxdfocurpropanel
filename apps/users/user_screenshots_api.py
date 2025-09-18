@@ -40,7 +40,7 @@ class UserScreenshotsAPI(APIView):
     GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
     
     Returns screenshots for a specific user with pagination and date filtering
-    Default page size: 50, Maximum: 1000
+    Default page size: 50, Maximum: 50
     """
     
     permission_classes = [AllowAny]
@@ -74,7 +74,7 @@ class UserScreenshotsAPI(APIView):
         GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
         
         Fetch screenshots for a specific user with pagination and date filtering
-        Default page size: 50, Maximum: 1000
+        Default page size: 50, Maximum: 50
         Enhanced to handle .webp files and multiple date formats
         """
         try:
@@ -83,23 +83,28 @@ class UserScreenshotsAPI(APIView):
             start_date = request.GET.get('start_date', '').strip()
             end_date = request.GET.get('end_date', '').strip()
             
+            # Parse offset for "Load More" functionality (instead of page number)
             try:
-                page = int(request.GET.get('page', 1))
-                if page < 1:
-                    page = 1
+                offset = int(request.GET.get('offset', 0))
+                if offset < 0:
+                    offset = 0
             except (ValueError, TypeError):
-                page = 1
+                offset = 0
                 
             try:
-                page_size = int(request.GET.get('page_size', 50))
+                page_size = int(request.GET.get('page_size', 25))
                 if page_size < 1:
+                    page_size = 25
+                elif page_size > 50:  # Limit max page size
                     page_size = 50
-                elif page_size > 1000:  # Limit max page size
-                    page_size = 1000
             except (ValueError, TypeError):
-                page_size = 50
+                page_size = 25
             
-            logger.info(f"UserScreenshots API - Query: {user_query}, Date range: {start_date} to {end_date}, Page: {page}, Page size: {page_size}")
+            logger.info(f"UserScreenshots API - Query: {user_query}, Date range: {start_date} to {end_date}, Offset: {offset}, Page size: {page_size}")
+            
+            # Debug AWS configuration
+            logger.info(f"AWS Config - Bucket: {self.bucket_name}, Region: {self.aws_config['region']}")
+            logger.info(f"AWS Access Key configured: {'Yes' if self.aws_config['access_key'] else 'No'}")
             
             if not user_query:
                 return Response({
@@ -113,8 +118,8 @@ class UserScreenshotsAPI(APIView):
             # Validate and parse date range
             date_filter = self._parse_date_range(start_date, end_date)
             
-            # Search for user screenshots
-            screenshots_data = self._search_user_screenshots(normalized_user, date_filter, page, page_size)
+            # Search for user screenshots with offset-based pagination
+            screenshots_data = self._search_user_screenshots(normalized_user, date_filter, offset, page_size)
             
             return Response(screenshots_data, status=status.HTTP_200_OK)
             
@@ -156,66 +161,27 @@ class UserScreenshotsAPI(APIView):
         
         return date_filter
     
-    def _search_user_screenshots(self, normalized_user, date_filter, page, page_size):
-        """Search for screenshots for a specific user"""
+    def _search_user_screenshots(self, normalized_user, date_filter, offset, page_size):
+        """Search for screenshots - FAST pagination with offset (Load More functionality)"""
         try:
-            screenshots = []
-            total_screenshots = 0
-            
-            logger.info(f"Searching screenshots for user: {normalized_user}")
+            logger.info(f"Fast search for user: {normalized_user}, offset: {offset}, size: {page_size}")
             logger.info(f"Date filter: {date_filter['start_date']} to {date_filter['end_date']}")
             
-            # Search in users_screenshots folder (newer structure)
-            users_screenshots = self._search_users_screenshots_folder(normalized_user, date_filter)
-            screenshots.extend(users_screenshots)
-            logger.info(f"Found {len(users_screenshots)} screenshots in users_screenshots folder")
+            # STEP 1: Fetch screenshots starting from offset
+            screenshots = self._fetch_screenshots_with_offset(normalized_user, date_filter, offset, page_size)
             
-            # Search in screenshots folder (older structure)  
-            legacy_screenshots = self._search_screenshots_folder(normalized_user, date_filter)
-            screenshots.extend(legacy_screenshots)
-            logger.info(f"Found {len(legacy_screenshots)} screenshots in screenshots folder")
+            logger.info(f"Fetched {len(screenshots)} screenshots starting from offset {offset}")
             
-            # Remove duplicates based on filename, date, and project folder
-            unique_screenshots = []
-            seen = set()
-            for screenshot in screenshots:
-                # Include project folder in deduplication key to avoid removing different files
-                # from different projects that happen to have the same filename and date
-                key = (
-                    screenshot.get('filename'), 
-                    screenshot.get('date'), 
-                    screenshot.get('project_folder', 'unknown')
-                )
-                if key not in seen:
-                    seen.add(key)
-                    unique_screenshots.append(screenshot)
+            # STEP 2: Determine if there are more items (for "Load More" button)
+            has_more = len(screenshots) == page_size  # If we got full page, assume more exist
+            next_offset = offset + len(screenshots) if has_more else None
             
-            screenshots = unique_screenshots
-            logger.info(f"Total unique screenshots after deduplication: {len(screenshots)}")
-            
-            # Sort by date (newest first)
-            screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
-            
-            total_screenshots = len(screenshots)
-            
-            # Apply pagination
-            start_index = (page - 1) * page_size
-            end_index = start_index + page_size
-            paginated_screenshots = screenshots[start_index:end_index]
-            
-            # Calculate pagination info
-            total_pages = math.ceil(total_screenshots / page_size)
-            has_next = page < total_pages
-            has_previous = page > 1
-            
-            logger.info(f"Returning page {page}/{total_pages} with {len(paginated_screenshots)} screenshots")
-            
-            # Generate project folder statistics
+            # Generate project folder statistics from current batch only
             project_stats = self._generate_project_stats(screenshots)
             
             return {
                 "status": "success",
-                "message": f"Found {total_screenshots} screenshots for user {normalized_user}",
+                "message": f"Retrieved {len(screenshots)} screenshots starting from offset {offset}",
                 "data": {
                     "user": {
                         "email": normalized_user.replace('_at_', '@'),
@@ -227,44 +193,713 @@ class UserScreenshotsAPI(APIView):
                     },
                     "project_folders": project_stats,
                     "pagination": {
-                        "page": page,
+                        "offset": offset,
                         "page_size": page_size,
-                        "total_pages": total_pages,
-                        "total_screenshots": total_screenshots,
-                        "has_next": has_next,
-                        "has_previous": has_previous,
-                        "next_page": page + 1 if has_next else None,
-                        "previous_page": page - 1 if has_previous else None,
-                        "showing": f"{start_index + 1}-{min(end_index, total_screenshots)} of {total_screenshots}"
+                        "returned_count": len(screenshots),
+                        "has_more": has_more,
+                        "next_offset": next_offset,
+                        "showing": f"Items {offset + 1}-{offset + len(screenshots)}",
+                        "note": "Use 'offset' parameter for Load More functionality"
                     },
-                    "screenshots": paginated_screenshots,
-                    "data_source": "S3 (users_screenshots + screenshots folders)"
+                    "screenshots": screenshots,
+                    "data_source": "S3 (Load More pagination - no full scan)"
                 }
             }
             
         except Exception as e:
-            logger.error(f"Error searching user screenshots: {str(e)}")
-            return {
-                "status": "error",
-                "message": f"Error searching screenshots: {str(e)}",
-                "data": {
-                    "screenshots": [],
-                    "pagination": {
-                        "page": page,
-                        "page_size": page_size,
-                        "total_pages": 0,
-                        "total_screenshots": 0,
-                        "has_next": False,
-                        "has_previous": False
-                    }
-                }
-            }
+            logger.error(f"Error in offset-based search: {str(e)}")
+            return self._empty_response_offset(normalized_user, date_filter, offset, page_size)
     
-    def _search_users_screenshots_folder(self, normalized_user, date_filter):
-        """Search in users_screenshots folder structure"""
+    def _fetch_screenshots_with_offset(self, normalized_user, date_filter, offset, page_size):
+        """Fetch screenshots starting from a specific offset (for Load More)"""
         screenshots = []
         
         try:
+            logger.info(f"Offset fetch: starting from {offset}, fetching {page_size}")
+            
+            # Search in both folders but with offset handling
+            current_count = 0
+            
+            # Try users_screenshots folder first
+            users_screenshots = self._fetch_from_users_screenshots_offset(
+                normalized_user, date_filter, offset, page_size, current_count
+            )
+            screenshots.extend(users_screenshots)
+            current_count = len(screenshots)
+            logger.info(f"Got {len(users_screenshots)} from users_screenshots folder")
+            
+            # Try screenshots folder if we need more
+            if current_count < page_size:
+                remaining_offset = max(0, offset - current_count)
+                remaining_needed = page_size - current_count
+                
+                screenshots_folder = self._fetch_from_screenshots_offset(
+                    normalized_user, date_filter, remaining_offset, remaining_needed
+                )
+                screenshots.extend(screenshots_folder)
+                logger.info(f"Got {len(screenshots_folder)} from screenshots folder")
+            
+            # Remove duplicates quickly
+            unique_screenshots = []
+            seen = set()
+            for screenshot in screenshots:
+                key = (screenshot.get('filename'), screenshot.get('date'))
+                if key not in seen and len(unique_screenshots) < page_size:
+                    seen.add(key)
+                    unique_screenshots.append(screenshot)
+            
+            # Sort by date (newest first)
+            unique_screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
+            
+            return unique_screenshots[:page_size]
+            
+        except Exception as e:
+            logger.error(f"Error in offset fetch: {str(e)}")
+            return []
+    
+    def _fetch_from_screenshots_offset(self, normalized_user, date_filter, offset, page_size):
+        """Fast fetch from screenshots folder with offset support"""
+        screenshots = []
+        processed = 0
+        collected = 0
+        
+        try:
+            # Search ALL folders under the user (not just specific August folder)
+            user_prefix = f'screenshots/{normalized_user}/'
+            logger.info(f"Offset fetch: searching user folder: {user_prefix}")
+            
+            paginator = self.s3_client.get_paginator('list_objects_v2')
+            page_iterator = paginator.paginate(
+                Bucket=self.bucket_name,
+                Prefix=user_prefix,
+                PaginationConfig={'PageSize': 200}
+            )
+            
+            for page in page_iterator:
+                if collected >= page_size:
+                    break
+                    
+                if 'Contents' in page:
+                    for obj in page['Contents']:
+                        if obj['Key'].endswith(('.webp', '.png', '.jpg', '.jpeg')):
+                            key_parts = obj['Key'].split('/')
+                            if len(key_parts) >= 3:
+                                screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                if self._is_date_in_range(screenshot_date, date_filter):
+                                    if processed >= offset:
+                                        # This is a screenshot we want
+                                        project_folder = self._extract_project_folder(obj['Key'])
+                                        filename = key_parts[-1]
+                                        user_email = key_parts[1]
+                                        
+                                        screenshot_info = {
+                                            'filename': filename,
+                                            'date': screenshot_date,
+                                            'user_email': user_email,
+                                            'folder_structure': 'screenshots',
+                                            'project_folder': project_folder,
+                                            'file_key': obj['Key'],
+                                            'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                            'last_modified': obj['LastModified'].isoformat(),
+                                            'screenshot_url': self._generate_signed_url(obj['Key'])
+                                        }
+                                        screenshots.append(screenshot_info)
+                                        collected += 1
+                                        
+                                        if collected >= page_size:
+                                            break
+                                    
+                                    processed += 1
+                        
+        except Exception as e:
+            logger.error(f"Error in offset screenshots fetch: {str(e)}")
+        
+        logger.info(f"Offset screenshots fetch: processed {processed}, collected {collected}")
+        return screenshots
+    
+    def _fetch_from_users_screenshots_offset(self, normalized_user, date_filter, offset, page_size, current_count):
+        """Fast fetch from users_screenshots folder with offset"""
+        screenshots = []
+        processed = 0
+        collected = 0
+        
+        try:
+            # Search efficiently by date if we have date filter
+            if date_filter['start_date'] and date_filter['end_date']:
+                start_date = date_filter['start_datetime']
+                end_date = date_filter['end_datetime']
+                current_date = start_date
+                search_prefixes = []
+                
+                while current_date <= end_date:
+                    date_str = current_date.strftime('%Y-%m-%d')
+                    search_prefixes.append(f'users_screenshots/{date_str}/')
+                    current_date += timedelta(days=1)
+                
+                if len(search_prefixes) > 31:
+                    search_prefixes = ['users_screenshots/']
+            else:
+                search_prefixes = ['users_screenshots/']
+            
+            for prefix in search_prefixes:
+                if collected >= page_size:
+                    break
+                    
+                paginator = self.s3_client.get_paginator('list_objects_v2')
+                page_iterator = paginator.paginate(
+                    Bucket=self.bucket_name,
+                    Prefix=prefix,
+                    PaginationConfig={'PageSize': 100}
+                )
+                
+                for page in page_iterator:
+                    if collected >= page_size:
+                        break
+                        
+                    if 'Contents' in page:
+                        for obj in page['Contents']:
+                            if obj['Key'].endswith('.webp'):
+                                key_parts = obj['Key'].split('/')
+                                if len(key_parts) >= 4:
+                                    user_email = key_parts[2]
+                                    if self._user_matches(normalized_user, user_email):
+                                        screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                        if self._is_date_in_range(screenshot_date, date_filter):
+                                            if processed >= offset:
+                                                # This is a screenshot we want
+                                                project_folder = self._extract_project_folder(obj['Key'])
+                                                filename = key_parts[-1]
+                                                
+                                                screenshot_info = {
+                                                    'filename': filename,
+                                                    'date': screenshot_date,
+                                                    'user_email': user_email,
+                                                    'folder_structure': 'users_screenshots',
+                                                    'project_folder': project_folder,
+                                                    'file_key': obj['Key'],
+                                                    'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                                    'last_modified': obj['LastModified'].isoformat(),
+                                                    'screenshot_url': self._generate_signed_url(obj['Key'])
+                                                }
+                                                screenshots.append(screenshot_info)
+                                                collected += 1
+                                                
+                                                if collected >= page_size:
+                                                    break
+                                            
+                                            processed += 1
+        except Exception as e:
+            logger.error(f"Error in offset users_screenshots fetch: {str(e)}")
+        
+        return screenshots
+    
+    def _empty_response_offset(self, normalized_user, date_filter, offset, page_size):
+        """Return empty response for offset-based pagination"""
+        return {
+            "status": "success",
+            "message": f"No screenshots found for user {normalized_user} at offset {offset}",
+            "data": {
+                "user": {
+                    "email": normalized_user.replace('_at_', '@'),
+                    "normalized_email": normalized_user
+                },
+                "date_range": {
+                    "start_date": date_filter['start_date'],
+                    "end_date": date_filter['end_date']
+                },
+                "project_folders": {"total_projects": 0, "projects": []},
+                "pagination": {
+                    "offset": offset,
+                    "page_size": page_size,
+                    "returned_count": 0,
+                    "has_more": False,
+                    "next_offset": None,
+                    "showing": f"No items found at offset {offset}"
+                },
+                "screenshots": [],
+                "data_source": "S3 (No matching data found)"
+            }
+        }
+        """Fetch ONLY the screenshots needed for current page - FAST"""
+        screenshots = []
+        
+        try:
+            # Calculate skip amount for pagination
+            skip_count = (page - 1) * page_size
+            target_count = page_size
+            
+            logger.info(f"Fast fetch: skipping {skip_count}, fetching {target_count}")
+            
+            # Search in both folders but stop when we have enough
+            current_count = 0
+            processed_count = 0
+            
+            # Try users_screenshots folder first
+            if current_count < target_count:
+                users_screenshots = self._fetch_from_users_screenshots_fast(
+                    normalized_user, date_filter, skip_count, target_count, current_count
+                )
+                screenshots.extend(users_screenshots)
+                current_count = len(screenshots)
+                logger.info(f"Got {len(users_screenshots)} from users_screenshots folder")
+            
+            # Try screenshots folder if we need more
+            if current_count < target_count:
+                remaining_skip = max(0, skip_count - current_count)
+                remaining_needed = target_count - current_count
+                
+                screenshots_folder = self._fetch_from_screenshots_fast(
+                    normalized_user, date_filter, remaining_skip, remaining_needed
+                )
+                screenshots.extend(screenshots_folder)
+                logger.info(f"Got {len(screenshots_folder)} from screenshots folder")
+            
+            # Remove duplicates quickly
+            unique_screenshots = []
+            seen = set()
+            for screenshot in screenshots:
+                key = (screenshot.get('filename'), screenshot.get('date'))
+                if key not in seen and len(unique_screenshots) < target_count:
+                    seen.add(key)
+                    unique_screenshots.append(screenshot)
+            
+            # Sort by date (newest first)
+            unique_screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
+            
+            return unique_screenshots[:target_count]
+            
+        except Exception as e:
+            logger.error(f"Error in fast fetch: {str(e)}")
+            return []
+    
+    def _fetch_from_users_screenshots_fast(self, normalized_user, date_filter, skip_count, target_count, current_count):
+        """Fast fetch from users_screenshots folder"""
+        screenshots = []
+        processed = 0
+        collected = 0
+        
+        try:
+            # Search efficiently by date if we have date filter
+            if date_filter['start_date'] and date_filter['end_date']:
+                start_date = date_filter['start_datetime']
+                end_date = date_filter['end_datetime']
+                current_date = start_date
+                search_prefixes = []
+                
+                while current_date <= end_date:
+                    date_str = current_date.strftime('%Y-%m-%d')
+                    search_prefixes.append(f'users_screenshots/{date_str}/')
+                    current_date += timedelta(days=1)
+                
+                if len(search_prefixes) > 31:
+                    search_prefixes = ['users_screenshots/']
+            else:
+                search_prefixes = ['users_screenshots/']
+            
+            for prefix in search_prefixes:
+                if collected >= target_count:
+                    break
+                    
+                paginator = self.s3_client.get_paginator('list_objects_v2')
+                page_iterator = paginator.paginate(
+                    Bucket=self.bucket_name,
+                    Prefix=prefix,
+                    PaginationConfig={'PageSize': 100}
+                )
+                
+                for page in page_iterator:
+                    if collected >= target_count:
+                        break
+                        
+                    if 'Contents' in page:
+                        for obj in page['Contents']:
+                            if obj['Key'].endswith('.webp'):
+                                key_parts = obj['Key'].split('/')
+                                if len(key_parts) >= 4:
+                                    user_email = key_parts[2]
+                                    if self._user_matches(normalized_user, user_email):
+                                        screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                        if self._is_date_in_range(screenshot_date, date_filter):
+                                            if processed >= skip_count:
+                                                # This is a screenshot we want
+                                                project_folder = self._extract_project_folder(obj['Key'])
+                                                filename = key_parts[-1]
+                                                
+                                                screenshot_info = {
+                                                    'filename': filename,
+                                                    'date': screenshot_date,
+                                                    'user_email': user_email,
+                                                    'folder_structure': 'users_screenshots',
+                                                    'project_folder': project_folder,
+                                                    'file_key': obj['Key'],
+                                                    'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                                    'last_modified': obj['LastModified'].isoformat(),
+                                                    'screenshot_url': self._generate_signed_url(obj['Key'])
+                                                }
+                                                screenshots.append(screenshot_info)
+                                                collected += 1
+                                                
+                                                if collected >= target_count:
+                                                    break
+                                            
+                                            processed += 1
+        except Exception as e:
+            logger.error(f"Error in fast users_screenshots fetch: {str(e)}")
+        
+        return screenshots
+    
+    def _fetch_from_screenshots_fast(self, normalized_user, date_filter, skip_count, target_count):
+        """Fast fetch from screenshots folder with specific focus on August folder"""
+        screenshots = []
+        processed = 0
+        collected = 0
+        
+        try:
+            # If looking for August, go directly to the August folder we found
+            if (date_filter.get('start_date', '').startswith('2025-08') or 
+                date_filter.get('end_date', '').startswith('2025-08')):
+                
+                august_prefix = f'screenshots/{normalized_user}/DDS_Ağustos_2025_Sanal_Asistanlık_Süreci/'
+                logger.info(f"Fast fetch: targeting August folder directly: {august_prefix}")
+                
+                paginator = self.s3_client.get_paginator('list_objects_v2')
+                page_iterator = paginator.paginate(
+                    Bucket=self.bucket_name,
+                    Prefix=august_prefix,
+                    PaginationConfig={'PageSize': 200}
+                )
+                
+                for page in page_iterator:
+                    if collected >= target_count:
+                        break
+                        
+                    if 'Contents' in page:
+                        for obj in page['Contents']:
+                            if obj['Key'].endswith(('.webp', '.png', '.jpg', '.jpeg')):
+                                key_parts = obj['Key'].split('/')
+                                if len(key_parts) >= 3:
+                                    screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                    if self._is_date_in_range(screenshot_date, date_filter):
+                                        if processed >= skip_count:
+                                            # This is a screenshot we want
+                                            project_folder = self._extract_project_folder(obj['Key'])
+                                            filename = key_parts[-1]
+                                            user_email = key_parts[1]
+                                            
+                                            screenshot_info = {
+                                                'filename': filename,
+                                                'date': screenshot_date,
+                                                'user_email': user_email,
+                                                'folder_structure': 'screenshots',
+                                                'project_folder': project_folder,
+                                                'file_key': obj['Key'],
+                                                'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                                'last_modified': obj['LastModified'].isoformat(),
+                                                'screenshot_url': self._generate_signed_url(obj['Key'])
+                                            }
+                                            screenshots.append(screenshot_info)
+                                            collected += 1
+                                            
+                                            if collected >= target_count:
+                                                break
+                                        
+                                        processed += 1
+            else:
+                # For other dates, search normally but with limits
+                user_prefix = f'screenshots/{normalized_user}/'
+                paginator = self.s3_client.get_paginator('list_objects_v2')
+                page_iterator = paginator.paginate(
+                    Bucket=self.bucket_name,
+                    Prefix=user_prefix,
+                    PaginationConfig={'PageSize': 200, 'MaxItems': skip_count + target_count + 100}
+                )
+                
+                for page in page_iterator:
+                    if collected >= target_count:
+                        break
+                        
+                    if 'Contents' in page:
+                        for obj in page['Contents']:
+                            if obj['Key'].endswith(('.webp', '.png', '.jpg', '.jpeg')):
+                                key_parts = obj['Key'].split('/')
+                                if len(key_parts) >= 3:
+                                    screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                    if self._is_date_in_range(screenshot_date, date_filter):
+                                        if processed >= skip_count:
+                                            # This is a screenshot we want
+                                            project_folder = self._extract_project_folder(obj['Key'])
+                                            filename = key_parts[-1]
+                                            user_email = key_parts[1]
+                                            
+                                            screenshot_info = {
+                                                'filename': filename,
+                                                'date': screenshot_date,
+                                                'user_email': user_email,
+                                                'folder_structure': 'screenshots',
+                                                'project_folder': project_folder,
+                                                'file_key': obj['Key'],
+                                                'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                                'last_modified': obj['LastModified'].isoformat(),
+                                                'screenshot_url': self._generate_signed_url(obj['Key'])
+                                            }
+                                            screenshots.append(screenshot_info)
+                                            collected += 1
+                                            
+                                            if collected >= target_count:
+                                                break
+                                        
+                                        processed += 1
+                        
+        except Exception as e:
+            logger.error(f"Error in fast screenshots fetch: {str(e)}")
+        
+        logger.info(f"Fast screenshots fetch: processed {processed}, collected {collected}")
+        return screenshots
+    
+    def _count_total_screenshots(self, normalized_user, date_filter):
+        """Count total screenshots matching the criteria"""
+        total_count = 0
+        
+        try:
+            # Count in users_screenshots folder
+            users_count = self._count_users_screenshots_folder(normalized_user, date_filter)
+            total_count += users_count
+            logger.info(f"Found {users_count} screenshots in users_screenshots folder")
+            
+            # Count in screenshots folder
+            screenshots_count = self._count_screenshots_folder(normalized_user, date_filter)
+            total_count += screenshots_count
+            logger.info(f"Found {screenshots_count} screenshots in screenshots folder")
+            
+        except Exception as e:
+            logger.error(f"Error counting total screenshots: {str(e)}")
+        
+        return total_count
+    
+    def _fetch_screenshots_for_page(self, normalized_user, date_filter, start_index, page_size):
+        """Fetch only the screenshots needed for the specific page"""
+        screenshots = []
+        collected_count = 0
+        
+        try:
+            # Collect from users_screenshots folder first
+            if collected_count < start_index + page_size:
+                users_screenshots = self._search_users_screenshots_folder(
+                    normalized_user, date_filter, max_items=start_index + page_size
+                )
+                screenshots.extend(users_screenshots)
+                collected_count = len(screenshots)
+            
+            # Collect from screenshots folder if needed
+            if collected_count < start_index + page_size:
+                remaining_needed = (start_index + page_size) - collected_count
+                screenshots_folder = self._search_screenshots_folder(
+                    normalized_user, date_filter, max_items=remaining_needed
+                )
+                screenshots.extend(screenshots_folder)
+            
+            # Remove duplicates
+            unique_screenshots = []
+            seen = set()
+            for screenshot in screenshots:
+                key = (
+                    screenshot.get('filename'), 
+                    screenshot.get('date'), 
+                    screenshot.get('project_folder', 'unknown')
+                )
+                if key not in seen:
+                    seen.add(key)
+                    unique_screenshots.append(screenshot)
+            
+            # Sort by date (newest first)
+            unique_screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
+            
+            # Return only the page we need
+            return unique_screenshots[start_index:start_index + page_size]
+            
+        except Exception as e:
+            logger.error(f"Error fetching screenshots for page: {str(e)}")
+            return []
+    
+    def _empty_response(self, normalized_user, date_filter, page, page_size):
+        """Return empty response when no screenshots found"""
+        return {
+            "status": "success",
+            "message": f"No screenshots found for user {normalized_user} in the specified date range",
+            "data": {
+                "user": {
+                    "email": normalized_user.replace('_at_', '@'),
+                    "normalized_email": normalized_user
+                },
+                "date_range": {
+                    "start_date": date_filter['start_date'],
+                    "end_date": date_filter['end_date']
+                },
+                "project_folders": {"total_projects": 0, "projects": []},
+                "pagination": {
+                    "page": page,
+                    "page_size": page_size,
+                    "total_pages": 0,
+                    "total_screenshots": 0,
+                    "has_next": False,
+                    "has_previous": False,
+                    "next_page": None,
+                    "previous_page": None,
+                    "showing": "0-0 of 0"
+                },
+                "screenshots": [],
+                "data_source": "S3 (No matching data found)"
+            }
+        }
+    
+    def _count_users_screenshots_folder(self, normalized_user, date_filter):
+        """Count screenshots in users_screenshots folder"""
+        count = 0
+        try:
+            # Use same logic as search but just count
+            if date_filter['start_date'] and date_filter['end_date']:
+                start_date = date_filter['start_datetime']
+                end_date = date_filter['end_datetime']
+                current_date = start_date
+                search_prefixes = []
+                
+                while current_date <= end_date:
+                    date_str = current_date.strftime('%Y-%m-%d')
+                    search_prefixes.append(f'users_screenshots/{date_str}/')
+                    current_date += timedelta(days=1)
+                
+                if len(search_prefixes) > 31:
+                    search_prefixes = ['users_screenshots/']
+            else:
+                search_prefixes = ['users_screenshots/']
+            
+            for prefix in search_prefixes:
+                paginator = self.s3_client.get_paginator('list_objects_v2')
+                page_iterator = paginator.paginate(
+                    Bucket=self.bucket_name,
+                    Prefix=prefix,
+                    PaginationConfig={'PageSize': 100}
+                )
+                
+                for page in page_iterator:
+                    if 'Contents' in page:
+                        for obj in page['Contents']:
+                            if obj['Key'].endswith('.webp'):
+                                key_parts = obj['Key'].split('/')
+                                if len(key_parts) >= 4:
+                                    user_email = key_parts[2]
+                                    if self._user_matches(normalized_user, user_email):
+                                        date_part = key_parts[1]
+                                        if self._is_date_in_range(date_part, date_filter):
+                                            count += 1
+        except Exception as e:
+            logger.error(f"Error counting users_screenshots: {str(e)}")
+        
+        return count
+    
+    def _count_screenshots_folder(self, normalized_user, date_filter):
+        """Count screenshots in screenshots folder - COMPLETE search"""
+        count = 0
+        try:
+            user_prefix = f'screenshots/{normalized_user}/'
+            paginator = self.s3_client.get_paginator('list_objects_v2')
+            page_iterator = paginator.paginate(
+                Bucket=self.bucket_name,
+                Prefix=user_prefix,
+                PaginationConfig={'PageSize': 1000}  # Larger pages for counting
+            )
+            
+            total_processed = 0
+            for page in page_iterator:
+                if 'Contents' in page:
+                    for obj in page['Contents']:
+                        total_processed += 1
+                        if obj['Key'].endswith(('.webp', '.png', '.jpg', '.jpeg')):
+                            key_parts = obj['Key'].split('/')
+                            if len(key_parts) >= 3:
+                                # Extract date from path/filename using enhanced method
+                                screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                if self._is_date_in_range(screenshot_date, date_filter):
+                                    count += 1
+                                    if count <= 5:  # Debug first few matches
+                                        logger.info(f"  MATCH {count}: {obj['Key']} -> {screenshot_date}")
+                
+                # Log progress for large datasets
+                if total_processed % 5000 == 0:
+                    logger.info(f"  Processed {total_processed} files, found {count} matches so far...")
+                    
+        except Exception as e:
+            logger.error(f"Error counting screenshots: {str(e)}")
+        
+        logger.info(f"Counting complete: {count} screenshots found from {total_processed} total files")
+        return count
+    
+    def _user_matches(self, normalized_user, user_email):
+        """Check if user email matches (handle both @ and _at_ formats)"""
+        return (
+            normalized_user.lower() == user_email.lower() or
+            normalized_user.lower() in user_email.lower() or
+            user_email.lower() in normalized_user.lower()
+        )
+    
+    def _extract_date_from_path_enhanced(self, key_parts):
+        """Enhanced date extraction including Turkish month names"""
+        # Turkish month mapping
+        turkish_months = {
+            'ocak': '01', 'şubat': '02', 'mart': '03', 'nisan': '04',
+            'mayıs': '05', 'haziran': '06', 'temmuz': '07', 'ağustos': '08',
+            'eylül': '09', 'ekim': '10', 'kasım': '11', 'aralık': '12'
+        }
+        
+        # First try the original date extraction
+        original_date = self._extract_date_from_path(key_parts)
+        if original_date:
+            return original_date
+        
+        # Try to extract from folder names with Turkish months
+        for part in key_parts:
+            part_lower = part.lower()
+            
+            # Look for patterns like "DDS_Ağustos_2025" or "2025_Ağustos"
+            for turkish_month, month_num in turkish_months.items():
+                if turkish_month in part_lower:
+                    # Try to find year in the same part
+                    year_match = re.search(r'(\d{4})', part)
+                    if year_match:
+                        year = year_match.group(1)
+                        return f"{year}-{month_num}-01"  # Use first day of month
+        
+        # If no date found, try to extract from filename again
+        filename = key_parts[-1] if key_parts else ""
+        
+        # Handle .webp files with timestamp format
+        if filename.endswith('.webp'):
+            webp_match = re.match(r'^(\d{4}-\d{2}-\d{2})_', filename)
+            if webp_match:
+                return webp_match.group(1)
+        
+        return None
+        """Search in users_screenshots folder structure with item limit"""
+        screenshots = []
+        items_processed = 0
+        
+        try:
+            logger.info(f"DEBUG: Starting users_screenshots search for user: {normalized_user}")
+            logger.info(f"DEBUG: Date filter start: {date_filter.get('start_date')}, end: {date_filter.get('end_date')}")
+            logger.info(f"DEBUG: Max items to fetch: {max_items}")
+            
+            # Test S3 connection first
+            try:
+                response = self.s3_client.list_objects_v2(
+                    Bucket=self.bucket_name,
+                    Prefix='users_screenshots/',
+                    MaxKeys=5
+                )
+                logger.info(f"DEBUG: S3 connection successful. Found {len(response.get('Contents', []))} objects in users_screenshots/")
+            except Exception as e:
+                logger.error(f"DEBUG: S3 connection failed: {str(e)}")
+                return screenshots
+            
             # If we have a date filter, search more efficiently by date
             if date_filter['start_date'] and date_filter['end_date']:
                 # Generate date range to search
@@ -287,6 +922,9 @@ class UserScreenshotsAPI(APIView):
                 search_prefixes = ['users_screenshots/']
             
             for prefix in search_prefixes:
+                if max_items and items_processed >= max_items:
+                    break
+                    
                 logger.info(f"Searching in users_screenshots prefix: {prefix}")
                 
                 paginator = self.s3_client.get_paginator('list_objects_v2')
@@ -294,14 +932,22 @@ class UserScreenshotsAPI(APIView):
                     Bucket=self.bucket_name,
                     Prefix=prefix,
                     PaginationConfig={
-                        'PageSize': 1000,  # Process in smaller chunks
-                        'MaxItems': None   # Remove item limit entirely
+                        'PageSize': 50,  # Process in chunks of 50
+                        'MaxItems': max_items - items_processed if max_items else None
                     }
                 )
                 
                 for page in page_iterator:
+                    if max_items and items_processed >= max_items:
+                        break
+                        
                     if 'Contents' in page:
                         for obj in page['Contents']:
+                            if max_items and items_processed >= max_items:
+                                break
+                                
+                            items_processed += 1
+                            
                             if obj['Key'].endswith('.webp'):
                                 # Parse key: users_screenshots/2025-09-01/user_at_domain.com/project_folder/filename.webp
                                 key_parts = obj['Key'].split('/')
@@ -312,6 +958,12 @@ class UserScreenshotsAPI(APIView):
                                     user_email = key_parts[2]  # user_at_domain.com
                                     filename = key_parts[-1]  # filename.webp
                                     
+                                    # Debug logging for first few items
+                                    if items_processed <= 5:
+                                        logger.info(f"DEBUG: Processing file {items_processed}: {obj['Key']}")
+                                        logger.info(f"DEBUG: Extracted user_email: {user_email}, normalized_user: {normalized_user}")
+                                        logger.info(f"DEBUG: Date part: {date_part}")
+                                    
                                     # Check if this matches our user (handle both @ and _at_ formats)
                                     user_matches = (
                                         normalized_user.lower() == user_email.lower() or
@@ -319,9 +971,13 @@ class UserScreenshotsAPI(APIView):
                                         user_email.lower() in normalized_user.lower()
                                     )
                                     
+                                    if items_processed <= 5:
+                                        logger.info(f"DEBUG: User matches: {user_matches}")
+                                    
                                     if user_matches:
-                                        # Check date filter
-                                        if self._is_date_in_range(date_part, date_filter):
+                                        # Check date filter using enhanced date extraction
+                                        screenshot_date = self._extract_date_from_path_enhanced(key_parts)
+                                        if self._is_date_in_range(screenshot_date, date_filter):
                                             # Extract project folder from path
                                             project_folder = self._extract_project_folder(obj['Key'])
                                             
@@ -338,20 +994,22 @@ class UserScreenshotsAPI(APIView):
                                             }
                                             screenshots.append(screenshot_info)
             
+            logger.info(f"Users_screenshots search completed: {len(screenshots)} screenshots found from {items_processed} S3 objects")
+            
         except Exception as e:
             logger.error(f"Error searching users_screenshots folder: {str(e)}")
         
         return screenshots
     
-    def _search_screenshots_folder(self, normalized_user, date_filter):
-        """Search in legacy screenshots folder structure - Optimized for large datasets"""
+    def _search_screenshots_folder(self, normalized_user, date_filter, max_items=None):
+        """Search in legacy screenshots folder structure - Optimized with item limit"""
         screenshots = []
         
         try:
             # Search for user folder in screenshots directory
             user_prefix = f'screenshots/{normalized_user}/'
             
-            logger.info(f"Searching in screenshots folder with prefix: {user_prefix}")
+            logger.info(f"Searching in screenshots folder with prefix: {user_prefix}, max_items: {max_items}")
             
             # Use streaming approach to handle large datasets
             paginator = self.s3_client.get_paginator('list_objects_v2')
@@ -359,8 +1017,8 @@ class UserScreenshotsAPI(APIView):
                 Bucket=self.bucket_name,
                 Prefix=user_prefix,
                 PaginationConfig={
-                    'PageSize': 1000,  # Process in smaller chunks
-                    'MaxItems': None   # Remove item limit entirely
+                    'PageSize': 50,  # Process in chunks of 50
+                    'MaxItems': max_items   # Limit total items from S3
                 }
             )
             
@@ -392,14 +1050,15 @@ class UserScreenshotsAPI(APIView):
                                 )
                                 
                                 if user_matches:
-                                    # Check date filter
+                                    # Check date filter using enhanced date extraction
+                                    screenshot_date = self._extract_date_from_path_enhanced(key_parts)
                                     if self._is_date_in_range(screenshot_date, date_filter):
                                         # Extract project folder from path
                                         project_folder = self._extract_project_folder(obj['Key'])
                                         
                                         screenshot_info = {
                                             'filename': filename,
-                                            'date': screenshot_date,
+                                            'date': screenshot_date,  # Use the enhanced extracted date
                                             'user_email': user_email,
                                             'folder_structure': 'screenshots',
                                             'project_folder': project_folder,
@@ -413,14 +1072,14 @@ class UserScreenshotsAPI(APIView):
                     # Add batch to main list
                     screenshots.extend(batch_screenshots)
                     
-                    # Log progress every 10k processed files
-                    if processed_count % 10000 == 0:
+                    # Log progress for large datasets
+                    if processed_count % 1000 == 0:
                         logger.info(f"Processed {processed_count} files, found {len(screenshots)} matching screenshots")
                         
         except Exception as e:
             logger.error(f"Error searching screenshots folder: {str(e)}")
         
-        logger.info(f"Final screenshots folder scan completed: {len(screenshots)} screenshots found")
+        logger.info(f"Screenshots folder scan completed: {len(screenshots)} screenshots found from {processed_count} objects")
         return screenshots
     
     def _extract_project_folder(self, key):
