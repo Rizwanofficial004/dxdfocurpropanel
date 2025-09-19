@@ -186,9 +186,9 @@ const LiveTracking = () => {
     }
     
     // If direct access failed, try local proxy
-    if (!e.target.src.includes('127.0.0.1:8001')) {
+    if (!e.target.src.includes('127.0.0.1:8000')) {
       console.log('Trying local proxy...');
-      const proxyUrl = `http://127.0.0.1:8001/api/proxy/s3-image?url=${encodeURIComponent(originalUrl)}`;
+      const proxyUrl = `http://127.0.0.1:8000/api/proxy/s3-image?url=${encodeURIComponent(originalUrl)}`;
       e.target.crossOrigin = '';
       e.target.src = proxyUrl;
       return;

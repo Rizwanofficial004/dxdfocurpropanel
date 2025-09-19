@@ -197,7 +197,7 @@ const ActivityStream = () => {
       const endpoints = [
         `https://dxdtime.ddsolutions.io/api/users/`,
         `http://127.0.0.1:8000/api/users/`,
-        `http://localhost:8001/api/users/`
+        `http://localhost:8000/api/users/`
       ];
 
       let response = null;
@@ -309,7 +309,7 @@ const ActivityStream = () => {
       const endpoints = [
         `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`,
         `http://127.0.0.1:8000/api/users/search/?${searchParams.toString()}`,
-        `http://localhost:8001/api/users/search/?${searchParams.toString()}`
+        `http://localhost:8000/api/users/search/?${searchParams.toString()}`
       ];
 
       let response = null;

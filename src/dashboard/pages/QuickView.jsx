@@ -372,7 +372,7 @@ const QuickView = () => {
   const [runningTimers, setRunningTimers] = useState({});
 
   // API configuration
-  const BACKEND_API_BASE_URL = 'http://127.0.0.1:8001/api';
+  const BACKEND_API_BASE_URL = 'http://127.0.0.1:8000/api';
 
   // Fetch users from local backend server
   const fetchUsers = async () => {
@@ -617,7 +617,7 @@ const QuickView = () => {
               ←
             </PaginationButton>
             
-            <PaginationButton active={true}>
+            <PaginationButton active="true">
               1
             </PaginationButton>
             
