@@ -5,6 +5,7 @@ URL patterns for Authentication API
 from django.urls import path
 from . import views, simple_views
 from .all_users_views import AllRegisteredUsersAPIView
+from .single_user_views import SingleUserAPIView
 
 urlpatterns = [
     # Authentication endpoints with unique email validation
@@ -21,6 +22,9 @@ urlpatterns = [
     
     # All registered users endpoint with numeric_value field
     path('register/users/', AllRegisteredUsersAPIView.as_view(), name='all_registered_users'),
+    
+    # Single user by ID endpoint
+    path('register/users/<int:user_id>/', SingleUserAPIView.as_view(), name='single_registered_user'),
     
     # Database testing with unique email stats
     path('database-test/', views.DatabaseTestAPIView.as_view(), name='auth_database_test'),

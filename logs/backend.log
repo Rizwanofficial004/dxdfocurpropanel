@@ -15913,3 +15913,546 @@ INFO 2025-09-19 09:49:32,677 basehttp 30940 23256 "OPTIONS /api/auth/register/us
 INFO 2025-09-19 09:49:32,682 middleware 30940 23256 Request: GET /api/auth/register/users/
 INFO 2025-09-19 09:49:32,736 middleware 30940 23256 Response: 200 for GET /api/auth/register/users/
 INFO 2025-09-19 09:49:32,807 basehttp 30940 23256 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:22:03,354 basehttp 24772 27416 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-19 11:22:03,371 middleware 24772 27416 Request: GET /api/users/
+INFO 2025-09-19 11:22:04,523 middleware 24772 4744 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:22:04,624 middleware 24772 4744 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:22:04,628 basehttp 24772 4744 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:22:04,632 middleware 24772 13708 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:22:04,678 middleware 24772 13708 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:22:04,681 basehttp 24772 13708 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:22:04,732 views 24772 27416 S3 client initialized successfully for enhanced users search
+INFO 2025-09-19 11:22:04,733 middleware 24772 27416 Response: 400 for GET /api/users/
+WARNING 2025-09-19 11:22:04,733 log 24772 27416 Bad Request: /api/users/
+WARNING 2025-09-19 11:22:04,734 basehttp 24772 27416 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-19 11:22:32,119 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:22:32,150 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:22:32,150 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:22:35,112 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:22:35,136 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:22:35,137 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:23:05,123 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:23:05,146 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:23:05,147 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:23:32,118 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:23:32,152 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:23:32,156 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:23:35,116 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:23:35,150 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:23:35,151 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:24:05,111 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:24:05,131 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:24:05,132 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:24:32,114 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:24:32,142 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:24:32,143 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:24:35,111 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:24:35,139 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:24:35,140 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:25:05,116 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:25:05,138 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:25:05,139 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:25:32,133 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:25:32,194 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:25:32,196 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:26:32,122 middleware 24772 27416 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:26:32,149 middleware 24772 27416 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:26:32,150 basehttp 24772 27416 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 11:26:32,152 middleware 24772 13708 Request: GET /api/auth/register/users/
+INFO 2025-09-19 11:26:32,185 middleware 24772 13708 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 11:26:32,186 basehttp 24772 13708 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:55:34,698 basehttp 24772 7892 "OPTIONS /api/auth/register/users/ HTTP/1.1" 200 0
+INFO 2025-09-19 15:55:34,698 basehttp 24772 19204 "OPTIONS /api/auth/register/users/ HTTP/1.1" 200 0
+INFO 2025-09-19 15:55:34,705 middleware 24772 19204 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:55:34,768 middleware 24772 19204 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:55:34,771 basehttp 24772 19204 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:55:34,774 middleware 24772 7892 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:55:34,833 middleware 24772 7892 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:55:34,834 basehttp 24772 7892 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:56:26,977 middleware 24772 32400 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:56:27,004 middleware 24772 32400 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:56:27,006 basehttp 24772 32400 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:56:27,009 middleware 24772 22120 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:56:27,042 middleware 24772 22120 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:56:27,044 basehttp 24772 22120 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:57:19,608 middleware 24772 22120 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:57:19,675 middleware 24772 22120 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:57:19,678 basehttp 24772 22120 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:57:21,200 middleware 24772 22120 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:57:21,252 middleware 24772 22120 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:57:21,253 basehttp 24772 22120 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:57:21,255 middleware 24772 32400 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:57:21,282 middleware 24772 32400 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:57:21,284 basehttp 24772 32400 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:57:26,982 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:57:27,015 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:57:27,016 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:57:51,216 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:57:51,279 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:57:51,281 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:58:21,227 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:58:21,290 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:58:21,291 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:58:26,974 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:58:27,006 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:58:27,007 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:58:51,204 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:58:51,244 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:58:51,245 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:59:21,208 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:59:21,265 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:59:21,266 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:59:26,986 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:59:27,022 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:59:27,023 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 15:59:51,215 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 15:59:51,287 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 15:59:51,288 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:00:21,211 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:00:21,275 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:00:21,276 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:00:26,989 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:00:27,024 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:00:27,026 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:00:51,208 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:00:51,234 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:00:51,235 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:01:21,204 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:01:21,234 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:01:21,235 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:01:26,987 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:01:27,039 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:01:27,040 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:01:51,208 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:01:51,268 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:01:51,270 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:02:21,210 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:02:21,271 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:02:21,272 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:02:26,975 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:02:27,005 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:02:27,006 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:02:51,211 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:02:51,258 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:02:51,259 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:03:21,203 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:03:21,238 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:03:21,239 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:03:26,987 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:03:27,028 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:03:27,029 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:03:51,203 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:03:51,231 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:03:51,234 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:04:21,209 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:04:21,272 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:04:21,273 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:04:26,984 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:04:27,011 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:04:27,012 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:04:51,209 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:04:51,258 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:04:51,259 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:05:21,205 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:05:21,246 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:05:21,248 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:05:26,995 middleware 24772 10296 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:05:27,042 middleware 24772 10296 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:05:27,043 basehttp 24772 10296 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:34:05,985 middleware 24772 20260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:34:06,031 middleware 24772 20260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:34:06,032 basehttp 24772 20260 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:34:06,122 middleware 24772 20260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:34:06,172 middleware 24772 20260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:34:06,173 basehttp 24772 20260 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:34:09,605 middleware 24772 20260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:34:09,669 middleware 24772 20260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:34:09,670 basehttp 24772 20260 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:34:09,674 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:34:09,720 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:34:09,722 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:34:26,979 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:34:27,019 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:34:27,020 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:34:39,615 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:34:39,647 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:34:39,648 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:35:09,979 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:35:10,019 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:35:10,020 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:35:26,976 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:35:26,999 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:35:27,000 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:35:39,971 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:35:39,994 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:35:39,995 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:36:09,981 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:36:10,018 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:36:10,019 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:36:26,983 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:36:27,020 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:36:27,021 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:36:39,974 middleware 24772 28760 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:36:40,003 middleware 24772 28760 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:36:40,004 basehttp 24772 28760 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:37:09,980 middleware 21916 16672 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:37:10,011 middleware 21916 16672 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:37:10,013 basehttp 21916 16672 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:37:26,973 middleware 21916 16672 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:37:27,000 middleware 21916 16672 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:37:27,001 basehttp 21916 16672 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:38:26,982 middleware 15760 20084 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:38:27,010 middleware 15760 20084 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:38:27,013 basehttp 15760 20084 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:38:27,016 middleware 15760 20084 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:38:27,042 middleware 15760 20084 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:38:27,044 basehttp 15760 20084 "GET /api/auth/register/users/ HTTP/1.1" 200 11544
+INFO 2025-09-19 16:39:25,291 middleware 13000 12860 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:39:26,850 all_users_views 13000 12860 New user registered: testuser_20250919_163925 (testuser_20250919_163925@example.com) with numeric_value: 100
+INFO 2025-09-19 16:39:26,859 middleware 13000 12860 Response: 201 for POST /api/auth/register/users/
+INFO 2025-09-19 16:39:26,863 middleware 13000 12860 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:39:26,989 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,023 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,025 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 12286
+INFO 2025-09-19 16:39:27,027 middleware 20804 19260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,059 middleware 20804 19260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,060 basehttp 20804 19260 "GET /api/auth/register/users/ HTTP/1.1" 200 12286
+INFO 2025-09-19 16:39:27,516 all_users_views 13000 12860 New user registered: apiuser_20250919_163925 (apiuser_20250919_163925@test.com) with numeric_value: 250
+INFO 2025-09-19 16:39:27,527 middleware 13000 12860 Response: 201 for POST /api/auth/register/users/
+INFO 2025-09-19 16:39:27,531 middleware 13000 12860 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:39:27,533 middleware 13000 12860 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-19 16:39:27,533 log 13000 12860 Bad Request: /api/auth/register/users/
+INFO 2025-09-19 16:39:27,535 middleware 13000 12860 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:39:27,539 middleware 13000 12860 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-19 16:39:27,539 log 13000 12860 Bad Request: /api/auth/register/users/
+INFO 2025-09-19 16:39:27,542 middleware 13000 12860 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:39:27,542 middleware 13000 12860 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-19 16:39:27,543 log 13000 12860 Bad Request: /api/auth/register/users/
+INFO 2025-09-19 16:39:27,544 middleware 13000 12860 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,583 middleware 13000 12860 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,586 middleware 13000 12860 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,593 middleware 13000 12860 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,595 middleware 13000 12860 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:39:27,605 middleware 13000 12860 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:39:57,912 middleware 7840 34080 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:39:59,707 all_users_views 7840 34080 New user registered: demo_user_163957 (demo_163957@company.com) with numeric_value: 999
+INFO 2025-09-19 16:39:59,717 middleware 7840 34080 Response: 201 for POST /api/auth/register/users/
+INFO 2025-09-19 16:40:26,984 middleware 20804 19260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:40:27,014 middleware 20804 19260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:40:27,015 basehttp 20804 19260 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:40:27,017 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:40:27,041 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:40:27,042 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:40:50,826 middleware 3636 5612 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:40:51,817 middleware 3636 5612 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:41:26,979 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:41:27,019 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:41:27,020 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:41:27,022 middleware 20804 19260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:41:27,060 middleware 20804 19260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:41:27,061 basehttp 20804 19260 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:42:26,985 middleware 20804 19260 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:42:27,012 middleware 20804 19260 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:42:27,014 basehttp 20804 19260 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:42:27,015 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:42:27,041 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:42:27,043 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:42:38,152 middleware 20804 26272 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:42:38,156 middleware 20804 26272 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-19 16:42:38,156 log 20804 26272 Bad Request: /api/auth/register/users/
+WARNING 2025-09-19 16:42:38,157 basehttp 20804 26272 "POST /api/auth/register/users/ HTTP/1.1" 400 259
+INFO 2025-09-19 16:43:04,777 middleware 20804 26272 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:43:04,781 middleware 20804 26272 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-19 16:43:04,782 log 20804 26272 Bad Request: /api/auth/register/users/
+WARNING 2025-09-19 16:43:04,783 basehttp 20804 26272 "POST /api/auth/register/users/ HTTP/1.1" 400 259
+INFO 2025-09-19 16:43:17,495 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:43:17,544 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:43:17,545 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:43:26,975 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:43:27,007 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:43:27,009 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:43:39,980 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:43:40,007 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:43:40,008 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:44:09,997 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:44:10,058 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:44:10,059 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:44:26,986 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:44:27,021 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:44:27,022 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:44:39,977 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:44:40,030 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:44:40,031 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:45:09,973 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:45:10,017 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:45:10,018 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:45:19,091 middleware 20804 7756 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:45:19,177 middleware 20804 7756 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:45:19,179 basehttp 20804 7756 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:45:26,974 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:45:27,004 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:45:27,005 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 13673
+INFO 2025-09-19 16:46:04,402 middleware 20804 34052 Request: POST /api/auth/register/users/
+INFO 2025-09-19 16:46:05,028 all_users_views 20804 34052 New user registered: postman_test_001 (test001@postman.com) with numeric_value: 888
+INFO 2025-09-19 16:46:05,039 middleware 20804 34052 Response: 201 for POST /api/auth/register/users/
+INFO 2025-09-19 16:46:05,040 basehttp 20804 34052 "POST /api/auth/register/users/ HTTP/1.1" 201 723
+INFO 2025-09-19 16:46:10,979 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:46:11,039 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:46:11,041 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:46:26,982 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:46:27,020 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:46:27,021 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:47:06,539 middleware 20804 2016 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:47:06,563 middleware 20804 2016 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:47:06,564 basehttp 20804 2016 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:47:11,984 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:47:12,017 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:47:12,018 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:47:26,987 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:47:27,015 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:47:27,017 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:48:12,981 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:48:13,017 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:48:13,018 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:48:26,985 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:48:27,017 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:48:27,019 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:49:00,898 middleware 20804 8708 Request: GET /api/auth/register/users/28
+INFO 2025-09-19 16:49:01,279 middleware 20804 8708 Response: 404 for GET /api/auth/register/users/28
+WARNING 2025-09-19 16:49:01,280 log 20804 8708 Not Found: /api/auth/register/users/28
+WARNING 2025-09-19 16:49:01,281 basehttp 20804 8708 "GET /api/auth/register/users/28 HTTP/1.1" 404 25598
+INFO 2025-09-19 16:49:10,178 middleware 20804 8708 Request: GET /api/auth/register/users/user_id=28
+INFO 2025-09-19 16:49:10,190 middleware 20804 8708 Response: 404 for GET /api/auth/register/users/user_id=28
+WARNING 2025-09-19 16:49:10,190 log 20804 8708 Not Found: /api/auth/register/users/user_id=28
+WARNING 2025-09-19 16:49:10,191 basehttp 20804 8708 "GET /api/auth/register/users/user_id=28 HTTP/1.1" 404 25624
+INFO 2025-09-19 16:49:13,975 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:49:14,000 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:49:14,001 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:49:18,547 middleware 20804 8708 Request: GET /api/auth/register/users/user=28
+INFO 2025-09-19 16:49:18,559 middleware 20804 8708 Response: 404 for GET /api/auth/register/users/user=28
+WARNING 2025-09-19 16:49:18,560 log 20804 8708 Not Found: /api/auth/register/users/user=28
+WARNING 2025-09-19 16:49:18,561 basehttp 20804 8708 "GET /api/auth/register/users/user=28 HTTP/1.1" 404 25615
+INFO 2025-09-19 16:49:26,982 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:49:27,021 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:49:27,022 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:49:32,631 middleware 20804 8708 Request: GET /api/auth/register/users/user=28
+INFO 2025-09-19 16:49:32,645 middleware 20804 8708 Response: 404 for GET /api/auth/register/users/user=28
+WARNING 2025-09-19 16:49:32,646 log 20804 8708 Not Found: /api/auth/register/users/user=28
+WARNING 2025-09-19 16:49:32,647 basehttp 20804 8708 "GET /api/auth/register/users/user=28 HTTP/1.1" 404 25615
+INFO 2025-09-19 16:49:37,330 middleware 20804 8708 Request: GET /api/auth/register/users/user_id=28
+INFO 2025-09-19 16:49:37,344 middleware 20804 8708 Response: 404 for GET /api/auth/register/users/user_id=28
+WARNING 2025-09-19 16:49:37,345 log 20804 8708 Not Found: /api/auth/register/users/user_id=28
+WARNING 2025-09-19 16:49:37,345 basehttp 20804 8708 "GET /api/auth/register/users/user_id=28 HTTP/1.1" 404 25624
+INFO 2025-09-19 16:50:14,986 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:50:15,026 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:50:15,027 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:50:26,986 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:50:27,034 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:50:27,035 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:51:15,972 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:51:16,002 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:51:16,004 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:51:26,992 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:51:27,032 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:51:27,033 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:52:16,971 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:52:16,998 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:52:16,999 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:52:26,976 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:52:27,005 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:52:27,007 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:53:17,974 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:53:18,004 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:53:18,006 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:53:26,975 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:53:27,000 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:53:27,001 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:54:18,980 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:54:19,017 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:54:19,018 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:54:26,979 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:54:27,013 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:54:27,014 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:55:19,977 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:55:20,004 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:55:20,005 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:55:26,980 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:55:27,017 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:55:27,018 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:55:52,789 middleware 20804 24968 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:55:52,810 middleware 20804 24968 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:55:52,811 basehttp 20804 24968 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:56:20,970 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:56:20,995 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:56:20,996 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:56:26,979 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:56:27,020 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:56:27,021 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:57:21,973 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:57:22,000 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:57:22,001 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:57:26,988 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:57:27,016 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:57:27,017 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:58:22,982 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:58:23,018 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:58:23,019 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:58:26,984 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:58:27,019 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:58:27,021 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:59:23,980 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:59:24,007 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:59:24,008 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 16:59:26,987 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 16:59:27,021 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 16:59:27,022 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:00:24,979 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:00:25,001 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:00:25,002 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:00:26,974 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:00:27,041 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:00:27,043 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:00:29,172 middleware 20804 6856 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:00:31,195 middleware 20804 6856 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:00:31,198 basehttp 20804 6856 "GET /api/auth/register/users/ HTTP/1.1" 200 48496
+INFO 2025-09-19 17:00:31,572 basehttp 20804 34632 "GET /static/rest_framework/css/default.css HTTP/1.1" 200 1152
+INFO 2025-09-19 17:00:31,588 basehttp 20804 21832 "GET /static/rest_framework/css/prettify.css HTTP/1.1" 200 817
+INFO 2025-09-19 17:00:31,603 basehttp 20804 6856 "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 200 121457
+INFO 2025-09-19 17:00:31,622 basehttp 20804 25192 "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 200 3426
+INFO 2025-09-19 17:00:31,644 basehttp 20804 34632 "GET /static/rest_framework/js/csrf.js HTTP/1.1" 200 1793
+INFO 2025-09-19 17:00:31,657 basehttp 20804 25496 "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 200 3796
+INFO 2025-09-19 17:00:31,684 basehttp 20804 34632 "GET /static/rest_framework/js/load-ajax-form.js HTTP/1.1" 200 59
+INFO 2025-09-19 17:00:31,685 basehttp 20804 21832 "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 200 39680
+INFO 2025-09-19 17:00:31,698 basehttp 20804 6856 "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 200 13632
+INFO 2025-09-19 17:00:31,706 basehttp 20804 25192 "GET /static/rest_framework/js/default.js HTTP/1.1" 200 1268
+INFO 2025-09-19 17:00:31,715 basehttp 20804 6856 "GET /static/rest_framework/img/grid.png HTTP/1.1" 200 1458
+INFO 2025-09-19 17:00:31,735 basehttp 20804 996 "GET /static/rest_framework/js/jquery-3.7.1.min.js HTTP/1.1" 200 87533
+INFO 2025-09-19 17:00:31,868 middleware 20804 996 Request: GET /favicon.ico
+INFO 2025-09-19 17:00:31,889 middleware 20804 996 Response: 404 for GET /favicon.ico
+WARNING 2025-09-19 17:00:31,890 log 20804 996 Not Found: /favicon.ico
+WARNING 2025-09-19 17:00:31,892 basehttp 20804 996 "GET /favicon.ico HTTP/1.1" 404 12795
+INFO 2025-09-19 17:01:10,159 middleware 7104 31548 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:01:11,294 middleware 7104 31548 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:01:25,975 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:01:26,010 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:01:26,012 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:01:26,973 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:01:27,010 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:01:27,011 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:02:26,992 middleware 20804 4460 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:02:27,049 middleware 20804 4460 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:02:27,051 basehttp 20804 4460 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:02:27,053 middleware 20804 11776 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:02:27,088 middleware 20804 11776 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:02:27,090 basehttp 20804 11776 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:03:26,989 middleware 13364 30168 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:03:27,026 middleware 13364 30168 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:03:27,028 basehttp 13364 30168 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:03:27,032 middleware 13364 24892 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:03:27,070 middleware 13364 24892 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:03:27,071 basehttp 13364 24892 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:04:06,033 middleware 34356 6996 Request: GET /api/auth/register/users/28/
+INFO 2025-09-19 17:04:07,104 middleware 34356 6996 Response: 200 for GET /api/auth/register/users/28/
+INFO 2025-09-19 17:04:07,107 middleware 34356 6996 Request: GET /api/auth/register/users/27/
+INFO 2025-09-19 17:04:07,110 middleware 34356 6996 Response: 200 for GET /api/auth/register/users/27/
+INFO 2025-09-19 17:04:07,112 middleware 34356 6996 Request: GET /api/auth/register/users/26/
+INFO 2025-09-19 17:04:07,116 middleware 34356 6996 Response: 200 for GET /api/auth/register/users/26/
+INFO 2025-09-19 17:04:07,119 middleware 34356 6996 Request: GET /api/auth/register/users/25/
+INFO 2025-09-19 17:04:07,123 middleware 34356 6996 Response: 200 for GET /api/auth/register/users/25/
+INFO 2025-09-19 17:04:07,126 middleware 34356 6996 Request: GET /api/auth/register/users/999/
+ERROR 2025-09-19 17:04:07,128 single_user_views 34356 6996 Error retrieving user 999: No User matches the given query.
+Traceback (most recent call last):
+  File "C:\Users\Dell 5400\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 85, in get_object_or_404
+    return queryset.get(*args, **kwargs)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Dell 5400\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\db\models\query.py", line 637, in get
+    raise self.model.DoesNotExist(
+        "%s matching query does not exist." % self.model._meta.object_name
+    )
+django.contrib.auth.models.User.DoesNotExist: User matching query does not exist.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Dell 5400\dxdfocurpropanel\apps\auth_api\single_user_views.py", line 50, in get
+    user = get_object_or_404(users, id=user_id)
+  File "C:\Users\Dell 5400\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\shortcuts.py", line 87, in get_object_or_404
+    raise Http404(
+        "No %s matches the given query." % queryset.model._meta.object_name
+    )
+django.http.response.Http404: No User matches the given query.
+INFO 2025-09-19 17:04:07,182 middleware 34356 6996 Response: 500 for GET /api/auth/register/users/999/
+ERROR 2025-09-19 17:04:07,182 log 34356 6996 Internal Server Error: /api/auth/register/users/999/
+INFO 2025-09-19 17:04:07,185 middleware 34356 6996 Request: GET /api/auth/register/users/1/
+INFO 2025-09-19 17:04:07,189 single_user_views 34356 6996 No profile found for user 1
+INFO 2025-09-19 17:04:07,189 middleware 34356 6996 Response: 200 for GET /api/auth/register/users/1/
+INFO 2025-09-19 17:04:26,982 middleware 21912 32708 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:04:27,024 middleware 21912 32708 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:04:27,025 basehttp 21912 32708 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:04:27,027 middleware 21912 5076 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:04:27,062 middleware 21912 5076 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:04:27,063 basehttp 21912 5076 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:04:45,263 middleware 12620 17496 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:04:45,295 middleware 12620 17496 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:04:45,297 basehttp 12620 17496 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:04:59,328 middleware 30632 4664 Request: GET /api/auth/register/users/999/
+INFO 2025-09-19 17:05:00,492 middleware 30632 4664 Response: 404 for GET /api/auth/register/users/999/
+WARNING 2025-09-19 17:05:00,492 log 30632 4664 Not Found: /api/auth/register/users/999/
+INFO 2025-09-19 17:05:26,984 middleware 6976 11092 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:05:27,023 middleware 6976 11092 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:05:27,024 basehttp 6976 11092 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:05:27,027 middleware 6976 16964 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:05:27,068 middleware 6976 16964 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:05:27,069 basehttp 6976 16964 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:05:36,094 middleware 6976 21288 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:05:36,118 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:05:36,119 basehttp 6976 21288 "GET /api/auth/register/users/? HTTP/1.1" 200 14329
+INFO 2025-09-19 17:05:46,646 middleware 6976 21288 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:05:46,698 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:05:46,700 basehttp 6976 21288 "GET /api/auth/register/users/?28 HTTP/1.1" 200 14329
+INFO 2025-09-19 17:05:59,204 middleware 6976 21288 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:05:59,263 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:05:59,265 basehttp 6976 21288 "GET /api/auth/register/users/?user-id=28 HTTP/1.1" 200 14329
+INFO 2025-09-19 17:06:01,736 middleware 6976 21288 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:06:01,802 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:06:01,803 basehttp 6976 21288 "GET /api/auth/register/users/?user-_d=28 HTTP/1.1" 200 14329
+INFO 2025-09-19 17:06:04,130 middleware 6976 21288 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:06:04,194 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:06:04,195 basehttp 6976 21288 "GET /api/auth/register/users/?user_d=28 HTTP/1.1" 200 14329
+INFO 2025-09-19 17:06:06,028 middleware 6976 21288 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:06:06,113 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:06:06,116 basehttp 6976 21288 "GET /api/auth/register/users/?user_id=28 HTTP/1.1" 200 14329
+INFO 2025-09-19 17:06:26,987 middleware 6976 16964 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:06:27,135 middleware 6976 16964 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:06:27,138 basehttp 6976 16964 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:06:27,141 middleware 6976 11092 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:06:27,206 middleware 6976 11092 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:06:27,207 basehttp 6976 11092 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:06:31,413 middleware 6976 21288 Request: GET /api/auth/register/users_28/
+INFO 2025-09-19 17:06:31,490 middleware 6976 21288 Response: 404 for GET /api/auth/register/users_28/
+WARNING 2025-09-19 17:06:31,491 log 6976 21288 Not Found: /api/auth/register/users_28/
+WARNING 2025-09-19 17:06:31,493 basehttp 6976 21288 "GET /api/auth/register/users_28/ HTTP/1.1" 404 25823
+INFO 2025-09-19 17:06:45,411 middleware 6976 21288 Request: GET /api/auth/register/users/25/
+INFO 2025-09-19 17:06:45,419 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/25/
+INFO 2025-09-19 17:06:45,420 basehttp 6976 21288 "GET /api/auth/register/users/25/ HTTP/1.1" 200 969
+INFO 2025-09-19 17:06:53,825 middleware 6976 21288 Request: GET /api/auth/register/users/26/
+INFO 2025-09-19 17:06:53,834 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/26/
+INFO 2025-09-19 17:06:53,835 basehttp 6976 21288 "GET /api/auth/register/users/26/ HTTP/1.1" 200 929
+INFO 2025-09-19 17:07:03,044 middleware 6976 21288 Request: GET /api/auth/register/users/22/
+INFO 2025-09-19 17:07:03,055 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/22/
+INFO 2025-09-19 17:07:03,057 basehttp 6976 21288 "GET /api/auth/register/users/22/ HTTP/1.1" 200 914
+INFO 2025-09-19 17:07:19,678 middleware 6976 21288 Request: GET /api/auth/register/users/28/
+INFO 2025-09-19 17:07:19,691 middleware 6976 21288 Response: 200 for GET /api/auth/register/users/28/
+INFO 2025-09-19 17:07:19,694 basehttp 6976 21288 "GET /api/auth/register/users/28/ HTTP/1.1" 200 901
+INFO 2025-09-19 17:07:26,983 middleware 6976 11092 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:07:27,126 middleware 6976 11092 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:07:27,130 basehttp 6976 11092 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:07:27,136 middleware 6976 16964 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:07:27,232 middleware 6976 16964 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:07:27,234 basehttp 6976 16964 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:08:26,984 middleware 6976 16964 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:08:27,126 middleware 6976 16964 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:08:27,129 basehttp 6976 16964 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-19 17:08:27,134 middleware 6976 11092 Request: GET /api/auth/register/users/
+INFO 2025-09-19 17:08:27,198 middleware 6976 11092 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-19 17:08:27,200 basehttp 6976 11092 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
