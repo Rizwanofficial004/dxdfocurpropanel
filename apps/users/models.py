@@ -40,6 +40,7 @@ class UserProfile(models.Model):
     # Additional metadata
     profile_completed = models.BooleanField(default=False, help_text="Whether user has completed their profile")
     email_notifications = models.BooleanField(default=True, help_text="User's email notification preference")
+    numeric_value = models.IntegerField(default=0, help_text="Numeric value parameter for user")
     privacy_level = models.CharField(
         max_length=10,
         choices=[
