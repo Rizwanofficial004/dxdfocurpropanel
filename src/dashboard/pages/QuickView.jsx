@@ -138,20 +138,40 @@ const StartButton = styled.button`
   border-radius: 4px;
   padding: 8px 16px;
   font-size: 12px;
-  cursor: ${props => props.running ? 'not-allowed' : 'pointer'};
+  cursor: pointer;
   font-weight: 600;
   height: 32px;
   min-width: 70px;
   text-transform: uppercase;
   
   &:hover {
-    background: ${props => props.running ? '#dc2626' : '#059669'};
+    background: ${props => props.running ? '#b91c1c' : '#059669'};
   }
   
   &:disabled {
     background: #6b7280;
     cursor: not-allowed;
   }
+`;
+
+const TimerContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+`;
+
+const CountdownDisplay = styled.div`
+  font-size: 11px;
+  color: ${props => props.running ? '#059669' : '#6b7280'};
+  font-weight: 500;
+  min-height: 16px;
+`;
+
+const ScreenshotCounter = styled.div`
+  font-size: 10px;
+  color: #8b5cf6;
+  font-weight: 500;
 `;
 
 // Controls Section
@@ -370,9 +390,12 @@ const QuickView = () => {
   // Timer management
   const [timerValues, setTimerValues] = useState({});
   const [runningTimers, setRunningTimers] = useState({});
+  const [timerIntervals, setTimerIntervals] = useState({});
+  const [screenshotCounts, setScreenshotCounts] = useState({});
+  const [nextScreenshotTime, setNextScreenshotTime] = useState({});
 
   // API configuration
-  const BACKEND_API_BASE_URL = 'http://127.0.0.1:8001/api';
+  const BACKEND_API_BASE_URL = 'http://127.0.0.1:8000/api';
 
   // Fetch users from local backend server
   const fetchUsers = async () => {
@@ -381,10 +404,10 @@ const QuickView = () => {
     
     try {
       console.log('🔄 Fetching users from local backend server...');
-      console.log('📡 API URL:', `${BACKEND_API_BASE_URL}/users/search/`);
+      console.log('📡 API URL:', `${BACKEND_API_BASE_URL}/auth/register/users/`);
       
       // Fetch user data from local backend
-      const response = await fetch(`${BACKEND_API_BASE_URL}/users/search/`, {
+      const response = await fetch(`${BACKEND_API_BASE_URL}/auth/register/users/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -403,34 +426,47 @@ const QuickView = () => {
       
       if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
         users = data.data.users.map(user => ({
-          id: user.id,
-          name: user.display_name || user.email,
-          team: `Screenshots: ${user.total_screenshots}`,
-          status: user.status === 'active' ? 'Active' : 'Inactive',
-          designation: user.status === 'active' ? 'Active User' : 'Inactive User',
-          screensToday: user.total_screenshots || 0,
-          lastLogin: user.screenshots && user.screenshots.length > 0 ? 
-            new Date(user.screenshots[0].date).toLocaleDateString() : 'Never',
+          id: user.user_id,
+          name: user.full_name || user.username || user.email,
+          team: user.profile?.organization_name || 'Team N/A',
+          status: user.is_active ? 'Active' : 'Inactive',
+          designation: user.profile?.job_title || user.profile?.industry || 'Employee',
+          screensToday: 0, // Not available in this API response
+          lastLogin: user.last_login ? 
+            new Date(user.last_login).toLocaleDateString() : 
+            user.date_joined ? new Date(user.date_joined).toLocaleDateString() : 'Never',
           captureScreenshots: true,
-          dashboardAccess: 'User',
-          isOnline: user.status === 'active',
+          dashboardAccess: user.is_staff ? 'Admin' : 'User',
+          isOnline: user.is_active,
           email: user.email,
-          originalName: user.original_name,
-          totalSize: user.total_size_mb || 0,
-          activeDays: user.active_days_count || 0
+          originalName: user.username,
+          country: user.profile?.country || 'N/A',
+          phoneNumber: user.profile?.phone_number || 'N/A',
+          completionPercentage: user.profile?.completion_percentage || 0,
+          profileCompleted: user.profile?.profile_completed || false,
+          numericValue: user.profile?.numeric_value || 0
         }));
         
         console.log(`✅ Processed ${users.length} users from backend:`, users.map(u => u.name));
+        
+        // Show success message
+        toastService.success(`✅ Successfully loaded ${users.length} users from backend`);
+      } else {
+        console.warn('⚠️ Unexpected API response format:', data);
+        setError('Unexpected API response format');
       }
 
       setEmployeesData(users);
       
     } catch (error) {
       console.error('❌ Error fetching users:', error);
-      setError(`Failed to connect to backend server: ${error.message}`);
+      setError(`Failed to connect to backend server; Failed to fetch - Showing fallback data`);
       
       // Fallback to empty array if backend fails
       setEmployeesData([]);
+      
+      // Show error toast
+      toastService.error(`❌ Failed to connect to backend server: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -459,27 +495,115 @@ const QuickView = () => {
     }));
   };
 
-  const handleStartTimer = (userId, username) => {
-    const timerSeconds = timerValues[userId] || 5; // Default 5 seconds
-    
-    console.log(`🚀 Starting timer for ${username}: ${timerSeconds} seconds`);
-    
-    // Mark timer as running
-    setRunningTimers(prev => ({
-      ...prev,
-      [userId]: true
-    }));
+  // Screenshot capture function
+  const captureScreenshot = async (userId, username) => {
+    try {
+      console.log(`📸 Capturing screenshot for ${username} (ID: ${userId})`);
+      
+      // API call to trigger screenshot capture
+      const response = await fetch(`${BACKEND_API_BASE_URL}/dashboard/capture-screenshot/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          username: username,
+          timestamp: new Date().toISOString()
+        }),
+      });
 
-    // Simulate timer countdown
-    setTimeout(() => {
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Screenshot captured for ${username}:`, result);
+        
+        // Update screenshot count
+        setScreenshotCounts(prev => ({
+          ...prev,
+          [userId]: (prev[userId] || 0) + 1
+        }));
+        
+        toastService.success(`📸 Screenshot captured for ${username}!`);
+        return true;
+      } else {
+        throw new Error(`Screenshot API error: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`❌ Screenshot capture failed for ${username}:`, error);
+      
+      // Fallback: Simulate screenshot capture for demo purposes
+      console.log(`🔄 Using fallback simulation for ${username}`);
+      
+      // Update screenshot count (simulated)
+      setScreenshotCounts(prev => ({
+        ...prev,
+        [userId]: (prev[userId] || 0) + 1
+      }));
+      
+      toastService.success(`📸 Screenshot simulated for ${username} (Backend not available)`);
+      return true;
+    }
+  };
+
+  const handleStartTimer = (userId, username) => {
+    console.log(`🔥 handleStartTimer called for ${username} (ID: ${userId})`);
+    
+    try {
+      const timerSeconds = timerValues[userId] || 5; // Default 5 seconds
+      
+      if (timerSeconds < 1) {
+        console.log(`❌ Invalid timer value: ${timerSeconds}`);
+        toastService.error('⚠️ Timer must be at least 1 second');
+        return;
+      }
+
+      console.log(`🚀 Starting screenshot timer for ${username}: every ${timerSeconds} seconds`);
+      
+      // Mark timer as running
+      setRunningTimers(prev => ({
+        ...prev,
+        [userId]: true
+      }));
+      
+      // Simple test - just toggle state for now
+      setTimeout(() => {
+        console.log(`✅ Timer test completed for ${username}`);
+        toastService.success(`⏰ Timer test completed for ${username}!`);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('❌ Error in handleStartTimer:', error);
+      toastService.error(`❌ Timer error: ${error.message}`);
+    }
+  };
+
+  const handleStopTimer = (userId, username) => {
+    console.log(`⏹️ handleStopTimer called for ${username} (ID: ${userId})`);
+    
+    try {
+      // Mark timer as stopped
       setRunningTimers(prev => ({
         ...prev,
         [userId]: false
       }));
-      console.log(`⏰ Timer completed for ${username}!`);
-      toastService.success(`⏰ Timer completed for ${username}! (${timerSeconds} seconds)`);
-    }, timerSeconds * 1000);
+      
+      console.log(`⏹️ Timer stopped for ${username}`);
+      toastService.info(`⏹️ Timer stopped for ${username}`);
+      
+    } catch (error) {
+      console.error('❌ Error in handleStopTimer:', error);
+      toastService.error(`❌ Stop timer error: ${error.message}`);
+    }
   };
+
+  // Cleanup intervals on component unmount
+  React.useEffect(() => {
+    return () => {
+      Object.values(timerIntervals).forEach(interval => {
+        if (interval) clearInterval(interval);
+      });
+    };
+  }, [timerIntervals]);
 
   // Filter employees based on search query and status
   const filteredEmployees = employeesData.filter(employee =>
@@ -519,6 +643,22 @@ const QuickView = () => {
             )}
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={() => {
+                console.log('🧪 Test button clicked!');
+                alert('Test button works!');
+              }}
+              style={{
+                padding: '8px 12px',
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              TEST
+            </button>
             <RefreshButton onClick={handleRefresh} disabled={loading}>
               {loading ? '🔄' : '↻'} Refresh ({employeesData.length} users)
             </RefreshButton>
@@ -554,27 +694,69 @@ const QuickView = () => {
                       <StatusBadge>{employee.status}</StatusBadge>
                     </TableCell>
                     <TableCell>
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'}}>
-                        <TimerInput
-                          type="number"
-                          min="1"
-                          max="3600"
-                          placeholder="5"
-                          value={timerValues[employee.id] || ''}
-                          onChange={(e) => handleTimerValueChange(employee.id, e.target.value)}
-                          disabled={runningTimers[employee.id]}
-                        />
-                        <span style={{fontSize: '12px', fontWeight: '500'}}>sec</span>
-                      </div>
+                      <TimerContainer>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+                          <TimerInput
+                            type="number"
+                            min="1"
+                            max="3600"
+                            placeholder="5"
+                            value={timerValues[employee.id] || ''}
+                            onChange={(e) => handleTimerValueChange(employee.id, e.target.value)}
+                            disabled={runningTimers[employee.id]}
+                          />
+                          <span style={{fontSize: '12px', fontWeight: '500'}}>sec</span>
+                        </div>
+                        <CountdownDisplay running={runningTimers[employee.id]}>
+                          {runningTimers[employee.id] && nextScreenshotTime[employee.id] !== undefined
+                            ? `Next: ${nextScreenshotTime[employee.id]}s`
+                            : runningTimers[employee.id] 
+                            ? 'Capturing...' 
+                            : 'Ready'}
+                        </CountdownDisplay>
+                        <ScreenshotCounter>
+                          📸 {screenshotCounts[employee.id] || 0} shots
+                        </ScreenshotCounter>
+                      </TimerContainer>
                     </TableCell>
                     <TableCell>
-                      <StartButton
-                        running={runningTimers[employee.id]}
-                        disabled={runningTimers[employee.id]}
-                        onClick={() => handleStartTimer(employee.id, employee.name)}
+                      <button
+                        style={{
+                          background: runningTimers[employee.id] ? '#dc2626' : '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          padding: '8px 16px',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          height: '32px',
+                          minWidth: '70px',
+                          textTransform: 'uppercase',
+                          zIndex: 9999,
+                          position: 'relative'
+                        }}
+                        onClick={() => {
+                          console.log('🚨 BUTTON CLICKED - Basic test');
+                          alert('BUTTON CLICKED!');
+                          
+                          try {
+                            console.log(`Employee ID: ${employee.id}, Name: ${employee.name}`);
+                            console.log(`Running state: ${runningTimers[employee.id]}`);
+                            
+                            if (runningTimers[employee.id]) {
+                              handleStopTimer(employee.id, employee.name);
+                            } else {
+                              handleStartTimer(employee.id, employee.name);
+                            }
+                          } catch (error) {
+                            console.error('❌ Button click error:', error);
+                            alert(`Error: ${error.message}`);
+                          }
+                        }}
                       >
-                        {runningTimers[employee.id] ? 'RUNNING...' : 'START'}
-                      </StartButton>
+                        {runningTimers[employee.id] ? 'STOP' : 'START'}
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))
