@@ -16462,3 +16462,14 @@ INFO 2025-09-19 17:09:27,100 basehttp 6976 11092 "GET /api/auth/register/users/ 
 INFO 2025-09-19 17:09:27,106 middleware 6976 16964 Request: GET /api/auth/register/users/
 INFO 2025-09-19 17:09:27,214 middleware 6976 16964 Response: 200 for GET /api/auth/register/users/
 INFO 2025-09-19 17:09:27,216 basehttp 6976 16964 "GET /api/auth/register/users/ HTTP/1.1" 200 14329
+INFO 2025-09-20 11:21:09,318 middleware 20124 17824 Request: POST /api/auth/register/post_users/
+INFO 2025-09-20 11:21:10,871 post_users_views 20124 17824 New user registered via POST API: testuser_123 (test123@example.com) with numeric_value: 77
+INFO 2025-09-20 11:21:10,879 middleware 20124 17824 Response: 201 for POST /api/auth/register/post_users/
+INFO 2025-09-20 11:21:10,881 basehttp 20124 17824 "POST /api/auth/register/post_users/ HTTP/1.1" 201 823
+INFO 2025-09-20 11:21:31,119 middleware 20124 17824 Request: GET /api/auth/register/post_users/29/
+INFO 2025-09-20 11:21:31,177 middleware 20124 17824 Response: 404 for GET /api/auth/register/post_users/29/
+WARNING 2025-09-20 11:21:31,180 log 20124 17824 Not Found: /api/auth/register/post_users/29/
+WARNING 2025-09-20 11:21:31,181 basehttp 20124 17824 "GET /api/auth/register/post_users/29/ HTTP/1.1" 404 36679
+INFO 2025-09-20 11:21:40,059 middleware 20124 17824 Request: GET /api/auth/register/users/29/
+INFO 2025-09-20 11:21:40,065 middleware 20124 17824 Response: 200 for GET /api/auth/register/users/29/
+INFO 2025-09-20 11:21:40,066 basehttp 20124 17824 "GET /api/auth/register/users/29/ HTTP/1.1" 200 872

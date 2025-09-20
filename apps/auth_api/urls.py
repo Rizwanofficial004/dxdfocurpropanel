@@ -6,6 +6,7 @@ from django.urls import path
 from . import views, simple_views
 from .all_users_views import AllRegisteredUsersAPIView
 from .single_user_views import SingleUserAPIView
+from .post_users_views import PostUsersAPIView
 
 urlpatterns = [
     # Authentication endpoints with unique email validation
@@ -22,6 +23,9 @@ urlpatterns = [
     
     # All registered users endpoint with numeric_value field
     path('register/users/', AllRegisteredUsersAPIView.as_view(), name='all_registered_users'),
+    
+    # Enhanced POST users registration endpoint
+    path('register/post_users/', PostUsersAPIView.as_view(), name='post_users_registration'),
     
     # Single user by ID endpoint
     path('register/users/<int:user_id>/', SingleUserAPIView.as_view(), name='single_registered_user'),
