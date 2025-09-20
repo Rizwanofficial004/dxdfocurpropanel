@@ -136,16 +136,6 @@ const LiveTracking = () => {
   const formatUserEmail = (email) => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
-    if (sizeInMB >= 1024) {
-      return `${(sizeInMB / 1024).toFixed(2)} GB`;
-    }
-    return `${sizeInMB.toFixed(2)} MB`;
-  };
-
-  // Format user email for display
-  const formatUserEmail = (email) => {
-    return email?.replace('_at_', '@') || 'Unknown User';
-  };
 
   // Get image URL - try direct S3 access first, fallback to local proxy
   const getImageUrl = (originalUrl) => {

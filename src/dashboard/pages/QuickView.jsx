@@ -372,62 +372,127 @@ const QuickView = () => {
   const [runningTimers, setRunningTimers] = useState({});
 
   // API configuration
-  const BACKEND_API_BASE_URL = 'http://127.0.0.1:8000/api';
+  // API Configuration
+  const getApiUrl = () => {
+    // In development, use Vite proxy
+    if (import.meta.env.DEV) {
+      return '/api';
+    }
+    // In production, use full URL
+    return 'https://dxdtime.ddsolutions.io/api';
+  };
 
-  // Fetch users from local backend server
+  // Fetch users from external API
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log('🔄 Fetching users from local backend server...');
-      console.log('📡 API URL:', `${BACKEND_API_BASE_URL}/users/search/`);
+      const apiBaseUrl = getApiUrl();
+      const apiUrl = `${apiBaseUrl}/auth/register/users/`;
+      console.log('🔄 Fetching users from API...');
+      console.log('📡 API URL:', apiUrl);
+      console.log('🌐 Environment:', import.meta.env.DEV ? 'Development (using proxy)' : 'Production (direct)');
       
-      // Fetch user data from local backend
-      const response = await fetch(`${BACKEND_API_BASE_URL}/users/search/`, {
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      // Fetch user data from external API with timeout
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`Backend API error: ${response.status}`);
+        throw new Error(`External API error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('📥 Backend API Response:', data);
+      console.log('📥 External API Response:', data);
 
       // Transform backend data to employee format
       let users = [];
+      let userArray = null;
       
-      if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
-        users = data.data.users.map(user => ({
-          id: user.id,
-          name: user.display_name || user.email,
-          team: `Screenshots: ${user.total_screenshots}`,
-          status: user.status === 'active' ? 'Active' : 'Inactive',
-          designation: user.status === 'active' ? 'Active User' : 'Inactive User',
-          screensToday: user.total_screenshots || 0,
-          lastLogin: user.screenshots && user.screenshots.length > 0 ? 
-            new Date(user.screenshots[0].date).toLocaleDateString() : 'Never',
+      // Handle different API response structures
+      if (data.status === 'success') {
+        if (data.data && data.data.users && Array.isArray(data.data.users)) {
+          // Correct API structure: data.data.users is the array of users
+          userArray = data.data.users;
+          console.log('✅ Using correct API structure (data.data.users as array)');
+        } else if (data.data && Array.isArray(data.data)) {
+          // Alternative structure: data.data is directly an array of users
+          userArray = data.data;
+          console.log('✅ Using alternative API structure (data.data as array)');
+        } else if (data.users && Array.isArray(data.users)) {
+          // Alternative structure: data.users
+          userArray = data.users;
+          console.log('✅ Using alternative API structure (data.users)');
+        }
+      }
+      
+      if (userArray && userArray.length > 0) {
+        users = userArray.map(user => ({
+          id: user.user_id,
+          name: user.full_name || user.username || user.email,
+          team: user.profile?.organization_name || 'No Organization',
+          status: user.is_active ? 'Active' : 'Inactive',
+          designation: user.profile?.job_title || 'Employee',
+          screensToday: user.profile?.numeric_value || 0, // Using numeric_value as a substitute
+          lastLogin: user.last_login ? 
+            new Date(user.last_login).toLocaleDateString() : 'Never',
           captureScreenshots: true,
-          dashboardAccess: 'User',
-          isOnline: user.status === 'active',
+          dashboardAccess: user.is_staff ? 'Admin' : 'User',
+          isOnline: user.is_active,
           email: user.email,
-          originalName: user.original_name,
-          totalSize: user.total_size_mb || 0,
-          activeDays: user.active_days_count || 0
+          originalName: user.username,
+          totalSize: 0, // This API doesn't provide size info
+          activeDays: 0, // This API doesn't provide active days
+          dateJoined: new Date(user.date_joined).toLocaleDateString(),
+          country: user.profile?.country || 'Unknown',
+          phoneNumber: user.profile?.phone_number || 'Not provided',
+          profileCompletion: user.profile?.completion_percentage || 0
         }));
         
-        console.log(`✅ Processed ${users.length} users from backend:`, users.map(u => u.name));
+        console.log(`✅ Processed ${users.length} users from external API:`, users.map(u => u.name));
+      } else {
+        console.warn('❌ No users found in API response or invalid data structure');
+        console.log('📊 Full API Response:', data);
+        console.log('📋 API Response keys:', Object.keys(data));
+        if (data.data) {
+          console.log('📋 data.data type:', typeof data.data);
+          console.log('📋 data.data is array:', Array.isArray(data.data));
+          if (Array.isArray(data.data)) {
+            console.log('📋 data.data length:', data.data.length);
+            if (data.data.length > 0) {
+              console.log('📋 First item in data.data:', data.data[0]);
+            }
+          } else {
+            console.log('📋 data.data keys:', Object.keys(data.data));
+          }
+        }
+        // Set empty array as fallback
+        users = [];
       }
 
+      console.log(`🎯 Setting employeesData with ${users.length} users`);
       setEmployeesData(users);
       
     } catch (error) {
       console.error('❌ Error fetching users:', error);
-      setError(`Failed to connect to backend server: ${error.message}`);
+      
+      if (error.name === 'AbortError') {
+        setError('Request timeout - API took too long to respond (>10s)');
+      } else {
+        setError(`Failed to connect to external API: ${error.message}`);
+      }
       
       // Fallback to empty array if backend fails
       setEmployeesData([]);
