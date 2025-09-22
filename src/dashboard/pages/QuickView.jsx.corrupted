@@ -1,0 +1,606 @@
+import React, { useState, useEffect } from 'react';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { useLanguage } from '../context/LanguageContext';
+import {
+  QuickViewContainer,
+  QuickViewCard,
+  NotificationBanner,
+  NotificationContent,
+  DownloadLink,
+  QuickViewHeader,
+  HeaderTop,
+  HeaderLeft,
+  QuickViewTitle,
+  HelpIcon,
+  HeaderControls,
+  SearchContainer,
+  SearchInput,
+  SearchIcon,
+  DateControl,
+  DateIcon,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHeaderRow,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
+  StatusIndicator,
+  EmployeeInfo,
+  EmployeeAvatar,
+  EmployeeName,
+  TeamName,
+  TimeCell,
+  ProductivityBar,
+  ProductivityFill,
+  PercentageText,
+  PaginationContainer,
+  EmployeesPerPage,
+  PerPageSelector,
+  PaginationRight,
+  PageInfo,
+  PaginationNav,
+  NavButton,
+  ResponsiveStyles
+} from './QuickView.styles';
+
+const QuickView = () => {
+  const { t } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [selectedDate, setSelectedDate] = useState('08/09/2025');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [timerData, setTimerData] = useState([]);
+  const [apiStatus, setApiStatus] = useState('disconnected'); // 'connected', 'disconnected', 'loading'
+
+  // Timer API configuration
+  const TIMER_API_BASE_URL = 'https://dxdtime.ddsolutions.io/api/user-timer/';ner,
+  SearchInput,
+  SearchIcon,
+  DateControl,
+  DateIcon,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHeaderRow,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
+  StatusIndicator,
+  EmployeeInfo,
+  EmployeeAvatar,
+  EmployeeName,
+  TeamName,
+  TimeCell,
+  ProductivityBar,
+  ProductivityFill,
+  PercentageText,
+  PaginationContainer,
+  EmployeesPerPage,
+  PerPageSelector,
+  PaginationRight,
+  PageInfo,
+  PaginationNav,
+  NavButton,
+  ResponsiveStyles
+} from './QuickView.styles';
+
+const QuickView = () => {
+  const { t } = useLanguage();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [selectedDate, setSelectedDate] = useState('08/09/2025');
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [timerData, setTimerData] = useState([]);
+  const [apiStatus, setApiStatus] = useState('disconnected'); // 'connected', 'disconnected', 'loading'
+
+  // Timer API configuration
+  const TIMER_API_BASE_URL = 'https://dxdtime.ddsolutions.io/api/user-timer/';
+
+  // Fetch timer statistics (optional)
+  const fetchTimerStats = async () => {
+    try {
+      const response = await fetch(`${TIMER_API_BASE_URL}stats/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const stats = await response.json();
+        console.log('Timer Stats:', stats);
+        return stats;
+      }
+    } catch (error) {
+      console.log('Timer stats not available:', error);
+    }
+    return null;
+  };
+
+  // Fetch timer data from API
+  const fetchTimerData = async () => {
+    setLoading(true);
+    setError(null);
+    setApiStatus('loading');
+    try {
+      // Add timeout for network requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      console.log('🔄 Fetching real users from:', TIMER_API_BASE_URL);
+      const response = await fetch(TIMER_API_BASE_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('📥 Raw API Response:', data);
+      console.log('📊 Response Type:', typeof data);
+      console.log('🔍 Available Keys:', Object.keys(data || {}));
+      
+      // Handle different response formats from the real API
+      if (data && Array.isArray(data) && data.length > 0) {
+        // Handle direct array response
+        console.log('✅ Processing direct array with', data.length, 'users');
+        const transformedData = data.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || `User ${index + 1}`,
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || index + 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }));
+        console.log('🎯 Transformed Users:', transformedData);
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+        // Handle success wrapped array response
+        console.log('✅ Processing success wrapped array with', data.data.length, 'users');
+        const transformedData = data.data.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || `User ${index + 1}`,
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || index + 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }));
+        console.log('🎯 Transformed Users:', transformedData);
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        // Handle wrapped array response (without success flag)
+        console.log('✅ Processing wrapped array with', data.data.length, 'users');
+        const transformedData = data.data.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || `User ${index + 1}`,
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || index + 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }));
+        console.log('🎯 Transformed Users:', transformedData);
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      if (data.users && Array.isArray(data.users) && data.users.length > 0) {
+        // Handle users array response
+        console.log('✅ Processing users array with', data.users.length, 'users');
+        const transformedData = data.users.map((item, index) => ({
+          id: item.id || index + 1,
+          name: item.username || item.name || item.email || `User ${index + 1}`,
+          value: 0, // Default timer value for users endpoint
+          user_id: item.id || index + 1,
+          timer_id: null,
+          status: 'active',
+          last_updated: new Date().toISOString()
+        }));
+        console.log('🎯 Transformed Users:', transformedData);
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      if (data.data && !Array.isArray(data.data)) {
+        // Handle single object response
+        console.log('✅ Processing single user object');
+        const item = data.data;
+        const transformedData = [{
+          id: item.id || 1,
+          name: item.username || item.name || item.email || item.user?.username || item.user?.name || 'User 1',
+          value: item.duration_minutes || item.duration || 0,
+          user_id: item.id || item.user_id || 1,
+          timer_id: item.timer_id || null,
+          status: item.status || 'active',
+          last_updated: item.updated_at || item.created_at || new Date().toISOString()
+        }];
+        console.log('🎯 Transformed User:', transformedData);
+        setTimerData(transformedData);
+        setApiStatus('connected');
+        return;
+      }
+      
+      // If no valid data found
+      console.warn('⚠️ No valid user data found in API response');
+      console.log('📋 Available keys in response:', Object.keys(data || {}));
+      console.log('🔄 Falling back to mock data');
+      setTimerData(mockEmployees);
+      setApiStatus('disconnected');
+      setError('No users found in the API response - check console for details');
+      
+    } catch (error) {
+      console.error('❌ Error fetching timer data:', error);
+      setApiStatus('disconnected');
+      if (error.name === 'AbortError') {
+        setError('Request timeout - Server may be slow');
+      } else {
+        setError(`Failed to load timer data: ${error.message}`);
+      }
+      // Fallback to mock data on error
+      console.log('🔄 Using mock data due to error');
+      setTimerData(mockEmployees);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Post timer data to API
+  const postTimerData = async (userData) => {
+    try {
+      // Add timeout for network requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(TIMER_API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorData}`);
+      }
+
+      const data = await response.json();
+      console.log('Timer POST Response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error posting timer data:', error);
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout - Server may be slow');
+      }
+      throw error;
+    }
+  };
+
+  // Simplified employee data with just name and numeric value (fallback)
+  const mockEmployees = [
+    {
+      id: 1,
+      name: 'LoLL',
+      value: 0,
+      user_id: 1
+    },
+    {
+      id: 2,
+      name: 'John Smith',
+      value: 0,
+      user_id: 2
+    },
+    {
+      id: 3,
+      name: 'Sarah Johnson',
+      value: 0,
+      user_id: 3
+    },
+    {
+      id: 4,
+      name: 'Mike Wilson',
+      value: 0,
+      user_id: 4
+    },
+    {
+      id: 5,
+      name: 'Emma Davis',
+      value: 0,
+      user_id: 5
+    }
+  ];
+
+  const [employees, setEmployees] = useState([]);
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
+
+  // Load timer data on component mount
+  useEffect(() => {
+    fetchTimerData();
+  }, []);
+
+  // Update employees when timer data changes
+  useEffect(() => {
+    setEmployees(timerData);
+    setFilteredEmployees(timerData);
+  }, [timerData]);
+
+  // Handle input value change for each employee
+  const handleValueChange = (employeeId, newValue) => {
+    const updatedEmployees = employees.map(emp => 
+      emp.id === employeeId ? { ...emp, value: newValue } : emp
+    );
+    setEmployees(updatedEmployees);
+    setFilteredEmployees(updatedEmployees);
+  };
+
+  // Handle apply action for each employee - POST to Timer API
+  const handleApply = async (employeeId) => {
+    const employee = employees.find(emp => emp.id === employeeId);
+    if (!employee) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const durationMinutes = parseInt(employee.value) || 0;
+      const timerData = {
+        user_id: employee.user_id || employee.id,
+        duration_seconds: durationMinutes * 60, // Convert minutes to seconds
+        action: 'start',
+        description: `Timer set for ${employee.name}`,
+        date: selectedDate
+      };
+
+      console.log('Posting timer data:', timerData);
+      const response = await postTimerData(timerData);
+      
+      if (response.success) {
+        const durationMinutes = parseInt(employee.value) || 0;
+        const durationSeconds = durationMinutes * 60;
+        alert(`✅ Timer successfully set for ${employee.name}: ${durationMinutes} minutes (${durationSeconds} seconds)`);
+        // Refresh timer data to get updated information
+        await fetchTimerData();
+      } else {
+        throw new Error(response.message || 'Failed to set timer');
+      }
+    } catch (error) {
+      console.error('Error applying timer:', error);
+      setError(`Failed to set timer for ${employee.name}: ${error.message}`);
+      alert(`❌ Error: Failed to set timer for ${employee.name}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle search
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredEmployees(employees);
+    } else {
+      const filtered = employees.filter(employee =>
+        employee.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredEmployees(filtered);
+    }
+    setCurrentPage(1); // Reset to first page when searching
+  }, [searchQuery, employees]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  return (
+    <DashboardLayout>
+      <ResponsiveStyles>
+        <QuickViewContainer>
+          <QuickViewCard>
+            {/* Notification Banner */}
+            <NotificationBanner>
+              <NotificationContent>
+                <span>📊 Timer Management System</span>
+                <span>
+                  Connected to: <strong>dxdtime.ddsolutions.io</strong> | 
+                  Set timer duration in minutes for each user | 
+                  API Status: {loading ? '🔄 Loading...' : error ? '❌ Error' : '✅ Connected'}
+                </span>
+              </NotificationContent>
+            </NotificationBanner>
+
+            {/* Header */}
+            <QuickViewHeader>
+              <HeaderTop>
+                <HeaderLeft>
+                  <QuickViewTitle>
+                    Set Timer
+                    <HelpIcon>?</HelpIcon>
+                  </QuickViewTitle>
+                  {loading && (
+                    <span style={{ marginLeft: '10px', color: '#007bff' }}>
+                      🔄 Loading...
+                    </span>
+                  )}
+                  {error && (
+                    <span style={{ marginLeft: '10px', color: '#dc3545', fontSize: '12px' }}>
+                      ⚠️ {error}
+                    </span>
+                  )}
+                </HeaderLeft>
+                <HeaderControls>
+                  <button
+                    onClick={fetchTimerData}
+                    disabled={loading}
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      fontSize: '12px',
+                      marginRight: '10px'
+                    }}
+                  >
+                    🔄 Refresh
+                  </button>
+                  <SearchContainer>
+                    <SearchIcon>🔍</SearchIcon>
+                    <SearchInput
+                      type="text"
+                      placeholder={t('search')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </SearchContainer>
+                  <DateControl>
+                    <DateIcon>📅</DateIcon>
+                    <span>{t('selectDate')}</span>
+                  </DateControl>
+                  <DateControl>
+                    <span>{selectedDate}</span>
+                    <DateIcon>📅</DateIcon>
+                  </DateControl>
+                </HeaderControls>
+              </HeaderTop>
+            </QuickViewHeader>
+
+            {/* Table */}
+            <TableContainer>
+              <Table>
+                <TableHeader>
+                  <TableHeaderRow>
+                    <TableHeaderCell>{t('employee').toUpperCase()} NAME</TableHeaderCell>
+                    <TableHeaderCell>TIMER DURATION (MINUTES)</TableHeaderCell>
+                    <TableHeaderCell>ACTION</TableHeaderCell>
+                  </TableHeaderRow>
+                </TableHeader>
+                <TableBody>
+                  {currentEmployees.map((employee) => (
+                    <TableRow key={employee.id}>
+                      <TableCell>
+                        <EmployeeInfo>
+                          <EmployeeAvatar>
+                            {employee.name.charAt(0)}
+                          </EmployeeAvatar>
+                          <div>
+                            <EmployeeName>{employee.name}</EmployeeName>
+                          </div>
+                        </EmployeeInfo>
+                      </TableCell>
+                      <TableCell>
+                        <input
+                          type="number"
+                          value={employee.value}
+                          onChange={(e) => handleValueChange(employee.id, e.target.value)}
+                          disabled={loading}
+                          style={{
+                            width: '120px',
+                            padding: '8px 12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                            opacity: loading ? 0.6 : 1
+                          }}
+                          placeholder="Minutes"
+                          min="0"
+                          max="1440"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <button
+                          onClick={() => handleApply(employee.id)}
+                          disabled={loading}
+                          style={{
+                            padding: '8px 16px',
+                            backgroundColor: loading ? '#6c757d' : '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            fontSize: '14px',
+                            opacity: loading ? 0.6 : 1,
+                            minWidth: '80px'
+                          }}
+                        >
+                          {loading ? '⏳' : '🚀 Set Timer'}
+                        </button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            <PaginationContainer>
+              <EmployeesPerPage>
+                <span>{t('employeesPerPage')}:</span>
+                <PerPageSelector
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                >
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </PerPageSelector>
+              </EmployeesPerPage>
+              <PaginationRight>
+                <PageInfo>
+                  {t('showing')} {startIndex + 1} {t('to')} {Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length} {t('employees')}
+                </PageInfo>
+                <PaginationNav>
+                  <NavButton
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                  >
+                    ‹
+                  </NavButton>
+                  <NavButton
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                  >
+                    ›
+                  </NavButton>
+                </PaginationNav>
+              </PaginationRight>
+            </PaginationContainer>
+          </QuickViewCard>
+        </QuickViewContainer>
+      </ResponsiveStyles>
+    </DashboardLayout>
+  );
+};
+
+export default QuickView;
