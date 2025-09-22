@@ -154,6 +154,30 @@ const StartButton = styled.button`
   }
 `;
 
+const ResetButton = styled.button`
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+  height: 32px;
+  min-width: 60px;
+  text-transform: uppercase;
+  margin-left: 4px;
+  
+  &:hover {
+    background: #d97706;
+  }
+  
+  &:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+  }
+`;
+
 // Controls Section
 const ControlsSection = styled.div`
   background: #ffffff;
@@ -201,7 +225,7 @@ const TableContainer = styled.div`
 `;
 
 const Table = styled.table`
-  width: 100%;
+  width: 80%;
   border-collapse: collapse;
   table-layout: fixed;
 `;
@@ -524,7 +548,57 @@ const QuickView = () => {
     }));
   };
 
-  const handleStartTimer = (userId, username) => {
+  // Send numeric value to API
+  const sendNumericValueToAPI = async (userId, numericValue, username) => {
+    try {
+      const apiBaseUrl = getApiUrl();
+      const apiUrl = `${apiBaseUrl}/auth/register/post_users/`;
+      
+      console.log(`📤 Sending numeric value to API for ${username}:`, {
+        userId,
+        numericValue,
+        apiUrl
+      });
+
+      const requestData = {
+        user_id: userId,
+        numeric_value: numericValue
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log(`✅ API Response for ${username}:`, result);
+      
+      if (result.status === 'success') {
+        toastService.success(`✅ Numeric value ${numericValue} sent successfully for ${username}!`);
+        
+        // Refresh user data to reflect the update
+        setTimeout(() => {
+          fetchUsers();
+        }, 1000);
+      } else {
+        throw new Error(result.message || 'Unknown API error');
+      }
+
+    } catch (error) {
+      console.error(`❌ Error sending numeric value for ${username}:`, error);
+      toastService.error(`❌ Failed to send numeric value for ${username}: ${error.message}`);
+    }
+  };
+
+  const handleStartTimer = async (userId, username) => {
     const timerSeconds = timerValues[userId] || 5; // Default 5 seconds
     
     console.log(`🚀 Starting timer for ${username}: ${timerSeconds} seconds`);
@@ -535,6 +609,9 @@ const QuickView = () => {
       [userId]: true
     }));
 
+    // Send numeric value to API immediately when timer starts
+    await sendNumericValueToAPI(userId, timerSeconds, username);
+
     // Simulate timer countdown
     setTimeout(() => {
       setRunningTimers(prev => ({
@@ -544,6 +621,14 @@ const QuickView = () => {
       console.log(`⏰ Timer completed for ${username}!`);
       toastService.success(`⏰ Timer completed for ${username}! (${timerSeconds} seconds)`);
     }, timerSeconds * 1000);
+  };
+
+  // Reset user numeric value to 0
+  const handleResetUser = async (userId, username) => {
+    console.log(`🔄 Resetting numeric value for ${username} to 0`);
+    
+    // Send 0 value to API to reset user in SQL database
+    await sendNumericValueToAPI(userId, 0, username);
   };
 
   // Filter employees based on search query and status
@@ -633,13 +718,22 @@ const QuickView = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <StartButton
-                        running={runningTimers[employee.id]}
-                        disabled={runningTimers[employee.id]}
-                        onClick={() => handleStartTimer(employee.id, employee.name)}
-                      >
-                        {runningTimers[employee.id] ? 'RUNNING...' : 'START'}
-                      </StartButton>
+                      <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+                        <StartButton
+                          running={runningTimers[employee.id]}
+                          disabled={runningTimers[employee.id]}
+                          onClick={() => handleStartTimer(employee.id, employee.name)}
+                        >
+                          {runningTimers[employee.id] ? 'RUNNING...' : 'START'}
+                        </StartButton>
+                        <ResetButton
+                          disabled={runningTimers[employee.id]}
+                          onClick={() => handleResetUser(employee.id, employee.name)}
+                          title="Reset numeric value to 0 in database"
+                        >
+                          RESET
+                        </ResetButton>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
