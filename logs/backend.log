@@ -16473,3 +16473,22 @@ WARNING 2025-09-20 11:21:31,181 basehttp 20124 17824 "GET /api/auth/register/pos
 INFO 2025-09-20 11:21:40,059 middleware 20124 17824 Request: GET /api/auth/register/users/29/
 INFO 2025-09-20 11:21:40,065 middleware 20124 17824 Response: 200 for GET /api/auth/register/users/29/
 INFO 2025-09-20 11:21:40,066 basehttp 20124 17824 "GET /api/auth/register/users/29/ HTTP/1.1" 200 872
+INFO 2025-09-22 16:49:05,373 basehttp 26236 18100 "OPTIONS /api/auth/register/users/ HTTP/1.1" 200 0
+INFO 2025-09-22 16:49:05,391 middleware 26236 18100 Request: GET /api/auth/register/users/
+INFO 2025-09-22 16:49:05,436 middleware 26236 18100 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-22 16:49:05,437 basehttp 26236 18100 "GET /api/auth/register/users/ HTTP/1.1" 200 14979
+INFO 2025-09-22 16:49:35,460 middleware 26236 18100 Request: GET /api/auth/register/users/
+INFO 2025-09-22 16:49:35,520 middleware 26236 18100 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-22 16:49:35,521 basehttp 26236 18100 "GET /api/auth/register/users/ HTTP/1.1" 200 14979
+INFO 2025-09-22 16:49:39,247 basehttp 26236 4768 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-22 16:49:39,249 middleware 26236 4768 Request: GET /api/users/
+INFO 2025-09-22 16:49:40,303 views 26236 4768 S3 client initialized successfully for enhanced users search
+INFO 2025-09-22 16:49:40,304 middleware 26236 4768 Response: 400 for GET /api/users/
+WARNING 2025-09-22 16:49:40,304 log 26236 4768 Bad Request: /api/users/
+WARNING 2025-09-22 16:49:40,305 basehttp 26236 4768 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-22 16:49:40,620 basehttp 26236 18572 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-22 16:49:40,624 middleware 26236 18572 Request: GET /api/users/
+INFO 2025-09-22 16:49:40,631 views 26236 18572 S3 client initialized successfully for enhanced users search
+INFO 2025-09-22 16:49:40,632 middleware 26236 18572 Response: 400 for GET /api/users/
+WARNING 2025-09-22 16:49:40,632 log 26236 18572 Bad Request: /api/users/
+WARNING 2025-09-22 16:49:40,633 basehttp 26236 18572 "GET /api/users/ HTTP/1.1" 400 352
