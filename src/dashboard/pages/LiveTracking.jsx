@@ -21,6 +21,16 @@ const LiveTracking = () => {
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
 
+  // API URL configuration (same as QuickView)
+  const getApiUrl = () => {
+    // In development, use localhost with the proxy
+    if (import.meta.env.DEV) {
+      return 'http://localhost:5174/api';
+    }
+    // In production, use full URL
+    return 'https://dxdtime.ddsolutions.io/api';
+  };
+
   // Fetch data from live tracking API
   const fetchLiveTrackingData = async (showRetryMessage = false) => {
     try {
@@ -30,9 +40,11 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      // Use production API directly for real S3 data
-      const apiUrl = 'https://dxdtime.ddsolutions.io/api/live-tracking/fast-screenshots/';
-      console.log('Fetching live tracking data from production API:', apiUrl);
+      // Use the same API configuration as QuickView
+      const apiBaseUrl = getApiUrl();
+      const apiUrl = `${apiBaseUrl}/live-tracking/fast-screenshots/`;
+      console.log('🔄 Fetching live tracking data from:', apiUrl);
+      console.log('🌐 Environment:', import.meta.env.DEV ? 'Development (using proxy)' : 'Production (direct)');
       
       const response = await axios.get(apiUrl, {
         timeout: 30000,
@@ -109,13 +121,24 @@ const LiveTracking = () => {
       }
       
     } catch (err) {
-      console.error('Error fetching live tracking data:', err);
+      console.error('❌ Error fetching live tracking data:', err);
+      console.error('❌ Error details:', {
+        message: err.message,
+        code: err.code,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      
       if (err.code === 'ECONNABORTED') {
-        setError('Request timeout. The API might be taking longer than expected.');
+        setError('⏰ Request timeout. The API might be taking longer than expected.');
       } else if (err.response) {
-        setError(`Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch data'}`);
+        setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch data'}`);
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('🌐 Network error: Unable to connect to the API. Please check your internet connection.');
+      } else if (err.code === 'ERR_BLOCKED_BY_CLIENT') {
+        setError('🛡️ Request blocked by ad blocker or browser security. Please disable ad blockers for this site.');
       } else {
-        setError('Network error: Unable to connect to the API.');
+        setError(`❌ Network error: Unable to connect to the API. ${err.message}`);
       }
     } finally {
       setLoading(false);
