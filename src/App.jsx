@@ -224,6 +224,7 @@ const GlobalStyle = createGlobalStyle`
     right: 0;
     bottom: -80px;
     width: 370px;
+    z-index: -1;
   }
 
   #root {

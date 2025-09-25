@@ -67,141 +67,201 @@ const AddButton = styled.button`
 `;
 
 const RefreshButton = styled.button`
-  background: ${props => props.darkMode ? '#059669' : '#10b981'};
+  background: ${props => props.theme.colors.success};
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 12px;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   margin-right: 12px;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   
-  &:hover {
-    background: ${props => props.darkMode ? '#047857' : '#059669'};
+  &:hover:not(:disabled) {
+    background: ${props => props.theme.colors.success + 'DD'};
+    transform: translateY(-1px);
   }
   
   &:disabled {
-    background: ${props => props.darkMode ? '#4b5563' : '#6b7280'};
+    background: ${props => props.theme.colors.muted};
     cursor: not-allowed;
+    transform: none;
   }
 `;
 
 const ErrorMessage = styled.div`
-  background: ${props => props.darkMode ? '#7f1d1d' : '#fef2f2'};
-  color: ${props => props.darkMode ? '#fca5a5' : '#dc2626'};
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 12px;
+  background: ${props => props.theme.colors.error}20;
+  color: ${props => props.theme.colors.error};
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
   margin-top: 8px;
-  border-left: 4px solid ${props => props.darkMode ? '#ef4444' : '#dc2626'};
+  border-left: 4px solid ${props => props.theme.colors.error};
   transition: all 0.3s ease;
+  font-weight: 500;
 `;
 
 const LoadingMessage = styled.div`
-  background: ${props => props.darkMode ? '#1e3a8a' : '#f0f9ff'};
-  color: ${props => props.darkMode ? '#93c5fd' : '#0369a1'};
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 12px;
+  background: ${props => props.theme.colors.primary}20;
+  color: ${props => props.theme.colors.primary};
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
   margin-top: 8px;
-  border-left: 4px solid ${props => props.darkMode ? '#3b82f6' : '#0369a1'};
+  border-left: 4px solid ${props => props.theme.colors.primary};
   transition: all 0.3s ease;
+  font-weight: 500;
 `;
 
 const TimerInput = styled.input`
-  width: 50px;
-  height: 32px;
-  padding: 6px 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
+  width: 60px;
+  height: 38px;
+  padding: 8px 10px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
   font-size: 14px;
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
   line-height: 1;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  transition: all 0.3s ease;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
   }
   
   &:disabled {
-    background-color: #f3f4f6;
-    color: #6b7280;
+    background-color: ${props => props.theme.colors.hover};
+    color: ${props => props.theme.colors.text.light};
+    cursor: not-allowed;
+  }
+  
+  &::placeholder {
+    color: ${props => props.theme.colors.text.light};
+    font-weight: 400;
   }
 `;
 
 const StartButton = styled.button`
-  background: ${props => props.running ? '#dc2626' : '#10b981'};
+  background: ${props => props.running 
+    ? props.theme.colors.error 
+    : props.theme.colors.success};
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 12px;
-  cursor: ${props => props.running ? 'not-allowed' : 'pointer'};
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
   font-weight: 600;
-  height: 32px;
-  min-width: 70px;
+  cursor: ${props => props.running || props.disabled ? 'not-allowed' : 'pointer'};
+  height: 38px;
+  min-width: 90px;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: ${props => props.theme.shadows.sm};
   
-  &:hover {
-    background: ${props => props.running ? '#dc2626' : '#059669'};
+  &:hover:not(:disabled) {
+    background: ${props => props.running 
+      ? props.theme.colors.error + 'DD' 
+      : props.theme.colors.success + 'DD'};
+    transform: translateY(-2px);
+    box-shadow: ${props => props.theme.shadows.md};
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: ${props => props.theme.shadows.sm};
   }
   
   &:disabled {
-    background: #6b7280;
+    background: ${props => props.theme.colors.muted};
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  &:focus {
+    outline: 2px solid ${props => props.theme.colors.primary}40;
+    outline-offset: 2px;
   }
 `;
 
 // Controls Section
 const ControlsSection = styled.div`
-  background: #ffffff;
+  background: ${props => props.theme.colors.surface};
   padding: 16px 32px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.3s ease;
 `;
 
 const SearchInput = styled.input`
   padding: 8px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${props => props.theme.colors.border};
   border-radius: 6px;
   font-size: 14px;
   width: 300px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  transition: all 0.3s ease;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: ${props => props.theme.colors.primary};
+  }
+  
+  &::placeholder {
+    color: ${props => props.theme.colors.text.light};
   }
 `;
 
 const StatusDropdown = styled.select`
   padding: 8px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${props => props.theme.colors.border};
   border-radius: 6px;
   font-size: 14px;
-  background: white;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
   cursor: pointer;
+  transition: all 0.3s ease;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: ${props => props.theme.colors.primary};
+  }
+  
+  option {
+    background: ${props => props.theme.colors.surface};
+    color: ${props => props.theme.colors.text.primary};
   }
 `;
 
 // Table Styles
 const TableContainer = styled.div`
-  background: #ffffff;
+  background: ${props => props.theme.colors.surface};
   margin: 0 32px 32px 32px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${props => props.theme.colors.border};
   overflow: hidden;
+  transition: all 0.3s ease;
+  margin-top: 30px;
+  z-index: 99999;
 `;
 
 const Table = styled.table`
-  width: 70%;
+  width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 `;
@@ -240,7 +300,7 @@ const TableRow = styled.tr`
 
 const TableCell = styled.td`
   padding: 16px;
-  color: ${props => props.darkMode ? '#f9fafb' : '#1f2937'};
+  color: ${props => props.theme.colors.text.primary};
   font-size: 14px;
   vertical-align: middle;
   transition: color 0.3s ease;
@@ -258,14 +318,14 @@ const EmployeeInfo = styled.div`
 
 const EmployeeName = styled.div`
   font-weight: 600;
-  color: ${props => props.darkMode ? '#60a5fa' : '#3b82f6'};
+  color: ${props => props.theme.colors.primary};
   margin-bottom: 2px;
   transition: color 0.3s ease;
 `;
 
 const TeamName = styled.div`
   font-size: 12px;
-  color: ${props => props.darkMode ? '#9ca3af' : '#6b7280'};
+  color: ${props => props.theme.colors.text.secondary};
   transition: color 0.3s ease;
 `;
 
@@ -274,14 +334,14 @@ const StatusBadge = styled.span`
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  background: ${props => props.darkMode ? '#065f46' : '#dcfce7'};
-  color: ${props => props.darkMode ? '#10b981' : '#166534'};
+  background: ${props => props.theme.colors.success}20;
+  color: ${props => props.theme.colors.success};
   transition: all 0.3s ease;
 `;
 
 const ActionButton = styled.button`
   padding: 6px 12px;
-  background: ${props => props.darkMode ? '#2563eb' : '#3b82f6'};
+  background: ${props => props.theme.colors.primary};
   color: white;
   border: none;
   border-radius: 4px;
@@ -290,7 +350,8 @@ const ActionButton = styled.button`
   transition: all 0.3s ease;
   
   &:hover {
-    background: ${props => props.darkMode ? '#1d4ed8' : '#2563eb'};
+    background: ${props => props.theme.colors.primary}CC;
+    transform: translateY(-1px);
   }
 `;
 
@@ -304,29 +365,44 @@ const BlueCircle = styled.div`
 
 // Pagination
 const PaginationContainer = styled.div`
-  background: #ffffff;
+  background: ${props => props.theme.colors.surface};
   padding: 16px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid ${props => props.theme.colors.border};
   margin: 0 32px;
   border-radius: 0 0 8px 8px;
+  transition: all 0.3s ease;
 `;
 
 const PaginationInfo = styled.div`
   font-size: 14px;
-  color: #6b7280;
+  color: ${props => props.theme.colors.text.secondary};
   display: flex;
   align-items: center;
   gap: 16px;
 `;
 
 const ItemsPerPageSelector = styled.select`
-  padding: 4px 8px;
-  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
   border-radius: 4px;
   font-size: 14px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
+  
+  option {
+    background: ${props => props.theme.colors.surface};
+    color: ${props => props.theme.colors.text.primary};
+  }
 `;
 
 const PaginationButtons = styled.div`
@@ -336,21 +412,36 @@ const PaginationButtons = styled.div`
 `;
 
 const PaginationButton = styled.button`
-  padding: 6px 12px;
-  border: 1px solid #d1d5db;
-  background: ${props => props.active ? '#3b82f6' : '#ffffff'};
-  color: ${props => props.active ? '#ffffff' : '#374151'};
-  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.surface};
+  color: ${props => props.active ? '#ffffff' : props.theme.colors.text.primary};
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
-  &:hover {
-    background: ${props => props.active ? '#2563eb' : '#f3f4f6'};
+  &:hover:not(:disabled) {
+    background: ${props => props.active 
+      ? props.theme.colors.primary + 'CC' 
+      : props.theme.colors.hover};
+    transform: translateY(-1px);
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+  }
+  
+  &:focus {
+    outline: 2px solid ${props => props.theme.colors.primary}40;
+    outline-offset: 2px;
   }
 `;
 
@@ -587,10 +678,7 @@ const QuickView = () => {
             <RefreshButton onClick={handleRefresh} disabled={loading}>
               {loading ? '🔄' : '↻'} Refresh ({employeesData.length} users)
             </RefreshButton>
-            <AddButton>
-              <span>+</span>
-              NEW EMPLOYEE
-            </AddButton>
+            
           </div>
         </PageHeader>
 
@@ -638,7 +726,7 @@ const QuickView = () => {
                         disabled={runningTimers[employee.id]}
                         onClick={() => handleStartTimer(employee.id, employee.name)}
                       >
-                        {runningTimers[employee.id] ? 'RUNNING...' : 'START'}
+                        {runningTimers[employee.id] ? 'Loading...' : 'Apply'}
                       </StartButton>
                     </TableCell>
                   </TableRow>
