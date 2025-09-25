@@ -79,10 +79,6 @@ const ImageTest = lazy(() =>
   import('./components/ImageTest').catch(() => ({ default: FallbackImageTest }))
 );
 
-const APIConnectionTest = lazy(() =>
-  import('./components/APIConnectionTest').catch(() => ({ default: FallbackLogin }))
-);
-
 const SimpleLoginTest = lazy(() =>
   import('./components/SimpleLoginTest').catch(() => ({ default: FallbackLogin }))
 );
@@ -491,4 +487,6 @@ function App() {
       </ToastProvider>
     </Suspense>
   );
-}export default App;
+}
+
+export default App;

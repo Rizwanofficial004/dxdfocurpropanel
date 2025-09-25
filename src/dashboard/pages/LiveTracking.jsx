@@ -23,9 +23,9 @@ const LiveTracking = () => {
 
   // API URL configuration (same as QuickView)
   const getApiUrl = () => {
-    // In development, use localhost with the proxy
+    // In development, use the proxy (relative URL)
     if (import.meta.env.DEV) {
-      return 'http://localhost:5174/api';
+      return '/api';
     }
     // In production, use full URL
     return 'https://dxdtime.ddsolutions.io/api';
