@@ -16492,3 +16492,1315 @@ INFO 2025-09-22 16:49:40,631 views 26236 18572 S3 client initialized successfull
 INFO 2025-09-22 16:49:40,632 middleware 26236 18572 Response: 400 for GET /api/users/
 WARNING 2025-09-22 16:49:40,632 log 26236 18572 Bad Request: /api/users/
 WARNING 2025-09-22 16:49:40,633 basehttp 26236 18572 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-24 12:56:37,616 middleware 7908 13740 Request: GET /api/users/
+INFO 2025-09-24 12:56:39,684 views 7908 13740 S3 client initialized successfully for enhanced users search
+INFO 2025-09-24 12:56:39,685 middleware 7908 13740 Response: 400 for GET /api/users/
+WARNING 2025-09-24 12:56:39,686 log 7908 13740 Bad Request: /api/users/
+WARNING 2025-09-24 12:56:39,688 basehttp 7908 13740 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-24 12:56:40,006 middleware 7908 34820 Request: GET /api/users/
+INFO 2025-09-24 12:56:40,016 views 7908 34820 S3 client initialized successfully for enhanced users search
+INFO 2025-09-24 12:56:40,017 middleware 7908 34820 Response: 400 for GET /api/users/
+WARNING 2025-09-24 12:56:40,018 log 7908 34820 Bad Request: /api/users/
+WARNING 2025-09-24 12:56:40,018 basehttp 7908 34820 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-24 15:15:00,572 middleware 10772 34652 Request: GET /api/auth/update/user/1/
+INFO 2025-09-24 15:15:00,580 middleware 10772 34652 Response: 404 for GET /api/auth/update/user/1/
+WARNING 2025-09-24 15:15:00,581 log 10772 34652 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:15:00,582 basehttp 10772 34652 "GET /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:15:00,585 middleware 10772 36844 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 15:15:00,589 middleware 10772 36844 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 15:15:00,589 log 10772 36844 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:15:00,590 basehttp 10772 36844 "PUT /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:15:00,594 middleware 10772 22456 Request: GET /api/auth/update/user/999999/
+INFO 2025-09-24 15:15:00,598 middleware 10772 22456 Response: 404 for GET /api/auth/update/user/999999/
+WARNING 2025-09-24 15:15:00,599 log 10772 22456 Not Found: /api/auth/update/user/999999/
+WARNING 2025-09-24 15:15:00,600 basehttp 10772 22456 "GET /api/auth/update/user/999999/ HTTP/1.1" 404 90
+INFO 2025-09-24 15:19:33,792 middleware 10772 18448 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 15:19:33,802 middleware 10772 18448 Response: 400 for POST /api/auth/register/post_users/
+WARNING 2025-09-24 15:19:33,803 log 10772 18448 Bad Request: /api/auth/register/post_users/
+WARNING 2025-09-24 15:19:33,804 basehttp 10772 18448 "POST /api/auth/register/post_users/ HTTP/1.1" 400 196
+INFO 2025-09-24 15:20:56,470 middleware 10772 36924 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 15:20:57,341 post_users_views 10772 36924 New user registered via POST API: testuser1758716456 (test1758716456@example.com) with numeric_value: 100
+INFO 2025-09-24 15:20:57,351 middleware 10772 36924 Response: 201 for POST /api/auth/register/post_users/
+INFO 2025-09-24 15:20:57,353 basehttp 10772 36924 "POST /api/auth/register/post_users/ HTTP/1.1" 201 869
+INFO 2025-09-24 15:21:48,930 middleware 10772 21524 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 15:21:49,523 post_users_views 10772 21524 New user registered via POST API: testuser1758716508 (test1758716508@example.com) with numeric_value: 100
+INFO 2025-09-24 15:21:49,534 middleware 10772 21524 Response: 201 for POST /api/auth/register/post_users/
+INFO 2025-09-24 15:21:49,535 basehttp 10772 21524 "POST /api/auth/register/post_users/ HTTP/1.1" 201 869
+INFO 2025-09-24 15:22:12,881 middleware 10772 1992 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 15:22:13,523 post_users_views 10772 1992 New user registered via POST API: testuser1758716532 (test1758716532@example.com) with numeric_value: 100
+INFO 2025-09-24 15:22:13,533 middleware 10772 1992 Response: 201 for POST /api/auth/register/post_users/
+INFO 2025-09-24 15:22:13,534 basehttp 10772 1992 "POST /api/auth/register/post_users/ HTTP/1.1" 201 869
+INFO 2025-09-24 15:22:33,914 middleware 10772 4256 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 15:22:34,570 post_users_views 10772 4256 New user registered via POST API: testuser1758716553 (test1758716553@example.com) with numeric_value: 100
+INFO 2025-09-24 15:22:34,581 middleware 10772 4256 Response: 201 for POST /api/auth/register/post_users/
+INFO 2025-09-24 15:22:34,582 basehttp 10772 4256 "POST /api/auth/register/post_users/ HTTP/1.1" 201 869
+INFO 2025-09-24 15:22:34,587 middleware 10772 8504 Request: GET /api/auth/update/user/33/
+INFO 2025-09-24 15:22:34,591 middleware 10772 8504 Response: 200 for GET /api/auth/update/user/33/
+INFO 2025-09-24 15:22:34,592 basehttp 10772 8504 "GET /api/auth/update/user/33/ HTTP/1.1" 200 627
+INFO 2025-09-24 15:22:34,596 middleware 10772 8944 Request: PUT /api/auth/update/user/33/
+INFO 2025-09-24 15:22:34,605 update_user_views 10772 8944 User 33 updated successfully. Fields: first_name, last_name, organization_name, job_title, numeric_value
+INFO 2025-09-24 15:22:34,615 middleware 10772 8944 Response: 200 for PUT /api/auth/update/user/33/
+INFO 2025-09-24 15:22:34,617 basehttp 10772 8944 "PUT /api/auth/update/user/33/ HTTP/1.1" 200 637
+INFO 2025-09-24 15:34:29,650 middleware 10772 26736 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 15:34:29,655 middleware 10772 26736 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 15:34:29,656 log 10772 26736 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:34:29,657 basehttp 10772 26736 "PUT //api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:34:37,673 middleware 10772 26736 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 15:34:37,678 middleware 10772 26736 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 15:34:37,679 log 10772 26736 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:34:37,680 basehttp 10772 26736 "PUT //api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:35:05,423 middleware 10772 26736 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 15:35:05,430 middleware 10772 26736 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 15:35:05,430 log 10772 26736 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:35:05,431 basehttp 10772 26736 "PUT //api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:35:13,105 middleware 10772 26736 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 15:35:13,116 middleware 10772 26736 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 15:35:13,118 log 10772 26736 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 15:35:13,120 basehttp 10772 26736 "PUT //api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 15:37:21,572 middleware 10772 6872 Request: PUT /api/auth/update/user/10/
+INFO 2025-09-24 15:37:21,578 middleware 10772 6872 Response: 404 for PUT /api/auth/update/user/10/
+WARNING 2025-09-24 15:37:21,579 log 10772 6872 Not Found: /api/auth/update/user/10/
+WARNING 2025-09-24 15:37:21,580 basehttp 10772 6872 "PUT //api/auth/update/user/10/ HTTP/1.1" 404 101
+INFO 2025-09-24 15:37:29,947 middleware 10772 6872 Request: PUT /api/auth/update/user/
+INFO 2025-09-24 15:37:30,696 middleware 10772 6872 Response: 404 for PUT /api/auth/update/user/
+WARNING 2025-09-24 15:37:30,697 log 10772 6872 Not Found: /api/auth/update/user/
+WARNING 2025-09-24 15:37:30,698 basehttp 10772 6872 "PUT //api/auth/update/user/ HTTP/1.1" 404 26421
+INFO 2025-09-24 15:37:39,821 middleware 10772 6872 Request: PUT /api/auth/update/user/10/
+INFO 2025-09-24 15:37:39,828 middleware 10772 6872 Response: 404 for PUT /api/auth/update/user/10/
+WARNING 2025-09-24 15:37:39,829 log 10772 6872 Not Found: /api/auth/update/user/10/
+WARNING 2025-09-24 15:37:39,831 basehttp 10772 6872 "PUT //api/auth/update/user/10/ HTTP/1.1" 404 101
+INFO 2025-09-24 15:44:56,566 middleware 10772 13712 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 15:44:56,582 middleware 10772 13712 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 15:44:56,585 log 10772 13712 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:44:56,587 basehttp 10772 13712 "PUT /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:45:03,663 middleware 10772 13712 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 15:45:03,668 middleware 10772 13712 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 15:45:03,669 log 10772 13712 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 15:45:03,670 basehttp 10772 13712 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 15:46:09,276 middleware 10772 35088 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 15:46:09,282 middleware 10772 35088 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 15:46:09,283 log 10772 35088 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 15:46:09,285 basehttp 10772 35088 "PUT /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 15:46:16,496 middleware 10772 35088 Request: PUT /api/auth/update/users/bulk/
+INFO 2025-09-24 15:46:16,498 middleware 10772 35088 Response: 400 for PUT /api/auth/update/users/bulk/
+WARNING 2025-09-24 15:46:16,499 log 10772 35088 Bad Request: /api/auth/update/users/bulk/
+WARNING 2025-09-24 15:46:16,501 basehttp 10772 35088 "PUT /api/auth/update/users/bulk/ HTTP/1.1" 400 76
+INFO 2025-09-24 15:46:24,458 middleware 10772 35088 Request: PUT /api/auth/update/users/bulk/1/
+INFO 2025-09-24 15:46:24,483 middleware 10772 35088 Response: 404 for PUT /api/auth/update/users/bulk/1/
+WARNING 2025-09-24 15:46:24,485 log 10772 35088 Not Found: /api/auth/update/users/bulk/1/
+WARNING 2025-09-24 15:46:24,486 basehttp 10772 35088 "PUT /api/auth/update/users/bulk/1/ HTTP/1.1" 404 26445
+INFO 2025-09-24 16:10:19,868 middleware 10772 6284 Request: PUT /api/auth/register/users/39/
+INFO 2025-09-24 16:10:20,308 middleware 10772 6284 Response: 405 for PUT /api/auth/register/users/39/
+WARNING 2025-09-24 16:10:20,309 log 10772 6284 Method Not Allowed: /api/auth/register/users/39/
+WARNING 2025-09-24 16:10:20,311 basehttp 10772 6284 "PUT /api/auth/register/users/39/ HTTP/1.1" 405 40
+INFO 2025-09-24 16:10:59,759 middleware 10772 6284 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 16:10:59,767 middleware 10772 6284 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 16:10:59,769 log 10772 6284 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 16:10:59,771 basehttp 10772 6284 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:11:27,515 middleware 10772 6284 Request: PUT /api/auth/update/user/35/
+INFO 2025-09-24 16:11:27,522 middleware 10772 6284 Response: 404 for PUT /api/auth/update/user/35/
+WARNING 2025-09-24 16:11:27,523 log 10772 6284 Not Found: /api/auth/update/user/35/
+WARNING 2025-09-24 16:11:27,524 basehttp 10772 6284 "PUT /api/auth/update/user/35/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:11:41,237 middleware 10772 6284 Request: PUT /api/auth/update/user/35/
+INFO 2025-09-24 16:11:41,243 middleware 10772 6284 Response: 404 for PUT /api/auth/update/user/35/
+WARNING 2025-09-24 16:11:41,244 log 10772 6284 Not Found: /api/auth/update/user/35/
+WARNING 2025-09-24 16:11:41,245 basehttp 10772 6284 "PUT /api/auth/update/user/35/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:11:59,891 middleware 10772 6284 Request: PUT /api/auth/update/user/35/
+INFO 2025-09-24 16:11:59,896 middleware 10772 6284 Response: 404 for PUT /api/auth/update/user/35/
+WARNING 2025-09-24 16:11:59,897 log 10772 6284 Not Found: /api/auth/update/user/35/
+WARNING 2025-09-24 16:11:59,898 basehttp 10772 6284 "PUT /api/auth/update/user/35/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:12:11,178 middleware 10772 6284 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 16:12:11,183 middleware 10772 6284 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 16:12:11,184 log 10772 6284 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 16:12:11,186 basehttp 10772 6284 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:18:22,114 middleware 10772 10056 Request: PUT /api/auth/update/user/8/
+INFO 2025-09-24 16:18:22,118 middleware 10772 10056 Response: 404 for PUT /api/auth/update/user/8/
+WARNING 2025-09-24 16:18:22,118 log 10772 10056 Not Found: /api/auth/update/user/8/
+WARNING 2025-09-24 16:18:22,119 basehttp 10772 10056 "PUT /api/auth/update/user/8/ HTTP/1.1" 404 100
+INFO 2025-09-24 16:21:03,521 middleware 10772 38384 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-24 16:21:03,528 middleware 10772 38384 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-24 16:21:03,532 log 10772 38384 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-24 16:21:03,538 basehttp 10772 38384 "PUT /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-24 16:22:15,879 middleware 10772 14896 Request: PUT /api/auth/update/user/5/
+INFO 2025-09-24 16:22:15,887 middleware 10772 14896 Response: 404 for PUT /api/auth/update/user/5/
+WARNING 2025-09-24 16:22:15,895 log 10772 14896 Not Found: /api/auth/update/user/5/
+WARNING 2025-09-24 16:22:15,897 basehttp 10772 14896 "PUT /api/auth/update/user/5/ HTTP/1.1" 404 100
+INFO 2025-09-24 16:24:58,237 middleware 10772 38884 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 16:24:58,795 post_users_views 10772 38884 New user registered via POST API: testuser1758720298 (test1758720298@example.com) with numeric_value: 100
+INFO 2025-09-24 16:24:58,805 middleware 10772 38884 Response: 201 for POST /api/auth/register/post_users/
+INFO 2025-09-24 16:24:58,806 basehttp 10772 38884 "POST /api/auth/register/post_users/ HTTP/1.1" 201 869
+INFO 2025-09-24 16:24:58,808 middleware 10772 37372 Request: GET /api/auth/update/user/34/
+INFO 2025-09-24 16:24:58,816 middleware 10772 37372 Response: 200 for GET /api/auth/update/user/34/
+INFO 2025-09-24 16:24:58,816 basehttp 10772 37372 "GET /api/auth/update/user/34/ HTTP/1.1" 200 627
+INFO 2025-09-24 16:24:58,820 middleware 10772 33480 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:24:58,826 update_user_views 10772 33480 User 34 updated successfully. Fields: first_name, last_name, organization_name, job_title, numeric_value
+INFO 2025-09-24 16:24:58,837 middleware 10772 33480 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:24:58,838 basehttp 10772 33480 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 633
+INFO 2025-09-24 16:26:05,006 middleware 10772 37872 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:26:05,013 middleware 10772 37872 Response: 400 for PUT /api/auth/update/user/34/
+WARNING 2025-09-24 16:26:05,014 log 10772 37872 Bad Request: /api/auth/update/user/34/
+WARNING 2025-09-24 16:26:05,015 basehttp 10772 37872 "PUT /api/auth/update/user/34/ HTTP/1.1" 400 149
+INFO 2025-09-24 16:26:33,886 middleware 10772 30552 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:26:33,900 update_user_views 10772 30552 User 34 updated successfully. Fields: first_name, last_name, organization_name, job_title, numeric_value
+INFO 2025-09-24 16:26:33,910 middleware 10772 30552 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:26:33,911 basehttp 10772 30552 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 625
+INFO 2025-09-24 16:28:12,437 middleware 10772 18456 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:28:12,446 update_user_views 10772 18456 User 34 updated successfully. Fields: numeric_value
+INFO 2025-09-24 16:28:12,455 middleware 10772 18456 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:28:12,456 basehttp 10772 18456 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 568
+INFO 2025-09-24 16:28:29,474 middleware 10772 18456 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:28:29,484 update_user_views 10772 18456 User 34 updated successfully. Fields: numeric_value
+INFO 2025-09-24 16:28:29,494 middleware 10772 18456 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:28:29,495 basehttp 10772 18456 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 567
+INFO 2025-09-24 16:28:54,661 middleware 10772 18456 Request: PUT /api/auth/update/user/34/
+ERROR 2025-09-24 16:28:54,666 update_user_views 10772 18456 Error updating user 34: JSON parse error - Expecting ',' delimiter: line 3 column 21 (char 60)
+INFO 2025-09-24 16:28:54,667 middleware 10772 18456 Response: 500 for PUT /api/auth/update/user/34/
+ERROR 2025-09-24 16:28:54,668 log 10772 18456 Internal Server Error: /api/auth/update/user/34/
+ERROR 2025-09-24 16:28:54,669 basehttp 10772 18456 "PUT /api/auth/update/user/34/ HTTP/1.1" 500 181
+INFO 2025-09-24 16:29:06,140 middleware 10772 18456 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:29:06,147 update_user_views 10772 18456 User 34 updated successfully. Fields: numeric_value
+INFO 2025-09-24 16:29:06,157 middleware 10772 18456 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:29:06,158 basehttp 10772 18456 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 567
+INFO 2025-09-24 16:29:16,641 middleware 10772 18456 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:29:16,648 update_user_views 10772 18456 User 34 updated successfully. Fields: numeric_value
+INFO 2025-09-24 16:29:16,657 middleware 10772 18456 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-24 16:29:16,658 basehttp 10772 18456 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 566
+INFO 2025-09-24 16:30:15,327 middleware 10772 18456 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 16:30:15,332 middleware 10772 18456 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 16:30:15,335 log 10772 18456 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 16:30:15,336 basehttp 10772 18456 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:30:45,740 middleware 10772 18456 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 16:30:45,742 middleware 10772 18456 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 16:30:45,742 log 10772 18456 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 16:30:45,742 basehttp 10772 18456 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:43:27,748 middleware 10772 14548 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 16:43:27,751 middleware 10772 14548 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 16:43:27,752 log 10772 14548 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 16:43:27,752 basehttp 10772 14548 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:43:54,417 middleware 10772 14548 Request: PUT /api/auth/update/user/39/
+INFO 2025-09-24 16:43:54,420 middleware 10772 14548 Response: 404 for PUT /api/auth/update/user/39/
+WARNING 2025-09-24 16:43:54,420 log 10772 14548 Not Found: /api/auth/update/user/39/
+WARNING 2025-09-24 16:43:54,421 basehttp 10772 14548 "PUT /api/auth/update/user/39/ HTTP/1.1" 404 86
+INFO 2025-09-24 16:44:20,359 middleware 10772 14548 Request: GET /api/auth/users/
+INFO 2025-09-24 16:44:20,362 middleware 10772 14548 Response: 200 for GET /api/auth/users/
+INFO 2025-09-24 16:44:20,363 basehttp 10772 14548 "GET /api/auth/users/ HTTP/1.1" 200 5795
+INFO 2025-09-24 16:44:20,398 middleware 10772 14548 Request: GET /api/auth/register/users/
+INFO 2025-09-24 16:44:20,438 middleware 10772 14548 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-24 16:44:20,438 basehttp 10772 14548 "GET /api/auth/register/users/ HTTP/1.1" 200 18483
+INFO 2025-09-24 16:44:41,835 middleware 10772 14548 Request: GET /api/auth/user/39/
+INFO 2025-09-24 16:44:41,877 middleware 10772 14548 Response: 404 for GET /api/auth/user/39/
+WARNING 2025-09-24 16:44:41,878 log 10772 14548 Not Found: /api/auth/user/39/
+WARNING 2025-09-24 16:44:41,878 basehttp 10772 14548 "GET /api/auth/user/39/ HTTP/1.1" 404 26409
+INFO 2025-09-24 16:44:41,926 middleware 10772 14548 Request: GET /api/auth/users/39/
+INFO 2025-09-24 16:44:41,943 middleware 10772 14548 Response: 404 for GET /api/auth/users/39/
+WARNING 2025-09-24 16:44:41,943 log 10772 14548 Not Found: /api/auth/users/39/
+WARNING 2025-09-24 16:44:41,944 basehttp 10772 14548 "GET /api/auth/users/39/ HTTP/1.1" 404 26412
+INFO 2025-09-24 16:44:41,952 middleware 10772 14548 Request: GET /api/auth/users/39/update/
+INFO 2025-09-24 16:44:41,963 middleware 10772 14548 Response: 404 for GET /api/auth/users/39/update/
+WARNING 2025-09-24 16:44:41,963 log 10772 14548 Not Found: /api/auth/users/39/update/
+WARNING 2025-09-24 16:44:41,964 basehttp 10772 14548 "GET /api/auth/users/39/update/ HTTP/1.1" 404 26433
+INFO 2025-09-24 16:44:41,971 middleware 10772 14548 Request: GET /api/auth/update/39/
+INFO 2025-09-24 16:44:41,982 middleware 10772 14548 Response: 404 for GET /api/auth/update/39/
+WARNING 2025-09-24 16:44:41,983 log 10772 14548 Not Found: /api/auth/update/39/
+WARNING 2025-09-24 16:44:41,984 basehttp 10772 14548 "GET /api/auth/update/39/ HTTP/1.1" 404 26415
+INFO 2025-09-24 16:46:15,505 middleware 10772 14548 Request: GET /api/auth/register/users/
+INFO 2025-09-24 16:46:15,555 middleware 10772 14548 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-24 16:46:15,556 basehttp 10772 14548 "GET /api/auth/register/users/ HTTP/1.1" 200 18483
+INFO 2025-09-24 16:46:47,683 middleware 10772 14548 Request: POST /api/auth/register/users/
+INFO 2025-09-24 16:46:47,684 middleware 10772 14548 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-24 16:46:47,684 log 10772 14548 Bad Request: /api/auth/register/users/
+WARNING 2025-09-24 16:46:47,685 basehttp 10772 14548 "POST /api/auth/register/users/ HTTP/1.1" 400 130
+INFO 2025-09-24 16:49:08,286 middleware 10772 1832 Request: GET /api/auth/register/post_users/
+INFO 2025-09-24 16:49:08,293 middleware 10772 1832 Response: 200 for GET /api/auth/register/post_users/
+INFO 2025-09-24 16:49:08,293 basehttp 10772 1832 "GET /api/auth/register/post_users/ HTTP/1.1" 200 973
+INFO 2025-09-24 16:49:08,353 middleware 10772 1832 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 16:49:08,355 middleware 10772 1832 Response: 400 for POST /api/auth/register/post_users/
+WARNING 2025-09-24 16:49:08,356 log 10772 1832 Bad Request: /api/auth/register/post_users/
+WARNING 2025-09-24 16:49:08,356 basehttp 10772 1832 "POST /api/auth/register/post_users/ HTTP/1.1" 400 210
+INFO 2025-09-24 16:51:12,537 middleware 10772 9596 Request: POST /api/auth/register/post_users/
+INFO 2025-09-24 16:51:12,542 middleware 10772 9596 Response: 400 for POST /api/auth/register/post_users/
+WARNING 2025-09-24 16:51:12,543 log 10772 9596 Bad Request: /api/auth/register/post_users/
+WARNING 2025-09-24 16:51:12,544 basehttp 10772 9596 "POST /api/auth/register/post_users/ HTTP/1.1" 400 174
+INFO 2025-09-25 00:04:28,256 middleware 10772 392 Request: PUT /api/auth/update/user/40/
+INFO 2025-09-25 00:04:28,273 middleware 10772 392 Response: 404 for PUT /api/auth/update/user/40/
+WARNING 2025-09-25 00:04:28,274 log 10772 392 Not Found: /api/auth/update/user/40/
+WARNING 2025-09-25 00:04:28,275 basehttp 10772 392 "PUT /api/auth/update/user/40/ HTTP/1.1" 404 86
+INFO 2025-09-25 00:12:12,513 middleware 10772 11324 Request: GET /api/auth/register/users/
+INFO 2025-09-25 00:12:12,553 middleware 10772 11324 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-25 00:12:12,556 basehttp 10772 11324 "GET /api/auth/register/users/ HTTP/1.1" 200 18483
+INFO 2025-09-25 00:12:41,358 middleware 10772 11324 Request: GET /api/auth/register/users/
+INFO 2025-09-25 00:12:41,397 middleware 10772 11324 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-25 00:12:41,398 basehttp 10772 11324 "GET /api/auth/register/users/ HTTP/1.1" 200 18483
+INFO 2025-09-25 00:13:47,182 middleware 10772 15876 Request: GET /api/auth/register/users/39/
+INFO 2025-09-25 00:13:47,184 middleware 10772 15876 Response: 404 for GET /api/auth/register/users/39/
+WARNING 2025-09-25 00:13:47,185 log 10772 15876 Not Found: /api/auth/register/users/39/
+WARNING 2025-09-25 00:13:47,185 basehttp 10772 15876 "GET /api/auth/register/users/39/ HTTP/1.1" 404 156
+INFO 2025-09-25 00:13:51,095 middleware 10772 15876 Request: GET /api/auth/register/users/
+INFO 2025-09-25 00:13:51,119 middleware 10772 15876 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-25 00:13:51,120 basehttp 10772 15876 "GET /api/auth/register/users/ HTTP/1.1" 200 18483
+INFO 2025-09-25 00:14:26,638 middleware 10772 15876 Request: GET /api/auth/register/users/26/
+INFO 2025-09-25 00:14:26,650 middleware 10772 15876 Response: 200 for GET /api/auth/register/users/26/
+INFO 2025-09-25 00:14:26,651 basehttp 10772 15876 "GET /api/auth/register/users/26/ HTTP/1.1" 200 929
+INFO 2025-09-25 00:16:35,289 middleware 10772 68 Request: GET /api/auth/update/user/1/
+INFO 2025-09-25 00:16:35,294 middleware 10772 68 Response: 404 for GET /api/auth/update/user/1/
+WARNING 2025-09-25 00:16:35,295 log 10772 68 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-25 00:16:35,296 basehttp 10772 68 "GET /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-25 00:17:01,984 middleware 10772 68 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-25 00:17:01,987 middleware 10772 68 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-25 00:17:01,988 log 10772 68 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-25 00:17:01,988 basehttp 10772 68 "PUT /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-25 00:19:32,064 middleware 10772 18848 Request: PUT /api/auth/update/user/1/
+INFO 2025-09-25 00:19:32,068 middleware 10772 18848 Response: 404 for PUT /api/auth/update/user/1/
+WARNING 2025-09-25 00:19:32,068 log 10772 18848 Not Found: /api/auth/update/user/1/
+WARNING 2025-09-25 00:19:32,069 basehttp 10772 18848 "PUT /api/auth/update/user/1/ HTTP/1.1" 404 100
+INFO 2025-09-25 00:19:47,965 middleware 10772 18848 Request: GET /api/auth/update/user/
+INFO 2025-09-25 00:19:47,986 middleware 10772 18848 Response: 404 for GET /api/auth/update/user/
+WARNING 2025-09-25 00:19:47,987 log 10772 18848 Not Found: /api/auth/update/user/
+WARNING 2025-09-25 00:19:47,988 basehttp 10772 18848 "GET /api/auth/update/user/ HTTP/1.1" 404 26421
+INFO 2025-09-25 00:20:36,398 middleware 10772 18848 Request: GET /api/auth/register/user/
+INFO 2025-09-25 00:20:36,412 middleware 10772 18848 Response: 404 for GET /api/auth/register/user/
+WARNING 2025-09-25 00:20:36,412 log 10772 18848 Not Found: /api/auth/register/user/
+WARNING 2025-09-25 00:20:36,413 basehttp 10772 18848 "GET /api/auth/register/user/ HTTP/1.1" 404 26427
+INFO 2025-09-25 00:25:25,342 middleware 10772 16064 Request: GET /api/auth/update/users/39
+INFO 2025-09-25 00:25:25,355 middleware 10772 16064 Response: 404 for GET /api/auth/update/users/39
+WARNING 2025-09-25 00:25:25,356 log 10772 16064 Not Found: /api/auth/update/users/39
+WARNING 2025-09-25 00:25:25,356 basehttp 10772 16064 "GET /api/auth/update/users/39 HTTP/1.1" 404 26430
+INFO 2025-09-25 00:25:29,433 middleware 10772 16064 Request: GET /api/auth/update/users/39/
+INFO 2025-09-25 00:25:29,445 middleware 10772 16064 Response: 404 for GET /api/auth/update/users/39/
+WARNING 2025-09-25 00:25:29,446 log 10772 16064 Not Found: /api/auth/update/users/39/
+WARNING 2025-09-25 00:25:29,447 basehttp 10772 16064 "GET /api/auth/update/users/39/ HTTP/1.1" 404 26433
+INFO 2025-09-25 00:25:34,741 middleware 10772 16064 Request: PUT /api/auth/update/users/39/
+INFO 2025-09-25 00:25:34,753 middleware 10772 16064 Response: 404 for PUT /api/auth/update/users/39/
+WARNING 2025-09-25 00:25:34,754 log 10772 16064 Not Found: /api/auth/update/users/39/
+WARNING 2025-09-25 00:25:34,755 basehttp 10772 16064 "PUT /api/auth/update/users/39/ HTTP/1.1" 404 26433
+INFO 2025-09-25 00:32:53,047 middleware 10772 27132 Request: PUT /api/auth/update/user/{id}/
+INFO 2025-09-25 00:32:53,064 middleware 10772 27132 Response: 404 for PUT /api/auth/update/user/{id}/
+WARNING 2025-09-25 00:32:53,064 log 10772 27132 Not Found: /api/auth/update/user/{id}/
+WARNING 2025-09-25 00:32:53,065 basehttp 10772 27132 "PUT /api/auth/update/user/%7Bid%7D/ HTTP/1.1" 404 26440
+INFO 2025-09-25 00:33:00,659 middleware 10772 27132 Request: PUT /api/auth/update/user/40/
+INFO 2025-09-25 00:33:00,663 middleware 10772 27132 Response: 404 for PUT /api/auth/update/user/40/
+WARNING 2025-09-25 00:33:00,663 log 10772 27132 Not Found: /api/auth/update/user/40/
+WARNING 2025-09-25 00:33:00,664 basehttp 10772 27132 "PUT /api/auth/update/user/40/ HTTP/1.1" 404 86
+INFO 2025-09-25 00:33:45,991 middleware 10772 27132 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-25 00:33:46,002 update_user_views 10772 27132 User 34 updated successfully. Fields: numeric_value
+INFO 2025-09-25 00:33:46,012 middleware 10772 27132 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-25 00:33:46,013 basehttp 10772 27132 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 566
+INFO 2025-09-25 00:35:18,470 middleware 10772 424 Request: PUT /api/auth/update/user/34/
+INFO 2025-09-25 00:35:18,484 update_user_views 10772 424 User 34 updated successfully. Fields: numeric_value
+INFO 2025-09-25 00:35:18,493 middleware 10772 424 Response: 200 for PUT /api/auth/update/user/34/
+INFO 2025-09-25 00:35:18,495 basehttp 10772 424 "PUT /api/auth/update/user/34/ HTTP/1.1" 200 567
+INFO 2025-09-25 01:49:00,518 basehttp 10772 4756 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 01:49:00,522 middleware 10772 4756 Request: GET /api/users/
+INFO 2025-09-25 01:49:02,774 views 10772 4756 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 01:49:02,793 middleware 10772 4756 Response: 400 for GET /api/users/
+WARNING 2025-09-25 01:49:02,802 log 10772 4756 Bad Request: /api/users/
+WARNING 2025-09-25 01:49:02,803 basehttp 10772 4756 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 01:49:03,123 basehttp 10772 31064 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 01:49:03,129 middleware 10772 31064 Request: GET /api/users/
+INFO 2025-09-25 01:49:03,137 views 10772 31064 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 01:49:03,138 middleware 10772 31064 Response: 400 for GET /api/users/
+WARNING 2025-09-25 01:49:03,139 log 10772 31064 Bad Request: /api/users/
+WARNING 2025-09-25 01:49:03,140 basehttp 10772 31064 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 01:53:19,120 middleware 10772 12424 Request: GET /api/styling/global/
+INFO 2025-09-25 01:53:19,147 middleware 10772 12424 Response: 200 for GET /api/styling/global/
+INFO 2025-09-25 01:53:19,159 basehttp 10772 12424 "GET /api/styling/global/ HTTP/1.1" 200 2878
+INFO 2025-09-25 01:53:54,328 middleware 10772 12424 Request: GET /api/settings/ui/themes/
+INFO 2025-09-25 01:53:54,355 middleware 10772 12424 Response: 404 for GET /api/settings/ui/themes/
+WARNING 2025-09-25 01:53:54,356 log 10772 12424 Not Found: /api/settings/ui/themes/
+WARNING 2025-09-25 01:53:54,356 basehttp 10772 12424 "GET /api/settings/ui/themes/ HTTP/1.1" 404 23801
+INFO 2025-09-25 01:58:31,927 middleware 10772 38520 Request: PUT /api/styling/global/
+INFO 2025-09-25 01:58:31,929 middleware 10772 38520 Response: 405 for PUT /api/styling/global/
+WARNING 2025-09-25 01:58:31,930 log 10772 38520 Method Not Allowed: /api/styling/global/
+WARNING 2025-09-25 01:58:31,930 basehttp 10772 38520 "PUT /api/styling/global/ HTTP/1.1" 405 40
+INFO 2025-09-25 01:58:36,930 middleware 10772 38520 Request: POST /api/styling/global/
+INFO 2025-09-25 01:58:36,980 middleware 10772 38520 Response: 201 for POST /api/styling/global/
+INFO 2025-09-25 01:58:36,981 basehttp 10772 38520 "POST /api/styling/global/ HTTP/1.1" 201 2881
+INFO 2025-09-25 03:14:29,487 middleware 10772 14560 Request: GET /api/styling/global/
+INFO 2025-09-25 03:14:29,527 middleware 10772 14560 Response: 200 for GET /api/styling/global/
+INFO 2025-09-25 03:14:29,551 basehttp 10772 14560 "GET /api/styling/global/ HTTP/1.1" 200 2881
+INFO 2025-09-25 03:17:32,224 middleware 10772 18760 Request: GET /api/users/
+INFO 2025-09-25 03:17:32,287 views 10772 18760 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 03:17:32,291 middleware 10772 18760 Response: 400 for GET /api/users/
+WARNING 2025-09-25 03:17:32,293 log 10772 18760 Bad Request: /api/users/
+WARNING 2025-09-25 03:17:32,295 basehttp 10772 18760 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 03:17:32,677 middleware 10772 9956 Request: GET /api/users/
+INFO 2025-09-25 03:17:32,704 views 10772 9956 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 03:17:32,756 middleware 10772 9956 Response: 400 for GET /api/users/
+WARNING 2025-09-25 03:17:32,760 log 10772 9956 Bad Request: /api/users/
+WARNING 2025-09-25 03:17:32,761 basehttp 10772 9956 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 03:18:05,829 middleware 10772 4160 Request: GET /api/users/
+INFO 2025-09-25 03:18:05,853 views 10772 4160 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 03:18:05,855 middleware 10772 4160 Response: 400 for GET /api/users/
+WARNING 2025-09-25 03:18:05,857 log 10772 4160 Bad Request: /api/users/
+WARNING 2025-09-25 03:18:05,859 basehttp 10772 4160 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 03:18:06,191 middleware 10772 12880 Request: GET /api/users/
+INFO 2025-09-25 03:18:06,223 views 10772 12880 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 03:18:06,226 middleware 10772 12880 Response: 400 for GET /api/users/
+WARNING 2025-09-25 03:18:06,227 log 10772 12880 Bad Request: /api/users/
+WARNING 2025-09-25 03:18:06,229 basehttp 10772 12880 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 03:19:14,290 middleware 10772 22040 Request: GET /api/styling/global/
+INFO 2025-09-25 03:19:14,301 middleware 10772 22040 Response: 200 for GET /api/styling/global/
+INFO 2025-09-25 03:19:14,302 basehttp 10772 22040 "GET /api/styling/global/ HTTP/1.1" 200 2881
+INFO 2025-09-25 03:19:35,060 middleware 10772 22040 Request: GET /api/styling/global/
+INFO 2025-09-25 03:19:35,068 middleware 10772 22040 Response: 200 for GET /api/styling/global/
+INFO 2025-09-25 03:19:35,069 basehttp 10772 22040 "GET /api/styling/global/ HTTP/1.1" 200 2881
+INFO 2025-09-25 03:20:01,453 middleware 10772 22040 Request: POST /api/styling/global/
+INFO 2025-09-25 03:20:01,497 middleware 10772 22040 Response: 201 for POST /api/styling/global/
+INFO 2025-09-25 03:20:01,498 basehttp 10772 22040 "POST /api/styling/global/ HTTP/1.1" 201 2848
+INFO 2025-09-25 03:23:36,675 middleware 10772 9656 Request: GET /api/users/
+INFO 2025-09-25 03:23:36,718 views 10772 9656 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 03:23:36,719 middleware 10772 9656 Response: 400 for GET /api/users/
+WARNING 2025-09-25 03:23:36,721 log 10772 9656 Bad Request: /api/users/
+WARNING 2025-09-25 03:23:36,722 basehttp 10772 9656 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 03:23:37,187 middleware 10772 21988 Request: GET /api/users/
+INFO 2025-09-25 03:23:37,210 views 10772 21988 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 03:23:37,215 middleware 10772 21988 Response: 400 for GET /api/users/
+WARNING 2025-09-25 03:23:37,219 log 10772 21988 Bad Request: /api/users/
+WARNING 2025-09-25 03:23:37,222 basehttp 10772 21988 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 12:26:28,755 basehttp 10772 26212 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 12:26:28,759 middleware 10772 26212 Request: GET /api/users/
+INFO 2025-09-25 12:26:28,773 views 10772 26212 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 12:26:28,817 middleware 10772 26212 Response: 400 for GET /api/users/
+WARNING 2025-09-25 12:26:28,892 log 10772 26212 Bad Request: /api/users/
+WARNING 2025-09-25 12:26:28,913 basehttp 10772 26212 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 12:26:29,379 basehttp 10772 20552 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 12:26:29,383 middleware 10772 20552 Request: GET /api/users/
+INFO 2025-09-25 12:26:29,394 views 10772 20552 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 12:26:29,395 middleware 10772 20552 Response: 400 for GET /api/users/
+WARNING 2025-09-25 12:26:29,395 log 10772 20552 Bad Request: /api/users/
+WARNING 2025-09-25 12:26:29,396 basehttp 10772 20552 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 12:28:14,915 middleware 10772 31452 Request: PUT /api/auth/update/user/
+INFO 2025-09-25 12:28:14,959 middleware 10772 31452 Response: 404 for PUT /api/auth/update/user/
+WARNING 2025-09-25 12:28:14,959 log 10772 31452 Not Found: /api/auth/update/user/
+WARNING 2025-09-25 12:28:14,960 basehttp 10772 31452 "PUT //api/auth/update/user/ HTTP/1.1" 404 26421
+INFO 2025-09-25 12:28:29,645 middleware 10772 31452 Request: PUT /api/auth/register /user/
+INFO 2025-09-25 12:28:29,660 middleware 10772 31452 Response: 404 for PUT /api/auth/register /user/
+WARNING 2025-09-25 12:28:29,661 log 10772 31452 Not Found: /api/auth/register /user/
+WARNING 2025-09-25 12:28:29,661 basehttp 10772 31452 "PUT //api/auth/register%20/user/ HTTP/1.1" 404 26432
+INFO 2025-09-25 12:28:31,129 middleware 10772 31452 Request: PUT /api/auth/register/user/
+INFO 2025-09-25 12:28:31,146 middleware 10772 31452 Response: 404 for PUT /api/auth/register/user/
+WARNING 2025-09-25 12:28:31,146 log 10772 31452 Not Found: /api/auth/register/user/
+WARNING 2025-09-25 12:28:31,147 basehttp 10772 31452 "PUT //api/auth/register/user/ HTTP/1.1" 404 26427
+INFO 2025-09-25 12:28:41,362 middleware 10772 31452 Request: PUT /api/auth/register/user/
+INFO 2025-09-25 12:28:41,374 middleware 10772 31452 Response: 404 for PUT /api/auth/register/user/
+WARNING 2025-09-25 12:28:41,375 log 10772 31452 Not Found: /api/auth/register/user/
+WARNING 2025-09-25 12:28:41,375 basehttp 10772 31452 "PUT //api/auth/register/user/ HTTP/1.1" 404 26427
+INFO 2025-09-25 12:29:13,104 middleware 10772 31452 Request: PUT /api/auth/register/user/
+INFO 2025-09-25 12:29:13,124 middleware 10772 31452 Response: 404 for PUT /api/auth/register/user/
+WARNING 2025-09-25 12:29:13,125 log 10772 31452 Not Found: /api/auth/register/user/
+WARNING 2025-09-25 12:29:13,126 basehttp 10772 31452 "PUT //api/auth/register/user/ HTTP/1.1" 404 26427
+INFO 2025-09-25 12:29:18,514 middleware 10772 31452 Request: GET /api/auth/register/user/
+INFO 2025-09-25 12:29:18,529 middleware 10772 31452 Response: 404 for GET /api/auth/register/user/
+WARNING 2025-09-25 12:29:18,529 log 10772 31452 Not Found: /api/auth/register/user/
+WARNING 2025-09-25 12:29:18,530 basehttp 10772 31452 "GET //api/auth/register/user/ HTTP/1.1" 404 26427
+INFO 2025-09-25 12:29:30,361 middleware 10772 31452 Request: GET /api/auth/register/user/40/
+INFO 2025-09-25 12:29:30,377 middleware 10772 31452 Response: 404 for GET /api/auth/register/user/40/
+WARNING 2025-09-25 12:29:30,378 log 10772 31452 Not Found: /api/auth/register/user/40/
+WARNING 2025-09-25 12:29:30,379 basehttp 10772 31452 "GET //api/auth/register/user/40/ HTTP/1.1" 404 26436
+INFO 2025-09-25 12:51:17,172 middleware 10772 4844 Request: GET /api/credentials/status/
+INFO 2025-09-25 12:51:17,178 credentials_views 10772 4844 Credentials status checked
+INFO 2025-09-25 12:51:17,179 middleware 10772 4844 Response: 200 for GET /api/credentials/status/
+INFO 2025-09-25 12:51:17,180 basehttp 10772 4844 "GET /api/credentials/status/ HTTP/1.1" 200 428
+INFO 2025-09-25 12:52:09,591 middleware 10772 7256 Request: GET /api/credentials/status/
+INFO 2025-09-25 12:52:09,592 credentials_views 10772 7256 Credentials status checked
+INFO 2025-09-25 12:52:09,592 middleware 10772 7256 Response: 200 for GET /api/credentials/status/
+INFO 2025-09-25 12:52:09,593 basehttp 10772 7256 "GET /api/credentials/status/ HTTP/1.1" 200 428
+INFO 2025-09-25 12:52:09,596 middleware 10772 21524 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 12:52:09,712 middleware 10772 21524 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 12:52:09,713 basehttp 10772 21524 "GET /api/get-all-credentials/ HTTP/1.1" 200 7510
+INFO 2025-09-25 12:52:09,718 middleware 10772 5852 Request: GET /api/credentials/
+INFO 2025-09-25 12:52:09,720 middleware 10772 5852 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 12:52:09,721 basehttp 10772 5852 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 13:05:47,431 middleware 10772 22488 Request: GET /api/credentials/
+INFO 2025-09-25 13:05:47,432 middleware 10772 22488 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 13:05:47,434 basehttp 10772 22488 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 13:20:22,073 basehttp 10772 24548 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 13:20:22,082 middleware 10772 24548 Request: GET /api/users/
+INFO 2025-09-25 13:20:22,346 views 10772 24548 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:20:22,347 middleware 10772 24548 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:20:22,348 log 10772 24548 Bad Request: /api/users/
+WARNING 2025-09-25 13:20:22,348 basehttp 10772 24548 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:20:22,665 basehttp 10772 16456 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 13:20:22,669 middleware 10772 16456 Request: GET /api/users/
+INFO 2025-09-25 13:20:22,678 views 10772 16456 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:20:22,683 middleware 10772 16456 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:20:22,684 log 10772 16456 Bad Request: /api/users/
+WARNING 2025-09-25 13:20:22,685 basehttp 10772 16456 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:21:10,252 middleware 10772 24548 Request: GET /api/users/
+INFO 2025-09-25 13:21:10,268 views 10772 24548 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:21:10,270 middleware 10772 24548 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:21:10,271 log 10772 24548 Bad Request: /api/users/
+WARNING 2025-09-25 13:21:10,271 basehttp 10772 24548 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:21:10,278 middleware 10772 16456 Request: GET /api/users/
+INFO 2025-09-25 13:21:10,286 views 10772 16456 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:21:10,287 middleware 10772 16456 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:21:10,288 log 10772 16456 Bad Request: /api/users/
+WARNING 2025-09-25 13:21:10,288 basehttp 10772 16456 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:27:50,432 middleware 10772 31420 Request: GET /api/users/
+INFO 2025-09-25 13:27:50,444 views 10772 31420 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:27:50,445 middleware 10772 31420 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:27:50,446 log 10772 31420 Bad Request: /api/users/
+WARNING 2025-09-25 13:27:50,447 basehttp 10772 31420 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:27:50,765 middleware 10772 36676 Request: GET /api/users/
+INFO 2025-09-25 13:27:50,771 views 10772 36676 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:27:50,772 middleware 10772 36676 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:27:50,773 log 10772 36676 Bad Request: /api/users/
+WARNING 2025-09-25 13:27:50,773 basehttp 10772 36676 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:37:54,553 middleware 10772 29460 Request: GET /api/users/
+INFO 2025-09-25 13:37:54,562 views 10772 29460 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:37:54,563 middleware 10772 29460 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:37:54,564 log 10772 29460 Bad Request: /api/users/
+WARNING 2025-09-25 13:37:54,565 basehttp 10772 29460 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 13:37:54,886 middleware 10772 19588 Request: GET /api/users/
+INFO 2025-09-25 13:37:54,895 views 10772 19588 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 13:37:54,895 middleware 10772 19588 Response: 400 for GET /api/users/
+WARNING 2025-09-25 13:37:54,896 log 10772 19588 Bad Request: /api/users/
+WARNING 2025-09-25 13:37:54,897 basehttp 10772 19588 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 14:01:15,702 middleware 10772 32452 Request: POST /api/credentials/
+INFO 2025-09-25 14:01:15,704 middleware 10772 32452 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:01:15,704 log 10772 32452 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:01:15,705 basehttp 10772 32452 "POST /api/credentials/ HTTP/1.1" 400 70
+INFO 2025-09-25 14:01:18,385 middleware 10772 32452 Request: POST /api/credentials/
+INFO 2025-09-25 14:01:18,386 middleware 10772 32452 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:01:18,386 log 10772 32452 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:01:18,387 basehttp 10772 32452 "POST /api/credentials/ HTTP/1.1" 400 70
+INFO 2025-09-25 14:01:29,448 middleware 10772 32452 Request: GET /api/credentials/
+INFO 2025-09-25 14:01:29,449 middleware 10772 32452 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:01:29,450 basehttp 10772 32452 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:01:49,780 middleware 10772 32452 Request: GET /api/credentials/
+INFO 2025-09-25 14:01:49,780 middleware 10772 32452 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:01:49,781 basehttp 10772 32452 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:01:54,883 middleware 10772 32452 Request: POST /api/credentials/
+INFO 2025-09-25 14:01:54,884 middleware 10772 32452 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:01:54,885 log 10772 32452 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:01:54,886 basehttp 10772 32452 "POST /api/credentials/ HTTP/1.1" 400 60
+INFO 2025-09-25 14:03:34,167 middleware 10772 20216 Request: POST /api/credentials/
+INFO 2025-09-25 14:03:34,168 middleware 10772 20216 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:03:34,169 basehttp 10772 20216 "POST /api/credentials/ HTTP/1.1" 200 213
+INFO 2025-09-25 14:03:50,711 middleware 10772 20216 Request: POST /api/credentials/
+INFO 2025-09-25 14:03:50,712 middleware 10772 20216 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:03:50,713 basehttp 10772 20216 "POST /api/credentials/ HTTP/1.1" 200 232
+INFO 2025-09-25 14:04:44,397 middleware 10772 20216 Request: GET /api/credentials/
+INFO 2025-09-25 14:04:44,398 middleware 10772 20216 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:04:44,398 basehttp 10772 20216 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:05:02,797 middleware 10772 20216 Request: POST /api/credentials/
+INFO 2025-09-25 14:05:02,798 middleware 10772 20216 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:05:02,799 basehttp 10772 20216 "POST /api/credentials/ HTTP/1.1" 200 232
+INFO 2025-09-25 14:05:08,637 middleware 10772 20216 Request: GET /api/credentials/
+INFO 2025-09-25 14:05:08,646 middleware 10772 20216 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:05:08,667 basehttp 10772 20216 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:05:33,357 middleware 10772 20216 Request: POST /api/credentials/
+INFO 2025-09-25 14:05:33,358 middleware 10772 20216 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:05:33,359 basehttp 10772 20216 "POST /api/credentials/ HTTP/1.1" 200 213
+INFO 2025-09-25 14:05:43,914 middleware 10772 20216 Request: GET /api/credentials/
+INFO 2025-09-25 14:05:43,914 middleware 10772 20216 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:05:43,915 basehttp 10772 20216 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:11:45,280 middleware 9908 4424 Request: GET /api/credentials/
+INFO 2025-09-25 14:11:45,282 middleware 9908 4424 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:11:45,283 basehttp 9908 4424 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:11:58,216 middleware 9908 4424 Request: POST /api/credentials/
+INFO 2025-09-25 14:11:58,234 middleware 9908 4424 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:11:58,236 basehttp 9908 4424 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:12:04,265 middleware 9908 4424 Request: POST /api/credentials/
+INFO 2025-09-25 14:12:04,282 middleware 9908 4424 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:12:04,283 basehttp 9908 4424 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:12:13,386 middleware 9908 4424 Request: POST /api/credentials/
+INFO 2025-09-25 14:12:13,404 middleware 9908 4424 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:12:13,405 basehttp 9908 4424 "POST /api/credentials/ HTTP/1.1" 200 244
+INFO 2025-09-25 14:12:20,742 middleware 9908 4424 Request: GET /api/credentials/
+INFO 2025-09-25 14:12:20,743 middleware 9908 4424 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:12:20,744 basehttp 9908 4424 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:13:36,704 middleware 9908 31152 Request: GET /api/credentials/
+INFO 2025-09-25 14:13:36,705 middleware 9908 31152 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:13:36,706 basehttp 9908 31152 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:16:49,869 middleware 9908 25084 Request: POST /api/credentials/
+INFO 2025-09-25 14:16:49,870 middleware 9908 25084 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:16:49,871 log 9908 25084 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:16:49,872 basehttp 9908 25084 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:17:54,936 middleware 9908 28864 Request: GET /api/credentials/
+INFO 2025-09-25 14:17:54,937 middleware 9908 28864 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:17:54,938 basehttp 9908 28864 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:18:58,936 middleware 9908 35784 Request: GET /api/credentials/
+INFO 2025-09-25 14:18:58,937 middleware 9908 35784 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:18:58,938 basehttp 9908 35784 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:19:05,016 middleware 9908 35784 Request: POST /api/credentials/
+INFO 2025-09-25 14:19:05,017 middleware 9908 35784 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:19:05,017 log 9908 35784 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:19:05,018 basehttp 9908 35784 "POST /api/credentials/ HTTP/1.1" 400 81
+INFO 2025-09-25 14:20:08,478 middleware 9908 38876 Request: POST /api/credentials/
+INFO 2025-09-25 14:20:08,479 middleware 9908 38876 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:20:08,479 log 9908 38876 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:20:08,480 basehttp 9908 38876 "POST /api/credentials/ HTTP/1.1" 400 81
+INFO 2025-09-25 14:20:41,599 middleware 9908 38876 Request: POST /api/credentials/
+INFO 2025-09-25 14:20:41,600 middleware 9908 38876 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:20:41,601 log 9908 38876 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:20:41,602 basehttp 9908 38876 "POST /api/credentials/ HTTP/1.1" 400 81
+INFO 2025-09-25 14:22:11,631 middleware 9908 21892 Request: POST /api/credentials/
+INFO 2025-09-25 14:22:11,645 middleware 9908 21892 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:22:11,646 basehttp 9908 21892 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:23:56,708 middleware 12004 24796 Request: GET /api/credentials/
+INFO 2025-09-25 14:23:56,709 middleware 12004 24796 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:23:56,710 basehttp 12004 24796 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:26:35,207 middleware 12004 30392 Request: POST /api/credentials/
+INFO 2025-09-25 14:26:35,230 middleware 12004 30392 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:26:35,231 basehttp 12004 30392 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:26:56,017 middleware 12004 30392 Request: POST /api/credentials/
+INFO 2025-09-25 14:26:56,035 middleware 12004 30392 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:26:56,036 basehttp 12004 30392 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:27:37,383 middleware 12004 30392 Request: POST /api/credentials/
+INFO 2025-09-25 14:27:37,384 middleware 12004 30392 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:27:37,385 log 12004 30392 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:27:37,385 basehttp 12004 30392 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:27:52,083 middleware 12004 30392 Request: GET /api/credentials/
+INFO 2025-09-25 14:27:52,084 middleware 12004 30392 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:27:52,085 basehttp 12004 30392 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:28:52,850 middleware 12004 19532 Request: GET /api/credentials/
+INFO 2025-09-25 14:28:52,851 middleware 12004 19532 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:28:52,852 basehttp 12004 19532 "GET /api/credentials/ HTTP/1.1" 200 561
+INFO 2025-09-25 14:32:20,031 middleware 27504 392 Request: GET /api/credentials/
+INFO 2025-09-25 14:32:20,040 middleware 27504 392 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:32:20,042 basehttp 27504 392 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:32:20,048 middleware 27504 15904 Request: POST /api/credentials/
+INFO 2025-09-25 14:32:20,065 middleware 27504 15904 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:32:20,067 basehttp 27504 15904 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:32:20,073 middleware 27504 18876 Request: GET /api/credentials/
+INFO 2025-09-25 14:32:20,087 middleware 27504 18876 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:32:20,088 basehttp 27504 18876 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:32:20,093 middleware 27504 9056 Request: POST /api/credentials/
+INFO 2025-09-25 14:32:20,113 middleware 27504 9056 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:32:20,115 basehttp 27504 9056 "POST /api/credentials/ HTTP/1.1" 200 244
+INFO 2025-09-25 14:32:20,119 middleware 27504 7332 Request: GET /api/credentials/
+INFO 2025-09-25 14:32:20,126 middleware 27504 7332 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:32:20,128 basehttp 27504 7332 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:33:14,097 middleware 27504 26320 Request: POST /api/credentials/
+INFO 2025-09-25 14:33:14,113 middleware 27504 26320 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:33:14,114 basehttp 27504 26320 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:33:47,038 middleware 27504 26320 Request: POST /api/credentials/
+INFO 2025-09-25 14:33:47,055 middleware 27504 26320 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:33:47,057 basehttp 27504 26320 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:34:15,724 middleware 27504 26320 Request: GET /api/credentials/
+INFO 2025-09-25 14:34:15,734 middleware 27504 26320 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:34:15,735 basehttp 27504 26320 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:35:38,237 middleware 27504 27624 Request: POST /api/credentials/
+INFO 2025-09-25 14:35:38,253 middleware 27504 27624 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 14:35:38,254 basehttp 27504 27624 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 14:36:02,853 middleware 27504 27624 Request: POST /api/credentials/
+INFO 2025-09-25 14:36:02,854 middleware 27504 27624 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:36:02,854 log 27504 27624 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:36:02,855 basehttp 27504 27624 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:36:09,332 middleware 27504 27624 Request: GET /api/credentials/
+INFO 2025-09-25 14:36:09,340 middleware 27504 27624 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:36:09,341 basehttp 27504 27624 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:38:42,562 basehttp 27504 9696 "OPTIONS /api/credentials/?service=dxd-focus-time-dashboard HTTP/1.1" 200 0
+INFO 2025-09-25 14:38:42,564 middleware 27504 9696 Request: GET /api/credentials/
+INFO 2025-09-25 14:38:42,584 middleware 27504 9696 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:38:42,588 basehttp 27504 9696 "GET /api/credentials/?service=dxd-focus-time-dashboard HTTP/1.1" 200 559
+INFO 2025-09-25 14:40:28,215 middleware 27504 9696 Request: GET /api/credentials/
+INFO 2025-09-25 14:40:28,226 middleware 27504 9696 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:40:28,227 basehttp 27504 9696 "GET /api/credentials/?service=dxd-focus-time-dashboard HTTP/1.1" 200 559
+INFO 2025-09-25 14:40:28,229 middleware 27504 20060 Request: GET /api/credentials/
+INFO 2025-09-25 14:40:28,240 middleware 27504 20060 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:40:28,242 basehttp 27504 20060 "GET /api/credentials/?service=dxd-focus-time-dashboard HTTP/1.1" 200 559
+INFO 2025-09-25 14:40:54,123 basehttp 27504 20060 "OPTIONS /api/credentials/ HTTP/1.1" 200 0
+INFO 2025-09-25 14:40:54,131 middleware 27504 20060 Request: POST /api/credentials/
+INFO 2025-09-25 14:40:54,135 middleware 27504 20060 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:40:54,137 log 27504 20060 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:40:54,138 basehttp 27504 20060 "POST /api/credentials/ HTTP/1.1" 400 81
+INFO 2025-09-25 14:41:38,645 middleware 27504 17536 Request: GET /api/credentials/
+INFO 2025-09-25 14:41:38,652 middleware 27504 17536 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:41:38,653 basehttp 27504 17536 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:41:48,827 middleware 27504 17536 Request: GET /api/credentials/
+INFO 2025-09-25 14:41:48,834 middleware 27504 17536 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:41:48,836 basehttp 27504 17536 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:44:43,218 middleware 27504 22288 Request: POST /api/credentials/
+INFO 2025-09-25 14:44:43,220 middleware 27504 22288 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:44:43,221 log 27504 22288 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:44:43,222 basehttp 27504 22288 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:47:43,354 middleware 27504 18764 Request: GET /api/credentials/
+INFO 2025-09-25 14:47:43,365 middleware 27504 18764 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:47:43,366 basehttp 27504 18764 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:48:35,579 middleware 27504 18764 Request: GET /api/credentials/
+INFO 2025-09-25 14:48:35,587 middleware 27504 18764 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:48:35,589 basehttp 27504 18764 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:48:35,595 middleware 27504 18764 Request: GET /api/credentials/
+INFO 2025-09-25 14:48:35,608 middleware 27504 18764 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:48:35,610 basehttp 27504 18764 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:49:08,757 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:08,782 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:08,818 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:08,822 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:19,323 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:19,327 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:19,328 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:19,329 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:20,960 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:20,964 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:20,966 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:20,967 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:21,523 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:21,525 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:21,527 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:21,528 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:21,690 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:21,692 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:21,693 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:21,696 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:21,840 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:21,842 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:21,847 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:21,848 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:22,001 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:22,004 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:22,005 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:22,007 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:22,154 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:22,157 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:22,158 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:22,159 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:25,133 middleware 27504 20140 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:25,134 middleware 27504 20140 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:25,135 log 27504 20140 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:25,135 basehttp 27504 20140 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:49:27,937 middleware 27504 20140 Request: GET /api/credentials/
+INFO 2025-09-25 14:49:27,944 middleware 27504 20140 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:49:27,945 basehttp 27504 20140 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:49:46,151 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:49:46,155 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:49:46,158 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:49:46,160 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:50:03,114 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:50:03,125 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:50:03,128 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:50:03,129 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:52:20,748 middleware 27504 18764 Request: GET /api/credentials/
+INFO 2025-09-25 14:52:20,770 middleware 27504 18764 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:52:20,775 basehttp 27504 18764 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:52:20,778 middleware 27504 18764 Request: GET /api/credentials/
+INFO 2025-09-25 14:52:20,787 middleware 27504 18764 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:52:20,788 basehttp 27504 18764 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:53:01,717 middleware 27504 18764 Request: POST /api/credentials/
+INFO 2025-09-25 14:53:01,719 middleware 27504 18764 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:53:01,721 log 27504 18764 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:53:01,723 basehttp 27504 18764 "POST /api/credentials/ HTTP/1.1" 400 81
+INFO 2025-09-25 14:56:12,951 middleware 27504 11484 Request: GET /api/credentials/
+INFO 2025-09-25 14:56:12,989 middleware 27504 11484 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:56:12,991 basehttp 27504 11484 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:56:12,994 middleware 27504 19688 Request: GET /api/credentials/
+INFO 2025-09-25 14:56:13,006 middleware 27504 19688 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:56:13,009 basehttp 27504 19688 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:56:40,479 middleware 27504 25512 Request: POST /api/credentials/
+INFO 2025-09-25 14:56:40,481 middleware 27504 25512 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 14:56:40,481 log 27504 25512 Bad Request: /api/credentials/
+WARNING 2025-09-25 14:56:40,482 basehttp 27504 25512 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 14:58:12,619 middleware 27504 32860 Request: GET /api/credentials/
+INFO 2025-09-25 14:58:12,625 middleware 27504 32860 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:58:12,626 basehttp 27504 32860 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 14:59:07,568 middleware 27504 32860 Request: GET /api/credentials/
+INFO 2025-09-25 14:59:07,579 middleware 27504 32860 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 14:59:07,581 basehttp 27504 32860 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 15:00:55,197 middleware 27504 13596 Request: POST /api/credentials/
+INFO 2025-09-25 15:00:55,199 middleware 27504 13596 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 15:00:55,200 log 27504 13596 Bad Request: /api/credentials/
+WARNING 2025-09-25 15:00:55,201 basehttp 27504 13596 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 15:01:26,485 middleware 27504 13596 Request: POST /api/credentials/
+INFO 2025-09-25 15:01:26,488 middleware 27504 13596 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 15:01:26,489 log 27504 13596 Bad Request: /api/credentials/
+WARNING 2025-09-25 15:01:26,490 basehttp 27504 13596 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 15:03:04,197 middleware 27504 17188 Request: POST /api/credentials/
+INFO 2025-09-25 15:03:04,205 middleware 27504 17188 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 15:03:04,207 log 27504 17188 Bad Request: /api/credentials/
+WARNING 2025-09-25 15:03:04,209 basehttp 27504 17188 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 15:03:27,044 middleware 27504 17188 Request: POST /api/credentials/
+INFO 2025-09-25 15:03:27,047 middleware 27504 17188 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 15:03:27,049 log 27504 17188 Bad Request: /api/credentials/
+WARNING 2025-09-25 15:03:27,050 basehttp 27504 17188 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 15:04:23,983 middleware 27504 26372 Request: GET /api/credentials/
+INFO 2025-09-25 15:04:23,992 middleware 27504 26372 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:04:23,993 basehttp 27504 26372 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 15:11:16,383 middleware 30452 6304 Request: POST /api/credentials/
+INFO 2025-09-25 15:11:16,448 middleware 30452 6304 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:11:16,452 basehttp 30452 6304 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 15:11:16,469 middleware 30452 32896 Request: GET /api/credentials/
+INFO 2025-09-25 15:11:16,520 middleware 30452 32896 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:11:16,522 basehttp 30452 32896 "GET /api/credentials/ HTTP/1.1" 200 559
+INFO 2025-09-25 15:11:16,538 middleware 30452 7036 Request: GET /api/credentials/status/
+INFO 2025-09-25 15:11:16,572 credentials_views 30452 7036 Credentials status checked from database
+INFO 2025-09-25 15:11:16,573 middleware 30452 7036 Response: 200 for GET /api/credentials/status/
+INFO 2025-09-25 15:11:16,575 basehttp 30452 7036 "GET /api/credentials/status/ HTTP/1.1" 200 570
+INFO 2025-09-25 15:11:16,586 middleware 30452 16092 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 15:11:16,698 middleware 30452 16092 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 15:11:16,700 basehttp 30452 16092 "GET /api/get-all-credentials/ HTTP/1.1" 200 10801
+INFO 2025-09-25 15:11:16,720 middleware 30452 11920 Request: POST /api/credentials/
+INFO 2025-09-25 15:11:16,767 middleware 30452 11920 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:11:16,781 basehttp 30452 11920 "POST /api/credentials/ HTTP/1.1" 200 269
+INFO 2025-09-25 15:11:16,788 middleware 30452 9896 Request: GET /api/credentials/status/
+INFO 2025-09-25 15:11:16,835 credentials_views 30452 9896 Credentials status checked from database
+INFO 2025-09-25 15:11:16,837 middleware 30452 9896 Response: 200 for GET /api/credentials/status/
+INFO 2025-09-25 15:11:16,839 basehttp 30452 9896 "GET /api/credentials/status/ HTTP/1.1" 200 555
+INFO 2025-09-25 15:11:48,303 middleware 30452 26772 Request: GET /api/credentials/status/
+INFO 2025-09-25 15:11:48,324 credentials_views 30452 26772 Credentials status checked from database
+INFO 2025-09-25 15:11:48,326 middleware 30452 26772 Response: 200 for GET /api/credentials/status/
+INFO 2025-09-25 15:11:48,328 basehttp 30452 26772 "GET /api/credentials/status/ HTTP/1.1" 200 555
+INFO 2025-09-25 15:12:02,672 middleware 30452 26772 Request: GET /api/credentials/
+INFO 2025-09-25 15:12:02,699 middleware 30452 26772 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:12:02,701 basehttp 30452 26772 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:14:05,939 middleware 30452 19844 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 15:14:05,966 middleware 30452 19844 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 15:14:05,968 basehttp 30452 19844 "GET /api/get-all-credentials/ HTTP/1.1" 200 12509
+INFO 2025-09-25 15:14:51,181 middleware 30452 34992 Request: GET /api/credentials/
+INFO 2025-09-25 15:14:51,188 middleware 30452 34992 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:14:51,190 basehttp 30452 34992 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:14:51,197 middleware 30452 30872 Request: GET /api/credentials/
+INFO 2025-09-25 15:14:51,210 middleware 30452 30872 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:14:51,212 basehttp 30452 30872 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:15:18,034 middleware 30452 30872 Request: POST /api/credentials/
+INFO 2025-09-25 15:15:18,036 middleware 30452 30872 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 15:15:18,037 log 30452 30872 Bad Request: /api/credentials/
+WARNING 2025-09-25 15:15:18,038 basehttp 30452 30872 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 15:15:27,651 middleware 30452 36428 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 15:15:27,704 middleware 30452 36428 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 15:15:27,705 basehttp 30452 36428 "GET /api/get-all-credentials/ HTTP/1.1" 200 12509
+INFO 2025-09-25 15:16:35,432 middleware 30452 30872 Request: GET /api/credentials/
+INFO 2025-09-25 15:16:35,447 middleware 30452 30872 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:16:35,448 basehttp 30452 30872 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:16:50,399 middleware 30452 30872 Request: GET /api/credentials/
+INFO 2025-09-25 15:16:50,413 middleware 30452 30872 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:16:50,415 basehttp 30452 30872 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:21:11,568 middleware 30452 30872 Request: GET /api/credentials/
+INFO 2025-09-25 15:21:11,587 middleware 30452 30872 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:21:11,590 basehttp 30452 30872 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:25:29,395 middleware 30452 30872 Request: GET /api/credentials/
+INFO 2025-09-25 15:25:29,409 middleware 30452 30872 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:25:29,410 basehttp 30452 30872 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:25:29,414 middleware 30452 29784 Request: GET /api/credentials/
+INFO 2025-09-25 15:25:29,430 middleware 30452 29784 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:25:29,432 basehttp 30452 29784 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:26:05,981 middleware 30452 38480 Request: POST /api/credentials/
+INFO 2025-09-25 15:26:05,986 middleware 30452 38480 Response: 400 for POST /api/credentials/
+WARNING 2025-09-25 15:26:05,989 log 30452 38480 Bad Request: /api/credentials/
+WARNING 2025-09-25 15:26:05,993 basehttp 30452 38480 "POST /api/credentials/ HTTP/1.1" 400 59
+INFO 2025-09-25 15:26:13,866 middleware 30452 8664 Request: POST /api/get-all-credentials/
+INFO 2025-09-25 15:26:14,078 middleware 30452 8664 Response: 405 for POST /api/get-all-credentials/
+WARNING 2025-09-25 15:26:14,079 log 30452 8664 Method Not Allowed: /api/get-all-credentials/
+WARNING 2025-09-25 15:26:14,080 basehttp 30452 8664 "POST /api/get-all-credentials/ HTTP/1.1" 405 41
+INFO 2025-09-25 15:26:20,038 middleware 30452 8664 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 15:26:20,090 middleware 30452 8664 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 15:26:20,091 basehttp 30452 8664 "GET /api/get-all-credentials/ HTTP/1.1" 200 12509
+INFO 2025-09-25 15:34:08,926 middleware 30452 7776 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 15:34:08,967 middleware 30452 7776 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 15:34:08,968 basehttp 30452 7776 "GET /api/get-all-credentials/ HTTP/1.1" 200 12509
+INFO 2025-09-25 15:35:57,336 middleware 30452 11896 Request: GET /api/credentials/
+INFO 2025-09-25 15:35:57,343 middleware 30452 11896 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:35:57,344 basehttp 30452 11896 "GET /api/credentials/ HTTP/1.1" 200 541
+INFO 2025-09-25 15:36:08,364 middleware 30452 11896 Request: GET /api/credentials/6/
+INFO 2025-09-25 15:36:08,655 middleware 30452 11896 Response: 404 for GET /api/credentials/6/
+WARNING 2025-09-25 15:36:08,656 log 30452 11896 Not Found: /api/credentials/6/
+WARNING 2025-09-25 15:36:08,656 basehttp 30452 11896 "GET /api/credentials/6/ HTTP/1.1" 404 23786
+INFO 2025-09-25 15:47:16,394 middleware 34460 26740 Request: POST /api/credentials/
+INFO 2025-09-25 15:47:16,442 middleware 34460 26740 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:47:16,443 basehttp 34460 26740 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 15:47:16,446 middleware 34460 36216 Request: GET /api/credentials/
+INFO 2025-09-25 15:47:16,456 middleware 34460 36216 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:47:16,457 basehttp 34460 36216 "GET /api/credentials/ HTTP/1.1" 200 507
+INFO 2025-09-25 15:47:16,461 middleware 34460 20452 Request: POST /api/credentials/
+INFO 2025-09-25 15:47:16,474 middleware 34460 20452 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:47:16,475 basehttp 34460 20452 "POST /api/credentials/ HTTP/1.1" 200 281
+INFO 2025-09-25 15:47:16,478 middleware 34460 10904 Request: GET /api/credentials/
+INFO 2025-09-25 15:47:16,486 middleware 34460 10904 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:47:16,487 basehttp 34460 10904 "GET /api/credentials/ HTTP/1.1" 200 507
+INFO 2025-09-25 15:47:16,491 middleware 34460 17076 Request: POST /api/credentials/
+INFO 2025-09-25 15:47:16,506 middleware 34460 17076 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:47:16,507 basehttp 34460 17076 "POST /api/credentials/ HTTP/1.1" 200 127
+INFO 2025-09-25 15:50:10,954 middleware 34460 38460 Request: POST /api/credentials/
+INFO 2025-09-25 15:50:10,991 middleware 34460 38460 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:50:10,992 basehttp 34460 38460 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 15:50:35,932 middleware 34460 38460 Request: GET /api/credentials/
+INFO 2025-09-25 15:50:35,940 middleware 34460 38460 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:50:35,941 basehttp 34460 38460 "GET /api/credentials/ HTTP/1.1" 200 495
+INFO 2025-09-25 15:53:30,915 middleware 34460 36972 Request: POST /api/credentials/
+INFO 2025-09-25 15:53:30,957 middleware 34460 36972 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:53:30,958 basehttp 34460 36972 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 15:53:30,962 middleware 34460 34052 Request: GET /api/credentials/
+INFO 2025-09-25 15:53:30,968 middleware 34460 34052 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:53:30,968 basehttp 34460 34052 "GET /api/credentials/ HTTP/1.1" 200 516
+INFO 2025-09-25 15:53:30,976 middleware 34460 37564 Request: POST /api/credentials/
+INFO 2025-09-25 15:53:30,994 middleware 34460 37564 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:53:30,996 basehttp 34460 37564 "POST /api/credentials/ HTTP/1.1" 200 244
+INFO 2025-09-25 15:54:07,961 middleware 34460 8276 Request: POST /api/credentials/
+INFO 2025-09-25 15:54:08,002 middleware 34460 8276 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:54:08,002 basehttp 34460 8276 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 15:54:08,009 middleware 34460 32316 Request: GET /api/credentials/
+INFO 2025-09-25 15:54:08,016 middleware 34460 32316 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:54:08,017 basehttp 34460 32316 "GET /api/credentials/ HTTP/1.1" 200 516
+INFO 2025-09-25 15:54:08,025 middleware 34460 8228 Request: POST /api/credentials/
+INFO 2025-09-25 15:54:08,042 middleware 34460 8228 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:54:08,043 basehttp 34460 8228 "POST /api/credentials/ HTTP/1.1" 200 244
+INFO 2025-09-25 15:54:57,950 middleware 34460 9120 Request: GET /api/credentials/
+INFO 2025-09-25 15:54:57,959 middleware 34460 9120 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 15:54:57,960 basehttp 34460 9120 "GET /api/credentials/ HTTP/1.1" 200 516
+INFO 2025-09-25 15:59:08,537 middleware 34460 32972 Request: POST /api/credentials/
+INFO 2025-09-25 15:59:08,593 middleware 34460 32972 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 15:59:08,594 basehttp 34460 32972 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 15:59:22,033 middleware 34460 32972 Request: POST /api/get_credentials/
+INFO 2025-09-25 15:59:22,052 middleware 34460 32972 Response: 404 for POST /api/get_credentials/
+WARNING 2025-09-25 15:59:22,053 log 34460 32972 Not Found: /api/get_credentials/
+WARNING 2025-09-25 15:59:22,054 basehttp 34460 32972 "POST /api/get_credentials/ HTTP/1.1" 404 23793
+INFO 2025-09-25 16:00:20,255 middleware 34460 32972 Request: POST /api/getcredentials/-
+INFO 2025-09-25 16:00:20,269 middleware 34460 32972 Response: 404 for POST /api/getcredentials/-
+WARNING 2025-09-25 16:00:20,271 log 34460 32972 Not Found: /api/getcredentials/-
+WARNING 2025-09-25 16:00:20,272 basehttp 34460 32972 "POST /api/getcredentials/- HTTP/1.1" 404 23793
+INFO 2025-09-25 16:00:41,338 middleware 34460 32972 Request: POST /api/get-all-credentials/
+INFO 2025-09-25 16:00:41,371 middleware 34460 32972 Response: 405 for POST /api/get-all-credentials/
+WARNING 2025-09-25 16:00:41,372 log 34460 32972 Method Not Allowed: /api/get-all-credentials/
+WARNING 2025-09-25 16:00:41,372 basehttp 34460 32972 "POST /api/get-all-credentials/ HTTP/1.1" 405 41
+INFO 2025-09-25 16:00:44,958 middleware 34460 32972 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 16:00:44,987 middleware 34460 32972 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 16:00:44,988 basehttp 34460 32972 "GET /api/get-all-credentials/ HTTP/1.1" 200 12591
+INFO 2025-09-25 16:07:30,305 middleware 34460 36144 Request: PUT /api/credentials/
+INFO 2025-09-25 16:07:30,306 middleware 34460 36144 Response: 405 for PUT /api/credentials/
+WARNING 2025-09-25 16:07:30,307 log 34460 36144 Method Not Allowed: /api/credentials/
+WARNING 2025-09-25 16:07:30,307 basehttp 34460 36144 "PUT /api/credentials/ HTTP/1.1" 405 40
+INFO 2025-09-25 16:18:09,892 middleware 34460 22292 Request: GET /api/credentials/
+INFO 2025-09-25 16:18:09,908 middleware 34460 22292 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:18:09,910 basehttp 34460 22292 "GET /api/credentials/ HTTP/1.1" 200 516
+INFO 2025-09-25 16:18:09,914 middleware 34460 36092 Request: GET /api/credentials/
+INFO 2025-09-25 16:18:09,926 middleware 34460 36092 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:18:09,928 basehttp 34460 36092 "GET /api/credentials/ HTTP/1.1" 200 516
+INFO 2025-09-25 16:18:15,726 middleware 34460 36092 Request: POST /api/credentials/
+INFO 2025-09-25 16:18:15,826 middleware 34460 36092 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 16:18:15,831 basehttp 34460 36092 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 16:18:23,146 middleware 34460 36092 Request: POST /api/credentials/
+INFO 2025-09-25 16:18:23,224 middleware 34460 36092 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 16:18:23,226 basehttp 34460 36092 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 16:18:24,256 middleware 34460 36092 Request: GET /api/credentials/
+INFO 2025-09-25 16:18:24,290 middleware 34460 36092 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:18:24,291 basehttp 34460 36092 "GET /api/credentials/ HTTP/1.1" 200 509
+INFO 2025-09-25 16:18:33,794 middleware 34460 21120 Request: GET /api/credentials/
+INFO 2025-09-25 16:18:33,801 middleware 34460 21120 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:18:33,802 basehttp 34460 21120 "GET /api/credentials/ HTTP/1.1" 200 509
+INFO 2025-09-25 16:19:01,135 middleware 34460 21120 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 16:19:01,164 middleware 34460 21120 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 16:19:01,165 basehttp 34460 21120 "GET /api/get-all-credentials/ HTTP/1.1" 200 12633
+INFO 2025-09-25 16:20:07,858 middleware 34460 36092 Request: POST /api/credentials/
+INFO 2025-09-25 16:20:07,919 middleware 34460 36092 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 16:20:07,939 basehttp 34460 36092 "POST /api/credentials/ HTTP/1.1" 200 138
+INFO 2025-09-25 16:20:09,150 middleware 34460 36092 Request: GET /api/credentials/
+INFO 2025-09-25 16:20:09,177 middleware 34460 36092 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:20:09,178 basehttp 34460 36092 "GET /api/credentials/ HTTP/1.1" 200 508
+INFO 2025-09-25 16:20:13,002 middleware 34460 21124 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 16:20:13,031 middleware 34460 21124 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 16:20:13,032 basehttp 34460 21124 "GET /api/get-all-credentials/ HTTP/1.1" 200 12537
+INFO 2025-09-25 16:24:20,634 middleware 34460 28284 Request: GET /api/credentials/
+INFO 2025-09-25 16:24:20,645 middleware 34460 28284 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:24:20,646 basehttp 34460 28284 "GET /api/credentials/ HTTP/1.1" 200 508
+INFO 2025-09-25 16:24:20,649 middleware 34460 27932 Request: GET /api/credentials/
+INFO 2025-09-25 16:24:20,658 middleware 34460 27932 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:24:20,659 basehttp 34460 27932 "GET /api/credentials/ HTTP/1.1" 200 508
+INFO 2025-09-25 16:28:06,726 middleware 34460 9144 Request: GET /api/credentials/
+INFO 2025-09-25 16:28:06,786 middleware 34460 9144 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:28:06,798 basehttp 34460 9144 "GET /api/credentials/ HTTP/1.1" 200 508
+INFO 2025-09-25 16:28:06,834 middleware 34460 8448 Request: GET /api/credentials/
+INFO 2025-09-25 16:28:06,851 middleware 34460 8448 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:28:06,853 basehttp 34460 8448 "GET /api/credentials/ HTTP/1.1" 200 508
+INFO 2025-09-25 16:29:23,404 middleware 34460 8448 Request: POST /api/credentials/
+INFO 2025-09-25 16:29:23,483 middleware 34460 8448 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 16:29:23,485 basehttp 34460 8448 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 16:29:24,666 middleware 34460 8448 Request: GET /api/credentials/
+INFO 2025-09-25 16:29:24,686 middleware 34460 8448 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:29:24,691 basehttp 34460 8448 "GET /api/credentials/ HTTP/1.1" 200 479
+INFO 2025-09-25 16:29:28,742 middleware 34460 3236 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 16:29:28,775 middleware 34460 3236 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 16:29:28,776 basehttp 34460 3236 "GET /api/get-all-credentials/ HTTP/1.1" 200 12455
+INFO 2025-09-25 16:34:39,311 middleware 34460 13172 Request: POST /api/credentials/
+INFO 2025-09-25 16:34:39,362 middleware 34460 13172 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 16:34:39,363 basehttp 34460 13172 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 16:35:04,426 middleware 34460 13172 Request: POST /api/credentials/
+INFO 2025-09-25 16:35:04,468 middleware 34460 13172 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 16:35:04,469 basehttp 34460 13172 "POST /api/credentials/ HTTP/1.1" 200 159
+INFO 2025-09-25 16:35:43,190 middleware 34460 13172 Request: GET /api/credentials/
+INFO 2025-09-25 16:35:43,195 middleware 34460 13172 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:35:43,196 basehttp 34460 13172 "GET /api/credentials/ HTTP/1.1" 200 528
+INFO 2025-09-25 16:36:04,979 middleware 34460 13172 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 16:36:05,013 middleware 34460 13172 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 16:36:05,015 basehttp 34460 13172 "GET /api/get-all-credentials/ HTTP/1.1" 200 12679
+INFO 2025-09-25 16:49:38,319 basehttp 34460 1980 "OPTIONS /api/credentials/ HTTP/1.1" 200 0
+INFO 2025-09-25 16:49:38,322 middleware 34460 1980 Request: GET /api/credentials/
+INFO 2025-09-25 16:49:38,328 middleware 34460 1980 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:49:38,329 basehttp 34460 1980 "GET /api/credentials/ HTTP/1.1" 200 528
+INFO 2025-09-25 16:49:38,332 middleware 34460 29508 Request: GET /api/credentials/
+INFO 2025-09-25 16:49:38,338 middleware 34460 29508 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:49:38,339 basehttp 34460 29508 "GET /api/credentials/ HTTP/1.1" 200 528
+INFO 2025-09-25 16:55:54,298 middleware 34460 18572 Request: GET /api/credentials/
+INFO 2025-09-25 16:55:54,307 middleware 34460 18572 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:55:54,308 basehttp 34460 18572 "GET /api/credentials/ HTTP/1.1" 200 528
+INFO 2025-09-25 16:55:54,310 middleware 34460 24004 Request: GET /api/credentials/
+INFO 2025-09-25 16:55:54,315 middleware 34460 24004 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 16:55:54,317 basehttp 34460 24004 "GET /api/credentials/ HTTP/1.1" 200 528
+INFO 2025-09-25 17:03:01,406 middleware 34460 38548 Request: GET /api/credentials/
+INFO 2025-09-25 17:03:01,414 middleware 34460 38548 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:03:01,416 basehttp 34460 38548 "GET /api/credentials/ HTTP/1.1" 200 528
+INFO 2025-09-25 17:07:35,451 middleware 34460 38548 Request: POST /api/credentials/
+INFO 2025-09-25 17:07:35,491 middleware 34460 38548 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 17:07:35,493 basehttp 34460 38548 "POST /api/credentials/ HTTP/1.1" 200 218
+INFO 2025-09-25 17:07:36,548 middleware 34460 38548 Request: GET /api/credentials/
+INFO 2025-09-25 17:07:36,574 middleware 34460 38548 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:07:36,577 basehttp 34460 38548 "GET /api/credentials/ HTTP/1.1" 200 521
+INFO 2025-09-25 17:07:36,585 middleware 34460 25476 Request: GET /api/credentials/
+INFO 2025-09-25 17:07:36,605 middleware 34460 25476 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:07:36,607 basehttp 34460 25476 "GET /api/credentials/ HTTP/1.1" 200 521
+INFO 2025-09-25 17:07:43,078 middleware 34460 31600 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:07:43,103 middleware 34460 31600 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:07:43,104 basehttp 34460 31600 "GET /api/get-all-credentials/ HTTP/1.1" 200 12637
+INFO 2025-09-25 17:24:30,098 middleware 18908 15516 Request: GET /
+INFO 2025-09-25 17:24:30,132 middleware 18908 15516 Response: 404 for GET /
+WARNING 2025-09-25 17:24:30,133 log 18908 15516 Not Found: /
+WARNING 2025-09-25 17:24:30,134 basehttp 18908 15516 "GET / HTTP/1.1" 404 12744
+INFO 2025-09-25 17:24:30,142 middleware 18908 28480 Request: POST /api/credentials/
+INFO 2025-09-25 17:24:30,192 middleware 18908 28480 Response: 403 for POST /api/credentials/
+WARNING 2025-09-25 17:24:30,193 log 18908 28480 Forbidden: /api/credentials/
+WARNING 2025-09-25 17:24:30,194 basehttp 18908 28480 "POST /api/credentials/ HTTP/1.1" 403 58
+INFO 2025-09-25 17:24:39,300 middleware 18908 22104 Request: GET /
+INFO 2025-09-25 17:24:39,313 middleware 18908 22104 Response: 404 for GET /
+WARNING 2025-09-25 17:24:39,314 log 18908 22104 Not Found: /
+WARNING 2025-09-25 17:24:39,316 basehttp 18908 22104 "GET / HTTP/1.1" 404 12744
+INFO 2025-09-25 17:24:39,342 middleware 18908 18260 Request: POST /api/credentials/
+INFO 2025-09-25 17:24:39,343 middleware 18908 18260 Response: 403 for POST /api/credentials/
+WARNING 2025-09-25 17:24:39,344 log 18908 18260 Forbidden: /api/credentials/
+WARNING 2025-09-25 17:24:39,345 basehttp 18908 18260 "POST /api/credentials/ HTTP/1.1" 403 58
+INFO 2025-09-25 17:26:09,747 middleware 18908 10756 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:26:09,748 middleware 18908 10756 Response: 403 for POST /api/set-all-credentials/
+WARNING 2025-09-25 17:26:09,749 log 18908 10756 Forbidden: /api/set-all-credentials/
+WARNING 2025-09-25 17:26:09,749 basehttp 18908 10756 "POST /api/set-all-credentials/ HTTP/1.1" 403 58
+INFO 2025-09-25 17:29:34,192 middleware 23220 22416 Request: POST /api/set-all-credentials/
+ERROR 2025-09-25 17:29:34,212 credentials_views 23220 22416 Error setting credentials: get() returned more than one SystemCredentials -- it returned 3!
+INFO 2025-09-25 17:29:34,213 middleware 23220 22416 Response: 500 for POST /api/set-all-credentials/
+ERROR 2025-09-25 17:29:34,214 log 23220 22416 Internal Server Error: /api/set-all-credentials/
+ERROR 2025-09-25 17:29:34,215 basehttp 23220 22416 "POST /api/set-all-credentials/ HTTP/1.1" 500 94
+INFO 2025-09-25 17:30:46,537 middleware 20304 36976 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,590 middleware 20304 36976 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,591 basehttp 20304 36976 "POST /api/set-all-credentials/ HTTP/1.1" 200 65
+INFO 2025-09-25 17:30:46,617 middleware 20304 11672 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:30:46,625 middleware 20304 11672 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:30:46,626 basehttp 20304 11672 "GET /api/get-all-credentials/ HTTP/1.1" 200 410
+INFO 2025-09-25 17:30:46,634 middleware 20304 17668 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,673 middleware 20304 17668 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,674 basehttp 20304 17668 "POST /api/set-all-credentials/ HTTP/1.1" 200 65
+INFO 2025-09-25 17:30:46,692 middleware 20304 16424 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,742 middleware 20304 16424 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,743 basehttp 20304 16424 "POST /api/set-all-credentials/ HTTP/1.1" 200 65
+INFO 2025-09-25 17:30:46,762 middleware 20304 15372 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,808 middleware 20304 15372 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 17:30:46,810 basehttp 20304 15372 "POST /api/set-all-credentials/ HTTP/1.1" 200 65
+INFO 2025-09-25 17:33:13,087 middleware 20304 32696 Request: GET /
+INFO 2025-09-25 17:33:13,146 middleware 20304 32696 Response: 404 for GET /
+WARNING 2025-09-25 17:33:13,148 log 20304 32696 Not Found: /
+WARNING 2025-09-25 17:33:13,149 basehttp 20304 32696 "GET / HTTP/1.1" 404 12744
+INFO 2025-09-25 17:33:13,185 middleware 20304 24960 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:33:13,252 middleware 20304 24960 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 17:33:13,254 basehttp 20304 24960 "POST /api/set-all-credentials/ HTTP/1.1" 200 65
+INFO 2025-09-25 17:34:58,355 middleware 20304 28356 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 17:34:58,456 middleware 20304 28356 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 17:34:58,458 basehttp 20304 28356 "POST /api/set-all-credentials/ HTTP/1.1" 200 65
+INFO 2025-09-25 17:35:12,599 middleware 20304 28356 Request: GET /api/set-all-credentials/
+INFO 2025-09-25 17:35:12,660 middleware 20304 28356 Response: 405 for GET /api/set-all-credentials/
+WARNING 2025-09-25 17:35:12,661 log 20304 28356 Method Not Allowed: /api/set-all-credentials/
+WARNING 2025-09-25 17:35:12,663 basehttp 20304 28356 "GET /api/set-all-credentials/ HTTP/1.1" 405 40
+INFO 2025-09-25 17:35:45,555 middleware 20304 28356 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:35:45,569 middleware 20304 28356 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:35:45,570 basehttp 20304 28356 "GET /api/get-all-credentials/ HTTP/1.1" 200 421
+INFO 2025-09-25 17:43:08,082 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:43:08,101 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:43:08,108 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3269
+INFO 2025-09-25 17:43:08,126 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:43:08,140 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:43:08,143 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3269
+INFO 2025-09-25 17:43:08,147 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:43:08,155 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:43:08,157 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3269
+INFO 2025-09-25 17:43:08,159 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:43:08,166 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:43:08,168 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3269
+INFO 2025-09-25 17:45:39,512 middleware 20304 8544 Request: POST /api/credentials/
+INFO 2025-09-25 17:45:39,622 middleware 20304 8544 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 17:45:39,624 basehttp 20304 8544 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 17:45:40,759 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:45:40,777 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:45:40,780 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:45:40,786 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:45:40,798 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:45:40,801 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:45:46,811 middleware 20304 11008 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:45:46,825 middleware 20304 11008 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:45:46,826 basehttp 20304 11008 "GET /api/get-all-credentials/ HTTP/1.1" 200 352
+INFO 2025-09-25 17:45:54,644 middleware 20304 11008 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:45:54,659 middleware 20304 11008 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:45:54,661 basehttp 20304 11008 "GET /api/get-all-credentials/ HTTP/1.1" 200 352
+INFO 2025-09-25 17:46:24,358 middleware 20304 30788 Request: POST /api/credentials/
+INFO 2025-09-25 17:46:24,426 middleware 20304 30788 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 17:46:24,428 basehttp 20304 30788 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 17:46:25,778 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:46:25,793 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:46:25,796 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:46:25,801 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:46:25,812 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:46:25,815 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:46:51,422 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:46:51,432 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:46:51,434 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:46:51,437 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:46:51,446 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:46:51,448 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:46:51,451 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:46:51,462 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:46:51,464 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:46:51,466 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:46:51,473 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:46:51,474 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3200
+INFO 2025-09-25 17:47:42,309 middleware 20304 30788 Request: POST /api/credentials/
+INFO 2025-09-25 17:47:42,409 middleware 20304 30788 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 17:47:42,411 basehttp 20304 30788 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 17:47:43,721 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:47:43,740 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:47:43,743 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3217
+INFO 2025-09-25 17:47:43,749 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:47:43,766 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:47:43,768 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3217
+INFO 2025-09-25 17:47:50,764 middleware 20304 23840 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:47:50,783 middleware 20304 23840 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:47:50,786 basehttp 20304 23840 "GET /api/get-all-credentials/ HTTP/1.1" 200 369
+INFO 2025-09-25 17:48:56,159 middleware 20304 8544 Request: POST /api/credentials/
+INFO 2025-09-25 17:48:56,261 middleware 20304 8544 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 17:48:56,265 basehttp 20304 8544 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 17:48:57,514 middleware 20304 8544 Request: GET /api/credentials/
+INFO 2025-09-25 17:48:57,538 middleware 20304 8544 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:48:57,542 basehttp 20304 8544 "GET /api/credentials/ HTTP/1.1" 200 3217
+INFO 2025-09-25 17:48:57,557 middleware 20304 30788 Request: GET /api/credentials/
+INFO 2025-09-25 17:48:57,642 middleware 20304 30788 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 17:48:57,646 basehttp 20304 30788 "GET /api/credentials/ HTTP/1.1" 200 3217
+INFO 2025-09-25 17:49:00,631 middleware 20304 27208 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 17:49:00,643 middleware 20304 27208 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 17:49:00,645 basehttp 20304 27208 "GET /api/get-all-credentials/ HTTP/1.1" 200 369
+INFO 2025-09-25 17:57:26,749 middleware 22196 34196 Request: POST /api/set-all-credentials/
+ERROR 2025-09-25 17:57:26,790 credentials_views 22196 34196 Error setting credentials: UNIQUE constraint failed: dashboard_systemcredentials.credential_name
+INFO 2025-09-25 17:57:26,792 middleware 22196 34196 Response: 500 for POST /api/set-all-credentials/
+ERROR 2025-09-25 17:57:26,793 log 22196 34196 Internal Server Error: /api/set-all-credentials/
+ERROR 2025-09-25 17:57:26,794 basehttp 22196 34196 "POST /api/set-all-credentials/ HTTP/1.1" 500 99
+INFO 2025-09-25 17:57:45,856 middleware 22196 16368 Request: GET /
+INFO 2025-09-25 17:57:45,927 middleware 22196 16368 Response: 404 for GET /
+WARNING 2025-09-25 17:57:45,929 log 22196 16368 Not Found: /
+WARNING 2025-09-25 17:57:45,932 basehttp 22196 16368 "GET / HTTP/1.1" 404 12744
+INFO 2025-09-25 17:58:01,387 middleware 22196 29428 Request: POST /api/set-all-credentials/
+ERROR 2025-09-25 17:58:01,419 credentials_views 22196 29428 Error setting credentials: UNIQUE constraint failed: dashboard_systemcredentials.credential_name
+INFO 2025-09-25 17:58:01,420 middleware 22196 29428 Response: 500 for POST /api/set-all-credentials/
+ERROR 2025-09-25 17:58:01,421 log 22196 29428 Internal Server Error: /api/set-all-credentials/
+ERROR 2025-09-25 17:58:01,422 basehttp 22196 29428 "POST /api/set-all-credentials/ HTTP/1.1" 500 99
+INFO 2025-09-25 18:00:36,208 middleware 7692 24112 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 18:00:36,225 middleware 7692 24112 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 18:00:36,227 basehttp 7692 24112 "GET /api/get-all-credentials/ HTTP/1.1" 200 1022
+INFO 2025-09-25 18:00:48,009 middleware 7692 34320 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 18:00:48,022 middleware 7692 34320 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 18:00:48,024 basehttp 7692 34320 "GET /api/get-all-credentials/ HTTP/1.1" 200 1022
+INFO 2025-09-25 18:02:06,918 middleware 7692 8652 Request: GET /api/credentials/
+INFO 2025-09-25 18:02:06,924 middleware 7692 8652 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:02:06,926 basehttp 7692 8652 "GET /api/credentials/ HTTP/1.1" 200 3264
+INFO 2025-09-25 18:02:06,929 middleware 7692 33572 Request: GET /api/credentials/
+INFO 2025-09-25 18:02:06,936 middleware 7692 33572 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:02:06,937 basehttp 7692 33572 "GET /api/credentials/ HTTP/1.1" 200 3264
+INFO 2025-09-25 18:02:06,939 middleware 7692 8652 Request: GET /api/credentials/
+INFO 2025-09-25 18:02:06,946 middleware 7692 8652 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:02:06,948 basehttp 7692 8652 "GET /api/credentials/ HTTP/1.1" 200 3264
+INFO 2025-09-25 18:02:06,951 middleware 7692 33572 Request: GET /api/credentials/
+INFO 2025-09-25 18:02:06,958 middleware 7692 33572 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:02:06,959 basehttp 7692 33572 "GET /api/credentials/ HTTP/1.1" 200 3264
+INFO 2025-09-25 18:02:56,902 middleware 7692 33572 Request: POST /api/credentials/
+INFO 2025-09-25 18:02:56,978 middleware 7692 33572 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 18:02:56,980 basehttp 7692 33572 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 18:02:58,193 middleware 7692 33572 Request: GET /api/credentials/
+INFO 2025-09-25 18:02:58,212 middleware 7692 33572 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:02:58,217 basehttp 7692 33572 "GET /api/credentials/ HTTP/1.1" 200 3225
+INFO 2025-09-25 18:02:58,225 middleware 7692 8652 Request: GET /api/credentials/
+INFO 2025-09-25 18:02:58,243 middleware 7692 8652 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:02:58,247 basehttp 7692 8652 "GET /api/credentials/ HTTP/1.1" 200 3225
+INFO 2025-09-25 18:03:03,298 middleware 7692 34728 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 18:03:03,320 middleware 7692 34728 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 18:03:03,323 basehttp 7692 34728 "GET /api/get-all-credentials/ HTTP/1.1" 200 983
+INFO 2025-09-25 18:03:56,371 middleware 7692 34728 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 18:03:56,387 middleware 7692 34728 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 18:03:56,389 basehttp 7692 34728 "GET /api/get-all-credentials/ HTTP/1.1" 200 983
+INFO 2025-09-25 18:22:13,985 basehttp 7692 11184 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 18:22:13,988 middleware 7692 11184 Request: GET /api/users/
+INFO 2025-09-25 18:22:15,158 views 7692 11184 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:22:15,159 middleware 7692 11184 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:22:15,159 log 7692 11184 Bad Request: /api/users/
+WARNING 2025-09-25 18:22:15,160 basehttp 7692 11184 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:22:15,482 basehttp 7692 6972 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 18:22:15,485 middleware 7692 6972 Request: GET /api/users/
+INFO 2025-09-25 18:22:15,491 views 7692 6972 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:22:15,492 middleware 7692 6972 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:22:15,492 log 7692 6972 Bad Request: /api/users/
+WARNING 2025-09-25 18:22:15,493 basehttp 7692 6972 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:28:27,815 middleware 7692 36572 Request: GET /
+INFO 2025-09-25 18:28:28,382 middleware 7692 36572 Response: 404 for GET /
+WARNING 2025-09-25 18:28:28,382 log 7692 36572 Not Found: /
+WARNING 2025-09-25 18:28:28,384 basehttp 7692 36572 "GET / HTTP/1.1" 404 12744
+INFO 2025-09-25 18:28:58,247 middleware 7692 38720 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-25 18:28:58,255 crm_comprehensive_views 7692 38720 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-25 18:28:58,256 crm_comprehensive_views 7692 38720 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-25 18:28:58,256 crm_comprehensive_views 7692 38720 Fetching S3 employee data...
+INFO 2025-09-25 18:28:58,257 crm_comprehensive_views 7692 38720 Scanning S3 bucket for employee folder data...
+INFO 2025-09-25 18:29:12,009 crm_comprehensive_views 7692 38720 S3 scan completed: 3 employees found, 500 objects scanned in 13751.91ms
+INFO 2025-09-25 18:29:12,009 crm_comprehensive_views 7692 38720 Fetching CRM data...
+INFO 2025-09-25 18:29:12,010 crm_comprehensive_views 7692 38720 Trying CRM endpoint: employees
+ERROR 2025-09-25 18:29:12,010 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,010 crm_comprehensive_views 7692 38720 Trying CRM endpoint: users
+ERROR 2025-09-25 18:29:12,011 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,011 crm_comprehensive_views 7692 38720 Trying CRM endpoint: staff
+ERROR 2025-09-25 18:29:12,011 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,012 crm_comprehensive_views 7692 38720 Trying CRM endpoint: personnel
+ERROR 2025-09-25 18:29:12,012 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,012 crm_comprehensive_views 7692 38720 Trying CRM endpoint: team
+ERROR 2025-09-25 18:29:12,013 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,013 crm_comprehensive_views 7692 38720 Trying CRM endpoint: members
+ERROR 2025-09-25 18:29:12,013 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 18:29:12,014 crm_comprehensive_views 7692 38720 No employees found in any CRM endpoint
+INFO 2025-09-25 18:29:12,014 crm_comprehensive_views 7692 38720 Trying CRM projects endpoint: projects
+ERROR 2025-09-25 18:29:12,014 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,015 crm_comprehensive_views 7692 38720 Trying CRM projects endpoint: deals
+ERROR 2025-09-25 18:29:12,021 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,023 crm_comprehensive_views 7692 38720 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-25 18:29:12,029 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,030 crm_comprehensive_views 7692 38720 Trying CRM projects endpoint: cases
+ERROR 2025-09-25 18:29:12,031 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,033 crm_comprehensive_views 7692 38720 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-25 18:29:12,033 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,036 crm_comprehensive_views 7692 38720 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-25 18:29:12,038 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 18:29:12,039 crm_comprehensive_views 7692 38720 No projects found in any CRM endpoint
+INFO 2025-09-25 18:29:12,039 crm_comprehensive_views 7692 38720 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-25 18:29:12,040 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,042 crm_comprehensive_views 7692 38720 Trying CRM tasks endpoint: activities
+ERROR 2025-09-25 18:29:12,045 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,049 crm_comprehensive_views 7692 38720 Trying CRM tasks endpoint: todos
+ERROR 2025-09-25 18:29:12,061 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,112 crm_comprehensive_views 7692 38720 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-25 18:29:12,143 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,161 crm_comprehensive_views 7692 38720 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-25 18:29:12,164 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,165 crm_comprehensive_views 7692 38720 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-25 18:29:12,167 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 18:29:12,173 crm_comprehensive_views 7692 38720 No tasks found in any CRM endpoint
+INFO 2025-09-25 18:29:12,175 crm_comprehensive_views 7692 38720 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-25 18:29:12,176 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,177 crm_comprehensive_views 7692 38720 Trying CRM summary endpoint: summary
+ERROR 2025-09-25 18:29:12,178 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,179 crm_comprehensive_views 7692 38720 Trying CRM summary endpoint: overview
+ERROR 2025-09-25 18:29:12,182 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,187 crm_comprehensive_views 7692 38720 Trying CRM summary endpoint: stats
+ERROR 2025-09-25 18:29:12,188 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+INFO 2025-09-25 18:29:12,189 crm_comprehensive_views 7692 38720 Trying CRM summary endpoint: metrics
+ERROR 2025-09-25 18:29:12,191 crm_comprehensive_views 7692 38720 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 18:29:12,191 crm_comprehensive_views 7692 38720 No dashboard summary found in CRM
+INFO 2025-09-25 18:29:12,192 crm_comprehensive_views 7692 38720 Fetching Database analytics...
+INFO 2025-09-25 18:29:12,204 crm_comprehensive_views 7692 38720 No employee analytics found in database
+INFO 2025-09-25 18:29:12,229 crm_comprehensive_views 7692 38720 Using S3 employee count as primary: 3
+INFO 2025-09-25 18:29:12,230 crm_comprehensive_views 7692 38720 Dynamic data retrieved: 3 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket (Real-time)
+INFO 2025-09-25 18:29:12,230 crm_comprehensive_views 7692 38720 Employee analysis: Total=3, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-25 18:29:12,231 crm_comprehensive_views 7692 38720 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-25 18:29:12,232 middleware 7692 38720 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-25 18:29:12,233 basehttp 7692 38720 "GET //api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2586
+INFO 2025-09-25 18:31:30,413 middleware 7692 6176 Request: GET /api/dashboard/analytics/employees/
+INFO 2025-09-25 18:31:30,542 middleware 7692 6176 Response: 403 for GET /api/dashboard/analytics/employees/
+WARNING 2025-09-25 18:31:30,543 log 7692 6176 Forbidden: /api/dashboard/analytics/employees/
+WARNING 2025-09-25 18:31:30,543 basehttp 7692 6176 "GET //api/dashboard/analytics/employees/ HTTP/1.1" 403 58
+INFO 2025-09-25 18:31:40,448 middleware 7692 6176 Request: GET /api/dashboard/analytics/employees/
+INFO 2025-09-25 18:31:40,449 middleware 7692 6176 Response: 403 for GET /api/dashboard/analytics/employees/
+WARNING 2025-09-25 18:31:40,449 log 7692 6176 Forbidden: /api/dashboard/analytics/employees/
+WARNING 2025-09-25 18:31:40,450 basehttp 7692 6176 "GET /api/dashboard/analytics/employees/ HTTP/1.1" 403 58
+INFO 2025-09-25 18:31:44,478 middleware 7692 6176 Request: GET /api/dashboard/employees/enhanced/
+INFO 2025-09-25 18:31:44,491 middleware 7692 6176 Response: 404 for GET /api/dashboard/employees/enhanced/
+WARNING 2025-09-25 18:31:44,491 log 7692 6176 Not Found: /api/dashboard/employees/enhanced/
+WARNING 2025-09-25 18:31:44,492 basehttp 7692 6176 "GET /api/dashboard/employees/enhanced/ HTTP/1.1" 404 23831
+INFO 2025-09-25 18:31:58,083 middleware 7692 6176 Request: GET /api/employees/screenshots/search/
+INFO 2025-09-25 18:31:58,095 middleware 7692 6176 Response: 404 for GET /api/employees/screenshots/search/
+WARNING 2025-09-25 18:31:58,095 log 7692 6176 Not Found: /api/employees/screenshots/search/
+WARNING 2025-09-25 18:31:58,096 basehttp 7692 6176 "GET /api/employees/screenshots/search/ HTTP/1.1" 404 23831
+INFO 2025-09-25 18:32:17,139 middleware 7692 6176 Request: GET /api/actual-count-total/screenshots/
+INFO 2025-09-25 18:32:17,150 middleware 7692 6176 Response: 404 for GET /api/actual-count-total/screenshots/
+WARNING 2025-09-25 18:32:17,150 log 7692 6176 Not Found: /api/actual-count-total/screenshots/
+WARNING 2025-09-25 18:32:17,151 basehttp 7692 6176 "GET /api/actual-count-total/screenshots/ HTTP/1.1" 404 23837
+INFO 2025-09-25 18:32:35,699 middleware 7692 20268 Request: GET /api/users/
+INFO 2025-09-25 18:32:35,717 views 7692 20268 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:32:35,718 middleware 7692 20268 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:32:35,719 log 7692 20268 Bad Request: /api/users/
+WARNING 2025-09-25 18:32:35,720 basehttp 7692 20268 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:32:36,042 middleware 7692 11232 Request: GET /api/users/
+INFO 2025-09-25 18:32:36,049 views 7692 11232 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:32:36,050 middleware 7692 11232 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:32:36,051 log 7692 11232 Bad Request: /api/users/
+WARNING 2025-09-25 18:32:36,052 basehttp 7692 11232 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:32:55,221 middleware 7692 20268 Request: GET /api/users/
+INFO 2025-09-25 18:32:55,230 views 7692 20268 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:32:55,231 middleware 7692 20268 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:32:55,231 log 7692 20268 Bad Request: /api/users/
+WARNING 2025-09-25 18:32:55,232 basehttp 7692 20268 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:32:55,236 middleware 7692 11232 Request: GET /api/users/
+INFO 2025-09-25 18:32:55,247 views 7692 11232 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:32:55,248 middleware 7692 11232 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:32:55,248 log 7692 11232 Bad Request: /api/users/
+WARNING 2025-09-25 18:32:55,250 basehttp 7692 11232 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:33:31,672 middleware 7692 20268 Request: GET /api/users/
+INFO 2025-09-25 18:33:31,679 views 7692 20268 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:33:31,680 middleware 7692 20268 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:33:31,681 log 7692 20268 Bad Request: /api/users/
+WARNING 2025-09-25 18:33:31,681 basehttp 7692 20268 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:33:31,691 middleware 7692 11232 Request: GET /api/users/
+INFO 2025-09-25 18:33:31,700 views 7692 11232 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:33:31,701 middleware 7692 11232 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:33:31,701 log 7692 11232 Bad Request: /api/users/
+WARNING 2025-09-25 18:33:31,702 basehttp 7692 11232 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:35:36,252 middleware 7692 20268 Request: GET /api/users/
+INFO 2025-09-25 18:35:36,260 views 7692 20268 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:35:36,262 middleware 7692 20268 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:35:36,262 log 7692 20268 Bad Request: /api/users/
+WARNING 2025-09-25 18:35:36,263 basehttp 7692 20268 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:35:36,268 middleware 7692 11232 Request: GET /api/users/
+INFO 2025-09-25 18:35:36,276 views 7692 11232 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 18:35:36,277 middleware 7692 11232 Response: 400 for GET /api/users/
+WARNING 2025-09-25 18:35:36,279 log 7692 11232 Bad Request: /api/users/
+WARNING 2025-09-25 18:35:36,279 basehttp 7692 11232 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 18:36:18,754 middleware 7692 20268 Request: GET /api/credentials/
+INFO 2025-09-25 18:36:18,761 middleware 7692 20268 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:36:18,762 basehttp 7692 20268 "GET /api/credentials/ HTTP/1.1" 200 3225
+INFO 2025-09-25 18:36:18,765 middleware 7692 11396 Request: GET /api/credentials/
+INFO 2025-09-25 18:36:18,768 middleware 7692 11396 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:36:18,769 basehttp 7692 11396 "GET /api/credentials/ HTTP/1.1" 200 3225
+INFO 2025-09-25 18:36:18,771 middleware 7692 20268 Request: GET /api/credentials/
+INFO 2025-09-25 18:36:18,775 middleware 7692 20268 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:36:18,776 basehttp 7692 20268 "GET /api/credentials/ HTTP/1.1" 200 3225
+INFO 2025-09-25 18:36:18,777 middleware 7692 11396 Request: GET /api/credentials/
+INFO 2025-09-25 18:36:18,781 middleware 7692 11396 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:36:18,782 basehttp 7692 11396 "GET /api/credentials/ HTTP/1.1" 200 3225
+INFO 2025-09-25 18:43:43,395 middleware 7692 14480 Request: POST /api/credentials/
+INFO 2025-09-25 18:43:43,486 middleware 7692 14480 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 18:43:43,491 basehttp 7692 14480 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 18:43:44,534 middleware 7692 14480 Request: GET /api/credentials/
+INFO 2025-09-25 18:43:44,549 middleware 7692 14480 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:43:44,551 basehttp 7692 14480 "GET /api/credentials/ HTTP/1.1" 200 3209
+INFO 2025-09-25 18:43:44,558 middleware 7692 5892 Request: GET /api/credentials/
+INFO 2025-09-25 18:43:44,572 middleware 7692 5892 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:43:44,574 basehttp 7692 5892 "GET /api/credentials/ HTTP/1.1" 200 3209
+INFO 2025-09-25 18:43:56,856 middleware 7692 18376 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 18:43:56,862 middleware 7692 18376 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 18:43:56,863 basehttp 7692 18376 "GET /api/get-all-credentials/ HTTP/1.1" 200 967
+INFO 2025-09-25 18:45:52,403 middleware 7692 5892 Request: POST /api/credentials/
+INFO 2025-09-25 18:45:52,499 middleware 7692 5892 Response: 200 for POST /api/credentials/
+INFO 2025-09-25 18:45:52,501 basehttp 7692 5892 "POST /api/credentials/ HTTP/1.1" 200 149
+INFO 2025-09-25 18:45:53,572 middleware 7692 5892 Request: GET /api/credentials/
+INFO 2025-09-25 18:45:53,591 middleware 7692 5892 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:45:53,596 basehttp 7692 5892 "GET /api/credentials/ HTTP/1.1" 200 3183
+INFO 2025-09-25 18:45:53,603 middleware 7692 14480 Request: GET /api/credentials/
+INFO 2025-09-25 18:45:53,621 middleware 7692 14480 Response: 200 for GET /api/credentials/
+INFO 2025-09-25 18:45:53,624 basehttp 7692 14480 "GET /api/credentials/ HTTP/1.1" 200 3183
+INFO 2025-09-25 18:45:57,924 middleware 7692 7476 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 18:45:57,943 middleware 7692 7476 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 18:45:57,946 basehttp 7692 7476 "GET /api/get-all-credentials/ HTTP/1.1" 200 941
