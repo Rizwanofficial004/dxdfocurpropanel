@@ -481,23 +481,30 @@ const QuickView = () => {
     try {
       const apiBaseUrl = getApiUrl();
       const apiUrl = `${apiBaseUrl}/auth/register/users/`;
-      console.log('🔄 Fetching users from API...');
-      console.log('📡 API URL:', apiUrl);
-      console.log('🌐 Environment:', import.meta.env.DEV ? 'Development (using proxy)' : 'Production (direct)');
       
       // Create abort controller for timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
-      // Fetch user data from external API with timeout
-      const response = await fetch(apiUrl, {
+      // Log API request details
+      const requestConfig = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         signal: controller.signal
-      });
+      };
+      
+      console.log('📡 API Request Details:');
+      console.log('🌐 API URL:', apiUrl);
+      console.log('🔧 Request Method:', requestConfig.method);
+      console.log('📋 Request Headers:', JSON.stringify(requestConfig.headers, null, 2));
+      console.log('📦 Request Body:', requestConfig.method === 'GET' ? 'No body (GET request)' : 'N/A');
+      console.log('🌍 Environment:', import.meta.env.DEV ? 'Development (using proxy)' : 'Production (direct)');
+      
+      // Fetch user data from external API with timeout
+      const response = await fetch(apiUrl, requestConfig);
       
       clearTimeout(timeoutId);
 
@@ -506,7 +513,6 @@ const QuickView = () => {
       }
 
       const data = await response.json();
-      console.log('📥 External API Response:', data);
 
       // Transform backend data to employee format
       let users = [];
@@ -517,15 +523,12 @@ const QuickView = () => {
         if (data.data && data.data.users && Array.isArray(data.data.users)) {
           // Correct API structure: data.data.users is the array of users
           userArray = data.data.users;
-          console.log('✅ Using correct API structure (data.data.users as array)');
         } else if (data.data && Array.isArray(data.data)) {
           // Alternative structure: data.data is directly an array of users
           userArray = data.data;
-          console.log('✅ Using alternative API structure (data.data as array)');
         } else if (data.users && Array.isArray(data.users)) {
           // Alternative structure: data.users
           userArray = data.users;
-          console.log('✅ Using alternative API structure (data.users)');
         }
       }
       
@@ -552,32 +555,14 @@ const QuickView = () => {
           profileCompletion: user.profile?.completion_percentage || 0
         }));
         
-        console.log(`✅ Processed ${users.length} users from external API:`, users.map(u => u.name));
       } else {
-        console.warn('❌ No users found in API response or invalid data structure');
-        console.log('📊 Full API Response:', data);
-        console.log('📋 API Response keys:', Object.keys(data));
-        if (data.data) {
-          console.log('📋 data.data type:', typeof data.data);
-          console.log('📋 data.data is array:', Array.isArray(data.data));
-          if (Array.isArray(data.data)) {
-            console.log('📋 data.data length:', data.data.length);
-            if (data.data.length > 0) {
-              console.log('📋 First item in data.data:', data.data[0]);
-            }
-          } else {
-            console.log('📋 data.data keys:', Object.keys(data.data));
-          }
-        }
         // Set empty array as fallback
         users = [];
       }
 
-      console.log(`🎯 Setting employeesData with ${users.length} users`);
       setEmployeesData(users);
       
     } catch (error) {
-      console.error('❌ Error fetching users:', error);
       
       if (error.name === 'AbortError') {
         setError('Request timeout - API took too long to respond (>10s)');
@@ -607,6 +592,141 @@ const QuickView = () => {
     fetchUsers();
   };
 
+  // API Testing Functions
+  const testPostAPI = async (userId, userData) => {
+    const apiBaseUrl = getApiUrl();
+    const apiUrl = `${apiBaseUrl}/auth/users/${userId}/update/`;
+    
+    const postRequestBody = {
+      user_id: userId,
+      action: 'update_profile',
+      data: userData,
+      timestamp: new Date().toISOString(),
+      source: 'dashboard_quickview'
+    };
+    
+    const postRequestConfig = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || 'no-token'}`
+      },
+      body: JSON.stringify(postRequestBody)
+    };
+    
+    console.log('🔵 POST API Test - Request Details:');
+    console.log('🌐 API URL:', apiUrl);
+    console.log('🔧 Request Method:', postRequestConfig.method);
+    console.log('📋 Request Headers:', JSON.stringify(postRequestConfig.headers, null, 2));
+    console.log('📦 Request Body:', JSON.stringify(postRequestBody, null, 2));
+    
+    try {
+      const response = await fetch(apiUrl, postRequestConfig);
+      const result = await response.json();
+      console.log('✅ POST API Response:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ POST API Error:', error);
+      return { error: error.message };
+    }
+  };
+  
+  const testPutAPI = async (userId, userData) => {
+    const apiBaseUrl = getApiUrl();
+    const apiUrl = `${apiBaseUrl}/auth/users/${userId}/`;
+    
+    const putRequestBody = {
+      user_id: userId,
+      full_name: userData.name,
+      email: userData.email,
+      profile: {
+        job_title: userData.designation,
+        organization_name: userData.team,
+        updated_at: new Date().toISOString()
+      },
+      is_active: userData.status === 'Active',
+      updated_by: 'dashboard_admin'
+    };
+    
+    const putRequestConfig = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || 'no-token'}`
+      },
+      body: JSON.stringify(putRequestBody)
+    };
+    
+    console.log('🟣 PUT API Test - Request Details:');
+    console.log('🌐 API URL:', apiUrl);
+    console.log('🔧 Request Method:', putRequestConfig.method);
+    console.log('📋 Request Headers:', JSON.stringify(putRequestConfig.headers, null, 2));
+    console.log('📦 Request Body:', JSON.stringify(putRequestBody, null, 2));
+    
+    try {
+      const response = await fetch(apiUrl, putRequestConfig);
+      const result = await response.json();
+      console.log('✅ PUT API Response:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ PUT API Error:', error);
+      return { error: error.message };
+    }
+  };
+
+  const testTimerAPI = async (userId, username, action, timerData) => {
+    const apiBaseUrl = getApiUrl();
+    const apiUrl = `${apiBaseUrl}/timer/sessions/`;
+    
+    const timerRequestBody = {
+      user_id: userId,
+      username: username,
+      action: action, // 'start', 'stop', 'pause'
+      timer_duration: timerData.duration,
+      session_data: {
+        start_time: timerData.startTime,
+        expected_duration: timerData.duration,
+        browser_info: navigator.userAgent,
+        screen_resolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      },
+      metadata: {
+        source: 'quickview_dashboard',
+        timestamp: new Date().toISOString(),
+        session_id: timerData.sessionId
+      }
+    };
+    
+    const timerRequestConfig = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || 'no-token'}`,
+        'X-Session-ID': timerData.sessionId
+      },
+      body: JSON.stringify(timerRequestBody)
+    };
+    
+    console.log('⏱️ TIMER API Test - Request Details:');
+    console.log('🌐 API URL:', apiUrl);
+    console.log('🔧 Request Method:', timerRequestConfig.method);
+    console.log('📋 Request Headers:', JSON.stringify(timerRequestConfig.headers, null, 2));
+    console.log('📦 Request Body:', JSON.stringify(timerRequestBody, null, 2));
+    
+    try {
+      const response = await fetch(apiUrl, timerRequestConfig);
+      const result = await response.json();
+      console.log('✅ TIMER API Response:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ TIMER API Error:', error);
+      return { error: error.message };
+    }
+  };
+
   // Timer functions
   const handleTimerValueChange = (userId, value) => {
     setTimerValues(prev => ({
@@ -615,10 +735,19 @@ const QuickView = () => {
     }));
   };
 
-  const handleStartTimer = (userId, username) => {
+  const handleStartTimer = async (userId, username) => {
     const timerSeconds = timerValues[userId] || 5; // Default 5 seconds
+    const sessionId = Math.random().toString(36).substring(2, 15);
     
-    console.log(`🚀 Starting timer for ${username}: ${timerSeconds} seconds`);
+    // Test Timer API with POST request
+    const timerData = {
+      duration: timerSeconds,
+      startTime: new Date().toISOString(),
+      sessionId: sessionId
+    };
+    
+    // Call the Timer API test
+    await testTimerAPI(userId, username, 'start', timerData);
     
     // Mark timer as running
     setRunningTimers(prev => ({
@@ -627,12 +756,20 @@ const QuickView = () => {
     }));
 
     // Simulate timer countdown
-    setTimeout(() => {
+    setTimeout(async () => {
+      // Test Timer API completion
+      const completeTimerData = {
+        ...timerData,
+        endTime: new Date().toISOString(),
+        actualDuration: timerSeconds
+      };
+      
+      await testTimerAPI(userId, username, 'complete', completeTimerData);
+      
       setRunningTimers(prev => ({
         ...prev,
         [userId]: false
       }));
-      console.log(`⏰ Timer completed for ${username}!`);
       toastService.success(`⏰ Timer completed for ${username}! (${timerSeconds} seconds)`);
     }, timerSeconds * 1000);
   };

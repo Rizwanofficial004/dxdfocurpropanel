@@ -119,7 +119,8 @@ const ActivityStream = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [apiStatus, setApiStatus] = useState('unknown'); // 'connected', 'mock', 'unknown'
+  const [apiStatus, setApiStatus] = useState('unknown'); // 'connected', 'disconnected', 'error', 'unknown'
+  const [error, setError] = useState(null); // General error state
   const [selectedUser, setSelectedUser] = useState(null);
   const [userScreenshots, setUserScreenshots] = useState([]);
   const [isLoadingScreenshots, setIsLoadingScreenshots] = useState(false);
@@ -130,6 +131,8 @@ const ActivityStream = () => {
   const [totalScreenshots, setTotalScreenshots] = useState(0); // Total screenshots count
   const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
   const [allUsers, setAllUsers] = useState([]);
+  const [userSuggestions, setUserSuggestions] = useState([]); // Store user suggestions
+  const [loadingSuggestions, setLoadingSuggestions] = useState(true); // Loading state for suggestions
   const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
   const screenshotsPerPage = 50; // Screenshots per page
   const searchContainerRef = useRef(null);
@@ -141,9 +144,21 @@ const ActivityStream = () => {
   }));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       setIsLoading(false);
       fetchAllUsers();
+      
+      // Load user suggestions for default display
+      setLoadingSuggestions(true);
+      const suggestions = await fetchUserSuggestions();
+      setUserSuggestions(suggestions);
+      setLoadingSuggestions(false);
+      
+      // Show suggestions by default if no search results
+      if (!showResults) {
+        setSearchResults(suggestions);
+        setShowResults(true);
+      }
     }, 100);
     return () => clearTimeout(timer);
   }, []);
@@ -193,11 +208,13 @@ const ActivityStream = () => {
 
   const fetchAllUsers = async () => {
     setIsSearching(true);
+    setError(null); // Clear any previous errors
     try {
+      // Use the same endpoints as screenshots - search API with a broad query
       const endpoints = [
-        `https://dxdtime.ddsolutions.io/api/users/`,
-        `http://127.0.0.1:8000/api/users/`,
-        `http://localhost:8000/api/users/`
+        `https://dxdtime.ddsolutions.io/api/users/search/?q=&page=1&page_size=100`,
+        `http://127.0.0.1:8000/api/users/search/?q=&page=1&page_size=100`,
+        `http://localhost:8000/api/users/search/?q=&page=1&page_size=100`
       ];
 
       let response = null;
@@ -223,25 +240,21 @@ const ActivityStream = () => {
       }
 
       if (!response || !response.ok) {
-        console.log('🔄 API unavailable, using mock user data');
-        setApiStatus('mock');
-        const mockUsers = [
-          { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'haseebcodejourney' },
-          { id: 2, email: 'kiranaiz4@gmail.com', display_name: 'kiranaiz4' },
-          { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'nawaz' }
-        ];
-        setAllUsers(mockUsers);
-        setSearchResults(mockUsers);
-        setShowResults(true);
+        console.log('❌ All API endpoints failed - no users loaded');
+        setApiStatus('disconnected');
+        setAllUsers([]);
+        setSearchResults([]);
+        setShowResults(false);
+        setError('Unable to connect to any API endpoints. Please ensure the backend server is running and accessible.');
         return;
       }
 
       const data = await response.json();
-      if (data.status === 'success' && data.data) {
-        setAllUsers(data.data);
-        setSearchResults(data.data);
+      if (data.status === 'success' && data.data && data.data.users) {
+        setAllUsers(data.data.users);
+        setSearchResults(data.data.users);
         setShowResults(true);
-        console.log(`✅ Found ${data.data.length} users`);
+        console.log(`✅ Found ${data.data.users.length} users from search endpoint`);
       } else {
         setSearchResults([]);
         setShowResults(false);
@@ -249,24 +262,79 @@ const ActivityStream = () => {
       }
     } catch (error) {
       console.error('🚨 Fetch Error:', error);
-      setApiStatus('mock');
-      const mockUsers = [
-        { id: 1, email: 'haseebcodejourney@gmail.com', display_name: 'haseebcodejourney' },
-        { id: 2, email: 'kiranaiz4@gmail.com', display_name: 'kiranaiz4' },
-        { id: 3, email: 'nawaz@dxdglobal.com', display_name: 'nawaz' }
-      ];
-      setAllUsers(mockUsers);
-      setSearchResults(mockUsers);
-      setShowResults(true);
+      setApiStatus('error');
+      setAllUsers([]);
+      setSearchResults([]);
+      setShowResults(false);
+      setError(`Network error occurred while fetching users: ${error.message}. Please check your internet connection and API server status.`);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  // Fetch available user suggestions from the search API
+  const fetchUserSuggestions = async () => {
+    try {
+      // Use the search API with common search terms to get available users
+      const searchTerms = ['haseeb', 'nawaz', 'mohsin', 'dxd', 'global'];
+      let allSuggestions = [];
+      
+      for (const term of searchTerms) {
+        try {
+          const response = await fetch(`https://dxdtime.ddsolutions.io/api/users/search/?q=${term}&page=1&page_size=10`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.status === 'success' && data.data && data.data.users) {
+              // Add users to suggestions, avoiding duplicates
+              data.data.users.forEach(user => {
+                if (!allSuggestions.find(existing => existing.email === user.email)) {
+                  allSuggestions.push({
+                    email: user.email,
+                    display_name: user.display_name,
+                    original_name: user.original_name,
+                    total_screenshots: user.total_screenshots || 0,
+                    total_size_mb: user.total_size_mb || 0,
+                    active_days_count: user.active_days_count || 0,
+                    last_activity: user.last_activity || 'Unknown',
+                    status: user.status || 'unknown',
+                    suggestion: true // Mark as suggestion
+                  });
+                }
+              });
+            }
+          }
+        } catch (error) {
+          console.log(`Failed to fetch suggestions for term: ${term}`);
+          continue;
+        }
+      }
+      
+      // Sort by activity (active users first, then by screenshot count)
+      allSuggestions.sort((a, b) => {
+        if (a.status === 'active' && b.status !== 'active') return -1;
+        if (b.status === 'active' && a.status !== 'active') return 1;
+        return (b.total_screenshots || 0) - (a.total_screenshots || 0);
+      });
+      
+      return allSuggestions.slice(0, 6); // Return top 6 suggestions
+    } catch (error) {
+      console.log('Failed to fetch user suggestions:', error);
+      return [];
     }
   };
 
   // Search API function with enhanced parameters
   const searchUsers = async (query) => {
     if (!query.trim()) {
-      setSearchResults(allUsers);
+      // Show user suggestions when search is empty
+      setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers);
       setShowResults(true);
       return;
     }
@@ -414,7 +482,7 @@ const ActivityStream = () => {
       }
     } catch (error) {
       console.error('🚨 Screenshot Error:', error);
-      setApiStatus('mock');
+      setApiStatus('error');
       setScreenshotError(`Failed to load screenshots: ${error.message}`);
       setUserScreenshots([]);
       setAllScreenshots([]);
@@ -749,11 +817,52 @@ const ActivityStream = () => {
             }}
             className="search-dropdown"
             >
+              
+              {/* Header - Show if these are suggestions or search results */}
+              {(!searchValue || searchValue.trim() === '') && userSuggestions.length > 0 && (
+                <div className="available-header" style={{
+                  padding: '12px 16px',
+                  borderBottom: '1px solid #e1e5e9',
+                  backgroundColor: '#f8f9fa',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#6c757d',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  📋 Available Users ({searchResults.length})
+                </div>
+              )}
+              
+              {(searchValue && searchValue.trim() !== '') && (
+                <div className="search-header" style={{
+                  padding: '12px 16px',
+                  borderBottom: '1px solid #e1e5e9',
+                  backgroundColor: '#e3f2fd',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: '#1976d2',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  🔍 Search Results for "{searchValue}" ({searchResults.length})
+                </div>
+              )}
+              
               <style jsx>{`
                 [data-theme="dark"] .search-dropdown {
                   background-color: #1d232c !important;
                   border-color: #6b7280 !important;
                   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+                }
+                [data-theme="dark"] .search-dropdown .available-header {
+                  background-color: #374151 !important;
+                  border-bottom-color: #6b7280 !important;
+                  color: #9ca3af !important;
+                }
+                [data-theme="dark"] .search-dropdown .search-header {
+                  background-color: #1e3a8a !important;
+                  color: #bfdbfe !important;
                 }
               `}</style>
               {searchResults.map((user, index) => (
