@@ -450,8 +450,8 @@ const TimeLogActivityStream = () => {
     }
   }, []);
 
-  // API function to fetch logs
-  const fetchLogsFromAPI = useCallback(async (startDate, endDate, userEmail = null) => {
+  // API function to fetch activity data (sessions/activity tracking)
+  const fetchActivityFromAPI = useCallback(async (startDate, endDate, userEmail = null) => {
     try {
       setLoading(true);
       setError(null);
@@ -464,47 +464,57 @@ const TimeLogActivityStream = () => {
         console.log(`Filtering for user: ${userEmail}`);
       }
       
-      const response = await axios.get(
-        `https://dxdtime.ddsolutions.io/api/logs/date-range/`,
-        {
-          params: {
-            start_date: formattedStartDate,
-            end_date: formattedEndDate
-          },
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000 // 10 second timeout
-        }
-      );
+      // Use the userLogsAPI service instead of direct axios calls
+      const options = {
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        sortBy: 'date',
+        sortOrder: 'desc',
+        limit: 100
+      };
+      
+      // Add user email filter if specified
+      if (userEmail) {
+        options.userEmail = userEmail;
+      }
+      
+      console.log('API options:', options);
+      
+      const response = await userLogsAPI.getLogs(options);
       
       console.log('Raw API response:', response);
       
-      if (response.data) {
-        // Ensure the response is an array
-        let logsData = Array.isArray(response.data) ? response.data : 
-                      (response.data.logs && Array.isArray(response.data.logs)) ? response.data.logs :
-                      (response.data.results && Array.isArray(response.data.results)) ? response.data.results :
-                      [];
+      if (response) {
+        // The userLogsAPI.getLogs() returns the data directly
+        const logsData = response.logs || [];
         
-        // Filter by selected user if specified
-        if (userEmail && logsData.length > 0) {
-          logsData = logsData.filter(log => 
-            log?.session_info?.email?.toLowerCase() === userEmail.toLowerCase()
-          );
-          console.log(`Filtered to ${logsData.length} logs for user ${userEmail}`);
-        }
+        // Transform the logs data to match the expected format for sessionLogs
+        const transformedLogs = logsData.map(log => ({
+          log_info: {
+            key: log.key,
+            file_name: log.file_name,
+            file_size: log.file_size,
+            file_size_mb: log.file_size_mb,
+            last_modified: log.last_modified,
+            file_extension: log.file_extension,
+            log_type: log.log_type,
+            date: log.date,
+            project_name: log.project_name,
+            user_email: log.user_email,
+            download_url: log.download_url
+          }
+        }));
         
-        console.log('Processed logs data:', logsData);
-        setSessionLogs(logsData);
-        console.log('Logs fetched successfully:', logsData.length, 'entries');
+        console.log('Transformed logs data:', transformedLogs);
+        setSessionLogs(transformedLogs);
+        console.log('Logs fetched successfully:', transformedLogs.length, 'entries');
       } else {
         console.log('No data in response, setting empty array');
         setSessionLogs([]);
       }
     } catch (error) {
       console.error('Error fetching logs:', error);
-      setError(error.response?.data?.message || error.message || 'Failed to fetch logs');
+      setError(error.message || 'Failed to fetch logs');
       setSessionLogs([]);
     } finally {
       setLoading(false);
@@ -651,7 +661,36 @@ const TimeLogActivityStream = () => {
       return false;
     }
     const dateStr = date.toISOString().split('T')[0];
-    return sessionLogs.some(log => log?.program_tracking?.date === dateStr);
+    return sessionLogs.some(log => log?.log_info?.date === dateStr);
+  };
+
+  // Group logs by date
+  const groupLogsByDate = () => {
+    if (!Array.isArray(sessionLogs) || sessionLogs.length === 0) {
+      return {};
+    }
+
+    const grouped = sessionLogs.reduce((acc, log) => {
+      const date = log?.log_info?.date;
+      if (date) {
+        if (!acc[date]) {
+          acc[date] = [];
+        }
+        acc[date].push(log);
+      }
+      return acc;
+    }, {});
+
+    // Sort each day's logs by last_modified (newest first)
+    Object.keys(grouped).forEach(date => {
+      grouped[date].sort((a, b) => {
+        const timeA = new Date(a?.log_info?.last_modified || 0);
+        const timeB = new Date(b?.log_info?.last_modified || 0);
+        return timeB - timeA;
+      });
+    });
+
+    return grouped;
   };
 
   // Filter activities by search and selected date
@@ -663,25 +702,28 @@ const TimeLogActivityStream = () => {
     
     let filtered = [...sessionLogs];
 
-    // If no user is selected and no search query, show all logs
-    // If user is selected, logs are already filtered by API
-    // Additional filtering can be done here if needed
-
     // Filter by selected date
     if (selectedDate) {
       const selectedDateStr = selectedDate.toISOString().split('T')[0];
-      filtered = filtered.filter(log => log?.program_tracking?.date === selectedDateStr);
+      filtered = filtered.filter(log => log?.log_info?.date === selectedDateStr);
     }
 
-    // Sort by session start time (newest first)
+    // Filter by user if search query exists
+    if (selectedUser) {
+      filtered = filtered.filter(log => 
+        log?.log_info?.user_email?.toLowerCase() === selectedUser.email?.toLowerCase()
+      );
+    }
+
+    // Sort by last_modified (newest first)
     filtered.sort((a, b) => {
-      const dateA = new Date(a?.program_tracking?.session_start || 0);
-      const dateB = new Date(b?.program_tracking?.session_start || 0);
+      const dateA = new Date(a?.log_info?.last_modified || 0);
+      const dateB = new Date(b?.log_info?.last_modified || 0);
       return dateB - dateA;
     });
 
     setFilteredActivities(filtered);
-  }, [sessionLogs, selectedDate]);
+  }, [sessionLogs, selectedDate, selectedUser]);
 
   // Handle date selection
   const handleDateSelect = (date) => {
@@ -711,8 +753,8 @@ const TimeLogActivityStream = () => {
   // Load data when component mounts or date range changes
   useEffect(() => {
     const userEmail = selectedUser?.email || null;
-    fetchLogsFromAPI(startDate, endDate, userEmail);
-  }, [fetchLogsFromAPI, startDate, endDate, selectedUser]);
+    fetchActivityFromAPI(startDate, endDate, userEmail);
+  }, [fetchActivityFromAPI, startDate, endDate, selectedUser]);
 
   // Handle user search input with debouncing
   useEffect(() => {
@@ -768,7 +810,7 @@ const TimeLogActivityStream = () => {
       <Container>
         <Header>
           <Title>
-            📊 Logs Report
+            📊 Activity Stream
           </Title>
         </Header>
 
@@ -913,10 +955,10 @@ const TimeLogActivityStream = () => {
         <ActivityStreamContainer>
           <ActivityStreamHeader>
             {selectedDate 
-              ? `Activity for ${formatDate(selectedDate)}` 
+              ? `Logs for ${formatDate(selectedDate)}` 
               : searchQuery 
                 ? `Search results for "${searchQuery}"` 
-                : 'Recent Activity Stream'
+                : 'Logs Report - Date-wise View'
             }
           </ActivityStreamHeader>
 
@@ -924,47 +966,70 @@ const TimeLogActivityStream = () => {
             {loading ? (
               <LoadingContainer>
                 <LoadingSpinner />
-                <div>Loading activity stream...</div>
+                <div>Loading logs...</div>
               </LoadingContainer>
-            ) : filteredActivities.length > 0 ? (
-              filteredActivities.map((activity, index) => (
-                <ActivityItem key={`${activity.session_info.task_id}-${index}`}>
-                  <ActivityTime>
-                    🕒 {formatTime(activity.program_tracking.session_start)} - {formatTime(activity.program_tracking.session_end)}
-                  </ActivityTime>
-                  
-                  <ActivityContent>
-                    <ActivityDetails>
-                      <ActivityTitle>
-                        {activity.session_info.task_name}
-                      </ActivityTitle>
-                      <ActivityDescription>
-                        👤 {activity.session_info.email} • 📋 Task ID: {activity.session_info.task_id}
-                      </ActivityDescription>
-                      <ProgramsList>
-                        {activity.program_tracking.programs.map((program, idx) => (
-                          <ProgramTag key={idx}>
-                            {program.process_name.replace('.exe', '')} ({program.total_time_formatted})
-                          </ProgramTag>
-                        ))}
-                      </ProgramsList>
-                    </ActivityDetails>
-                    
-                    <ActivityDuration>
-                      {activity.program_tracking.session_duration_formatted}
-                    </ActivityDuration>
-                  </ActivityContent>
-                </ActivityItem>
-              ))
+            ) : sessionLogs.length > 0 ? (
+              (() => {
+                const groupedLogs = groupLogsByDate(sessionLogs);
+                return Object.entries(groupedLogs)
+                  .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA))
+                  .map(([date, logs]) => (
+                    <div key={date}>
+                      <DateSeparator>
+                        <DateLabel>
+                          📅 {new Date(date).toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                          <span style={{ 
+                            marginLeft: 'auto', 
+                            fontSize: '14px', 
+                            fontWeight: 'normal',
+                            color: theme.colors.text.secondary 
+                          }}>
+                            {logs.length} log{logs.length !== 1 ? 's' : ''}
+                          </span>
+                        </DateLabel>
+                      </DateSeparator>
+                      
+                      {logs.map((log, index) => (
+                        <LogItem key={`${log.date}-${index}`}>
+                          <LogHeader>
+                            <LogInfo>
+                              <LogTitle>
+                                📁 {log.filename}
+                              </LogTitle>
+                              <LogMeta>
+                                <span>👤 {log.user}</span>
+                                <span>📅 {log.date}</span>
+                                <span>📊 {log.total_duration}</span>
+                                <span>🔢 {log.log_count} entries</span>
+                              </LogMeta>
+                            </LogInfo>
+                            <DownloadLink 
+                              href={log.download_url} 
+                              download={log.filename}
+                              target="_blank"
+                            >
+                              ⬇️ Download
+                            </DownloadLink>
+                          </LogHeader>
+                        </LogItem>
+                      ))}
+                    </div>
+                  ));
+              })()
             ) : (
               <EmptyState>
-                <EmptyIcon>🚫</EmptyIcon>
+                <EmptyIcon>�</EmptyIcon>
                 <div>
                   {selectedDate 
-                    ? 'No activity found for selected date' 
+                    ? 'No logs found for selected date' 
                     : searchQuery 
-                      ? 'No employees found matching your search' 
-                      : 'Search for employees to view their activity stream'
+                      ? 'No logs found matching your search' 
+                      : 'No logs available. Use the search filters above to fetch logs.'
                   }
                 </div>
               </EmptyState>

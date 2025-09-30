@@ -1155,16 +1155,9 @@ const Employees = () => {
           {/* Header Section */}
           <EmployeesHeader>
             <EmployeesTitle isDarkMode={isDarkMode}>
-              🏢 CRM Employee Dashboard + 📸 Screenshot Analytics
+              🏢 CRM Employee Dashboard 
             </EmployeesTitle>
-            <EmployeesSubtitle isDarkMode={isDarkMode}>
-              {loading ? 
-                "🔄 Loading CRM employee data + Screenshot analytics from dxdtime.ddsolutions.io..." :
-                employeesData.length > 0 ? 
-                  `📊 Displaying ${employeesData.length} employees • ${stats.employeesWithScreenshots} with screenshot data • ${stats.totalScreenshots > 1000000 ? `${(stats.totalScreenshots / 1000000).toFixed(1)}M` : stats.totalScreenshots.toLocaleString()} total screenshots` :
-                  "❌ No employee data found - Check API connections"
-              }
-            </EmployeesSubtitle>
+           
           </EmployeesHeader>
 
           {/* Statistics Cards */}
