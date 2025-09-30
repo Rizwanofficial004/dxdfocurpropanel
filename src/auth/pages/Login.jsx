@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../dashboard/context/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
-import authService, { DUMMY_CREDENTIALS } from '../../services/authService';
+import authService, { DUMMY_CREDENTIALS, LIVE_TEST_CREDENTIALS } from '../../services/authService';
 import toastService from '../../services/toastService';
 import {
   LoginContainer,
@@ -70,44 +70,49 @@ const Login = () => {
     setShowDummyCredentials(false);
   };
 
-  // Test API directly with working credentials
-  const testApiDirectly = async () => {
-    console.log('🧪 Testing API directly with known working credentials...');
-    setIsLoading(true);
+  // Quick demo login - fills form and submits automatically
+  const quickDemoLogin = async () => {
+    console.log('🚀 Quick Demo Login - Auto-filling and submitting...');
     
-    try {
-      const response = await fetch('https://dxdtime.ddsolutions.io/api/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'hb@example.com',
-          password: 'password123'
-        }),
-      });
-      
-      console.log('🔍 Direct API Test Response Status:', response.status);
-      console.log('🔍 Direct API Test Response Headers:', Object.fromEntries(response.headers.entries()));
-      
-      const responseText = await response.text();
-      console.log('🔍 Direct API Test Response Body:', responseText);
-      
-      if (response.ok) {
-        const data = JSON.parse(responseText);
-        console.log('✅ Direct API test successful:', data);
-        toastService.success('✅ Direct API test successful! Check console for details.');
-      } else {
-        console.error('❌ Direct API test failed:', response.status, responseText);
-        toastService.error(`❌ Direct API test failed: ${response.status} - ${responseText}`);
+    // Fill form with working live credentials
+    const workingCred = LIVE_TEST_CREDENTIALS[0]; // Use first working credential
+    setFormData({
+      username: workingCred.username,
+      password: workingCred.password,
+      rememberMe: false
+    });
+    
+    // Small delay to show the form fill, then submit
+    setTimeout(async () => {
+      setIsLoading(true);
+      setErrors({});
+
+      try {
+        console.log('🔐 Starting demo authentication...');
+        
+        const result = await login({
+          username: workingCred.username,
+          password: workingCred.password,
+          rememberMe: false
+        });
+        
+        console.log('✅ Demo authentication successful:', result);
+        
+        const userName = result?.user?.first_name || result?.user?.name || result?.username || workingCred.username;
+        toastService.success(`🎉 Demo Login successful! Welcome ${userName}!`);
+        
+        navigate('/admin-panel', { replace: true });
+        
+      } catch (error) {
+        console.error('❌ Demo authentication failed:', error);
+        setErrors({
+          general: error.message || 'Demo login failed. Please try manual login.'
+        });
+        toastService.error('❌ Demo login failed. Try manual login with the filled credentials.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('🚫 Direct API test error:', error);
-      toastService.error(`🚫 Direct API test error: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+    }, 500);
   };
 
   const validateForm = () => {
@@ -162,7 +167,6 @@ const Login = () => {
         rememberMe: formData.rememberMe
       });
       
-      // Use the AuthContext login method directly (it handles both API and fallback)
       const result = await login({
         username: formData.username,
         password: formData.password,
@@ -171,23 +175,14 @@ const Login = () => {
       
       console.log('✅ Authentication successful:', result);
       
-      // Show success message
       const userName = result?.user?.first_name || result?.user?.name || result?.username || formData.username;
       console.log('🎉 User logged in successfully!');
       toastService.success(`🎉 Login successful! Welcome back ${userName}!`);
       
-      // Navigate to dashboard (AuthContext will handle the redirect automatically via ProtectedRoute)
       navigate('/admin-panel', { replace: true });
       
     } catch (error) {
       console.error('❌ Authentication failed:', error);
-      console.error('🔍 Error details:', {
-        message: error.message,
-        name: error.name,
-        stack: error.stack
-      });
-      
-      // Set appropriate error message
       setErrors({
         general: error.message || 'Login failed. Please check your credentials.'
       });
@@ -212,34 +207,70 @@ const Login = () => {
 
       <LoginCard>
         <LogoSection>
-          {/* <FocusLogo>FOCUS</FocusLogo> */}
           <Title>{t('welcome')}</Title>
           <Subtitle>{t('subtitle')}</Subtitle>
         </LogoSection>
 
         {/* Demo Credentials Helper */}
-        {/* <DemoSection>
-          <DemoTitle>Demo Access</DemoTitle>
-          <DemoText>API Backend: Django REST API</DemoText>
-          <DemoText>Fallback Credentials Available</DemoText>
+        <DemoSection>
+          <DemoTitle>🚀 Demo Access</DemoTitle>
+          <DemoText>For Testing Purposes - Working Credentials Available</DemoText>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+            <DemoButton 
+              type="button" 
+              onClick={quickDemoLogin} 
+              disabled={isLoading}
+              style={{ 
+                backgroundColor: '#10B981', 
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '14px'
+              }}
+            >
+              🚀 Quick Demo Login
+            </DemoButton>
+          </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <DemoButton type="button" onClick={() => setShowDummyCredentials(!showDummyCredentials)}>
-              {showDummyCredentials ? 'Hide' : 'Show'} Demo Credentials
-            </DemoButton>
-            <DemoButton type="button" onClick={testApiDirectly} disabled={isLoading}>
-              🧪 Test API Direct
+              {showDummyCredentials ? 'Hide' : 'Show'} Credentials
             </DemoButton>
           </div>
           {showDummyCredentials && (
             <DemoCredentials>
-              <DemoText><strong>Username:</strong> {DUMMY_CREDENTIALS.username}</DemoText>
-              <DemoText><strong>Password:</strong> {DUMMY_CREDENTIALS.password}</DemoText>
-              <DemoFillButton type="button" onClick={fillDummyCredentials}>
-                Fill Form
-              </DemoFillButton>
+              <div style={{ marginBottom: '15px' }}>
+                <DemoText style={{ color: '#10B981', fontWeight: 'bold' }}>✅ WORKING LIVE API CREDENTIALS:</DemoText>
+                {LIVE_TEST_CREDENTIALS.map((cred, index) => (
+                  <div key={index} style={{ margin: '8px 0', padding: '8px', background: '#f0f9ff', borderRadius: '4px' }}>
+                    <DemoText><strong>Email:</strong> {cred.username}</DemoText>
+                    <DemoText><strong>Password:</strong> {cred.password}</DemoText>
+                    <DemoText style={{ fontSize: '12px', color: '#666' }}>({cred.name})</DemoText>
+                    <DemoFillButton 
+                      type="button" 
+                      onClick={() => {
+                        setFormData({
+                          username: cred.username,
+                          password: cred.password,
+                          rememberMe: false
+                        });
+                      }}
+                      style={{ marginTop: '5px', backgroundColor: '#10B981', color: 'white' }}
+                    >
+                      🔗 Use These Credentials
+                    </DemoFillButton>
+                  </div>
+                ))}
+              </div>
+              <div style={{ borderTop: '1px solid #ddd', paddingTop: '10px' }}>
+                <DemoText style={{ color: '#6B7280' }}>🧪 Local Demo Credentials:</DemoText>
+                <DemoText><strong>Username:</strong> {DUMMY_CREDENTIALS.username}</DemoText>
+                <DemoText><strong>Password:</strong> {DUMMY_CREDENTIALS.password}</DemoText>
+                <DemoFillButton type="button" onClick={fillDummyCredentials}>
+                  🔧 Fill Local Demo
+                </DemoFillButton>
+              </div>
             </DemoCredentials>
           )}
-        </DemoSection> */}
+        </DemoSection>
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
@@ -251,7 +282,6 @@ const Login = () => {
                 placeholder={t('email')}
                 value={formData.username}
                 onChange={handleInputChange}
-                //hasError={!!errors.username}
                 required
                 autoComplete="email"
               />
@@ -274,7 +304,6 @@ const Login = () => {
                 placeholder={t('password')}
                 value={formData.password}
                 onChange={handleInputChange}
-                //hasError={!!errors.password}
                 required
                 autoComplete="current-password"
               />
