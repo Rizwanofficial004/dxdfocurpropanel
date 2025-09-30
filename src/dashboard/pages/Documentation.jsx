@@ -173,441 +173,374 @@ const ContentText = styled.div`
 const Documentation = () => {
   const { theme } = useTheme();
   const { t, language } = useLanguage();
-  const [activeCategory, setActiveCategory] = useState('getting-started');
+  const [activeCategory, setActiveCategory] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
 
   const categories = [
-    { id: 'getting-started', label: t('gettingStarted') },
-    { id: 'dashboard', label: t('dashboardOverview') },
-    { id: 'live-tracking', label: t('liveTrackingDoc') },
-    { id: 'reports', label: t('reportsAnalytics') },
-    { id: 'employee-management', label: t('employeeManagement') },
-    { id: 'settings', label: t('settingsConfiguration') },
-    { id: 'api', label: t('apiDocumentation') },
-    { id: 'troubleshooting', label: t('troubleshooting') },
+    { id: 'overview', label: 'Project Overview' },
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'live-tracking', label: 'Live Tracking' },
+    { id: 'logs-report', label: 'Logs Report' },
+    { id: 'quick-view', label: 'Quick View' },
+    { id: 'image-modal', label: 'Image Modal' },
+    { id: 'settings', label: 'Settings' },
+    { id: 'api-integration', label: 'API Integration' },
   ];
 
   const content = {
     en: {
-      'getting-started': {
-        title: 'Getting Started with DXD Focus',
+      'overview': {
+        title: '🎯 Admin Focus - Project Overview',
         content: `
-          <h3>Welcome to DXD Focus</h3>
-          <p>DXD Focus is a comprehensive employee monitoring and productivity tracking solution designed to help organizations optimize their workforce management.</p>
+          <h3>About This Project</h3>
+          <p>Admin Focus is a comprehensive employee monitoring and productivity tracking dashboard built with React. It provides real-time insights into workforce activities with a modern, responsive interface.</p>
           
-          <h4>Key Features</h4>
+          <h4>🚀 Current Features</h4>
           <ul>
-            <li><strong>Real-time Tracking:</strong> Monitor employee activities in real-time</li>
-            <li><strong>Screenshot Monitoring:</strong> Automated screenshot capture for transparency</li>
-            <li><strong>Detailed Reports:</strong> Comprehensive analytics and reporting tools</li>
-            <li><strong>Team Management:</strong> Organize and manage teams effectively</li>
-            <li><strong>Attendance Tracking:</strong> Monitor work hours and attendance patterns</li>
+            <li><strong>📊 Dashboard:</strong> Central hub with overview widgets and statistics</li>
+            <li><strong>🛰️ Live Tracking:</strong> Real-time employee activity monitoring with screenshots</li>
+            <li><strong>📺 Logs Report:</strong> Activity stream with calendar view and session logs</li>
+            <li><strong>👁️ Quick View:</strong> Quick access to employee data and activities</li>
+            <li><strong>⚙️ Settings:</strong> System configuration and preferences</li>
+            <li><strong>📷 Image Modal:</strong> Enhanced image viewing with animations and download</li>
           </ul>
-          
-          <h4>Quick Setup</h4>
-          <ol>
-            <li>Download and install the DXD Focus client application</li>
-            <li>Register your organization account</li>
-            <li>Add employees to your organization</li>
-            <li>Configure tracking settings</li>
-            <li>Start monitoring and tracking productivity</li>
-          </ol>
+
+          <h4>🔧 Tech Stack</h4>
+          <ul>
+            <li><strong>Frontend:</strong> React 18 with Hooks</li>
+            <li><strong>Styling:</strong> Styled Components with theme system</li>
+            <li><strong>Routing:</strong> React Router v6</li>
+            <li><strong>State Management:</strong> React Context API</li>
+            <li><strong>Animation:</strong> Framer Motion</li>
+            <li><strong>Build Tool:</strong> Vite</li>
+          </ul>
+
+          <h4>📁 Project Structure</h4>
+          <pre><code>src/
+├── dashboard/
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── DashboardLayout.jsx
+│   │   │   ├── Header.jsx
+│   │   │   └── Sidebar.jsx
+│   │   └── common/
+│   │       └── ImageModal.jsx
+│   ├── pages/
+│   │   ├── Dashboard.jsx
+│   │   ├── LiveTracking.jsx
+│   │   ├── TimeLogActivityStream.jsx
+│   │   ├── QuickView.jsx
+│   │   └── Settings.jsx
+│   └── context/
+│       ├── ThemeContext.jsx
+│       └── LanguageContext.jsx
+└── auth/
+    └── pages/
+        └── Login.jsx</code></pre>
         `
       },
       'dashboard': {
-        title: 'Dashboard Overview',
+        title: '📊 Dashboard Usage',
         content: `
-          <h3>Dashboard Components</h3>
-          <p>The dashboard provides a comprehensive overview of your organization's productivity metrics and employee activities.</p>
+          <h3>Dashboard Overview</h3>
+          <p>The main dashboard provides a centralized view of your monitoring system with key metrics and quick access to all features.</p>
           
-          <h4>Main Widgets</h4>
+          <h4>🎛️ Navigation</h4>
           <ul>
-            <li><strong>Active Employees:</strong> Real-time count of active team members</li>
-            <li><strong>Productivity Metrics:</strong> Overall productivity statistics</li>
-            <li><strong>Recent Activities:</strong> Latest employee activities and updates</li>
-            <li><strong>Quick Actions:</strong> Shortcuts to common tasks</li>
+            <li><strong>Sidebar:</strong> Use the left sidebar to navigate between different sections</li>
+            <li><strong>Header:</strong> Contains user info, notifications, and theme toggle</li>
+            <li><strong>Breadcrumbs:</strong> Shows your current location in the app</li>
           </ul>
           
-          <h4>Navigation</h4>
-          <p>Use the sidebar navigation to access different sections:</p>
+          <h4>📈 Widgets</h4>
           <ul>
-            <li>Live Tracking - Real-time employee monitoring</li>
-            <li>Reports - Detailed analytics and reports</li>
-            <li>Employees - Team member management</li>
-            <li>Settings - System configuration</li>
+            <li><strong>Stats Cards:</strong> Display key metrics like active employees, productivity scores</li>
+            <li><strong>Charts:</strong> Visual representation of data trends</li>
+            <li><strong>Recent Activity:</strong> Latest employee activities and system events</li>
           </ul>
+          
+          <h4>🎨 Theming</h4>
+          <p>Toggle between light and dark themes using the theme button in the header. The theme preference is saved automatically.</p>
         `
       },
       'live-tracking': {
-        title: 'Live Tracking',
+        title: '🛰️ Live Tracking',
         content: `
           <h3>Real-time Employee Monitoring</h3>
-          <p>The Live Tracking feature allows you to monitor your employees' activities in real-time.</p>
+          <p>The Live Tracking feature allows you to monitor employee activities in real-time with screenshot capture and activity tracking.</p>
           
-          <h4>Features</h4>
+          <h4>📷 Screenshot Viewing</h4>
           <ul>
-            <li><strong>Live Screenshots:</strong> View real-time screenshots of employee screens</li>
-            <li><strong>Activity Status:</strong> Monitor active/idle status</li>
-            <li><strong>Application Usage:</strong> Track which applications are being used</li>
-            <li><strong>Time Tracking:</strong> Real-time work hour tracking</li>
+            <li><strong>Click to Enlarge:</strong> Click on any screenshot to open it in the Image Modal</li>
+            <li><strong>Full Screen View:</strong> View screenshots in full resolution</li>
+            <li><strong>Download:</strong> Download screenshots directly from the modal</li>
+            <li><strong>Navigation:</strong> Use keyboard arrows or modal controls to navigate</li>
           </ul>
           
-          <h4>Privacy Considerations</h4>
-          <p>All monitoring activities are conducted in compliance with privacy regulations and company policies. Employees are notified when monitoring is active.</p>
+          <h4>⚡ Features</h4>
+          <ul>
+            <li><strong>Real-time Updates:</strong> Screenshots refresh automatically</li>
+            <li><strong>Employee Search:</strong> Filter by employee name or ID</li>
+            <li><strong>Activity Status:</strong> See who's active, idle, or offline</li>
+            <li><strong>Time Tracking:</strong> Monitor work hours and productivity</li>
+          </ul>
+          
+          <h4>🔒 Privacy & Compliance</h4>
+          <p>All monitoring is conducted with employee awareness and compliance with privacy regulations. Screenshots are captured at configurable intervals.</p>
         `
       },
-      'reports': {
-        title: 'Reports & Analytics',
+      'logs-report': {
+        title: '📺 Logs Report (Activity Stream)',
         content: `
-          <h3>Comprehensive Reporting</h3>
-          <p>Generate detailed reports to analyze productivity, attendance, and employee performance.</p>
+          <h3>Session Logs & Activity Timeline</h3>
+          <p>The Logs Report component provides a comprehensive view of employee session logs with calendar interface and activity timeline.</p>
           
-          <h4>Available Reports</h4>
+          <h4>📅 Calendar Interface</h4>
           <ul>
-            <li><strong>Employee Reports:</strong> Individual employee performance metrics</li>
-            <li><strong>Activity Patterns:</strong> Analysis of work patterns and productivity trends</li>
-            <li><strong>Time Log Summary:</strong> Detailed time tracking reports</li>
-            <li><strong>Attendance Reports:</strong> Work hours and attendance analytics</li>
-            <li><strong>Application Usage:</strong> Software and application usage statistics</li>
+            <li><strong>Date Selection:</strong> Click on any date to view logs for that day</li>
+            <li><strong>Month Navigation:</strong> Navigate between months using arrow controls</li>
+            <li><strong>Activity Indicators:</strong> Days with activity are highlighted</li>
           </ul>
           
-          <h4>Export Options</h4>
-          <p>Reports can be exported in various formats including PDF, Excel, and CSV for further analysis.</p>
+          <h4>🔍 Search & Filter</h4>
+          <ul>
+            <li><strong>Employee Search:</strong> Filter logs by specific employees</li>
+            <li><strong>Date Range:</strong> Select custom date ranges for analysis</li>
+            <li><strong>Activity Type:</strong> Filter by different types of activities</li>
+          </ul>
+          
+          <h4>📊 Session Data</h4>
+          <p>Each session log includes:</p>
+          <ul>
+            <li>Session start and end times</li>
+            <li>Total duration and productivity metrics</li>
+            <li>Application usage statistics</li>
+            <li>Screenshots and activity snapshots</li>
+          </ul>
+          
+          <h4>🔄 Data Source</h4>
+          <p>Session logs are retrieved from S3 storage with automatic refresh and caching for optimal performance.</p>
         `
       },
-      'employee-management': {
-        title: 'Employee Management',
+      'quick-view': {
+        title: '👁️ Quick View',
         content: `
-          <h3>Managing Your Team</h3>
-          <p>Efficiently manage your employees and organize them into teams for better productivity tracking.</p>
+          <h3>Quick Employee Overview</h3>
+          <p>The Quick View page provides a simplified interface for quick access to employee data and current activities.</p>
           
-          <h4>Employee Operations</h4>
+          <h4>⚡ Features</h4>
           <ul>
-            <li><strong>Add Employees:</strong> Invite new team members to your organization</li>
-            <li><strong>Edit Profiles:</strong> Update employee information and settings</li>
-            <li><strong>Team Assignment:</strong> Organize employees into teams</li>
-            <li><strong>Role Management:</strong> Assign roles and permissions</li>
+            <li><strong>Employee Grid:</strong> Grid layout showing all employees at a glance</li>
+            <li><strong>Status Indicators:</strong> Visual indicators for online/offline status</li>
+            <li><strong>Quick Actions:</strong> Rapid access to common tasks</li>
+            <li><strong>Summary Cards:</strong> Key metrics for each employee</li>
           </ul>
           
-          <h4>Team Management</h4>
+          <h4>🎯 Use Cases</h4>
           <ul>
-            <li>Create and manage teams</li>
-            <li>Assign team leaders</li>
-            <li>Set team-specific tracking preferences</li>
-            <li>Generate team performance reports</li>
+            <li>Quick team status check</li>
+            <li>Rapid employee lookup</li>
+            <li>Overview of current activities</li>
+            <li>Fast access to individual employee details</li>
           </ul>
+        `
+      },
+      'image-modal': {
+        title: '📷 Image Modal Component',
+        content: `
+          <h3>Enhanced Image Viewing Experience</h3>
+          <p>The Image Modal provides a sophisticated image viewing experience with animations, keyboard navigation, and download functionality.</p>
+          
+          <h4>✨ Features</h4>
+          <ul>
+            <li><strong>Smooth Animations:</strong> Powered by Framer Motion for fluid transitions</li>
+            <li><strong>Keyboard Navigation:</strong> Use arrow keys, ESC to close</li>
+            <li><strong>Download Support:</strong> One-click image download with CORS handling</li>
+            <li><strong>Portal Rendering:</strong> Renders outside normal DOM hierarchy</li>
+          </ul>
+          
+          <h4>🎮 Controls</h4>
+          <ul>
+            <li><strong>ESC Key:</strong> Close modal</li>
+            <li><strong>Left/Right Arrows:</strong> Navigate between images (if multiple)</li>
+            <li><strong>Click Outside:</strong> Close modal</li>
+            <li><strong>Download Button:</strong> Save image to device</li>
+          </ul>
+          
+          <h4>🔧 Technical Details</h4>
+          <ul>
+            <li><strong>Portal:</strong> Uses React.createPortal for proper layering</li>
+            <li><strong>Animation:</strong> Framer Motion variants for smooth enter/exit</li>
+            <li><strong>CORS:</strong> Handles cross-origin image downloads</li>
+            <li><strong>Loading States:</strong> Shows loading indicator for large images</li>
+          </ul>
+          
+          <h4>💻 Usage</h4>
+          <pre><code>import ImageModal from '../components/common/ImageModal';
+
+// In your component
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [selectedImage, setSelectedImage] = useState('');
+
+&lt;ImageModal
+  isOpen={isModalOpen}
+  src={selectedImage}
+  alt="Screenshot"
+  onClose={() => setIsModalOpen(false)}
+/&gt;</code></pre>
         `
       },
       'settings': {
-        title: 'Settings & Configuration',
+        title: '⚙️ Settings Configuration',
         content: `
           <h3>System Configuration</h3>
-          <p>Customize DXD Focus to match your organization's requirements and preferences.</p>
+          <p>The Settings page allows you to configure various aspects of the monitoring system to match your organization's needs.</p>
           
-          <h4>General Settings</h4>
+          <h4>🎨 Theme Settings</h4>
           <ul>
-            <li><strong>Organization Profile:</strong> Update company information</li>
-            <li><strong>Time Zone:</strong> Configure time zone settings</li>
-            <li><strong>Work Hours:</strong> Set standard work hours</li>
-            <li><strong>Notification Preferences:</strong> Configure alerts and notifications</li>
+            <li><strong>Dark/Light Mode:</strong> Toggle between dark and light themes</li>
+            <li><strong>Auto Theme:</strong> Follow system preference</li>
+            <li><strong>Custom Colors:</strong> Customize accent colors</li>
           </ul>
           
-          <h4>Tracking Settings</h4>
+          <h4>🔔 Notification Settings</h4>
           <ul>
-            <li><strong>Screenshot Frequency:</strong> Configure screenshot capture intervals</li>
-            <li><strong>Activity Monitoring:</strong> Set monitoring preferences</li>
-            <li><strong>Idle Time Detection:</strong> Configure idle time thresholds</li>
-            <li><strong>Privacy Settings:</strong> Manage privacy and compliance settings</li>
-          </ul>
-        `
-      },
-      'api': {
-        title: 'API Documentation',
-        content: `
-          <h3>DXD Focus API</h3>
-          <p>Integrate DXD Focus with your existing systems using our comprehensive REST API.</p>
-          
-          <h4>Authentication</h4>
-          <p>API requests require authentication using API keys:</p>
-          <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
-          
-          <h4>Endpoints</h4>
-          <ul>
-            <li><code>GET /api/employees</code> - Retrieve employee list</li>
-            <li><code>GET /api/tracking/live</code> - Get live tracking data</li>
-            <li><code>GET /api/reports/productivity</code> - Generate productivity reports</li>
-            <li><code>POST /api/employees</code> - Add new employee</li>
+            <li><strong>Alert Types:</strong> Configure which events trigger notifications</li>
+            <li><strong>Frequency:</strong> Set notification frequency</li>
+            <li><strong>Channels:</strong> Choose notification delivery methods</li>
           </ul>
           
-          <h4>Rate Limits</h4>
-          <p>API requests are limited to 1000 requests per hour per API key.</p>
-        `
-      },
-      'troubleshooting': {
-        title: 'Troubleshooting',
-        content: `
-          <h3>Common Issues and Solutions</h3>
-          <p>Solutions to frequently encountered problems with DXD Focus.</p>
-          
-          <h4>Client Application Issues</h4>
+          <h4>🛡️ Privacy Settings</h4>
           <ul>
-            <li><strong>Application not starting:</strong> Check if the application is running as administrator</li>
-            <li><strong>Screenshots not capturing:</strong> Verify screen capture permissions</li>
-            <li><strong>Connection issues:</strong> Check internet connectivity and firewall settings</li>
+            <li><strong>Screenshot Intervals:</strong> Configure capture frequency</li>
+            <li><strong>Data Retention:</strong> Set how long data is stored</li>
+            <li><strong>Access Controls:</strong> Manage user permissions</li>
           </ul>
           
-          <h4>Dashboard Issues</h4>
+          <h4>🔌 API Configuration</h4>
           <ul>
-            <li><strong>Data not updating:</strong> Refresh the page or check employee client status</li>
-            <li><strong>Reports not generating:</strong> Verify date ranges and employee selections</li>
-            <li><strong>Login problems:</strong> Reset password or contact administrator</li>
-          </ul>
-          
-          <h4>Contact Support</h4>
-          <p>If you need additional help, contact our support team:</p>
-          <ul>
-            <li>Email: support@dxdglobal.com</li>
-            <li>Phone: +1 (555) 123-4567</li>
-            <li>Live Chat: Available 24/7 through the dashboard</li>
-          </ul>
-        `
-      }
-    },
-    tr: {
-      'getting-started': {
-        title: 'DXD Focus ile Başlangıç',
-        content: `
-          <h3>DXD Focus'a Hoş Geldiniz</h3>
-          <p>DXD Focus, organizasyonların iş gücü yönetimini optimize etmelerine yardımcı olmak için tasarlanmış kapsamlı bir çalışan izleme ve verimlilik takip çözümüdür.</p>
-          
-          <h4>Ana Özellikler</h4>
-          <ul>
-            <li><strong>Gerçek Zamanlı İzleme:</strong> Çalışan aktivitelerini gerçek zamanlı olarak izleyin</li>
-            <li><strong>Ekran Görüntüsü İzleme:</strong> Şeffaflık için otomatik ekran görüntüsü yakalama</li>
-            <li><strong>Detaylı Raporlar:</strong> Kapsamlı analitik ve raporlama araçları</li>
-            <li><strong>Takım Yönetimi:</strong> Takımları etkili bir şekilde organize edin ve yönetin</li>
-            <li><strong>Devam Takibi:</strong> Çalışma saatlerini ve devam düzenlerini izleyin</li>
-          </ul>
-          
-          <h4>Hızlı Kurulum</h4>
-          <ol>
-            <li>DXD Focus istemci uygulamasını indirin ve kurun</li>
-            <li>Organizasyon hesabınızı kaydedin</li>
-            <li>Organizasyonunuza çalışanları ekleyin</li>
-            <li>İzleme ayarlarını yapılandırın</li>
-            <li>Verimliliği izlemeye ve takip etmeye başlayın</li>
-          </ol>
-        `
-      },
-      'dashboard': {
-        title: 'Kontrol Paneli Genel Bakış',
-        content: `
-          <h3>Kontrol Paneli Bileşenleri</h3>
-          <p>Kontrol paneli, organizasyonunuzun verimlilik metrikleri ve çalışan aktivitelerinin kapsamlı bir genel bakışını sağlar.</p>
-          
-          <h4>Ana Widget'lar</h4>
-          <ul>
-            <li><strong>Aktif Çalışanlar:</strong> Aktif takım üyelerinin gerçek zamanlı sayısı</li>
-            <li><strong>Verimlilik Metrikleri:</strong> Genel verimlilik istatistikleri</li>
-            <li><strong>Son Aktiviteler:</strong> En son çalışan aktiviteleri ve güncellemeleri</li>
-            <li><strong>Hızlı İşlemler:</strong> Yaygın görevlere kısayollar</li>
-          </ul>
-          
-          <h4>Navigasyon</h4>
-          <p>Farklı bölümlere erişmek için kenar çubuğu navigasyonunu kullanın:</p>
-          <ul>
-            <li>Canlı İzleme - Gerçek zamanlı çalışan izleme</li>
-            <li>Raporlar - Detaylı analitik ve raporlar</li>
-            <li>Çalışanlar - Takım üyesi yönetimi</li>
-            <li>Ayarlar - Sistem yapılandırması</li>
+            <li><strong>Credentials:</strong> Manage API keys and tokens</li>
+            <li><strong>Endpoints:</strong> Configure API endpoints</li>
+            <li><strong>Rate Limiting:</strong> Set API usage limits</li>
           </ul>
         `
       },
-      'live-tracking': {
-        title: 'Canlı İzleme',
+      'api-integration': {
+        title: '🔌 API Integration',
         content: `
-          <h3>Gerçek Zamanlı Çalışan İzleme</h3>
-          <p>Canlı İzleme özelliği, çalışanlarınızın aktivitelerini gerçek zamanlı olarak izlemenizi sağlar.</p>
+          <h3>API Configuration & Testing</h3>
+          <p>The system includes comprehensive API integration tools for connecting with external services and managing data flow.</p>
           
-          <h4>Özellikler</h4>
+          <h4>🔑 Authentication</h4>
           <ul>
-            <li><strong>Canlı Ekran Görüntüleri:</strong> Çalışan ekranlarının gerçek zamanlı ekran görüntülerini görüntüleyin</li>
-            <li><strong>Aktivite Durumu:</strong> Aktif/boşta durumunu izleyin</li>
-            <li><strong>Uygulama Kullanımı:</strong> Hangi uygulamaların kullanıldığını takip edin</li>
-            <li><strong>Zaman Takibi:</strong> Gerçek zamanlı çalışma saati takibi</li>
+            <li><strong>API Keys:</strong> Secure API key management</li>
+            <li><strong>OAuth:</strong> OAuth 2.0 authentication flow</li>
+            <li><strong>JWT Tokens:</strong> JSON Web Token handling</li>
+            <li><strong>Session Management:</strong> Automatic token refresh</li>
           </ul>
           
-          <h4>Gizlilik Konuları</h4>
-          <p>Tüm izleme aktiviteleri gizlilik düzenlemeleri ve şirket politikalarına uygun olarak gerçekleştirilir. İzleme aktif olduğunda çalışanlar bilgilendirilir.</p>
-        `
-      },
-      'reports': {
-        title: 'Raporlar ve Analitik',
-        content: `
-          <h3>Kapsamlı Raporlama</h3>
-          <p>Verimlilik, devam ve çalışan performansını analiz etmek için detaylı raporlar oluşturun.</p>
-          
-          <h4>Mevcut Raporlar</h4>
+          <h4>🧪 API Testing Tools</h4>
           <ul>
-            <li><strong>Çalışan Raporları:</strong> Bireysel çalışan performans metrikleri</li>
-            <li><strong>Aktivite Desenleri:</strong> Çalışma desenlerinin ve verimlilik trendlerinin analizi</li>
-            <li><strong>Zaman Kaydı Özeti:</strong> Detaylı zaman takip raporları</li>
-            <li><strong>Devam Raporları:</strong> Çalışma saatleri ve devam analitiği</li>
-            <li><strong>Uygulama Kullanımı:</strong> Yazılım ve uygulama kullanım istatistikleri</li>
+            <li><strong>API Tester:</strong> Built-in tool for testing endpoints</li>
+            <li><strong>Request Builder:</strong> Visual request composition</li>
+            <li><strong>Response Inspector:</strong> Detailed response analysis</li>
+            <li><strong>Mock Data:</strong> Test with mock data when APIs are unavailable</li>
           </ul>
           
-          <h4>Dışa Aktarma Seçenekleri</h4>
-          <p>Raporlar daha fazla analiz için PDF, Excel ve CSV dahil çeşitli formatlarda dışa aktarılabilir.</p>
-        `
-      },
-      'employee-management': {
-        title: 'Çalışan Yönetimi',
-        content: `
-          <h3>Takımınızı Yönetme</h3>
-          <p>Çalışanlarınızı etkili bir şekilde yönetin ve daha iyi verimlilik takibi için takımlara organize edin.</p>
-          
-          <h4>Çalışan İşlemleri</h4>
+          <h4>📊 Data Sources</h4>
           <ul>
-            <li><strong>Çalışan Ekleme:</strong> Organizasyonunuza yeni takım üyelerini davet edin</li>
-            <li><strong>Profil Düzenleme:</strong> Çalışan bilgilerini ve ayarlarını güncelleyin</li>
-            <li><strong>Takım Atama:</strong> Çalışanları takımlara organize edin</li>
-            <li><strong>Rol Yönetimi:</strong> Roller ve izinler atayın</li>
+            <li><strong>S3 Integration:</strong> Amazon S3 for log storage and retrieval</li>
+            <li><strong>Database APIs:</strong> Direct database connections</li>
+            <li><strong>Third-party APIs:</strong> External service integrations</li>
+            <li><strong>Webhooks:</strong> Real-time data updates</li>
           </ul>
           
-          <h4>Takım Yönetimi</h4>
+          <h4>⚡ Performance</h4>
           <ul>
-            <li>Takımları oluşturun ve yönetin</li>
-            <li>Takım liderlerini atayın</li>
-            <li>Takıma özel izleme tercihlerini ayarlayın</li>
-            <li>Takım performans raporları oluşturun</li>
-          </ul>
-        `
-      },
-      'settings': {
-        title: 'Ayarlar ve Yapılandırma',
-        content: `
-          <h3>Sistem Yapılandırması</h3>
-          <p>DXD Focus'u organizasyonunuzun gereksinimlerine ve tercihlerine uyacak şekilde özelleştirin.</p>
-          
-          <h4>Genel Ayarlar</h4>
-          <ul>
-            <li><strong>Organizasyon Profili:</strong> Şirket bilgilerini güncelleyin</li>
-            <li><strong>Saat Dilimi:</strong> Saat dilimi ayarlarını yapılandırın</li>
-            <li><strong>Çalışma Saatleri:</strong> Standart çalışma saatlerini ayarlayın</li>
-            <li><strong>Bildirim Tercihleri:</strong> Uyarıları ve bildirimleri yapılandırın</li>
+            <li><strong>Caching:</strong> Intelligent response caching</li>
+            <li><strong>Rate Limiting:</strong> Automatic rate limit handling</li>
+            <li><strong>Error Handling:</strong> Comprehensive error management</li>
+            <li><strong>Retry Logic:</strong> Automatic retry for failed requests</li>
           </ul>
           
-          <h4>İzleme Ayarları</h4>
-          <ul>
-            <li><strong>Ekran Görüntüsü Sıklığı:</strong> Ekran görüntüsü yakalama aralıklarını yapılandırın</li>
-            <li><strong>Aktivite İzleme:</strong> İzleme tercihlerini ayarlayın</li>
-            <li><strong>Boşta Kalma Süresi Algılama:</strong> Boşta kalma süresi eşiklerini yapılandırın</li>
-            <li><strong>Gizlilik Ayarları:</strong> Gizlilik ve uyumluluk ayarlarını yönetin</li>
-          </ul>
-        `
-      },
-      'api': {
-        title: 'API Dokümantasyonu',
-        content: `
-          <h3>DXD Focus API</h3>
-          <p>Kapsamlı REST API'mizi kullanarak DXD Focus'u mevcut sistemlerinizle entegre edin.</p>
-          
-          <h4>Kimlik Doğrulama</h4>
-          <p>API istekleri API anahtarları kullanarak kimlik doğrulama gerektirir:</p>
-          <pre><code>Authorization: Bearer YOUR_API_KEY</code></pre>
-          
-          <h4>Uç Noktalar</h4>
-          <ul>
-            <li><code>GET /api/employees</code> - Çalışan listesini al</li>
-            <li><code>GET /api/tracking/live</code> - Canlı izleme verilerini al</li>
-            <li><code>GET /api/reports/productivity</code> - Verimlilik raporları oluştur</li>
-            <li><code>POST /api/employees</code> - Yeni çalışan ekle</li>
-          </ul>
-          
-          <h4>Hız Limitleri</h4>
-          <p>API istekleri API anahtarı başına saatte 1000 istekle sınırlıdır.</p>
-        `
-      },
-      'troubleshooting': {
-        title: 'Sorun Giderme',
-        content: `
-          <h3>Yaygın Sorunlar ve Çözümler</h3>
-          <p>DXD Focus ile sık karşılaşılan sorunların çözümleri.</p>
-          
-          <h4>İstemci Uygulama Sorunları</h4>
-          <ul>
-            <li><strong>Uygulama başlamıyor:</strong> Uygulamanın yönetici olarak çalışıp çalışmadığını kontrol edin</li>
-            <li><strong>Ekran görüntüleri yakalanmıyor:</strong> Ekran yakalama izinlerini doğrulayın</li>
-            <li><strong>Bağlantı sorunları:</strong> İnternet bağlantısını ve güvenlik duvarı ayarlarını kontrol edin</li>
-          </ul>
-          
-          <h4>Kontrol Paneli Sorunları</h4>
-          <ul>
-            <li><strong>Veriler güncellenmiyor:</strong> Sayfayı yenileyin veya çalışan istemci durumunu kontrol edin</li>
-            <li><strong>Raporlar oluşturulmuyor:</strong> Tarih aralıklarını ve çalışan seçimlerini doğrulayın</li>
-            <li><strong>Giriş sorunları:</strong> Şifreyi sıfırlayın veya yöneticiyle iletişime geçin</li>
-          </ul>
-          
-          <h4>Destek İletişim</h4>
-          <p>Ek yardıma ihtiyacınız varsa, destek ekibimizle iletişime geçin:</p>
-          <ul>
-            <li>E-posta: support@dxdglobal.com</li>
-            <li>Telefon: +1 (555) 123-4567</li>
-            <li>Canlı Sohbet: Kontrol paneli üzerinden 7/24 mevcut</li>
-          </ul>
+          <h4>🔧 Configuration Files</h4>
+          <pre><code>// services/api.js - Main API configuration
+// services/settingsAPI.js - Settings-specific APIs
+// services/mockSettingsAPI.js - Mock data for testing
+// utils/settingsAPITester.js - API testing utilities</code></pre>
         `
       }
     }
   };
 
-  const filteredCategories = categories.filter(category =>
-    category.label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getFilteredContent = () => {
+    if (!searchTerm) return content[language] || content.en;
+    
+    const filtered = {};
+    Object.keys(content[language] || content.en).forEach(key => {
+      const item = (content[language] || content.en)[key];
+      if (item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.content.toLowerCase().includes(searchTerm.toLowerCase())) {
+        filtered[key] = item;
+      }
+    });
+    return filtered;
+  };
+
+  const filteredContent = getFilteredContent();
+  const currentContent = filteredContent[activeCategory] || Object.values(filteredContent)[0];
 
   return (
-    <DashboardLayout headerTitle={t('documentation')} headerBreadcrumb={t('documentation')}>
+    <DashboardLayout>
       <DocumentationContainer theme={theme}>
         <Header>
-          <Title theme={theme}>{t('documentation')}</Title>
+          <Title theme={theme}>Documentation</Title>
           <Subtitle theme={theme}>
-            {t('completeGuide')}
+            Comprehensive guide to using the Admin Focus dashboard
           </Subtitle>
-          <SearchBox
-            theme={theme}
-            placeholder={t('searchDocumentation')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </Header>
-
+        
         <ContentArea>
           <DocSidebar theme={theme}>
-            <SidebarTitle theme={theme}>{t('categories')}</SidebarTitle>
+            <SidebarTitle theme={theme}>Categories</SidebarTitle>
+            <SearchBox
+              type="text"
+              placeholder="Search documentation..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              theme={theme}
+            />
             <CategoryList>
-              {filteredCategories.map((category) => (
-                <CategoryItem key={category.id}>
+              {Object.keys(filteredContent).map(categoryId => (
+                <CategoryItem key={categoryId}>
                   <CategoryLink
                     theme={theme}
-                    $isActive={activeCategory === category.id}
-                    onClick={() => setActiveCategory(category.id)}
+                    $isActive={activeCategory === categoryId}
+                    onClick={() => setActiveCategory(categoryId)}
                   >
-                    {category.label}
+                    {categories.find(cat => cat.id === categoryId)?.label || categoryId}
                   </CategoryLink>
                 </CategoryItem>
               ))}
             </CategoryList>
           </DocSidebar>
-
+          
           <MainContent theme={theme}>
-            <ContentTitle theme={theme}>
-              {content[language]?.[activeCategory]?.title}
-            </ContentTitle>
-            <ContentText
-              theme={theme}
-              dangerouslySetInnerHTML={{
-                __html: content[language]?.[activeCategory]?.content || ''
-              }}
-            />
+            {currentContent ? (
+              <>
+                <ContentTitle theme={theme}>
+                  {currentContent.title}
+                </ContentTitle>
+                <ContentText
+                  theme={theme}
+                  dangerouslySetInnerHTML={{ __html: currentContent.content }}
+                />
+              </>
+            ) : (
+              <ContentText theme={theme}>
+                <p>No content found matching your search.</p>
+              </ContentText>
+            )}
           </MainContent>
         </ContentArea>
       </DocumentationContainer>

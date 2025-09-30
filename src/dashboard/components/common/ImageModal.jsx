@@ -338,7 +338,7 @@ export const ImageDetails = styled.div`
   align-items: center;
 `;
 
-export const LoadingSpinner = styled.div`
+export const LoadingSpinner = styled(motion.div)`
   width: 48px;
   height: 48px;
   border: 4px solid ${props => {
@@ -371,6 +371,8 @@ const ImageModal = ({
   const [imageLoading, setImageLoading] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(currentIndex);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [slideDirection, setSlideDirection] = useState(0); // -1 for left, 1 for right, 0 for no slide
 
   // Update internal index when prop changes
   useEffect(() => {
@@ -424,6 +426,7 @@ const ImageModal = ({
   const handlePrevious = useCallback(() => {
     if (currentImageIndex > 0) {
       const newIndex = currentImageIndex - 1;
+      setSlideDirection(-1);
       setCurrentImageIndex(newIndex);
       setImageLoading(true);
       onIndexChange?.(newIndex);
@@ -433,6 +436,7 @@ const ImageModal = ({
   const handleNext = useCallback(() => {
     if (currentImageIndex < images.length - 1) {
       const newIndex = currentImageIndex + 1;
+      setSlideDirection(1);
       setCurrentImageIndex(newIndex);
       setImageLoading(true);
       onIndexChange?.(newIndex);
@@ -440,7 +444,9 @@ const ImageModal = ({
   }, [currentImageIndex, images.length, onIndexChange]);
 
   const handleDownload = useCallback(async () => {
-    if (!currentImage) return;
+    if (!currentImage || downloadLoading) return;
+    
+    setDownloadLoading(true);
     
     try {
       const imageUrl = typeof currentImage === 'string' ? currentImage : currentImage.src || currentImage.image;
@@ -448,18 +454,42 @@ const ImageModal = ({
         ? `screenshot-${currentImageIndex + 1}.jpg`
         : currentImage.title || currentImage.task || `screenshot-${currentImageIndex + 1}.jpg`;
 
-      // Create a temporary link and trigger download
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = imageName.replace(/[^a-z0-9.-]/gi, '_');
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Try to download via fetch for CORS support
+      try {
+        const response = await fetch(imageUrl);
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = imageName.replace(/[^a-z0-9.-]/gi, '_');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } else {
+          throw new Error('Fetch failed');
+        }
+      } catch (fetchError) {
+        // Fallback to direct link download
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = imageName.replace(/[^a-z0-9.-]/gi, '_');
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      
+      // Show success feedback
+      console.log('✅ Download initiated successfully');
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('❌ Download failed:', error);
+      // Could add toast notification here
+    } finally {
+      setDownloadLoading(false);
     }
-  }, [currentImage, currentImageIndex]);
+  }, [currentImage, currentImageIndex, downloadLoading]);
 
   const toggleFullscreen = useCallback(() => {
     setFullscreen(prev => !prev);
@@ -486,15 +516,19 @@ const ImageModal = ({
   }
 
   const modalContent = (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <ModalOverlay
         theme={theme}
         isDarkMode={isDarkMode}
         onClick={handleOverlayClick}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+        animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+        transition={{ 
+          duration: 0.4, 
+          ease: [0.25, 0.1, 0.25, 1],
+          backdropFilter: { duration: 0.3 }
+        }}
         style={{
           position: 'fixed',
           top: 0,
@@ -534,9 +568,29 @@ const ImageModal = ({
                 theme={theme}
                 isDarkMode={isDarkMode}
                 title="Download Image (D)"
+                disabled={downloadLoading}
+                style={{
+                  opacity: downloadLoading ? 0.7 : 1,
+                  cursor: downloadLoading ? 'not-allowed' : 'pointer'
+                }}
               >
-                <FaDownload />
-                Download
+                {downloadLoading ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      style={{ width: 14, height: 14, display: 'inline-block' }}
+                    >
+                      ⟳
+                    </motion.div>
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <FaDownload />
+                    Download
+                  </>
+                )}
               </ActionButton>
               <ActionButton
                 onClick={toggleFullscreen}
@@ -560,7 +614,14 @@ const ImageModal = ({
           <ModalContent theme={theme} isDarkMode={isDarkMode}>
             <ImageContainer>
               {imageLoading && (
-                <LoadingSpinner theme={theme} isDarkMode={isDarkMode} />
+                <LoadingSpinner 
+                  theme={theme} 
+                  isDarkMode={isDarkMode}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                />
               )}
               
               <ModalImage
@@ -570,12 +631,39 @@ const ImageModal = ({
                 isDarkMode={isDarkMode}
                 fullscreen={fullscreen}
                 onClick={toggleFullscreen}
-                onLoad={() => setImageLoading(false)}
-                onError={() => setImageLoading(false)}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                style={{ display: imageLoading ? 'none' : 'block' }}
+                onLoad={() => {
+                  setImageLoading(false);
+                  setSlideDirection(0);
+                }}
+                onError={() => {
+                  setImageLoading(false);
+                  setSlideDirection(0);
+                }}
+                key={`image-${currentImageIndex}`}
+                initial={{ 
+                  opacity: 0, 
+                  scale: 0.95, 
+                  x: slideDirection * 50,
+                  y: 20 
+                }}
+                animate={{ 
+                  opacity: imageLoading ? 0 : 1, 
+                  scale: imageLoading ? 0.95 : 1,
+                  x: 0,
+                  y: imageLoading ? 20 : 0
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.95,
+                  x: slideDirection * -50,
+                  transition: { duration: 0.2 }
+                }}
+                transition={{ 
+                  duration: 0.5, 
+                  ease: [0.25, 0.1, 0.25, 1],
+                  delay: imageLoading ? 0 : 0.1
+                }}
+                style={{ display: 'block' }}
               />
 
               {/* Navigation buttons */}

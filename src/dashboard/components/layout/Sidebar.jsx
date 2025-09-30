@@ -274,27 +274,21 @@ export const Sidebar = ({ isCollapsed = false }) => {
     { icon: "🛰️", label: t('liveTracking').toUpperCase(), path: "/dashboard/live-tracking" },
     { icon: "📷", label: "OLD SCREENSHOTS", path: "/dashboard/old-screenshots" },
     { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
-    { 
-      icon: "📈", 
-      label: t('reports').toUpperCase(), 
-      path: "/dashboard/reports", 
-      hasArrow: true,
-      subItems: [
-        { label: t('employeeReports').toUpperCase(), path: "/dashboard/reports/employee" },
-        { label: t('activityPattern').toUpperCase(), path: "/dashboard/reports/activity-pattern" },
-        { label: t('advancedReport').toUpperCase(), path: "/dashboard/reports/advanced" },
-        { label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
-        { label: t('dormantEmployees').toUpperCase(), path: "/dashboard/reports/dormant" },
-        { label: t('highIdleHours').toUpperCase(), path: "/dashboard/reports/idle" },
-        { label: t('clientAppActivity').toUpperCase(), path: "/dashboard/reports/client-activity" },
-        { label: t('otReport').toUpperCase(), path: "/dashboard/reports/overtime" },
-      ]
-    },
-    { icon: "🌐", label: t('site').toUpperCase(), path: "/dashboard/site", hasArrow: true },
-    { icon: "📋", label: t('taskManagement').toUpperCase(), path: "/dashboard/task-management", hasArrow: true },
-    { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
+    { icon: "📺", label: "LOGS REPORT", path: "/dashboard/activity-stream" },
+    // { 
+    //   icon: "📈", 
+    //   label: t('reports').toUpperCase(), 
+    //   path: "/dashboard/reports", 
+    //   hasArrow: true,
+    //   subItems: [
+    //     { label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
+    //   ]
+    // },
+    // { icon: "🌐", label: t('site').toUpperCase(), path: "/dashboard/site", hasArrow: true },
+    // { icon: "📋", label: t('taskManagement').toUpperCase(), path: "/dashboard/task-management", hasArrow: true },
+    // { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
     { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employees" },
-    { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
+    // { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
     { icon: "📚", label: "DOCUMENTATION", path: "/dashboard/documentation" },
     { 
       icon: "⚙️", 
