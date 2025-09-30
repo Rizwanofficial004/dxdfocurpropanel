@@ -7,6 +7,13 @@
   padding: 2rem;
   text-align: center;
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode styles for root */
+[data-theme="dark"] #root {
+  background-color: #0f172a;
+  color: #f8fafc;
 }
 
 .logo {
@@ -15,11 +22,22 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* Dark mode logo adjustments */
+[data-theme="dark"] .logo:hover {
+  filter: drop-shadow(0 0 2em #60a5faaa);
+}
+
+[data-theme="dark"] .logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa) brightness(1.2);
 }
 
 @keyframes logo-spin {
@@ -39,8 +57,21 @@
 
 .card {
   padding: 2em;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode card */
+[data-theme="dark"] .card {
+  background-color: #1e293b;
+  border-color: #334155;
 }
 
 .read-the-docs {
   color: #888;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode read-the-docs */
+[data-theme="dark"] .read-the-docs {
+  color: #94a3b8;
 }

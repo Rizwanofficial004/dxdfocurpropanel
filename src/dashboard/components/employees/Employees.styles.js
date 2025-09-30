@@ -201,46 +201,17 @@ export const EmployeeCard = styled.div`
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transform-style: preserve-3d;
-  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+
+
   box-shadow: ${props => props.isDarkMode ? 
     '0 32px 64px rgba(0, 0, 0, 0.8), 0 16px 32px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05)' :
     '0 32px 64px rgba(0, 0, 0, 0.08), 0 16px 32px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8)'};
-  animation: ${rotateIn3D} 1.2s cubic-bezier(0.23, 1, 0.320, 1) forwards;
-  animation-delay: ${props => (props.index || 0) * 150}ms;
-  opacity: 0;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: ${props => props.isDarkMode ? 
-      'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)' :
-      'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 70%)'};
-    border-radius: 28px;
-    pointer-events: none;
-  }
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.5) 50%, transparent 70%);
-    border-radius: 30px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-    animation: ${shimmer} 3s linear infinite;
-  }
+
+
 
   &:hover {
-    transform: perspective(1000px) rotateX(-8deg) rotateY(12deg) translateZ(60px) scale(1.03);
     box-shadow: ${props => props.isDarkMode ? 
       '0 40px 80px rgba(0, 0, 0, 0.6), 0 20px 40px rgba(59, 130, 246, 0.4)' :
       '0 40px 80px rgba(0, 0, 0, 0.15), 0 20px 40px rgba(59, 130, 246, 0.3)'};
@@ -430,7 +401,7 @@ export const Star = styled.span`
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 
   &:hover {
-    transform: scale(1.2) rotateZ(15deg);
+    transform: scale(1.1);
     filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.5));
   }
 `;

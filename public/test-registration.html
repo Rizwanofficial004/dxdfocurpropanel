@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration API Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #ed8936;
+            color: white;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .response-box {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .error {
+            background: #fed7d7;
+            border-color: #fc8181;
+            color: #c53030;
+        }
+        
+        .success {
+            background: #c6f6d5;
+            border-color: #68d391;
+            color: #2f855a;
+        }
+        
+        .endpoint-info {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Registration API Test</h1>
+        
+        <div class="endpoint-info">
+            <strong>API Endpoint:</strong> <span id="api-endpoint">Loading...</span><br>
+            <strong>Method:</strong> POST<br>
+            <strong>Content-Type:</strong> application/json
+        </div>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Defaults to email if empty">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password_confirm">Confirm Password</label>
+                <input type="password" id="password_confirm" name="password_confirm">
+            </div>
+            
+            <div class="form-group">
+                <label for="first_name">First Name *</label>
+                <input type="text" id="first_name" name="first_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">Last Name *</label>
+                <input type="text" id="last_name" name="last_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="organization_name">Organization Name *</label>
+                <input type="text" id="organization_name" name="organization_name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="country">Country *</label>
+                <select id="country" name="country" required>
+                    <option value="">Select a country</option>
+                    <option value="United States">United States</option>
+                    <option value="Canada">Canada</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn-info" onclick="fillSampleData()">Fill Sample Data</button>
+                <button type="submit" class="btn-primary" id="submitBtn">Test Registration</button>
+                <button type="button" class="btn-secondary" onclick="testAllEndpoints()">Test All Endpoints</button>
+            </div>
+        </form>
+        
+        <div id="response" class="response-box" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Get API base URL based on environment
+        function getApiBaseURL() {
+            // Use proxy for development
+            if (window.location.hostname === 'localhost' ||
+                window.location.hostname.startsWith('192.168.') ||
+                window.location.hostname.startsWith('127.0.')) {
+                return '/api';
+            }
+            // Use full URL for production
+            return 'https://dxdtime.ddsolutions.io/api';
+        }
+
+        function buildApiUrl(endpoint) {
+            const baseUrl = getApiBaseURL();
+            return `${baseUrl}${endpoint}`;
+        }
+
+        // Update endpoint display
+        document.getElementById('api-endpoint').textContent = buildApiUrl('/auth/register/');
+
+        function fillSampleData() {
+            const timestamp = Date.now();
+            const form = document.getElementById('registrationForm');
+            
+            form.email.value = `user${timestamp}@example.com`;
+            form.username.value = `user${timestamp}@example.com`;
+            form.password.value = 'SecurePass123';
+            form.password_confirm.value = 'SecurePass123';
+            form.first_name.value = 'John';
+            form.last_name.value = 'Doe';
+            form.organization_name.value = 'Test Organization';
+            form.country.value = 'United States';
+        }
+
+        function getFormData() {
+            const form = document.getElementById('registrationForm');
+            const formData = new FormData(form);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Set username to email if not provided
+            if (!data.username) {
+                data.username = data.email;
+            }
+            
+            // Set password_confirm to password if not provided
+            if (!data.password_confirm) {
+                data.password_confirm = data.password;
+            }
+            
+            return data;
+        }
+
+        function showResponse(response, isError = false) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.className = `response-box ${isError ? 'error' : 'success'}`;
+            responseDiv.textContent = JSON.stringify(response, null, 2);
+        }
+
+        function showLoading() {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'response-box loading';
+            responseDiv.textContent = 'Testing registration endpoint...';
+        }
+
+        async function testRegistration() {
+            const data = getFormData();
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Testing...';
+            showLoading();
+
+            try {
+                console.log('📝 Testing registration with data:', { ...data, password: '***', password_confirm: '***' });
+
+                const response = await fetch(buildApiUrl('/auth/register/'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const responseText = await response.text();
+                let responseData;
+                
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch {
+                    responseData = { raw_response: responseText };
+                }
+
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    data: responseData
+                };
+
+                if (response.ok) {
+                    console.log('✅ Registration successful:', result);
+                    showResponse(result, false);
+                } else {
+                    console.log('❌ Registration failed:', result);
+                    showResponse(result, true);
+                }
+
+            } catch (error) {
+                console.error('❌ Network error:', error);
+                showResponse({
+                    error: 'Network Error',
+                    message: error.message,
+                    details: 'Could not connect to the API server'
+                }, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Test Registration';
+            }
+        }
+
+        async function testAllEndpoints() {
+            const data = getFormData();
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.disabled = true;
+            showLoading();
+
+            const endpoints = [
+                '/auth/register/',
+                '/api/auth/register/',
+                '/register/',
+                '/auth/signup/',
+                '/api/auth/signup/'
+            ];
+
+            const results = {};
+
+            for (const endpoint of endpoints) {
+                try {
+                    console.log(`🔍 Testing endpoint: ${endpoint}`);
+                    
+                    const fullUrl = buildApiUrl(endpoint);
+                    const response = await fetch(fullUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    results[endpoint] = {
+                        status: response.status,
+                        statusText: response.statusText,
+                        available: response.status !== 404
+                    };
+
+                    if (response.status !== 404) {
+                        const responseText = await response.text();
+                        try {
+                            results[endpoint].data = JSON.parse(responseText);
+                        } catch {
+                            results[endpoint].data = { raw: responseText };
+                        }
+                    }
+
+                } catch (error) {
+                    results[endpoint] = {
+                        error: error.message,
+                        available: false
+                    };
+                }
+            }
+
+            showResponse({
+                message: 'Endpoint availability test results',
+                results: results,
+                recommendation: 'Use the endpoint that returns status 200 or 201'
+            }, false);
+
+            submitBtn.disabled = false;
+        }
+
+        // Handle form submission
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            testRegistration();
+        });
+
+        // Auto-fill username when email changes
+        document.getElementById('email').addEventListener('input', function(e) {
+            const usernameField = document.getElementById('username');
+            if (!usernameField.value) {
+                usernameField.value = e.target.value;
+            }
+        });
+
+        // Fill sample data on page load for quick testing
+        window.addEventListener('load', function() {
+            setTimeout(fillSampleData, 500);
+        });
+    </script>
+</body>
+</html>

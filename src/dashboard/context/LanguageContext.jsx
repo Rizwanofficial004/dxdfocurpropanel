@@ -13,9 +13,27 @@ const translations = {
     attendance: 'Attendance',
     employees: 'Employees',
     teams: 'Teams',
+    jobs: 'Jobs',
     settings: 'Settings',
     search: 'Search',
     hello: 'Hello',
+    liveChat: 'Live Chat',
+    scheduleCall: 'Schedule Call',
+    downloadClientApp: 'Download Client App',
+
+    // Reports Submenu
+    employeeReports: 'Employee Reports',
+    activityPattern: 'Activity Pattern',
+    advancedReport: 'Advanced Report',
+    timeLogSummary: 'Time Log Summary',
+    dormantEmployees: 'Dormant Employees',
+    highIdleHours: 'High Idle Hours',
+    clientAppActivity: 'Client App Activity',
+    otReport: 'OT Report',
+
+    // Settings Submenu
+    styleSettings: 'Style Settings',
+    credentialsSettings: 'Credentials Settings',
     
     // Login
     welcome: 'Welcome Back',
@@ -84,6 +102,11 @@ const translations = {
     thisMonth: 'This Month',
     customRange: 'Custom Range',
     searchEmployeeName: 'Search employee name...',
+    searchEmployee: 'Search Employee',
+    searchForEmployees: 'Search for employees to view their activity stream',
+    selectUserToView: 'Select a user to view their activity stream',
+    foundUsersFor: 'Found {{count}} user(s) for "{{query}}"',
+    noData: 'No data',
     advancedFilter: 'Advanced Filter',
     export: 'Export',
     loadMoreScreenshots: 'Load More Screenshots',
@@ -128,7 +151,6 @@ const translations = {
     
     // Activity Stream
     recentActivity: 'Recent Activity',
-    newUserRegistered: 'New user registered',
     reportGenerated: 'Report generated',
     taskCompleted: 'Task completed',
     documentUpdated: 'Document updated',
@@ -145,14 +167,6 @@ const translations = {
     task: 'Task',
     results: 'results',
     screenshotPreview: 'Screenshot Preview',
-    
-    // FocusTimeline specific
-    userActivity: 'User Activity',
-    searchActivity: 'Search activity...',
-    purchasedFromMediaTek: 'Purchased from MediaTek',
-    loremIpsumShort: 'Lorem ipsum dolor sit amet consecte',
-    daysLeftNotification: '3 days left notification to submit new products',
-    minsAgo: '04 Mins Ago',
     
     // Announcement specific
     announcement: 'Announcement',
@@ -181,6 +195,101 @@ const translations = {
     businessReviewDesc: 'Review of business performance for the past quarter.',
     teamBuildingWorkshop: 'Team Building Workshop',
     teamBuildingDesc: 'Workshop aimed at improving team collaboration and communication skills.',
+    
+    // Notification banner
+    profileCreated: 'Your user profile has been successfully created.',
+    downloadClient: 'You can now download the client app from',
+    loginExplore: 'and log in with your password to explore the features.',
+    
+    // Dashboard specific translations
+    currentStatus: 'CURRENT STATUS',
+    companyAverage: 'COMPANY AVERAGE',
+    atWork: 'At Work',
+    inMeeting: 'In Meeting',
+    atBreak: 'At Break',
+    dailyBreaks: 'DAILY BREAKS',
+    meetings: 'MEETINGS',
+    avg: 'Avg',
+    workTimeSpread: 'WORK TIME SPREAD',
+    breaks: 'Breaks',
+    totalEmployees: 'TOTAL EMPLOYEES',
+    totalProjects: 'TOTAL PROJECTS',
+    totalTasks: 'TOTAL TASKS',
+    live: 'LIVE',
+    growthRate: 'growth rate',
+    totalCount: 'Total Count',
+    activeUsers: 'Active Users',
+    notStarted: 'Not Started',
+    inProgress: 'In Progress',
+    finished: 'Finished',
+    onHold: 'On Hold',
+    testing: 'Testing',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+    breaksPerDay: 'Breaks/Day',
+    minutesPerBreak: 'Minutes/Break',
+    meetingsPerDay: 'Meetings/Day',
+    minutesPerMeeting: 'Minutes/Meeting',
+    s3Employees: 'S3 Employees',
+    lastUpdated: 'Last Updated',
+    thirtyDaysAvg: '30 D AVG',
+    
+    // StyleSettings
+    stylingSettings: 'Styling Settings',
+    styling: 'Styling',
+    stylingConfiguration: 'Styling Configuration',
+    customizeGlobalTheme: 'Customize the global theme and styling for your application',
+    globalThemeConfiguration: 'Global Theme Configuration',
+    themeSettings: 'Theme Settings',
+    configureGlobalTheme: 'Configure global theme colors, typography, and styling preferences',
+    basicInformation: 'Basic Information',
+    themeName: 'Theme Name',
+    enterThemeName: 'Enter theme name',
+    describeTheme: 'Describe your theme',
+    colorSettings: 'Color Settings',
+    headerColor: 'Header Color',
+    footerColor: 'Footer Color',
+    backgroundColor: 'Background Color',
+    buttonColor: 'Button Color',
+    buttonTextColor: 'Button Text Color',
+    textColor: 'Text Color',
+    typographySettings: 'Typography Settings',
+    fontFamily: 'Font Family',
+    headingFontSize: 'Heading Font Size',
+    bodyFontSize: 'Body Font Size',
+    borderRadius: 'Border Radius',
+    saveStyling: 'Save Styling',
+    saving: 'Saving...',
+    stylingConfigLoaded: 'Styling configuration loaded successfully!',
+    stylingConfigSaved: 'Styling configuration saved successfully!',
+    failedToLoadStyling: 'Failed to load styling configuration',
+    failedToSaveStyling: 'Failed to save styling configuration',
+
+    // Right Sidebar
+    howItWorks: 'How it Works',
+    claimLicense: 'Claim 2 more free licenses',
+    employeesInfo: 'Here is some information about employees.',
+  liveTrackingInfo: 'Here is some information about live tracking.',
+  // Live Tracking help short paragraph
+  liveTrackingHelpShort: 'This panel shows recent screenshots captured from users\' devices for quick visual monitoring. Click refresh to fetch the latest images.',
+  // Activity Stream help short paragraph
+  activityStreamHelpShort: 'Shows a quick overview of recent user activity and highlighted days. Select a date or user to load screenshots for that period.',
+    quickViewInfo: 'Here is some information about quick view.',
+    claimLicenseInfo: 'Information about claiming licenses.',
+
+    // Documentation
+    documentation: 'Documentation',
+    completeGuide: 'Complete guide to using DXD Focus for employee monitoring and productivity tracking',
+    searchDocumentation: 'Search documentation...',
+    categories: 'Categories',
+    gettingStarted: 'Getting Started',
+    dashboardOverview: 'Dashboard Overview',
+    liveTrackingDoc: 'Live Tracking',
+    reportsAnalytics: 'Reports & Analytics',
+    employeeManagement: 'Employee Management',
+    settingsConfiguration: 'Settings & Configuration',
+    apiDocumentation: 'API Documentation',
+    troubleshooting: 'Troubleshooting',
   },
   
   tr: {
@@ -195,9 +304,27 @@ const translations = {
     attendance: 'Devam',
     employees: 'Çalışanlar',
     teams: 'Takımlar',
+    jobs: 'İşler',
     settings: 'Ayarlar',
     search: 'Ara',
     hello: 'Merhaba',
+    liveChat: 'Canlı Sohbet',
+    scheduleCall: 'Görüşme Planla',
+    downloadClientApp: 'İstemci Uygulamasını İndir',
+
+    // Reports Submenu
+    employeeReports: 'Çalışan Raporları',
+    activityPattern: 'Aktivite Modeli',
+    advancedReport: 'Gelişmiş Rapor',
+    timeLogSummary: 'Zaman Kaydı Özeti',
+    dormantEmployees: 'Pasif Çalışanlar',
+    highIdleHours: 'Yüksek Boşta Kalma Süreleri',
+    clientAppActivity: 'İstemci Uygulama Aktivitesi',
+    otReport: 'Fazla Mesai Raporu',
+
+    // Settings Submenu
+    styleSettings: 'Stil Ayarları',
+    credentialsSettings: 'Kimlik Bilgileri Ayarları',
     
     // Login
     welcome: 'Tekrar Hoş Geldiniz',
@@ -266,6 +393,11 @@ const translations = {
     thisMonth: 'Bu Ay',
     customRange: 'Özel Aralık',
     searchEmployeeName: 'Çalışan adı ara...',
+    searchEmployee: 'Çalışan Ara',
+    searchForEmployees: 'Aktivite akışlarını görüntülemek için çalışanları arayın',
+    selectUserToView: 'Aktivite akışını görüntülemek için bir kullanıcı seçin',
+    foundUsersFor: '"{{query}}" için {{count}} kullanıcı bulundu',
+    noData: 'Veri Yok',
     advancedFilter: 'Gelişmiş Filtre',
     export: 'Dışa Aktar',
     loadMoreScreenshots: 'Daha Fazla Ekran Görüntüsü Yükle',
@@ -310,7 +442,6 @@ const translations = {
     
     // Activity Stream
     recentActivity: 'Son Aktiviteler',
-    newUserRegistered: 'Yeni kullanıcı kaydedildi',
     reportGenerated: 'Rapor oluşturuldu',
     taskCompleted: 'Görev tamamlandı',
     documentUpdated: 'Belge güncellendi',
@@ -327,14 +458,6 @@ const translations = {
     task: 'Görev',
     results: 'sonuç',
     screenshotPreview: 'Ekran Görüntüsü Önizlemesi',
-    
-    // FocusTimeline specific
-    userActivity: 'Kullanıcı Aktivitesi',
-    searchActivity: 'Aktivite ara...',
-    purchasedFromMediaTek: 'MediaTek\'ten satın alındı',
-    loremIpsumShort: 'Lorem ipsum dolor sit amet consecte',
-    daysLeftNotification: 'Yeni ürünleri göndermek için 3 gün kaldı bildirimi',
-    minsAgo: '04 Dakika Önce',
     
     // Announcement specific
     announcement: 'Duyuru',
@@ -363,6 +486,100 @@ const translations = {
     businessReviewDesc: 'Geçen çeyrek için iş performansının değerlendirilmesi.',
     teamBuildingWorkshop: 'Takım Oluşturma Atölyesi',
     teamBuildingDesc: 'Takım işbirliği ve iletişim becerilerini geliştirmeyi amaçlayan atölye.',
+    
+    // Notification banner
+    profileCreated: 'Kullanıcı profiliniz başarıyla oluşturuldu.',
+    downloadClient: 'Artık istemci uygulamasını şu adresten indirebilirsiniz',
+    loginExplore: 've özelliklerini keşfetmek için şifrenizle giriş yapın.',
+    
+    // Dashboard specific translations
+    currentStatus: 'MEVCUT DURUM',
+    companyAverage: 'ŞİRKET ORTALAMASI',
+    atWork: 'İşte',
+    inMeeting: 'Toplantıda',
+    atBreak: 'Molada',
+    dailyBreaks: 'GÜNLÜK MOLALAR',
+    meetings: 'TOPLANTI',
+    avg: 'Ort',
+    workTimeSpread: 'ÇALIŞMA ZAMANIN DAĞILIMI',
+    breaks: 'Molalar',
+    totalEmployees: 'TOPLAM ÇALIŞAN',
+    totalProjects: 'TOPLAM PROJE',
+    totalTasks: 'TOPLAM GÖREV',
+    live: 'CANLI',
+    growthRate: 'büyüme oranı',
+    totalCount: 'Toplam Sayı',
+    activeUsers: 'Aktif Kullanıcılar',
+    notStarted: 'Başlamadı',
+    inProgress: 'Devam Ediyor',
+    finished: 'Tamamlandı',
+    onHold: 'Beklemede',
+    testing: 'Test Ediliyor',
+    completed: 'Tamamlandı',
+    cancelled: 'İptal Edildi',
+    breaksPerDay: 'Molalar/Gün',
+    minutesPerBreak: 'Dakika/Mola',
+    meetingsPerDay: 'Toplantı/Gün',
+    minutesPerMeeting: 'Dakika/Toplantı',
+    s3Employees: 'S3 Çalışanları',
+    lastUpdated: 'Son Güncelleme',
+    thirtyDaysAvg: '30 GÜNLÜK ORT',
+    
+    // StyleSettings
+    stylingSettings: 'Stil Ayarları',
+    styling: 'Stil',
+    stylingConfiguration: 'Stil Yapılandırması',
+    customizeGlobalTheme: 'Uygulamanızın global temasını ve stilini özelleştirin',
+    globalThemeConfiguration: 'Global Tema Yapılandırması',
+    themeSettings: 'Tema Ayarları',
+    configureGlobalTheme: 'Global tema renklerini, tipografiyi ve stil tercihlerini yapılandırın',
+    basicInformation: 'Temel Bilgiler',
+    themeName: 'Tema Adı',
+    enterThemeName: 'Tema adını girin',
+    describeTheme: 'Temanızı açıklayın',
+    colorSettings: 'Renk Ayarları',
+    headerColor: 'Başlık Rengi',
+    footerColor: 'Alt Bilgi Rengi',
+    backgroundColor: 'Arka Plan Rengi',
+    buttonColor: 'Düğme Rengi',
+    buttonTextColor: 'Düğme Metin Rengi',
+    textColor: 'Metin Rengi',
+    typographySettings: 'Tipografi Ayarları',
+    fontFamily: 'Font Ailesi',
+    headingFontSize: 'Başlık Font Boyutu',
+    bodyFontSize: 'Gövde Font Boyutu',
+    borderRadius: 'Kenar Yuvarlaklığı',
+    saveStyling: 'Stili Kaydet',
+    saving: 'Kaydediliyor...',
+    stylingConfigLoaded: 'Stil yapılandırması başarıyla yüklendi!',
+    stylingConfigSaved: 'Stil yapılandırması başarıyla kaydedildi!',
+    failedToLoadStyling: 'Stil yapılandırması yüklenemedi',
+    failedToSaveStyling: 'Stil yapılandırması kaydedilemedi',
+
+    // Right Sidebar
+    howItWorks: 'Nasıl Çalışır?',
+    claimLicense: '2 ücretsiz lisans daha talep edin',
+    employeesInfo: 'Çalışanlar hakkında bazı bilgiler burada.',
+    liveTrackingInfo: 'Canlı izleme hakkında bazı bilgiler burada.',
+  liveTrackingHelpShort: 'Bu panel, kullanıcıların cihazlarından alınan son ekran görüntülerini hızlı görsel izleme için gösterir. En son görüntüler için yenileye tıklayın.',
+  // Activity Stream help short paragraph (Turkish)
+  activityStreamHelpShort: 'Son kullanıcı aktivitelerinin ve vurgulanan günlerin hızlı bir özetini gösterir. O döneme ait ekran görüntülerini yüklemek için bir tarih veya kullanıcı seçin.',
+    quickViewInfo: 'Hızlı görünüm hakkında bazı bilgiler burada.',
+    claimLicenseInfo: 'Lisans talep etme hakkında bilgi.',
+
+    // Documentation
+    documentation: 'Dokümantasyon',
+    completeGuide: 'Çalışan izleme ve verimlilik takibi için DXD Focus kullanma rehberi',
+    searchDocumentation: 'Dokümantasyon ara...',
+    categories: 'Kategoriler',
+    gettingStarted: 'Başlangıç',
+    dashboardOverview: 'Kontrol Paneli Genel Bakış',
+    liveTrackingDoc: 'Canlı İzleme',
+    reportsAnalytics: 'Raporlar ve Analitik',
+    employeeManagement: 'Çalışan Yönetimi',
+    settingsConfiguration: 'Ayarlar ve Yapılandırma',
+    apiDocumentation: 'API Dokümantasyonu',
+    troubleshooting: 'Sorun Giderme',
   }
 };
 
@@ -377,7 +594,17 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  // Initialize language from localStorage or default to 'en'
+  const [language, setLanguageState] = useState(() => {
+    const savedLanguage = localStorage.getItem('language');
+    return savedLanguage || 'en';
+  });
+
+  // Enhanced setLanguage function that persists to localStorage
+  const setLanguage = (newLanguage) => {
+    setLanguageState(newLanguage);
+    localStorage.setItem('language', newLanguage);
+  };
 
   const t = (key) => {
     return translations[language][key] || key;

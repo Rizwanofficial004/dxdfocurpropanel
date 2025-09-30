@@ -103,7 +103,8 @@ const AnnouncementTable = () => {
   ];
 
   return (
-    <Container as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} theme={theme} isDarkMode={isDarkMode}>
+    <>
+        {/* <Container as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} theme={theme} isDarkMode={isDarkMode}>
       <TitleBar theme={theme} isDarkMode={isDarkMode}>
         <Title theme={theme} isDarkMode={isDarkMode}>📣 {t('announcement')}</Title>
         <Toolbar theme={theme} isDarkMode={isDarkMode}>
@@ -135,7 +136,9 @@ const AnnouncementTable = () => {
           disableColumnMenu
         />
       </DataGridContainer>
-    </Container>
+        </Container> */}
+    </>
+
   );
 };
 

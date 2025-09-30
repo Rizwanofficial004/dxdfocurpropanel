@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Test - Automated</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .result { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .error { background: #ffebee; border-color: #f44336; color: #d32f2f; }
+        .success { background: #e8f5e8; border-color: #4caf50; color: #2e7d32; }
+        .warning { background: #fff3e0; border-color: #ff9800; color: #ef6c00; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #1976d2; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        .loading { opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Registration Test Suite</h1>
+        
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <button onclick="testAPIEndpoints()">Test API Endpoints</button>
+            <button onclick="testRegistrationService()">Test Registration Service</button>
+            <button onclick="testCompleteFlow()">Test Complete Registration Flow</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Data</h2>
+            <pre id="testData"></pre>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const testData = {
+            email: "test" + Date.now() + "@example.com",
+            username: "testuser" + Date.now(),
+            password: "TestPass123!",
+            password_confirm: "TestPass123!",
+            first_name: "Test",
+            last_name: "User",
+            organization_name: "Test Organization",
+            country: "USA"
+        };
+
+        // Display test data
+        document.getElementById('testData').textContent = JSON.stringify(testData, null, 2);
+
+        function addResult(title, content, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'result ' + type;
+            div.innerHTML = '<h3>' + title + '</h3><pre>' + content + '</pre>';
+            results.appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testAPIEndpoints() {
+            addResult('🔍 Testing API Endpoints', 'Starting endpoint discovery...');
+            
+            const endpoints = [
+                '/api/auth/register/',
+                '/auth/register/',
+                '/api/register/',
+                '/register/',
+                '/auth/signup/',
+                '/api/auth/signup/'
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    console.log(`Testing endpoint: ${endpoint}`);
+                    
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify(testData)
+                    });
+
+                    const responseText = await response.text();
+                    const isHTML = responseText.startsWith('<') || responseText.includes('<!DOCTYPE');
+                    
+                    const result = {
+                        endpoint: endpoint,
+                        status: response.status,
+                        statusText: response.statusText,
+                        contentType: response.headers.get('content-type'),
+                        isHTML: isHTML,
+                        bodyPreview: responseText.substring(0, 300) + (responseText.length > 300 ? '...[truncated]' : '')
+                    };
+
+                    if (response.status === 404) {
+                        addResult(`❌ ${endpoint}`, 'Endpoint not found (404)', 'error');
+                    } else if (response.ok) {
+                        addResult(`✅ ${endpoint}`, JSON.stringify(result, null, 2), 'success');
+                    } else {
+                        addResult(`⚠️ ${endpoint}`, JSON.stringify(result, null, 2), 'warning');
+                    }
+
+                } catch (error) {
+                    addResult(`❌ ${endpoint}`, `Network error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function testRegistrationService() {
+            addResult('🧪 Testing Registration Service', 'Importing auth service...');
+            
+            try {
+                // Simulate the authService.register call
+                const registrationData = {
+                    email: testData.email,
+                    username: testData.username,
+                    password: testData.password,
+                    passwordConfirm: testData.password_confirm,
+                    firstName: testData.first_name,
+                    lastName: testData.last_name,
+                    organizationName: testData.organization_name,
+                    country: testData.country
+                };
+
+                addResult('📋 Service Input Data', JSON.stringify(registrationData, null, 2));
+
+                // Test the API call that the service would make
+                const apiData = {
+                    email: registrationData.email,
+                    username: registrationData.username || registrationData.email,
+                    password: registrationData.password,
+                    password_confirm: registrationData.passwordConfirm || registrationData.password,
+                    first_name: registrationData.firstName,
+                    last_name: registrationData.lastName,
+                    organization_name: registrationData.organizationName,
+                    country: registrationData.country
+                };
+
+                addResult('🚀 API Request Data', JSON.stringify(apiData, null, 2));
+
+                // Try the main endpoint
+                const response = await fetch('/api/auth/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify(apiData)
+                });
+
+                const responseText = await response.text();
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    isHTML: responseText.startsWith('<') || responseText.includes('<!DOCTYPE'),
+                    body: responseText
+                };
+
+                if (response.ok) {
+                    addResult('✅ Registration Service Test', JSON.stringify(result, null, 2), 'success');
+                } else {
+                    addResult('❌ Registration Service Test', JSON.stringify(result, null, 2), 'error');
+                    
+                    // Try direct API call as fallback
+                    try {
+                        addResult('🔄 Trying Direct API Call', 'Attempting direct call to https://dxdtime.ddsolutions.io/api/auth/register/');
+                        
+                        const directResponse = await fetch('https://dxdtime.ddsolutions.io/api/auth/register/', {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify(apiData)
+                        });
+
+                        const directResponseText = await directResponse.text();
+                        
+                        const directResult = {
+                            status: directResponse.status,
+                            statusText: directResponse.statusText,
+                            headers: Object.fromEntries(directResponse.headers.entries()),
+                            body: directResponseText.substring(0, 500) + (directResponseText.length > 500 ? '...[truncated]' : '')
+                        };
+
+                        if (directResponse.ok) {
+                            addResult('✅ Direct API Call', JSON.stringify(directResult, null, 2), 'success');
+                        } else {
+                            addResult('❌ Direct API Call', JSON.stringify(directResult, null, 2), 'error');
+                        }
+
+                    } catch (directError) {
+                        addResult('❌ Direct API Call Failed', directError.message, 'error');
+                    }
+                }
+
+            } catch (error) {
+                addResult('❌ Registration Service Error', error.message, 'error');
+            }
+        }
+
+        async function testCompleteFlow() {
+            addResult('🎯 Testing Complete Registration Flow', 'Starting end-to-end test...');
+            
+            // Test form validation
+            const formData = {
+                email: testData.email,
+                username: testData.username,
+                password: testData.password,
+                passwordConfirm: testData.password,
+                firstName: testData.first_name,
+                lastName: testData.last_name,
+                organizationName: testData.organization_name,
+                country: testData.country
+            };
+
+            // Validate required fields
+            const validation = {
+                hasEmail: !!formData.email && /\S+@\S+\.\S+/.test(formData.email),
+                hasUsername: !!formData.username,
+                hasPassword: !!formData.password && formData.password.length >= 8,
+                hasPasswordConfirm: !!formData.passwordConfirm,
+                passwordsMatch: formData.password === formData.passwordConfirm,
+                hasFirstName: !!formData.firstName,
+                hasLastName: !!formData.lastName,
+                hasOrganization: !!formData.organizationName,
+                hasCountry: !!formData.country
+            };
+
+            const validationPassed = Object.values(validation).every(v => v === true);
+
+            if (validationPassed) {
+                addResult('✅ Form Validation', JSON.stringify(validation, null, 2), 'success');
+            } else {
+                addResult('❌ Form Validation', JSON.stringify(validation, null, 2), 'error');
+                return;
+            }
+
+            // Test the actual registration flow
+            await testRegistrationService();
+
+            addResult('🎉 Complete Flow Test', 'End-to-end test completed. Check individual results above.', 'info');
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addResult('🚀 Auto-Test Started', 'Running initial API endpoint test...');
+                testAPIEndpoints();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

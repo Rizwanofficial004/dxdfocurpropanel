@@ -20,7 +20,13 @@ const lightTheme = {
       thumb: '#2563eb',
       surface: '#ffffff',
       shadow: 'rgba(0, 0, 0, 0.1)'
-    }
+    },
+    // Additional light mode specific colors
+    cardBackground: '#ffffff',
+    sidebarBackground: '#ffffff',
+    headerBackground: '#ffffff',
+    accent: '#4f46e5',
+    muted: '#6b7280'
   }
 };
 
@@ -39,14 +45,20 @@ const darkTheme = {
       light: '#94a3b8'
     },
     border: '#334155',
-    shadow: 'rgba(0, 0, 0, 0.3)',
+    shadow: 'rgba(0, 0, 0, 0.5)',
     hover: '#334155',
     slider: {
       track: '#334155',
       thumb: '#3b82f6',
       surface: '#1e293b',
-      shadow: 'rgba(0, 0, 0, 0.3)'
-    }
+      shadow: 'rgba(0, 0, 0, 0.5)'
+    },
+    // Additional dark mode specific colors
+    cardBackground: '#1e293b',
+    sidebarBackground: '#0f172a',
+    headerBackground: '#1e293b',
+    accent: '#6366f1',
+    muted: '#475569'
   }
 };
 

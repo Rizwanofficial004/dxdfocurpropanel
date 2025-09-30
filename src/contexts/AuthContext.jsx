@@ -20,8 +20,15 @@ export const AuthProvider = ({ children }) => {
   // Check for existing authentication on app load
   useEffect(() => {
     const checkAuthStatus = () => {
-      const storedToken = localStorage.getItem('authToken');
-      const storedUser = localStorage.getItem('user');
+      // Check AuthContext format first
+      let storedToken = localStorage.getItem('authToken');
+      let storedUser = localStorage.getItem('user');
+      
+      // If not found, check authService format
+      if (!storedToken || !storedUser) {
+        storedToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+        storedUser = localStorage.getItem('user_data') || sessionStorage.getItem('user_data');
+      }
 
       if (storedToken && storedUser) {
         try {
@@ -29,6 +36,10 @@ export const AuthProvider = ({ children }) => {
           setToken(storedToken);
           setUser(parsedUser);
           setIsAuthenticated(true);
+          
+          // Normalize storage to AuthContext format
+          localStorage.setItem('authToken', storedToken);
+          localStorage.setItem('user', JSON.stringify(parsedUser));
         } catch (error) {
           console.error('Error parsing stored user data:', error);
           clearAuth();
@@ -44,13 +55,58 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('AuthContext: Starting login process...');
       
-      // Check if this is a mock login (bypass mode)
+      // Check if this is already processed user data (from authService)
+      if (credentials.user && credentials.token) {
+        console.log('AuthContext: Processing pre-authenticated user data');
+        const { user: userData, token: authToken } = credentials;
+        
+        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        setToken(authToken);
+        setUser(userData);
+        setIsAuthenticated(true);
+        
+        console.log('AuthContext: User authentication successful');
+        return { user: userData, token: authToken };
+      }
+      
+      // Handle direct credentials (username/password)
+      if (credentials.username && credentials.password) {
+        console.log('AuthContext: Processing username/password credentials');
+        
+        // Import authService dynamically to avoid circular imports
+        const { default: authService } = await import('../services/authService');
+        
+        const result = await authService.login(
+          credentials.username,
+          credentials.password,
+          credentials.rememberMe || false
+        );
+        
+        console.log('AuthContext: AuthService login result:', result);
+        
+        // Store the authentication data using AuthContext's expected format
+        const token = result.token;
+        const user = result.user || result;
+        
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        setToken(token);
+        setUser(user);
+        setIsAuthenticated(true);
+        
+        console.log('AuthContext: Login successful via authService');
+        return { user, token };
+      }
+      
+      // Legacy mock user support
       if (credentials.mockUser) {
-        console.log('AuthContext: Processing mock login (bypass mode)');
+        console.log('AuthContext: Processing mock login (legacy)');
         const userData = credentials.mockUser;
         const mockToken = `mock-token-${Date.now()}`;
         
-        // Store mock authentication data
         localStorage.setItem('authToken', mockToken);
         localStorage.setItem('user', JSON.stringify(userData));
         
@@ -62,68 +118,11 @@ export const AuthProvider = ({ children }) => {
         return { user: userData, token: mockToken };
       }
       
-      // Original API login logic (kept for fallback)
-      console.log('AuthContext: Making login API call...');
-      const response = await authAPI.login(credentials);
-      console.log('AuthContext: Login API response:', response.data);
+      throw new Error('Invalid credentials format');
       
-      if (response.data) {
-        const { user: userData, token: authToken, access, refresh, refresh_token } = response.data;
-        
-        // Handle different token formats
-        const finalToken = authToken || access;
-        const finalRefreshToken = refresh_token || refresh;
-        
-        console.log('AuthContext: Processing tokens...', { 
-          finalToken: finalToken ? 'present' : 'missing',
-          finalRefreshToken: finalRefreshToken ? 'present' : 'missing',
-          userData: userData ? 'present' : 'missing'
-        });
-        
-        if (finalToken) {
-          localStorage.setItem('authToken', finalToken);
-          setToken(finalToken);
-        }
-        
-        if (finalRefreshToken) {
-          localStorage.setItem('refreshToken', finalRefreshToken);
-        }
-        
-        if (userData) {
-          localStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
-        }
-        
-        setIsAuthenticated(true);
-        console.log('AuthContext: Login successful, user authenticated');
-        return response.data;
-      }
     } catch (error) {
       console.error('AuthContext: Login failed:', error);
-      
-      // In bypass mode, create a fallback mock user even if API fails
-      console.log('AuthContext: API failed, creating fallback mock user');
-      const fallbackUser = {
-        name: credentials.username,
-        username: credentials.username,
-        email: credentials.username.includes('@') ? credentials.username : `${credentials.username}@dds.com`,
-        user_id: Math.floor(Math.random() * 1000) + 1,
-        is_staff: true,
-        is_superuser: credentials.username.toLowerCase() === 'admin',
-        role: credentials.username.toLowerCase() === 'admin' ? 'Administrator' : 'User'
-      };
-      
-      const mockToken = `fallback-token-${Date.now()}`;
-      
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('user', JSON.stringify(fallbackUser));
-      
-      setToken(mockToken);
-      setUser(fallbackUser);
-      setIsAuthenticated(true);
-      
-      console.log('AuthContext: Fallback mock login successful', fallbackUser);
-      return { user: fallbackUser, token: mockToken };
+      throw error;
     }
   };
 
@@ -141,9 +140,23 @@ export const AuthProvider = ({ children }) => {
   };
 
   const clearAuth = () => {
+    // Clear AuthContext storage
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    
+    // Clear authService storage (different keys)
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_data');
+    
+    // Clear session storage as well
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('user_data');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('user');
+    
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);

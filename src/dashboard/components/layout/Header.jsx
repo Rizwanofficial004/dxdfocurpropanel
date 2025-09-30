@@ -12,7 +12,9 @@ const HeaderContainer = styled.header`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 101;
+  margin-left: ${props => props.$isCollapsed ? '60px' : '240px'};
+  transition: margin-left 0.25s ease;
 `;
 
 const HeaderContent = styled(FlexContainer)`
@@ -90,6 +92,7 @@ const LogoText = styled.span`
   font-size: 20px;
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary || '#111827'};
+  display: ${props => props.$isCollapsed ? 'none' : 'inline'};
 `;
 
 const Greeting = styled.div`
@@ -147,6 +150,7 @@ const SearchIcon = styled.div`
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
+  z-index: 999;
 `;
 
 const DropdownMenu = styled.div`
@@ -159,9 +163,9 @@ const DropdownMenu = styled.div`
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   min-width: 200px;
   z-index: 1000;
-  opacity: ${props => props.isOpen ? 1 : 0};
-  visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
-  transform: ${props => props.isOpen ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(0.95)'};
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
+  transform: ${props => props.$isOpen ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(0.95)'};
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: top right;
 `;
@@ -222,7 +226,7 @@ const LanguageSelector = styled.div`
     border-color: ${props => props.theme.colors.primary || '#4f46e5'};
   }
 
-  ${props => props.isOpen && `
+  ${props => props.$isOpen && `
     border-color: ${props.theme.colors.primary || '#4f46e5'};
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
   `}
@@ -269,7 +273,7 @@ const ProfileSection = styled(FlexContainer)`
     background: ${props => props.theme.colors.background || '#f9fafb'};
   }
 
-  ${props => props.isOpen && `
+  ${props => props.$isOpen && `
     background: ${props.theme.colors.background || '#f9fafb'};
   `}
 `;
@@ -458,7 +462,7 @@ const NotificationItem = styled.div`
     background: ${props => props.theme.colors.background || '#f9fafb'};
   }
 
-  ${props => !props.isRead && `
+  ${props => !props.$isRead && `
     background: rgba(79, 70, 229, 0.05);
     
     &::before {
@@ -587,6 +591,7 @@ const MoonIcon = () => (
 
 export const Header = ({ 
   greeting
+  , isSidebarCollapsed, toggleSidebar
 }) => {
   // Get user info from sessionStorage/localStorage with better handling
   let user = null;
@@ -597,14 +602,6 @@ export const Header = ({
     const localAdmin = localStorage.getItem('admin');
     const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const loginUsername = sessionStorage.getItem('loginUsername') || localStorage.getItem('loginUsername');
-    
-    // Debug: log what's in storage
-    console.log('Session user:', sessionUser);
-    console.log('Local user:', localUser);
-    console.log('Session admin:', sessionAdmin);
-    console.log('Local admin:', localAdmin);
-    console.log('Auth token:', authToken);
-    console.log('Login username:', loginUsername);
     
     // Try to parse JSON data first
     if (sessionUser && sessionUser !== 'null') {
@@ -670,9 +667,7 @@ export const Header = ({
       user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
     }
     
-    console.log('Final user object:', user);
   } catch (e) {
-    console.error('Error parsing user data:', e);
     user = null;
   }
 
@@ -788,16 +783,16 @@ export const Header = ({
   };
 
   return (
-    <HeaderContainer>
+    <HeaderContainer $isCollapsed={isSidebarCollapsed}>
       <HeaderContent>
         <LeftSection>
-          <MenuButton>
+          <MenuButton onClick={toggleSidebar} title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
             <HamburgerIcon />
           </MenuButton>
           
           <Logo>
-            <LogoIcon></LogoIcon>
-            <LogoText>DDS Admin</LogoText>
+            {/* <LogoIcon></LogoIcon> */}
+            {/* <LogoText>DDS Admin</LogoText> */}
           </Logo>
           
           {/* <Greeting>{greeting || `${t('hello')} Thomas 👋`}</Greeting> */}
@@ -813,7 +808,7 @@ export const Header = ({
 
           <DropdownContainer ref={languageRef}>
             <LanguageSelector 
-              isOpen={isLanguageOpen}
+              $isOpen={isLanguageOpen}
               onClick={() => setIsLanguageOpen(!isLanguageOpen)}
             >
               <span>{currentLanguage.flag}</span>
@@ -821,7 +816,7 @@ export const Header = ({
               <ChevronDownIcon />
             </LanguageSelector>
             
-            <DropdownMenu isOpen={isLanguageOpen}>
+            <DropdownMenu $isOpen={isLanguageOpen}>
               {languages.map((lang) => (
                 <DropdownItem
                   key={lang.code}
@@ -847,7 +842,7 @@ export const Header = ({
               {unreadCount > 0 && <NotificationDot />}
             </IconButton>
 
-            <NotificationDropdownMenu isOpen={isNotificationOpen}>
+            <NotificationDropdownMenu $isOpen={isNotificationOpen}>
               <NotificationHeader>
                 <NotificationTitle>{t('notifications')}</NotificationTitle>
                 {unreadCount > 0 && <NotificationCount>{unreadCount}</NotificationCount>}
@@ -856,7 +851,7 @@ export const Header = ({
               {notifications.length > 0 ? (
                 <>
                   {notifications.map((notification) => (
-                    <NotificationItem key={notification.id} isRead={notification.isRead}>
+                    <NotificationItem key={notification.id} $isRead={notification.isRead}>
                       <NotificationIcon type={notification.type}>
                         {notification.icon}
                       </NotificationIcon>
@@ -885,7 +880,7 @@ export const Header = ({
 
           <DropdownContainer ref={profileRef}>
             <ProfileSection 
-              isOpen={isProfileOpen}
+              $isOpen={isProfileOpen}
               onClick={() => setIsProfileOpen(!isProfileOpen)}
             >
               <UserInfo>
@@ -897,7 +892,7 @@ export const Header = ({
               </Avatar>
             </ProfileSection>
 
-            <ProfileDropdownMenu isOpen={isProfileOpen}>
+            <ProfileDropdownMenu $isOpen={isProfileOpen}>
               <ProfileHeader>
                 <Avatar style={{ width: '48px', height: '48px', fontSize: '16px' }}>
                   {userName.split(' ').map(n => n[0]).join('')}

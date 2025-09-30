@@ -527,7 +527,7 @@ const CredentialsSettings = ({ settings, onSave, loading }) => {
                         {credential.is_active ? '✅ Active' : '❌ Inactive'}
                       </CredentialStatus>
                       {credential.is_production && (
-                        <CredentialStatus active={true}>🔴 Production</CredentialStatus>
+                        <CredentialStatus active="true">🔴 Production</CredentialStatus>
                       )}
                     </div>
                   </CredentialInfo>
