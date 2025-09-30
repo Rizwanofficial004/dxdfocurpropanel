@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   Container,
@@ -119,6 +119,7 @@ const ActivityStream = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [searchPerformance, setSearchPerformance] = useState(null); // Track search speed
   const [apiStatus, setApiStatus] = useState('unknown'); // 'connected', 'disconnected', 'error', 'unknown'
   const [error, setError] = useState(null); // General error state
   const [selectedUser, setSelectedUser] = useState(null);
@@ -131,6 +132,8 @@ const ActivityStream = () => {
   const [totalScreenshots, setTotalScreenshots] = useState(0); // Total screenshots count
   const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
   const [allUsers, setAllUsers] = useState([]);
+  const [searchCache, setSearchCache] = useState(new Map()); // Cache for search results
+  const [lastSuccessfulEndpoint, setLastSuccessfulEndpoint] = useState(null); // Cache successful endpoint
   const [userSuggestions, setUserSuggestions] = useState([]); // Store user suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(true); // Loading state for suggestions
   const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
@@ -143,10 +146,78 @@ const ActivityStream = () => {
     label: getMonthName(i + 1, language)
   }));
 
+  // Advanced preload with predictive caching and background prefetching
+  const preloadCommonUsers = async () => {
+    try {
+      // Preload ALL alphabet letters for instant search using production API only
+      const allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+      const apiEndpoint = 'https://dxdtime.ddsolutions.io/api/users/search/';
+      
+      console.log('🚀 Starting comprehensive preload with production API...');
+      
+      // Parallel batch processing for maximum speed
+      const batchSize = 5;
+      for (let i = 0; i < allLetters.length; i += batchSize) {
+        const batch = allLetters.slice(i, i + batchSize);
+        
+        const batchPromises = batch.map(async (letter) => {
+          try {
+            const response = await fetch(`${apiEndpoint}?q=${letter}&limit=100`, {
+              method: 'GET',
+              headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.status === 'success' && data.data && data.data.users) {
+                setSearchCache(prev => {
+                  const newCache = new Map(prev);
+                  newCache.set(letter, data.data.users);
+                  
+                  // Also preload common 2-letter combinations
+                  const commonSeconds = ['a', 'e', 'i', 'o', 'u', 'n', 'r', 's', 't'];
+                  commonSeconds.forEach(second => {
+                    const combo = letter + second;
+                    const filteredResults = data.data.users.filter(user =>
+                      (user.display_name && user.display_name.toLowerCase().includes(combo)) ||
+                      (user.email && user.email.toLowerCase().includes(combo))
+                    );
+                    if (filteredResults.length > 0) {
+                      newCache.set(combo, filteredResults);
+                    }
+                  });
+                  
+                  return newCache;
+                });
+                console.log(`🎯 Preloaded ${data.data.users.length} users for "${letter}"`);
+              }
+            }
+          } catch (error) {
+            console.log(`Failed to preload "${letter}"`);
+          }
+        });
+
+        await Promise.allSettled(batchPromises);
+        
+        // Small delay between batches to not overwhelm the server
+        if (i + batchSize < allLetters.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+      
+      console.log('� Comprehensive preload complete - Search is now INSTANT!');
+      
+    } catch (error) {
+      console.log('Failed to preload users');
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(async () => {
       setIsLoading(false);
-      fetchAllUsers();
+      
+      // Load all users first
+      await fetchAllUsers();
       
       // Load user suggestions for default display
       setLoadingSuggestions(true);
@@ -159,6 +230,11 @@ const ActivityStream = () => {
         setSearchResults(suggestions);
         setShowResults(true);
       }
+
+      // Preload common search results for faster search - do this after users are loaded
+      setTimeout(() => {
+        preloadCommonUsers();
+      }, 1000);
     }, 100);
     return () => clearTimeout(timer);
   }, []);
@@ -206,69 +282,76 @@ const ActivityStream = () => {
 
   
 
-  const fetchAllUsers = async () => {
-    setIsSearching(true);
-    setError(null); // Clear any previous errors
-    try {
-      // Use the same endpoints as screenshots - search API with a broad query
-      const endpoints = [
-        `https://dxdtime.ddsolutions.io/api/users/search/?q=&page=1&page_size=100`,
-        `http://127.0.0.1:8000/api/users/search/?q=&page=1&page_size=100`,
-        `http://localhost:8000/api/users/search/?q=&page=1&page_size=100`
-      ];
+  
 
-      let response = null;
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`🔍 Fetching all users via: ${endpoint}`);
-          response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
+  const fetchAllUsers = async () => {
+    setError(null);
+    try {
+      // Use the API endpoint to preload users for instant search
+      const response = await fetch(`https://dxdtime.ddsolutions.io/api/users/search/?q=&page=1&page_size=100`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Preloaded users for instant search:', data);
+        if (data.status === 'success' && data.data && data.data.users) {
+          setAllUsers(data.data.users);
+          setApiStatus('connected');
+          console.log(`✅ Preloaded ${data.data.users.length} users for instant search`);
+          
+          // Cache common search results for instant responses
+          const commonUsers = data.data.users.slice(0, 20);
+          commonUsers.forEach(user => {
+            const displayName = (user.display_name || '').toLowerCase();
+            const email = (user.email || '').toLowerCase();
+            
+            // Cache by first few characters for instant results
+            if (displayName.length > 0) {
+              for (let i = 1; i <= Math.min(3, displayName.length); i++) {
+                const prefix = displayName.substring(0, i);
+                setSearchCache(prev => {
+                  const newCache = new Map(prev);
+                  const existing = newCache.get(prefix) || [];
+                  if (!existing.find(u => u.id === user.id)) {
+                    newCache.set(prefix, [...existing, user]);
+                  }
+                  return newCache;
+                });
+              }
+            }
+            
+            if (email.length > 0) {
+              for (let i = 1; i <= Math.min(3, email.length); i++) {
+                const prefix = email.substring(0, i);
+                setSearchCache(prev => {
+                  const newCache = new Map(prev);
+                  const existing = newCache.get(prefix) || [];
+                  if (!existing.find(u => u.id === user.id)) {
+                    newCache.set(prefix, [...existing, user]);
+                  }
+                  return newCache;
+                });
+              }
             }
           });
-          if (response.ok) {
-            console.log(`✅ Fetch successful via: ${endpoint}`);
-            setApiStatus('connected');
-            break;
-          }
-        } catch (error) {
-          console.log(`❌ Fetch failed via: ${endpoint}`);
-          continue;
+        } else {
+          console.log('No users in API response');
+          setAllUsers([]);
         }
-      }
-
-      if (!response || !response.ok) {
-        console.log('❌ All API endpoints failed - no users loaded');
+      } else {
+        console.log('API request failed');
         setApiStatus('disconnected');
         setAllUsers([]);
-        setSearchResults([]);
-        setShowResults(false);
-        setError('Unable to connect to any API endpoints. Please ensure the backend server is running and accessible.');
-        return;
-      }
-
-      const data = await response.json();
-      if (data.status === 'success' && data.data && data.data.users) {
-        setAllUsers(data.data.users);
-        setSearchResults(data.data.users);
-        setShowResults(true);
-        console.log(`✅ Found ${data.data.users.length} users from search endpoint`);
-      } else {
-        setSearchResults([]);
-        setShowResults(false);
-        console.log('🔍 No users found');
       }
     } catch (error) {
-      console.error('🚨 Fetch Error:', error);
+      console.error('Error preloading users:', error);
       setApiStatus('error');
       setAllUsers([]);
-      setSearchResults([]);
-      setShowResults(false);
-      setError(`Network error occurred while fetching users: ${error.message}. Please check your internet connection and API server status.`);
-    } finally {
-      setIsSearching(false);
     }
   };
 
@@ -330,21 +413,71 @@ const ActivityStream = () => {
     }
   };
 
-  // Search API function with enhanced parameters
+  // INSTANT search with your API
   const searchUsers = async (query) => {
-    if (!query.trim()) {
-      // Show user suggestions when search is empty
-      setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers);
+    if (!query || query.length < 1) {
+      setSearchResults(allUsers.slice(0, 10));
       setShowResults(true);
+      setIsSearching(false);
       return;
     }
 
-    const filteredUsers = allUsers.filter(user =>
-      (user.display_name && user.display_name.toLowerCase().includes(query.toLowerCase())) ||
-      (user.email && user.email.toLowerCase().includes(query.toLowerCase()))
-    );
-    setSearchResults(filteredUsers);
-    setShowResults(true);
+    setError(null); // Clear any previous errors
+    
+    try {
+      // Use your exact API endpoint
+      const apiUrl = `https://dxdtime.ddsolutions.io/api/users/search/?q=${encodeURIComponent(query)}`;
+      console.log('🔍 Searching API:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('📡 Response status:', response.status, response.statusText);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🎯 Raw API Response for', query, ':', data);
+        
+        if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
+          console.log(`✅ Found ${data.data.users.length} users for "${query}":`, data.data.users.map(u => u.display_name || u.email));
+          setSearchResults(data.data.users);
+          setShowResults(true);
+          setApiStatus('connected');
+          
+          // Cache results for instant next time
+          setSearchCache(prev => {
+            const newCache = new Map(prev);
+            newCache.set(query.toLowerCase(), data.data.users);
+            return newCache;
+          });
+        } else {
+          console.log('❌ No users array found in API response for:', query, 'Data structure:', data);
+          setSearchResults([]);
+          setShowResults(true);
+          setApiStatus('connected'); // API is working but no results
+        }
+      } else {
+        const errorText = await response.text();
+        console.log('❌ API request failed with status:', response.status, 'Error:', errorText);
+        setApiStatus('disconnected');
+        setError(`API Error: ${response.status} ${response.statusText}`);
+        setSearchResults([]);
+        setShowResults(true);
+      }
+    } catch (error) {
+      console.error('🚨 Search API Error:', error);
+      setApiStatus('error');
+      setError(`Network Error: ${error.message}`);
+      setSearchResults([]);
+      setShowResults(true);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   // Fetch user screenshots function with enhanced date filtering and pagination
@@ -373,11 +506,9 @@ const ActivityStream = () => {
         searchParams.set('end_date', `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`);
       }
 
-      // Primary endpoint with fallbacks
+      // Use only the live production API endpoint
       const endpoints = [
-        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`,
-        `http://127.0.0.1:8000/api/users/search/?${searchParams.toString()}`,
-        `http://localhost:8000/api/users/search/?${searchParams.toString()}`
+        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`
       ];
 
       let response = null;
@@ -492,22 +623,207 @@ const ActivityStream = () => {
     }
   };
 
-  // Debounced search effect
+  // INSTANT search with immediate response
   useEffect(() => {
-    const delayedSearch = setTimeout(() => {
-      searchUsers(searchValue);
-    }, 300);
+    const trimmedQuery = searchValue.trim();
+    
+    if (!trimmedQuery) {
+      setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers.slice(0, 10));
+      setShowResults(true);
+      setIsSearching(false);
+      return;
+    }
 
-    return () => clearTimeout(delayedSearch);
-  }, [searchValue]);
+    // INSTANT cache check first
+    const cacheKey = trimmedQuery.toLowerCase();
+    if (searchCache.has(cacheKey)) {
+      console.log(`⚡ INSTANT cached result for: "${trimmedQuery}"`);
+      const cachedResults = searchCache.get(cacheKey);
+      setSearchResults(cachedResults);
+      setShowResults(true);
+      setIsSearching(false);
+      return;
+    }
 
-  // Handle search input change
+    // INSTANT local search through loaded users (no delay)
+    if (allUsers.length > 0) {
+      const localResults = allUsers.filter(user => {
+        const displayName = (user.display_name || '').toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        const originalName = (user.original_name || '').toLowerCase();
+        
+        return displayName.includes(cacheKey) || 
+               email.includes(cacheKey) ||
+               originalName.includes(cacheKey);
+      });
+      
+      console.log(`⚡ INSTANT local search found ${localResults.length} results for: "${trimmedQuery}"`);
+      setSearchResults(localResults);
+      setShowResults(true);
+      setIsSearching(false);
+      
+      // Cache local results immediately
+      setSearchCache(prev => {
+        const newCache = new Map(prev);
+        newCache.set(cacheKey, localResults);
+        return newCache;
+      });
+      
+      // Only do API search in background if no local results found
+      if (localResults.length === 0) {
+        setIsSearching(true);
+        searchUsers(searchValue);
+      }
+      return;
+    }
+
+    // Immediate API search if no local users available
+    setIsSearching(true);
+    searchUsers(searchValue);
+  }, [searchValue, searchCache, allUsers]);
+
+  // INSTANT search input with immediate feedback
   const handleSearchChange = (e) => {
-    setSearchValue(e.target.value);
+    const value = e.target.value;
+    setSearchValue(value);
+    
+    // Immediate feedback - show results instantly
+    if (value.trim()) {
+      setShowResults(true);
+      setIsSearching(false); // Start without loading state for instant feel
+    } else {
+      // Show default suggestions when empty
+      setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers.slice(0, 10));
+      setShowResults(true);
+      setIsSearching(false);
+    }
   };
 
-  // Handle search result selection
-  const handleResultSelect = (user) => {
+  // Google-style fuzzy matching for typos and partial matches
+  const fuzzyMatch = (text, query) => {
+    if (!text || !query) return false;
+    
+    // Simple fuzzy matching - allows 1 character difference for short queries
+    if (query.length <= 3) {
+      let differences = 0;
+      const minLength = Math.min(text.length, query.length);
+      
+      for (let i = 0; i < minLength; i++) {
+        if (text[i] !== query[i]) differences++;
+        if (differences > 1) return false;
+      }
+      
+      return differences <= 1 && Math.abs(text.length - query.length) <= 1;
+    }
+    
+    // For longer queries, use contains matching with character proximity
+    return text.includes(query) || levenshteinDistance(text, query) <= 2;
+  };
+
+  // Simple Levenshtein distance for fuzzy matching
+  const levenshteinDistance = (str1, str2) => {
+    const matrix = [];
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    return matrix[str2.length][str1.length];
+  };
+
+  // Google-style text highlighting for multiple terms
+  const highlightText = (text, query) => {
+    if (!query || !text) return text;
+    
+    // Split query into individual terms like Google
+    const searchTerms = query.trim().split(' ').filter(term => term.length > 0);
+    let highlightedText = text;
+    
+    // Highlight each term with different colors like Google
+    searchTerms.forEach((term, index) => {
+      const colors = [
+        { bg: '#fff3cd', color: '#856404' }, // Yellow
+        { bg: '#d1ecf1', color: '#0c5460' }, // Blue  
+        { bg: '#d4edda', color: '#155724' }, // Green
+        { bg: '#f8d7da', color: '#721c24' }  // Red
+      ];
+      
+      const colorScheme = colors[index % colors.length];
+      const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      
+      highlightedText = highlightedText.replace(regex, (match) => 
+        `<mark style="background-color: ${colorScheme.bg}; color: ${colorScheme.color}; font-weight: bold; padding: 1px 2px; border-radius: 2px;">${match}</mark>`
+      );
+    });
+    
+    return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />;
+  };
+
+  // Background search prefetching (non-blocking)
+  const fetchSearchInBackground = async (query) => {
+    try {
+      const baseEndpoint = lastSuccessfulEndpoint || 'https://dxdtime.ddsolutions.io/api/users/search/';
+      const response = await fetch(`${baseEndpoint}?q=${encodeURIComponent(query)}&limit=20`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'success' && data.data && data.data.users) {
+          setSearchCache(prev => {
+            const newCache = new Map(prev);
+            newCache.set(query.toLowerCase(), data.data.users);
+            return newCache;
+          });
+          console.log(`🔮 Prefetched results for "${query}"`);
+        }
+      }
+    } catch (error) {
+      // Silent fail for background requests
+    }
+  };
+
+  // Handle keyboard navigation with advanced features
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setShowResults(false);
+      setSearchValue('');
+    } else if (e.key === 'Enter' && searchResults.length > 0) {
+      // Auto-select first result on Enter
+      handleResultSelect(searchResults[0]);
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      // TODO: Add arrow key navigation through results
+      e.preventDefault();
+    } else if (e.key === 'Tab' && searchResults.length > 0) {
+      // Tab completion - auto-complete with first result
+      e.preventDefault();
+      const firstResult = searchResults[0];
+      setSearchValue(firstResult.display_name || firstResult.email);
+    }
+  };
+
+  // Memoized search results for better performance
+  const memoizedSearchResults = useMemo(() => {
+    return searchResults.slice(0, 20); // Limit to first 20 results for better performance
+  }, [searchResults]);
+
+  // Memoized result selection handler
+  const handleResultSelect = useCallback((user) => {
     setSearchValue(user.display_name || user.email);
     setShowResults(false);
     setSelectedUser(user);
@@ -518,7 +834,7 @@ const ActivityStream = () => {
     
     // Fetch screenshots for selected user (full month initially)
     fetchUserScreenshots(user, null);
-  };
+  }, [selectedYear, selectedMonth]);
 
   // Generate calendar days for the selected month
   const calendarDays = useMemo(() => {
@@ -782,8 +1098,16 @@ const ActivityStream = () => {
             placeholder={t('searchEmployeeName')}
             value={searchValue}
             onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
             onFocus={() => setShowResults(true)}
+            style={{
+              transition: 'all 0.2s ease',
+              borderColor: searchValue ? '#4285f4' : undefined,
+              boxShadow: searchValue ? '0 0 0 2px rgba(66, 133, 244, 0.1)' : undefined
+            }}
           />
+          
+          
           
           {/* API Status Indicator */}
           {apiStatus !== 'unknown' && (
@@ -799,7 +1123,7 @@ const ActivityStream = () => {
             </div>
           )}
           
-          {/* Search Results Dropdown */}
+          {/* Enhanced Search Results Dropdown with performance optimizations */}
           {showResults && searchResults.length > 0 && (
             <div style={{
               position: 'absolute',
@@ -813,7 +1137,8 @@ const ActivityStream = () => {
               zIndex: 9999,
               maxHeight: '300px',
               overflowY: 'auto',
-              marginTop: '4px'
+              marginTop: '4px',
+              animation: 'fadeIn 0.15s ease-out' // Faster animation
             }}
             className="search-dropdown"
             >
@@ -834,6 +1159,7 @@ const ActivityStream = () => {
                 </div>
               )}
               
+              {/* Google-style search header with enhanced info */}
               {(searchValue && searchValue.trim() !== '') && (
                 <div className="search-header" style={{
                   padding: '12px 16px',
@@ -843,13 +1169,35 @@ const ActivityStream = () => {
                   fontWeight: '600',
                   color: '#1976d2',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
+                  letterSpacing: '0.5px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
                 }}>
-                  🔍 Search Results for "{searchValue}" ({searchResults.length})
+                  <span>🔍 Results for "{searchValue}" ({memoizedSearchResults.length}{memoizedSearchResults.length >= 15 ? '+' : ''})</span>
+                  {searchPerformance && (
+                    <span style={{ 
+                      fontSize: '10px',
+                      backgroundColor: searchPerformance.source === 'cache' ? '#28a745' : 
+                                     searchPerformance.source === 'local' ? '#17a2b8' : '#ffc107',
+                      color: 'white',
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      textTransform: 'none'
+                    }}>
+                      {searchPerformance.time < 1 ? '⚡ Instant' : `${searchPerformance.time.toFixed(0)}ms`}
+                      {searchPerformance.source === 'cache' && ' (Cached)'}
+                      {searchPerformance.source === 'local' && ' (Google-style)'}
+                    </span>
+                  )}
                 </div>
               )}
               
-              <style jsx>{`
+              <style>{`
+                @keyframes fadeIn {
+                  0% { opacity: 0; transform: translateY(-5px); }
+                  100% { opacity: 1; transform: translateY(0); }
+                }
                 [data-theme="dark"] .search-dropdown {
                   background-color: #1d232c !important;
                   border-color: #6b7280 !important;
@@ -865,14 +1213,14 @@ const ActivityStream = () => {
                   color: #bfdbfe !important;
                 }
               `}</style>
-              {searchResults.map((user, index) => (
+              {memoizedSearchResults.map((user, index) => (
                 <div
                   key={user.id || index}
                   onClick={() => handleResultSelect(user)}
                   style={{
                     padding: '12px 16px',
                     cursor: 'pointer',
-                    borderBottom: index < searchResults.length - 1 ? `1px solid var(--border-color)` : 'none',
+                    borderBottom: index < memoizedSearchResults.length - 1 ? `1px solid var(--border-color)` : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
@@ -909,7 +1257,7 @@ const ActivityStream = () => {
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {user.display_name || user.email}
+                      {highlightText(user.display_name || user.email, searchValue)}
                     </div>
                     {user.email && user.display_name && (
                       <div style={{ 
@@ -919,7 +1267,7 @@ const ActivityStream = () => {
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                       }}>
-                        {user.email}
+                        {highlightText(user.email, searchValue)}
                       </div>
                     )}
                   </div>
@@ -928,22 +1276,22 @@ const ActivityStream = () => {
             </div>
           )}
 
-          {/* Search Loading Indicator */}
+          {/* Fast Search Loading Indicator - More subtle */}
           {isSearching && (
             <div style={{
               position: 'absolute',
-              right: 'auto',
-              left: '50%',
+              right: '12px',
               top: '50%',
               transform: 'translateY(-50%)',
-              width: '16px',
-              height: '16px',
-              border: '2px solid #f3f3f3',
-              borderTop: '2px solid #4285f4',
+              width: '12px',
+              height: '12px',
+              border: '1.5px solid #f3f3f3',
+              borderTop: '1.5px solid #4285f4',
               borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
+              animation: 'spin 0.8s linear infinite',
+              opacity: '0.8'
             }}>
-              <style jsx>{`
+              <style>{`
                 @keyframes spin {
                   0% { transform: translateY(-50%) rotate(0deg); }
                   100% { transform: translateY(-50%) rotate(360deg); }
@@ -1109,7 +1457,7 @@ const ActivityStream = () => {
                         }
                       }}
                     >
-                      <style jsx>{`
+                      <style>{`
                         [data-theme="dark"] .screenshot-card {
                           background-color: #1d232c !important;
                           border-color: #6b7280 !important;
@@ -1439,12 +1787,55 @@ const ActivityStream = () => {
           </div>
         ) : (
           <EmptyStateContainer>
-            {searchValue && searchResults.length === 0 && !isSearching ? (
+            {isSearching ? (
+              <>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+                <EmptyText>
+                  Searching for "{searchValue}"...
+                </EmptyText>
+              </>
+            ) : error ? (
+              <>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+                <EmptyText>
+                  {error}
+                </EmptyText>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    if (searchValue) {
+                      searchUsers(searchValue);
+                    }
+                  }}
+                  style={{
+                    marginTop: '12px',
+                    padding: '8px 16px',
+                    backgroundColor: '#4285f4',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Retry Search
+                </button>
+              </>
+            ) : searchValue && searchResults.length === 0 ? (
               <>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
                 <EmptyText>
                   No users found for "{searchValue}"
                 </EmptyText>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#6c757d', 
+                  marginTop: '8px',
+                  textAlign: 'center'
+                }}>
+                  API Status: {apiStatus} | Results: {searchResults.length}
+                  <br/>
+                  Try searching for: "k", "haseeb", "nawaz"
+                </div>
               </>
             ) : searchValue && searchResults.length > 0 ? (
               <>
