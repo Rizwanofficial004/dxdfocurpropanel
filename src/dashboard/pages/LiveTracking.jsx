@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
+import ImageModal from '../components/common/ImageModal';
 import axios from 'axios';
 import './LiveTracking.css';
 
@@ -20,6 +21,11 @@ const LiveTracking = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
+
+  // Image Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImages, setModalImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // API URL configuration (same as QuickView)
   const getApiUrl = () => {
@@ -181,6 +187,34 @@ const LiveTracking = () => {
     document.addEventListener('click', onDocClick);
     return () => document.removeEventListener('click', onDocClick);
   }, [showHelp]);
+
+  // Modal functions
+  const openImageModal = (screenshots, initialIndex = 0) => {
+    const modalImageData = screenshots.map((screenshot, index) => ({
+      id: screenshot.id || index,
+      src: screenshot.screenshot_url,
+      fallbackSrc: screenshot.fallback_url,
+      alt: `Screenshot ${index + 1} - ${screenshot.user_email || 'Unknown User'}`,
+      title: `${screenshot.user_email || 'Unknown User'} - ${screenshot.filename || 'Live Screenshot'}`,
+      downloadUrl: screenshot.screenshot_url,
+      metadata: {
+        user: screenshot.user_email,
+        filename: screenshot.filename,
+        timestamp: screenshot.timestamp || new Date().toISOString()
+      }
+    }));
+    
+    console.log('🚀 Opening modal with live tracking images:', modalImageData);
+    setModalImages(modalImageData);
+    setCurrentImageIndex(initialIndex);
+    setIsModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setIsModalOpen(false);
+    setModalImages([]);
+    setCurrentImageIndex(0);
+  };
 
   // Calculate pagination
   const totalScreenshots = filteredScreenshots.length;
@@ -390,10 +424,9 @@ const LiveTracking = () => {
                         e.currentTarget.style.boxShadow = isDark ? '0 2px 8px rgba(0, 0, 0, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
                       }}
                       onClick={() => {
-                        // Open screenshot in new tab
-                        if (screenshot.screenshot_url) {
-                          window.open(screenshot.screenshot_url, '_blank');
-                        }
+                        // Open image modal with all current screenshots
+                        const actualIndex = startIndex + index; // Calculate global index
+                        openImageModal(filteredScreenshots, actualIndex);
                       }}
                     >
                       <style jsx>{`
@@ -724,6 +757,17 @@ const LiveTracking = () => {
           </div>
         </div>
       </div>
+      
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        images={modalImages}
+        currentIndex={currentImageIndex}
+        onClose={closeImageModal}
+        onIndexChange={(newIndex) => setCurrentImageIndex(newIndex)}
+        theme="light"
+        isDarkMode={false}
+      />
     </DashboardLayout>
   );
 };

@@ -904,17 +904,32 @@ export const Header = ({
                 <StatusBadge>{t('active')}</StatusBadge>
               </ProfileHeader>
               
-              <DropdownItem>
+              <DropdownItem style={{ 
+                textDecoration: 'line-through', 
+                opacity: 0.5, 
+                cursor: 'not-allowed',
+                pointerEvents: 'none'
+              }}>
                 <UserIcon />
                 <span>{t('viewProfile')}</span>
               </DropdownItem>
               
-              <DropdownItem>
+              <DropdownItem style={{ 
+                textDecoration: 'line-through', 
+                opacity: 0.5, 
+                cursor: 'not-allowed',
+                pointerEvents: 'none'
+              }}>
                 <SettingsIcon />
                 <span>{t('accountSettings')}</span>
               </DropdownItem>
               
-              <DropdownItem>
+              <DropdownItem style={{ 
+                textDecoration: 'line-through', 
+                opacity: 0.5, 
+                cursor: 'not-allowed',
+                pointerEvents: 'none'
+              }}>
                 <HelpIcon />
                 <span>{t('helpSupport')}</span>
               </DropdownItem>

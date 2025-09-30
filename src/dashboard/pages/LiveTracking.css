@@ -91,7 +91,7 @@
 
 /* Statistics Section */
 .stats-section {
-  padding: 20px 24px;
+  padding: 20px 0px;
   border-bottom: 1px solid #dadce0;
   background: #fafafa;
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -1186,6 +1186,7 @@
 .content-area {
   min-height: 400px;
   position: relative;
+  padding: 20px;
 }
 
 .no-data-container {
