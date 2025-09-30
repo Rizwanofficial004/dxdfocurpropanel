@@ -31,6 +31,23 @@ export default defineConfig({
           });
         },
       },
+      '/s3-proxy': {
+        target: 'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/s3-proxy/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ S3 proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('📡 Proxying S3 Request:', req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('✅ S3 Response:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
       '/crm-api': {
         target: 'https://crm.deluxebilisim.com',
         changeOrigin: true,
