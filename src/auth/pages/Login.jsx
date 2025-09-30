@@ -58,8 +58,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showDummyCredentials, setShowDummyCredentials] = useState(false);
-
   // Auto-fill dummy credentials for testing
   const fillDummyCredentials = () => {
     setFormData({
@@ -67,7 +65,6 @@ const Login = () => {
       username: DUMMY_CREDENTIALS.username,
       password: DUMMY_CREDENTIALS.password
     });
-    setShowDummyCredentials(false);
   };
 
   // Quick demo login - fills form and submits automatically
@@ -211,66 +208,40 @@ const Login = () => {
           <Subtitle>{t('subtitle')}</Subtitle>
         </LogoSection>
 
-        {/* Demo Credentials Helper */}
+        {/* Demo Login Credentials */}
         <DemoSection>
-          <DemoTitle>🚀 Demo Access</DemoTitle>
-          <DemoText>For Testing Purposes - Working Credentials Available</DemoText>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
-            <DemoButton 
+          <DemoTitle>🔧 Demo Login</DemoTitle>
+          <DemoText>Working Test Credentials</DemoText>
+          <DemoCredentials style={{ padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '8px', margin: '10px 0' }}>
+            <DemoText><strong>Email:</strong> hb@example.com</DemoText>
+            <DemoText><strong>Password:</strong> password123</DemoText>
+            <DemoText style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              (Dummy Login - Works Offline)
+            </DemoText>
+            <DemoFillButton 
               type="button" 
-              onClick={quickDemoLogin} 
-              disabled={isLoading}
+              onClick={() => {
+                setFormData({
+                  username: 'hb@example.com',
+                  password: 'password123',
+                  rememberMe: false
+                });
+              }}
               style={{ 
-                backgroundColor: '#10B981', 
+                marginTop: '8px', 
+                backgroundColor: '#007bff', 
                 color: 'white',
-                fontWeight: 'bold',
-                fontSize: '14px'
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
               }}
             >
-              🚀 Quick Demo Login
-            </DemoButton>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <DemoButton type="button" onClick={() => setShowDummyCredentials(!showDummyCredentials)}>
-              {showDummyCredentials ? 'Hide' : 'Show'} Credentials
-            </DemoButton>
-          </div>
-          {showDummyCredentials && (
-            <DemoCredentials>
-              <div style={{ marginBottom: '15px' }}>
-                <DemoText style={{ color: '#10B981', fontWeight: 'bold' }}>✅ WORKING LIVE API CREDENTIALS:</DemoText>
-                {LIVE_TEST_CREDENTIALS.map((cred, index) => (
-                  <div key={index} style={{ margin: '8px 0', padding: '8px', background: '#f0f9ff', borderRadius: '4px' }}>
-                    <DemoText><strong>Email:</strong> {cred.username}</DemoText>
-                    <DemoText><strong>Password:</strong> {cred.password}</DemoText>
-                    <DemoText style={{ fontSize: '12px', color: '#666' }}>({cred.name})</DemoText>
-                    <DemoFillButton 
-                      type="button" 
-                      onClick={() => {
-                        setFormData({
-                          username: cred.username,
-                          password: cred.password,
-                          rememberMe: false
-                        });
-                      }}
-                      style={{ marginTop: '5px', backgroundColor: '#10B981', color: 'white' }}
-                    >
-                      🔗 Use These Credentials
-                    </DemoFillButton>
-                  </div>
-                ))}
-              </div>
-              <div style={{ borderTop: '1px solid #ddd', paddingTop: '10px' }}>
-                <DemoText style={{ color: '#6B7280' }}>🧪 Local Demo Credentials:</DemoText>
-                <DemoText><strong>Username:</strong> {DUMMY_CREDENTIALS.username}</DemoText>
-                <DemoText><strong>Password:</strong> {DUMMY_CREDENTIALS.password}</DemoText>
-                <DemoFillButton type="button" onClick={fillDummyCredentials}>
-                  🔧 Fill Local Demo
-                </DemoFillButton>
-              </div>
-            </DemoCredentials>
-          )}
+              🔧 Fill Dummy Login
+            </DemoFillButton>
+          </DemoCredentials>
         </DemoSection>
+
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>

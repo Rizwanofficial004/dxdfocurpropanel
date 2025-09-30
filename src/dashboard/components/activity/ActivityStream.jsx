@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { getApiBaseURL } from '../../../config/api';
 import {
   Container,
   Title,
@@ -149,11 +150,12 @@ const ActivityStream = () => {
   // Advanced preload with predictive caching and background prefetching
   const preloadCommonUsers = async () => {
     try {
-      // Preload ALL alphabet letters for instant search using production API only
+      const apiBaseURL = getApiBaseURL();
+      // Preload ALL alphabet letters for instant search using configured API
       const allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
-      const apiEndpoint = 'https://dxdtime.ddsolutions.io/api/users/search/';
+      const apiEndpoint = `${apiBaseURL}/users/search/`;
       
-      console.log('🚀 Starting comprehensive preload with production API...');
+      console.log('🚀 Starting comprehensive preload with API:', apiEndpoint);
       
       // Parallel batch processing for maximum speed
       const batchSize = 5;
@@ -287,8 +289,11 @@ const ActivityStream = () => {
   const fetchAllUsers = async () => {
     setError(null);
     try {
-      // Use the API endpoint to preload users for instant search
-      const response = await fetch(`https://dxdtime.ddsolutions.io/api/users/search/?q=&page=1&page_size=100`, {
+      const apiBaseURL = getApiBaseURL();
+      console.log('🌐 Using API base URL:', apiBaseURL);
+      
+      // Use the proper API configuration with higher page size for better caching
+      const response = await fetch(`${apiBaseURL}/users/search/?q=&page=1&page_size=200`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -303,6 +308,24 @@ const ActivityStream = () => {
           setAllUsers(data.data.users);
           setApiStatus('connected');
           console.log(`✅ Preloaded ${data.data.users.length} users for instant search`);
+          
+          // Pre-cache common search prefixes for instant search
+          const prefixes = ['a', 'b', 'c', 'd', 'e', 'h', 'j', 'k', 'm', 'n', 'r', 's', 't'];
+          prefixes.forEach(prefix => {
+            const prefixResults = data.data.users.filter(user => {
+              const displayName = (user.display_name || '').toLowerCase();
+              const email = (user.email || '').toLowerCase();
+              return displayName.startsWith(prefix) || email.startsWith(prefix);
+            });
+            
+            if (prefixResults.length > 0) {
+              setSearchCache(prev => {
+                const newCache = new Map(prev);
+                newCache.set(prefix, prefixResults);
+                return newCache;
+              });
+            }
+          });
           
           // Cache common search results for instant responses
           const commonUsers = data.data.users.slice(0, 20);
@@ -358,13 +381,14 @@ const ActivityStream = () => {
   // Fetch available user suggestions from the search API
   const fetchUserSuggestions = async () => {
     try {
+      const apiBaseURL = getApiBaseURL();
       // Use the search API with common search terms to get available users
       const searchTerms = ['haseeb', 'nawaz', 'mohsin', 'dxd', 'global'];
       let allSuggestions = [];
       
       for (const term of searchTerms) {
         try {
-          const response = await fetch(`https://dxdtime.ddsolutions.io/api/users/search/?q=${term}&page=1&page_size=10`, {
+          const response = await fetch(`${apiBaseURL}/users/search/?q=${term}&page=1&page_size=10`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
@@ -413,7 +437,7 @@ const ActivityStream = () => {
     }
   };
 
-  // INSTANT search with your API
+  // Real-time API search for dynamic users - NO MOCK DATA
   const searchUsers = async (query) => {
     if (!query || query.length < 1) {
       setSearchResults(allUsers.slice(0, 10));
@@ -425,8 +449,8 @@ const ActivityStream = () => {
     setError(null); // Clear any previous errors
     
     try {
-      // Use your exact API endpoint
-      const apiUrl = `https://dxdtime.ddsolutions.io/api/users/search/?q=${encodeURIComponent(query)}`;
+      const apiBaseURL = getApiBaseURL();
+      const apiUrl = `${apiBaseURL}/users/search/?q=${encodeURIComponent(query)}`;
       console.log('🔍 Searching API:', apiUrl);
       
       const response = await fetch(apiUrl, {
@@ -434,7 +458,8 @@ const ActivityStream = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000 // 10 second timeout
       });
 
       console.log('📡 Response status:', response.status, response.statusText);
@@ -456,23 +481,24 @@ const ActivityStream = () => {
             return newCache;
           });
         } else {
-          console.log('❌ No users array found in API response for:', query, 'Data structure:', data);
+          console.log('❌ No users found in API response for:', query);
           setSearchResults([]);
           setShowResults(true);
           setApiStatus('connected'); // API is working but no results
+          setError(`No users found for "${query}". Try searching for different terms.`);
         }
       } else {
         const errorText = await response.text();
         console.log('❌ API request failed with status:', response.status, 'Error:', errorText);
         setApiStatus('disconnected');
-        setError(`API Error: ${response.status} ${response.statusText}`);
+        setError(`API Error: ${response.status} ${response.statusText}. Please check your network connection.`);
         setSearchResults([]);
         setShowResults(true);
       }
     } catch (error) {
       console.error('🚨 Search API Error:', error);
       setApiStatus('error');
-      setError(`Network Error: ${error.message}`);
+      setError(`Network Error: ${error.message}. Please check your internet connection and try again.`);
       setSearchResults([]);
       setShowResults(true);
     } finally {
@@ -486,100 +512,103 @@ const ActivityStream = () => {
     setScreenshotError(null);
     
     try {
+      const apiBaseURL = getApiBaseURL();
+      
       const searchParams = new URLSearchParams({
-        q: user.display_name || user.email || user.original_name,
-        page: page,
-        page_size: 500, // Get more to handle client-side pagination
-        group_by: 'date',
-        month: `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`,
-        year: selectedYear.toString()
+        q: user.email || user.display_name || user.original_name // Use email as primary identifier
       });
 
-      // Add specific date filtering if provided
+      // Only add date filtering if specifically requested
       if (specificDate) {
         const dateStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${specificDate.toString().padStart(2, '0')}`;
-        searchParams.set('start_date', dateStr);
-        searchParams.set('end_date', dateStr);
-      } else {
-        // Get the full month
-        searchParams.set('start_date', `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`);
-        searchParams.set('end_date', `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`);
+        searchParams.set('date', dateStr);
       }
 
-      // Use only the live production API endpoint
-      const endpoints = [
-        `https://dxdtime.ddsolutions.io/api/users/search/?${searchParams.toString()}`
-      ];
-
-      let response = null;
-      let endpoint_used = '';
+      const apiUrl = `${apiBaseURL}/users/search/?${searchParams.toString()}`;
+      console.log(`📸 Fetching screenshots from: ${apiUrl}`);
       
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`📸 Fetching screenshots from: ${endpoint}`);
-          response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            endpoint_used = endpoint;
-            console.log(`✅ Successfully connected to: ${endpoint}`);
-            setApiStatus('connected');
-            break;
-          }
-        } catch (error) {
-          console.log(`❌ Failed to fetch from: ${endpoint}`, error);
-          continue;
-        }
-      }
-
-      if (response && response.ok) {
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000 // 15 second timeout for screenshots
+      });
+      
+      if (response.ok) {
+        console.log(`✅ Successfully connected to API`);
+        setApiStatus('connected');
+        
         const data = await response.json();
         console.log('📸 Enhanced API Response:', data);
         
-        if (data.status === 'success' && data.data && data.data.users) {
-          const activityDates = new Set();
+        if (data.status === 'success' && data.data) {
           let screenshots = [];
+          const activityDates = new Set();
           
-          // Process all users in the response
-          data.data.users.forEach(userData => {
-            if (userData.grouped_screenshots) {
-              // Handle the grouped_screenshots object
-              Object.keys(userData.grouped_screenshots).forEach(dateKey => {
-                activityDates.add(dateKey);
+          console.log('📸 Raw API Data Structure:', data.data);
+          
+          // Handle different response structures
+          if (data.data.users && Array.isArray(data.data.users)) {
+            // Process users array
+            data.data.users.forEach(userData => {
+              console.log('📸 Processing user data:', userData);
+              
+              // Handle direct screenshots array
+              if (userData.screenshots && Array.isArray(userData.screenshots)) {
+                screenshots = [...screenshots, ...userData.screenshots.map(screenshot => ({
+                  ...screenshot,
+                  id: screenshot.filename || screenshot.id || screenshots.length,
+                  timestamp: screenshot.datetime || screenshot.timestamp || screenshot.created_at,
+                  activity_type: 'ACTIVE',
+                  file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                  date: screenshot.date || screenshot.datetime?.split('T')[0]
+                }))];
                 
-                const dayData = userData.grouped_screenshots[dateKey];
-                if (dayData && dayData.screenshots && Array.isArray(dayData.screenshots)) {
-                  // Filter for specific date if provided
-                  if (specificDate) {
-                    const targetDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${specificDate.toString().padStart(2, '0')}`;
-                    if (dateKey === targetDate) {
-                      screenshots = [...screenshots, ...dayData.screenshots.map(screenshot => ({
-                        ...screenshot,
-                        id: screenshot.filename || screenshots.length,
-                        timestamp: screenshot.datetime || screenshot.date,
-                        activity_type: 'ACTIVE',
-                        file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A'
-                      }))];
-                    }
-                  } else {
-                    // Add all screenshots for the month
+                // Add activity dates
+                userData.screenshots.forEach(screenshot => {
+                  const date = screenshot.date || screenshot.datetime?.split('T')[0];
+                  if (date) activityDates.add(date);
+                });
+              }
+              
+              // Handle grouped screenshots by date
+              if (userData.grouped_screenshots) {
+                Object.keys(userData.grouped_screenshots).forEach(dateKey => {
+                  activityDates.add(dateKey);
+                  
+                  const dayData = userData.grouped_screenshots[dateKey];
+                  if (dayData && dayData.screenshots && Array.isArray(dayData.screenshots)) {
                     screenshots = [...screenshots, ...dayData.screenshots.map(screenshot => ({
                       ...screenshot,
-                      id: screenshot.filename || screenshots.length,
-                      timestamp: screenshot.datetime || screenshot.date,
+                      id: screenshot.filename || screenshot.id || screenshots.length,
+                      timestamp: screenshot.datetime || screenshot.timestamp || screenshot.created_at,
                       activity_type: 'ACTIVE',
-                      file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A'
+                      file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                      date: dateKey
                     }))];
                   }
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          } else if (data.data.screenshots && Array.isArray(data.data.screenshots)) {
+            // Direct screenshots array in response
+            console.log('📸 Processing direct screenshots array:', data.data.screenshots);
+            screenshots = data.data.screenshots.map(screenshot => ({
+              ...screenshot,
+              id: screenshot.filename || screenshot.id || screenshots.length,
+              timestamp: screenshot.datetime || screenshot.timestamp || screenshot.created_at,
+              activity_type: 'ACTIVE',
+              file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+              date: screenshot.date || screenshot.datetime?.split('T')[0]
+            }));
+            
+            // Add activity dates
+            screenshots.forEach(screenshot => {
+              if (screenshot.date) activityDates.add(screenshot.date);
+            });
+          }
           
           // Update calendar with activity dates
           setUserActivityDates(activityDates);
@@ -601,15 +630,23 @@ const ActivityStream = () => {
           } else {
             console.log('📸 No screenshots found');
             setUserScreenshots([]);
+            setScreenshotError(`No screenshots found for ${user.display_name} in the selected period.`);
           }
         } else {
-          console.log('📸 No user data in response');
+          console.log('� No user data in response');
           setUserScreenshots([]);
           setAllScreenshots([]);
           setTotalScreenshots(0);
+          setScreenshotError(`No data available for ${user.display_name}.`);
         }
       } else {
-        throw new Error(`API request failed: ${response?.status || 'Network Error'}`);
+        const errorText = await response.text();
+        console.error(`❌ Screenshot API Error Details:`);
+        console.error(`   Status: ${response.status} - ${response.statusText}`);
+        console.error(`   URL: ${apiUrl}`);
+        console.error(`   Params:`, Object.fromEntries(searchParams));
+        console.error(`   Response: ${errorText}`);
+        throw new Error(`API request failed: ${response.status} - ${response.statusText}. Response: ${errorText}`);
       }
     } catch (error) {
       console.error('🚨 Screenshot Error:', error);
@@ -623,7 +660,7 @@ const ActivityStream = () => {
     }
   };
 
-  // INSTANT search with immediate response
+  // INSTANT search with immediate response and better caching
   useEffect(() => {
     const trimmedQuery = searchValue.trim();
     
@@ -634,7 +671,7 @@ const ActivityStream = () => {
       return;
     }
 
-    // INSTANT cache check first
+    // INSTANT cache check first - no delay
     const cacheKey = trimmedQuery.toLowerCase();
     if (searchCache.has(cacheKey)) {
       console.log(`⚡ INSTANT cached result for: "${trimmedQuery}"`);
@@ -657,29 +694,29 @@ const ActivityStream = () => {
                originalName.includes(cacheKey);
       });
       
-      console.log(`⚡ INSTANT local search found ${localResults.length} results for: "${trimmedQuery}"`);
-      setSearchResults(localResults);
-      setShowResults(true);
-      setIsSearching(false);
-      
-      // Cache local results immediately
-      setSearchCache(prev => {
-        const newCache = new Map(prev);
-        newCache.set(cacheKey, localResults);
-        return newCache;
-      });
-      
-      // Only do API search in background if no local results found
-      if (localResults.length === 0) {
-        setIsSearching(true);
-        searchUsers(searchValue);
+      if (localResults.length > 0) {
+        console.log(`⚡ INSTANT local search found ${localResults.length} results for: "${trimmedQuery}"`);
+        setSearchResults(localResults);
+        setShowResults(true);
+        setIsSearching(false);
+        
+        // Cache local results immediately
+        setSearchCache(prev => {
+          const newCache = new Map(prev);
+          newCache.set(cacheKey, localResults);
+          return newCache;
+        });
+        return;
       }
-      return;
     }
 
-    // Immediate API search if no local users available
-    setIsSearching(true);
-    searchUsers(searchValue);
+    // Debounced API search only if no local results found
+    const timer = setTimeout(() => {
+      setIsSearching(true);
+      searchUsers(searchValue);
+    }, 300); // Reduced from default to 300ms
+
+    return () => clearTimeout(timer);
   }, [searchValue, searchCache, allUsers]);
 
   // INSTANT search input with immediate feedback
@@ -687,10 +724,41 @@ const ActivityStream = () => {
     const value = e.target.value;
     setSearchValue(value);
     
-    // Immediate feedback - show results instantly
+    // Immediate feedback - show results instantly for better UX
     if (value.trim()) {
+      // Check cache first for instant results
+      const cacheKey = value.trim().toLowerCase();
+      if (searchCache.has(cacheKey)) {
+        setSearchResults(searchCache.get(cacheKey));
+        setShowResults(true);
+        setIsSearching(false);
+        return;
+      }
+      
+      // Check local users for instant results
+      if (allUsers.length > 0) {
+        const localResults = allUsers.filter(user => {
+          const searchLower = cacheKey;
+          const displayName = (user.display_name || '').toLowerCase();
+          const email = (user.email || '').toLowerCase();
+          const originalName = (user.original_name || '').toLowerCase();
+          
+          return displayName.includes(searchLower) || 
+                 email.includes(searchLower) ||
+                 originalName.includes(searchLower);
+        });
+        
+        if (localResults.length > 0) {
+          setSearchResults(localResults);
+          setShowResults(true);
+          setIsSearching(false);
+          return;
+        }
+      }
+      
+      // Show loading only if no immediate results available
       setShowResults(true);
-      setIsSearching(false); // Start without loading state for instant feel
+      setIsSearching(true);
     } else {
       // Show default suggestions when empty
       setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers.slice(0, 10));
@@ -776,8 +844,8 @@ const ActivityStream = () => {
   // Background search prefetching (non-blocking)
   const fetchSearchInBackground = async (query) => {
     try {
-      const baseEndpoint = lastSuccessfulEndpoint || 'https://dxdtime.ddsolutions.io/api/users/search/';
-      const response = await fetch(`${baseEndpoint}?q=${encodeURIComponent(query)}&limit=20`, {
+      const apiBaseURL = getApiBaseURL();
+      const response = await fetch(`${apiBaseURL}/users/search/?q=${encodeURIComponent(query)}&limit=20`, {
         method: 'GET',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
       });
