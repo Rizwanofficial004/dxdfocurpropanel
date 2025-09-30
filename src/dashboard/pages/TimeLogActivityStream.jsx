@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import axios from 'axios';
 
 // Styled Components
 const Container = styled.div`
@@ -50,19 +51,91 @@ const SearchInput = styled.input`
   padding: 12px 16px;
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: 8px;
+  font-size: 14px;
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-
+  
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
   }
 
   &::placeholder {
     color: ${props => props.theme.colors.text.secondary};
+  }
+`;
+
+const UserSearchContainer = styled.div`
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+`;
+
+const UserDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: ${props => props.theme.colors.surface};
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+`;
+
+const UserOption = styled.div`
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: ${props => props.theme.colors.background};
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const UserName = styled.div`
+  font-weight: 500;
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+`;
+
+const UserEmail = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.secondary};
+  margin-top: 2px;
+`;
+
+const SelectedUserTag = styled.div`
+  display: inline-flex;
+  align-items: center;
+  background: ${props => props.theme.colors.primary}20;
+  color: ${props => props.theme.colors.primary};
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-top: 8px;
+  gap: 8px;
+`;
+
+const ClearButton = styled.button`
+  background: none;
+  border: none;
+  color: ${props => props.theme.colors.primary};
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  
+  &:hover {
+    color: ${props => props.theme.colors.text.primary};
   }
 `;
 
@@ -310,11 +383,133 @@ const TimeLogActivityStream = () => {
   
   // State management
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [sessionLogs, setSessionLogs] = useState([]);
   const [filteredActivities, setFilteredActivities] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // User search states
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  // Format date for API (YYYY-MM-DD)
+  const formatDateForAPI = (date) => {
+    return date.toISOString().split('T')[0];
+  };
+
+  // API function to search users
+  const searchUsers = useCallback(async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowUserDropdown(false);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      console.log(`Searching users with query: ${query}`);
+      
+      const response = await axios.get(
+        `https://dxdtime.ddsolutions.io/api/users/search/`,
+        {
+          params: { q: query },
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 5000
+        }
+      );
+      
+      console.log('User search response:', response.data);
+      
+      if (response.data) {
+        const users = Array.isArray(response.data) ? response.data :
+                     (response.data.users && Array.isArray(response.data.users)) ? response.data.users :
+                     (response.data.results && Array.isArray(response.data.results)) ? response.data.results :
+                     [];
+        
+        setSearchResults(users);
+        setShowUserDropdown(users.length > 0);
+        console.log('Found users:', users.length);
+      } else {
+        setSearchResults([]);
+        setShowUserDropdown(false);
+      }
+    } catch (error) {
+      console.error('Error searching users:', error);
+      setSearchResults([]);
+      setShowUserDropdown(false);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  // API function to fetch logs
+  const fetchLogsFromAPI = useCallback(async (startDate, endDate, userEmail = null) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const formattedStartDate = formatDateForAPI(startDate);
+      const formattedEndDate = formatDateForAPI(endDate);
+      
+      console.log(`Fetching logs for date range: ${formattedStartDate} to ${formattedEndDate}`);
+      if (userEmail) {
+        console.log(`Filtering for user: ${userEmail}`);
+      }
+      
+      const response = await axios.get(
+        `https://dxdtime.ddsolutions.io/api/logs/date-range/`,
+        {
+          params: {
+            start_date: formattedStartDate,
+            end_date: formattedEndDate
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000 // 10 second timeout
+        }
+      );
+      
+      console.log('Raw API response:', response);
+      
+      if (response.data) {
+        // Ensure the response is an array
+        let logsData = Array.isArray(response.data) ? response.data : 
+                      (response.data.logs && Array.isArray(response.data.logs)) ? response.data.logs :
+                      (response.data.results && Array.isArray(response.data.results)) ? response.data.results :
+                      [];
+        
+        // Filter by selected user if specified
+        if (userEmail && logsData.length > 0) {
+          logsData = logsData.filter(log => 
+            log?.session_info?.email?.toLowerCase() === userEmail.toLowerCase()
+          );
+          console.log(`Filtered to ${logsData.length} logs for user ${userEmail}`);
+        }
+        
+        console.log('Processed logs data:', logsData);
+        setSessionLogs(logsData);
+        console.log('Logs fetched successfully:', logsData.length, 'entries');
+      } else {
+        console.log('No data in response, setting empty array');
+        setSessionLogs([]);
+      }
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to fetch logs');
+      setSessionLogs([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Generate calendar dates (showing 10 days from current date)
   const generateCalendarDates = () => {
@@ -452,37 +647,47 @@ const TimeLogActivityStream = () => {
 
   // Check if a date has activity
   const hasActivity = (date) => {
+    if (!Array.isArray(sessionLogs) || sessionLogs.length === 0) {
+      return false;
+    }
     const dateStr = date.toISOString().split('T')[0];
-    return sessionLogs.some(log => log.program_tracking.date === dateStr);
+    return sessionLogs.some(log => log?.program_tracking?.date === dateStr);
   };
 
   // Filter activities by search and selected date
   const filterActivities = useCallback(() => {
+    if (!Array.isArray(sessionLogs)) {
+      setFilteredActivities([]);
+      return;
+    }
+    
     let filtered = [...sessionLogs];
 
-    // Filter by search query
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(log => 
-        log.session_info.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.session_info.task_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+    // If no user is selected and no search query, show all logs
+    // If user is selected, logs are already filtered by API
+    // Additional filtering can be done here if needed
 
     // Filter by selected date
     if (selectedDate) {
       const selectedDateStr = selectedDate.toISOString().split('T')[0];
-      filtered = filtered.filter(log => log.program_tracking.date === selectedDateStr);
+      filtered = filtered.filter(log => log?.program_tracking?.date === selectedDateStr);
     }
 
     // Sort by session start time (newest first)
-    filtered.sort((a, b) => new Date(b.program_tracking.session_start) - new Date(a.program_tracking.session_start));
+    filtered.sort((a, b) => {
+      const dateA = new Date(a?.program_tracking?.session_start || 0);
+      const dateB = new Date(b?.program_tracking?.session_start || 0);
+      return dateB - dateA;
+    });
 
     setFilteredActivities(filtered);
-  }, [sessionLogs, searchQuery, selectedDate]);
+  }, [sessionLogs, selectedDate]);
 
   // Handle date selection
   const handleDateSelect = (date) => {
-    setSelectedDate(selectedDate?.getTime() === date.getTime() ? null : date);
+    setSelectedDate(date);
+    setStartDate(date);
+    setEndDate(date);
   };
 
   // Format time
@@ -503,15 +708,55 @@ const TimeLogActivityStream = () => {
     });
   };
 
-  // Load data
+  // Load data when component mounts or date range changes
   useEffect(() => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setSessionLogs(sampleSessionLogs);
-      setLoading(false);
-    }, 1000);
+    const userEmail = selectedUser?.email || null;
+    fetchLogsFromAPI(startDate, endDate, userEmail);
+  }, [fetchLogsFromAPI, startDate, endDate, selectedUser]);
+
+  // Handle user search input with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchUsers(searchQuery);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, searchUsers]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('[data-user-search]')) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Handle user selection
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
+    setSearchQuery(user.email || user.name || '');
+    setShowUserDropdown(false);
+    console.log('Selected user:', user);
+  };
+
+  // Clear user selection
+  const clearUserSelection = () => {
+    setSelectedUser(null);
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowUserDropdown(false);
+  };
+
+  // Handle date range change
+  const handleDateRangeChange = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    setSelectedDate(start);
+  };
 
   // Filter activities when dependencies change
   useEffect(() => {
@@ -529,13 +774,103 @@ const TimeLogActivityStream = () => {
 
         {/* Search Section */}
         <SearchSection>
-          <SearchHeader>Search Employee</SearchHeader>
-          <SearchInput
-            type="text"
-            placeholder="Search employee name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <SearchHeader>Search & Filter</SearchHeader>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'end' }}>
+            <UserSearchContainer data-user-search>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: theme.colors.text.primary }}>
+                Employee Search
+              </label>
+              <SearchInput
+                type="text"
+                placeholder="Type to search employees..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery && setShowUserDropdown(true)}
+              />
+              {isSearching && (
+                <div style={{ 
+                  position: 'absolute', 
+                  right: '12px', 
+                  top: '50%', 
+                  transform: 'translateY(-50%)',
+                  fontSize: '12px',
+                  color: theme.colors.text.secondary 
+                }}>
+                  Searching...
+                </div>
+              )}
+              {showUserDropdown && searchResults.length > 0 && (
+                <UserDropdown>
+                  {searchResults.map((user, index) => (
+                    <UserOption key={index} onClick={() => handleUserSelect(user)}>
+                      <UserName>{user.name || user.email}</UserName>
+                      {user.email && user.name && <UserEmail>{user.email}</UserEmail>}
+                    </UserOption>
+                  ))}
+                </UserDropdown>
+              )}
+              {selectedUser && (
+                <SelectedUserTag>
+                  👤 {selectedUser.name || selectedUser.email}
+                  <ClearButton onClick={clearUserSelection}>✕</ClearButton>
+                </SelectedUserTag>
+              )}
+            </UserSearchContainer>
+            <div style={{ minWidth: '140px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: theme.colors.text.primary }}>
+                Start Date
+              </label>
+              <SearchInput
+                type="date"
+                value={formatDateForAPI(startDate)}
+                onChange={(e) => setStartDate(new Date(e.target.value))}
+              />
+            </div>
+            <div style={{ minWidth: '140px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: theme.colors.text.primary }}>
+                End Date
+              </label>
+              <SearchInput
+                type="date"
+                value={formatDateForAPI(endDate)}
+                onChange={(e) => setEndDate(new Date(e.target.value))}
+              />
+            </div>
+            <div>
+              <button
+                onClick={() => {
+                  const userEmail = selectedUser?.email || null;
+                  fetchLogsFromAPI(startDate, endDate, userEmail);
+                }}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: theme.colors.primary,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+                disabled={loading}
+              >
+                {loading ? 'Loading...' : selectedUser ? `Fetch Logs for ${selectedUser.name || selectedUser.email}` : 'Fetch All Logs'}
+              </button>
+            </div>
+          </div>
+          {error && (
+            <div style={{ 
+              marginTop: '12px', 
+              padding: '8px 12px', 
+              backgroundColor: '#fee2e2', 
+              border: '1px solid #fecaca', 
+              borderRadius: '6px', 
+              color: '#dc2626',
+              fontSize: '14px'
+            }}>
+              Error: {error}
+            </div>
+          )}
         </SearchSection>
 
         {/* Calendar Section */}
