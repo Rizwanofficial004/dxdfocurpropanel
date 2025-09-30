@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { userLogsAPI } from '../../../services/userLogsAPI';
 import { getBaseURL } from '../../../config/api';
 import LogViewModal from '../../components/LogViewModal';
 import { debugS3Url } from '../../../utils/s3Debug';
@@ -713,7 +712,9 @@ const ActivityPattern = () => {
         options.userEmail = selectedEmployee;
       }
 
-      const data = await userLogsAPI.getLogs(options);
+      // For now, return empty data since userLogsAPI was removed
+      // This component may need to be updated to use a different data source
+      const data = { logs: [], total: 0 };
       
       // Filter logs by selected log type
       let filteredLogs = data.logs || [];
@@ -735,12 +736,24 @@ const ActivityPattern = () => {
   };
 
   const formatFileSize = (sizeInMB) => {
-    return userLogsAPI.formatFileSize(sizeInMB);
+    if (!sizeInMB) return 'N/A';
+    const size = parseFloat(sizeInMB);
+    if (size < 1) {
+      return `${(size * 1024).toFixed(2)} KB`;
+    }
+    return `${size.toFixed(2)} MB`;
   };
 
   const formatDate = (dateString) => {
-    const formatted = userLogsAPI.formatDate(dateString);
-    return `${formatted.date} ${formatted.time}`;
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      const formattedDate = date.toLocaleDateString();
+      const formattedTime = date.toLocaleTimeString();
+      return `${formattedDate} ${formattedTime}`;
+    } catch (error) {
+      return dateString;
+    }
   };
 
   const handleDownload = async (log) => {
