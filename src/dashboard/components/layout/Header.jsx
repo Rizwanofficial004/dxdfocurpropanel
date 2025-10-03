@@ -603,14 +603,6 @@ export const Header = ({
     const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const loginUsername = sessionStorage.getItem('loginUsername') || localStorage.getItem('loginUsername');
     
-    // Debug: log what's in storage
-    console.log('Session user:', sessionUser);
-    console.log('Local user:', localUser);
-    console.log('Session admin:', sessionAdmin);
-    console.log('Local admin:', localAdmin);
-    console.log('Auth token:', authToken);
-    console.log('Login username:', loginUsername);
-    
     // Try to parse JSON data first
     if (sessionUser && sessionUser !== 'null') {
       try {
@@ -675,9 +667,7 @@ export const Header = ({
       user = { name: 'Admin', role: 'Administrator', email: 'admin@dds.com' };
     }
     
-    console.log('Final user object:', user);
   } catch (e) {
-    console.error('Error parsing user data:', e);
     user = null;
   }
 
@@ -914,17 +904,32 @@ export const Header = ({
                 <StatusBadge>{t('active')}</StatusBadge>
               </ProfileHeader>
               
-              <DropdownItem>
+              <DropdownItem style={{ 
+                textDecoration: 'line-through', 
+                opacity: 0.5, 
+                cursor: 'not-allowed',
+                pointerEvents: 'none'
+              }}>
                 <UserIcon />
                 <span>{t('viewProfile')}</span>
               </DropdownItem>
               
-              <DropdownItem>
+              <DropdownItem style={{ 
+                textDecoration: 'line-through', 
+                opacity: 0.5, 
+                cursor: 'not-allowed',
+                pointerEvents: 'none'
+              }}>
                 <SettingsIcon />
                 <span>{t('accountSettings')}</span>
               </DropdownItem>
               
-              <DropdownItem>
+              <DropdownItem style={{ 
+                textDecoration: 'line-through', 
+                opacity: 0.5, 
+                cursor: 'not-allowed',
+                pointerEvents: 'none'
+              }}>
                 <HelpIcon />
                 <span>{t('helpSupport')}</span>
               </DropdownItem>

@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+cron_job.log
 
 node_modules
 dist
@@ -36,6 +37,8 @@ __pycache__/
 
 # SQLite database
 *.sqlite3
+db.sqlite3
+db.sqlite3-journal
 
 # Environment variables
 .env
@@ -46,8 +49,39 @@ __pycache__/
 # macOS junk
 .DS_Store
 
-# Log files
-# *.log
+# Documentation files (auto-generated)
+*_DOCUMENTATION.md
+*_ANALYSIS.md
+*_GUIDE.md
+*_SUMMARY.md
+*_RESULTS.md
+*_STATUS.md
+ACTUAL_WORKING_*.md
+COMPLETE_*.md
+EMPLOYEE_*.md
+S3_*.md
+USER_*.md
+
+# Test files and debugging scripts
+test_*.py
+debug_*.py
+simple_test*.py
+quick_test*.py
+discover_*.py
+search_*.py
+fastapi_*.py
+simple_s3_*.py
+
+# Temporary and backup files
+tmp/
+*.tmp
+*.bak
+*~
+
+# Build and dist files
+build/
+dist/
+.vite/
 
 # Local settings
 settings_local.py
@@ -158,5 +192,32 @@ node_modules/
 build/
 dist/
 *.egg-info/
+
+# Project-specific files
+*.styles.simple.js
+postman_collection.json
+*.postman_collection.json
+docker-compose.yml
+nginx.conf
+requirements-production.txt
+
+# S3 exploration files
+s3_structure_exploration.json
+project_names_and_count.json
+s3_screenshots_users_*.py
+s3_user_analytics_api.py
+
+# HTML demo files
+*_demo.html
+*demo.html
+api_test_page.html
+api-test.html
+
+# Script files for setup and deployment
+deploy.sh
+quick_setup.ps1
+start-dev.bat
+*.bat
+*.ps1
 
 .early.coverage

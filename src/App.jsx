@@ -66,6 +66,14 @@ const Documentation = lazy(() =>
   import('./dashboard/pages/Documentation').catch(() => ({ default: FallbackDocumentation }))
 );
 
+const TimeLogSummary = lazy(() =>
+  import('./dashboard/pages/TimeLogSummary').catch(() => ({ default: FallbackTimeLogSummary }))
+);
+
+const TimeLogActivityStream = lazy(() =>
+  import('./dashboard/pages/TimeLogActivityStream').catch(() => ({ default: FallbackTimeLogActivityStream }))
+);
+
 // Tester Components
 const LoginAPITester = lazy(() =>
   import('./components/LoginAPITester').catch(() => ({ default: FallbackLogin }))
@@ -77,10 +85,6 @@ const RegistrationAPITester = lazy(() =>
 
 const ImageTest = lazy(() =>
   import('./components/ImageTest').catch(() => ({ default: FallbackImageTest }))
-);
-
-const APIConnectionTest = lazy(() =>
-  import('./components/APIConnectionTest').catch(() => ({ default: FallbackLogin }))
 );
 
 const SimpleLoginTest = lazy(() =>
@@ -188,6 +192,8 @@ const FallbackEmployees = () => <LoadingSpinner />;
 const FallbackTeams = () => <LoadingSpinner />;
 const FallbackActivityPattern = () => <LoadingSpinner />;
 const FallbackDocumentation = () => <LoadingSpinner />;
+const FallbackTimeLogSummary = () => <LoadingSpinner />;
+const FallbackTimeLogActivityStream = () => <LoadingSpinner />;
 const FallbackImageTest = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
@@ -228,6 +234,7 @@ const GlobalStyle = createGlobalStyle`
     right: 0;
     bottom: -80px;
     width: 370px;
+    z-index: -1;
   }
 
   #root {
@@ -464,6 +471,26 @@ function App() {
                     }
                   />
                   <Route
+                    path="/dashboard/reports/time-log"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackTimeLogSummary />}>
+                          <TimeLogSummary />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/activity-stream"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackTimeLogActivityStream />}>
+                          <TimeLogActivityStream />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/dashboard/documentation"
                     element={
                       <ProtectedRoute>
@@ -491,4 +518,6 @@ function App() {
       </ToastProvider>
     </Suspense>
   );
-}export default App;
+}
+
+export default App;

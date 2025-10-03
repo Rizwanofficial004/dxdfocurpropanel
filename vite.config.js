@@ -31,6 +31,23 @@ export default defineConfig({
           });
         },
       },
+      '/s3-proxy': {
+        target: 'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/s3-proxy/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ S3 proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('📡 Proxying S3 Request:', req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('✅ S3 Response:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
       '/crm-api': {
         target: 'https://crm.deluxebilisim.com',
         changeOrigin: true,
@@ -114,35 +131,6 @@ export default defineConfig({
             if (proxyRes.statusCode === 200) {
               proxyRes.headers['Cache-Control'] = 'public, max-age=86400'; // 24 hours
             }
-          });
-        },
-      },
-      '/s3-proxy': {
-        target: 'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/s3-proxy\//, '/'),
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('S3 proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Proxying S3 Request:', req.url);
-            // Remove problematic headers
-            proxyReq.removeHeader('origin');
-            proxyReq.removeHeader('referer');
-            proxyReq.removeHeader('x-forwarded-for');
-            proxyReq.removeHeader('x-forwarded-host');
-            proxyReq.removeHeader('x-forwarded-proto');
-            // Set appropriate headers for S3
-            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
-          });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('S3 Response:', proxyRes.statusCode, req.url);
-            // Add CORS headers to the response
-            proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-            proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, HEAD, OPTIONS';
-            proxyRes.headers['Access-Control-Allow-Headers'] = '*';
           });
         },
       },

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../../dashboard/context/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
-import authService, { DUMMY_CREDENTIALS } from '../../services/authService';
+import authService, { DUMMY_CREDENTIALS, LIVE_TEST_CREDENTIALS } from '../../services/authService';
 import toastService from '../../services/toastService';
 import {
   LoginContainer,
@@ -58,8 +58,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showDummyCredentials, setShowDummyCredentials] = useState(false);
-
   // Auto-fill dummy credentials for testing
   const fillDummyCredentials = () => {
     setFormData({
@@ -67,47 +65,51 @@ const Login = () => {
       username: DUMMY_CREDENTIALS.username,
       password: DUMMY_CREDENTIALS.password
     });
-    setShowDummyCredentials(false);
   };
 
-  // Test API directly with working credentials
-  const testApiDirectly = async () => {
-    console.log('🧪 Testing API directly with known working credentials...');
-    setIsLoading(true);
+  // Quick demo login - fills form and submits automatically
+  const quickDemoLogin = async () => {
+    console.log('🚀 Quick Demo Login - Auto-filling and submitting...');
     
-    try {
-      const response = await fetch('https://dxdtime.ddsolutions.io/api/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'hb@example.com',
-          password: 'password123'
-        }),
-      });
-      
-      console.log('🔍 Direct API Test Response Status:', response.status);
-      console.log('🔍 Direct API Test Response Headers:', Object.fromEntries(response.headers.entries()));
-      
-      const responseText = await response.text();
-      console.log('🔍 Direct API Test Response Body:', responseText);
-      
-      if (response.ok) {
-        const data = JSON.parse(responseText);
-        console.log('✅ Direct API test successful:', data);
-        toastService.success('✅ Direct API test successful! Check console for details.');
-      } else {
-        console.error('❌ Direct API test failed:', response.status, responseText);
-        toastService.error(`❌ Direct API test failed: ${response.status} - ${responseText}`);
+    // Fill form with working live credentials
+    const workingCred = LIVE_TEST_CREDENTIALS[0]; // Use first working credential
+    setFormData({
+      username: workingCred.username,
+      password: workingCred.password,
+      rememberMe: false
+    });
+    
+    // Small delay to show the form fill, then submit
+    setTimeout(async () => {
+      setIsLoading(true);
+      setErrors({});
+
+      try {
+        console.log('🔐 Starting demo authentication...');
+        
+        const result = await login({
+          username: workingCred.username,
+          password: workingCred.password,
+          rememberMe: false
+        });
+        
+        console.log('✅ Demo authentication successful:', result);
+        
+        const userName = result?.user?.first_name || result?.user?.name || result?.username || workingCred.username;
+        toastService.success(`🎉 Demo Login successful! Welcome ${userName}!`);
+        
+        navigate('/admin-panel', { replace: true });
+        
+      } catch (error) {
+        console.error('❌ Demo authentication failed:', error);
+        setErrors({
+          general: error.message || 'Demo login failed. Please try manual login.'
+        });
+        toastService.error('❌ Demo login failed. Try manual login with the filled credentials.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('🚫 Direct API test error:', error);
-      toastService.error(`🚫 Direct API test error: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+    }, 500);
   };
 
   const validateForm = () => {
@@ -162,7 +164,6 @@ const Login = () => {
         rememberMe: formData.rememberMe
       });
       
-      // Use the AuthContext login method directly (it handles both API and fallback)
       const result = await login({
         username: formData.username,
         password: formData.password,
@@ -171,23 +172,14 @@ const Login = () => {
       
       console.log('✅ Authentication successful:', result);
       
-      // Show success message
       const userName = result?.user?.first_name || result?.user?.name || result?.username || formData.username;
       console.log('🎉 User logged in successfully!');
       toastService.success(`🎉 Login successful! Welcome back ${userName}!`);
       
-      // Navigate to dashboard (AuthContext will handle the redirect automatically via ProtectedRoute)
       navigate('/admin-panel', { replace: true });
       
     } catch (error) {
       console.error('❌ Authentication failed:', error);
-      console.error('🔍 Error details:', {
-        message: error.message,
-        name: error.name,
-        stack: error.stack
-      });
-      
-      // Set appropriate error message
       setErrors({
         general: error.message || 'Login failed. Please check your credentials.'
       });
@@ -212,34 +204,44 @@ const Login = () => {
 
       <LoginCard>
         <LogoSection>
-          {/* <FocusLogo>FOCUS</FocusLogo> */}
           <Title>{t('welcome')}</Title>
           <Subtitle>{t('subtitle')}</Subtitle>
         </LogoSection>
 
-        {/* Demo Credentials Helper */}
-        {/* <DemoSection>
-          <DemoTitle>Demo Access</DemoTitle>
-          <DemoText>API Backend: Django REST API</DemoText>
-          <DemoText>Fallback Credentials Available</DemoText>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <DemoButton type="button" onClick={() => setShowDummyCredentials(!showDummyCredentials)}>
-              {showDummyCredentials ? 'Hide' : 'Show'} Demo Credentials
-            </DemoButton>
-            <DemoButton type="button" onClick={testApiDirectly} disabled={isLoading}>
-              🧪 Test API Direct
-            </DemoButton>
-          </div>
-          {showDummyCredentials && (
-            <DemoCredentials>
-              <DemoText><strong>Username:</strong> {DUMMY_CREDENTIALS.username}</DemoText>
-              <DemoText><strong>Password:</strong> {DUMMY_CREDENTIALS.password}</DemoText>
-              <DemoFillButton type="button" onClick={fillDummyCredentials}>
-                Fill Form
-              </DemoFillButton>
-            </DemoCredentials>
-          )}
-        </DemoSection> */}
+        {/* Demo Login Credentials */}
+        <DemoSection>
+          <DemoTitle>🔧 Demo Login</DemoTitle>
+          <DemoText>Working Test Credentials</DemoText>
+          <DemoCredentials style={{ padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '8px', margin: '10px 0' }}>
+            <DemoText><strong>Email:</strong> hb@example.com</DemoText>
+            <DemoText><strong>Password:</strong> password123</DemoText>
+            <DemoText style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              (Dummy Login - Works Offline)
+            </DemoText>
+            <DemoFillButton 
+              type="button" 
+              onClick={() => {
+                setFormData({
+                  username: 'hb@example.com',
+                  password: 'password123',
+                  rememberMe: false
+                });
+              }}
+              style={{ 
+                marginTop: '8px', 
+                backgroundColor: '#007bff', 
+                color: 'white',
+                padding: '6px 12px',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              🔧 Fill Dummy Login
+            </DemoFillButton>
+          </DemoCredentials>
+        </DemoSection>
+
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
@@ -251,7 +253,6 @@ const Login = () => {
                 placeholder={t('email')}
                 value={formData.username}
                 onChange={handleInputChange}
-                //hasError={!!errors.username}
                 required
                 autoComplete="email"
               />
@@ -274,7 +275,6 @@ const Login = () => {
                 placeholder={t('password')}
                 value={formData.password}
                 onChange={handleInputChange}
-                //hasError={!!errors.password}
                 required
                 autoComplete="current-password"
               />
