@@ -4,6 +4,92 @@ from django.contrib.auth.models import User
 import json
 
 
+class Employee(models.Model):
+    """
+    Employee model to store employee data from CRM and local sources
+    """
+    # Basic Information
+    full_name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    role = models.CharField(max_length=100, blank=True, null=True)
+    
+    # CRM Integration
+    crm_id = models.CharField(max_length=100, blank=True, null=True, help_text="ID from CRM system")
+    contract_type = models.CharField(max_length=100, blank=True, null=True)
+    expertise = models.CharField(max_length=200, blank=True, null=True)
+    iban = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Status Information
+    is_active = models.BooleanField(default=True)
+    last_login = models.DateTimeField(blank=True, null=True)
+    
+    # Source tracking
+    data_source = models.CharField(
+        max_length=20,
+        choices=[
+            ('crm', 'CRM System'),
+            ('local', 'Local Database'),
+            ('s3', 'S3 Bucket'),
+            ('combined', 'Combined Sources')
+        ],
+        default='local'
+    )
+    
+    # Additional CRM fields
+    crm_data = models.JSONField(default=dict, blank=True, help_text="Raw CRM data")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Employee"
+        verbose_name_plural = "Employees"
+        ordering = ['full_name']
+    
+    def __str__(self):
+        return f"{self.full_name} ({self.email})"
+    
+    @property
+    def display_role(self):
+        """Return formatted role name"""
+        return self.role.replace('_', ' ').title() if self.role else 'Employee'
+    
+    @classmethod
+    def sync_from_crm(cls, crm_data_list):
+        """Sync employee data from CRM"""
+        created_count = 0
+        updated_count = 0
+        
+        for crm_data in crm_data_list:
+            email = crm_data.get('email', '').strip()
+            if not email:
+                continue
+                
+            employee, created = cls.objects.update_or_create(
+                email=email,
+                defaults={
+                    'full_name': crm_data.get('full_name', ''),
+                    'role': crm_data.get('role', ''),
+                    'crm_id': crm_data.get('id', ''),
+                    'contract_type': crm_data.get('contract_type', ''),
+                    'expertise': crm_data.get('expertise', ''),
+                    'iban': crm_data.get('iban', ''),
+                    'is_active': crm_data.get('active', True),
+                    'last_login': crm_data.get('last_login'),
+                    'data_source': 'crm',
+                    'crm_data': crm_data
+                }
+            )
+            
+            if created:
+                created_count += 1
+            else:
+                updated_count += 1
+        
+        return {'created': created_count, 'updated': updated_count}
+
+
 class EmployeeAnalytics(models.Model):
     """
     Model to store employee analytics data for caching and historical tracking
@@ -101,48 +187,6 @@ class AWSCredential(models.Model):
     def masked_secret_key(self):
         """Return masked secret key for security"""
         return "****" + self.secret_key[-4:] if len(self.secret_key) > 4 else "****"
-
-
-class Employee(models.Model):
-    """
-    Model to store employee information fetched from CRM API
-    """
-    email = models.EmailField(unique=True, db_index=True)
-    name = models.CharField(max_length=255)
-    employee_id = models.CharField(max_length=50, blank=True)
-    department = models.CharField(max_length=100, blank=True)
-    position = models.CharField(max_length=100, blank=True)
-    
-    # CRM Data (stored as JSON)
-    crm_data = models.JSONField(default=dict, blank=True)
-    s3_data = models.JSONField(default=dict, blank=True)
-    
-    # Status flags
-    is_active = models.BooleanField(default=True)
-    in_crm = models.BooleanField(default=False)
-    in_s3 = models.BooleanField(default=False)
-    
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    last_sync = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        verbose_name = "Employee"
-        verbose_name_plural = "Employees"
-        ordering = ['name']
-        indexes = [
-            models.Index(fields=['email']),
-            models.Index(fields=['is_active']),
-        ]
-    
-    def __str__(self):
-        return f"{self.name} ({self.email})"
-    
-    @property
-    def complete_profile(self):
-        """Check if employee has both CRM and S3 data"""
-        return self.in_crm and self.in_s3
 
 
 class TimerSession(models.Model):

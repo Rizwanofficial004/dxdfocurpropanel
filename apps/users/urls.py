@@ -2,12 +2,13 @@ from django.urls import path
 from .views import UsersSearchView
 from .user_monthly_api import UserMonthlyScreenshotsAPI
 from .user_screenshots_api import UserScreenshotsAPI
+from .users_search_views import EnhancedUsersSearchView
 
 app_name = 'users'
 
 urlpatterns = [
-    # Users search endpoint
-    path('users/search/', UsersSearchView.as_view(), name='users-search'),
+    # Enhanced Users search endpoint with S3 integration
+    path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),
     
     # Alternative search endpoint
     path('users/', UsersSearchView.as_view(), name='users-default'),

@@ -13,7 +13,7 @@ from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReport
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
 from .logs_views import LogsSearchView, LogsSystemView, LogsStatsView
 from .user_logs_api_views import UserLogsAPIView, UserLogContentAPIView, UserActivitySummaryAPIView, LogTypesAPIView, UserLogsStatsAPIView
-from .enhanced_logs_api_views import DateRangeLogsAPIView, LogsCalendarAPIView
+# from .enhanced_logs_api_views import DateRangeLogsAPIView, LogsCalendarAPIView, UserSeparatedLogsAPIView, UserSpecificLogsAPIView
 
 app_name = 'dashboard'
 
@@ -29,12 +29,12 @@ urlpatterns = [
     # Simple Screenshot Proxy - Handle S3 CORS issues
     path('api/simple-screenshot-proxy/', SimpleScreenshotProxyView.as_view(), name='simple-screenshot-proxy'),
     path('api/simple-screenshot-proxy/status/', SimpleScreenshotProxyStatusView.as_view(), name='simple-screenshot-proxy-status'),
-    
-    # Enhanced Users Search with Month Filter
-    path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),
 
     # Employees Details API - Combines S3 and CRM Data
     path('Employees/Details/', EmployeesDetailsView.as_view(), name='employees-details'),
+
+    # Enhanced Users Search API - Accurate S3 data fetching
+    path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),
 
     # User Timer API - Full-stack timer for React frontend
     path('user-timer/', UserTimerAPIView.as_view(), name='user-timer-api'),
@@ -125,8 +125,10 @@ urlpatterns = [
 
     # ============= ENHANCED DATE RANGE LOGS API =============
     # Date Range Logs API - Advanced filtering with date ranges and comprehensive options
-    path('logs/date-range/', DateRangeLogsAPIView.as_view(), name='date-range-logs'),
-    path('logs/calendar/', LogsCalendarAPIView.as_view(), name='logs-calendar'),
+    # path('logs/date-range/', DateRangeLogsAPIView.as_view(), name='date-range-logs'),
+    # path('logs/calendar/', LogsCalendarAPIView.as_view(), name='logs-calendar'),
+    # path('logs/users-separated/', UserSeparatedLogsAPIView.as_view(), name='user-separated-logs'),
+    # path('logs/<str:user_identifier>/date-range/', UserSpecificLogsAPIView.as_view(), name='user-specific-logs'),
 
     # System endpoints - Credentials Management
     path('credentials/', CredentialsAPIView.as_view(), name='credentials-api'),

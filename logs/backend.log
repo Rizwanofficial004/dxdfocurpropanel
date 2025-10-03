@@ -17804,3 +17804,503 @@ INFO 2025-09-25 18:45:53,624 basehttp 7692 14480 "GET /api/credentials/ HTTP/1.1
 INFO 2025-09-25 18:45:57,924 middleware 7692 7476 Request: GET /api/get-all-credentials/
 INFO 2025-09-25 18:45:57,943 middleware 7692 7476 Response: 200 for GET /api/get-all-credentials/
 INFO 2025-09-25 18:45:57,946 basehttp 7692 7476 "GET /api/get-all-credentials/ HTTP/1.1" 200 941
+INFO 2025-09-25 23:43:03,422 basehttp 35928 16436 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 23:43:03,464 middleware 35928 16436 Request: GET /api/users/
+INFO 2025-09-25 23:43:05,958 views 35928 16436 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 23:43:05,962 middleware 35928 16436 Response: 400 for GET /api/users/
+WARNING 2025-09-25 23:43:05,965 log 35928 16436 Bad Request: /api/users/
+WARNING 2025-09-25 23:43:05,967 basehttp 35928 16436 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 23:43:06,291 basehttp 35928 11112 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-25 23:43:06,295 middleware 35928 11112 Request: GET /api/users/
+INFO 2025-09-25 23:43:06,308 views 35928 11112 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 23:43:06,309 middleware 35928 11112 Response: 400 for GET /api/users/
+WARNING 2025-09-25 23:43:06,310 log 35928 11112 Bad Request: /api/users/
+WARNING 2025-09-25 23:43:06,311 basehttp 35928 11112 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 23:43:39,472 middleware 35928 16436 Request: GET /api/users/
+INFO 2025-09-25 23:43:39,501 views 35928 16436 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 23:43:39,504 middleware 35928 16436 Response: 400 for GET /api/users/
+WARNING 2025-09-25 23:43:39,506 log 35928 16436 Bad Request: /api/users/
+WARNING 2025-09-25 23:43:39,510 basehttp 35928 16436 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 23:43:39,526 middleware 35928 11112 Request: GET /api/users/
+INFO 2025-09-25 23:43:39,562 views 35928 11112 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 23:43:39,565 middleware 35928 11112 Response: 400 for GET /api/users/
+WARNING 2025-09-25 23:43:39,567 log 35928 11112 Bad Request: /api/users/
+WARNING 2025-09-25 23:43:39,572 basehttp 35928 11112 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-25 23:48:08,704 middleware 35928 13780 Request: GET /health/
+INFO 2025-09-25 23:48:08,705 middleware 35928 13780 Response: 200 for GET /health/
+INFO 2025-09-25 23:48:08,706 basehttp 35928 13780 "GET /health/ HTTP/1.1" 200 50
+INFO 2025-09-25 23:48:08,727 middleware 35928 32272 Request: GET /api/get-all-credentials/
+INFO 2025-09-25 23:48:08,760 middleware 35928 32272 Response: 200 for GET /api/get-all-credentials/
+INFO 2025-09-25 23:48:08,762 basehttp 35928 32272 "GET /api/get-all-credentials/ HTTP/1.1" 200 941
+INFO 2025-09-25 23:48:08,793 middleware 35928 14832 Request: POST /api/set-all-credentials/
+INFO 2025-09-25 23:48:08,880 middleware 35928 14832 Response: 200 for POST /api/set-all-credentials/
+INFO 2025-09-25 23:48:08,883 basehttp 35928 14832 "POST /api/set-all-credentials/ HTTP/1.1" 200 196
+INFO 2025-09-25 23:48:08,908 middleware 35928 31152 Request: GET /api/credentials/status/
+INFO 2025-09-25 23:48:08,931 middleware 35928 31152 Response: 200 for GET /api/credentials/status/
+INFO 2025-09-25 23:48:08,934 basehttp 35928 31152 "GET /api/credentials/status/ HTTP/1.1" 200 111
+INFO 2025-09-25 23:48:08,954 middleware 35928 22576 Request: GET /api/auth/users/
+INFO 2025-09-25 23:48:08,968 middleware 35928 22576 Response: 200 for GET /api/auth/users/
+INFO 2025-09-25 23:48:08,972 basehttp 35928 22576 "GET /api/auth/users/ HTTP/1.1" 200 5795
+INFO 2025-09-25 23:48:08,985 middleware 35928 8864 Request: GET /api/users/search/
+INFO 2025-09-25 23:48:09,019 users_search_views 35928 8864 S3 client initialized successfully for enhanced users search
+INFO 2025-09-25 23:48:11,529 middleware 35928 8864 Response: 400 for GET /api/users/search/
+WARNING 2025-09-25 23:48:11,530 log 35928 8864 Bad Request: /api/users/search/
+WARNING 2025-09-25 23:48:11,531 basehttp 35928 8864 "GET /api/users/search/ HTTP/1.1" 400 678
+INFO 2025-09-25 23:48:11,538 middleware 35928 9208 Request: GET /api/get-all-styling/
+INFO 2025-09-25 23:48:11,656 middleware 35928 9208 Response: 200 for GET /api/get-all-styling/
+INFO 2025-09-25 23:48:11,657 basehttp 35928 9208 "GET /api/get-all-styling/ HTTP/1.1" 200 105726
+INFO 2025-09-25 23:48:11,670 middleware 35928 34692 Request: GET /api/user-timer/stats/
+INFO 2025-09-25 23:48:11,683 middleware 35928 34692 Response: 200 for GET /api/user-timer/stats/
+INFO 2025-09-25 23:48:11,685 basehttp 35928 34692 "GET /api/user-timer/stats/ HTTP/1.1" 200 620
+INFO 2025-09-25 23:48:11,713 middleware 35928 17316 Request: GET /api/ai/status/
+INFO 2025-09-25 23:48:11,803 middleware 35928 17316 Response: 403 for GET /api/ai/status/
+WARNING 2025-09-25 23:48:11,809 log 35928 17316 Forbidden: /api/ai/status/
+WARNING 2025-09-25 23:48:11,819 basehttp 35928 17316 "GET /api/ai/status/ HTTP/1.1" 403 58
+INFO 2025-09-25 23:48:11,871 middleware 35928 20292 Request: GET /api/user-logs/statistics/
+INFO 2025-09-25 23:48:14,624 s3_logs_service 35928 20292 Retrieved 11 log files from S3
+INFO 2025-09-25 23:48:14,630 middleware 35928 20292 Response: 200 for GET /api/user-logs/statistics/
+INFO 2025-09-25 23:48:14,632 basehttp 35928 20292 "GET /api/user-logs/statistics/ HTTP/1.1" 200 587
+INFO 2025-09-25 23:48:14,646 middleware 35928 34568 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-25 23:48:14,668 crm_comprehensive_views 35928 34568 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-25 23:48:14,671 crm_comprehensive_views 35928 34568 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-25 23:48:14,672 crm_comprehensive_views 35928 34568 Fetching S3 employee data...
+INFO 2025-09-25 23:48:14,673 crm_comprehensive_views 35928 34568 Scanning S3 bucket for employee folder data...
+INFO 2025-09-25 23:48:16,973 crm_comprehensive_views 35928 34568 S3 scan completed: 3 employees found, 500 objects scanned in 2299.38ms
+INFO 2025-09-25 23:48:16,974 crm_comprehensive_views 35928 34568 Fetching CRM data...
+INFO 2025-09-25 23:48:16,974 crm_comprehensive_views 35928 34568 Trying CRM endpoint: employees
+ERROR 2025-09-25 23:48:16,975 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,975 crm_comprehensive_views 35928 34568 Trying CRM endpoint: users
+ERROR 2025-09-25 23:48:16,976 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,976 crm_comprehensive_views 35928 34568 Trying CRM endpoint: staff
+ERROR 2025-09-25 23:48:16,977 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,977 crm_comprehensive_views 35928 34568 Trying CRM endpoint: personnel
+ERROR 2025-09-25 23:48:16,978 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,978 crm_comprehensive_views 35928 34568 Trying CRM endpoint: team
+ERROR 2025-09-25 23:48:16,979 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,980 crm_comprehensive_views 35928 34568 Trying CRM endpoint: members
+ERROR 2025-09-25 23:48:16,980 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:48:16,981 crm_comprehensive_views 35928 34568 No employees found in any CRM endpoint
+INFO 2025-09-25 23:48:16,982 crm_comprehensive_views 35928 34568 Trying CRM projects endpoint: projects
+ERROR 2025-09-25 23:48:16,982 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,983 crm_comprehensive_views 35928 34568 Trying CRM projects endpoint: deals
+ERROR 2025-09-25 23:48:16,984 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,985 crm_comprehensive_views 35928 34568 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-25 23:48:16,985 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,986 crm_comprehensive_views 35928 34568 Trying CRM projects endpoint: cases
+ERROR 2025-09-25 23:48:16,987 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,988 crm_comprehensive_views 35928 34568 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-25 23:48:16,988 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,989 crm_comprehensive_views 35928 34568 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-25 23:48:16,989 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:48:16,990 crm_comprehensive_views 35928 34568 No projects found in any CRM endpoint
+INFO 2025-09-25 23:48:16,991 crm_comprehensive_views 35928 34568 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-25 23:48:16,991 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,992 crm_comprehensive_views 35928 34568 Trying CRM tasks endpoint: activities
+ERROR 2025-09-25 23:48:16,992 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,993 crm_comprehensive_views 35928 34568 Trying CRM tasks endpoint: todos
+ERROR 2025-09-25 23:48:16,993 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,994 crm_comprehensive_views 35928 34568 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-25 23:48:16,994 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,995 crm_comprehensive_views 35928 34568 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-25 23:48:16,995 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,996 crm_comprehensive_views 35928 34568 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-25 23:48:16,997 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:48:16,997 crm_comprehensive_views 35928 34568 No tasks found in any CRM endpoint
+INFO 2025-09-25 23:48:16,998 crm_comprehensive_views 35928 34568 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-25 23:48:16,999 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:16,999 crm_comprehensive_views 35928 34568 Trying CRM summary endpoint: summary
+ERROR 2025-09-25 23:48:17,000 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:17,001 crm_comprehensive_views 35928 34568 Trying CRM summary endpoint: overview
+ERROR 2025-09-25 23:48:17,002 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:17,002 crm_comprehensive_views 35928 34568 Trying CRM summary endpoint: stats
+ERROR 2025-09-25 23:48:17,003 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:48:17,004 crm_comprehensive_views 35928 34568 Trying CRM summary endpoint: metrics
+ERROR 2025-09-25 23:48:17,004 crm_comprehensive_views 35928 34568 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:48:17,005 crm_comprehensive_views 35928 34568 No dashboard summary found in CRM
+INFO 2025-09-25 23:48:17,005 crm_comprehensive_views 35928 34568 Fetching Database analytics...
+INFO 2025-09-25 23:48:17,011 crm_comprehensive_views 35928 34568 No employee analytics found in database
+INFO 2025-09-25 23:48:17,015 crm_comprehensive_views 35928 34568 Using S3 employee count as primary: 3
+INFO 2025-09-25 23:48:17,016 crm_comprehensive_views 35928 34568 Dynamic data retrieved: 3 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket (Real-time)
+INFO 2025-09-25 23:48:17,016 crm_comprehensive_views 35928 34568 Employee analysis: Total=3, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-25 23:48:17,017 crm_comprehensive_views 35928 34568 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-25 23:48:17,019 middleware 35928 34568 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-25 23:48:17,020 basehttp 35928 34568 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2585
+INFO 2025-09-25 23:50:01,202 middleware 35928 32656 Request: GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-25 23:50:01,215 crm_comprehensive_views 35928 32656 S3 client initialized successfully for bucket: ddsfocustime
+INFO 2025-09-25 23:50:01,216 crm_comprehensive_views 35928 32656 Starting comprehensive dashboard data retrieval from S3, CRM, and Database...
+INFO 2025-09-25 23:50:01,216 crm_comprehensive_views 35928 32656 Fetching S3 employee data...
+INFO 2025-09-25 23:50:01,217 crm_comprehensive_views 35928 32656 Scanning S3 bucket for employee folder data...
+INFO 2025-09-25 23:50:05,409 crm_comprehensive_views 35928 32656 S3 scan completed: 3 employees found, 500 objects scanned in 4192.45ms
+INFO 2025-09-25 23:50:05,410 crm_comprehensive_views 35928 32656 Fetching CRM data...
+INFO 2025-09-25 23:50:05,411 crm_comprehensive_views 35928 32656 Trying CRM endpoint: employees
+ERROR 2025-09-25 23:50:05,411 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,412 crm_comprehensive_views 35928 32656 Trying CRM endpoint: users
+ERROR 2025-09-25 23:50:05,413 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,413 crm_comprehensive_views 35928 32656 Trying CRM endpoint: staff
+ERROR 2025-09-25 23:50:05,414 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,414 crm_comprehensive_views 35928 32656 Trying CRM endpoint: personnel
+ERROR 2025-09-25 23:50:05,414 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,415 crm_comprehensive_views 35928 32656 Trying CRM endpoint: team
+ERROR 2025-09-25 23:50:05,416 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,416 crm_comprehensive_views 35928 32656 Trying CRM endpoint: members
+ERROR 2025-09-25 23:50:05,417 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:50:05,418 crm_comprehensive_views 35928 32656 No employees found in any CRM endpoint
+INFO 2025-09-25 23:50:05,419 crm_comprehensive_views 35928 32656 Trying CRM projects endpoint: projects
+ERROR 2025-09-25 23:50:05,419 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,420 crm_comprehensive_views 35928 32656 Trying CRM projects endpoint: deals
+ERROR 2025-09-25 23:50:05,421 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,421 crm_comprehensive_views 35928 32656 Trying CRM projects endpoint: opportunities
+ERROR 2025-09-25 23:50:05,422 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,423 crm_comprehensive_views 35928 32656 Trying CRM projects endpoint: cases
+ERROR 2025-09-25 23:50:05,423 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,424 crm_comprehensive_views 35928 32656 Trying CRM projects endpoint: workspaces
+ERROR 2025-09-25 23:50:05,424 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,425 crm_comprehensive_views 35928 32656 Trying CRM projects endpoint: campaigns
+ERROR 2025-09-25 23:50:05,425 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:50:05,426 crm_comprehensive_views 35928 32656 No projects found in any CRM endpoint
+INFO 2025-09-25 23:50:05,426 crm_comprehensive_views 35928 32656 Trying CRM tasks endpoint: tasks
+ERROR 2025-09-25 23:50:05,427 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,427 crm_comprehensive_views 35928 32656 Trying CRM tasks endpoint: activities
+ERROR 2025-09-25 23:50:05,428 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,429 crm_comprehensive_views 35928 32656 Trying CRM tasks endpoint: todos
+ERROR 2025-09-25 23:50:05,429 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,430 crm_comprehensive_views 35928 32656 Trying CRM tasks endpoint: assignments
+ERROR 2025-09-25 23:50:05,430 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,431 crm_comprehensive_views 35928 32656 Trying CRM tasks endpoint: work_items
+ERROR 2025-09-25 23:50:05,431 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,432 crm_comprehensive_views 35928 32656 Trying CRM tasks endpoint: tickets
+ERROR 2025-09-25 23:50:05,433 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:50:05,433 crm_comprehensive_views 35928 32656 No tasks found in any CRM endpoint
+INFO 2025-09-25 23:50:05,434 crm_comprehensive_views 35928 32656 Trying CRM summary endpoint: dashboard
+ERROR 2025-09-25 23:50:05,435 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,436 crm_comprehensive_views 35928 32656 Trying CRM summary endpoint: summary
+ERROR 2025-09-25 23:50:05,436 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,437 crm_comprehensive_views 35928 32656 Trying CRM summary endpoint: overview
+ERROR 2025-09-25 23:50:05,438 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,438 crm_comprehensive_views 35928 32656 Trying CRM summary endpoint: stats
+ERROR 2025-09-25 23:50:05,439 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+INFO 2025-09-25 23:50:05,439 crm_comprehensive_views 35928 32656 Trying CRM summary endpoint: metrics
+ERROR 2025-09-25 23:50:05,440 crm_comprehensive_views 35928 32656 CRM service not configured - missing base URL or token
+WARNING 2025-09-25 23:50:05,441 crm_comprehensive_views 35928 32656 No dashboard summary found in CRM
+INFO 2025-09-25 23:50:05,441 crm_comprehensive_views 35928 32656 Fetching Database analytics...
+INFO 2025-09-25 23:50:05,446 crm_comprehensive_views 35928 32656 No employee analytics found in database
+INFO 2025-09-25 23:50:05,452 crm_comprehensive_views 35928 32656 Using S3 employee count as primary: 3
+INFO 2025-09-25 23:50:05,453 crm_comprehensive_views 35928 32656 Dynamic data retrieved: 3 employees (S3: 3, CRM: 0, DB: 0), 293 projects, 1570 tasks from S3 Bucket (Real-time)
+INFO 2025-09-25 23:50:05,454 crm_comprehensive_views 35928 32656 Employee analysis: Total=3, Active=3, S3=3, CRM=0, DB=0
+INFO 2025-09-25 23:50:05,455 crm_comprehensive_views 35928 32656 CRM comprehensive dashboard response prepared successfully
+INFO 2025-09-25 23:50:05,456 middleware 35928 32656 Response: 200 for GET /api/dashboard/crm-comprehensive/
+INFO 2025-09-25 23:50:05,457 basehttp 35928 32656 "GET /api/dashboard/crm-comprehensive/ HTTP/1.1" 200 2585
+INFO 2025-09-26 01:38:12,782 middleware 36060 21108 Request: POST /api/auth/register/users/
+INFO 2025-09-26 01:38:12,895 middleware 36060 21108 Response: 400 for POST /api/auth/register/users/
+WARNING 2025-09-26 01:38:13,050 log 36060 21108 Bad Request: /api/auth/register/users/
+WARNING 2025-09-26 01:38:13,226 basehttp 36060 21108 "POST /api/auth/register/users/ HTTP/1.1" 400 130
+INFO 2025-09-26 01:38:18,633 middleware 36060 21108 Request: GET /api/auth/register/users/
+INFO 2025-09-26 01:38:18,709 middleware 36060 21108 Response: 200 for GET /api/auth/register/users/
+INFO 2025-09-26 01:38:18,751 basehttp 36060 21108 "GET /api/auth/register/users/ HTTP/1.1" 200 18483
+INFO 2025-09-26 01:52:15,920 basehttp 36060 13336 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-26 01:52:15,948 middleware 36060 13336 Request: GET /api/users/
+INFO 2025-09-26 01:52:18,508 views 36060 13336 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 01:52:18,519 middleware 36060 13336 Response: 400 for GET /api/users/
+WARNING 2025-09-26 01:52:18,526 log 36060 13336 Bad Request: /api/users/
+WARNING 2025-09-26 01:52:18,536 basehttp 36060 13336 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 02:01:44,797 middleware 36060 33088 Request: GET /api/users/
+INFO 2025-09-26 02:01:44,813 views 36060 33088 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 02:01:44,814 middleware 36060 33088 Response: 400 for GET /api/users/
+WARNING 2025-09-26 02:01:44,815 log 36060 33088 Bad Request: /api/users/
+WARNING 2025-09-26 02:01:44,816 basehttp 36060 33088 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 02:01:45,151 basehttp 36060 3164 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-26 02:01:45,154 middleware 36060 3164 Request: GET /api/users/
+INFO 2025-09-26 02:01:45,167 views 36060 3164 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 02:01:45,169 middleware 36060 3164 Response: 400 for GET /api/users/
+WARNING 2025-09-26 02:01:45,169 log 36060 3164 Bad Request: /api/users/
+WARNING 2025-09-26 02:01:45,171 basehttp 36060 3164 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 02:03:13,572 middleware 36060 33088 Request: GET /api/users/
+INFO 2025-09-26 02:03:13,608 views 36060 33088 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 02:03:13,624 middleware 36060 33088 Response: 400 for GET /api/users/
+WARNING 2025-09-26 02:03:13,651 log 36060 33088 Bad Request: /api/users/
+WARNING 2025-09-26 02:03:13,652 basehttp 36060 33088 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 02:03:13,799 middleware 36060 3164 Request: GET /api/users/
+INFO 2025-09-26 02:03:13,829 views 36060 3164 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 02:03:13,839 middleware 36060 3164 Response: 400 for GET /api/users/
+WARNING 2025-09-26 02:03:13,845 log 36060 3164 Bad Request: /api/users/
+WARNING 2025-09-26 02:03:13,845 basehttp 36060 3164 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 06:18:16,216 basehttp 18912 12540 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-26 06:18:16,228 middleware 18912 12540 Request: GET /api/users/
+INFO 2025-09-26 06:18:17,351 views 18912 12540 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 06:18:17,352 middleware 18912 12540 Response: 400 for GET /api/users/
+WARNING 2025-09-26 06:18:17,353 log 18912 12540 Bad Request: /api/users/
+WARNING 2025-09-26 06:18:17,354 basehttp 18912 12540 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 06:18:17,677 basehttp 18912 3652 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-26 06:18:17,682 middleware 18912 3652 Request: GET /api/users/
+INFO 2025-09-26 06:18:17,696 views 18912 3652 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 06:18:17,696 middleware 18912 3652 Response: 400 for GET /api/users/
+WARNING 2025-09-26 06:18:17,697 log 18912 3652 Bad Request: /api/users/
+WARNING 2025-09-26 06:18:17,698 basehttp 18912 3652 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 13:19:36,407 basehttp 18912 20992 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-26 13:19:36,422 middleware 18912 20992 Request: GET /api/users/
+INFO 2025-09-26 13:19:36,479 views 18912 20992 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 13:19:36,484 middleware 18912 20992 Response: 400 for GET /api/users/
+WARNING 2025-09-26 13:19:36,485 log 18912 20992 Bad Request: /api/users/
+WARNING 2025-09-26 13:19:36,486 basehttp 18912 20992 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-09-26 13:19:36,802 basehttp 18912 22204 "OPTIONS /api/users/ HTTP/1.1" 200 0
+INFO 2025-09-26 13:19:36,809 middleware 18912 22204 Request: GET /api/users/
+INFO 2025-09-26 13:19:36,815 views 18912 22204 S3 client initialized successfully for enhanced users search
+INFO 2025-09-26 13:19:36,816 middleware 18912 22204 Response: 400 for GET /api/users/
+WARNING 2025-09-26 13:19:36,816 log 18912 22204 Bad Request: /api/users/
+WARNING 2025-09-26 13:19:36,817 basehttp 18912 22204 "GET /api/users/ HTTP/1.1" 400 352
+INFO 2025-10-02 16:49:50,277 comprehensive_employees_api 11328 29064 S3 client initialized successfully
+INFO 2025-10-02 16:49:50,278 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+INFO 2025-10-02 16:49:50,546 comprehensive_employees_api 11328 29064 Endpoint /staff not found (404)
+INFO 2025-10-02 16:49:50,547 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+INFO 2025-10-02 16:49:51,056 comprehensive_employees_api 11328 29064 Endpoint /employees not found (404)
+INFO 2025-10-02 16:49:51,057 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+INFO 2025-10-02 16:49:51,904 comprehensive_employees_api 11328 29064 Endpoint /users not found (404)
+INFO 2025-10-02 16:49:51,905 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+INFO 2025-10-02 16:49:52,622 comprehensive_employees_api 11328 29064 Endpoint /personnel not found (404)
+INFO 2025-10-02 16:49:52,623 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+INFO 2025-10-02 16:49:53,331 comprehensive_employees_api 11328 29064 Endpoint /members not found (404)
+INFO 2025-10-02 16:49:53,331 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/team
+INFO 2025-10-02 16:49:54,038 comprehensive_employees_api 11328 29064 Endpoint /team not found (404)
+INFO 2025-10-02 16:49:54,039 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff-members
+INFO 2025-10-02 16:49:54,405 comprehensive_employees_api 11328 29064 Endpoint /staff-members not found (404)
+INFO 2025-10-02 16:49:54,406 comprehensive_employees_api 11328 29064 Trying CRM endpoint: https://crm.deluxebilisim.com/api/admin/staff
+INFO 2025-10-02 16:49:54,895 comprehensive_employees_api 11328 29064 Endpoint /admin/staff not found (404)
+INFO 2025-10-02 21:21:56,743 middleware 24604 11968 Request: GET /api/employees/comprehensive/
+INFO 2025-10-02 21:21:57,206 comprehensive_employees_api 24604 11968 S3 client initialized successfully
+INFO 2025-10-02 21:21:57,207 comprehensive_employees_api 24604 11968 Fetching comprehensive employee data from all sources
+INFO 2025-10-02 21:21:57,207 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+INFO 2025-10-02 21:21:58,082 comprehensive_employees_api 24604 11968 Endpoint /staff not found (404)
+INFO 2025-10-02 21:21:58,083 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+INFO 2025-10-02 21:21:58,505 comprehensive_employees_api 24604 11968 Endpoint /employees not found (404)
+INFO 2025-10-02 21:21:58,506 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+INFO 2025-10-02 21:21:58,959 comprehensive_employees_api 24604 11968 Endpoint /users not found (404)
+INFO 2025-10-02 21:21:58,961 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+INFO 2025-10-02 21:21:59,402 comprehensive_employees_api 24604 11968 Endpoint /personnel not found (404)
+INFO 2025-10-02 21:21:59,402 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+INFO 2025-10-02 21:22:00,027 comprehensive_employees_api 24604 11968 Endpoint /members not found (404)
+INFO 2025-10-02 21:22:00,029 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/team
+INFO 2025-10-02 21:22:00,433 comprehensive_employees_api 24604 11968 Endpoint /team not found (404)
+INFO 2025-10-02 21:22:00,434 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff-members
+INFO 2025-10-02 21:22:01,232 comprehensive_employees_api 24604 11968 Endpoint /staff-members not found (404)
+INFO 2025-10-02 21:22:01,233 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/admin/staff
+INFO 2025-10-02 21:22:01,633 comprehensive_employees_api 24604 11968 Endpoint /admin/staff not found (404)
+INFO 2025-10-02 21:22:04,095 comprehensive_employees_api 24604 11968 Analytics data cached: 32 employees
+INFO 2025-10-02 21:22:04,098 middleware 24604 11968 Response: 200 for GET /api/employees/comprehensive/
+INFO 2025-10-02 21:22:04,100 basehttp 24604 11968 "GET //api/employees/comprehensive/ HTTP/1.1" 200 19669
+INFO 2025-10-02 21:22:08,015 middleware 24604 11968 Request: GET /api/employees/comprehensive/
+INFO 2025-10-02 21:22:08,024 comprehensive_employees_api 24604 11968 S3 client initialized successfully
+INFO 2025-10-02 21:22:08,025 comprehensive_employees_api 24604 11968 Fetching comprehensive employee data from all sources
+INFO 2025-10-02 21:22:08,025 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff
+INFO 2025-10-02 21:22:08,603 comprehensive_employees_api 24604 11968 Endpoint /staff not found (404)
+INFO 2025-10-02 21:22:08,603 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/employees
+INFO 2025-10-02 21:22:09,077 comprehensive_employees_api 24604 11968 Endpoint /employees not found (404)
+INFO 2025-10-02 21:22:09,077 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/users
+INFO 2025-10-02 21:22:09,581 comprehensive_employees_api 24604 11968 Endpoint /users not found (404)
+INFO 2025-10-02 21:22:09,582 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/personnel
+INFO 2025-10-02 21:22:09,919 comprehensive_employees_api 24604 11968 Endpoint /personnel not found (404)
+INFO 2025-10-02 21:22:09,920 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/members
+INFO 2025-10-02 21:22:10,283 comprehensive_employees_api 24604 11968 Endpoint /members not found (404)
+INFO 2025-10-02 21:22:10,284 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/team
+INFO 2025-10-02 21:22:10,578 comprehensive_employees_api 24604 11968 Endpoint /team not found (404)
+INFO 2025-10-02 21:22:10,579 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/staff-members
+INFO 2025-10-02 21:22:11,238 comprehensive_employees_api 24604 11968 Endpoint /staff-members not found (404)
+INFO 2025-10-02 21:22:11,239 comprehensive_employees_api 24604 11968 Trying CRM endpoint: https://crm.deluxebilisim.com/api/admin/staff
+INFO 2025-10-02 21:22:11,595 comprehensive_employees_api 24604 11968 Endpoint /admin/staff not found (404)
+INFO 2025-10-02 21:22:14,128 comprehensive_employees_api 24604 11968 Analytics data cached: 32 employees
+INFO 2025-10-02 21:22:14,129 middleware 24604 11968 Response: 200 for GET /api/employees/comprehensive/
+INFO 2025-10-02 21:22:14,131 basehttp 24604 11968 "GET /api/employees/comprehensive/ HTTP/1.1" 200 19669
+INFO 2025-10-03 01:32:47,131 users_search_views 25524 7780 S3 client initialized successfully for enhanced users search
+ERROR 2025-10-03 01:32:47,136 users_search_views 25524 7780 Error parsing screenshot details for users_screenshots/2025-10-03/nawaz_at_dxdglobal.com/2025-10-03_00-44-00.webp: 'MockS3Object' object is not subscriptable
+ERROR 2025-10-03 01:32:47,137 users_search_views 25524 7780 Error parsing screenshot details for users_screenshots/2025-10-02/haseeb_at_gmail.com/2025-10-02_14-30-15.webp: 'MockS3Object' object is not subscriptable
+ERROR 2025-10-03 01:32:47,138 users_search_views 25524 7780 Error parsing screenshot details for users_screenshots/2025-10-01/john.doe_at_company.com/screenshot_001.png: 'MockS3Object' object is not subscriptable
+INFO 2025-10-03 01:32:56,262 users_search_views 29408 16280 S3 client initialized successfully for enhanced users search
+ERROR 2025-10-03 01:32:56,267 users_search_views 29408 16280 Error parsing screenshot details for users_screenshots/2025-10-03/nawaz_at_dxdglobal.com/2025-10-03_00-44-00.webp: 'MockS3Object' object is not subscriptable
+ERROR 2025-10-03 01:32:56,268 users_search_views 29408 16280 Error parsing screenshot details for users_screenshots/2025-10-02/haseeb_at_gmail.com/2025-10-02_14-30-15.webp: 'MockS3Object' object is not subscriptable
+ERROR 2025-10-03 01:32:56,269 users_search_views 29408 16280 Error parsing screenshot details for users_screenshots/2025-10-01/john.doe_at_company.com/screenshot_001.png: 'MockS3Object' object is not subscriptable
+INFO 2025-10-03 01:34:35,423 middleware 10672 24772 Request: GET /api/users/search/
+INFO 2025-10-03 01:34:35,755 users_search_views 10672 24772 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:34:35,756 users_search_views 10672 24772 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:34:35,759 users_search_views 10672 24772 Start date filter: 2025-10-02
+INFO 2025-10-03 01:34:35,760 users_search_views 10672 24772 End date filter: 2025-10-03
+INFO 2025-10-03 01:34:35,760 users_search_views 10672 24772 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:34:44,206 middleware 10672 24772 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:34:44,207 basehttp 10672 24772 "GET /api/users/search/?q=nawaz&start_date=2025-10-02&end_date=2025-10-03 HTTP/1.1" 200 5209
+INFO 2025-10-03 01:35:37,142 middleware 10672 26240 Request: GET /api/users/search/
+INFO 2025-10-03 01:35:37,148 users_search_views 10672 26240 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:35:37,148 users_search_views 10672 26240 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:35:37,149 users_search_views 10672 26240 Start date filter: 2025-10-01
+INFO 2025-10-03 01:35:37,149 users_search_views 10672 26240 End date filter: 2025-10-03
+INFO 2025-10-03 01:35:37,149 users_search_views 10672 26240 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:35:47,297 middleware 10672 26240 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:35:47,298 basehttp 10672 26240 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 59526
+INFO 2025-10-03 01:39:19,619 users_search_views 21912 8688 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:43:12,781 middleware 19368 7448 Request: GET /api/users/search/
+INFO 2025-10-03 01:43:13,149 users_search_views 19368 7448 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:43:13,150 users_search_views 19368 7448 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:43:13,153 users_search_views 19368 7448 Start date filter: 2025-10-01
+INFO 2025-10-03 01:43:13,154 users_search_views 19368 7448 End date filter: 2025-10-03
+INFO 2025-10-03 01:43:13,154 users_search_views 19368 7448 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:43:46,084 middleware 19368 7448 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:43:46,085 basehttp 19368 7448 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 01:43:46,233 middleware 19368 7448 Request: GET /api/users/search/
+INFO 2025-10-03 01:43:46,246 users_search_views 19368 7448 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:43:46,247 users_search_views 19368 7448 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:43:46,247 users_search_views 19368 7448 Start date filter: 2025-10-01
+INFO 2025-10-03 01:43:46,248 users_search_views 19368 7448 End date filter: 2025-10-03
+INFO 2025-10-03 01:43:46,248 users_search_views 19368 7448 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:44:25,720 middleware 19368 7448 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:44:25,723 basehttp 19368 7448 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 01:44:56,325 users_search_views 28292 22792 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:46:34,470 credentials 18740 30972 Found credentials in environment variables.
+INFO 2025-10-03 01:48:10,976 middleware 19368 29688 Request: GET /api/users/search/
+INFO 2025-10-03 01:48:10,982 users_search_views 19368 29688 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:48:10,983 users_search_views 19368 29688 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:48:10,984 users_search_views 19368 29688 Start date filter: 2025-10-01
+INFO 2025-10-03 01:48:10,984 users_search_views 19368 29688 End date filter: 2025-10-03
+INFO 2025-10-03 01:48:10,984 users_search_views 19368 29688 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:48:45,033 middleware 19368 29688 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:48:45,034 basehttp 19368 29688 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 01:52:31,701 middleware 21436 22452 Request: GET /api/users/search/
+INFO 2025-10-03 01:52:32,026 users_search_views 21436 22452 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:52:32,027 users_search_views 21436 22452 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:52:32,032 users_search_views 21436 22452 Start date filter: 2025-10-01
+INFO 2025-10-03 01:52:32,032 users_search_views 21436 22452 End date filter: 2025-10-03
+INFO 2025-10-03 01:52:32,033 users_search_views 21436 22452 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:53:02,817 middleware 21436 22452 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:53:02,818 basehttp 21436 22452 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1796
+INFO 2025-10-03 01:53:10,710 middleware 21436 22452 Request: GET /api/users/search/
+INFO 2025-10-03 01:53:10,716 users_search_views 21436 22452 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:53:10,717 users_search_views 21436 22452 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:53:10,717 users_search_views 21436 22452 Start date filter: 2025-10-01
+INFO 2025-10-03 01:53:10,718 users_search_views 21436 22452 End date filter: 2025-10-03
+INFO 2025-10-03 01:53:10,718 users_search_views 21436 22452 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:53:42,436 middleware 21436 22452 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:53:42,437 basehttp 21436 22452 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 01:53:42,560 middleware 21436 22452 Request: GET /api/users/search/
+INFO 2025-10-03 01:53:42,565 users_search_views 21436 22452 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:53:42,566 users_search_views 21436 22452 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:53:42,567 users_search_views 21436 22452 Start date filter: 2025-10-01
+INFO 2025-10-03 01:53:42,567 users_search_views 21436 22452 End date filter: 2025-10-03
+INFO 2025-10-03 01:53:42,567 users_search_views 21436 22452 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:54:19,983 middleware 21436 22452 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:54:19,984 basehttp 21436 22452 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 01:54:21,534 credentials 19008 25876 Found credentials in environment variables.
+INFO 2025-10-03 01:54:31,531 credentials 7572 31480 Found credentials in environment variables.
+INFO 2025-10-03 01:56:14,555 middleware 26100 8880 Request: GET /api/users/search/
+INFO 2025-10-03 01:56:14,935 users_search_views 26100 8880 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:56:14,936 users_search_views 26100 8880 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:56:14,940 users_search_views 26100 8880 Start date filter: 2025-10-01
+INFO 2025-10-03 01:56:14,940 users_search_views 26100 8880 End date filter: 2025-10-03
+INFO 2025-10-03 01:56:14,941 users_search_views 26100 8880 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:56:47,322 middleware 26100 8880 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:56:47,323 basehttp 26100 8880 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 01:58:01,763 middleware 26100 26272 Request: GET /api/users/search/
+INFO 2025-10-03 01:58:01,780 users_search_views 26100 26272 S3 client initialized successfully for enhanced users search
+INFO 2025-10-03 01:58:01,781 users_search_views 26100 26272 Enhanced search for 'nawaz' - Page: 1, Size: 50, Group: date, Month: , Year: 
+INFO 2025-10-03 01:58:01,781 users_search_views 26100 26272 Start date filter: 2025-10-01
+INFO 2025-10-03 01:58:01,782 users_search_views 26100 26272 End date filter: 2025-10-03
+INFO 2025-10-03 01:58:01,782 users_search_views 26100 26272 Searching screenshots in prefix: users_screenshots/
+INFO 2025-10-03 01:58:33,549 middleware 26100 26272 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 01:58:33,550 basehttp 26100 26272 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 1797
+INFO 2025-10-03 02:22:10,927 middleware 19648 26364 Request: GET /api/users/search/
+INFO 2025-10-03 02:22:11,386 users_search_views 19648 26364 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:22:11,390 users_search_views 19648 26364 Generated 3 search prefixes
+INFO 2025-10-03 02:22:11,390 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:22:19,489 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:22:27,509 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:22:32,166 middleware 19648 26364 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:22:32,170 basehttp 19648 26364 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 56188
+INFO 2025-10-03 02:22:32,828 middleware 19648 26364 Request: GET /api/users/search/
+INFO 2025-10-03 02:22:32,839 users_search_views 19648 26364 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:22:32,839 users_search_views 19648 26364 Generated 3 search prefixes
+INFO 2025-10-03 02:22:32,840 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:22:39,376 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:22:45,488 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:22:49,453 middleware 19648 26364 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:22:49,454 basehttp 19648 26364 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 56188
+INFO 2025-10-03 02:23:37,603 middleware 19648 26364 Request: GET /api/users/search/
+INFO 2025-10-03 02:23:37,610 users_search_views 19648 26364 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:23:37,611 users_search_views 19648 26364 Generated 3 search prefixes
+INFO 2025-10-03 02:23:37,611 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:23:43,919 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:23:49,859 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:23:55,178 middleware 19648 26364 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:23:55,179 basehttp 19648 26364 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 56200
+INFO 2025-10-03 02:24:05,080 middleware 19648 26364 Request: GET /api/users/search/
+INFO 2025-10-03 02:24:05,088 users_search_views 19648 26364 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:24:05,089 users_search_views 19648 26364 Generated 3 search prefixes
+INFO 2025-10-03 02:24:05,089 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:24:10,891 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:24:18,431 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:24:25,580 middleware 19648 26364 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:24:25,581 basehttp 19648 26364 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 55763
+INFO 2025-10-03 02:24:40,822 middleware 19648 26364 Request: GET /api/users/search/
+INFO 2025-10-03 02:24:40,828 users_search_views 19648 26364 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:24:40,829 users_search_views 19648 26364 Generated 3 search prefixes
+INFO 2025-10-03 02:24:40,829 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:25:04,922 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:25:17,083 users_search_views 19648 26364 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:25:20,527 middleware 19648 26364 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:25:20,528 basehttp 19648 26364 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 55763
+INFO 2025-10-03 02:26:04,775 middleware 19648 20500 Request: GET /api/users/search/
+INFO 2025-10-03 02:26:04,782 users_search_views 19648 20500 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:26:04,783 users_search_views 19648 20500 Generated 3 search prefixes
+INFO 2025-10-03 02:26:04,783 users_search_views 19648 20500 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:26:19,037 users_search_views 19648 20500 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:26:32,192 users_search_views 19648 20500 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:26:43,622 middleware 19648 20500 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:26:43,623 basehttp 19648 20500 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 55775
+INFO 2025-10-03 02:27:47,305 middleware 19648 14084 Request: GET /api/users/search/
+INFO 2025-10-03 02:27:47,313 users_search_views 19648 14084 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:27:47,313 users_search_views 19648 14084 Generated 3 search prefixes
+INFO 2025-10-03 02:27:47,314 users_search_views 19648 14084 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:27:54,883 users_search_views 19648 14084 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:28:00,376 users_search_views 19648 14084 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:28:06,655 middleware 19648 14084 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:28:06,657 basehttp 19648 14084 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 56203
+INFO 2025-10-03 02:28:50,068 middleware 19648 25504 Request: GET /api/users/search/
+INFO 2025-10-03 02:28:50,077 users_search_views 19648 25504 Enhanced search: q='nawaz', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:28:50,077 users_search_views 19648 25504 Generated 3 search prefixes
+INFO 2025-10-03 02:28:50,078 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:28:56,751 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:29:02,974 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:29:07,475 middleware 19648 25504 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:29:07,477 basehttp 19648 25504 "GET /api/users/search/?q=nawaz&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 56191
+INFO 2025-10-03 02:29:20,008 middleware 19648 25504 Request: GET /api/users/search/
+INFO 2025-10-03 02:29:20,015 users_search_views 19648 25504 Enhanced search: q='k', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:29:20,015 users_search_views 19648 25504 Generated 3 search prefixes
+INFO 2025-10-03 02:29:20,016 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:29:23,140 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:29:25,283 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:29:27,884 middleware 19648 25504 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:29:27,885 basehttp 19648 25504 "GET /api/users/search/?q=k&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 851
+INFO 2025-10-03 02:30:01,915 middleware 19648 25504 Request: GET /api/users/search/
+INFO 2025-10-03 02:30:01,922 users_search_views 19648 25504 Enhanced search: q='d', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 02:30:01,923 users_search_views 19648 25504 Generated 3 search prefixes
+INFO 2025-10-03 02:30:01,924 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 02:30:30,391 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 02:31:03,490 users_search_views 19648 25504 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 02:31:08,000 middleware 19648 25504 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 02:31:08,001 basehttp 19648 25504 "GET /api/users/search/?q=d&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 169250
+INFO 2025-10-03 11:38:09,328 middleware 19648 14820 Request: GET /api/users/search/
+INFO 2025-10-03 11:38:09,357 users_search_views 19648 14820 Enhanced search: q='na', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 11:38:09,358 users_search_views 19648 14820 Generated 3 search prefixes
+INFO 2025-10-03 11:38:09,360 users_search_views 19648 14820 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 11:38:55,001 users_search_views 19648 14820 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 11:39:05,423 middleware 19648 10836 Request: GET /api/users/search/
+INFO 2025-10-03 11:39:05,448 users_search_views 19648 10836 Enhanced search: q='na', dates=2025-10-01 to 2025-10-03
+INFO 2025-10-03 11:39:05,474 users_search_views 19648 10836 Generated 3 search prefixes
+INFO 2025-10-03 11:39:05,502 users_search_views 19648 10836 Searching S3 with prefix: users_screenshots/2025-10-01/
+INFO 2025-10-03 11:39:14,647 users_search_views 19648 14820 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 11:39:23,865 users_search_views 19648 10836 Searching S3 with prefix: users_screenshots/2025-10-02/
+INFO 2025-10-03 11:39:27,902 middleware 19648 14820 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 11:39:27,905 basehttp 19648 14820 - Broken pipe from ('127.0.0.1', 53771)
+INFO 2025-10-03 11:39:38,910 users_search_views 19648 10836 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 11:39:52,854 middleware 19648 10836 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 11:39:52,856 basehttp 19648 10836 "GET /api/users/search/?q=na&start_date=2025-10-01&end_date=2025-10-03 HTTP/1.1" 200 56146
+INFO 2025-10-03 11:41:12,761 middleware 19648 27172 Request: GET /api/users/search/
+INFO 2025-10-03 11:41:12,789 users_search_views 19648 27172 Enhanced search: q='na', dates=2025-10-03 to 2025-10-03
+INFO 2025-10-03 11:41:12,790 users_search_views 19648 27172 Generated 1 search prefixes
+INFO 2025-10-03 11:41:12,791 users_search_views 19648 27172 Searching S3 with prefix: users_screenshots/2025-10-03/
+INFO 2025-10-03 11:41:36,264 middleware 19648 27172 Response: 200 for GET /api/users/search/
+INFO 2025-10-03 11:41:36,267 basehttp 19648 27172 "GET /api/users/search/?q=na&start_date=2025-10-03&end_date=2025-10-03 HTTP/1.1" 200 56142
