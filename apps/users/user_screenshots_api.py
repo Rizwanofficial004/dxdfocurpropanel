@@ -72,9 +72,15 @@ class UserScreenshotsAPI(APIView):
     def get(self, request):
         """
         GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
+        GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&offset=0&limit=50&load_more=true
         
         Fetch screenshots for a specific user with pagination and date filtering
-        Default page size: 25, Maximum: 500
+        
+        Supports two pagination modes:
+        1. Traditional pagination: page + page_size (default)
+        2. Load more pagination: offset + limit + load_more=true
+        
+        Default page size: 50, Maximum: 500
         Enhanced to handle .webp files and multiple date formats
         """
         try:
@@ -83,24 +89,53 @@ class UserScreenshotsAPI(APIView):
             start_date = request.GET.get('start_date', '').strip()
             end_date = request.GET.get('end_date', '').strip()
             
-            # Parse offset for "Load More" functionality (instead of page number)
-            try:
-                offset = int(request.GET.get('offset', 0))
-                if offset < 0:
-                    offset = 0
-            except (ValueError, TypeError):
-                offset = 0
-                
-            try:
-                page_size = int(request.GET.get('page_size', 25))
-                if page_size < 1:
-                    page_size = 25
-                elif page_size > 500:  # Limit max page size to 500
-                    page_size = 500
-            except (ValueError, TypeError):
-                page_size = 25
+            # Check if load_more mode is requested
+            load_more_mode = request.GET.get('load_more', '').lower() in ['true', '1', 'yes']
             
-            logger.info(f"UserScreenshots API - Query: {user_query}, Date range: {start_date} to {end_date}, Offset: {offset}, Page size: {page_size}")
+            if load_more_mode:
+                # Load more pagination using offset + limit
+                try:
+                    offset = int(request.GET.get('offset', 0))
+                    if offset < 0:
+                        offset = 0
+                except (ValueError, TypeError):
+                    offset = 0
+                    
+                try:
+                    limit = int(request.GET.get('limit', 50))
+                    if limit < 10:  # Minimum 10 for load more
+                        limit = 10
+                    elif limit > 200:  # Maximum 200 for load more (smaller chunks)
+                        limit = 200
+                except (ValueError, TypeError):
+                    limit = 50
+                    
+                page = None  # Not used in load more mode
+                page_size = limit
+            else:
+                # Traditional page-based pagination
+                try:
+                    page = int(request.GET.get('page', 1))
+                    if page < 1:
+                        page = 1
+                except (ValueError, TypeError):
+                    page = 1
+                    
+                try:
+                    page_size = int(request.GET.get('page_size', 50))
+                    if page_size < 50:  # Minimum 50
+                        page_size = 50
+                    elif page_size > 500:  # Maximum 500
+                        page_size = 500
+                except (ValueError, TypeError):
+                    page_size = 50
+                    
+                offset = (page - 1) * page_size
+            
+            if load_more_mode:
+                logger.info(f"UserScreenshots API (Load More) - Query: {user_query}, Date range: {start_date} to {end_date}, Offset: {offset}, Limit: {limit}")
+            else:
+                logger.info(f"UserScreenshots API (Pagination) - Query: {user_query}, Date range: {start_date} to {end_date}, Page: {page}, Page size: {page_size}")
             
             # Debug AWS configuration
             logger.info(f"AWS Config - Bucket: {self.bucket_name}, Region: {self.aws_config['region']}")
@@ -115,11 +150,14 @@ class UserScreenshotsAPI(APIView):
             # Normalize user email format (handle @ vs _at_ conversion)
             normalized_user = user_query.replace('@', '_at_').lower()
             
-            # Validate and parse date range
+            # Validate and parse date range............
             date_filter = self._parse_date_range(start_date, end_date)
             
-            # Search for user screenshots with offset-based pagination
-            screenshots_data = self._search_user_screenshots(normalized_user, date_filter, offset, page_size)
+            # Search for user screenshots with appropriate pagination method
+            if load_more_mode:
+                screenshots_data = self._search_user_screenshots_load_more(normalized_user, date_filter, offset, limit)
+            else:
+                screenshots_data = self._search_user_screenshots_date_wise(normalized_user, date_filter, page, page_size)
             
             return Response(screenshots_data, status=status.HTTP_200_OK)
             
@@ -161,23 +199,234 @@ class UserScreenshotsAPI(APIView):
         
         return date_filter
     
-    def _search_user_screenshots(self, normalized_user, date_filter, offset, page_size):
-        """Search for screenshots - FAST pagination with offset (Load More functionality)"""
+    def _search_user_screenshots_date_wise(self, normalized_user, date_filter, page, page_size):
+        """Search for screenshots - Date-wise scanning prioritizing recent dates"""
         try:
-            logger.info(f"Fast search for user: {normalized_user}, offset: {offset}, size: {page_size}")
+            logger.info(f"Date-wise search for user: {normalized_user}, page: {page}, size: {page_size}")
             logger.info(f"Date filter: {date_filter['start_date']} to {date_filter['end_date']}")
             
-            # STEP 1: Fetch screenshots starting from offset
-            screenshots = self._fetch_screenshots_with_offset(normalized_user, date_filter, offset, page_size)
+            # Set flag for deeper scanning when date filters are provided
+            self._has_date_filter = bool(date_filter['start_date'] or date_filter['end_date'])
             
-            logger.info(f"Fetched {len(screenshots)} screenshots starting from offset {offset}")
+            # STEP 1: Generate date range to scan (today backwards)
+            scan_dates = self._generate_scan_dates(date_filter)
+            logger.info(f"Will scan {len(scan_dates)} dates starting from most recent")
             
-            # STEP 2: Determine if there are more items (for "Load More" button)
-            has_more = len(screenshots) == page_size  # If we got full page, assume more exist
-            next_offset = offset + len(screenshots) if has_more else None
+            # STEP 2: Fetch screenshots date-wise with pagination
+            screenshots, total_found = self._fetch_screenshots_date_wise(
+                normalized_user, scan_dates, page, page_size
+            )
             
-            # Generate project folder statistics from current batch only
+            logger.info(f"Fetched {len(screenshots)} screenshots for page {page}")
+            
+            # STEP 3: Calculate pagination info
+            total_pages = math.ceil(total_found / page_size) if total_found > 0 else 1
+            has_next = page < total_pages
+            has_previous = page > 1
+            
+            # Generate project folder statistics
             project_stats = self._generate_project_stats(screenshots)
+            
+            return {
+                "status": "success",
+                "message": f"Retrieved {len(screenshots)} screenshots for page {page}",
+                "data": {
+                    "user": {
+                        "email": normalized_user.replace('_at_', '@'),
+                        "normalized_email": normalized_user
+                    },
+                    "date_range": {
+                        "start_date": date_filter['start_date'],
+                        "end_date": date_filter['end_date']
+                    },
+                    "project_folders": project_stats,
+                    "pagination": {
+                        "page": page,
+                        "page_size": page_size,
+                        "total_pages": total_pages,
+                        "total_screenshots": total_found,
+                        "returned_count": len(screenshots),
+                        "has_next": has_next,
+                        "has_previous": has_previous,
+                        "next_page": page + 1 if has_next else None,
+                        "previous_page": page - 1 if has_previous else None,
+                        "showing": f"Page {page} of {total_pages} ({len(screenshots)} items)"
+                    },
+                    "screenshots": screenshots,
+                    "data_source": "S3 (Date-wise scanning from recent dates)"
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error in date-wise search: {str(e)}")
+            return self._empty_response_page(normalized_user, date_filter, page, page_size)
+    
+    def _generate_scan_dates(self, date_filter):
+        """Generate list of dates to scan, prioritizing recent dates"""
+        today = datetime.now().date()
+        scan_dates = []
+        
+        if date_filter['start_date'] and date_filter['end_date']:
+            # Use provided date range but limit to reasonable size
+            start_date = date_filter['start_datetime'].date()
+            end_date = date_filter['end_datetime'].date()
+            
+            # Limit date range to maximum 30 days for performance
+            days_diff = (end_date - start_date).days
+            if days_diff > 30:
+                end_date = start_date + timedelta(days=30)
+                logger.info(f"Limited date range to 30 days for performance: {start_date} to {end_date}")
+        else:
+            # Default: scan only last 7 days for much better performance
+            end_date = today
+            start_date = today - timedelta(days=7)
+        
+        # Generate dates from most recent to oldest
+        current_date = end_date
+        while current_date >= start_date:
+            scan_dates.append(current_date.strftime('%Y-%m-%d'))
+            current_date -= timedelta(days=1)
+        
+        logger.info(f"Generated {len(scan_dates)} dates to scan, from {scan_dates[0]} to {scan_dates[-1]}")
+        return scan_dates
+    
+    def _fetch_screenshots_date_wise(self, normalized_user, scan_dates, page, page_size):
+        """Fetch screenshots by scanning dates from recent to old with smart pagination"""
+        all_screenshots = []
+        total_found = 0
+        
+        try:
+            # Calculate how many we need for this page
+            start_index = (page - 1) * page_size
+            end_index = start_index + page_size
+            needed_for_page = end_index
+            
+            # Scan each date starting from most recent
+            for i, date_str in enumerate(scan_dates):
+                date_screenshots = self._scan_single_date(normalized_user, date_str)
+                all_screenshots.extend(date_screenshots)
+                
+                if len(date_screenshots) > 0:
+                    logger.info(f"Found {len(date_screenshots)} screenshots for date {date_str}")
+                
+                # Smart early exit: if we have enough for current page + some buffer, stop scanning
+                if len(all_screenshots) >= needed_for_page + 50:  # 50 item buffer
+                    logger.info(f"Early exit: Found {len(all_screenshots)} screenshots, enough for page {page}")
+                    break
+                    
+                # Also exit if we've scanned too many dates without finding much
+                if i >= 10 and len(all_screenshots) < 10:  # If 10 days scanned but < 10 screenshots
+                    logger.info(f"Early exit: Scanned {i+1} dates but only found {len(all_screenshots)} screenshots")
+                    break
+            
+            # Sort by date and time (newest first)
+            all_screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
+            total_found = len(all_screenshots)
+            
+            # Apply pagination
+            page_screenshots = all_screenshots[start_index:end_index]
+            
+            logger.info(f"Date-wise scan complete: {total_found} total, returning {len(page_screenshots)} for page {page}")
+            return page_screenshots, total_found
+            
+        except Exception as e:
+            logger.error(f"Error in date-wise fetch: {str(e)}")
+            return [], 0
+    
+    def _scan_single_date(self, normalized_user, date_str):
+        """Scan screenshots for a single date efficiently with limits"""
+        screenshots = []
+        
+        try:
+            # Scan users_screenshots folder for this date
+            prefix = f'users_screenshots/{date_str}/'
+            
+            # Determine scanning limits based on whether date filter is applied
+            has_date_filter = hasattr(self, '_has_date_filter') and self._has_date_filter
+            max_items = 5000 if has_date_filter else 1000
+            
+            paginator = self.s3_client.get_paginator('list_objects_v2')
+            page_iterator = paginator.paginate(
+                Bucket=self.bucket_name,
+                Prefix=prefix,
+                PaginationConfig={
+                    'PageSize': 100,
+                    'MaxItems': max_items  # Higher limit for date-filtered requests
+                }
+            )
+            
+            for page in page_iterator:
+                if 'Contents' in page:
+                    for obj in page['Contents']:
+                        if obj['Key'].endswith('.webp'):
+                            key_parts = obj['Key'].split('/')
+                            if len(key_parts) >= 4:
+                                user_email = key_parts[2]
+                                
+                                # Check if this matches our user
+                                if self._user_matches(normalized_user, user_email):
+                                    filename = key_parts[-1]
+                                    project_folder = self._extract_project_folder(obj['Key'])
+                                    
+                                    screenshot_info = {
+                                        'filename': filename,
+                                        'date': date_str,
+                                        'user_email': user_email,
+                                        'folder_structure': 'users_screenshots',
+                                        'project_folder': project_folder,
+                                        'file_key': obj['Key'],
+                                        'file_size_mb': round(obj['Size'] / (1024 * 1024), 3),
+                                        'last_modified': obj['LastModified'].isoformat(),
+                                        'screenshot_url': self._generate_signed_url(obj['Key'])
+                                    }
+                                    screenshots.append(screenshot_info)
+                                    
+                                    # Dynamic limit based on whether date filter is applied
+                                    has_date_filter = hasattr(self, '_has_date_filter') and self._has_date_filter
+                                    limit = 2000 if has_date_filter else 500
+                                    
+                                    if len(screenshots) >= limit:
+                                        logger.info(f"Hit {limit} screenshot limit for date {date_str} (date filter: {has_date_filter})")
+                                        return screenshots
+            
+        except Exception as e:
+            logger.error(f"Error scanning date {date_str}: {str(e)}")
+        
+        return screenshots
+    
+    def _user_matches(self, normalized_user, user_email):
+        """Check if user email matches (handle both @ and _at_ formats)"""
+        return (
+            normalized_user.lower() == user_email.lower() or
+            normalized_user.lower() in user_email.lower() or
+            user_email.lower() in normalized_user.lower()
+        )
+    
+    def _search_user_screenshots_load_more(self, normalized_user, date_filter, offset, limit):
+        """Search for screenshots - Load more pagination with offset-based approach"""
+        try:
+            logger.info(f"Load more search for user: {normalized_user}, offset: {offset}, limit: {limit}")
+            logger.info(f"Date filter: {date_filter['start_date']} to {date_filter['end_date']}")
+            
+            # Set flag for deeper scanning when date filters are provided
+            self._has_date_filter = bool(date_filter['start_date'] or date_filter['end_date'])
+            
+            # STEP 1: Generate date range to scan (today backwards)
+            scan_dates = self._generate_scan_dates(date_filter)
+            logger.info(f"Will scan {len(scan_dates)} dates starting from most recent")
+            
+            # STEP 2: Fetch screenshots with offset-based pagination
+            screenshots, total_found, has_more = self._fetch_screenshots_load_more(
+                normalized_user, scan_dates, offset, limit
+            )
+            
+            logger.info(f"Load more fetch: {len(screenshots)} screenshots returned, total found: {total_found}, has_more: {has_more}")
+            
+            # Generate project folder statistics
+            project_stats = self._generate_project_stats(screenshots)
+            
+            # Calculate next offset for load more
+            next_offset = offset + len(screenshots) if has_more else None
             
             return {
                 "status": "success",
@@ -192,70 +441,195 @@ class UserScreenshotsAPI(APIView):
                         "end_date": date_filter['end_date']
                     },
                     "project_folders": project_stats,
-                    "pagination": {
+                    "load_more": {
                         "offset": offset,
-                        "page_size": page_size,
+                        "limit": limit,
                         "returned_count": len(screenshots),
                         "has_more": has_more,
                         "next_offset": next_offset,
-                        "showing": f"Items {offset + 1}-{offset + len(screenshots)}",
-                        "note": "Use 'offset' parameter for Load More functionality"
+                        "total_found": total_found,
+                        "showing": f"Items {offset + 1}-{offset + len(screenshots)} of {total_found if not has_more else 'many'}"
                     },
                     "screenshots": screenshots,
-                    "data_source": "S3 (Load More pagination - no full scan)"
+                    "data_source": "S3 (Load more with offset-based pagination)"
                 }
             }
             
         except Exception as e:
-            logger.error(f"Error in offset-based search: {str(e)}")
-            return self._empty_response_offset(normalized_user, date_filter, offset, page_size)
+            logger.error(f"Error in load more search: {str(e)}")
+            return self._empty_response_load_more(normalized_user, date_filter, offset, limit)
     
-    def _fetch_screenshots_with_offset(self, normalized_user, date_filter, offset, page_size):
-        """Fetch screenshots starting from a specific offset (for Load More)"""
-        screenshots = []
+    def _fetch_screenshots_load_more(self, normalized_user, scan_dates, offset, limit):
+        """Fetch screenshots using offset-based pagination for load more functionality"""
+        all_screenshots = []
+        total_skipped = 0
         
         try:
-            logger.info(f"Offset fetch: starting from {offset}, fetching {page_size}")
+            # Calculate target: skip 'offset' items, then collect 'limit' items
+            target_skip = offset
+            target_collect = limit
+            collected = 0
             
-            # Search in both folders but with offset handling
-            current_count = 0
-            
-            # Try users_screenshots folder first
-            users_screenshots = self._fetch_from_users_screenshots_offset(
-                normalized_user, date_filter, offset, page_size, current_count
-            )
-            screenshots.extend(users_screenshots)
-            current_count = len(screenshots)
-            logger.info(f"Got {len(users_screenshots)} from users_screenshots folder")
-            
-            # Try screenshots folder if we need more
-            if current_count < page_size:
-                remaining_offset = max(0, offset - current_count)
-                remaining_needed = page_size - current_count
+            # Scan each date starting from most recent
+            for i, date_str in enumerate(scan_dates):
+                if collected >= target_collect:
+                    break
+                    
+                date_screenshots = self._scan_single_date(normalized_user, date_str)
                 
-                screenshots_folder = self._fetch_from_screenshots_offset(
-                    normalized_user, date_filter, remaining_offset, remaining_needed
-                )
-                screenshots.extend(screenshots_folder)
-                logger.info(f"Got {len(screenshots_folder)} from screenshots folder")
+                if len(date_screenshots) > 0:
+                    logger.info(f"Found {len(date_screenshots)} screenshots for date {date_str}")
+                
+                # Sort this date's screenshots by time (newest first)
+                date_screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
+                
+                # Process each screenshot for offset/limit logic
+                for screenshot in date_screenshots:
+                    if total_skipped < target_skip:
+                        # Still skipping items to reach offset
+                        total_skipped += 1
+                    elif collected < target_collect:
+                        # Collecting items for this batch
+                        all_screenshots.append(screenshot)
+                        collected += 1
+                    else:
+                        # We have enough items for this batch
+                        break
+                
+                # Early exit if we've collected enough
+                if collected >= target_collect:
+                    break
+                    
+                # Also exit if we've scanned too many dates without finding much
+                if i >= 15 and len(all_screenshots) == 0:  # If 15 days scanned but no results
+                    logger.info(f"Early exit: Scanned {i+1} dates but found no matching screenshots")
+                    break
             
-            # Remove duplicates quickly
-            unique_screenshots = []
-            seen = set()
-            for screenshot in screenshots:
-                key = (screenshot.get('filename'), screenshot.get('date'))
-                if key not in seen and len(unique_screenshots) < page_size:
-                    seen.add(key)
-                    unique_screenshots.append(screenshot)
+            # Check if there are more items available
+            has_more = False
+            if collected == target_collect:
+                # Try to fetch one more item to see if there are more
+                remaining_dates = scan_dates[i:]
+                for date_str in remaining_dates:
+                    date_screenshots = self._scan_single_date(normalized_user, date_str)
+                    if date_screenshots:
+                        # Check if we can find at least one more item beyond our current collection
+                        for screenshot in date_screenshots:
+                            if total_skipped + collected < offset + limit + 1:
+                                has_more = True
+                                break
+                        if has_more:
+                            break
             
-            # Sort by date (newest first)
-            unique_screenshots.sort(key=lambda x: x.get('last_modified', ''), reverse=True)
+            total_found = total_skipped + collected
             
-            return unique_screenshots[:page_size]
+            logger.info(f"Load more fetch complete: skipped {total_skipped}, collected {collected}, has_more: {has_more}")
+            return all_screenshots, total_found, has_more
             
         except Exception as e:
-            logger.error(f"Error in offset fetch: {str(e)}")
-            return []
+            logger.error(f"Error in load more fetch: {str(e)}")
+            return [], 0, False
+    
+    def _empty_response_load_more(self, normalized_user, date_filter, offset, limit):
+        """Return empty response for load more pagination"""
+        return {
+            "status": "success",
+            "message": f"No more screenshots found for user {normalized_user} at offset {offset}",
+            "data": {
+                "user": {
+                    "email": normalized_user.replace('_at_', '@'),
+                    "normalized_email": normalized_user
+                },
+                "date_range": {
+                    "start_date": date_filter['start_date'],
+                    "end_date": date_filter['end_date']
+                },
+                "project_folders": {"total_projects": 0, "projects": []},
+                "load_more": {
+                    "offset": offset,
+                    "limit": limit,
+                    "returned_count": 0,
+                    "has_more": False,
+                    "next_offset": None,
+                    "total_found": offset,
+                    "showing": f"No items found at offset {offset}"
+                },
+                "screenshots": [],
+                "data_source": "S3 (No more data available)"
+            }
+        }
+    
+    def _extract_date_from_path_enhanced(self, key_parts):
+        """Enhanced date extraction including Turkish month names"""
+        # Turkish month mapping
+        turkish_months = {
+            'ocak': '01', 'şubat': '02', 'mart': '03', 'nisan': '04',
+            'mayıs': '05', 'haziran': '06', 'temmuz': '07', 'ağustos': '08',
+            'eylül': '09', 'ekim': '10', 'kasım': '11', 'aralık': '12'
+        }
+        
+        # First try the original date extraction
+        original_date = self._extract_date_from_path(key_parts)
+        if original_date:
+            return original_date
+        
+        # Try to extract from folder names with Turkish months
+        for part in key_parts:
+            part_lower = part.lower()
+            
+            # Look for patterns like "DDS_Ağustos_2025" or "2025_Ağustos"
+            for turkish_month, month_num in turkish_months.items():
+                if turkish_month in part_lower:
+                    # Try to find year in the same part
+                    year_match = re.search(r'(\d{4})', part)
+                    if year_match:
+                        year = year_match.group(1)
+                        return f"{year}-{month_num}-01"  # Use first day of month
+        
+        # If no date found, try to extract from filename again
+        filename = key_parts[-1] if key_parts else ""
+        
+        # Handle .webp files with timestamp format
+        if filename.endswith('.webp'):
+            webp_match = re.match(r'^(\d{4}-\d{2}-\d{2})_', filename)
+            if webp_match:
+                return webp_match.group(1)
+        
+        return None
+    
+    def _empty_response_page(self, normalized_user, date_filter, page, page_size):
+        """Return empty response for page-based pagination"""
+        return {
+            "status": "success",
+            "message": f"No screenshots found for user {normalized_user} on page {page}",
+            "data": {
+                "user": {
+                    "email": normalized_user.replace('_at_', '@'),
+                    "normalized_email": normalized_user
+                },
+                "date_range": {
+                    "start_date": date_filter['start_date'],
+                    "end_date": date_filter['end_date']
+                },
+                "project_folders": {"total_projects": 0, "projects": []},
+                "pagination": {
+                    "page": page,
+                    "page_size": page_size,
+                    "total_pages": 0,
+                    "total_screenshots": 0,
+                    "returned_count": 0,
+                    "has_next": False,
+                    "has_previous": False,
+                    "next_page": None,
+                    "previous_page": None,
+                    "showing": f"No items found on page {page}"
+                },
+                "screenshots": [],
+                "data_source": "S3 (No matching data found)"
+            }
+        }
+    
+    # Old offset-based methods removed - now using date-wise scanning
     
     def _fetch_from_screenshots_offset(self, normalized_user, date_filter, offset, page_size):
         """Fast fetch from screenshots folder with offset support"""
@@ -393,11 +767,11 @@ class UserScreenshotsAPI(APIView):
         
         return screenshots
     
-    def _empty_response_offset(self, normalized_user, date_filter, offset, page_size):
-        """Return empty response for offset-based pagination"""
+    def _empty_response_page(self, normalized_user, date_filter, page, page_size):
+        """Return empty response for page-based pagination"""
         return {
             "status": "success",
-            "message": f"No screenshots found for user {normalized_user} at offset {offset}",
+            "message": f"No screenshots found for user {normalized_user} on page {page}",
             "data": {
                 "user": {
                     "email": normalized_user.replace('_at_', '@'),
@@ -409,12 +783,16 @@ class UserScreenshotsAPI(APIView):
                 },
                 "project_folders": {"total_projects": 0, "projects": []},
                 "pagination": {
-                    "offset": offset,
+                    "page": page,
                     "page_size": page_size,
+                    "total_pages": 0,
+                    "total_screenshots": 0,
                     "returned_count": 0,
-                    "has_more": False,
-                    "next_offset": None,
-                    "showing": f"No items found at offset {offset}"
+                    "has_next": False,
+                    "has_previous": False,
+                    "next_page": None,
+                    "previous_page": None,
+                    "showing": f"No items found on page {page}"
                 },
                 "screenshots": [],
                 "data_source": "S3 (No matching data found)"
