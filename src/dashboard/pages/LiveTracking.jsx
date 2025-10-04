@@ -27,11 +27,13 @@ const LiveTracking = () => {
   const [modalImages, setModalImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // API URL configuration (same as QuickView)
+  // API URL configuration - using working local endpoint
   const getApiUrl = () => {
-    // In development, use the proxy (relative URL)
-    if (import.meta.env.DEV) {
-      return '/api';
+    // Use the working local development server
+    if (import.meta.env.DEV || 
+        window.location.hostname === 'localhost' ||
+        window.location.hostname.startsWith('127.0.')) {
+      return 'http://127.0.0.1:8000/api';
     }
     // In production, use full URL
     return 'https://dxdtime.ddsolutions.io/api';
@@ -39,6 +41,7 @@ const LiveTracking = () => {
 
   // Fetch data from live tracking API
   const fetchLiveTrackingData = async (showRetryMessage = false) => {
+    const startTime = Date.now(); // Add performance timing
     try {
       setLoading(true);
       setError('');
@@ -46,19 +49,26 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      // Use the same API configuration as QuickView
+      // Use the working local development API endpoint
       const apiBaseUrl = getApiUrl();
       const apiUrl = `${apiBaseUrl}/live-tracking/fast-screenshots/`;
       console.log('🔄 Fetching live tracking data from:', apiUrl);
-      console.log('🌐 Environment:', import.meta.env.DEV ? 'Development (using proxy)' : 'Production (direct)');
+      console.log('🌐 Using direct local server:', apiUrl);
       
       const response = await axios.get(apiUrl, {
-        timeout: 30000,
+        timeout: 60000, // Increase timeout to 60 seconds for large datasets
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        withCredentials: false
+        withCredentials: false,
+        params: {
+          // Add query parameters to optimize data load
+          limit_screenshots: 5, // Limit screenshots per user to 5 latest
+          include_metadata_only: false, // Include essential data only
+          sort_by: 'latest_date', // Sort by latest activity
+          order: 'desc' // Newest first
+        }
       });
       
       console.log('Live tracking API response:', response.data);
@@ -70,17 +80,17 @@ const LiveTracking = () => {
         console.log('🔍 Raw API data:', response.data.data.s3_users_sample);
         
         response.data.data.s3_users_sample.forEach(user => {
-          // Get the direct_url from the screenshots array
+          // Get the direct_url from the screenshots array - limit to first 3 for performance
           let screenshotUrl = null;
           let fallbackUrl = null;
           let latestScreenshot = null;
           
-          // Find the most recent screenshot with direct_url
+          // Find the most recent screenshot with direct_url (only check first 3 for performance)
           if (user.screenshots && Array.isArray(user.screenshots) && user.screenshots.length > 0) {
-            // Sort screenshots by last_modified (newest first)
-            const sortedScreenshots = user.screenshots.sort((a, b) => 
-              new Date(b.last_modified) - new Date(a.last_modified)
-            );
+            // Sort screenshots by last_modified (newest first) and take only first 3
+            const sortedScreenshots = user.screenshots
+              .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
+              .slice(0, 3); // Only process first 3 screenshots for performance
             
             latestScreenshot = sortedScreenshots[0];
             screenshotUrl = latestScreenshot.direct_url;
@@ -136,7 +146,7 @@ const LiveTracking = () => {
       });
       
       if (err.code === 'ECONNABORTED') {
-        setError('⏰ Request timeout. The API might be taking longer than expected.');
+        setError('⏰ Request timeout (60s). The API is processing a large dataset. Please try again or contact support if this persists.');
       } else if (err.response) {
         setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch data'}`);
       } else if (err.code === 'ERR_NETWORK') {
@@ -146,6 +156,13 @@ const LiveTracking = () => {
       } else {
         setError(`❌ Network error: Unable to connect to the API. ${err.message}`);
       }
+      
+      // Log performance metrics for debugging
+      console.log('📊 Performance metrics:', {
+        retryCount,
+        error: err.message,
+        duration: Date.now() - startTime + 'ms'
+      });
     } finally {
       setLoading(false);
     }
@@ -299,9 +316,9 @@ const LiveTracking = () => {
                 onClick={() => fetchLiveTrackingData(true)}
                 disabled={loading}
                 className="refresh-button"
-                title="Refresh data to get new image URLs"
+                title="Refresh data from local API server (127.0.0.1:8000) - May take 30-60s for large datasets"
               >
-                {loading ? '🔄' : '↻'} Refresh URLs {retryCount > 0 ? `(${retryCount})` : ''}
+                {loading ? '🔄' : '↻'} Refresh Data {retryCount > 0 ? `(${retryCount})` : ''}
               </button>
             </div>
           </div>
@@ -351,6 +368,16 @@ const LiveTracking = () => {
               <div className="loading-container">
                 <div className="spinner"></div>
                 <p>Loading screenshots data...</p>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#666', 
+                  marginTop: '8px',
+                  textAlign: 'center'
+                }}>
+                  Processing {apiData?.data?.summary?.s3_files || '11,000+'} files across {apiData?.data?.summary?.s3_users || '5'} users...
+                  <br />
+                  This may take 30-60 seconds for large datasets.
+                </div>
               </div>
             )}
 

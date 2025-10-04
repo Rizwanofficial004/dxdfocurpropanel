@@ -495,7 +495,7 @@ const TimeLogActivityStream = () => {
     return Math.floor((currentDay - 1) / 8) * 8;
   });
   
-  // Users sidebar states
+  // Users sidebar states???
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -515,7 +515,7 @@ const TimeLogActivityStream = () => {
       const formattedEndDate = formatDateForAPI(endDate);
       
       const response = await axios.get(
-        `/api/logs/date-range/`,
+        `http://127.0.0.1:8000/api/user-logs/`,
         {
           params: {
             start_date: formattedStartDate,
@@ -531,34 +531,24 @@ const TimeLogActivityStream = () => {
       
       console.log('Date range response for users:', response.data);
       
-      if (response.data && response.data.data && response.data.data.statistics) {
-        const statistics = response.data.data.statistics;
-        let usersList = statistics.users_list || [];
+      if (response.data && response.data.data && response.data.data.logs) {
+        const logs = response.data.data.logs;
         
-        // If we have logs data available, filter out users from excluded projects
-        if (response.data.data.logs) {
-          const excludedFolders = ['Select_a_Task_', 'Emri_Secim_', '--_İş_Emri_Seçin_--'];
-          const validLogs = response.data.data.logs.filter(file => {
-            const projectName = file.project_name || '';
-            const keyPath = file.key || '';
-            return !excludedFolders.some(folder => 
-              projectName.includes(folder) || keyPath.includes(folder)
-            );
-          });
-          
-          // Extract users only from valid logs
-          const validUserEmails = [...new Set(validLogs.map(log => log.user_email).filter(Boolean))];
-          
-          // Filter usersList to only include users with valid logs
-          usersList = usersList.filter(email => 
-            validUserEmails.some(validEmail => 
-              email.toLowerCase().includes(validEmail.toLowerCase()) || 
-              validEmail.toLowerCase().includes(email.toLowerCase())
-            )
+        // Extract unique users from logs data
+        const excludedFolders = ['Select_a_Task_', 'Emri_Secim_'];
+        const validLogs = logs.filter(file => {
+          const projectName = file.project_name || '';
+          const keyPath = file.key || '';
+          return !excludedFolders.some(folder => 
+            projectName.includes(folder) || keyPath.includes(folder)
           );
-          
-          console.log(`Filtered users to exclude unwanted folders: ${usersList.length} users`);
-        }
+        });
+        
+        // Extract users only from valid logs
+        const validUserEmails = [...new Set(validLogs.map(log => log.user_email).filter(Boolean))];
+        let usersList = validUserEmails;
+        
+        console.log(`Found ${usersList.length} unique users from logs`);
         
         // Convert user emails to user objects with proper formatting
         const users = usersList.map((email, index) => {
@@ -634,7 +624,7 @@ const TimeLogActivityStream = () => {
       }
       
       const response = await axios.get(
-        `/api/logs/date-range/`,
+        `http://127.0.0.1:8000/api/user-logs/`,
         {
           params: {
             start_date: formattedStartDate,
@@ -655,7 +645,7 @@ const TimeLogActivityStream = () => {
         console.log(`Found ${logFiles.length} log files`);
         
         // Define folders to exclude (the ones you crossed out)
-        const excludedFolders = ['Select_a_Task_', 'Emri_Secim_', '--_İş_Emri_Seçin_--'];
+        const excludedFolders = ['Select_a_Task_', 'Emri_Secim_'];
         
         // Filter out excluded folders first
         let filteredLogFiles = logFiles.filter(file => {
@@ -785,10 +775,15 @@ const TimeLogActivityStream = () => {
         }
         
         console.log('Fetched log contents:', logContents);
+        console.log(`🎯 FINAL RESULT: ${logContents.length} log entries processed`);
+        console.log('Date range:', formattedStartDate, 'to', formattedEndDate);
+        console.log('Selected user:', userEmail || 'All users');
+        
         setSessionLogs(logContents);
         console.log('Logs processed successfully:', logContents.length, 'entries');
       } else {
-        console.log('No data in response, setting empty array');
+        console.log('❌ No logs data in response structure');
+        console.log('Response structure:', response.data);
         setSessionLogs([]);
       }
     } catch (error) {

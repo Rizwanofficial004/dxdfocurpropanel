@@ -138,7 +138,7 @@ const ActivityStream = () => {
   const [userSuggestions, setUserSuggestions] = useState([]); // Store user suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(true); // Loading state for suggestions
   const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
-  const screenshotsPerPage = 50; // Screenshots per page
+  const [screenshotsPerPage, setScreenshotsPerPage] = useState(50); // Screenshots per page
   const searchContainerRef = useRef(null);
   const dateScrollRef = useRef(null);
 
@@ -514,18 +514,38 @@ const ActivityStream = () => {
     try {
       const apiBaseURL = getApiBaseURL();
       
+      // Calculate offset for future offset-based pagination
+      const offset = (page - 1) * screenshotsPerPage;
+      
+      // Build the screenshots API endpoint with both page-based and offset-based parameters
+      // The API currently uses page/page_size but we're preparing for offset/limit transition
       const searchParams = new URLSearchParams({
-        q: user.email || user.display_name || user.original_name // Use email as primary identifier
+        q: user.email || user.display_name || user.original_name, // Use email as primary identifier
+        // Current API uses page/page_size
+        page: page.toString(),
+        page_size: screenshotsPerPage.toString(),
+        // Future API support for offset/limit
+        offset: offset.toString(),
+        limit: screenshotsPerPage.toString(),
+        load_more: page > 1 ? 'true' : 'false' // Add load_more flag for subsequent pages
       });
 
-      // Only add date filtering if specifically requested
+      // Add date filtering - use current month/year by default or specific date
       if (specificDate) {
         const dateStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${specificDate.toString().padStart(2, '0')}`;
-        searchParams.set('date', dateStr);
+        searchParams.set('start_date', dateStr);
+        searchParams.set('end_date', dateStr);
+      } else {
+        // Use current selected month
+        const startDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`;
+        const endDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`;
+        searchParams.set('start_date', startDate);
+        searchParams.set('end_date', endDate);
       }
 
-      const apiUrl = `${apiBaseURL}/users/search/?${searchParams.toString()}`;
-      console.log(`📸 Fetching screenshots from: ${apiUrl}`);
+      const apiUrl = `${apiBaseURL}/users/screenshots/?${searchParams.toString()}`;
+      console.log(`📸 Fetching screenshots from API: ${apiUrl}`);
+      console.log(`📸 Request parameters:`, Object.fromEntries(searchParams));
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -537,77 +557,55 @@ const ActivityStream = () => {
       });
       
       if (response.ok) {
-        console.log(`✅ Successfully connected to API`);
+        console.log(`✅ Successfully connected to API for page ${page}`);
         setApiStatus('connected');
         
         const data = await response.json();
-        console.log('📸 Enhanced API Response:', data);
+        console.log('📸 Complete API Response for page', page, ':', data);
+        console.log('📸 API Pagination:', data.data?.pagination);
+        console.log('📸 Screenshots count in response:', data.data?.screenshots?.length);
         
         if (data.status === 'success' && data.data) {
           let screenshots = [];
           const activityDates = new Set();
           
-          console.log('📸 Raw API Data Structure:', data.data);
-          
-          // Handle different response structures
-          if (data.data.users && Array.isArray(data.data.users)) {
-            // Process users array
-            data.data.users.forEach(userData => {
-              console.log('📸 Processing user data:', userData);
-              
-              // Handle direct screenshots array
-              if (userData.screenshots && Array.isArray(userData.screenshots)) {
-                screenshots = [...screenshots, ...userData.screenshots.map(screenshot => ({
-                  ...screenshot,
-                  id: screenshot.filename || screenshot.id || screenshots.length,
-                  timestamp: screenshot.datetime || screenshot.timestamp || screenshot.created_at,
-                  activity_type: 'ACTIVE',
-                  file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
-                  date: screenshot.date || screenshot.datetime?.split('T')[0]
-                }))];
-                
-                // Add activity dates
-                userData.screenshots.forEach(screenshot => {
-                  const date = screenshot.date || screenshot.datetime?.split('T')[0];
-                  if (date) activityDates.add(date);
-                });
-              }
-              
-              // Handle grouped screenshots by date
-              if (userData.grouped_screenshots) {
-                Object.keys(userData.grouped_screenshots).forEach(dateKey => {
-                  activityDates.add(dateKey);
-                  
-                  const dayData = userData.grouped_screenshots[dateKey];
-                  if (dayData && dayData.screenshots && Array.isArray(dayData.screenshots)) {
-                    screenshots = [...screenshots, ...dayData.screenshots.map(screenshot => ({
-                      ...screenshot,
-                      id: screenshot.filename || screenshot.id || screenshots.length,
-                      timestamp: screenshot.datetime || screenshot.timestamp || screenshot.created_at,
-                      activity_type: 'ACTIVE',
-                      file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
-                      date: dateKey
-                    }))];
-                  }
-                });
-              }
-            });
-          } else if (data.data.screenshots && Array.isArray(data.data.screenshots)) {
-            // Direct screenshots array in response
-            console.log('📸 Processing direct screenshots array:', data.data.screenshots);
-            screenshots = data.data.screenshots.map(screenshot => ({
+          // Handle the new API response structure
+          if (data.data.screenshots && Array.isArray(data.data.screenshots)) {
+            console.log(`📸 Processing ${data.data.screenshots.length} screenshots from new API`);
+            
+            screenshots = data.data.screenshots.map((screenshot, index) => ({
               ...screenshot,
-              id: screenshot.filename || screenshot.id || screenshots.length,
-              timestamp: screenshot.datetime || screenshot.timestamp || screenshot.created_at,
+              id: screenshot.filename || screenshot.file_key || index,
+              timestamp: screenshot.last_modified || screenshot.timestamp || screenshot.created_at,
               activity_type: 'ACTIVE',
-              file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
-              date: screenshot.date || screenshot.datetime?.split('T')[0]
+              file_size: screenshot.file_size_mb ? `${screenshot.file_size_mb} MB` : 'N/A',
+              date: screenshot.date,
+              size_mb: screenshot.file_size_mb,
+              user_email: screenshot.user_email,
+              project_folder: screenshot.project_folder
             }));
             
-            // Add activity dates
+            // Add activity dates from screenshots
             screenshots.forEach(screenshot => {
-              if (screenshot.date) activityDates.add(screenshot.date);
+              if (screenshot.date) {
+                activityDates.add(screenshot.date);
+              }
             });
+            
+            // Also add dates from project folders if available
+            if (data.data.project_folders && data.data.project_folders.projects) {
+              data.data.project_folders.projects.forEach(project => {
+                if (project.date_range) {
+                  // Add date range to activity dates
+                  const startDate = new Date(project.date_range.earliest);
+                  const endDate = new Date(project.date_range.latest);
+                  
+                  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                    activityDates.add(d.toISOString().split('T')[0]);
+                  }
+                }
+              });
+            }
           }
           
           // Update calendar with activity dates
@@ -616,28 +614,93 @@ const ActivityStream = () => {
           // Sort screenshots by timestamp (newest first)
           screenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
           
-          // Set all screenshots and pagination info
-          setAllScreenshots(screenshots);
-          setTotalScreenshots(screenshots.length);
-          setCurrentPage(1); // Reset to first page
+          // Handle pagination from API response (supports both page-based and offset-based)
+          const pagination = data.data.pagination;
+          console.log('📸 Pagination data from API:', pagination);
+          
+          if (pagination && pagination.total_screenshots) {
+            console.log('📸 Processing pagination data - total:', pagination.total_screenshots, 'page:', pagination.page);
+            
+            // Batch state updates to avoid race conditions
+            const updates = {};
+            
+            // Set total screenshots
+            updates.totalScreenshots = pagination.total_screenshots;
+            
+            // Determine current page
+            if (pagination.page) {
+              updates.currentPage = pagination.page;
+            } else if (pagination.offset !== undefined) {
+              updates.currentPage = Math.floor(pagination.offset / screenshotsPerPage) + 1;
+            } else {
+              updates.currentPage = page;
+            }
+            
+            // Handle screenshots data
+            if (page === 1) {
+              console.log('📸 First page - resetting screenshots:', screenshots.length);
+              updates.userScreenshots = screenshots;
+              updates.allScreenshots = screenshots;
+              
+              // Only update page size on first load
+              const apiPageSize = pagination.page_size || pagination.limit;
+              if (apiPageSize && apiPageSize !== screenshotsPerPage) {
+                console.log('📸 Updating page size from', screenshotsPerPage, 'to', apiPageSize);
+                updates.screenshotsPerPage = apiPageSize;
+              }
+            } else {
+              console.log('📸 Load more - appending screenshots:', screenshots.length);
+              // For load more, we need to update the state directly since we can't batch array updates
+              setAllScreenshots(prev => {
+                const newData = [...prev, ...screenshots];
+                console.log('📸 Total all screenshots after append:', newData.length);
+                return newData;
+              });
+              setUserScreenshots(prev => {
+                const newData = [...prev, ...screenshots];
+                console.log('📸 Total user screenshots after append:', newData.length);
+                return newData;
+              });
+            }
+            
+            // Apply batch updates
+            console.log('📸 Applying state updates:', updates);
+            if (updates.totalScreenshots) setTotalScreenshots(updates.totalScreenshots);
+            if (updates.currentPage) setCurrentPage(updates.currentPage);
+            if (updates.screenshotsPerPage) setScreenshotsPerPage(updates.screenshotsPerPage);
+            if (updates.userScreenshots) setUserScreenshots(updates.userScreenshots);
+            if (updates.allScreenshots) setAllScreenshots(updates.allScreenshots);
+            
+          } else {
+            console.log('📸 No valid pagination data found, using fallback');
+            // Only use fallback for the first page
+            if (page === 1) {
+              setTotalScreenshots(screenshots.length);
+              setCurrentPage(1);
+              setAllScreenshots(screenshots);
+              setUserScreenshots(screenshots);
+            }
+            // For subsequent pages without pagination data, don't update anything
+          }
           
           if (screenshots.length > 0) {
-            console.log(`📸 Found ${screenshots.length} total screenshots`);
-            // Set current page screenshots
-            const startIndex = 0;
-            const endIndex = screenshotsPerPage;
-            setUserScreenshots(screenshots.slice(startIndex, endIndex));
+            const currentOffset = (page - 1) * screenshotsPerPage;
+            console.log(`📸 Found ${screenshots.length} screenshots starting from offset ${currentOffset}`);
+            console.log(`📸 Total screenshots: ${pagination?.total_screenshots || screenshots.length}`);
+            console.log(`📸 Current page: ${currentPage}, Total pages: ${totalPages}`);
           } else {
-            console.log('📸 No screenshots found');
-            setUserScreenshots([]);
-            setScreenshotError(`No screenshots found for ${user.display_name} in the selected period.`);
+            console.log('📸 No screenshots found for this offset');
+            if (page === 1) {
+              setUserScreenshots([]);
+              setScreenshotError(`No screenshots found for ${user.display_name || user.email} in the selected period.`);
+            }
           }
         } else {
           console.log('� No user data in response');
           setUserScreenshots([]);
           setAllScreenshots([]);
           setTotalScreenshots(0);
-          setScreenshotError(`No data available for ${user.display_name}.`);
+          setScreenshotError(`No screenshots available for ${user.display_name || user.email}.`);
         }
       } else {
         const errorText = await response.text();
@@ -953,13 +1016,13 @@ const ActivityStream = () => {
     }
   };
 
-  // Pagination handlers
+  // Pagination handlers - Updated to use API pagination
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
-      setCurrentPage(newPage);
-      const startIndex = (newPage - 1) * screenshotsPerPage;
-      const endIndex = startIndex + screenshotsPerPage;
-      setUserScreenshots(allScreenshots.slice(startIndex, endIndex));
+      // For API-based pagination, fetch new page from server
+      if (selectedUser) {
+        fetchUserScreenshots(selectedUser, activeDate, newPage);
+      }
       
       // Scroll to top of screenshots section
       const screenshotsSection = document.querySelector('[data-screenshots-section]');
@@ -969,7 +1032,44 @@ const ActivityStream = () => {
     }
   };
 
-  const totalPages = Math.ceil(totalScreenshots / screenshotsPerPage);
+  // Load More handler - loads next page and appends to current results
+  const handleLoadMore = async () => {
+    const nextPage = currentPage + 1;
+    console.log('📸 Load More clicked:', { 
+      currentPage, 
+      nextPage, 
+      totalPages, 
+      totalScreenshots, 
+      screenshotsPerPage,
+      userScreenshotsLength: userScreenshots.length 
+    });
+    
+    if (selectedUser) {
+      console.log('📸 Attempting to load next page:', nextPage);
+      setIsLoadingScreenshots(true);
+      
+      try {
+        // Force load next page regardless of pagination calculations
+        console.log('📸 Calling fetchUserScreenshots for page:', nextPage);
+        await fetchUserScreenshots(selectedUser, activeDate, nextPage);
+        console.log('📸 Successfully loaded page:', nextPage);
+      } catch (error) {
+        console.error('📸 Error loading more screenshots:', error);
+        setIsLoadingScreenshots(false);
+      }
+    } else {
+      console.log('📸 Cannot load more - no user selected');
+    }
+  };
+
+  // Calculate total pages from API pagination or fallback to local calculation
+  const totalPages = useMemo(() => {
+    // If we have pagination data from API, use it directly
+    if (totalScreenshots > 0 && screenshotsPerPage > 0) {
+      return Math.ceil(totalScreenshots / screenshotsPerPage);
+    }
+    return 1;
+  }, [totalScreenshots, screenshotsPerPage]);
 
   // Handle date selection from calendar
   const handleDateSelect = (day) => {
@@ -1403,14 +1503,27 @@ const ActivityStream = () => {
                   {activeDate && ` (Day ${activeDate})`}
                 </p>
                 {totalScreenshots > 0 && (
-                  <p style={{ 
+                  <div style={{ 
                     margin: '4px 0 0 0', 
                     fontSize: '12px', 
-                        color: 'var(--primary-color)',
-                    fontWeight: '500'
+                    color: 'var(--primary-color)',
+                    fontWeight: '500',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
                   }}>
-                    {totalScreenshots} total screenshots • Page {currentPage} of {totalPages} • Showing {((currentPage - 1) * screenshotsPerPage) + 1}-{Math.min(currentPage * screenshotsPerPage, totalScreenshots)}
-                  </p>
+                    <div>
+                      📊 {totalScreenshots} total screenshots found
+                    </div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
+                      Currently viewing {userScreenshots.length} screenshots • Page {currentPage} of {totalPages}
+                      {currentPage < totalPages && (
+                        <span style={{ color: 'var(--success-color)', marginLeft: '8px' }}>
+                          • {Math.min(screenshotsPerPage, totalScreenshots - (currentPage * screenshotsPerPage))} more available
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
               <button
@@ -1724,103 +1837,222 @@ const ActivityStream = () => {
                   ))}
                 </div>
 
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
+                {/* Simple Footer - Always show when user is selected */}
+                <div style={{
+                  borderTop: `1px solid var(--border-color)`,
+                  marginTop: '20px',
+                  paddingTop: '20px',
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderRadius: '8px',
+                  padding: '16px'
+                }}>
+                  {/* Screenshot Statistics */}
                   <div style={{
                     display: 'flex',
-                    justifyContent: 'center',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    gap: '8px',
-                    padding: '20px 0',
-                      borderTop: `1px solid var(--border-color)`,
-                    marginTop: '20px'
+                    marginBottom: '16px',
+                    fontSize: '14px',
+                    color: 'var(--text-secondary)',
+                    flexWrap: 'wrap',
+                    gap: '12px'
                   }}>
-                    {/* Previous Button */}
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      style={{
-                        padding: '8px 12px',
-                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
-                          color: currentPage === 1 ? 'var(--text-tertiary)' : 'white',
-                          border: `1px solid var(--border-color)`,
-                        borderRadius: '6px',
-                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      ← Previous
-                    </button>
-
-                    {/* Page Numbers */}
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
-                        let pageNumber;
-                        if (totalPages <= 7) {
-                          pageNumber = i + 1;
-                        } else if (currentPage <= 4) {
-                          pageNumber = i + 1;
-                        } else if (currentPage >= totalPages - 3) {
-                          pageNumber = totalPages - 6 + i;
-                        } else {
-                          pageNumber = currentPage - 3 + i;
-                        }
-
-                        return (
-                          <button
-                            key={pageNumber}
-                            onClick={() => handlePageChange(pageNumber)}
-                            style={{
-                              width: '36px',
-                              height: '36px',
-                              backgroundColor: currentPage === pageNumber ? 'var(--primary-color)' : 'var(--bg-secondary)',
-                              color: currentPage === pageNumber ? 'white' : 'var(--text-primary)',
-                              border: `1px solid var(--border-color)`,
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              fontWeight: currentPage === pageNumber ? '600' : '400',
-                              transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (currentPage !== pageNumber) {
-                                e.currentTarget.style.backgroundColor = 'var(--hover-color)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (currentPage !== pageNumber) { 
-                                e.currentTarget.style.backgroundColor = 'var(--bg-secondary)';
-                              }
-                            }}
-                          >
-                            {pageNumber}
-                          </button>
-                        );
-                      })}
+                    <div>
+                      {totalScreenshots > 0 ? (
+                        <strong>📊 Showing {((currentPage - 1) * screenshotsPerPage) + 1} to {Math.min(currentPage * screenshotsPerPage, totalScreenshots)} of {totalScreenshots} screenshots</strong>
+                      ) : (
+                        <strong>📷 No screenshots found for the selected period</strong>
+                      )}
                     </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                      <label htmlFor="screenshots-per-page" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>Screenshots per page:</label>
+                      <select 
+                        id="screenshots-per-page"
+                        value={screenshotsPerPage} 
+                        onChange={(e) => {
+                          const newPageSize = parseInt(e.target.value);
+                          setScreenshotsPerPage(newPageSize);
+                          setCurrentPage(1);
+                          // Refetch with new page size
+                          if (selectedUser) {
+                            fetchUserScreenshots(selectedUser, activeDate, 1);
+                          }
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          border: `1px solid var(--border-color)`,
+                          borderRadius: '6px',
+                          backgroundColor: 'var(--bg-primary)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value={10}>10 per page</option>
+                        <option value={20}>20 per page</option>
+                        <option value={50}>50 per page</option>
+                        <option value={100}>100 per page</option>
+                      </select>
+                    </div>
+                  </div>
 
-                    {/* Next Button */}
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      style={{
-                        padding: '8px 12px',
-                        backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
-                        color: currentPage === totalPages ? 'var(--text-tertiary)' : 'white',
-                        border: `1px solid var(--border-color)`,
+                  {/* Temporary: Always show Load More for debugging */}
+                  {userScreenshots.length > 0 && (
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      marginBottom: '16px'
+                    }}>
+                      <button
+                        onClick={handleLoadMore}
+                        disabled={isLoadingScreenshots}
+                        style={{
+                          padding: '12px 24px',
+                          backgroundColor: isLoadingScreenshots ? '#6c757d' : '#28a745',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: isLoadingScreenshots ? 'not-allowed' : 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          transition: 'all 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                      >
+                        {isLoadingScreenshots ? (
+                          <>
+                            <div style={{
+                              width: '16px',
+                              height: '16px',
+                              border: '2px solid rgba(255,255,255,0.3)',
+                              borderTop: '2px solid white',
+                              borderRadius: '50%',
+                              animation: 'spin 1s linear infinite'
+                            }}></div>
+                            Loading More...
+                          </>
+                        ) : (
+                          <>
+                            📸 Load More
+                            <span style={{
+                              backgroundColor: 'rgba(255,255,255,0.2)',
+                              padding: '3px 8px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '500'
+                            }}>
+                              Current: {userScreenshots.length}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                 
+
+                  {/* Traditional Pagination - Only show if multiple pages */}
+                  {totalScreenshots > 0 && totalPages > 1 && (
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: '6px',
+                      flexWrap: 'wrap'
+                    }}>
+                      {/* Previous Button */}
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: currentPage === 1 ? '#6c757d' : '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        ← Prev
+                      </button>
+
+                      {/* Page Info */}
+                      <div style={{
+                        padding: '8px 16px',
+                        backgroundColor: 'var(--bg-tertiary)',
                         borderRadius: '6px',
-                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        transition: 'all 0.2s'
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: 'var(--text-primary)',
+                        border: `1px solid var(--border-color)`
+                      }}>
+                        Page {currentPage} of {totalPages}
+                      </div>
+
+                      {/* Next Button */}
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: currentPage === totalPages ? '#6c757d' : '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Quick Actions */}
+                  <div style={{
+                    marginTop: '16px',
+                    paddingTop: '16px',
+                    borderTop: `1px solid var(--border-color)`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '12px',
+                    color: 'var(--text-tertiary)'
+                  }}>
+                    <div>
+                      🕒 Last updated: {new Date().toLocaleTimeString()}
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (selectedUser) {
+                          setCurrentPage(1);
+                          fetchUserScreenshots(selectedUser, activeDate, 1);
+                        }
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        backgroundColor: 'transparent',
+                        color: 'var(--primary-color)',
+                        border: `1px solid var(--primary-color)`,
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '500'
                       }}
                     >
-                      Next →
+                      🔄 Refresh
                     </button>
                   </div>
-                )}
+                </div>
               </div>
             )}
 
