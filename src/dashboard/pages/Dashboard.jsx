@@ -6,7 +6,6 @@ import { Container } from '../styles/commonStyles';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { lightTheme } from '../../styles/theme';
-import { Cards } from '../components/card/StatsCardsCRM';
 import ActivityStream from '../components/activity/ActivityStream';
 import AnnouncementTable from '../components/announcement/Announcement';
 import { CurrentStatus, CompanyAverage } from '../components';
@@ -149,10 +148,6 @@ const Dashboard = () => {
             </DashboardComponentsGrid>
           </ContentSection>
 
-          {/* For Cards  */}
-          <ContentSection theme={theme}>
-            <Cards />
-          </ContentSection>
           {/* For Activity Stream */}
           <ContentSection theme={theme}>
             <ActivityStream />

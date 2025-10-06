@@ -4,6 +4,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ToastProvider from './components/ToastProvider';
+import './utils/removeDebugStyles'; // Import debug styles remover
 
 // Lazy load components
 const Dashboard = lazy(() =>

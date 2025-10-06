@@ -1,0 +1,66 @@
+/* Aggressive reset for any debugging borders or outlines */
+*,
+*::before,
+*::after {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Reset specific red borders that might be applied */
+*[style*="border"],
+*[style*="Border"] {
+  border: unset !important;
+}
+
+*[style*="outline"],
+*[style*="Outline"] {
+  outline: unset !important;
+}
+
+/* Reset any red colored borders */
+*[style*="red"],
+*[style*="Red"],
+*[style*="#ff0000"],
+*[style*="#f00"],
+*[style*="rgb(255, 0, 0)"],
+*[style*="rgba(255, 0, 0"] {
+  border-color: transparent !important;
+  outline-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Ensure main containers don't have debug borders */
+#root,
+.dashboard-container,
+.main-container,
+.content-container,
+div[class*="Container"],
+div[class*="container"] {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any browser extension or dev tools highlighting */
+div,
+section,
+main,
+article,
+aside {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Override any inline styles that might add red borders */
+[style] {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Force remove any red styling */
+* {
+  --border-color: transparent !important;
+  --outline-color: transparent !important;
+}

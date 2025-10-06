@@ -292,8 +292,8 @@ const ActivityStream = () => {
       const apiBaseURL = getApiBaseURL();
       console.log('🌐 Using API base URL:', apiBaseURL);
       
-      // Use the proper API configuration with higher page size for better caching
-      const response = await fetch(`${apiBaseURL}/users/search/?q=&page=1&page_size=200`, {
+      // Try a simpler API call that's more likely to work
+      const response = await fetch(`${apiBaseURL}/users/search/?q=*&page=1&page_size=200`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -367,9 +367,60 @@ const ActivityStream = () => {
           setAllUsers([]);
         }
       } else {
-        console.log('API request failed');
-        setApiStatus('disconnected');
-        setAllUsers([]);
+        console.log('API request failed, trying fallback endpoints');
+        
+        // Try alternative endpoints
+        const fallbackEndpoints = [
+          '/users/?page=1&page_size=200',
+          '/employees/',
+          '/users/search/?q=d&page=1&page_size=200'
+        ];
+        
+        let fallbackSuccess = false;
+        for (const endpoint of fallbackEndpoints) {
+          try {
+            console.log(`🔄 Trying fallback endpoint: ${endpoint}`);
+            const fallbackResponse = await fetch(`${apiBaseURL}${endpoint}`, {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (fallbackResponse.ok) {
+              const fallbackData = await fallbackResponse.json();
+              console.log(`✅ Fallback endpoint ${endpoint} successful:`, fallbackData);
+              
+              // Process the fallback response
+              let users = [];
+              if (fallbackData.status === 'success' && fallbackData.data) {
+                if (Array.isArray(fallbackData.data)) {
+                  users = fallbackData.data;
+                } else if (fallbackData.data.users) {
+                  users = fallbackData.data.users;
+                }
+              } else if (Array.isArray(fallbackData)) {
+                users = fallbackData;
+              }
+              
+              if (users.length > 0) {
+                setAllUsers(users);
+                setApiStatus('connected');
+                console.log(`✅ Loaded ${users.length} users from fallback`);
+                fallbackSuccess = true;
+                break;
+              }
+            }
+          } catch (fallbackError) {
+            console.warn(`❌ Fallback endpoint ${endpoint} failed:`, fallbackError);
+          }
+        }
+        
+        if (!fallbackSuccess) {
+          setApiStatus('disconnected');
+          setAllUsers([]);
+        }
       }
     } catch (error) {
       console.error('Error preloading users:', error);
@@ -378,66 +429,115 @@ const ActivityStream = () => {
     }
   };
 
-  // Fetch available user suggestions from the search API
+  // Fetch available user suggestions from the search API with fallback
   const fetchUserSuggestions = async () => {
-    try {
-      const apiBaseURL = getApiBaseURL();
-      // Use the search API with common search terms to get available users
-      const searchTerms = ['haseeb', 'nawaz', 'mohsin', 'dxd', 'global'];
-      let allSuggestions = [];
-      
-      for (const term of searchTerms) {
-        try {
-          const response = await fetch(`${apiBaseURL}/users/search/?q=${term}&page=1&page_size=10`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
+    const apiBaseURL = getApiBaseURL();
+    
+    // Multiple fallback strategies for fetching user suggestions
+    const fallbackEndpoints = [
+      // Try search with common terms first
+      {
+        url: `${apiBaseURL}/users/search/?q=*&page=1&page_size=50`,
+        method: 'search_wildcard'
+      },
+      {
+        url: `${apiBaseURL}/users/search/?q=d&page=1&page_size=50`,
+        method: 'search_common'
+      },
+      // Try basic users endpoint
+      {
+        url: `${apiBaseURL}/users/?page=1&page_size=50`,
+        method: 'users_list'
+      },
+      // Try employees endpoint
+      {
+        url: `${apiBaseURL}/employees/`,
+        method: 'employees_list'
+      },
+      // Try alternative search terms
+      {
+        url: `${apiBaseURL}/users/search/?q=haseeb&page=1&page_size=10`,
+        method: 'search_haseeb'
+      },
+      {
+        url: `${apiBaseURL}/users/search/?q=nawaz&page=1&page_size=10`,
+        method: 'search_nawaz'
+      }
+    ];
+
+    let allSuggestions = [];
+
+    for (const endpoint of fallbackEndpoints) {
+      try {
+        console.log(`Trying user suggestions endpoint: ${endpoint.url} (${endpoint.method})`);
+        
+        const response = await fetch(endpoint.url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`Success with ${endpoint.method}:`, data);
+          
+          let users = [];
+          
+          // Handle different response structures
+          if (data.status === 'success' && data.data && data.data.users) {
+            users = data.data.users;
+          } else if (data.results) {
+            users = data.results;
+          } else if (Array.isArray(data)) {
+            users = data;
+          } else if (data.users) {
+            users = data.users;
+          }
+          
+          // Process users
+          users.forEach(user => {
+            if (user && user.email && !allSuggestions.find(existing => existing.email === user.email)) {
+              allSuggestions.push({
+                email: user.email,
+                display_name: user.display_name || user.name || user.email,
+                original_name: user.original_name || user.name || user.email,
+                total_screenshots: user.total_screenshots || 0,
+                total_size_mb: user.total_size_mb || 0,
+                active_days_count: user.active_days_count || 0,
+                last_activity: user.last_activity || 'Unknown',
+                status: user.status || 'unknown',
+                suggestion: true // Mark as suggestion
+              });
             }
           });
           
-          if (response.ok) {
-            const data = await response.json();
-            if (data.status === 'success' && data.data && data.data.users) {
-              // Add users to suggestions, avoiding duplicates
-              data.data.users.forEach(user => {
-                if (!allSuggestions.find(existing => existing.email === user.email)) {
-                  allSuggestions.push({
-                    email: user.email,
-                    display_name: user.display_name,
-                    original_name: user.original_name,
-                    total_screenshots: user.total_screenshots || 0,
-                    total_size_mb: user.total_size_mb || 0,
-                    active_days_count: user.active_days_count || 0,
-                    last_activity: user.last_activity || 'Unknown',
-                    status: user.status || 'unknown',
-                    suggestion: true // Mark as suggestion
-                  });
-                }
-              });
-            }
+          // If we got enough suggestions, break
+          if (allSuggestions.length >= 6) {
+            break;
           }
-        } catch (error) {
-          console.log(`Failed to fetch suggestions for term: ${term}`);
-          continue;
+        } else {
+          console.log(`Failed ${endpoint.method}: ${response.status} ${response.statusText}`);
         }
+      } catch (error) {
+        console.log(`Error with ${endpoint.method}:`, error.message);
+        continue;
       }
-      
-      // Sort by activity (active users first, then by screenshot count)
-      allSuggestions.sort((a, b) => {
-        if (a.status === 'active' && b.status !== 'active') return -1;
-        if (b.status === 'active' && a.status !== 'active') return 1;
-        return (b.total_screenshots || 0) - (a.total_screenshots || 0);
-      });
-      
-      return allSuggestions.slice(0, 6); // Return top 6 suggestions
-    } catch (error) {
-      console.log('Failed to fetch user suggestions:', error);
-      return [];
     }
+    
+    // Sort by activity (active users first, then by screenshot count)
+    allSuggestions.sort((a, b) => {
+      if (a.status === 'active' && b.status !== 'active') return -1;
+      if (b.status === 'active' && a.status !== 'active') return 1;
+      return (b.total_screenshots || 0) - (a.total_screenshots || 0);
+    });
+    
+    console.log(`Final user suggestions: ${allSuggestions.length} users found`);
+    return allSuggestions.slice(0, 6); // Return top 6 suggestions
   };
 
-  // Real-time API search for dynamic users - NO MOCK DATA
+  // Real-time API search for dynamic users with comprehensive fallback
   const searchUsers = async (query) => {
     if (!query || query.length < 1) {
       setSearchResults(allUsers.slice(0, 10));
@@ -448,62 +548,128 @@ const ActivityStream = () => {
 
     setError(null); // Clear any previous errors
     
-    try {
-      const apiBaseURL = getApiBaseURL();
-      const apiUrl = `${apiBaseURL}/users/search/?q=${encodeURIComponent(query)}`;
-      console.log('🔍 Searching API:', apiUrl);
-      
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000 // 10 second timeout
-      });
-
-      console.log('📡 Response status:', response.status, response.statusText);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🎯 Raw API Response for', query, ':', data);
-        
-        if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
-          console.log(`✅ Found ${data.data.users.length} users for "${query}":`, data.data.users.map(u => u.display_name || u.email));
-          setSearchResults(data.data.users);
-          setShowResults(true);
-          setApiStatus('connected');
-          
-          // Cache results for instant next time
-          setSearchCache(prev => {
-            const newCache = new Map(prev);
-            newCache.set(query.toLowerCase(), data.data.users);
-            return newCache;
-          });
-        } else {
-          console.log('❌ No users found in API response for:', query);
-          setSearchResults([]);
-          setShowResults(true);
-          setApiStatus('connected'); // API is working but no results
-          setError(`No users found for "${query}". Try searching for different terms.`);
-        }
-      } else {
-        const errorText = await response.text();
-        console.log('❌ API request failed with status:', response.status, 'Error:', errorText);
-        setApiStatus('disconnected');
-        setError(`API Error: ${response.status} ${response.statusText}. Please check your network connection.`);
-        setSearchResults([]);
-        setShowResults(true);
+    const apiBaseURL = getApiBaseURL();
+    
+    // Multiple fallback strategies for user search
+    const searchEndpoints = [
+      // Primary search endpoint with original query
+      {
+        url: `${apiBaseURL}/users/search/?q=${encodeURIComponent(query)}`,
+        method: 'search_original'
+      },
+      // Search with wildcard if query is short
+      {
+        url: `${apiBaseURL}/users/search/?q=*${encodeURIComponent(query)}*`,
+        method: 'search_wildcard'
+      },
+      // Search with just query without special characters
+      {
+        url: `${apiBaseURL}/users/search/?q=${encodeURIComponent(query.replace(/[^a-zA-Z0-9]/g, ''))}`,
+        method: 'search_alphanumeric'
+      },
+      // Try users list endpoint with filtering
+      {
+        url: `${apiBaseURL}/users/?search=${encodeURIComponent(query)}&page=1&page_size=20`,
+        method: 'users_search'
+      },
+      // Try employees endpoint
+      {
+        url: `${apiBaseURL}/employees/?search=${encodeURIComponent(query)}`,
+        method: 'employees_search'
+      },
+      // Last resort - get all users and filter locally
+      {
+        url: `${apiBaseURL}/users/?page=1&page_size=100`,
+        method: 'users_all_filter'
       }
-    } catch (error) {
-      console.error('🚨 Search API Error:', error);
-      setApiStatus('error');
-      setError(`Network Error: ${error.message}. Please check your internet connection and try again.`);
+    ];
+
+    let foundResults = [];
+    let successfulEndpoint = null;
+
+    for (const endpoint of searchEndpoints) {
+      try {
+        console.log(`🔍 Trying search endpoint: ${endpoint.url} (${endpoint.method})`);
+        
+        const response = await fetch(endpoint.url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000 // 10 second timeout
+        });
+
+        console.log(`📡 Response status for ${endpoint.method}:`, response.status, response.statusText);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`🎯 Raw API Response for ${endpoint.method}:`, data);
+          
+          let users = [];
+          
+          // Handle different response structures
+          if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
+            users = data.data.users;
+          } else if (data.results && Array.isArray(data.results)) {
+            users = data.results;
+          } else if (Array.isArray(data)) {
+            users = data;
+          } else if (data.users && Array.isArray(data.users)) {
+            users = data.users;
+          }
+          
+          // If this is the "all users" endpoint, filter locally
+          if (endpoint.method === 'users_all_filter' && users.length > 0) {
+            const queryLower = query.toLowerCase();
+            users = users.filter(user => 
+              (user.email && user.email.toLowerCase().includes(queryLower)) ||
+              (user.display_name && user.display_name.toLowerCase().includes(queryLower)) ||
+              (user.original_name && user.original_name.toLowerCase().includes(queryLower)) ||
+              (user.name && user.name.toLowerCase().includes(queryLower))
+            );
+          }
+          
+          if (users.length > 0) {
+            console.log(`✅ Found ${users.length} users with ${endpoint.method} for "${query}":`, 
+              users.map(u => u.display_name || u.email || u.name));
+            
+            foundResults = users;
+            successfulEndpoint = endpoint.method;
+            break; // Success! Use these results
+          }
+        } else {
+          console.log(`❌ ${endpoint.method} failed with status:`, response.status);
+        }
+      } catch (error) {
+        console.log(`🚨 Error with ${endpoint.method}:`, error.message);
+        continue;
+      }
+    }
+
+    // Process final results
+    if (foundResults.length > 0) {
+      setSearchResults(foundResults);
+      setShowResults(true);
+      setApiStatus('connected');
+      
+      // Cache results for instant next time
+      setSearchCache(prev => {
+        const newCache = new Map(prev);
+        newCache.set(query.toLowerCase(), foundResults);
+        return newCache;
+      });
+      
+      console.log(`🎉 Successfully found ${foundResults.length} users using ${successfulEndpoint}`);
+    } else {
+      console.log('❌ No users found with any search method for:', query);
       setSearchResults([]);
       setShowResults(true);
-    } finally {
-      setIsSearching(false);
+      setApiStatus('connected'); // API might be working but no results
+      setError(`No users found for "${query}". Try searching for different terms or check if the user exists.`);
     }
+    
+    setIsSearching(false);
   };
 
   // Fetch user screenshots function with enhanced date filtering and pagination
@@ -517,17 +683,11 @@ const ActivityStream = () => {
       // Calculate offset for future offset-based pagination
       const offset = (page - 1) * screenshotsPerPage;
       
-      // Build the screenshots API endpoint with both page-based and offset-based parameters
-      // The API currently uses page/page_size but we're preparing for offset/limit transition
+      // Build the screenshots API endpoint with simplified parameters
       const searchParams = new URLSearchParams({
         q: user.email || user.display_name || user.original_name, // Use email as primary identifier
-        // Current API uses page/page_size
         page: page.toString(),
-        page_size: screenshotsPerPage.toString(),
-        // Future API support for offset/limit
-        offset: offset.toString(),
-        limit: screenshotsPerPage.toString(),
-        load_more: page > 1 ? 'true' : 'false' // Add load_more flag for subsequent pages
+        page_size: screenshotsPerPage.toString()
       });
 
       // Add date filtering - use current month/year by default or specific date

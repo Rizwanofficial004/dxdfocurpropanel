@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
+import { getApiBaseURL } from '../../config/api';
 import ImageModal from '../components/common/ImageModal';
 import axios from 'axios';
 import './LiveTracking.css';
@@ -27,17 +28,8 @@ const LiveTracking = () => {
   const [modalImages, setModalImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // API URL configuration - using working local endpoint
-  const getApiUrl = () => {
-    // Use the working local development server
-    if (import.meta.env.DEV || 
-        window.location.hostname === 'localhost' ||
-        window.location.hostname.startsWith('127.0.')) {
-      return 'http://127.0.0.1:8000/api';
-    }
-    // In production, use full URL
-    return 'https://dxdtime.ddsolutions.io/api';
-  };
+  // Use centralized API configuration
+  const apiBaseURL = getApiBaseURL();
 
   // Fetch data from live tracking API
   const fetchLiveTrackingData = async (showRetryMessage = false) => {
@@ -49,11 +41,10 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      // Use the working local development API endpoint
-      const apiBaseUrl = getApiUrl();
-      const apiUrl = `${apiBaseUrl}/live-tracking/fast-screenshots/`;
+      // Use centralized API configuration
+      const apiUrl = `${apiBaseURL}/live-tracking/fast-screenshots/`;
       console.log('🔄 Fetching live tracking data from:', apiUrl);
-      console.log('🌐 Using direct local server:', apiUrl);
+      console.log('🌐 Using API endpoint:', apiUrl);
       
       const response = await axios.get(apiUrl, {
         timeout: 60000, // Increase timeout to 60 seconds for large datasets
@@ -316,7 +307,7 @@ const LiveTracking = () => {
                 onClick={() => fetchLiveTrackingData(true)}
                 disabled={loading}
                 className="refresh-button"
-                title="Refresh data from local API server (127.0.0.1:8000) - May take 30-60s for large datasets"
+                title="Refresh data from API server - May take 30-60s for large datasets"
               >
                 {loading ? '🔄' : '↻'} Refresh Data {retryCount > 0 ? `(${retryCount})` : ''}
               </button>

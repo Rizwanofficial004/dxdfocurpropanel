@@ -1,6 +1,9 @@
 /* Import global Poppins font styles */
 @import './styles/globalFonts.css';
 
+/* Import debug reset styles to remove any unwanted borders */
+@import './styles/debugReset.css';
+
 :root {
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.5;

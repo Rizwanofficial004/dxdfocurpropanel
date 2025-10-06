@@ -11,6 +11,26 @@ export default defineConfig({
     host: true,
     allowedHosts: ['dxdtime.ddsolutions.io', 'localhost', '127.0.0.1'],
     proxy: {
+      // Specific proxy for screenshots to local server
+      '/api/users/screenshots': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ Screenshots API proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('📸 Screenshots Request to local API:', req.method, req.url);
+            proxyReq.setHeader('Accept', 'application/json');
+            proxyReq.setHeader('Content-Type', 'application/json');
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('📸 Screenshots Response from local API:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
+      // Default proxy for all other API calls to production server
       '/api': {
         target: 'https://dxdtime.ddsolutions.io',
         changeOrigin: true,

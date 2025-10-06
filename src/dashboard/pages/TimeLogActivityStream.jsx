@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { getApiBaseURL } from '../../config/api';
 import axios from 'axios';
 
 // Styled Components
@@ -515,7 +516,7 @@ const TimeLogActivityStream = () => {
       const formattedEndDate = formatDateForAPI(endDate);
       
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/user-logs/`,
+        `${getApiBaseURL()}/user-logs/`,
         {
           params: {
             start_date: formattedStartDate,
