@@ -38,8 +38,10 @@ class UserScreenshotsAPI(APIView):
     User Screenshots API endpoint
     
     GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
+    GET /api/users/screenshots/?q=user_email&view_mode=day&year=2025&month=10&day=6&page_size=200&offset=0
     
     Returns screenshots for a specific user with pagination and date filtering
+    Supports view_mode for enhanced date filtering (day, month, year)
     Default page size: 25, Maximum: 500
     """
     
@@ -73,8 +75,19 @@ class UserScreenshotsAPI(APIView):
         """
         GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&page=1&page_size=50
         GET /api/users/screenshots/?q=user_email&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&offset=0&limit=50&load_more=true
+        GET /api/users/screenshots/?q=user_email&view_mode=day&year=2025&month=10&day=6&page_size=200&offset=0
         
         Fetch screenshots for a specific user with pagination and date filtering
+        
+        Parameters:
+        - q: User email (required)
+        - start_date, end_date: Date range in YYYY-MM-DD format
+        - view_mode: 'day', 'month', or 'year' (use with year/month/day parameters)
+        - year: Specific year (use with view_mode)
+        - month: Specific month (use with view_mode=day or view_mode=month)
+        - day: Specific day (use with view_mode=day)
+        - page, page_size: Traditional pagination
+        - offset, limit, load_more: Load more pagination
         
         Supports two pagination modes:
         1. Traditional pagination: page + page_size (default)
@@ -88,6 +101,12 @@ class UserScreenshotsAPI(APIView):
             user_query = request.GET.get('q', '').strip()
             start_date = request.GET.get('start_date', '').strip()
             end_date = request.GET.get('end_date', '').strip()
+            
+            # New parameters for enhanced date filtering
+            view_mode = request.GET.get('view_mode', '').strip().lower()
+            year = request.GET.get('year', '').strip()
+            month = request.GET.get('month', '').strip()
+            day = request.GET.get('day', '').strip()
             
             # Check if load_more mode is requested
             load_more_mode = request.GET.get('load_more', '').lower() in ['true', '1', 'yes']
@@ -123,9 +142,9 @@ class UserScreenshotsAPI(APIView):
                     
                 try:
                     page_size = int(request.GET.get('page_size', 50))
-                    if page_size < 50:  # Minimum 50
-                        page_size = 50
-                    elif page_size > 500:  # Maximum 500
+                    if page_size < 10:  # Minimum 10
+                        page_size = 10
+                    elif page_size > 500:  # Maximum 500 (increased to support larger requests)
                         page_size = 500
                 except (ValueError, TypeError):
                     page_size = 50
@@ -133,9 +152,9 @@ class UserScreenshotsAPI(APIView):
                 offset = (page - 1) * page_size
             
             if load_more_mode:
-                logger.info(f"UserScreenshots API (Load More) - Query: {user_query}, Date range: {start_date} to {end_date}, Offset: {offset}, Limit: {limit}")
+                logger.info(f"UserScreenshots API (Load More) - Query: {user_query}, View mode: {view_mode}, Year: {year}, Month: {month}, Day: {day}, Date range: {start_date} to {end_date}, Offset: {offset}, Limit: {limit}")
             else:
-                logger.info(f"UserScreenshots API (Pagination) - Query: {user_query}, Date range: {start_date} to {end_date}, Page: {page}, Page size: {page_size}")
+                logger.info(f"UserScreenshots API (Pagination) - Query: {user_query}, View mode: {view_mode}, Year: {year}, Month: {month}, Day: {day}, Date range: {start_date} to {end_date}, Page: {page}, Page size: {page_size}")
             
             # Debug AWS configuration
             logger.info(f"AWS Config - Bucket: {self.bucket_name}, Region: {self.aws_config['region']}")
@@ -150,8 +169,8 @@ class UserScreenshotsAPI(APIView):
             # Normalize user email format (handle @ vs _at_ conversion)
             normalized_user = user_query.replace('@', '_at_').lower()
             
-            # Validate and parse date range............
-            date_filter = self._parse_date_range(start_date, end_date)
+            # Enhanced date filtering with view_mode support
+            date_filter = self._parse_enhanced_date_filter(start_date, end_date, view_mode, year, month, day)
             
             # Search for user screenshots with appropriate pagination method
             if load_more_mode:
@@ -199,6 +218,101 @@ class UserScreenshotsAPI(APIView):
         
         return date_filter
     
+    def _parse_enhanced_date_filter(self, start_date, end_date, view_mode, year, month, day):
+        """Enhanced date filtering with view_mode support"""
+        date_filter = {
+            'start_date': None,
+            'end_date': None,
+            'start_datetime': None,
+            'end_datetime': None,
+            'view_mode': view_mode,
+            'specific_year': year,
+            'specific_month': month,
+            'specific_day': day
+        }
+        
+        # Handle view_mode with year, month, day parameters
+        if view_mode and year:
+            try:
+                year_int = int(year)
+                
+                if view_mode == 'day' and month and day:
+                    # Specific day view
+                    month_int = int(month)
+                    day_int = int(day)
+                    
+                    # Create start and end datetime for the specific day
+                    start_dt = datetime(year_int, month_int, day_int, 0, 0, 0)
+                    end_dt = datetime(year_int, month_int, day_int, 23, 59, 59)
+                    
+                    date_filter['start_date'] = start_dt.strftime('%Y-%m-%d')
+                    date_filter['end_date'] = end_dt.strftime('%Y-%m-%d')
+                    date_filter['start_datetime'] = start_dt
+                    date_filter['end_datetime'] = end_dt
+                    
+                    logger.info(f"Day view mode: {date_filter['start_date']} (full day)")
+                    
+                elif view_mode == 'month' and month:
+                    # Specific month view
+                    month_int = int(month)
+                    
+                    # Create start and end datetime for the specific month
+                    start_dt = datetime(year_int, month_int, 1, 0, 0, 0)
+                    
+                    # Calculate last day of month
+                    if month_int == 12:
+                        end_dt = datetime(year_int + 1, 1, 1) - timedelta(days=1)
+                    else:
+                        end_dt = datetime(year_int, month_int + 1, 1) - timedelta(days=1)
+                    end_dt = end_dt.replace(hour=23, minute=59, second=59)
+                    
+                    date_filter['start_date'] = start_dt.strftime('%Y-%m-%d')
+                    date_filter['end_date'] = end_dt.strftime('%Y-%m-%d')
+                    date_filter['start_datetime'] = start_dt
+                    date_filter['end_datetime'] = end_dt
+                    
+                    logger.info(f"Month view mode: {date_filter['start_date']} to {date_filter['end_date']}")
+                    
+                elif view_mode == 'year':
+                    # Specific year view
+                    start_dt = datetime(year_int, 1, 1, 0, 0, 0)
+                    end_dt = datetime(year_int, 12, 31, 23, 59, 59)
+                    
+                    date_filter['start_date'] = start_dt.strftime('%Y-%m-%d')
+                    date_filter['end_date'] = end_dt.strftime('%Y-%m-%d')
+                    date_filter['start_datetime'] = start_dt
+                    date_filter['end_datetime'] = end_dt
+                    
+                    logger.info(f"Year view mode: {date_filter['start_date']} to {date_filter['end_date']}")
+                    
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Invalid date parameters for view_mode: {e}")
+                # Fall back to traditional date parsing
+        
+        # If view_mode parsing didn't work, fall back to traditional start_date/end_date parsing
+        if not date_filter['start_date'] and not date_filter['end_date']:
+            # Parse start date
+            if start_date:
+                try:
+                    start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+                    date_filter['start_date'] = start_date
+                    date_filter['start_datetime'] = start_dt
+                except ValueError:
+                    logger.warning(f"Invalid start_date format: {start_date}")
+            
+            # Parse end date
+            if end_date:
+                try:
+                    end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+                    # Add 23:59:59 to include the entire end date
+                    end_dt = end_dt.replace(hour=23, minute=59, second=59)
+                    date_filter['end_date'] = end_date
+                    date_filter['end_datetime'] = end_dt
+                except ValueError:
+                    logger.warning(f"Invalid end_date format: {end_date}")
+        
+        return date_filter
+    
     def _search_user_screenshots_date_wise(self, normalized_user, date_filter, page, page_size):
         """Search for screenshots - Date-wise scanning prioritizing recent dates"""
         try:
@@ -237,7 +351,11 @@ class UserScreenshotsAPI(APIView):
                     },
                     "date_range": {
                         "start_date": date_filter['start_date'],
-                        "end_date": date_filter['end_date']
+                        "end_date": date_filter['end_date'],
+                        "view_mode": date_filter.get('view_mode'),
+                        "specific_year": date_filter.get('specific_year'),
+                        "specific_month": date_filter.get('specific_month'),
+                        "specific_day": date_filter.get('specific_day')
                     },
                     "project_folders": project_stats,
                     "pagination": {
@@ -438,7 +556,11 @@ class UserScreenshotsAPI(APIView):
                     },
                     "date_range": {
                         "start_date": date_filter['start_date'],
-                        "end_date": date_filter['end_date']
+                        "end_date": date_filter['end_date'],
+                        "view_mode": date_filter.get('view_mode'),
+                        "specific_year": date_filter.get('specific_year'),
+                        "specific_month": date_filter.get('specific_month'),
+                        "specific_day": date_filter.get('specific_day')
                     },
                     "project_folders": project_stats,
                     "load_more": {
