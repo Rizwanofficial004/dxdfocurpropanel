@@ -21,6 +21,7 @@ from collections import defaultdict
 import os
 from django.conf import settings
 from .screenshot_parser import ScreenshotParser
+from core.credentials import CredentialsManager
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +31,6 @@ AWS_CREDENTIALS = {
     "secret_key": "sUt73C80S1DnEybvxa/Al7R1xAc+fsX9UzQKqNkS",
     "region": "eu-north-1",
     "bucket_name": "ddsfocustime"
-}
-
-# CRM Credentials
-CRM_CREDENTIALS = {
-    "base_url": "https://crm.deluxebilisim.com/api",
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiZGVsdXhldGltZSIsIm5hbWUiOiJkZWx1eGV0aW1lIiwiQVBJX1RJTUUiOjE3NDUzNDQyNjJ9.kJGo5DksaPwkHwufDvLMGaMmjk5q2F7GhjzwdHtfT_o"
 }
 
 
@@ -57,6 +52,7 @@ class EmployeesDetailsView(APIView):
         self.s3_client = None
         self.bucket_name = AWS_CREDENTIALS["bucket_name"]
         self.screenshot_parser = ScreenshotParser(self.bucket_name)
+        self.crm_credentials = CredentialsManager.get_crm_credentials()
         self._initialize_s3()
     
     def _initialize_s3(self):
@@ -108,7 +104,7 @@ class EmployeesDetailsView(APIView):
                             "search_time_ms": s3_data.get("search_time_ms", 0)
                         },
                         "crm": {
-                            "base_url": CRM_CREDENTIALS["base_url"],
+                            "base_url": self.crm_credentials["base_url"],
                             "status": crm_data.get("status", "unknown"),
                             "response_time_ms": crm_data.get("response_time_ms", 0)
                         }
@@ -257,7 +253,7 @@ class EmployeesDetailsView(APIView):
             logger.info("Fetching employee data from CRM...")
             
             headers = {
-                'Authorization': f'Bearer {CRM_CREDENTIALS["token"]}',
+                'Authorization': f'Bearer {self.crm_credentials["token"]}',
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
@@ -276,7 +272,7 @@ class EmployeesDetailsView(APIView):
             
             for endpoint in possible_endpoints:
                 try:
-                    url = f"{CRM_CREDENTIALS['base_url']}{endpoint}"
+                    url = f"{self.crm_credentials['base_url']}{endpoint}"
                     logger.info(f"Trying CRM endpoint: {url}")
                     
                     response = requests.get(url, headers=headers, timeout=30)

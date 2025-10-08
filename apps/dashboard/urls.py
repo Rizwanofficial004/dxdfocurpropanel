@@ -4,6 +4,8 @@ from .credentials_views import CredentialsStatusView, CredentialsAPIView, SetAll
 from .users_screenshots_view import UsersScreenshotsView
 from .users_search_views import EnhancedUsersSearchView
 from .employees_details_views import EmployeesDetailsView
+from .staff_details_views import StaffDetailsView
+from .timesheets_views import TimesheetsView
 from .simple_screenshot_proxy import SimpleScreenshotProxyView, SimpleScreenshotProxyStatusView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
@@ -27,6 +29,12 @@ urlpatterns = [
 
     # Employees Details API - Combines S3 and CRM Data
     path('Employees/Details/', EmployeesDetailsView.as_view(), name='employees-details'),
+    
+    # Staff Details API - Fetches all staff from CRM
+    path('Staff/Details/', StaffDetailsView.as_view(), name='staff-details'),
+    
+    # Timesheets API - Fetches all timesheets from CRM
+    path('Timesheets/', TimesheetsView.as_view(), name='timesheets'),
 
     # Enhanced Users Search API - Accurate S3 data fetching
     path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),
