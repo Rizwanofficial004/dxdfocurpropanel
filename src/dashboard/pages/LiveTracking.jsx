@@ -30,7 +30,7 @@ const LiveTracking = () => {
 
   // Helper function to build API URL
   const buildApiUrl = (params = {}) => {
-    const baseUrl = 'http://127.0.0.1:8000/api/live-tracking/fast-screenshots/';
+    const baseUrl = `${getApiBaseURL()}/live-tracking/fast-screenshots/`;
     if (Object.keys(params).length === 0) return baseUrl;
     
     const urlParams = new URLSearchParams();
@@ -81,7 +81,8 @@ const LiveTracking = () => {
         // S3 Configuration
         aws_region: 'eu-north-1',
         bucket_name: 'ddsfocustime',
-        force_refresh: true // Force fresh data from S3
+        force_refresh: true, // Force fresh data from S3
+        _t: Date.now() // Cache buster - ensures fresh data on every request
       });
       console.log('🔄 Fetching live tracking data from:', apiUrl);
       console.log('🌐 Using API endpoint with S3 config:', apiUrl);
@@ -91,6 +92,9 @@ const LiveTracking = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
           'X-AWS-Region': 'eu-north-1',
           'X-S3-Bucket': 'ddsfocustime'
         },
@@ -377,31 +381,8 @@ const LiveTracking = () => {
                   )}
                 </span>
               </h1>
-              <div style={{
-                padding: '4px 8px',
-                backgroundColor: '#dbeafe',
-                color: '#1e40af',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: '500',
-                marginTop: '4px',
-                display: 'inline-block'
-              }}>
-                📡 API: http://127.0.0.1:8000/api/live-tracking/fast-screenshots/
-              </div>
-              <div style={{
-                padding: '4px 8px',
-                backgroundColor: '#fef3c7',
-                color: '#92400e',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: '500',
-                marginTop: '4px',
-                marginLeft: '8px',
-                display: 'inline-block'
-              }}>
-                🗄️ S3: ddsfocustime (eu-north-1)
-              </div>
+      
+              
             </div>
             <div className="header-controls">
               <div className="search-container">
@@ -421,84 +402,6 @@ const LiveTracking = () => {
                 title="Refresh data from API server - Using http://127.0.0.1:8000/api/live-tracking/fast-screenshots/"
               >
                 {loading ? '🔄' : '↻'} Refresh Data {retryCount > 0 ? `(${retryCount})` : ''}
-              </button>
-              <button 
-                onClick={async () => {
-                  console.log('🧪 Testing API connection with S3...');
-                  try {
-                    const testUrl = buildApiUrl({ 
-                      limit_screenshots: 1,
-                      aws_region: 'eu-north-1',
-                      bucket_name: 'ddsfocustime',
-                      test_mode: true
-                    });
-                    const response = await axios.get(testUrl, { 
-                      timeout: 15000,
-                      headers: {
-                        'X-AWS-Region': 'eu-north-1',
-                        'X-S3-Bucket': 'ddsfocustime'
-                      }
-                    });
-                    console.log('✅ API test successful:', response.data);
-                    
-                    // Check if S3 data is available
-                    const hasS3Data = response.data?.data?.s3_users_sample?.length > 0;
-                    const s3Status = response.data?.data?.data_sources?.s3_status || 'Unknown';
-                    
-                    alert(`✅ API Connection: SUCCESS\n` +
-                          `🔌 Status: ${response.status}\n` +
-                          `📡 Endpoint: /fast-screenshots/\n` +
-                          `🗄️ S3 Status: ${s3Status}\n` +
-                          `📸 Screenshots Found: ${hasS3Data ? 'YES' : 'NO'}\n` +
-                          `👥 Users: ${response.data?.data?.s3_users_sample?.length || 0}`);
-                  } catch (err) {
-                    console.error('❌ API test failed:', err);
-                    alert(`❌ API Test Failed!\n` +
-                          `Error: ${err.message}\n` +
-                          `Status: ${err.response?.status || 'Network Error'}\n` +
-                          `Check console for details.`);
-                  }
-                }}
-                className="test-api-button"
-                style={{
-                  marginLeft: '8px',
-                  padding: '8px 16px',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-                title="Test API connection and S3 data availability"
-              >
-                🧪 Test API + S3
-              </button>
-              <button 
-                onClick={async () => {
-                  const result = await testS3Connection();
-                  if (result) {
-                    alert(`✅ S3 Connection Test\n` +
-                          `Region: eu-north-1\n` +
-                          `Bucket: ddsfocustime\n` +
-                          `Status: ${JSON.stringify(result, null, 2)}`);
-                  } else {
-                    alert('❌ S3 Connection Failed\nCheck console for details');
-                  }
-                }}
-                style={{
-                  marginLeft: '8px',
-                  padding: '8px 16px',
-                  backgroundColor: '#f59e0b',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-                title="Test S3 bucket connection specifically"
-              >
-                🗄️ Test S3
               </button>
             </div>
           </div>
@@ -965,18 +868,18 @@ const LiveTracking = () => {
             </div>
           </div>
         </div>
+        
+        {/* Image Modal */}
+        <ImageModal
+          isOpen={isModalOpen}
+          images={modalImages}
+          currentIndex={currentImageIndex}
+          onClose={closeImageModal}
+          onIndexChange={(newIndex) => setCurrentImageIndex(newIndex)}
+          theme="light"
+          isDarkMode={false}
+        />
       </div>
-      
-      {/* Image Modal */}
-      <ImageModal
-        isOpen={isModalOpen}
-        images={modalImages}
-        currentIndex={currentImageIndex}
-        onClose={closeImageModal}
-        onIndexChange={(newIndex) => setCurrentImageIndex(newIndex)}
-        theme="light"
-        isDarkMode={false}
-      />
     </DashboardLayout>
   );
 };
