@@ -11,6 +11,92 @@ export default defineConfig({
     host: true,
     allowedHosts: ['dxdtime.ddsolutions.io', 'localhost', '127.0.0.1'],
     proxy: {
+      // Specific proxy for Staff/Details to local server (with fresh data)
+      '/api/Staff/Details': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ Staff Details API proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('👥 Staff Details Request to local API:', req.method, req.url);
+            proxyReq.setHeader('Accept', 'application/json');
+            proxyReq.setHeader('Content-Type', 'application/json');
+            proxyReq.setHeader('Cache-Control', 'no-cache');
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('👥 Staff Details Response from local API:', proxyRes.statusCode, req.url);
+            // Prevent caching of staff data
+            proxyRes.headers['cache-control'] = 'no-cache, no-store, must-revalidate';
+            proxyRes.headers['pragma'] = 'no-cache';
+            proxyRes.headers['expires'] = '0';
+          });
+        },
+      },
+      // Specific proxy for users endpoint to production
+      '/api/users': {
+        target: 'https://dxdtime.ddsolutions.io',
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ Users API proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('👥 Users Request to production API:', req.method, req.url);
+            proxyReq.setHeader('Accept', 'application/json');
+            proxyReq.setHeader('Content-Type', 'application/json');
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('👥 Users Response from production API:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
+      // Specific proxy for employees endpoint to production
+      '/api/employees': {
+        target: 'https://dxdtime.ddsolutions.io',
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ Employees API proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('👥 Employees Request to production API:', req.method, req.url);
+            proxyReq.setHeader('Accept', 'application/json');
+            proxyReq.setHeader('Content-Type', 'application/json');
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('👥 Employees Response from production API:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
+      // Specific proxy for Timesheets to local server (with fresh data)
+      '/api/Timesheets': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('❌ Timesheets API proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('📊 Timesheets Request to local API:', req.method, req.url);
+            proxyReq.setHeader('Accept', 'application/json');
+            proxyReq.setHeader('Content-Type', 'application/json');
+            proxyReq.setHeader('Cache-Control', 'no-cache');
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('📊 Timesheets Response from local API:', proxyRes.statusCode, req.url);
+            // Prevent caching of timesheets data
+            proxyRes.headers['cache-control'] = 'no-cache, no-store, must-revalidate';
+            proxyRes.headers['pragma'] = 'no-cache';
+            proxyRes.headers['expires'] = '0';
+          });
+        },
+      },
       // Specific proxy for live-tracking to local server (with fresh data)
       '/api/live-tracking': {
         target: 'http://127.0.0.1:8000',

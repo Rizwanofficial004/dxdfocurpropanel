@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { getApiBaseURL } from '../../config/api';
+import axios from 'axios';
 
 // Styled Components
 const Container = styled.div`
@@ -173,8 +175,8 @@ const LogsContainer = styled.div`
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 180px 150px 120px 120px 120px 150px 100px;
-  gap: 16px;
+  grid-template-columns: 1.5fr 0.8fr 1.2fr 1.2fr 0.6fr 2fr 0.8fr;
+  gap: 12px;
   padding: 16px 20px;
   background: ${props => props.theme.colors.background};
   border-bottom: 1px solid ${props => props.theme.colors.border};
@@ -185,8 +187,8 @@ const TableHeader = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 180px 150px 120px 120px 120px 150px 100px;
-  gap: 16px;
+  grid-template-columns: 1.5fr 0.8fr 1.2fr 1.2fr 0.6fr 2fr 0.8fr;
+  gap: 12px;
   padding: 16px 20px;
   border-bottom: 1px solid ${props => props.theme.colors.border};
   transition: background-color 0.2s ease;
@@ -291,8 +293,12 @@ const TimeLogSummary = () => {
   
   // State management
   const [loading, setLoading] = useState(false);
-  const [sessionLogs, setSessionLogs] = useState([]);
-  const [filteredLogs, setFilteredLogs] = useState([]);
+  const [timesheets, setTimesheets] = useState([]);
+  const [filteredTimesheets, setFilteredTimesheets] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -301,136 +307,71 @@ const TimeLogSummary = () => {
     employee: ''
   });
 
-  // Sample session log data based on the actual structure
-  const sampleSessionLogs = [
-    {
-      session_info: {
-        email: "haseebcodejourney@gmail.com",
-        task_id: "1773",
-        staff_id: "188",
-        task_name: "Create Hospital Profile Pages",
-        end_time: 1759179848,
-        note: "testing finished",
-        completed_at: "2025-09-30T00:04:10.851184"
-      },
-      program_tracking: {
-        user_email: "haseebcodejourney@gmail.com",
-        task_name: "Create Hospital Profile Pages",
-        date: "2025-09-30",
-        session_start: "2025-09-30T00:03:09.594721",
-        session_end: "2025-09-30T00:04:09.401276",
-        session_duration_seconds: 59.81,
-        session_duration_formatted: "59s",
-        programs_tracked: 1,
-        programs: [
-          {
-            process_name: "FocusProapp.exe",
-            total_time_seconds: 47.4,
-            total_time_formatted: "47s",
-            window_titles: ["DDS FocusPro"],
-            browser_domains: null
-          }
-        ],
-        capture_timestamp: "2025-09-30T00:04:09.401392"
-      },
-      session_logs: []
-    },
-    {
-      session_info: {
-        email: "john.doe@company.com",
-        task_id: "1774",
-        staff_id: "189",
-        task_name: "Frontend Development",
-        end_time: 1759187200,
-        note: "completed development tasks",
-        completed_at: "2025-09-30T02:15:30.123456"
-      },
-      program_tracking: {
-        user_email: "john.doe@company.com",
-        task_name: "Frontend Development",
-        date: "2025-09-30",
-        session_start: "2025-09-30T01:30:15.123456",
-        session_end: "2025-09-30T02:15:30.123456",
-        session_duration_seconds: 2715.0,
-        session_duration_formatted: "45m 15s",
-        programs_tracked: 2,
-        programs: [
-          {
-            process_name: "Code.exe",
-            total_time_seconds: 2400.0,
-            total_time_formatted: "40m",
-            window_titles: ["Visual Studio Code"],
-            browser_domains: null
-          },
-          {
-            process_name: "chrome.exe",
-            total_time_seconds: 315.0,
-            total_time_formatted: "5m 15s",
-            window_titles: ["Chrome"],
-            browser_domains: ["localhost:3000", "github.com"]
-          }
-        ],
-        capture_timestamp: "2025-09-30T02:15:30.123456"
-      },
-      session_logs: []
-    }
-  ];
-
-  // Fetch session logs from S3 (placeholder for API integration)
-  const fetchSessionLogsFromS3 = useCallback(async () => {
+  // Fetch timesheets from API
+  const fetchTimesheets = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
-      // TODO: Replace with actual S3 API call
-      // const response = await fetch('/api/s3/session-logs', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     startDate: filters.startDate,
-      //     endDate: filters.endDate,
-      //     userEmail: filters.employee
-      //   })
-      // });
-      // const data = await response.json();
+      const apiUrl = `${getApiBaseURL()}/Timesheets/?_t=${Date.now()}`;
+      console.log('🔄 Fetching timesheets from:', apiUrl);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await axios.get(apiUrl, {
+        timeout: 30000,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       
-      // Use sample data for now
-      setSessionLogs(sampleSessionLogs);
-      applyClientSideFilters(sampleSessionLogs);
+      console.log('✅ Timesheets API response:', response.data);
       
-    } catch (error) {
-      console.error('Error fetching session logs:', error);
+      if (response.data && response.data.data) {
+        const timesheetsData = response.data.data.timesheets || [];
+        setTimesheets(timesheetsData);
+        setSummary(response.data.data.summary);
+        applyClientSideFilters(timesheetsData);
+      }
+      
+    } catch (err) {
+      console.error('❌ Error fetching timesheets:', err);
+      setError(`Failed to fetch timesheets: ${err.message}`);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, []);
 
   // Apply client-side filters
-  const applyClientSideFilters = (logs) => {
-    let filtered = [...logs];
+  const applyClientSideFilters = (data) => {
+    let filtered = [...data];
 
-    // Filter by employee email
+    // Filter by employee (staff_name or staff_id)
     if (filters.employee) {
-      filtered = filtered.filter(log => 
-        log.session_info.email.toLowerCase().includes(filters.employee.toLowerCase())
+      const searchTerm = filters.employee.toLowerCase();
+      filtered = filtered.filter(timesheet => 
+        timesheet.staff_name?.toLowerCase().includes(searchTerm) ||
+        timesheet.staff_id?.toString().includes(searchTerm)
       );
     }
 
     // Filter by date range
     if (filters.startDate) {
-      filtered = filtered.filter(log => 
-        log.program_tracking.date >= filters.startDate
-      );
+      filtered = filtered.filter(timesheet => {
+        const timesheetDate = timesheet.date || timesheet.start_time?.split(' ')[0];
+        return timesheetDate >= filters.startDate;
+      });
     }
 
     if (filters.endDate) {
-      filtered = filtered.filter(log => 
-        log.program_tracking.date <= filters.endDate
-      );
+      filtered = filtered.filter(timesheet => {
+        const timesheetDate = timesheet.date || timesheet.start_time?.split(' ')[0];
+        return timesheetDate <= filters.endDate;
+      });
     }
 
-    setFilteredLogs(filtered);
+    setFilteredTimesheets(filtered);
   };
 
   // Handle filter changes
@@ -443,10 +384,11 @@ const TimeLogSummary = () => {
 
   // Apply filters
   const applyFilters = () => {
-    if (sessionLogs.length > 0) {
-      applyClientSideFilters(sessionLogs);
+    setCurrentPage(1); // Reset to first page when applying filters
+    if (timesheets.length > 0) {
+      applyClientSideFilters(timesheets);
     } else {
-      fetchSessionLogsFromS3();
+      fetchTimesheets();
     }
   };
 
@@ -457,37 +399,69 @@ const TimeLogSummary = () => {
       endDate: '',
       employee: ''
     });
-    setFilteredLogs(sessionLogs);
+    setCurrentPage(1);
+    setFilteredTimesheets(timesheets);
   };
 
-  // Format time from seconds
-  const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${secs}s`;
-    } else {
-      return `${secs}s`;
+  // Format datetime string (already in format: "2020-12-29 16:35:55")
+  const formatDateTime = (dateTimeStr) => {
+    if (!dateTimeStr) return 'N/A';
+    // If it's already a formatted string, return as is
+    if (typeof dateTimeStr === 'string' && dateTimeStr.includes('-')) {
+      return dateTimeStr;
     }
-  };
-
-  // Format timestamp
-  const formatTimestamp = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString('en-US', {
+    // If it's a Unix timestamp, convert it
+    const date = new Date(parseInt(dateTimeStr) * 1000);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
       hour12: false
     });
   };
 
+  // Format hours to 2 decimal places
+  const formatHours = (hours) => {
+    if (hours === null || hours === undefined) return '0.00';
+    return parseFloat(hours).toFixed(2);
+  };
+
+  // Format hourly rate
+  const formatHourlyRate = (rate) => {
+    if (rate === null || rate === undefined) return '0.00';
+    return parseFloat(rate).toFixed(2);
+  };
+
   // Initial load
   useEffect(() => {
-    fetchSessionLogsFromS3();
-  }, []);
+    fetchTimesheets();
+  }, [fetchTimesheets]);
+
+  // Calculate pagination
+  const totalItems = filteredTimesheets.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentTimesheets = filteredTimesheets.slice(startIndex, endIndex);
+
+  // Calculate summary stats
+  const calculateStats = () => {
+    const totalHours = filteredTimesheets.reduce((sum, ts) => sum + (parseFloat(ts.hours) || 0), 0);
+    const uniqueStaff = new Set(filteredTimesheets.map(ts => ts.staff_id)).size;
+    const activeEntries = filteredTimesheets.filter(ts => !ts.end_time).length;
+    
+    return {
+      totalEntries: filteredTimesheets.length,
+      totalHours: totalHours.toFixed(2),
+      uniqueStaff,
+      activeEntries
+    };
+  };
+
+  const stats = calculateStats();
 
   return (
     <DashboardLayout>
@@ -540,78 +514,151 @@ const TimeLogSummary = () => {
           </ButtonGroup>
         </FiltersContainer>
 
-        {/* Session Logs Table */}
+        {/* Summary Statistics */}
+        {!loading && !error && filteredTimesheets.length > 0 && (
+          <StatsContainer>
+            <StatCard>
+              <StatLabel>Total Entries</StatLabel>
+              <StatValue>{stats.totalEntries}</StatValue>
+            </StatCard>
+            <StatCard>
+              <StatLabel>Total Hours</StatLabel>
+              <StatValue>{stats.totalHours}h</StatValue>
+            </StatCard>
+            <StatCard>
+              <StatLabel>Unique Staff</StatLabel>
+              <StatValue>{stats.uniqueStaff}</StatValue>
+            </StatCard>
+            <StatCard>
+              <StatLabel>Active Sessions</StatLabel>
+              <StatValue>{stats.activeEntries}</StatValue>
+            </StatCard>
+          </StatsContainer>
+        )}
+
+        {/* Timesheets Table */}
         <LogsContainer>
           <TableHeader>
-            <div>User Email</div>
-            <div>Task Name</div>
+            <div>Staff Name</div>
             <div>Date</div>
-            <div>Session Start</div>
-            <div>Session End</div>
-            <div>Duration</div>
-            <div>Programs Used</div>
-            <div>Status</div>
+            <div>Start Time</div>
+            <div>End Time</div>
+            <div>Hours</div>
+            <div>Note</div>
+            <div>Hourly Rate</div>
           </TableHeader>
           
           {loading ? (
             <LoadingContainer>
               <LoadingSpinner />
-              <div>Loading session logs from S3...</div>
+              <div>Loading timesheets from API...</div>
             </LoadingContainer>
-          ) : filteredLogs.length > 0 ? (
-            filteredLogs.map((sessionLog, index) => (
-              <TableRow key={`${sessionLog.session_info.task_id}-${index}`}>
-                <TableCell>{sessionLog.session_info.email}</TableCell>
-                <TableCell>
-                  <div style={{ fontWeight: '600' }}>
-                    {sessionLog.session_info.task_name}
-                  </div>
-                  <div style={{ fontSize: '12px', opacity: 0.7 }}>
-                    ID: {sessionLog.session_info.task_id}
-                  </div>
-                </TableCell>
-                <TableCell>{sessionLog.program_tracking.date}</TableCell>
-                <TableCell>
-                  {formatTimestamp(sessionLog.program_tracking.session_start)}
-                </TableCell>
-                <TableCell>
-                  {formatTimestamp(sessionLog.program_tracking.session_end)}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge status="active">
-                    {sessionLog.program_tracking.session_duration_formatted}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>
-                  <div style={{ fontSize: '12px' }}>
-                    {sessionLog.program_tracking.programs.map((program, idx) => (
-                      <div key={idx} style={{ marginBottom: '2px' }}>
-                        <strong>{program.process_name}</strong>
-                        <br />
-                        <span style={{ opacity: 0.7 }}>
-                          {program.total_time_formatted}
-                        </span>
+          ) : error ? (
+            <EmptyState>
+              <EmptyIcon>⚠️</EmptyIcon>
+              <div style={{ color: '#dc2626', fontWeight: 600 }}>{error}</div>
+              <Button variant="primary" onClick={fetchTimesheets} style={{ marginTop: '16px' }}>
+                Retry
+              </Button>
+            </EmptyState>
+          ) : filteredTimesheets.length > 0 ? (
+            <>
+              {currentTimesheets.map((timesheet) => (
+                <TableRow key={timesheet.id}>
+                  <TableCell>
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: '13px' }}>
+                        {timesheet.staff_name || `Staff #${timesheet.staff_id}`}
                       </div>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <StatusBadge status="completed">
-                    {sessionLog.session_info.note || 'Completed'}
-                  </StatusBadge>
-                </TableCell>
-              </TableRow>
-            ))
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontSize: '13px' }}>
+                      {timesheet.date || (timesheet.start_time ? timesheet.start_time.split(' ')[0] : 'N/A')}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontSize: '12px' }}>
+                      {formatDateTime(timesheet.start_time)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontSize: '12px' }}>
+                      {timesheet.end_time ? formatDateTime(timesheet.end_time) : 
+                        <StatusBadge status="in-progress">In Progress</StatusBadge>
+                      }
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontWeight: '600', fontSize: '13px' }}>
+                      {formatHours(timesheet.hours)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontSize: '12px', maxHeight: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={timesheet.note || ''}>
+                      {timesheet.note || '-'}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontWeight: '600', fontSize: '13px', color: '#10b981' }}>
+                      ${formatHourlyRate(timesheet.hourly_rate)}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </>
           ) : (
             <EmptyState>
               <EmptyIcon>📋</EmptyIcon>
-              <div>No session logs found</div>
+              <div>No timesheets found</div>
               <div style={{ fontSize: '14px', marginTop: '8px', opacity: 0.7 }}>
-                Try adjusting your filters or check your S3 connection
+                Try adjusting your filters or check your API connection
               </div>
             </EmptyState>
           )}
         </LogsContainer>
+
+        {/* Pagination */}
+        {!loading && !error && totalPages > 1 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginTop: '20px',
+            padding: '16px 20px',
+            background: theme.colors.surface,
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: '12px'
+          }}>
+            <div style={{ fontSize: '14px', color: theme.colors.text.secondary }}>
+              Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} entries
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                ← Previous
+              </Button>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px',
+                padding: '0 12px',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}>
+                Page {currentPage} of {totalPages}
+              </div>
+              <Button 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </Button>
+            </div>
+          </div>
+        )}
       </Container>
     </DashboardLayout>
   );

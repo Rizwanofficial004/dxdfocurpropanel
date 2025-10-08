@@ -52,7 +52,7 @@ const Attendance = lazy(() =>
 );
 
 const Employees = lazy(() =>
-  import('./dashboard/pages/EmployeesNew').catch(() => ({ default: FallbackEmployees }))
+  import('./dashboard/pages/EmployeesClean').catch(() => ({ default: FallbackEmployees }))
 );
 
 const Teams = lazy(() =>
