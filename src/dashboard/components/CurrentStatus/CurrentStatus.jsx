@@ -107,15 +107,19 @@ const StatusArrow = styled.div`
 
 const ChartContainer = styled.div`
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const CircularChart = styled.svg`
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
 `;
 
 const ChartCenter = styled.div`
@@ -124,14 +128,35 @@ const ChartCenter = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
 `;
 
 const ChartNumber = styled.span`
-  font-size: 36px;
-  font-weight: 700;
-  color: #ffffffff;
+  font-size: 48px;
+  font-weight: 800;
+  color: #1f2937;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1;
+
+  [data-theme="dark"] & {
+    color: #ffffff;
+  }
+`;
+
+const ChartLabel = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
 `;
 
 const CurrentStatus = () => {
@@ -179,28 +204,56 @@ const CurrentStatus = () => {
         </StatusListContainer>
         
         <ChartContainer>
-          <CircularChart viewBox="0 0 120 120">
+          <CircularChart viewBox="0 0 160 160">
+            {/* Background circle */}
             <circle
-              cx="60"
-              cy="60"
-              r="50"
+              cx="80"
+              cy="80"
+              r="60"
               fill="none"
-              stroke="#e5e7eb"
-              strokeWidth="8"
+              stroke="#f3f4f6"
+              strokeWidth="12"
             />
-            <circle
-              cx="60"
-              cy="60"
-              r="50"
-              fill="none"
-              stroke="#ef4444"
-              strokeWidth="8"
-              strokeDasharray="314"
-              strokeDashoffset="0"
-            />
+            
+            {/* Generate segments for each status */}
+            {(() => {
+              const radius = 60;
+              const circumference = 2 * Math.PI * radius;
+              let currentOffset = 0;
+              
+              return statusData.map((item, index) => {
+                if (item.count === 0) return null;
+                
+                const percentage = (item.count / totalCount) * 100;
+                const dashLength = (percentage / 100) * circumference;
+                const dashOffset = currentOffset;
+                
+                currentOffset += dashLength;
+                
+                return (
+                  <circle
+                    key={item.id}
+                    cx="80"
+                    cy="80"
+                    r="60"
+                    fill="none"
+                    stroke={item.color}
+                    strokeWidth="12"
+                    strokeLinecap="round"
+                    strokeDasharray={`${dashLength} ${circumference}`}
+                    strokeDashoffset={-dashOffset}
+                    style={{
+                      transition: 'all 0.6s ease-in-out',
+                      filter: 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.2))'
+                    }}
+                  />
+                );
+              });
+            })()}
           </CircularChart>
           <ChartCenter>
             <ChartNumber>{totalCount}</ChartNumber>
+            <ChartLabel>Total</ChartLabel>
           </ChartCenter>
         </ChartContainer>
       </CurrentStatusContent>

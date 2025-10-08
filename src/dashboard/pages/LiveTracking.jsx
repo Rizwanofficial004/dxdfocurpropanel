@@ -28,8 +28,39 @@ const LiveTracking = () => {
   const [modalImages, setModalImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Use centralized API configuration
-  const apiBaseURL = getApiBaseURL();
+  // Helper function to build API URL
+  const buildApiUrl = (params = {}) => {
+    const baseUrl = 'http://127.0.0.1:8000/api/live-tracking/fast-screenshots/';
+    if (Object.keys(params).length === 0) return baseUrl;
+    
+    const urlParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        urlParams.append(key, value);
+      }
+    });
+    
+    return `${baseUrl}?${urlParams.toString()}`;
+  };
+
+  // Test S3 connection and AWS credentials
+  const testS3Connection = async () => {
+    try {
+      console.log('🔍 Testing S3 connection...');
+      const testUrl = buildApiUrl({ 
+        test_s3: true,
+        aws_region: 'eu-north-1',
+        bucket_name: 'ddsfocustime'
+      });
+      
+      const response = await axios.get(testUrl, { timeout: 15000 });
+      console.log('✅ S3 Test Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ S3 Connection Test Failed:', error);
+      return null;
+    }
+  };
 
   // Fetch data from live tracking API
   const fetchLiveTrackingData = async (showRetryMessage = false) => {
@@ -41,29 +72,75 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      // Use centralized API configuration
-      const apiUrl = `${apiBaseURL}/live-tracking/fast-screenshots/`;
+      // Use the new API endpoint with S3 parameters
+      const apiUrl = buildApiUrl({
+        limit_screenshots: 10, // Get more screenshots for better data
+        include_metadata_only: false,
+        sort_by: 'latest_date',
+        order: 'desc',
+        // S3 Configuration
+        aws_region: 'eu-north-1',
+        bucket_name: 'ddsfocustime',
+        force_refresh: true // Force fresh data from S3
+      });
       console.log('🔄 Fetching live tracking data from:', apiUrl);
-      console.log('🌐 Using API endpoint:', apiUrl);
+      console.log('🌐 Using API endpoint with S3 config:', apiUrl);
       
       const response = await axios.get(apiUrl, {
-        timeout: 60000, // Increase timeout to 60 seconds for large datasets
+        timeout: 90000, // Increase timeout to 90 seconds for S3 operations
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'X-AWS-Region': 'eu-north-1',
+          'X-S3-Bucket': 'ddsfocustime'
         },
-        withCredentials: false,
-        params: {
-          // Add query parameters to optimize data load
-          limit_screenshots: 5, // Limit screenshots per user to 5 latest
-          include_metadata_only: false, // Include essential data only
-          sort_by: 'latest_date', // Sort by latest activity
-          order: 'desc' // Newest first
-        }
+        withCredentials: false
       });
       
       console.log('Live tracking API response:', response.data);
+      console.log('📊 API response status:', response.status);
+      console.log('📊 Response data structure:', {
+        hasData: !!response.data?.data,
+        hasUsers: !!response.data?.data?.s3_users_sample,
+        userCount: response.data?.data?.s3_users_sample?.length || 0,
+        totalSize: response.data?.data?.total_size_mb || 0
+      });
       setApiData(response.data);
+      
+      // Debug the API data structure
+      console.log('🔍 API Data Structure Check:', {
+        hasApiData: !!response.data,
+        hasData: !!response.data?.data,
+        hasDataSources: !!response.data?.data?.data_sources,
+        hasSummary: !!response.data?.data?.summary,
+        hasMetrics: !!response.data?.data?.metrics,
+        hasUsers: !!response.data?.data?.s3_users_sample,
+        dataSources: response.data?.data?.data_sources,
+        keys: response.data?.data ? Object.keys(response.data.data) : []
+      });
+      
+      // S3-specific debugging
+      console.log('🗄️ S3 Data Analysis:', {
+        s3Status: response.data?.data?.data_sources?.s3_status,
+        s3Users: response.data?.data?.s3_users_sample?.length || 0,
+        bucketName: 'ddsfocustime',
+        region: 'eu-north-1',
+        sampleUserData: response.data?.data?.s3_users_sample?.[0] || null,
+        totalFiles: response.data?.data?.summary?.s3_files || 0,
+        lastUpdated: response.data?.data?.summary?.last_updated
+      });
+      
+      // Check if we have any screenshot URLs
+      if (response.data?.data?.s3_users_sample?.length > 0) {
+        const firstUser = response.data.data.s3_users_sample[0];
+        console.log('📸 Screenshot URL Analysis:', {
+          userEmail: firstUser.user_email,
+          hasScreenshots: !!firstUser.screenshots?.length,
+          screenshotCount: firstUser.screenshots?.length || 0,
+          firstScreenshotUrl: firstUser.screenshots?.[0]?.direct_url || firstUser.direct_file_url,
+          urlDomain: firstUser.screenshots?.[0]?.direct_url?.includes('amazonaws.com') ? 'AWS S3' : 'Other'
+        });
+      }
       
       if (response.data && response.data.data && response.data.data.s3_users_sample) {
         // Create one screenshot entry per user using their latest screenshot
@@ -137,11 +214,20 @@ const LiveTracking = () => {
       });
       
       if (err.code === 'ECONNABORTED') {
-        setError('⏰ Request timeout (60s). The API is processing a large dataset. Please try again or contact support if this persists.');
+        setError('⏰ Request timeout (90s). The S3 API is processing a large dataset. Please try again or contact support if this persists.');
       } else if (err.response) {
-        setError(`🚫 Server error: ${err.response.status} - ${err.response.data?.message || 'Failed to fetch data'}`);
+        const errorMsg = err.response.data?.message || 'Failed to fetch data';
+        if (err.response.status === 403) {
+          setError(`� S3 Access Denied (403): Check AWS credentials for bucket 'ddsfocustime' in region 'eu-north-1'. ${errorMsg}`);
+        } else if (err.response.status === 404) {
+          setError(`🗄️ S3 Bucket Not Found (404): Bucket 'ddsfocustime' may not exist or be accessible. ${errorMsg}`);
+        } else if (err.response.status === 500) {
+          setError(`⚠️ Server Error (500): S3 service may be experiencing issues. ${errorMsg}`);
+        } else {
+          setError(`🚫 Server error: ${err.response.status} - ${errorMsg}`);
+        }
       } else if (err.code === 'ERR_NETWORK') {
-        setError('🌐 Network error: Unable to connect to the API. Please check your internet connection.');
+        setError('🌐 Network error: Unable to connect to the API. Please check your internet connection and ensure the API server is running on localhost:8000.');
       } else if (err.code === 'ERR_BLOCKED_BY_CLIENT') {
         setError('🛡️ Request blocked by ad blocker or browser security. Please disable ad blockers for this site.');
       } else {
@@ -291,6 +377,31 @@ const LiveTracking = () => {
                   )}
                 </span>
               </h1>
+              <div style={{
+                padding: '4px 8px',
+                backgroundColor: '#dbeafe',
+                color: '#1e40af',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: '500',
+                marginTop: '4px',
+                display: 'inline-block'
+              }}>
+                📡 API: http://127.0.0.1:8000/api/live-tracking/fast-screenshots/
+              </div>
+              <div style={{
+                padding: '4px 8px',
+                backgroundColor: '#fef3c7',
+                color: '#92400e',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontWeight: '500',
+                marginTop: '4px',
+                marginLeft: '8px',
+                display: 'inline-block'
+              }}>
+                🗄️ S3: ddsfocustime (eu-north-1)
+              </div>
             </div>
             <div className="header-controls">
               <div className="search-container">
@@ -307,9 +418,87 @@ const LiveTracking = () => {
                 onClick={() => fetchLiveTrackingData(true)}
                 disabled={loading}
                 className="refresh-button"
-                title="Refresh data from API server - May take 30-60s for large datasets"
+                title="Refresh data from API server - Using http://127.0.0.1:8000/api/live-tracking/fast-screenshots/"
               >
                 {loading ? '🔄' : '↻'} Refresh Data {retryCount > 0 ? `(${retryCount})` : ''}
+              </button>
+              <button 
+                onClick={async () => {
+                  console.log('🧪 Testing API connection with S3...');
+                  try {
+                    const testUrl = buildApiUrl({ 
+                      limit_screenshots: 1,
+                      aws_region: 'eu-north-1',
+                      bucket_name: 'ddsfocustime',
+                      test_mode: true
+                    });
+                    const response = await axios.get(testUrl, { 
+                      timeout: 15000,
+                      headers: {
+                        'X-AWS-Region': 'eu-north-1',
+                        'X-S3-Bucket': 'ddsfocustime'
+                      }
+                    });
+                    console.log('✅ API test successful:', response.data);
+                    
+                    // Check if S3 data is available
+                    const hasS3Data = response.data?.data?.s3_users_sample?.length > 0;
+                    const s3Status = response.data?.data?.data_sources?.s3_status || 'Unknown';
+                    
+                    alert(`✅ API Connection: SUCCESS\n` +
+                          `🔌 Status: ${response.status}\n` +
+                          `📡 Endpoint: /fast-screenshots/\n` +
+                          `🗄️ S3 Status: ${s3Status}\n` +
+                          `📸 Screenshots Found: ${hasS3Data ? 'YES' : 'NO'}\n` +
+                          `👥 Users: ${response.data?.data?.s3_users_sample?.length || 0}`);
+                  } catch (err) {
+                    console.error('❌ API test failed:', err);
+                    alert(`❌ API Test Failed!\n` +
+                          `Error: ${err.message}\n` +
+                          `Status: ${err.response?.status || 'Network Error'}\n` +
+                          `Check console for details.`);
+                  }
+                }}
+                className="test-api-button"
+                style={{
+                  marginLeft: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+                title="Test API connection and S3 data availability"
+              >
+                🧪 Test API + S3
+              </button>
+              <button 
+                onClick={async () => {
+                  const result = await testS3Connection();
+                  if (result) {
+                    alert(`✅ S3 Connection Test\n` +
+                          `Region: eu-north-1\n` +
+                          `Bucket: ddsfocustime\n` +
+                          `Status: ${JSON.stringify(result, null, 2)}`);
+                  } else {
+                    alert('❌ S3 Connection Failed\nCheck console for details');
+                  }
+                }}
+                style={{
+                  marginLeft: '8px',
+                  padding: '8px 16px',
+                  backgroundColor: '#f59e0b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+                title="Test S3 bucket connection specifically"
+              >
+                🗄️ Test S3
               </button>
             </div>
           </div>
@@ -332,24 +521,26 @@ const LiveTracking = () => {
               </div>
 
               {/* Data Sources Info */}
-              <div className="data-sources">
-                <div className="source-item">
-                  <span className="source-label">S3 Status:</span>
-                  <span className={`source-status ${apiData.data.data_sources.s3_status === 'Connected' ? 'connected' : 'disconnected'}`}>
-                    {apiData.data.data_sources.s3_status}
-                  </span>
+              {apiData?.data?.data_sources && (
+                <div className="data-sources">
+                  <div className="source-item">
+                    <span className="source-label">S3 Status:</span>
+                    <span className={`source-status ${apiData?.data?.data_sources?.s3_status === 'Connected' ? 'connected' : 'disconnected'}`}>
+                      {apiData?.data?.data_sources?.s3_status || 'Unknown'}
+                    </span>
+                  </div>
+                  <div className="source-item">
+                    <span className="source-label">CRM Status:</span>
+                    <span className={`source-status ${apiData?.data?.data_sources?.crm_status === 'Connected' ? 'connected' : 'disconnected'}`}>
+                      {apiData?.data?.data_sources?.crm_status || 'Unknown'}
+                    </span>
+                  </div>
+                  <div className="source-item">
+                    <span className="source-label">Last Updated:</span>
+                    <span className="source-value">{apiData?.data?.summary?.last_updated || 'Not available'}</span>
+                  </div>
                 </div>
-                <div className="source-item">
-                  <span className="source-label">CRM Status:</span>
-                  <span className={`source-status ${apiData.data.data_sources.crm_status === 'Connected' ? 'connected' : 'disconnected'}`}>
-                    {apiData.data.data_sources.crm_status}
-                  </span>
-                </div>
-                <div className="source-item">
-                  <span className="source-label">Last Updated:</span>
-                  <span className="source-value">{apiData.data.summary.last_updated}</span>
-                </div>
-              </div>
+              )}
             </div>
           )}
 

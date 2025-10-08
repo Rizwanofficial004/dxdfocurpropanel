@@ -1,50 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useTheme } from '../context/ThemeContext';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
-import EmployeeCards from '../components/employees/EmployeeCards';
-import toastService from '../../services/toastService';
-import {
-  EmployeesPageWrapper,
-  PageHeader,
-  PageTitle,
-  PageSubtitle,
-  EmployeesWrapper,
-  EmployeesContainer,
-  EmployeesHeader,
-  EmployeesTitle,
-  EmployeesSubtitle,
-  StatsSummary,
-  StatCard,
-  StatIcon,
-  StatValue,
-  StatLabel,
-  FilterSection,
-  FilterInput,
-  EmployeesGrid,
-  LoadingSpinner,
-  NoDataMessage,
-  EmployeeCard,
-  EmployeeAvatar,
-  EmployeeInfo,
-  EmployeeName,
-  EmployeeTitle,
-  EmployeeEmail,
-  EmployeeContact,
-  EmployeeDetails,
-  DetailItem,
-  DetailLabel,
-  DetailValue,
-  RatingSection,
-  RatingStars,
-  Star,
-  RatingValue,
-  ActionButtons,
-  ActionButton,
-  AIInsightsSection,
-  AIInsightsTitle,
-  AIInsightsList,
-  AIInsightItem
-} from './Employees.styles';
+import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 // OpenAI Integration for Employee Insights
 const generateAIInsights = async (employee) => {

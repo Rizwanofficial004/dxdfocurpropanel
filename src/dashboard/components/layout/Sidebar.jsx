@@ -275,15 +275,7 @@ export const Sidebar = ({ isCollapsed = false }) => {
     { icon: "📷", label: "OLD SCREENSHOTS", path: "/dashboard/old-screenshots" },
     { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
     { icon: "📺", label: "LOGS REPORT", path: "/dashboard/activity-stream" },
-    // { 
-    //   icon: "📈", 
-    //   label: t('reports').toUpperCase(), 
-    //   path: "/dashboard/reports", 
-    //   hasArrow: true,
-    //   subItems: [
-    //     { label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
-    //   ]
-    // },
+    { icon: "⏰", label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
     // { icon: "🌐", label: t('site').toUpperCase(), path: "/dashboard/site", hasArrow: true },
     // { icon: "📋", label: t('taskManagement').toUpperCase(), path: "/dashboard/task-management", hasArrow: true },
     // { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
