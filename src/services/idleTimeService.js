@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { getApiBaseURL } from '../../config/api';
-import { API_CONFIG } from '../../config/apiConfig';
+import { getApiBaseURL } from '../config/api';
+import { API_CONFIG } from '../config/apiConfig';
 
 // Mock data for testing when API is not available
 const MOCK_IDLE_TIME_DATA = [
