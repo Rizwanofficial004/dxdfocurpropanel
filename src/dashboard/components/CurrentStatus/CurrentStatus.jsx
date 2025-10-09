@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLanguage } from '../../context/LanguageContext';
+import { getApiBaseURL } from '../../../config/api';
+import { API_CONFIG } from '../../../config/apiConfig';
+import { idleTimeService } from '../../../services/idleTimeService';
 import axios from 'axios';
 
 // Styled Components
@@ -88,6 +91,17 @@ const StatusLabel = styled.span`
   }
 `;
 
+const IdleTimeInfo = styled.div`
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+  font-weight: 400;
+
+  [data-theme="dark"] & {
+    color: #9ca3af;
+  }
+`;
+
 const StatusArrow = styled.div`
   color: #9ca3af;
   display: flex;
@@ -170,10 +184,28 @@ const CurrentStatus = () => {
     idle: 0,
     off: 0
   });
+  const [idleTimeData, setIdleTimeData] = useState([]);
+  const [idleTimeLoading, setIdleTimeLoading] = useState(false);
 
   useEffect(() => {
     fetchStaffStatus();
+    fetchIdleTimeData();
   }, []);
+
+  // Fetch idle time data for all users
+  const fetchIdleTimeData = async () => {
+    try {
+      setIdleTimeLoading(true);
+      const data = await idleTimeService.fetchAllUsersIdleTime();
+      setIdleTimeData(data);
+      console.log('🕐 Loaded idle time data for', data.length, 'users');
+    } catch (error) {
+      console.error('❌ Error fetching idle time data:', error);
+      setIdleTimeData([]);
+    } finally {
+      setIdleTimeLoading(false);
+    }
+  };
 
   const fetchStaffStatus = async () => {
     try {
@@ -221,11 +253,29 @@ const CurrentStatus = () => {
     }
   };
   
+  // Helper function to get total idle time across all users
+  const getTotalIdleTime = () => {
+    return idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(idleTimeData));
+  };
+
+  // Helper function to get idle time for a specific user
+  const getUserIdleTime = (userEmail) => {
+    const userIdleData = idleTimeData.find(user => user.email === userEmail);
+    return userIdleData ? userIdleData.idle_time_minutes || 0 : 0;
+  };
+
   const statusArray = [
     { id: 1, label: t('atWork') || 'At Work', count: statusData.atWork, color: '#10b981' },
     { id: 2, label: t('inMeeting') || 'In Meeting', count: statusData.inMeeting, color: '#3b82f6' },
     { id: 3, label: t('atBreak') || 'At Break', count: statusData.atBreak, color: '#f59e0b' },
-    { id: 4, label: t('idle') || 'Idle', count: statusData.idle, color: '#6b7280' },
+    { 
+      id: 4, 
+      label: t('idle') || 'Idle', 
+      count: statusData.idle, 
+      color: '#6b7280',
+      hasIdleTime: idleTimeData.length > 0,
+      idleTimeLoading: idleTimeLoading
+    },
     { id: 5, label: t('off') || 'OFF', count: statusData.off, color: '#ef4444' }
   ];
 
@@ -244,7 +294,19 @@ const CurrentStatus = () => {
                   <StatusCount color={item.color}>
                     {loading ? '...' : item.count}
                   </StatusCount>
-                  <StatusLabel>{item.label}</StatusLabel>
+                  <div>
+                    <StatusLabel>{item.label}</StatusLabel>
+                    {item.id === 4 && (
+                      <IdleTimeInfo>
+                        {idleTimeLoading ? 
+                          'Loading idle time...' : 
+                          idleTimeData.length > 0 ? 
+                            `Total: ${getTotalIdleTime()}` : 
+                            'No idle time data'
+                        }
+                      </IdleTimeInfo>
+                    )}
+                  </div>
                 </StatusInfo>
                 <StatusArrow>
                   <svg viewBox="0 0 16 16" fill="none">

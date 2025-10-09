@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
 import { getApiBaseURL } from '../../config/api';
+import { IdleTimeTracker } from '../components';
 import ImageModal from '../components/common/ImageModal';
 import axios from 'axios';
 import './LiveTracking.css';
@@ -52,6 +53,7 @@ const LiveTracking = () => {
         aws_region: 'eu-north-1',
         bucket_name: 'ddsfocustime'
       });
+      
       
       const response = await axios.get(testUrl, { timeout: 15000 });
       console.log('✅ S3 Test Response:', response.data);
@@ -343,9 +345,11 @@ const LiveTracking = () => {
 
   return (
     <DashboardLayout>
-      <div className="live-tracking-page">
-        {/* Live Tracking Card */}
-        <div className="live-tracking-card">
+      <div className="live-tracking-page" style={{ display: 'flex', gap: '24px' }}>
+        {/* Main Content */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Live Tracking Card */}
+          <div className="live-tracking-card">
           {/* Top Notification Banner */}
           <div className="notification-banner">
             <div className="notification-content">
@@ -867,6 +871,11 @@ const LiveTracking = () => {
               </div>
             </div>
           </div>
+        </div>
+        
+        {/* Idle Time Tracker Sidebar */}
+        <div style={{ width: '320px', flexShrink: 0 }}>
+          <IdleTimeTracker />
         </div>
         
         {/* Image Modal */}

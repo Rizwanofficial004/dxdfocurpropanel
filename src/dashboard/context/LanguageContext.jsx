@@ -98,6 +98,11 @@ const translations = {
     marketing: 'Marketing',
     today: 'Today',
     yesterday: 'Yesterday',
+    
+    // Idle Time Tracker
+    idleTimeTracker: 'User Idle Time Tracker',
+    refresh: 'Refresh',
+    retry: 'Retry',
     thisWeek: 'This Week',
     thisMonth: 'This Month',
     customRange: 'Custom Range',
@@ -383,6 +388,11 @@ const translations = {
     totalHours: 'Toplam Saat',
     allEmployees: 'Tüm Çalışanlar',
     allDepartments: 'Tüm Departmanlar',
+    
+    // Idle Time Tracker
+    idleTimeTracker: 'Kullanıcı Boşta Kalma Süre Takipçisi',
+    refresh: 'Yenile',
+    retry: 'Tekrar Dene',
     allStatus: 'Tüm Durumlar',
     development: 'Geliştirme',
     design: 'Tasarım',

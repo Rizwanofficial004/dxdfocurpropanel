@@ -32,6 +32,9 @@ export const API_CONFIG = {
     // Employee data
     EMPLOYEE_FOLDERS: '/api/screenshots/employee/',
     
+    // Idle Time
+    IDLE_TIME: '/api/idle_time/',
+    
     // Other endpoints
     FOLDERS: '/api/folders/',
     REPORTS: '/api/reports/',
