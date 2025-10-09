@@ -29,21 +29,30 @@ const NotificationBanner = styled.div`
 
 // Header Section
 const PageHeader = styled.div`
-  background: ${props => props.theme.colors.surface};
-  padding: 24px 32px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 32px;
   transition: all 0.3s ease;
 `;
 
+const TitleSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+`;
+
 const PageTitle = styled.h1`
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin: 0;
   transition: color 0.3s ease;
+  text-transform: uppercase;
+`;
+
+const InfoIcon = styled.span`
+  color: ${props => props.theme.colors.text.secondary};
+  font-size: 16px;
+  cursor: help;
 `;
 
 const AddButton = styled.button`
@@ -222,22 +231,56 @@ const ResetButton = styled.button`
 
 // Controls Section
 const ControlsSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  padding: 16px 32px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+`;
+
+const LeftControls = styled.div`
+  flex: 1;
+  max-width: 500px;
+`;
+
+const RightControls = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
+
+const DateLabel = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.secondary};
+  text-transform: uppercase;
+  margin-right: 8px;
+`;
+
+const DateInput = styled.input`
+  padding: 10px 16px;
+  border: 2px solid ${props => props.theme.colors.error || '#ef4444'};
+  border-radius: 6px;
+  font-size: 14px;
+  background: ${props => props.theme.colors.cardBackground};
+  color: ${props => props.theme.colors.text.primary};
+  cursor: pointer;
   transition: all 0.3s ease;
+  min-width: 180px;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
 `;
 
 const SearchInput = styled.input`
-  padding: 8px 16px;
-  border: 1px solid ${props => props.theme.colors.border};
+  padding: 12px 16px;
+  border: 2px solid ${props => props.theme.colors.error || '#ef4444'};
   border-radius: 6px;
   font-size: 14px;
-  width: 300px;
-  background: ${props => props.theme.colors.surface};
+  width: 100%;
+  background: ${props => props.theme.colors.cardBackground};
   color: ${props => props.theme.colors.text.primary};
   transition: all 0.3s ease;
   
@@ -248,6 +291,8 @@ const SearchInput = styled.input`
   
   &::placeholder {
     color: ${props => props.theme.colors.text.light};
+    font-weight: 500;
+    text-transform: uppercase;
   }
 `;
 
@@ -274,39 +319,38 @@ const StatusDropdown = styled.select`
 
 // Table Styles
 const TableContainer = styled.div`
-  background: ${props => props.theme.colors.surface};
-  margin: 0 32px 32px 32px;
-  border-radius: 8px;
-  border: 1px solid ${props => props.theme.colors.border};
+  background: ${props => props.theme.colors.cardBackground};
+  border-radius: 12px;
+  border: 2px solid ${props => props.theme.colors.error || '#ef4444'};
   overflow: hidden;
   transition: all 0.3s ease;
-  margin-top: 30px;
-  z-index: 99999;
 `;
 
 const Table = styled.table`
-  width: 80%;
+  width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 `;
 
 const TableHeader = styled.th`
-  padding: 12px 16px;
+  padding: 16px;
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 11px;
-  letter-spacing: 0.05em;
-  color: ${props => props.theme.colors.text.secondary};
-  background: ${props => props.theme.colors.surface};
-  border-bottom: 1px solid ${props => props.theme.colors.border};
+  letter-spacing: 0.5px;
+  color: ${props => props.theme.colors.text.primary};
+  background: ${props => props.theme.colors.cardBackground};
+  border-bottom: 2px solid ${props => props.theme.colors.border};
   text-transform: uppercase;
-  white-space: nowrap;
   transition: all 0.3s ease;
   
-  &:nth-child(1) { width: 40%; }
-  &:nth-child(2) { width: 20%; text-align: center; }
-  &:nth-child(3) { width: 20%; text-align: center; }
-  &:nth-child(4) { width: 20%; text-align: center; }
+  &:nth-child(1) { width: 30%; }
+  &:nth-child(2) { width: 15%; text-align: left; }
+  &:nth-child(3) { width: 15%; text-align: center; }
+  &:nth-child(4) { width: 15%; text-align: center; }
+  &:nth-child(5) { width: 10%; text-align: center; }
+  &:nth-child(6) { width: 10%; text-align: center; }
+  &:nth-child(7) { width: 10%; text-align: center; }
+  &:nth-child(8) { width: 10%; text-align: center; }
 `;
 
 const TableRow = styled.tr`
@@ -323,16 +367,21 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-  padding: 16px;
+  padding: 14px 16px;
   color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
+  font-size: 13px;
   vertical-align: middle;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
   transition: color 0.3s ease;
   
-  &:nth-child(1) { width: 40%; }
-  &:nth-child(2) { width: 20%; text-align: center; }
-  &:nth-child(3) { width: 20%; text-align: center; }
-  &:nth-child(4) { width: 20%; text-align: center; }
+  &:nth-child(1) { width: 30%; }
+  &:nth-child(2) { width: 15%; text-align: left; }
+  &:nth-child(3) { width: 15%; text-align: center; }
+  &:nth-child(4) { width: 15%; text-align: center; }
+  &:nth-child(5) { width: 10%; text-align: center; }
+  &:nth-child(6) { width: 10%; text-align: center; }
+  &:nth-child(7) { width: 10%; text-align: center; }
+  &:nth-child(8) { width: 10%; text-align: center; }
 `;
 
 const EmployeeInfo = styled.div`
@@ -503,98 +552,56 @@ const QuickView = () => {
     setError(null);
     
     try {
-      const apiBaseUrl = getApiUrl();
-      const apiUrl = `${apiBaseUrl}/auth/register/users/`;
+      const apiUrl = 'http://127.0.0.1:8000/api/Staff/Details/';
       
-      // Create abort controller for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      console.log('� Fetching staff data from:', apiUrl);
       
-      // Log API request details
-      const requestConfig = {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        signal: controller.signal
-      };
-      
-      console.log('📡 API Request Details:');
-      console.log('🌐 API URL:', apiUrl);
-      console.log('🔧 Request Method:', requestConfig.method);
-      console.log('📋 Request Headers:', JSON.stringify(requestConfig.headers, null, 2));
-      console.log('📦 Request Body:', requestConfig.method === 'GET' ? 'No body (GET request)' : 'N/A');
-      console.log('🌍 Environment:', import.meta.env.DEV ? 'Development (using proxy)' : 'Production (direct)');
-      
-      // Fetch user data from external API with timeout
-      const response = await fetch(apiUrl, requestConfig);
-      
-      clearTimeout(timeoutId);
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
-        throw new Error(`External API error: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('📊 Staff API Response:', data);
 
-      // Transform backend data to employee format
-      let users = [];
-      let userArray = null;
+      let staffArray = [];
       
-      // Handle different API response structures
-      if (data.status === 'success') {
-        if (data.data && data.data.users && Array.isArray(data.data.users)) {
-          // Correct API structure: data.data.users is the array of users
-          userArray = data.data.users;
-        } else if (data.data && Array.isArray(data.data)) {
-          // Alternative structure: data.data is directly an array of users
-          userArray = data.data;
-        } else if (data.users && Array.isArray(data.users)) {
-          // Alternative structure: data.users
-          userArray = data.users;
-        }
+      // Handle the Staff Details API response structure
+      if (data?.data?.staff && Array.isArray(data.data.staff)) {
+        staffArray = data.data.staff;
+        console.log(`✅ Loaded ${staffArray.length} staff members`);
       }
-      
-      if (userArray && userArray.length > 0) {
-        users = userArray.map(user => ({
-          id: user.user_id,
-          name: user.full_name || user.username || user.email,
-          team: user.profile?.organization_name || 'No Organization',
-          status: user.is_active ? 'Active' : 'Inactive',
-          designation: user.profile?.job_title || 'Employee',
-          screensToday: user.profile?.numeric_value || 0, // Using numeric_value as a substitute
-          lastLogin: user.last_login ? 
-            new Date(user.last_login).toLocaleDateString() : 'Never',
-          captureScreenshots: true,
-          dashboardAccess: user.is_staff ? 'Admin' : 'User',
-          isOnline: user.is_active,
-          email: user.email,
-          originalName: user.username,
-          totalSize: 0, // This API doesn't provide size info
-          activeDays: 0, // This API doesn't provide active days
-          dateJoined: new Date(user.date_joined).toLocaleDateString(),
-          country: user.profile?.country || 'Unknown',
-          phoneNumber: user.profile?.phone_number || 'Not provided',
-          profileCompletion: user.profile?.completion_percentage || 0
-        }));
-        
-      } else {
-        // Set empty array as fallback
-        users = [];
-      }
+
+      // Transform staff data to employee format for Quick View
+      const users = staffArray.map(staff => ({
+        id: staff.staffid || staff.id,
+        name: staff.full_name || `${staff.firstname || ''} ${staff.lastname || ''}`.trim(),
+        team: staff.job_position || 'No Organization',
+        status: staff.active === '1' || staff.active === 1 || staff.active === true ? 'Active' : 'Inactive',
+        designation: staff.role || 'Staff',
+        email: staff.email,
+        isOnline: staff.is_logged_in === '1',
+        lastLogin: staff.last_login || 'Never',
+        // Mock data for time tracking (replace with actual API data when available)
+        loggedTime: '2h 30m',
+        activeTime: '2h 27m',
+        productivity: 88,
+        productiveTime: '2h 17m',
+        distractionTime: '0h 0m',
+        neutralTime: '0h 8m',
+        meetingTime: '0h 0m',
+        breakTime: '0h 0m',
+        idleTime: '0h 3m',
+        offlineTime: '0h 0m',
+        originalData: staff
+      }));
 
       setEmployeesData(users);
       
     } catch (error) {
-      
-      if (error.name === 'AbortError') {
-        setError('Request timeout - API took too long to respond (>10s)');
-      } else {
-        setError(`Failed to connect to external API: ${error.message}`);
-      }
-      
-      // Fallback to empty array if backend fails
+      console.error('❌ Error fetching staff data:', error);
+      setError(`Failed to load staff data: ${error.message}`);
       setEmployeesData([]);
     } finally {
       setLoading(false);
@@ -873,105 +880,130 @@ const QuickView = () => {
   const paginatedEmployees = filteredEmployees.slice(startIndex, endIndex);
 
   return (
-    <DashboardLayout headerTitle="Employee Management" headerBreadcrumb="Home / HR / Employees">
-      <EmployeesPageWrapper>
-        {/* Notification Banner */}
-        <NotificationBanner>
-          Your user profile has been successfully created.<br />
-          You can now download the client app from <a href="https://focusro.com/download">https://focusro.com/download</a> and log in with your password to explore the features.
-        </NotificationBanner>
-
+    <DashboardLayout headerTitle="Quick View" headerBreadcrumb="Home / Quick View">
+      <EmployeesPageWrapper theme={theme}>
         {/* Page Header */}
         <PageHeader>
-          <div>
-            <PageTitle>EMPLOYEES</PageTitle>
-            {loading && (
-              <LoadingMessage>
-                🔄 Loading users from API...
-              </LoadingMessage>
-            )}
-            {error && (
-              <ErrorMessage>
-                ⚠️ {error} - Showing fallback data
-              </ErrorMessage>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <RefreshButton onClick={handleRefresh} disabled={loading}>
-              {loading ? '🔄' : '↻'} Refresh ({employeesData.length} users)
-            </RefreshButton>
+          <TitleSection>
+            <PageTitle theme={theme}>Quick View</PageTitle>
+            <InfoIcon>ⓘ</InfoIcon>
+          </TitleSection>
+          
+          {/* Controls */}
+          <ControlsSection>
+            <LeftControls>
+              <SearchInput
+                theme={theme}
+                type="text"
+                placeholder="SEARCH"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </LeftControls>
             
-          </div>
+            <RightControls>
+              <DateLabel theme={theme}>SELECT DATE</DateLabel>
+              <DateInput
+                theme={theme}
+                type="date"
+                defaultValue={new Date().toISOString().split('T')[0]}
+              />
+            </RightControls>
+          </ControlsSection>
         </PageHeader>
 
         {/* Table */}
-        <TableContainer>
-          <Table>
-            <thead>
-              <tr>
-                <TableHeader>NAME ↑</TableHeader>
-                <TableHeader>STATUS</TableHeader>
-                <TableHeader>SET TIMER</TableHeader>
-                <TableHeader>BUTTON</TableHeader>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedEmployees.length > 0 ? (
-                paginatedEmployees.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell>
-                      <EmployeeInfo>
-                        <EmployeeName>{employee.name}</EmployeeName>
-                        <TeamName>User ID: {employee.id}</TeamName>
-                      </EmployeeInfo>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge>{employee.status}</StatusBadge>
-                    </TableCell>
-                    <TableCell>
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'}}>
-                        <TimerInput
-                          type="number"
-                          min="1"
-                          max="3600"
-                          placeholder="5"
-                          value={timerValues[employee.id] || ''}
-                          onChange={(e) => handleTimerValueChange(employee.id, e.target.value)}
-                          disabled={runningTimers[employee.id]}
-                        />
-                        <span style={{fontSize: '12px', fontWeight: '500'}}>sec</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
-                        <StartButton
-                          running={runningTimers[employee.id]}
-                          disabled={runningTimers[employee.id]}
-                          onClick={() => handleStartTimer(employee.id, employee.name)}
-                        >
-                          {runningTimers[employee.id] ? 'RUNNING...' : 'START'}
-                        </StartButton>
-                        <ResetButton
-                          disabled={runningTimers[employee.id]}
-                          onClick={() => handleResetUser(employee.id, employee.name)}
-                          title="Reset numeric value to 0 in database"
-                        >
-                          RESET
-                        </ResetButton>
-                      </div>
+        <div style={{ padding: '0 32px 32px 32px' }}>
+          <TableContainer theme={theme}>
+            <Table>
+              <thead>
+                <tr>
+                  <TableHeader theme={theme}>STATUS</TableHeader>
+                  <TableHeader theme={theme}>EMPLOYEE NAME ↑</TableHeader>
+                  <TableHeader theme={theme}>LOGGED TIME ⓘ</TableHeader>
+                  <TableHeader theme={theme}>ACTIVE TIME ⓘ</TableHeader>
+                  <TableHeader theme={theme}>PRODUCTIVE</TableHeader>
+                  <TableHeader theme={theme}>DISTRACTION</TableHeader>
+                  <TableHeader theme={theme}>NEUTRAL</TableHeader>
+                  <TableHeader theme={theme}>MEETING</TableHeader>
+                  <TableHeader theme={theme}>BREAK</TableHeader>
+                  <TableHeader theme={theme}>IDLE ⓘ</TableHeader>
+                  <TableHeader theme={theme}>OFFLINE</TableHeader>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedEmployees.length > 0 ? (
+                  paginatedEmployees.map((employee) => (
+                    <TableRow key={employee.id} theme={theme}>
+                      <TableCell theme={theme}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                          <div style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: employee.status === 'Active' ? '#22c55e' : '#6b7280',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white'
+                          }}>
+                            {employee.status === 'Active' ? '✓' : '○'}
+                          </div>
+                          <span style={{fontWeight: 600, fontSize: '12px', textTransform: 'uppercase'}}>
+                            {employee.status === 'Active' ? 'AT WORK' : 'OFF'}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        <EmployeeInfo>
+                          <EmployeeName theme={theme}>{employee.name}</EmployeeName>
+                          <TeamName theme={theme}>{employee.team || employee.designation}</TeamName>
+                        </EmployeeInfo>
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        <div style={{fontWeight: 600, color: '#3b82f6'}}>
+                          {employee.loggedTime || '2h 30m'}
+                        </div>
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'}}>
+                          <div style={{fontWeight: 600}}>{employee.activeTime || '2h 27m'}</div>
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            border: `3px solid ${employee.productivity >= 80 ? '#22c55e' : employee.productivity >= 50 ? '#f59e0b' : '#ef4444'}`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            color: theme.colors.text.primary
+                          }}>
+                            {employee.productivity || 88}%
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell theme={theme}>{employee.productiveTime || '2h 17m'}</TableCell>
+                      <TableCell theme={theme}>{employee.distractionTime || '0h 0m'}</TableCell>
+                      <TableCell theme={theme}>{employee.neutralTime || '0h 8m'}</TableCell>
+                      <TableCell theme={theme}>{employee.meetingTime || '0h 0m'}</TableCell>
+                      <TableCell theme={theme}>{employee.breakTime || '0h 0m'}</TableCell>
+                      <TableCell theme={theme}>{employee.idleTime || '0h 3m'}</TableCell>
+                      <TableCell theme={theme}>{employee.offlineTime || '0h 0m'}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow theme={theme}>
+                    <TableCell theme={theme} colSpan="11" style={{textAlign: 'center', padding: '40px'}}>
+                      {loading ? '🔄 Loading users...' : 'No users found.'}
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan="4" style={{textAlign: 'center', padding: '40px'}}>
-                    {loading ? '🔄 Loading users...' : 'No users found. Register a new user to see them here.'}
-                  </TableCell>
-                </TableRow>
-              )}
-            </tbody>
-          </Table>
-        </TableContainer>
+                )}
+              </tbody>
+            </Table>
+          </TableContainer>
+        </div>
 
         {/* Pagination */}
         <PaginationContainer>

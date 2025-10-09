@@ -55,6 +55,10 @@ const Employees = lazy(() =>
   import('./dashboard/pages/EmployeesClean').catch(() => ({ default: FallbackEmployees }))
 );
 
+const EmployeeReport = lazy(() =>
+  import('./dashboard/pages/EmployeeReport').catch(() => ({ default: FallbackEmployees }))
+);
+
 const Teams = lazy(() =>
   import('./dashboard/pages/Teams').catch(() => ({ default: FallbackTeams }))
 );
@@ -447,6 +451,16 @@ function App() {
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackEmployees />}>
                           <Employees />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/employees/report"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackEmployees />}>
+                          <EmployeeReport />
                         </Suspense>
                       </ProtectedRoute>
                     }

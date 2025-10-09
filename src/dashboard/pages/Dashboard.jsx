@@ -78,6 +78,10 @@ const DashboardComponentsGrid = styled.div`
   }
 `;
 
+const FullWidthSection = styled.div`
+  margin-bottom: ${props => props.theme.spacing.xl};
+`;
+
 const Dashboard = () => {
   const { theme } = useTheme();
   const { t } = useLanguage();
@@ -140,7 +144,7 @@ const Dashboard = () => {
       {showWelcomeModal && <WelcomeModal onClose={handleCloseModal} />}
       <DashboardContainer theme={theme}>
         <StyledContainer>
-          {/* Dashboard Status and Company Average Components */}
+          {/* Dashboard Status and Company Average Components - Side by Side at Top */}
           <ContentSection theme={theme}>
             <DashboardComponentsGrid theme={theme}>
               <CurrentStatus />

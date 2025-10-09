@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLanguage } from '../../context/LanguageContext';
+import axios from 'axios';
 
 // Styled Components
 const CurrentStatusContainer = styled.div`
@@ -161,29 +162,87 @@ const ChartLabel = styled.span`
 
 const CurrentStatus = () => {
   const { t } = useLanguage();
+  const [loading, setLoading] = useState(true);
+  const [statusData, setStatusData] = useState({
+    atWork: 0,
+    inMeeting: 0,
+    atBreak: 0,
+    idle: 0,
+    off: 0
+  });
+
+  useEffect(() => {
+    fetchStaffStatus();
+  }, []);
+
+  const fetchStaffStatus = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://127.0.0.1:8000/api/Staff/Details/');
+      
+      console.log('📊 Staff API Response:', response.data);
+      
+      if (response.data && response.data.status === 'success' && response.data.data) {
+        const summary = response.data.data.summary;
+        const staffList = response.data.data.staff || [];
+        
+        if (summary) {
+          // Count active employees (those who are both active and logged in)
+          const activeEmployees = staffList.filter(staff => 
+            staff.active === true && staff.raw_data?.is_logged_in === "1"
+          ).length;
+          
+          const idleEmployees = staffList.filter(staff => 
+            staff.active === true && staff.raw_data?.is_logged_in !== "1"
+          ).length;
+          
+          const offEmployees = staffList.filter(staff => 
+            staff.active === false
+          ).length;
+
+          console.log('📊 Status Breakdown:');
+          console.log('  At Work (Active + Logged In):', activeEmployees);
+          console.log('  Idle (Active but not logged in):', idleEmployees);
+          console.log('  OFF (Inactive):', offEmployees);
+          
+          setStatusData({
+            atWork: activeEmployees,
+            inMeeting: 0,
+            atBreak: 0,
+            idle: idleEmployees,
+            off: offEmployees
+          });
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error fetching staff status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
-  const statusData = [
-    { id: 1, label: t('atWork'), count: 0, color: '#10b981' },
-    { id: 2, label: t('inMeeting'), count: 0, color: '#3b82f6' },
-    { id: 3, label: t('atBreak'), count: 0, color: '#f59e0b' },
-    { id: 4, label: t('idle'), count: 0, color: '#6b7280' },
-    { id: 5, label: t('off'), count: 1, color: '#ef4444' }
+  const statusArray = [
+    { id: 1, label: t('atWork') || 'At Work', count: statusData.atWork, color: '#10b981' },
+    { id: 2, label: t('inMeeting') || 'In Meeting', count: statusData.inMeeting, color: '#3b82f6' },
+    { id: 3, label: t('atBreak') || 'At Break', count: statusData.atBreak, color: '#f59e0b' },
+    { id: 4, label: t('idle') || 'Idle', count: statusData.idle, color: '#6b7280' },
+    { id: 5, label: t('off') || 'OFF', count: statusData.off, color: '#ef4444' }
   ];
 
-  const totalCount = statusData.reduce((sum, item) => sum + item.count, 0);
+  const totalCount = statusArray.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <CurrentStatusContainer>
-      <CurrentStatusTitle>{t('currentStatus')}</CurrentStatusTitle>
+      <CurrentStatusTitle>{t('currentStatus') || 'CURRENT STATUS'}</CurrentStatusTitle>
       
       <CurrentStatusContent>
         <StatusListContainer>
           <StatusList>
-            {statusData.map((item) => (
+            {statusArray.map((item) => (
               <StatusItem key={item.id}>
                 <StatusInfo>
                   <StatusCount color={item.color}>
-                    {item.count}
+                    {loading ? '...' : item.count}
                   </StatusCount>
                   <StatusLabel>{item.label}</StatusLabel>
                 </StatusInfo>
@@ -216,12 +275,12 @@ const CurrentStatus = () => {
             />
             
             {/* Generate segments for each status */}
-            {(() => {
+            {!loading && (() => {
               const radius = 60;
               const circumference = 2 * Math.PI * radius;
               let currentOffset = 0;
               
-              return statusData.map((item, index) => {
+              return statusArray.map((item, index) => {
                 if (item.count === 0) return null;
                 
                 const percentage = (item.count / totalCount) * 100;
@@ -252,7 +311,7 @@ const CurrentStatus = () => {
             })()}
           </CircularChart>
           <ChartCenter>
-            <ChartNumber>{totalCount}</ChartNumber>
+            <ChartNumber>{loading ? '...' : totalCount}</ChartNumber>
             <ChartLabel>Total</ChartLabel>
           </ChartCenter>
         </ChartContainer>

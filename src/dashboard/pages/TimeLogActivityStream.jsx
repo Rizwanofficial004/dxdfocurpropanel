@@ -50,7 +50,66 @@ const UsersCount = styled.span`
 const UsersList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  max-height: ${props => props.$isOpen ? '400px' : '0'};
+  overflow-y: ${props => props.$isOpen ? 'auto' : 'hidden'};
+  transition: max-height 0.3s ease;
+  
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: ${props => props.theme.colors.background};
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.theme.colors.border};
+    border-radius: 2px;
+  }
+`;
+
+const DropdownHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: ${props => props.theme.colors.cardBackground};
+  border: 2px solid ${props => props.theme.colors.border};
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+
+  &:hover {
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const DropdownHeaderContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+`;
+
+const DropdownTitle = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const DropdownSubtitle = styled.div`
+  font-size: 11px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const DropdownArrow = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.secondary};
+  transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transition: transform 0.3s ease;
 `;
 
 const UserItem = styled.div`
@@ -500,6 +559,7 @@ const TimeLogActivityStream = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [isUsersDropdownOpen, setIsUsersDropdownOpen] = useState(false);
 
   // Format date for API (YYYY-MM-DD)
   const formatDateForAPI = (date) => {
@@ -1358,22 +1418,32 @@ const TimeLogActivityStream = () => {
 
         <MainContainer>
           <UsersSidebar>
-            <SidebarTitle>
-              Users <UsersCount>({allUsers.length})</UsersCount>
-            </SidebarTitle>
-            <div style={{ 
-              fontSize: '12px', 
-              color: theme.colors.text.secondary, 
-              marginBottom: '16px' 
-            }}>
-              {loadingUsers ? 'Loading users...' : 'Select a user to view their activity logs'}
-            </div>
-            <UsersList>
+            {/* Users Dropdown */}
+            <DropdownHeader onClick={() => setIsUsersDropdownOpen(!isUsersDropdownOpen)}>
+              <DropdownHeaderContent>
+                <DropdownTitle>
+                  Users ({allUsers.length})
+                </DropdownTitle>
+                <DropdownSubtitle>
+                  {selectedUser 
+                    ? `${selectedUser.first_name} ${selectedUser.last_name}` 
+                    : 'Select User'}
+                </DropdownSubtitle>
+              </DropdownHeaderContent>
+              <DropdownArrow $isOpen={isUsersDropdownOpen}>
+                ▼
+              </DropdownArrow>
+            </DropdownHeader>
+            
+            <UsersList $isOpen={isUsersDropdownOpen}>
               {allUsers.map((user) => (
                 <UserItem
                   key={user.id}
                   $isSelected={selectedUser?.id === user.id}
-                  onClick={() => handleUserSelect(user)}
+                  onClick={() => {
+                    handleUserSelect(user);
+                    setIsUsersDropdownOpen(false);
+                  }}
                 >
                   <UserName>{user.first_name} {user.last_name}</UserName>
                   <UserEmail>{user.email}</UserEmail>

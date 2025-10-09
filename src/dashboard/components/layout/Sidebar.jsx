@@ -279,7 +279,16 @@ export const Sidebar = ({ isCollapsed = false }) => {
     // { icon: "🌐", label: t('site').toUpperCase(), path: "/dashboard/site", hasArrow: true },
     // { icon: "📋", label: t('taskManagement').toUpperCase(), path: "/dashboard/task-management", hasArrow: true },
     // { icon: "📅", label: t('attendance').toUpperCase(), path: "/dashboard/attendence", hasArrow: true },
-    { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employees" },
+    { 
+      icon: "👥", 
+      label: t('employees').toUpperCase(), 
+      path: "/dashboard/employees",
+      hasArrow: true,
+      subItems: [
+        { label: "EMPLOYEE LIST", path: "/dashboard/employees" },
+        { label: "EMPLOYEE REPORT", path: "/dashboard/employees/report" },
+      ]
+    },
     // { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
     { icon: "📚", label: "DOCUMENTATION", path: "/dashboard/documentation" },
     { 
