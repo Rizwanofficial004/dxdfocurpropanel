@@ -1,63 +1,93 @@
+"""
+Idle Time API View
+Analyzes timesheet data to extract and calculate idle time for users from the 'note' column
+"""
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
+from datetime import datetime
+import logging
 import requests
-from django.conf import settings
-from datetime import datetime, timedelta
-import json
+import re
 from collections import defaultdict
+from core.credentials import CredentialsManager
+
+logger = logging.getLogger(__name__)
 
 
-class IdleTimeView(APIView):
-    permission_classes = [AllowAny]
+class IdleTimeAPIView(APIView):
+    """
+    API endpoint to analyze idle time from timesheets data
+    
+    GET /api/idle_time/
+    
+    Analyzes timesheet notes to extract idle time information and 
+    provides idle time statistics for each user
+    """
+    
+    permission_classes = [AllowAny]  # Allow unauthenticated access
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.credentials_manager = CredentialsManager()
+        self.crm_credentials = self.credentials_manager.get_crm_credentials()
     
     def get(self, request):
-        """
-        Calculate idle times between work sessions for each user.
-        Idle time = gap between when user ends work and starts next session.
-        """
+        """Handle GET request for idle time analysis"""
         try:
-            # Get query parameters
-            staff_id = request.GET.get('staff_id')  # Filter by specific staff
-            date_from = request.GET.get('date_from')  # YYYY-MM-DD format
-            date_to = request.GET.get('date_to')      # YYYY-MM-DD format
-            min_idle_minutes = float(request.GET.get('min_idle_minutes', 5))  # Minimum idle time to report
+            logger.info("Analyzing idle time from timesheets...")
             
-            # Fetch timesheets from CRM
-            timesheets_data = self._fetch_timesheets()
+            # Check if this is a test request or if CRM is not configured
+            is_test = request.GET.get('test', 'false').lower() == 'true'
             
-            if not timesheets_data:
-                return Response({
-                    'status': 'error',
-                    'message': 'Failed to fetch timesheets from CRM'
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Get query parameters for filtering
+            user_email = request.GET.get('user_email')
+            user_name = request.GET.get('user_name')
+            staff_id = request.GET.get('staff_id')
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
             
-            # Process idle time calculations
-            idle_analysis = self._calculate_idle_times(
-                timesheets_data, 
-                staff_id, 
-                date_from, 
-                date_to, 
-                min_idle_minutes
+            # Get timesheets data - try CRM first, fallback to test data
+            if is_test:
+                timesheets_result = self._get_sample_timesheets()
+                logger.info("Using test data as requested")
+            else:
+                # Try to fetch from CRM
+                timesheets_result = self._fetch_crm_timesheets()
+                
+                # If CRM fails, automatically fall back to test data
+                if not timesheets_result['success']:
+                    logger.warning(f"CRM fetch failed: {timesheets_result['message']}. Falling back to test data.")
+                    timesheets_result = self._get_sample_timesheets()
+                    is_test = True  # Mark as test mode for response
+            
+            # Analyze idle time from timesheets
+            idle_analysis = self._analyze_idle_time(
+                timesheets_result['data'], 
+                user_email, 
+                user_name, 
+                staff_id,
+                start_date,
+                end_date
             )
             
             return Response({
-                'status': 'success',
-                'message': 'Idle times calculated successfully',
-                'filters': {
-                    'staff_id': staff_id,
-                    'date_from': date_from,
-                    'date_to': date_to,
-                    'min_idle_minutes': min_idle_minutes
-                },
-                'data': idle_analysis
+                "status": "success",
+                "message": f"Idle time analysis completed for {len(idle_analysis['users'])} users",
+                "data": idle_analysis,
+                "timestamp": datetime.now().isoformat(),
+                "test_mode": is_test,
+                "data_source": "test_data" if is_test else "crm_api"
             }, status=status.HTTP_200_OK)
             
         except Exception as e:
+            logger.error(f"Error analyzing idle time: {str(e)}")
             return Response({
-                'status': 'error',
-                'message': f'Error calculating idle times: {str(e)}'
+                "status": "error",
+                "message": f"Error analyzing idle time: {str(e)}",
+                "data": None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def _fetch_timesheets(self):
