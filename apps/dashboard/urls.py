@@ -6,7 +6,7 @@ from .users_search_views import EnhancedUsersSearchView
 from .employees_details_views import EmployeesDetailsView
 from .staff_details_views import StaffDetailsView
 from .timesheets_views import TimesheetsView
-from .idle_time_views import IdleTimeView
+from .idle_time_api import IdleTimeAPIView
 from .simple_screenshot_proxy import SimpleScreenshotProxyView, SimpleScreenshotProxyStatusView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
@@ -37,8 +37,8 @@ urlpatterns = [
     # Timesheets API - Fetches all timesheets from CRM
     path('Timesheets/', TimesheetsView.as_view(), name='timesheets'),
     
-    # Idle Time API - Calculates idle time between work sessions
-    path('idle-times/', IdleTimeView.as_view(), name='idle-times'),
+    # Idle Time API - Analyzes idle time from timesheets notes
+    path('idle_time/', IdleTimeAPIView.as_view(), name='idle-time'),
 
     # Enhanced Users Search API - Accurate S3 data fetching
     path('users/search/', EnhancedUsersSearchView.as_view(), name='enhanced-users-search'),
