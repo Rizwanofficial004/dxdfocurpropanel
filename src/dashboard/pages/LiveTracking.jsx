@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useLanguage } from '../context/LanguageContext';
 import { getApiBaseURL } from '../../config/api';
-import { IdleTimeTracker } from '../components';
 import ImageModal from '../components/common/ImageModal';
 import axios from 'axios';
 import './LiveTracking.css';
@@ -872,10 +871,6 @@ const LiveTracking = () => {
             </div>
           </div>
         </div>
-        
-        {/* Idle Time Tracker Sidebar */}
-        <div style={{ width: '320px', flexShrink: 0 }}>
-          <IdleTimeTracker />
         </div>
         
         {/* Image Modal */}
