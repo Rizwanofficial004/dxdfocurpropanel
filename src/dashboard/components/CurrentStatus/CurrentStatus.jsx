@@ -335,7 +335,27 @@ const CurrentStatus = () => {
   
   // Helper function to get total idle time across all users
   const getTotalIdleTime = () => {
+    // First try to get total from API summary (more accurate)
+    const summaryTotal = idleTimeService.getTotalIdleTimeFromSummary();
+    if (summaryTotal > 0) {
+      return idleTimeService.formatIdleTime(summaryTotal);
+    }
+    
+    // Fallback to calculating from individual users
     return idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(idleTimeData));
+  };
+
+  // Get additional summary information
+  const getSummaryInfo = () => {
+    const summary = idleTimeService.getLastSummary();
+    if (summary) {
+      return {
+        totalUsers: summary.total_users_analyzed || 0,
+        averageIdlePerUser: summary.average_idle_per_user_minutes || 0,
+        totalTimesheets: summary.total_timesheets_processed || 0
+      };
+    }
+    return null;
   };
 
   // Helper function to get idle time for a specific user
@@ -475,20 +495,36 @@ const CurrentStatus = () => {
         <TotalIdleTimeDisplay>
           <div>
             <TotalIdleLabel>🕐 Total Company Idle Time</TotalIdleLabel>
+            <div style={{ 
+              fontSize: '11px', 
+              color: '#6b7280', 
+              marginTop: '2px',
+              opacity: 0.8 
+            }}>
+              {(() => {
+                const summary = getSummaryInfo();
+                if (summary) {
+                  return `${summary.totalUsers} users analyzed • Avg: ${idleTimeService.formatIdleTime(summary.averageIdlePerUser)} per user`;
+                }
+                return lastIdleTimeUpdate ? `Last updated: ${lastIdleTimeUpdate.toLocaleTimeString()}` : 'Loading...';
+              })()}
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <TotalIdleValue>
+              {idleTimeLoading ? 'Loading...' : getTotalIdleTime()}
+            </TotalIdleValue>
             {lastIdleTimeUpdate && (
               <div style={{ 
-                fontSize: '11px', 
+                fontSize: '9px', 
                 color: '#6b7280', 
                 marginTop: '2px',
-                opacity: 0.8 
+                opacity: 0.7 
               }}>
-                Last updated: {lastIdleTimeUpdate.toLocaleTimeString()}
+                Updated: {lastIdleTimeUpdate.toLocaleTimeString()}
               </div>
             )}
           </div>
-          <TotalIdleValue>
-            {idleTimeLoading ? 'Loading...' : getTotalIdleTime()}
-          </TotalIdleValue>
         </TotalIdleTimeDisplay>
       )}
     </CurrentStatusContainer>
