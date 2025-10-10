@@ -1,6 +1,49 @@
 import axios from 'axios';
 import { getApiBaseURL } from '../config/api';
-import { API_CONFIG } from '../config/apiConfig';
+import { AP      console.log('🕐 Real API Response:', response.data);
+      
+      // Handle the specific API response format you provided
+      if (response.data && response.data.status === 'success' && response.data.data) {
+        const apiData = response.data.data;
+        
+        // Extract users array and convert to expected format
+        if (apiData.users && Array.isArray(apiData.users)) {
+          const processedUsers = apiData.users.map(user => ({
+            email: `${user.staff_name?.toLowerCase().replace(/\s+/g, '.')}@company.com`, // Generate email from name
+            display_name: user.staff_name,
+            staff_id: user.staff_id,
+            idle_time_minutes: user.total_idle_minutes || 0,
+            idle_time_seconds: user.total_idle_seconds || 0,
+            total_sessions: user.total_sessions || 0,
+            idle_session_count: user.idle_session_count || 0,
+            auto_pause_count: user.auto_pause_count || 0,
+            average_idle_per_day: user.average_idle_per_day || 0,
+            first_activity: user.first_activity,
+            last_activity: user.last_activity,
+            total_days_active: user.total_days_active || 0,
+            raw_data: user // Keep original data for reference
+          }));
+          
+          // Add summary data to the service for access
+          this.lastSummary = apiData.summary;
+          console.log('🕐 Processed users:', processedUsers.length);
+          console.log('🕐 Total idle time from API:', apiData.summary?.total_idle_minutes_all_users, 'minutes');
+          
+          return processedUsers;
+        }
+        
+        return [];
+      }
+      
+      // Handle different response formats (fallback for other APIs)
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else {
+        console.warn('⚠️ Unexpected API response format:', response.data);
+        return response.data || [];
+      }om '../config/apiConfig';
 
 // Mock data for testing when API is not available
 const MOCK_IDLE_TIME_DATA = [
@@ -72,19 +115,12 @@ class IdleTimeService {
    * @returns {Promise<Array>} Array of user idle time data
    */
   async fetchAllUsersIdleTime() {
-    // Use mock data if enabled or if in development without API
-    if (this.useMockData || import.meta.env.DEV) {
-      console.log('🔧 Using mock idle time data for development');
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return MOCK_IDLE_TIME_DATA;
-    }
-
     try {
-      const apiUrl = `${this.baseURL}${API_CONFIG.ENDPOINTS.IDLE_TIME}`;
-      console.log('🕐 Fetching idle time data from:', apiUrl);
+      // First try the real API endpoint
+      const realApiUrl = 'http://127.0.0.1:8000/api/idle_time/';
+      console.log('🕐 Fetching idle time data from real API:', realApiUrl);
       
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(realApiUrl, {
         timeout: this.timeout,
         headers: {
           'Accept': 'application/json',
@@ -92,25 +128,67 @@ class IdleTimeService {
         }
       });
       
-      console.log('🕐 Idle Time API Response:', response.data);
+      console.log('� Real API Response:', response.data);
       
-      if (response.data && response.data.status === 'success') {
-        return response.data.data || [];
+      // Handle different response formats
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data && response.data.status === 'success' && response.data.data) {
+        return response.data.data;
       } else {
-        console.warn('⚠️ Idle time API returned unexpected format:', response.data);
-        return [];
+        console.warn('⚠️ Unexpected API response format:', response.data);
+        return response.data || [];
       }
     } catch (error) {
-      console.error('❌ Error fetching idle time data:', error);
+      console.error('❌ Error fetching from real API:', error);
       
-      // Fallback to mock data if API fails
-      if (error.response?.status === 404 || error.code === 'ERR_NETWORK') {
-        console.log('🔧 API not available, falling back to mock data');
+      // Fallback to configured API endpoint
+      try {
+        const apiUrl = `${this.baseURL}${API_CONFIG.ENDPOINTS.IDLE_TIME}`;
+        console.log('� Trying configured API endpoint:', apiUrl);
+        
+        const response = await axios.get(apiUrl, {
+          timeout: this.timeout,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (response.data && response.data.status === 'success') {
+          return response.data.data || [];
+        }
+      } catch (configError) {
+        console.error('❌ Error with configured endpoint:', configError);
+      }
+      
+      // Final fallback to mock data for development
+      if (import.meta.env.DEV || error.response?.status === 404 || error.code === 'ERR_NETWORK') {
+        console.log('🔧 Using mock data as fallback');
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
         return MOCK_IDLE_TIME_DATA;
       }
       
       throw new Error(`Failed to fetch idle time data: ${error.message}`);
     }
+  }
+
+  /**
+   * Get the total idle time from the last API response summary
+   * @returns {number} Total idle time in minutes from API summary
+   */
+  getTotalIdleTimeFromSummary() {
+    return this.lastSummary?.total_idle_minutes_all_users || 0;
+  }
+
+  /**
+   * Get the summary data from the last API response
+   * @returns {Object|null} Summary object from API
+   */
+  getLastSummary() {
+    return this.lastSummary || null;
   }
 
   /**
