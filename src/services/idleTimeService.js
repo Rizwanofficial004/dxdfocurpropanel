@@ -72,19 +72,12 @@ class IdleTimeService {
    * @returns {Promise<Array>} Array of user idle time data
    */
   async fetchAllUsersIdleTime() {
-    // Use mock data if enabled or if in development without API
-    if (this.useMockData || import.meta.env.DEV) {
-      console.log('🔧 Using mock idle time data for development');
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return MOCK_IDLE_TIME_DATA;
-    }
-
     try {
-      const apiUrl = `${this.baseURL}${API_CONFIG.ENDPOINTS.IDLE_TIME}`;
-      console.log('🕐 Fetching idle time data from:', apiUrl);
+      // First try the real API endpoint
+      const realApiUrl = 'http://127.0.0.1:8000/api/idle_time/';
+      console.log('🕐 Fetching idle time data from real API:', realApiUrl);
       
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(realApiUrl, {
         timeout: this.timeout,
         headers: {
           'Accept': 'application/json',
@@ -92,20 +85,46 @@ class IdleTimeService {
         }
       });
       
-      console.log('🕐 Idle Time API Response:', response.data);
+      console.log('� Real API Response:', response.data);
       
-      if (response.data && response.data.status === 'success') {
-        return response.data.data || [];
+      // Handle different response formats
+      if (response.data && Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        return response.data.data;
+      } else if (response.data && response.data.status === 'success' && response.data.data) {
+        return response.data.data;
       } else {
-        console.warn('⚠️ Idle time API returned unexpected format:', response.data);
-        return [];
+        console.warn('⚠️ Unexpected API response format:', response.data);
+        return response.data || [];
       }
     } catch (error) {
-      console.error('❌ Error fetching idle time data:', error);
+      console.error('❌ Error fetching from real API:', error);
       
-      // Fallback to mock data if API fails
-      if (error.response?.status === 404 || error.code === 'ERR_NETWORK') {
-        console.log('🔧 API not available, falling back to mock data');
+      // Fallback to configured API endpoint
+      try {
+        const apiUrl = `${this.baseURL}${API_CONFIG.ENDPOINTS.IDLE_TIME}`;
+        console.log('� Trying configured API endpoint:', apiUrl);
+        
+        const response = await axios.get(apiUrl, {
+          timeout: this.timeout,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (response.data && response.data.status === 'success') {
+          return response.data.data || [];
+        }
+      } catch (configError) {
+        console.error('❌ Error with configured endpoint:', configError);
+      }
+      
+      // Final fallback to mock data for development
+      if (import.meta.env.DEV || error.response?.status === 404 || error.code === 'ERR_NETWORK') {
+        console.log('🔧 Using mock data as fallback');
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
         return MOCK_IDLE_TIME_DATA;
       }
       
