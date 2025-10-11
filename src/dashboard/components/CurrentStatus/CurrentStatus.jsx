@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useLanguage } from '../../context/LanguageContext';
 import { getApiBaseURL } from '../../../config/api';
 import { API_CONFIG } from '../../../config/apiConfig';
-import { idleTimeService } from '../../../services/idleTimeService';
 import axios from 'axios';
 
 // Styled Components
@@ -254,38 +253,38 @@ const CurrentStatus = () => {
     idle: 0,
     off: 0
   });
-  const [idleTimeData, setIdleTimeData] = useState([]);
-  const [idleTimeLoading, setIdleTimeLoading] = useState(false);
-  const [lastIdleTimeUpdate, setLastIdleTimeUpdate] = useState(null);
+  // const [idleTimeData, setIdleTimeData] = useState([]);
+  // const [idleTimeLoading, setIdleTimeLoading] = useState(false);
+  // const [lastIdleTimeUpdate, setLastIdleTimeUpdate] = useState(null);
 
   useEffect(() => {
     fetchStaffStatus();
-    fetchIdleTimeData();
+    // fetchIdleTimeData();
     
     // Set up auto-refresh for idle time every 2 minutes
-    const interval = setInterval(() => {
-      fetchIdleTimeData();
-    }, 120000); // 2 minutes
+    // const interval = setInterval(() => {
+    //   fetchIdleTimeData();
+    // }, 120000); // 2 minutes
     
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, []);
 
   // Fetch idle time data for all users
-  const fetchIdleTimeData = async () => {
-    try {
-      setIdleTimeLoading(true);
-      const data = await idleTimeService.fetchAllUsersIdleTime();
-      setIdleTimeData(data);
-      setLastIdleTimeUpdate(new Date());
-      console.log('🕐 Loaded idle time data for', data.length, 'users');
-      console.log('🕐 Total idle time:', idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(data)));
-    } catch (error) {
-      console.error('❌ Error fetching idle time data:', error);
-      setIdleTimeData([]);
-    } finally {
-      setIdleTimeLoading(false);
-    }
-  };
+  // const fetchIdleTimeData = async () => {
+  //   try {
+  //     setIdleTimeLoading(true);
+  //     const data = await idleTimeService.fetchAllUsersIdleTime();
+  //     setIdleTimeData(data);
+  //     setLastIdleTimeUpdate(new Date());
+  //     console.log('🕐 Loaded idle time data for', data.length, 'users');
+  //     console.log('🕐 Total idle time:', idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(data)));
+  //   } catch (error) {
+  //     console.error('❌ Error fetching idle time data:', error);
+  //     setIdleTimeData([]);
+  //   } finally {
+  //     setIdleTimeLoading(false);
+  //   }
+  // };
 
   const fetchStaffStatus = async () => {
     try {
@@ -334,35 +333,35 @@ const CurrentStatus = () => {
   };
   
   // Helper function to get total idle time across all users
-  const getTotalIdleTime = () => {
-    // First try to get total from API summary (more accurate)
-    const summaryTotal = idleTimeService.getTotalIdleTimeFromSummary();
-    if (summaryTotal > 0) {
-      return idleTimeService.formatIdleTime(summaryTotal);
-    }
-    
-    // Fallback to calculating from individual users
-    return idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(idleTimeData));
-  };
+  // const getTotalIdleTime = () => {
+  //   // First try to get total from API summary (more accurate)
+  //   const summaryTotal = idleTimeService.getTotalIdleTimeFromSummary();
+  //   if (summaryTotal > 0) {
+  //     return idleTimeService.formatIdleTime(summaryTotal);
+  //   }
+  //   
+  //   // Fallback to calculating from individual users
+  //   return idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(idleTimeData));
+  // };
 
   // Get additional summary information
-  const getSummaryInfo = () => {
-    const summary = idleTimeService.getLastSummary();
-    if (summary) {
-      return {
-        totalUsers: summary.total_users_analyzed || 0,
-        averageIdlePerUser: summary.average_idle_per_user_minutes || 0,
-        totalTimesheets: summary.total_timesheets_processed || 0
-      };
-    }
-    return null;
-  };
+  // const getSummaryInfo = () => {
+  //   const summary = idleTimeService.getLastSummary();
+  //   if (summary) {
+  //     return {
+  //       totalUsers: summary.total_users_analyzed || 0,
+  //       averageIdlePerUser: summary.average_idle_per_user_minutes || 0,
+  //       totalTimesheets: summary.total_timesheets_processed || 0
+  //     };
+  //   }
+  //   return null;
+  // };
 
   // Helper function to get idle time for a specific user
-  const getUserIdleTime = (userEmail) => {
-    const userIdleData = idleTimeData.find(user => user.email === userEmail);
-    return userIdleData ? userIdleData.idle_time_minutes || 0 : 0;
-  };
+  // const getUserIdleTime = (userEmail) => {
+  //   const userIdleData = idleTimeData.find(user => user.email === userEmail);
+  //   return userIdleData ? userIdleData.idle_time_minutes || 0 : 0;
+  // };
 
   const statusArray = [
     { id: 1, label: t('atWork') || 'At Work', count: statusData.atWork, color: '#10b981' },
@@ -373,8 +372,8 @@ const CurrentStatus = () => {
       label: t('idle') || 'Idle', 
       count: statusData.idle, 
       color: '#6b7280',
-      hasIdleTime: idleTimeData.length > 0,
-      idleTimeLoading: idleTimeLoading
+      hasIdleTime: false, // idleTimeData.length > 0,
+      idleTimeLoading: false // idleTimeLoading
     },
     { id: 5, label: t('off') || 'OFF', count: statusData.off, color: '#ef4444' }
   ];
@@ -502,17 +501,19 @@ const CurrentStatus = () => {
               opacity: 0.8 
             }}>
               {(() => {
-                const summary = getSummaryInfo();
-                if (summary) {
-                  return `${summary.totalUsers} users analyzed • Avg: ${idleTimeService.formatIdleTime(summary.averageIdlePerUser)} per user`;
-                }
-                return lastIdleTimeUpdate ? `Last updated: ${lastIdleTimeUpdate.toLocaleTimeString()}` : 'Loading...';
+                // const summary = getSummaryInfo();
+                // if (summary) {
+                //   return `${summary.totalUsers} users analyzed • Avg: ${idleTimeService.formatIdleTime(summary.averageIdlePerUser)} per user`;
+                // }
+                // return lastIdleTimeUpdate ? `Last updated: ${lastIdleTimeUpdate.toLocaleTimeString()}` : 'Loading...';
+                return 'Idle time tracking disabled';
               })()}
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <TotalIdleValue>
-              {idleTimeLoading ? 'Loading...' : getTotalIdleTime()}
+              {/* {idleTimeLoading ? 'Loading...' : getTotalIdleTime()} */}
+              N/A
             </TotalIdleValue>
             {lastIdleTimeUpdate && (
               <div style={{ 
