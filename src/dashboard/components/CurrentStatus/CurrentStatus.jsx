@@ -28,43 +28,9 @@ const CurrentStatusTitle = styled.h2`
   color: #374151;
   margin: 0 0 20px 0;
   letter-spacing: 0.05em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   
   [data-theme="dark"] & {
     color: #f8fafc;
-  }
-`;
-
-const RefreshButton = styled.button`
-  background: transparent;
-  border: 1px solid #d1d5db;
-  color: #6b7280;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  [data-theme="dark"] & {
-    border-color: #6b7280;
-    color: #9ca3af;
-    
-    &:hover {
-      background: #374151;
-      border-color: #d1d5db;
-    }
   }
 `;
 
@@ -133,42 +99,6 @@ const IdleTimeInfo = styled.div`
 
   [data-theme="dark"] & {
     color: #9ca3af;
-  }
-`;
-
-const TotalIdleTimeDisplay = styled.div`
-  background: linear-gradient(135deg, #fee2e2 0%, #fef3c7 100%);
-  border: 1px solid #fbbf24;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-top: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  
-  [data-theme="dark"] & {
-    background: linear-gradient(135deg, #451a1a 0%, #451a03 100%);
-    border-color: #d97706;
-  }
-`;
-
-const TotalIdleLabel = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: #92400e;
-  
-  [data-theme="dark"] & {
-    color: #fbbf24;
-  }
-`;
-
-const TotalIdleValue = styled.span`
-  font-size: 16px;
-  font-weight: 700;
-  color: #dc2626;
-  
-  [data-theme="dark"] & {
-    color: #fca5a5;
   }
 `;
 
@@ -256,18 +186,10 @@ const CurrentStatus = () => {
   });
   const [idleTimeData, setIdleTimeData] = useState([]);
   const [idleTimeLoading, setIdleTimeLoading] = useState(false);
-  const [lastIdleTimeUpdate, setLastIdleTimeUpdate] = useState(null);
 
   useEffect(() => {
     fetchStaffStatus();
     fetchIdleTimeData();
-    
-    // Set up auto-refresh for idle time every 2 minutes
-    const interval = setInterval(() => {
-      fetchIdleTimeData();
-    }, 120000); // 2 minutes
-    
-    return () => clearInterval(interval);
   }, []);
 
   // Fetch idle time data for all users
@@ -276,9 +198,7 @@ const CurrentStatus = () => {
       setIdleTimeLoading(true);
       const data = await idleTimeService.fetchAllUsersIdleTime();
       setIdleTimeData(data);
-      setLastIdleTimeUpdate(new Date());
       console.log('🕐 Loaded idle time data for', data.length, 'users');
-      console.log('🕐 Total idle time:', idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(data)));
     } catch (error) {
       console.error('❌ Error fetching idle time data:', error);
       setIdleTimeData([]);
@@ -335,27 +255,7 @@ const CurrentStatus = () => {
   
   // Helper function to get total idle time across all users
   const getTotalIdleTime = () => {
-    // First try to get total from API summary (more accurate)
-    const summaryTotal = idleTimeService.getTotalIdleTimeFromSummary();
-    if (summaryTotal > 0) {
-      return idleTimeService.formatIdleTime(summaryTotal);
-    }
-    
-    // Fallback to calculating from individual users
     return idleTimeService.formatIdleTime(idleTimeService.calculateTotalIdleTime(idleTimeData));
-  };
-
-  // Get additional summary information
-  const getSummaryInfo = () => {
-    const summary = idleTimeService.getLastSummary();
-    if (summary) {
-      return {
-        totalUsers: summary.total_users_analyzed || 0,
-        averageIdlePerUser: summary.average_idle_per_user_minutes || 0,
-        totalTimesheets: summary.total_timesheets_processed || 0
-      };
-    }
-    return null;
   };
 
   // Helper function to get idle time for a specific user
@@ -383,18 +283,7 @@ const CurrentStatus = () => {
 
   return (
     <CurrentStatusContainer>
-      <CurrentStatusTitle>
-        <span>{t('currentStatus') || 'CURRENT STATUS'}</span>
-        <RefreshButton 
-          onClick={() => {
-            fetchStaffStatus();
-            fetchIdleTimeData();
-          }}
-          disabled={loading || idleTimeLoading}
-        >
-          {(loading || idleTimeLoading) ? '⟳' : '↻'} Refresh
-        </RefreshButton>
-      </CurrentStatusTitle>
+      <CurrentStatusTitle>{t('currentStatus') || 'CURRENT STATUS'}</CurrentStatusTitle>
       
       <CurrentStatusContent>
         <StatusListContainer>
@@ -489,44 +378,6 @@ const CurrentStatus = () => {
           </ChartCenter>
         </ChartContainer>
       </CurrentStatusContent>
-      
-      {/* Total Idle Time Display */}
-      {idleTimeData.length > 0 && (
-        <TotalIdleTimeDisplay>
-          <div>
-            <TotalIdleLabel>🕐 Total Company Idle Time</TotalIdleLabel>
-            <div style={{ 
-              fontSize: '11px', 
-              color: '#6b7280', 
-              marginTop: '2px',
-              opacity: 0.8 
-            }}>
-              {(() => {
-                const summary = getSummaryInfo();
-                if (summary) {
-                  return `${summary.totalUsers} users analyzed • Avg: ${idleTimeService.formatIdleTime(summary.averageIdlePerUser)} per user`;
-                }
-                return lastIdleTimeUpdate ? `Last updated: ${lastIdleTimeUpdate.toLocaleTimeString()}` : 'Loading...';
-              })()}
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <TotalIdleValue>
-              {idleTimeLoading ? 'Loading...' : getTotalIdleTime()}
-            </TotalIdleValue>
-            {lastIdleTimeUpdate && (
-              <div style={{ 
-                fontSize: '9px', 
-                color: '#6b7280', 
-                marginTop: '2px',
-                opacity: 0.7 
-              }}>
-                Updated: {lastIdleTimeUpdate.toLocaleTimeString()}
-              </div>
-            )}
-          </div>
-        </TotalIdleTimeDisplay>
-      )}
     </CurrentStatusContainer>
   );
 };

@@ -256,23 +256,10 @@ const IdleTimeTracker = () => {
   };
 
   const getTotalIdleTime = () => {
-    // First try to get total from API summary (more accurate)
-    const summaryTotal = idleTimeService.getTotalIdleTimeFromSummary();
-    if (summaryTotal > 0) {
-      return summaryTotal;
-    }
-    
-    // Fallback to calculating from individual users
     return idleTimeData.reduce((total, user) => total + (user.idle_time_minutes || 0), 0);
   };
 
   const getAverageIdleTime = () => {
-    const summary = idleTimeService.getLastSummary();
-    if (summary && summary.average_idle_per_user_minutes) {
-      return summary.average_idle_per_user_minutes;
-    }
-    
-    // Fallback calculation
     if (idleTimeData.length === 0) return 0;
     return Math.round(getTotalIdleTime() / idleTimeData.length);
   };
@@ -311,14 +298,7 @@ const IdleTimeTracker = () => {
           <SummaryText>
             Total Idle Time: {formatIdleTime(getTotalIdleTime())} | 
             Average: {formatIdleTime(getAverageIdleTime())} | 
-            Users: {(() => {
-              const summary = idleTimeService.getLastSummary();
-              return summary?.total_users_analyzed || idleTimeData.length;
-            })()} |
-            Sessions: {(() => {
-              const summary = idleTimeService.getLastSummary();
-              return summary?.total_timesheets_processed || 'N/A';
-            })()}
+            Users: {idleTimeData.length}
           </SummaryText>
         </Summary>
       )}
@@ -330,25 +310,16 @@ const IdleTimeTracker = () => {
           {idleTimeData
             .sort((a, b) => (b.idle_time_minutes || 0) - (a.idle_time_minutes || 0))
             .map((user, index) => (
-            <UserItem key={user.email || user.staff_id || index}>
+            <UserItem key={user.email || index}>
               <UserInfo>
                 <UserName>{user.display_name || user.name || user.email}</UserName>
-                <UserEmail>
-                  {user.email}
-                  {user.staff_id && ` • ID: ${user.staff_id}`}
-                  {user.total_sessions && ` • ${user.total_sessions} sessions`}
-                </UserEmail>
+                <UserEmail>{user.email}</UserEmail>
               </UserInfo>
               <IdleTime>
                 <IdleTimeValue>
                   {formatIdleTime(user.idle_time_minutes || 0)}
                 </IdleTimeValue>
-                <IdleTimeLabel>
-                  {user.idle_session_count || user.auto_pause_count ? 
-                    `${user.idle_session_count || 0} idle + ${user.auto_pause_count || 0} pause` : 
-                    'Idle Time'
-                  }
-                </IdleTimeLabel>
+                <IdleTimeLabel>Idle Time</IdleTimeLabel>
               </IdleTime>
             </UserItem>
           ))}
