@@ -408,12 +408,13 @@ const CurrentStatus = () => {
                     <StatusLabel>{item.label}</StatusLabel>
                     {item.id === 4 && (
                       <IdleTimeInfo>
-                        {idleTimeLoading ? 
+                        {/* {idleTimeLoading ? 
                           'Loading idle time...' : 
                           idleTimeData.length > 0 ? 
                             `Total: ${getTotalIdleTime()}` : 
                             'No idle time data'
-                        }
+                        } */}
+                        'Idle time tracking disabled'
                       </IdleTimeInfo>
                     )}
                   </div>
@@ -515,7 +516,7 @@ const CurrentStatus = () => {
               {/* {idleTimeLoading ? 'Loading...' : getTotalIdleTime()} */}
               N/A
             </TotalIdleValue>
-            {lastIdleTimeUpdate && (
+            {/* {lastIdleTimeUpdate && (
               <div style={{ 
                 fontSize: '9px', 
                 color: '#6b7280', 
@@ -524,7 +525,7 @@ const CurrentStatus = () => {
               }}>
                 Updated: {lastIdleTimeUpdate.toLocaleTimeString()}
               </div>
-            )}
+            )} */}
           </div>
         </TotalIdleTimeDisplay>
       )}
