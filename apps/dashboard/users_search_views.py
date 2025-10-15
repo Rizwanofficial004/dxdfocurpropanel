@@ -237,8 +237,8 @@ class EnhancedUsersSearchView(APIView):
                 prefixes.append(prefix)
                 current_date += timedelta(days=1)
         else:
-            # Default to recent dates if no range specified
-            current_date = datetime.now().date() - timedelta(days=7)
+            # Default to broader range if no range specified (last 90 days to capture historical users)
+            current_date = datetime.now().date() - timedelta(days=90)
             end_date = datetime.now().date()
             while current_date <= end_date:
                 prefix = f"users_screenshots/{current_date.strftime('%Y-%m-%d')}/"
@@ -266,6 +266,13 @@ class EnhancedUsersSearchView(APIView):
                     user_folder = folder_path.split('/')[-2]  # Get folder name before last slash
                     if user_folder:
                         user_folders.append(user_folder)
+                        # Debug: Check for ilahe specifically
+                        if 'ilahe' in user_folder.lower():
+                            logger.info(f"DEBUG: Found ilahe folder '{user_folder}' for date {date_prefix}")
+            
+            # Debug log for specific dates where ilahe should exist
+            if '2025-09-01' in date_prefix or '2025-09-22' in date_prefix:
+                logger.info(f"DEBUG: Date {date_prefix} found {len(user_folders)} user folders: {user_folders}")
             
             return user_folders
         except Exception as e:
