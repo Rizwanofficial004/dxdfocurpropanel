@@ -50,7 +50,7 @@ const ResultContainer = styled(Paper)`
   padding: 15px;
   margin-top: 15px;
   background: #f9f9f9;
-  max-height: 400px;
+  
   overflow-y: auto;
 `;
 

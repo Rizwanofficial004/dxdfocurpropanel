@@ -11,27 +11,22 @@ export default defineConfig({
     host: true,
     allowedHosts: ['dxdtime.ddsolutions.io', 'localhost', '127.0.0.1'],
     proxy: {
-      // Specific proxy for Staff/Details to local server (with fresh data)
+      // Specific proxy for Staff/Details to production server
       '/api/Staff/Details': {
-        target: 'http://127.0.0.1:8000',
+        target: 'https://dxdtime.ddsolutions.io',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('❌ Staff Details API proxy error:', err);
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('👥 Staff Details Request to local API:', req.method, req.url);
+            console.log('👥 Staff Details Request to production API:', req.method, req.url);
             proxyReq.setHeader('Accept', 'application/json');
             proxyReq.setHeader('Content-Type', 'application/json');
-            proxyReq.setHeader('Cache-Control', 'no-cache');
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('👥 Staff Details Response from local API:', proxyRes.statusCode, req.url);
-            // Prevent caching of staff data
-            proxyRes.headers['cache-control'] = 'no-cache, no-store, must-revalidate';
-            proxyRes.headers['pragma'] = 'no-cache';
-            proxyRes.headers['expires'] = '0';
+            console.log('👥 Staff Details Response from production API:', proxyRes.statusCode, req.url);
           });
         },
       },

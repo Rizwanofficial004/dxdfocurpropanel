@@ -22,7 +22,7 @@ const EmployeeReport = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/api/Staff/Details/');
+      const response = await fetch('/api/Staff/Details/');
       const data = await response.json();
       
       console.log('📊 Employee Report API Response:', data);

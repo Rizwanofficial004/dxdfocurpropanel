@@ -552,9 +552,8 @@ const QuickView = () => {
     setError(null);
     
     try {
-      // Try local API first, then fallback to proxy
+      // Use proxy to production API
       const apiEndpoints = [
-        'http://127.0.0.1:8000/api/Staff/Details/',
         '/api/Staff/Details/'
       ];
       

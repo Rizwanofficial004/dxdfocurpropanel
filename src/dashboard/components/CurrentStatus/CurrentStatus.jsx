@@ -210,7 +210,7 @@ const CurrentStatus = () => {
   const fetchStaffStatus = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://127.0.0.1:8000/api/Staff/Details/');
+      const response = await axios.get('/api/Staff/Details/');
       
       console.log('📊 Staff API Response:', response.data);
       

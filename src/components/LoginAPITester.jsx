@@ -111,7 +111,7 @@ const ResponseBox = styled.div`
   white-space: pre-wrap;
   font-family: 'Courier New', monospace;
   font-size: 12px;
-  max-height: 400px;
+  
   overflow-y: auto;
 `;
 
