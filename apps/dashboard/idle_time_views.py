@@ -122,6 +122,7 @@ class IdleTimeAPIView(APIView):
             
             # Filter and organize timesheets by staff
             staff_sessions = defaultdict(list)
+            note_idle_entries = []  # Store idle entries from note column
             processed_count = 0
             skipped_count = 0
             
@@ -132,6 +133,38 @@ class IdleTimeAPIView(APIView):
                     ts_staff_id = timesheet.get('staff_id')
                     start_time = timesheet.get('start_time')
                     end_time = timesheet.get('end_time')
+                    note = str(timesheet.get('note', ''))
+                    
+                    # Extract idle time from note column if present
+                    idle_seconds = self._extract_idle_seconds_from_note(note)
+                    if idle_seconds:
+                        staff_name = staff_lookup.get(ts_staff_id, f"Staff {ts_staff_id}")
+                        
+                        # Create idle entry from note
+                        if start_time:
+                            try:
+                                start_timestamp = int(start_time)
+                                start_dt = datetime.fromtimestamp(start_timestamp)
+                                idle_minutes = idle_seconds / 60
+                                
+                                # Apply minimum filter
+                                if idle_minutes >= min_idle_minutes:
+                                    note_idle_entry = {
+                                        'staff_name': staff_name,
+                                        'staff_id': ts_staff_id,
+                                        'timesheet_id': timesheet.get('id'),
+                                        'task_id': timesheet.get('task_id'),
+                                        'note_content': note,
+                                        'idle_seconds_from_note': idle_seconds,
+                                        'idle_time_minutes': round(idle_minutes, 2),
+                                        'idle_time_hours': round(idle_minutes / 60, 2),
+                                        'date': start_dt.strftime('%Y-%m-%d'),
+                                        'start_time': start_dt.strftime('%Y-%m-%d %H:%M:%S'),
+                                        'source': 'note_column'
+                                    }
+                                    note_idle_entries.append(note_idle_entry)
+                            except (ValueError, TypeError):
+                                pass
                     
                     # Skip if no valid times or end time is 0
                     if not start_time or not end_time or str(end_time) == '0' or not ts_staff_id:
@@ -191,8 +224,8 @@ class IdleTimeAPIView(APIView):
                         'task_id': timesheet.get('task_id'),
                         'start_time': start_dt,
                         'end_time': end_dt,
-                        'note': timesheet.get('note', ''),
-                        'is_system_idle': 'Auto-paused due to' in str(timesheet.get('note', ''))
+                        'note': note,
+                        'is_system_idle': 'Auto-paused due to' in note
                     })
                     processed_count += 1
                     
@@ -203,13 +236,16 @@ class IdleTimeAPIView(APIView):
             
             print(f"Debug: Processed {processed_count} timesheets, skipped {skipped_count}")
             print(f"Debug: Found {len(staff_sessions)} staff with valid sessions")
+            print(f"Debug: Found {len(note_idle_entries)} idle entries from note column")
             
             # Calculate idle times for each staff member
             idle_analysis = {
                 'idle_entries': [],
+                'note_idle_entries': note_idle_entries,  # Add idle entries from notes
                 'summary': {
                     'total_idle_entries': 0,
                     'total_idle_hours': 0,
+                    'note_idle_entries': len(note_idle_entries),
                     'staff_analyzed': len(staff_sessions)
                 }
             }
@@ -240,7 +276,7 @@ class IdleTimeAPIView(APIView):
                         
                         # Apply 3-minute threshold and maximum reasonable limit (24 hours)
                         if idle_minutes >= min_idle_minutes and idle_minutes <= (24 * 60):
-                            # Simple entry with only requested fields
+                            # Enhanced entry with source information
                             idle_entry = {
                                 'staff_name': staff_name,
                                 'staff_task': f"Task {current_session['task_id']} → Task {next_session['task_id']}",
@@ -249,28 +285,35 @@ class IdleTimeAPIView(APIView):
                                 'idle_time_minutes': round(idle_minutes, 2),
                                 'idle_time_hours': round(idle_minutes / 60, 2),
                                 'date': idle_start.strftime('%Y-%m-%d'),
-                                'staff_id': staff_id
+                                'staff_id': staff_id,
+                                'source': 'time_gap_calculation'
                             }
                             
                             all_idle_entries.append(idle_entry)
                             
                             print(f"Debug: Found idle period for staff {staff_id}: {idle_minutes:.2f} minutes")
             
+            # Combine all idle entries (from note column and time calculations)
+            combined_idle_entries = all_idle_entries + note_idle_entries
+            
             # Sort by idle time (longest first)
-            all_idle_entries.sort(key=lambda x: x['idle_time_minutes'], reverse=True)
+            combined_idle_entries.sort(key=lambda x: x['idle_time_minutes'], reverse=True)
             
             # Update summary
-            if all_idle_entries:
-                total_idle_seconds = sum(entry['idle_time_minutes'] * 60 for entry in all_idle_entries)
+            if combined_idle_entries:
+                total_idle_seconds = sum(entry['idle_time_minutes'] * 60 for entry in combined_idle_entries)
                 idle_analysis['summary'].update({
-                    'total_idle_entries': len(all_idle_entries),
+                    'total_idle_entries': len(combined_idle_entries),
+                    'time_gap_entries': len(all_idle_entries),
+                    'note_idle_entries': len(note_idle_entries),
                     'total_idle_hours': round(total_idle_seconds / 3600, 2),
-                    'average_idle_minutes': round(sum(entry['idle_time_minutes'] for entry in all_idle_entries) / len(all_idle_entries), 2)
+                    'average_idle_minutes': round(sum(entry['idle_time_minutes'] for entry in combined_idle_entries) / len(combined_idle_entries), 2)
                 })
             
-            idle_analysis['idle_entries'] = all_idle_entries
+            idle_analysis['idle_entries'] = combined_idle_entries
             
-            print(f"Debug: Final result - {len(all_idle_entries)} idle entries found")
+            print(f"Debug: Final result - {len(combined_idle_entries)} total idle entries found")
+            print(f"Debug: {len(all_idle_entries)} from time gaps, {len(note_idle_entries)} from note column")
             
             return idle_analysis
             
@@ -279,6 +322,32 @@ class IdleTimeAPIView(APIView):
             import traceback
             traceback.print_exc()
             return {'staff_idle_times': [], 'summary': {}}
+    
+    def _extract_idle_seconds_from_note(self, note):
+        """
+        Extract idle seconds from note column.
+        Examples:
+        - "Auto-paused due to 182 seconds system idle" -> 182
+        - "Auto-paused due to 180 seconds system idle" -> 180
+        - "Auto-paused due to 3346 seconds system idle" -> 3346
+        """
+        if not note or not isinstance(note, str):
+            return None
+        
+        import re
+        
+        # Pattern to match "Auto-paused due to X seconds system idle"
+        pattern = r'Auto-paused due to (\d+) seconds system idle'
+        match = re.search(pattern, note, re.IGNORECASE)
+        
+        if match:
+            try:
+                seconds = int(match.group(1))
+                return seconds
+            except (ValueError, TypeError):
+                pass
+        
+        return None
     
     def _fetch_staff_lookup(self):
         """Fetch staff data for name lookup"""
