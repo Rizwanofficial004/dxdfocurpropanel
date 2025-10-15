@@ -55,9 +55,9 @@ class EnhancedUsersSearchView(APIView):
                         "page_size": page_size,
                         "total_pages": max(1, (search_results.get('total_count', 0) + page_size - 1) // page_size),
                         "total_items": search_results.get('total_count', 0),
-                        "has_next": False,
+                        "has_next": page * page_size < search_results.get('total_count', 0),
                         "has_previous": page > 1,
-                        "next_page": None,
+                        "next_page": page + 1 if page * page_size < search_results.get('total_count', 0) else None,
                         "previous_page": page - 1 if page > 1 else None
                     },
                     "search_performance": {
@@ -79,10 +79,16 @@ class EnhancedUsersSearchView(APIView):
                 },
                 "meta": {
                     "timestamp": datetime.now().isoformat(),
-                    "api_version": "2.4.0",
+                    "api_version": "2.5.0",
                     "bucket": self.bucket_name,
-                    "search_type": "enhanced_with_accurate_s3_data",
-                    "features": ["pagination", "date_grouping", "screenshots", "s3_nested_folders"]
+                    "search_type": "enhanced_accurate_s3_data",
+                    "features": ["pagination", "date_grouping", "screenshots", "s3_nested_folders", "accurate_user_counting"],
+                    "accuracy_improvements": [
+                        "Folder-based user detection",
+                        "Efficient S3 scanning",
+                        "Precise date filtering",
+                        "Screenshot file validation"
+                    ]
                 }
             }
             
@@ -115,7 +121,7 @@ class EnhancedUsersSearchView(APIView):
             except ValueError:
                 logger.warning(f"Invalid end_date format: {end_date}")
         
-        # Search for users and their screenshots
+        # Search for users and their screenshots with improved accuracy
         users_data = {}
         total_screenshots = 0
         objects_scanned = 0
@@ -125,80 +131,78 @@ class EnhancedUsersSearchView(APIView):
             prefixes = self._build_search_prefixes(start_date_obj, end_date_obj)
             
             for prefix in prefixes:
-                logger.info(f"Searching S3 with prefix: {prefix}")
+                logger.debug(f"Searching S3 with prefix: {prefix}")
                 
-                # List all objects in S3 with this prefix (including nested folders)
-                paginator = self.s3_client.get_paginator('list_objects_v2')
-                pages = paginator.paginate(
-                    Bucket=self.bucket_name,
-                    Prefix=prefix,
-                    PaginationConfig={'MaxItems': 5000}
-                )
+                # First, get user folders for this date to be more accurate
+                date_folders = self._get_user_folders_for_date(prefix)
                 
-                for page_data in pages:
-                    if 'Contents' in page_data:
-                        for obj in page_data['Contents']:
+                for user_folder in date_folders:
+                    # Only process if user matches search query (or no query)
+                    user_info = self._extract_user_from_folder_name(user_folder)
+                    
+                    if user_info and self._matches_search(user_info, search_query):
+                        user_email = user_info['email']
+                        logger.debug(f"Processing user: {user_email}")
+                        
+                        # Initialize user data if not exists
+                        if user_email not in users_data:
+                            users_data[user_email] = {
+                                'email': user_email,
+                                'display_name': user_info['display_name'],
+                                'original_name': user_info['original_name'],
+                                'screenshots': [],
+                                'total_screenshots': 0,
+                                'total_size': 0,
+                                'date_range': {'first': None, 'last': None},
+                                'active_days': set(),
+                                'active_months': set(),
+                                'folders': set()
+                            }
+                        
+                        # Get all screenshots for this user on this date
+                        user_prefix = f"{prefix}{user_folder}/"
+                        screenshots = self._get_screenshots_for_user_date(user_prefix)
+                        
+                        for screenshot_obj in screenshots:
                             objects_scanned += 1
-                            key = obj['Key']
+                            key = screenshot_obj['Key']
                             
-                            # Extract user info from S3 key
-                            user_info = self._extract_user_from_key(key)
+                            # Parse screenshot details
+                            screenshot_info = self._parse_screenshot_details(key, screenshot_obj)
                             
-                            if user_info and self._matches_search(user_info, search_query):
-                                user_email = user_info['email']
-                                logger.info(f"✅ User MATCHED: {user_email} for search '{search_query}'")
+                            if screenshot_info:
+                                # Verify date range filtering
+                                try:
+                                    screenshot_date_obj = datetime.strptime(screenshot_info['date'], '%Y-%m-%d').date()
+                                except ValueError:
+                                    continue
                                 
-                                # Initialize user data if not exists
-                                if user_email not in users_data:
-                                    users_data[user_email] = {
-                                        'email': user_email,
-                                        'display_name': user_info['display_name'],
-                                        'original_name': user_info['original_name'],
-                                        'screenshots': [],
-                                        'total_screenshots': 0,
-                                        'total_size': 0,
-                                        'date_range': {'first': None, 'last': None},
-                                        'active_days': set(),
-                                        'active_months': set(),
-                                        'folders': set()
-                                    }
+                                # Check if screenshot falls within date range
+                                if start_date_obj and screenshot_date_obj < start_date_obj:
+                                    continue
                                 
-                                # Parse screenshot details (handles nested folders)
-                                screenshot_info = self._parse_screenshot_details(key, obj)
+                                if end_date_obj and screenshot_date_obj > end_date_obj:
+                                    continue
                                 
-                                if screenshot_info:
-                                    # Apply date range filtering
-                                    try:
-                                        screenshot_date_obj = datetime.strptime(screenshot_info['date'], '%Y-%m-%d').date()
-                                    except ValueError:
-                                        continue
-                                    
-                                    # Check if screenshot falls within date range
-                                    if start_date_obj and screenshot_date_obj < start_date_obj:
-                                        continue
-                                    
-                                    if end_date_obj and screenshot_date_obj > end_date_obj:
-                                        continue
-                                    
-                                    # Add screenshot to user data
-                                    total_screenshots += 1
-                                    user_data = users_data[user_email]
-                                    
-                                    user_data['screenshots'].append(screenshot_info)
-                                    user_data['total_screenshots'] += 1
-                                    user_data['total_size'] += obj['Size']
-                                    
-                                    # Track activity
-                                    user_data['active_days'].add(screenshot_info['date'])
-                                    user_data['active_months'].add(screenshot_info['month'])
-                                    user_data['folders'].add(screenshot_info.get('user_folder', ''))
-                                    
-                                    # Update date range
-                                    file_date = obj['LastModified']
-                                    if user_data['date_range']['first'] is None or file_date < user_data['date_range']['first']:
-                                        user_data['date_range']['first'] = file_date
-                                    if user_data['date_range']['last'] is None or file_date > user_data['date_range']['last']:
-                                        user_data['date_range']['last'] = file_date
+                                # Add screenshot to user data
+                                total_screenshots += 1
+                                user_data = users_data[user_email]
+                                
+                                user_data['screenshots'].append(screenshot_info)
+                                user_data['total_screenshots'] += 1
+                                user_data['total_size'] += screenshot_obj['Size']
+                                
+                                # Track activity
+                                user_data['active_days'].add(screenshot_info['date'])
+                                user_data['active_months'].add(screenshot_info['month'])
+                                user_data['folders'].add(screenshot_info.get('user_folder', ''))
+                                
+                                # Update date range
+                                file_date = screenshot_obj['LastModified']
+                                if user_data['date_range']['first'] is None or file_date < user_data['date_range']['first']:
+                                    user_data['date_range']['first'] = file_date
+                                if user_data['date_range']['last'] is None or file_date > user_data['date_range']['last']:
+                                    user_data['date_range']['last'] = file_date
         
         except Exception as e:
             logger.error(f"Error scanning S3: {str(e)}", exc_info=True)
@@ -208,6 +212,9 @@ class EnhancedUsersSearchView(APIView):
         for user_data in users_data.values():
             formatted_user = self._format_user_with_screenshots(user_data, group_by, page_size, page)
             formatted_users.append(formatted_user)
+        
+        # Sort users by total screenshots (most active first)
+        formatted_users.sort(key=lambda x: x.get('total_screenshots', 0), reverse=True)
         
         # Calculate search time
         search_time = (datetime.now() - start_time).total_seconds() * 1000
@@ -238,8 +245,80 @@ class EnhancedUsersSearchView(APIView):
                 prefixes.append(prefix)
                 current_date += timedelta(days=1)
         
-        logger.info(f"Generated {len(prefixes)} search prefixes")
+        logger.debug(f"Generated {len(prefixes)} search prefixes")
         return prefixes
+    
+    def _get_user_folders_for_date(self, date_prefix):
+        """Get list of user folders for a specific date prefix"""
+        try:
+            response = self.s3_client.list_objects_v2(
+                Bucket=self.bucket_name,
+                Prefix=date_prefix,
+                Delimiter='/',
+                MaxKeys=100
+            )
+            
+            user_folders = []
+            if 'CommonPrefixes' in response:
+                for prefix in response['CommonPrefixes']:
+                    # Extract folder name: users_screenshots/2025-09-01/user_folder/
+                    folder_path = prefix['Prefix']
+                    user_folder = folder_path.split('/')[-2]  # Get folder name before last slash
+                    if user_folder:
+                        user_folders.append(user_folder)
+            
+            return user_folders
+        except Exception as e:
+            logger.error(f"Error getting user folders for {date_prefix}: {str(e)}")
+            return []
+    
+    def _extract_user_from_folder_name(self, user_folder):
+        """Extract user info from folder name"""
+        try:
+            if '_at_' in user_folder:
+                email = user_folder.replace('_at_', '@')
+                username = email.split('@')[0]
+                display_name = username.replace('_', ' ').title()
+            elif '@' in user_folder:
+                email = user_folder
+                username = email.split('@')[0]
+                display_name = username.replace('_', ' ').title()
+            else:
+                email = f"{user_folder}@unknown.com"
+                display_name = user_folder.replace('_', ' ').title()
+                username = user_folder
+            
+            return {
+                'email': email,
+                'display_name': display_name,
+                'original_name': user_folder,
+                'username': username
+            }
+        except Exception as e:
+            logger.debug(f"Error extracting user from folder {user_folder}: {str(e)}")
+            return None
+    
+    def _get_screenshots_for_user_date(self, user_prefix):
+        """Get all screenshot objects for a specific user and date"""
+        try:
+            response = self.s3_client.list_objects_v2(
+                Bucket=self.bucket_name,
+                Prefix=user_prefix,
+                MaxKeys=1000
+            )
+            
+            screenshots = []
+            if 'Contents' in response:
+                for obj in response['Contents']:
+                    key = obj['Key']
+                    # Only include actual screenshot files
+                    if key.lower().endswith(('.webp', '.png', '.jpg', '.jpeg')):
+                        screenshots.append(obj)
+            
+            return screenshots
+        except Exception as e:
+            logger.error(f"Error getting screenshots for {user_prefix}: {str(e)}")
+            return []
     
     def _extract_user_from_key(self, key):
         try:
