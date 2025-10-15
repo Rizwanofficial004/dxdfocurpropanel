@@ -96,6 +96,15 @@ const SimpleLoginTest = lazy(() =>
   import('./components/SimpleLoginTest').catch(() => ({ default: FallbackLogin }))
 );
 
+// Users API Demo Components
+const UsersList = lazy(() =>
+  import('./components/UsersList').catch(() => ({ default: FallbackUsersList }))
+);
+
+const APIDemo = lazy(() =>
+  import('./components/APIDemo').catch(() => ({ default: FallbackAPIDemo }))
+);
+
 const ThemeProvider = lazy(() =>
   import('./dashboard/context/ThemeContext').then(m => ({ default: m.ThemeProvider })).catch(() => ({ default: SimpleThemeProvider }))
 );
@@ -200,6 +209,8 @@ const FallbackDocumentation = () => <LoadingSpinner />;
 const FallbackTimeLogSummary = () => <LoadingSpinner />;
 const FallbackTimeLogActivityStream = () => <LoadingSpinner />;
 const FallbackImageTest = () => <LoadingSpinner />;
+const FallbackUsersList = () => <LoadingSpinner />;
+const FallbackAPIDemo = () => <LoadingSpinner />;
 const SimpleThemeProvider = ({ children }) => <>{children}</>;
 const SimpleLanguageProvider = ({ children }) => <>{children}</>;
 
@@ -520,6 +531,22 @@ function App() {
                     element={
                       <Suspense fallback={<FallbackImageTest />}>
                         <ImageTest />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/api-demo"
+                    element={
+                      <Suspense fallback={<FallbackAPIDemo />}>
+                        <APIDemo />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/users-list"
+                    element={
+                      <Suspense fallback={<FallbackUsersList />}>
+                        <UsersList />
                       </Suspense>
                     }
                   />

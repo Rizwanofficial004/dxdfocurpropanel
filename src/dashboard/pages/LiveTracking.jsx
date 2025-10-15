@@ -5,6 +5,8 @@ import { getApiBaseURL } from '../../config/api';
 import ImageModal from '../components/common/ImageModal';
 import axios from 'axios';
 import './LiveTracking.css';
+import { removeRedBorders } from '../../utils/removeDebugStyles';
+import { testUserAPIs } from '../../utils/userAPIDebugger';
 
 const LiveTracking = () => {
   const { t } = useLanguage();
@@ -27,6 +29,14 @@ const LiveTracking = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImages, setModalImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Remove any red debugging borders on component mount and updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      removeRedBorders();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [apiData]); // Run when apiData changes
 
   // Helper function to build API URL
   const buildApiUrl = (params = {}) => {

@@ -27,6 +27,7 @@ export const API_CONFIG = {
     
     // Users
     USERS: '/api/users/',
+    USERS_SEARCH: '/api/users/search/',
     USER_SUGGESTIONS: '/api/users/s3-suggestions/',
     
     // Employee data

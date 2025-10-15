@@ -552,18 +552,53 @@ const QuickView = () => {
     setError(null);
     
     try {
-      const apiUrl = 'http://127.0.0.1:8000/api/Staff/Details/';
+      // Try local API first, then fallback to proxy
+      const apiEndpoints = [
+        'http://127.0.0.1:8000/api/Staff/Details/',
+        '/api/Staff/Details/'
+      ];
       
-      console.log('� Fetching staff data from:', apiUrl);
+      let response;
+      let apiUrl;
       
-      const response = await fetch(apiUrl);
+      for (const endpoint of apiEndpoints) {
+        try {
+          apiUrl = endpoint;
+          console.log('🔍 Trying Staff API endpoint:', apiUrl);
+          response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            console.log('✅ Successfully connected to:', apiUrl);
+            break;
+          }
+        } catch (err) {
+          console.log(`❌ Failed to connect to ${endpoint}:`, err.message);
+          continue;
+        }
+      }
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+      if (!response || !response.ok) {
+        throw new Error(`All Staff API endpoints failed. Last status: ${response?.status || 'No response'}`);
       }
 
       const data = await response.json();
       console.log('📊 Staff API Response:', data);
+      console.log('📊 Sample Staff Object:', data?.data?.staff?.[0]);
+      
+      // Log the structure for debugging
+      if (data?.data?.staff?.[0]) {
+        const sampleStaff = data.data.staff[0];
+        console.log('🔍 Available staff fields:', Object.keys(sampleStaff));
+        console.log('🔍 Sample raw_data fields:', Object.keys(sampleStaff.raw_data || {}));
+        console.log('🔍 Staff active status:', sampleStaff.active, 'type:', typeof sampleStaff.active);
+        console.log('🔍 Staff logged_in status:', sampleStaff.raw_data?.is_logged_in, 'type:', typeof sampleStaff.raw_data?.is_logged_in);
+      }
 
       let staffArray = [];
       
@@ -571,31 +606,101 @@ const QuickView = () => {
       if (data?.data?.staff && Array.isArray(data.data.staff)) {
         staffArray = data.data.staff;
         console.log(`✅ Loaded ${staffArray.length} staff members`);
+        console.log('📋 Available staff fields:', Object.keys(staffArray[0] || {}));
       }
 
       // Transform staff data to employee format for Quick View
-      const users = staffArray.map(staff => ({
-        id: staff.staffid || staff.id,
-        name: staff.full_name || `${staff.firstname || ''} ${staff.lastname || ''}`.trim(),
-        team: staff.job_position || 'No Organization',
-        status: staff.active === '1' || staff.active === 1 || staff.active === true ? 'Active' : 'Inactive',
-        designation: staff.role || 'Staff',
-        email: staff.email,
-        isOnline: staff.is_logged_in === '1',
-        lastLogin: staff.last_login || 'Never',
-        // Mock data for time tracking (replace with actual API data when available)
-        loggedTime: '2h 30m',
-        activeTime: '2h 27m',
-        productivity: 88,
-        productiveTime: '2h 17m',
-        distractionTime: '0h 0m',
-        neutralTime: '0h 8m',
-        meetingTime: '0h 0m',
-        breakTime: '0h 0m',
-        idleTime: '0h 3m',
-        offlineTime: '0h 0m',
-        originalData: staff
-      }));
+      const users = staffArray.map(staff => {
+        // Get data from raw_data if available, otherwise use main staff object
+        const rawData = staff.raw_data || {};
+        
+        // Calculate work status based on API data
+        const isActive = staff.active === true || staff.active === '1' || staff.active === 1 || 
+                        rawData.active === '1' || rawData.active === 1;
+        const isLoggedIn = staff.is_logged_in === '1' || staff.is_logged_in === 1 || 
+                          rawData.is_logged_in === '1' || rawData.is_logged_in === 1;
+        const workStatus = isActive && isLoggedIn ? 'Active' : isActive ? 'Available' : 'Inactive';
+        
+        // Extract real data from API - using actual fields from the response
+        // The Staff API provides real data for last_login and last_activity
+        // These are the main time-based fields available in the API
+        const lastLogin = staff.last_login || rawData.last_login;
+        const lastActivity = rawData.last_activity;
+        
+        // Calculate time differences for display
+        const formatTimeData = (timestamp) => {
+          if (!timestamp) return 'N/A';
+          const date = new Date(timestamp);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+          const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+          
+          if (diffHours > 0) {
+            return `${diffHours}h ${diffMinutes}m ago`;
+          } else if (diffMinutes > 0) {
+            return `${diffMinutes}m ago`;
+          } else {
+            return 'Just now';
+          }
+        };
+        
+        // Use actual API data for these columns
+        const loggedTime = lastLogin ? formatTimeData(lastLogin) : 'Never';
+        const activeTime = lastActivity ? formatTimeData(lastActivity) : 'N/A';
+        
+        // Other fields that may not have time tracking data
+        const productivityScore = staff.productivity_score || rawData.productivity_score || 0;
+        const productiveTime = staff.productive_time || rawData.productive_time || 'N/A';
+        const meetingTime = staff.meeting_time || rawData.meeting_time || 'N/A';
+        const breakTime = staff.break_time || rawData.break_time || 'N/A';
+        const idleTime = staff.idle_time || rawData.idle_time || 'N/A';
+        
+        console.log(`👤 Mapped employee: ${staff.full_name}`, {
+          status: workStatus,
+          isActive: isActive,
+          isLoggedIn: isLoggedIn,
+          lastLogin: lastLogin,
+          lastActivity: lastActivity,
+          loggedTimeFormatted: loggedTime,
+          activeTimeFormatted: activeTime,
+          productivity: productivityScore,
+          staffId: rawData.staffid,
+          statusWork: rawData.status_work
+        });
+
+        return {
+          id: staff.staffid || rawData.staffid || staff.id,
+          name: staff.full_name || `${rawData.firstname || ''} ${rawData.lastname || ''}`.trim(),
+          team: rawData.job_position || staff.department_name || staff.organization || 'No Organization',
+          status: workStatus,
+          designation: staff.role || rawData.role || 'Staff',
+          email: staff.email || rawData.email,
+          isOnline: isLoggedIn,
+          lastLogin: staff.last_login || rawData.last_login || 'Never',
+          lastActivity: rawData.last_activity || 'Unknown',
+          staffId: rawData.staff_identifi || 'N/A',
+          hourlyRate: rawData.hourly_rate || 'N/A',
+          // Real-time data from Staff API (showing actual availability)
+          loggedTime: loggedTime,
+          activeTime: activeTime,
+          productivity: productivityScore,
+          productiveTime: productiveTime,
+          meetingTime: meetingTime,
+          breakTime: breakTime,
+          idleTime: idleTime,
+          // Raw timestamps for indicators
+          rawLastLogin: lastLogin,
+          rawLastActivity: lastActivity,
+          // Additional staff information
+          phoneNumber: rawData.phonenumber || 'N/A',
+          workplace: rawData.workplace || 'N/A',
+          statusWork: rawData.status_work || 'unknown',
+          dateUpdated: rawData.date_update || 'N/A',
+          originalData: staff,
+          apiNote: 'Staff Management API - Time tracking data may not be available'
+        };
+      });
 
       setEmployeesData(users);
       
@@ -918,17 +1023,14 @@ const QuickView = () => {
             <Table>
               <thead>
                 <tr>
-                  <TableHeader theme={theme}>STATUS</TableHeader>
-                  <TableHeader theme={theme}>EMPLOYEE NAME ↑</TableHeader>
-                  <TableHeader theme={theme}>LOGGED TIME ⓘ</TableHeader>
-                  <TableHeader theme={theme}>ACTIVE TIME ⓘ</TableHeader>
+                  <TableHeader theme={theme}>STAFF ID</TableHeader>
+                  <TableHeader theme={theme}>EMPLOYEE NAME </TableHeader>
+                  <TableHeader theme={theme}>LOGIN TIME </TableHeader>
+                  <TableHeader theme={theme}>LAST ACTIVITY </TableHeader>
                   <TableHeader theme={theme}>PRODUCTIVE</TableHeader>
-                  <TableHeader theme={theme}>DISTRACTION</TableHeader>
-                  <TableHeader theme={theme}>NEUTRAL</TableHeader>
                   <TableHeader theme={theme}>MEETING</TableHeader>
                   <TableHeader theme={theme}>BREAK</TableHeader>
-                  <TableHeader theme={theme}>IDLE ⓘ</TableHeader>
-                  <TableHeader theme={theme}>OFFLINE</TableHeader>
+                  <TableHeader theme={theme}>IDLE </TableHeader>
                 </tr>
               </thead>
               <tbody>
@@ -936,22 +1038,26 @@ const QuickView = () => {
                   paginatedEmployees.map((employee) => (
                     <TableRow key={employee.id} theme={theme}>
                       <TableCell theme={theme}>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px'}}>
                           <div style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            background: employee.status === 'Active' ? '#22c55e' : '#6b7280',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white'
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            color: theme.colors.primary,
+                            textAlign: 'left'
                           }}>
-                            {employee.status === 'Active' ? '✓' : '○'}
+                            {employee.staffId || 'N/A'}
                           </div>
-                          <span style={{fontWeight: 600, fontSize: '12px', textTransform: 'uppercase'}}>
-                            {employee.status === 'Active' ? 'AT WORK' : 'OFF'}
-                          </span>
+                          <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+                            <div style={{
+                              width: '12px',
+                              height: '12px',
+                              borderRadius: '50%',
+                              background: employee.status === 'Active' ? '#22c55e' : '#6b7280'
+                            }}></div>
+                            <span style={{fontSize: '10px', color: theme.colors.text.secondary}}>
+                              {employee.status === 'Active' ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell theme={theme}>
@@ -962,17 +1068,33 @@ const QuickView = () => {
                       </TableCell>
                       <TableCell theme={theme}>
                         <div style={{fontWeight: 600, color: '#3b82f6'}}>
-                          {employee.loggedTime || '2h 30m'}
+                          {employee.loggedTime}
+                          {employee.rawLastLogin && (
+                            <div style={{fontSize: '10px', color: '#10b981', marginTop: '2px'}}>
+                            
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell theme={theme}>
                         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'}}>
-                          <div style={{fontWeight: 600}}>{employee.activeTime || '2h 27m'}</div>
+                          <div style={{fontWeight: 600}}>
+                            {employee.activeTime === 'N/A' ? (
+                              <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
+                            ) : (
+                              employee.activeTime
+                            )}
+                            {employee.rawLastActivity && (
+                              <div style={{fontSize: '10px', color: '#10b981', marginTop: '2px'}}>
+                              
+                              </div>
+                            )}
+                          </div>
                           <div style={{
                             width: '40px',
                             height: '40px',
                             borderRadius: '50%',
-                            border: `3px solid ${employee.productivity >= 80 ? '#22c55e' : employee.productivity >= 50 ? '#f59e0b' : '#ef4444'}`,
+                            border: `3px solid ${employee.productivity > 0 ? (employee.productivity >= 80 ? '#22c55e' : employee.productivity >= 50 ? '#f59e0b' : '#ef4444') : '#6b7280'}`,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -980,22 +1102,43 @@ const QuickView = () => {
                             fontWeight: 700,
                             color: theme.colors.text.primary
                           }}>
-                            {employee.productivity || 88}%
+                            {employee.productivity > 0 ? `${employee.productivity}%` : ''}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell theme={theme}>{employee.productiveTime || '2h 17m'}</TableCell>
-                      <TableCell theme={theme}>{employee.distractionTime || '0h 0m'}</TableCell>
-                      <TableCell theme={theme}>{employee.neutralTime || '0h 8m'}</TableCell>
-                      <TableCell theme={theme}>{employee.meetingTime || '0h 0m'}</TableCell>
-                      <TableCell theme={theme}>{employee.breakTime || '0h 0m'}</TableCell>
-                      <TableCell theme={theme}>{employee.idleTime || '0h 3m'}</TableCell>
-                      <TableCell theme={theme}>{employee.offlineTime || '0h 0m'}</TableCell>
+                      <TableCell theme={theme}>
+                        {employee.productiveTime === 'N/A' ? (
+                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
+                        ) : (
+                          employee.productiveTime
+                        )}
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        {employee.meetingTime === 'N/A' ? (
+                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
+                        ) : (
+                          employee.meetingTime
+                        )}
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        {employee.breakTime === 'N/A' ? (
+                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
+                        ) : (
+                          employee.breakTime
+                        )}
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        {employee.idleTime === 'N/A' ? (
+                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
+                        ) : (
+                          employee.idleTime
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="11" style={{textAlign: 'center', padding: '40px'}}>
+                    <TableCell theme={theme} colSpan="8" style={{textAlign: 'center', padding: '40px'}}>
                       {loading ? '🔄 Loading users...' : 'No users found.'}
                     </TableCell>
                   </TableRow>

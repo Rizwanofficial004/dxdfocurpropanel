@@ -95,6 +95,24 @@
   border-bottom: 1px solid #dadce0;
   background: #fafafa;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  /* Force remove any red debugging borders */
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.stats-section * {
+  /* Remove red borders from all child elements */
+  border-color: transparent !important;
+  outline-color: transparent !important;
+}
+
+.stats-section,
+.stats-grid,
+.stat-card {
+  /* Specifically target stats elements */
+  border: none !important;
+  outline: none !important;
 }
 
 /* Dark mode stats section */

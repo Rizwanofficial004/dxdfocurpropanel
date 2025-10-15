@@ -507,12 +507,6 @@ const QuickView = () => {
                       <TableHeader>{t('loggedTime').toUpperCase()} ⓘ</TableHeader>
                       <TableHeader>{t('activeTime').toUpperCase()} ⓘ</TableHeader>
                       <TableHeader>{t('productive').toUpperCase()}</TableHeader>
-                      <TableHeader>{t('distraction').toUpperCase()}</TableHeader>
-                      <TableHeader>{t('neutral').toUpperCase()}</TableHeader>
-                      <TableHeader>{t('meeting').toUpperCase()}</TableHeader>
-                      <TableHeader>{t('break').toUpperCase()}</TableHeader>
-                      <TableHeader>{t('idle').toUpperCase()} ⓘ</TableHeader>
-                      <TableHeader>{t('offline').toUpperCase()}</TableHeader>
                     </tr>
                   </thead>
                   <tbody>
@@ -547,27 +541,6 @@ const QuickView = () => {
                             </ProgressBar>
                             <TimeCell>{employee.activeTime}</TimeCell>
                           </ProgressCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.activeTime}</TimeCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.distraction}</TimeCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.neutral}</TimeCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.meeting}</TimeCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.break}</TimeCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.idle}</TimeCell>
-                        </TableCell>
-                        <TableCell>
-                          <TimeCell>{employee.offline}</TimeCell>
                         </TableCell>
                       </TableRow>
                     ))}

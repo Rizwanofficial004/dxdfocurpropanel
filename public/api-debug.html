@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .console {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            min-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .info { color: #2196f3; }
+        .warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 API Debug Test Tool</h1>
+        <p>This tool tests the users search API endpoints to diagnose connection issues.</p>
+        
+        <button class="test-button" onclick="runAllTests()">🚀 Run All API Tests</button>
+        <button class="test-button" onclick="testProxyEndpoint()">📡 Test Proxy Endpoint</button>
+        <button class="test-button" onclick="testDirectEndpoint()">🔗 Test Direct Endpoint</button>
+        <button class="test-button" onclick="testProductionEndpoint()">🌐 Test Production Endpoint</button>
+        <button class="test-button" onclick="clearConsole()">🧹 Clear Console</button>
+        
+        <div id="console" class="console">
+            <span class="info">🔧 API Debug Console Ready...</span>
+            <span class="info">Click "Run All API Tests" to start debugging</span>
+        </div>
+    </div>
+
+    <script>
+        const consoleDiv = document.getElementById('console');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = `[${timestamp}] ${message}`;
+            consoleDiv.appendChild(span);
+            consoleDiv.appendChild(document.createTextNode('\n'));
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        function clearConsole() {
+            consoleDiv.innerHTML = '<span class="info">🧹 Console cleared...</span>\n';
+        }
+        
+        async function testProxyEndpoint() {
+            log('🔍 Testing proxy endpoint: /api/users/search/', 'info');
+            
+            try {
+                const response = await fetch('/api/users/search/?start_date=2025-09-01&end_date=2025-09-01&q=nawaz', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log(`✅ Proxy Response Status: ${response.status}`, 'success');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Proxy Response Data: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Proxy Error Response: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Proxy Test Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDirectEndpoint() {
+            log('🔍 Testing direct localhost endpoint: http://127.0.0.1:8000/api/users/search/', 'info');
+            
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/users/search/?start_date=2025-09-01&end_date=2025-09-01&q=nawaz', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log(`✅ Direct Response Status: ${response.status}`, 'success');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Direct Response Data: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Direct Error Response: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Direct Test Error: ${error.message}`, 'error');
+                log(`💡 This usually means the backend server at http://127.0.0.1:8000 is not running`, 'warning');
+            }
+        }
+        
+        async function testProductionEndpoint() {
+            log('🔍 Testing production endpoint via proxy: /api/users/s3-suggestions/', 'info');
+            
+            try {
+                const response = await fetch('/api/users/s3-suggestions/?q=nawaz&limit=10', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log(`✅ Production Response Status: ${response.status}`, 'success');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Production Response Data: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Production Error Response: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Production Test Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function runAllTests() {
+            log('🚀 Starting comprehensive API test...', 'info');
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+            
+            await testProxyEndpoint();
+            
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+            
+            await testDirectEndpoint();
+            
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+            
+            await testProductionEndpoint();
+            
+            log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
+            log('🏁 All tests completed!', 'success');
+            
+            // Summary
+            setTimeout(() => {
+                log('📋 SUMMARY:', 'info');
+                log('If you see successful responses above, the API is working correctly.', 'info');
+                log('If you see errors, check that your backend server is running on port 8000.', 'warning');
+                log('You can now go back to the main application and try searching for "nawaz" again.', 'info');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

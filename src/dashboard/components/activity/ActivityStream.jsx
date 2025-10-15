@@ -123,6 +123,7 @@ const ActivityStream = () => {
   const [searchPerformance, setSearchPerformance] = useState(null); // Track search speed
   const [apiStatus, setApiStatus] = useState('unknown'); // 'connected', 'disconnected', 'error', 'unknown'
   const [error, setError] = useState(null); // General error state
+  const [lastRequestId, setLastRequestId] = useState(null); // Track latest request to prevent race conditions
   const [selectedUser, setSelectedUser] = useState(null);
   const [userScreenshots, setUserScreenshots] = useState([]);
   const [isLoadingScreenshots, setIsLoadingScreenshots] = useState(false);
@@ -139,6 +140,8 @@ const ActivityStream = () => {
   const [loadingSuggestions, setLoadingSuggestions] = useState(true); // Loading state for suggestions
   const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
   const [screenshotsPerPage, setScreenshotsPerPage] = useState(50); // Screenshots per page
+  const [allUsersScreenshots, setAllUsersScreenshots] = useState([]); // Store screenshots for all users
+  const [isLoadingAllScreenshots, setIsLoadingAllScreenshots] = useState(false); // Loading state for all screenshots
   const searchContainerRef = useRef(null);
   const dateScrollRef = useRef(null);
 
@@ -146,6 +149,311 @@ const ActivityStream = () => {
     value: i + 1,
     label: getMonthName(i + 1, language)
   }));
+
+  // Enhanced API-based user search function with better error handling and retry logic
+  const searchUsersFromAPI = async (query = '', limit = 10, offset = 0, retryCount = 0, startDate = null, endDate = null) => {
+    setIsSearching(true);
+    setError(null);
+    
+    // Create unique request ID to prevent race conditions
+    const requestId = Date.now() + '-' + Math.random();
+    setLastRequestId(requestId);
+    
+    const maxRetries = 2; // Allow up to 2 retries
+    
+    try {
+      if (!query || query.trim().length === 0) {
+        // For empty queries, we should still search the API to get all users
+        console.log('🔍 Empty query - searching for all users with screenshots');
+        query = 'a'; // Use a common letter that will match many users
+      }
+      
+      // Build URL with date range parameters
+      const searchParams = new URLSearchParams({
+        q: encodeURIComponent(query.trim()),
+        limit: limit.toString(),
+        offset: offset.toString()
+      });
+      
+      // Add date range if provided
+      if (startDate && endDate) {
+        searchParams.append('start_date', startDate);
+        searchParams.append('end_date', endDate);
+        console.log('📅 Using custom date range:', { startDate, endDate });
+      } else if (startDate === null && endDate === null) {
+        // No date filtering - search all time
+        console.log('🌐 Searching all time periods');
+      } else {
+        // Use selected month/year for date range
+        const year = selectedYear;
+        const month = selectedMonth;
+        const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
+        const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
+        searchParams.append('start_date', startOfMonth);
+        searchParams.append('end_date', endOfMonth);
+        console.log('📅 Using month range:', { startOfMonth, endOfMonth });
+      }
+      
+      // Use the main working API endpoint
+      const apiUrl = `http://localhost:8000/api/users/search/?${searchParams.toString()}`;
+      
+      console.log('🔍 API Request:', apiUrl);
+      console.log('📅 Search Parameters:', Object.fromEntries(searchParams));
+      
+      // Make the API request
+      const fetchPromise = fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout after 120 seconds')), 120000);
+      });
+      
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      
+      console.log('📡 API Response Status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📊 API Response Data:', data);
+      
+      // Handle different API response formats
+      let users = [];
+      
+      if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
+        users = data.data.users;
+      } else if (data.users && Array.isArray(data.users)) {
+        // Direct users array
+        users = data.users;
+      } else if (Array.isArray(data)) {
+        // Response is directly an array of users
+        users = data;
+      } else {
+        console.log('❌ Unexpected API response format:', data);
+      }
+      
+      if (users.length > 0) {
+        // Map and process users - Filter to only show users with screenshots
+        const formattedUsers = users
+          .filter(user => {
+            // Only include users who have screenshots
+            const hasScreenshots = (user.total_screenshots && user.total_screenshots > 0) || 
+                                  (user.recent_screenshots && user.recent_screenshots.length > 0) ||
+                                  (user.grouped_screenshots && Object.keys(user.grouped_screenshots).length > 0);
+            
+            if (hasScreenshots) {
+              console.log(`✅ User ${user.display_name || user.email} has ${user.total_screenshots || 0} screenshots - INCLUDED`);
+            } else {
+              console.log(`❌ User ${user.display_name || user.email} has no screenshots - EXCLUDED`);
+            }
+            
+            return hasScreenshots;
+          })
+          .map(user => ({
+          id: user.email || user.id,
+          email: user.email,
+          display_name: user.display_name || user.email || user.original_name,
+          original_name: user.original_name || user.email,
+          total_screenshots: user.total_screenshots || 0,
+          total_size_mb: user.total_size_mb || 0,
+          active_days_count: user.active_days_count || 0,
+          active_months_count: user.active_months_count || 0,
+          first_activity: user.first_activity,
+          last_activity: user.last_activity,
+          status: user.status || 'active',
+          // Handle grouped_screenshots - might be string or object
+          grouped_screenshots: typeof user.grouped_screenshots === 'string' 
+            ? {} 
+            : (user.grouped_screenshots || {}),
+          // Handle recent_screenshots - might be string or array
+          recent_screenshots: Array.isArray(user.recent_screenshots) 
+            ? user.recent_screenshots 
+            : [],
+          folders: user.folders || [],
+          activity_summary: typeof user.activity_summary === 'string' 
+            ? {} 
+            : (user.activity_summary || {}),
+          // Additional fields from API
+          match_reason: user.match_reason,
+          search_score: user.search_score,
+          match_reasons: user.match_reasons
+        }));
+        
+        console.log(`✅ Found ${formattedUsers.length} users with screenshots for query "${query}" (filtered from ${users.length} total users)`);
+        console.log('👤 Users with screenshots:', formattedUsers.map(u => `${u.display_name} (${u.total_screenshots} screenshots)`));
+        
+        // IMPORTANT: Only update if this is still the most recent request (prevent race conditions)
+        setLastRequestId(currentLatestId => {
+          if (currentLatestId === requestId) {
+            // Our request is still the latest, update the UI
+            setSearchResults(formattedUsers);
+            setApiStatus('connected');
+            setShowResults(true);
+            setIsSearching(false);
+            setError(null);
+          }
+          return currentLatestId;
+        });
+        
+        return formattedUsers;
+      } else {
+        console.log('⚠️ API returned empty users array');
+        setLastRequestId(currentLatestId => {
+          if (currentLatestId === requestId) {
+            setSearchResults([]);
+            setApiStatus('connected');
+            setIsSearching(false);
+            setError(`No users with screenshots found for "${query}"`);
+          }
+          return currentLatestId;
+        });
+        return [];
+      }
+      
+    } catch (error) {
+      console.error('❌ Error fetching users:', error);
+      
+      // Check if our request is still the latest one before updating state
+      setLastRequestId(currentLatestId => {
+        if (currentLatestId === requestId) {
+          // Retry logic for timeout and network errors
+          if ((error.message.includes('timeout') || error.message.includes('Failed to fetch')) && retryCount < maxRetries) {
+            console.log(`🔄 Retrying search... Attempt ${retryCount + 1} of ${maxRetries}`);
+            // Retry after a brief delay
+            setTimeout(() => {
+              searchUsersFromAPI(query, limit, offset, retryCount + 1, startDate, endDate);
+            }, 1000 * (retryCount + 1)); // Exponential backoff: 1s, 2s, 3s
+            return currentLatestId;
+          }
+          
+          setApiStatus('disconnected');
+          
+          // Provide specific error messages
+          if (error.message.includes('timeout')) {
+            setError(retryCount > 0 
+              ? `Search timed out after ${retryCount + 1} attempts. Please check your connection.`
+              : 'Search timed out. Please try again or check your connection.'
+            );
+          } else if (error.name === 'AbortError') {
+            setError('Search was cancelled. Please try again.');
+          } else if (error.message.includes('Failed to fetch')) {
+            setError('Cannot connect to server. Please ensure the backend is running on http://localhost:8000');
+          } else {
+            setError(`Network Error: ${error.message}`);
+          }
+          
+          setSearchResults([]);
+          setIsSearching(false);
+        }
+        return currentLatestId;
+      });
+    }
+  };
+
+  // Function to load user data from API response
+  const loadUserFromApiResponse = (apiResponseData) => {
+    try {
+      if (apiResponseData && apiResponseData.data && apiResponseData.data.users && apiResponseData.data.users.length > 0) {
+        const user = apiResponseData.data.users[0]; // Get the first user
+        
+        // Set the selected user
+        setSelectedUser(user);
+        
+        // Extract and format screenshots from the grouped_screenshots
+        const formattedScreenshots = [];
+        if (user.grouped_screenshots) {
+          Object.keys(user.grouped_screenshots).forEach(date => {
+            const dayData = user.grouped_screenshots[date];
+            if (dayData.screenshots) {
+              dayData.screenshots.forEach(screenshot => {
+                formattedScreenshots.push({
+                  id: screenshot.filename,
+                  filename: screenshot.filename,
+                  screenshot_url: screenshot.screenshot_url,
+                  thumbnail_url: screenshot.thumbnail_url,
+                  timestamp: screenshot.datetime,
+                  date: screenshot.date,
+                  time: screenshot.time,
+                  size_mb: screenshot.size_mb,
+                  size_bytes: screenshot.size_bytes,
+                  activity_type: 'ACTIVE', // Default to active
+                  folder: screenshot.subfolder_path,
+                  full_key: screenshot.full_key
+                });
+              });
+            }
+          });
+        }
+        
+        // Also use recent_screenshots if available
+        if (user.recent_screenshots && user.recent_screenshots.length > 0) {
+          user.recent_screenshots.forEach(screenshot => {
+            // Avoid duplicates
+            if (!formattedScreenshots.find(s => s.filename === screenshot.filename)) {
+              formattedScreenshots.push({
+                id: screenshot.filename,
+                filename: screenshot.filename,
+                screenshot_url: screenshot.screenshot_url,
+                thumbnail_url: screenshot.thumbnail_url,
+                timestamp: screenshot.datetime,
+                date: screenshot.date,
+                time: screenshot.time,
+                size_mb: screenshot.size_mb,
+                size_bytes: screenshot.size_bytes,
+                activity_type: 'ACTIVE',
+                folder: screenshot.subfolder_path,
+                full_key: screenshot.full_key
+              });
+            }
+          });
+        }
+        
+        // Sort screenshots by timestamp (newest first)
+        formattedScreenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        
+        // Update state
+        setUserScreenshots(formattedScreenshots);
+        setTotalScreenshots(user.total_screenshots || formattedScreenshots.length);
+        setAllScreenshots(formattedScreenshots);
+        setCurrentPage(1);
+        setIsLoadingScreenshots(false);
+        setScreenshotError(null);
+        
+        // Add user to allUsers array if not already present
+        setAllUsers(prevUsers => {
+          const existingUserIndex = prevUsers.findIndex(u => u.email === user.email);
+          if (existingUserIndex >= 0) {
+            // Update existing user
+            const updatedUsers = [...prevUsers];
+            updatedUsers[existingUserIndex] = user;
+            return updatedUsers;
+          } else {
+            // Add new user
+            return [...prevUsers, user];
+          }
+        });
+        
+        // Clear search to focus on selected user
+        setSearchValue(user.display_name || user.email);
+        setShowResults(false);
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('❌ Error loading user from API response:', error);
+      setScreenshotError('Failed to load user data');
+      return false;
+    }
+  };
 
   // Advanced preload with predictive caching and background prefetching
   const preloadCommonUsers = async () => {
@@ -155,7 +463,6 @@ const ActivityStream = () => {
       const allLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
       const apiEndpoint = `${apiBaseURL}/users/search/`;
       
-      console.log('🚀 Starting comprehensive preload with API:', apiEndpoint);
       
       // Parallel batch processing for maximum speed
       const batchSize = 5;
@@ -191,11 +498,9 @@ const ActivityStream = () => {
                   
                   return newCache;
                 });
-                console.log(`🎯 Preloaded ${data.data.users.length} users for "${letter}"`);
               }
             }
           } catch (error) {
-            console.log(`Failed to preload "${letter}"`);
           }
         });
 
@@ -207,39 +512,104 @@ const ActivityStream = () => {
         }
       }
       
-      console.log('� Comprehensive preload complete - Search is now INSTANT!');
       
     } catch (error) {
-      console.log('Failed to preload users');
     }
   };
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
+    console.log('🚀 Component mounted - setting up initial load timer');
+    
+    // Failsafe timer to ensure component always shows
+    const failsafeTimer = setTimeout(() => {
+      console.log('🚨 Failsafe timer - forcing isLoading to false');
       setIsLoading(false);
+    }, 1000);
+    
+    const timer = setTimeout(async () => {
+      console.log('⏰ Timer fired - setting isLoading to false');
+      setIsLoading(false);
+      clearTimeout(failsafeTimer); // Clear failsafe since we succeeded
       
-      // Load all users first
-      await fetchAllUsers();
-      
-      // Load user suggestions for default display
-      setLoadingSuggestions(true);
-      const suggestions = await fetchUserSuggestions();
-      setUserSuggestions(suggestions);
-      setLoadingSuggestions(false);
-      
-      // Show suggestions by default if no search results
-      if (!showResults) {
-        setSearchResults(suggestions);
-        setShowResults(true);
+      // Load all users on startup using the simple fetchAllUsers function
+      try {
+        console.log('🚀 Loading all users on startup...');
+        const users = await fetchAllUsers();
+        
+        if (users && users.length > 0) {
+          console.log(`✅ Loaded ${users.length} users with screenshots successfully`);
+          // Set all users and show them by default
+          setAllUsers(users);
+          setSearchResults(users);
+          setShowResults(true); // Show dropdown by default with all users
+          setError(null);
+          
+          // Immediately show results in dropdown
+          setTimeout(() => {
+            console.log('📋 Auto-showing user dropdown with', users.length, 'users with screenshots');
+            setShowResults(true);
+          }, 100); // Reduced delay for faster appearance
+          
+          // Also set search results immediately so they show in dropdown
+          setSearchResults(users);
+        } else {
+          console.log('⚠️ No users with screenshots found from fetchAllUsers');
+          // Try a search with no query to get all users with screenshots
+          console.log('🔍 Trying fallback search to find users with screenshots...');
+          const fallbackUsers = await searchUsersFromAPI('', 100, 0, 0, null, null);
+          if (fallbackUsers && fallbackUsers.length > 0) {
+            console.log(`✅ Found ${fallbackUsers.length} users with screenshots via fallback search`);
+            setAllUsers(fallbackUsers);
+            setSearchResults(fallbackUsers);
+            setShowResults(true);
+            setError(null);
+          } else {
+            console.log('❌ No users with screenshots found in the system');
+            // Try known working search queries to test API
+            console.log('🧪 Testing with known queries...');
+            const testQueries = ['nawaz', 'a', 'admin'];
+            
+            for (const testQuery of testQueries) {
+              console.log(`🔍 Testing search with query: "${testQuery}"`);
+              const testResults = await searchUsersFromAPI(testQuery, 10, 0, 0, null, null);
+              if (testResults && testResults.length > 0) {
+                console.log(`✅ Found ${testResults.length} users with screenshots using query "${testQuery}"`);
+                setAllUsers(testResults);
+                setSearchResults(testResults);
+                setShowResults(true);
+                setError(null);
+                break;
+              }
+            }
+            
+            // If still no results, show helpful error
+            if (!allUsers || allUsers.length === 0) {
+              setError('No users with screenshots found. Please ensure users have uploaded screenshots for the current month.');
+              setAllUsers([]);
+              setSearchResults([]);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error loading users on startup:', error);
+        // Show error but still try to make search available
+        setError('Failed to load users. You can still search manually.');
       }
-
-      // Preload common search results for faster search - do this after users are loaded
-      setTimeout(() => {
-        preloadCommonUsers();
-      }, 1000);
-    }, 100);
-    return () => clearTimeout(timer);
+    }, 10);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(failsafeTimer);
+    };
   }, []);
+
+  // Auto-show dropdown when users are loaded
+  useEffect(() => {
+    if (allUsers.length > 0 && !searchValue) {
+      console.log('👥 Users loaded - ensuring dropdown is visible with', allUsers.length, 'users');
+      setSearchResults(allUsers);
+      setShowResults(true);
+    }
+  }, [allUsers]);
 
   // Track theme changes
   useEffect(() => {
@@ -282,397 +652,154 @@ const ActivityStream = () => {
     return () => document.removeEventListener('click', onDocClick);
   }, [showHelp]);
 
-  
+  // Close search dropdown when clicking outside
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (showResults && searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [showResults]);
 
-  
+  // Auto-refresh screenshots when date/month changes for dynamic date-wise loading
+  useEffect(() => {
+    if (selectedUser && selectedUser.email) {
+      // Clear current screenshots before fetching new ones
+      setUserScreenshots([]);
+      setCurrentPage(1); // Reset to first page
+      // Fetch screenshots for the new date
+      fetchUserScreenshots(selectedUser, null, 1);
+    }
+    
+    // Also refresh all users' screenshots when date changes
+    if (allUsers.length > 0) {
+      fetchAllUsersScreenshots();
+    }
+  }, [selectedYear, selectedMonth]); // Dependency on date changes
+
+  // Auto-refresh user search results when API connectivity changes
+  useEffect(() => {
+    if (searchValue && searchValue.length > 0) {
+      // Calculate current month date range
+      const year = selectedYear;
+      const month = selectedMonth;
+      const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
+      const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
+      
+      searchUsersFromAPI(searchValue, 10, 0, 0, startOfMonth, endOfMonth);
+    }
+  }, [selectedYear, selectedMonth]); // Refresh search when date changes too
 
   const fetchAllUsers = async () => {
     setError(null);
     try {
-      const apiBaseURL = getApiBaseURL();
-      console.log('🌐 Using API base URL:', apiBaseURL);
+      console.log('🔍 Fetching all users with screenshots...');
       
-      // Try a simpler API call that's more likely to work
-      const response = await fetch(`${apiBaseURL}/users/search/?q=*&page=1&page_size=200`, {
+      // Use searchUsersFromAPI with a common query to get users
+      const users = await searchUsersFromAPI('a', 100, 0, 0, null, null);
+      
+      if (users && users.length > 0) {
+        console.log(`✅ Found ${users.length} users with screenshots`);
+        setAllUsers(users);
+        setApiStatus('connected');
+        return users;
+      } else {
+        console.log('❌ No users with screenshots found');
+        setApiStatus('disconnected');
+        setError('No users with screenshots found in the system');
+        return [];
+      }
+    } catch (error) {
+      console.error('❌ Error fetching all users:', error);
+      setApiStatus('disconnected');
+      setError(`Failed to load users: ${error.message}`);
+      return [];
+    }
+  };
+
+  // Fetch available user suggestions from the search API - Load ALL users on page load
+  const fetchUserSuggestions = async () => {
+    try {
+      
+      // Get current date for API call
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      
+      // Use the proxy-based API endpoint with broad search to get ALL users  
+      const response = await fetch(`/api/users/search/?q=@&page=1&page_size=50`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }
       });
-
+      
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Preloaded users for instant search:', data);
-        if (data.status === 'success' && data.data && data.data.users) {
-          setAllUsers(data.data.users);
-          setApiStatus('connected');
-          console.log(`✅ Preloaded ${data.data.users.length} users for instant search`);
-          
-          // Pre-cache common search prefixes for instant search
-          const prefixes = ['a', 'b', 'c', 'd', 'e', 'h', 'j', 'k', 'm', 'n', 'r', 's', 't'];
-          prefixes.forEach(prefix => {
-            const prefixResults = data.data.users.filter(user => {
-              const displayName = (user.display_name || '').toLowerCase();
-              const email = (user.email || '').toLowerCase();
-              return displayName.startsWith(prefix) || email.startsWith(prefix);
-            });
-            
-            if (prefixResults.length > 0) {
-              setSearchCache(prev => {
-                const newCache = new Map(prev);
-                newCache.set(prefix, prefixResults);
-                return newCache;
-              });
-            }
-          });
-          
-          // Cache common search results for instant responses
-          const commonUsers = data.data.users.slice(0, 20);
-          commonUsers.forEach(user => {
-            const displayName = (user.display_name || '').toLowerCase();
+        
+        if (data.status === 'success' && data.data && data.data.users && data.data.users.length > 0) {
+          // Filter out test/placeholder users
+          const filteredUsers = data.data.users.filter(user => {
             const email = (user.email || '').toLowerCase();
+            const displayName = (user.display_name || '').toLowerCase();
             
-            // Cache by first few characters for instant results
-            if (displayName.length > 0) {
-              for (let i = 1; i <= Math.min(3, displayName.length); i++) {
-                const prefix = displayName.substring(0, i);
-                setSearchCache(prev => {
-                  const newCache = new Map(prev);
-                  const existing = newCache.get(prefix) || [];
-                  if (!existing.find(u => u.id === user.id)) {
-                    newCache.set(prefix, [...existing, user]);
-                  }
-                  return newCache;
-                });
-              }
-            }
+            // List of test/placeholder patterns to exclude
+            const testPatterns = [
+              'atakankahraman35@outlook.com',
+              'batol0786@gmail.com',
+              'test@',
+              'demo@',
+              'sample@',
+              'placeholder@',
+              'dummy@'
+            ];
             
-            if (email.length > 0) {
-              for (let i = 1; i <= Math.min(3, email.length); i++) {
-                const prefix = email.substring(0, i);
-                setSearchCache(prev => {
-                  const newCache = new Map(prev);
-                  const existing = newCache.get(prefix) || [];
-                  if (!existing.find(u => u.id === user.id)) {
-                    newCache.set(prefix, [...existing, user]);
-                  }
-                  return newCache;
-                });
-              }
-            }
-          });
-        } else {
-          console.log('No users in API response');
-          setAllUsers([]);
-        }
-      } else {
-        console.log('API request failed, trying fallback endpoints');
-        
-        // Try alternative endpoints
-        const fallbackEndpoints = [
-          '/users/?page=1&page_size=200',
-          '/employees/',
-          '/users/search/?q=d&page=1&page_size=200'
-        ];
-        
-        let fallbackSuccess = false;
-        for (const endpoint of fallbackEndpoints) {
-          try {
-            console.log(`🔄 Trying fallback endpoint: ${endpoint}`);
-            const fallbackResponse = await fetch(`${apiBaseURL}${endpoint}`, {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            if (fallbackResponse.ok) {
-              const fallbackData = await fallbackResponse.json();
-              console.log(`✅ Fallback endpoint ${endpoint} successful:`, fallbackData);
-              
-              // Process the fallback response
-              let users = [];
-              if (fallbackData.status === 'success' && fallbackData.data) {
-                if (Array.isArray(fallbackData.data)) {
-                  users = fallbackData.data;
-                } else if (fallbackData.data.users) {
-                  users = fallbackData.data.users;
-                }
-              } else if (Array.isArray(fallbackData)) {
-                users = fallbackData;
-              }
-              
-              if (users.length > 0) {
-                setAllUsers(users);
-                setApiStatus('connected');
-                console.log(`✅ Loaded ${users.length} users from fallback`);
-                fallbackSuccess = true;
-                break;
-              }
-            }
-          } catch (fallbackError) {
-            console.warn(`❌ Fallback endpoint ${endpoint} failed:`, fallbackError);
-          }
-        }
-        
-        if (!fallbackSuccess) {
-          setApiStatus('disconnected');
-          setAllUsers([]);
-        }
-      }
-    } catch (error) {
-      console.error('Error preloading users:', error);
-      setApiStatus('error');
-      setAllUsers([]);
-    }
-  };
-
-  // Fetch available user suggestions from the search API with fallback
-  const fetchUserSuggestions = async () => {
-    const apiBaseURL = getApiBaseURL();
-    
-    // Multiple fallback strategies for fetching user suggestions
-    const fallbackEndpoints = [
-      // Try search with common terms first
-      {
-        url: `${apiBaseURL}/users/search/?q=*&page=1&page_size=50`,
-        method: 'search_wildcard'
-      },
-      {
-        url: `${apiBaseURL}/users/search/?q=d&page=1&page_size=50`,
-        method: 'search_common'
-      },
-      // Try basic users endpoint
-      {
-        url: `${apiBaseURL}/users/?page=1&page_size=50`,
-        method: 'users_list'
-      },
-      // Try employees endpoint
-      {
-        url: `${apiBaseURL}/employees/`,
-        method: 'employees_list'
-      },
-      // Try alternative search terms
-      {
-        url: `${apiBaseURL}/users/search/?q=haseeb&page=1&page_size=10`,
-        method: 'search_haseeb'
-      },
-      {
-        url: `${apiBaseURL}/users/search/?q=nawaz&page=1&page_size=10`,
-        method: 'search_nawaz'
-      }
-    ];
-
-    let allSuggestions = [];
-
-    for (const endpoint of fallbackEndpoints) {
-      try {
-        console.log(`Trying user suggestions endpoint: ${endpoint.url} (${endpoint.method})`);
-        
-        const response = await fetch(endpoint.url, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`Success with ${endpoint.method}:`, data);
-          
-          let users = [];
-          
-          // Handle different response structures
-          if (data.status === 'success' && data.data && data.data.users) {
-            users = data.data.users;
-          } else if (data.results) {
-            users = data.results;
-          } else if (Array.isArray(data)) {
-            users = data;
-          } else if (data.users) {
-            users = data.users;
-          }
-          
-          // Process users
-          users.forEach(user => {
-            if (user && user.email && !allSuggestions.find(existing => existing.email === user.email)) {
-              allSuggestions.push({
-                email: user.email,
-                display_name: user.display_name || user.name || user.email,
-                original_name: user.original_name || user.name || user.email,
-                total_screenshots: user.total_screenshots || 0,
-                total_size_mb: user.total_size_mb || 0,
-                active_days_count: user.active_days_count || 0,
-                last_activity: user.last_activity || 'Unknown',
-                status: user.status || 'unknown',
-                suggestion: true // Mark as suggestion
-              });
-            }
-          });
-          
-          // If we got enough suggestions, break
-          if (allSuggestions.length >= 6) {
-            break;
-          }
-        } else {
-          console.log(`Failed ${endpoint.method}: ${response.status} ${response.statusText}`);
-        }
-      } catch (error) {
-        console.log(`Error with ${endpoint.method}:`, error.message);
-        continue;
-      }
-    }
-    
-    // Sort by activity (active users first, then by screenshot count)
-    allSuggestions.sort((a, b) => {
-      if (a.status === 'active' && b.status !== 'active') return -1;
-      if (b.status === 'active' && a.status !== 'active') return 1;
-      return (b.total_screenshots || 0) - (a.total_screenshots || 0);
-    });
-    
-    console.log(`Final user suggestions: ${allSuggestions.length} users found`);
-    return allSuggestions.slice(0, 6); // Return top 6 suggestions
-  };
-
-  // Real-time API search for dynamic users with comprehensive fallback
-  const searchUsers = async (query) => {
-    if (!query || query.length < 1) {
-      setSearchResults(allUsers.slice(0, 10));
-      setShowResults(true);
-      setIsSearching(false);
-      return;
-    }
-
-    setError(null); // Clear any previous errors
-    
-    const apiBaseURL = getApiBaseURL();
-    
-    // Multiple fallback strategies for user search
-    const searchEndpoints = [
-      // Primary search endpoint with original query
-      {
-        url: `${apiBaseURL}/users/search/?q=${encodeURIComponent(query)}`,
-        method: 'search_original'
-      },
-      // Search with wildcard if query is short
-      {
-        url: `${apiBaseURL}/users/search/?q=*${encodeURIComponent(query)}*`,
-        method: 'search_wildcard'
-      },
-      // Search with just query without special characters
-      {
-        url: `${apiBaseURL}/users/search/?q=${encodeURIComponent(query.replace(/[^a-zA-Z0-9]/g, ''))}`,
-        method: 'search_alphanumeric'
-      },
-      // Try users list endpoint with filtering
-      {
-        url: `${apiBaseURL}/users/?search=${encodeURIComponent(query)}&page=1&page_size=20`,
-        method: 'users_search'
-      },
-      // Try employees endpoint
-      {
-        url: `${apiBaseURL}/employees/?search=${encodeURIComponent(query)}`,
-        method: 'employees_search'
-      },
-      // Last resort - get all users and filter locally
-      {
-        url: `${apiBaseURL}/users/?page=1&page_size=100`,
-        method: 'users_all_filter'
-      }
-    ];
-
-    let foundResults = [];
-    let successfulEndpoint = null;
-
-    for (const endpoint of searchEndpoints) {
-      try {
-        console.log(`🔍 Trying search endpoint: ${endpoint.url} (${endpoint.method})`);
-        
-        const response = await fetch(endpoint.url, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000 // 10 second timeout
-        });
-
-        console.log(`📡 Response status for ${endpoint.method}:`, response.status, response.statusText);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`🎯 Raw API Response for ${endpoint.method}:`, data);
-          
-          let users = [];
-          
-          // Handle different response structures
-          if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
-            users = data.data.users;
-          } else if (data.results && Array.isArray(data.results)) {
-            users = data.results;
-          } else if (Array.isArray(data)) {
-            users = data;
-          } else if (data.users && Array.isArray(data.users)) {
-            users = data.users;
-          }
-          
-          // If this is the "all users" endpoint, filter locally
-          if (endpoint.method === 'users_all_filter' && users.length > 0) {
-            const queryLower = query.toLowerCase();
-            users = users.filter(user => 
-              (user.email && user.email.toLowerCase().includes(queryLower)) ||
-              (user.display_name && user.display_name.toLowerCase().includes(queryLower)) ||
-              (user.original_name && user.original_name.toLowerCase().includes(queryLower)) ||
-              (user.name && user.name.toLowerCase().includes(queryLower))
+            // Check if user matches any test pattern
+            return !testPatterns.some(pattern => 
+              email.includes(pattern.toLowerCase()) || 
+              displayName.includes(pattern.toLowerCase())
             );
-          }
+          });
           
-          if (users.length > 0) {
-            console.log(`✅ Found ${users.length} users with ${endpoint.method} for "${query}":`, 
-              users.map(u => u.display_name || u.email || u.name));
-            
-            foundResults = users;
-            successfulEndpoint = endpoint.method;
-            break; // Success! Use these results
-          }
-        } else {
-          console.log(`❌ ${endpoint.method} failed with status:`, response.status);
+          const users = filteredUsers.map(user => ({
+            id: user.email,
+            email: user.email,
+            display_name: user.display_name || user.name || user.email,
+            original_name: user.original_name || user.name || user.email,
+            total_screenshots: user.total_screenshots || 0,
+            total_size_mb: user.total_size_mb || 0,
+            active_days_count: user.active_days_count || 0,
+            last_activity: user.last_activity || 'Unknown',
+            status: user.status || 'active',
+            suggestion: true,
+            grouped_screenshots: user.grouped_screenshots || {},
+            recent_screenshots: user.recent_screenshots || []
+          }));
+          
+          // Sort by screenshot count (most active users first)
+          users.sort((a, b) => {
+            if (a.status === 'active' && b.status !== 'active') return -1;
+            if (b.status === 'active' && a.status !== 'active') return 1;
+            return (b.total_screenshots || 0) - (a.total_screenshots || 0);
+          });
+          
+          return users;
         }
-      } catch (error) {
-        console.log(`🚨 Error with ${endpoint.method}:`, error.message);
-        continue;
       }
+      
+      
+    } catch (error) {
+      console.error('❌ Error fetching user suggestions:', error);
     }
 
-    // Process final results
-    if (foundResults.length > 0) {
-      setSearchResults(foundResults);
-      setShowResults(true);
-      setApiStatus('connected');
-      
-      // Cache results for instant next time
-      setSearchCache(prev => {
-        const newCache = new Map(prev);
-        newCache.set(query.toLowerCase(), foundResults);
-        return newCache;
-      });
-      
-      console.log(`🎉 Successfully found ${foundResults.length} users using ${successfulEndpoint}`);
-    } else {
-      console.log('❌ No users found with any search method for:', query);
-      setSearchResults([]);
-      setShowResults(true);
-      setApiStatus('connected'); // API might be working but no results
-      setError(`No users found for "${query}". Try searching for different terms or check if the user exists.`);
-    }
-    
-    setIsSearching(false);
+    // Fallback: return empty array instead of placeholder
+    return [];
   };
 
-  // Fetch user screenshots function with enhanced date filtering and pagination
+  // Removed old complex search functions - now using simplified API-based search
+  // Enhanced fetch user screenshots function with local API support and better date filtering
   const fetchUserScreenshots = async (user, specificDate = null, page = 1) => {
     setIsLoadingScreenshots(true);
     setScreenshotError(null);
@@ -690,48 +817,67 @@ const ActivityStream = () => {
         page_size: screenshotsPerPage.toString()
       });
 
-      // Add date filtering - use current month/year by default or specific date
+      // Enhanced date filtering - use current month/year by default or specific date
       if (specificDate) {
         const dateStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${specificDate.toString().padStart(2, '0')}`;
         searchParams.set('start_date', dateStr);
         searchParams.set('end_date', dateStr);
       } else {
-        // Use current selected month
+        // Use current selected month for dynamic date-wise filtering
         const startDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`;
         const endDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${getDaysInMonth(selectedYear, selectedMonth).toString().padStart(2, '0')}`;
         searchParams.set('start_date', startDate);
         searchParams.set('end_date', endDate);
       }
 
-      const apiUrl = `${apiBaseURL}/users/screenshots/?${searchParams.toString()}`;
-      console.log(`📸 Fetching screenshots from API: ${apiUrl}`);
-      console.log(`📸 Request parameters:`, Object.fromEntries(searchParams));
+      // Try local API first, then fallback to production
+      const screenshotEndpoints = [
+        // Priority 1: Local API screenshots endpoint (via proxy)
+        `/api/users/screenshots/?${searchParams.toString()}`,
+        // Priority 2: Production API screenshots endpoint (via proxy)
+        `/api/users/screenshots/?${searchParams.toString()}`,
+        // Priority 3: Alternative live tracking endpoint (via proxy)
+        `/api/live-tracking/screenshots/?${searchParams.toString()}`
+      ];
+
+      let response = null;
+      let successfulUrl = null;
+
+      for (const apiUrl of screenshotEndpoints) {
+        try {
+          response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            timeout: 15000 // 15 second timeout for screenshots
+          });
+          
+          if (response.ok) {
+            successfulUrl = apiUrl;
+            break;
+          }
+        } catch (err) {
+          continue;
+        }
+      }
+
+      if (!response || !response.ok) {
+        throw new Error(`All screenshot API endpoints failed. Last status: ${response?.status || 'No response'}`);
+      }
       
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        timeout: 15000 // 15 second timeout for screenshots
-      });
       
-      if (response.ok) {
-        console.log(`✅ Successfully connected to API for page ${page}`);
-        setApiStatus('connected');
-        
-        const data = await response.json();
-        console.log('📸 Complete API Response for page', page, ':', data);
-        console.log('📸 API Pagination:', data.data?.pagination);
-        console.log('📸 Screenshots count in response:', data.data?.screenshots?.length);
-        
-        if (data.status === 'success' && data.data) {
-          let screenshots = [];
-          const activityDates = new Set();
+      setApiStatus('connected');
+      
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.data) {
+        let screenshots = [];
+        const activityDates = new Set();
           
           // Handle the new API response structure
           if (data.data.screenshots && Array.isArray(data.data.screenshots)) {
-            console.log(`📸 Processing ${data.data.screenshots.length} screenshots from new API`);
             
             screenshots = data.data.screenshots.map((screenshot, index) => ({
               ...screenshot,
@@ -776,10 +922,8 @@ const ActivityStream = () => {
           
           // Handle pagination from API response (supports both page-based and offset-based)
           const pagination = data.data.pagination;
-          console.log('📸 Pagination data from API:', pagination);
           
           if (pagination && pagination.total_screenshots) {
-            console.log('📸 Processing pagination data - total:', pagination.total_screenshots, 'page:', pagination.page);
             
             // Batch state updates to avoid race conditions
             const updates = {};
@@ -798,33 +942,27 @@ const ActivityStream = () => {
             
             // Handle screenshots data
             if (page === 1) {
-              console.log('📸 First page - resetting screenshots:', screenshots.length);
               updates.userScreenshots = screenshots;
               updates.allScreenshots = screenshots;
               
               // Only update page size on first load
               const apiPageSize = pagination.page_size || pagination.limit;
               if (apiPageSize && apiPageSize !== screenshotsPerPage) {
-                console.log('📸 Updating page size from', screenshotsPerPage, 'to', apiPageSize);
                 updates.screenshotsPerPage = apiPageSize;
               }
             } else {
-              console.log('📸 Load more - appending screenshots:', screenshots.length);
               // For load more, we need to update the state directly since we can't batch array updates
               setAllScreenshots(prev => {
                 const newData = [...prev, ...screenshots];
-                console.log('📸 Total all screenshots after append:', newData.length);
                 return newData;
               });
               setUserScreenshots(prev => {
                 const newData = [...prev, ...screenshots];
-                console.log('📸 Total user screenshots after append:', newData.length);
                 return newData;
               });
             }
             
             // Apply batch updates
-            console.log('📸 Applying state updates:', updates);
             if (updates.totalScreenshots) setTotalScreenshots(updates.totalScreenshots);
             if (updates.currentPage) setCurrentPage(updates.currentPage);
             if (updates.screenshotsPerPage) setScreenshotsPerPage(updates.screenshotsPerPage);
@@ -832,7 +970,6 @@ const ActivityStream = () => {
             if (updates.allScreenshots) setAllScreenshots(updates.allScreenshots);
             
           } else {
-            console.log('📸 No valid pagination data found, using fallback');
             // Only use fallback for the first page
             if (page === 1) {
               setTotalScreenshots(screenshots.length);
@@ -845,32 +982,18 @@ const ActivityStream = () => {
           
           if (screenshots.length > 0) {
             const currentOffset = (page - 1) * screenshotsPerPage;
-            console.log(`📸 Found ${screenshots.length} screenshots starting from offset ${currentOffset}`);
-            console.log(`📸 Total screenshots: ${pagination?.total_screenshots || screenshots.length}`);
-            console.log(`📸 Current page: ${currentPage}, Total pages: ${totalPages}`);
           } else {
-            console.log('📸 No screenshots found for this offset');
             if (page === 1) {
               setUserScreenshots([]);
               setScreenshotError(`No screenshots found for ${user.display_name || user.email} in the selected period.`);
             }
           }
         } else {
-          console.log('� No user data in response');
           setUserScreenshots([]);
           setAllScreenshots([]);
           setTotalScreenshots(0);
           setScreenshotError(`No screenshots available for ${user.display_name || user.email}.`);
         }
-      } else {
-        const errorText = await response.text();
-        console.error(`❌ Screenshot API Error Details:`);
-        console.error(`   Status: ${response.status} - ${response.statusText}`);
-        console.error(`   URL: ${apiUrl}`);
-        console.error(`   Params:`, Object.fromEntries(searchParams));
-        console.error(`   Response: ${errorText}`);
-        throw new Error(`API request failed: ${response.status} - ${response.statusText}. Response: ${errorText}`);
-      }
     } catch (error) {
       console.error('🚨 Screenshot Error:', error);
       setApiStatus('error');
@@ -883,110 +1006,121 @@ const ActivityStream = () => {
     }
   };
 
-  // INSTANT search with immediate response and better caching
-  useEffect(() => {
-    const trimmedQuery = searchValue.trim();
-    
-    if (!trimmedQuery) {
-      setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers.slice(0, 10));
-      setShowResults(true);
-      setIsSearching(false);
+  // Function to fetch screenshots for all users
+  const fetchAllUsersScreenshots = async () => {
+    if (allUsers.length === 0) {
       return;
     }
 
-    // INSTANT cache check first - no delay
-    const cacheKey = trimmedQuery.toLowerCase();
-    if (searchCache.has(cacheKey)) {
-      console.log(`⚡ INSTANT cached result for: "${trimmedQuery}"`);
-      const cachedResults = searchCache.get(cacheKey);
-      setSearchResults(cachedResults);
-      setShowResults(true);
-      setIsSearching(false);
-      return;
-    }
-
-    // INSTANT local search through loaded users (no delay)
-    if (allUsers.length > 0) {
-      const localResults = allUsers.filter(user => {
-        const displayName = (user.display_name || '').toLowerCase();
-        const email = (user.email || '').toLowerCase();
-        const originalName = (user.original_name || '').toLowerCase();
-        
-        return displayName.includes(cacheKey) || 
-               email.includes(cacheKey) ||
-               originalName.includes(cacheKey);
-      });
-      
-      if (localResults.length > 0) {
-        console.log(`⚡ INSTANT local search found ${localResults.length} results for: "${trimmedQuery}"`);
-        setSearchResults(localResults);
-        setShowResults(true);
-        setIsSearching(false);
-        
-        // Cache local results immediately
-        setSearchCache(prev => {
-          const newCache = new Map(prev);
-          newCache.set(cacheKey, localResults);
-          return newCache;
-        });
-        return;
-      }
-    }
-
-    // Debounced API search only if no local results found
-    const timer = setTimeout(() => {
-      setIsSearching(true);
-      searchUsers(searchValue);
-    }, 300); // Reduced from default to 300ms
-
-    return () => clearTimeout(timer);
-  }, [searchValue, searchCache, allUsers]);
-
-  // INSTANT search input with immediate feedback
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchValue(value);
+    setIsLoadingAllScreenshots(true);
     
-    // Immediate feedback - show results instantly for better UX
-    if (value.trim()) {
-      // Check cache first for instant results
-      const cacheKey = value.trim().toLowerCase();
-      if (searchCache.has(cacheKey)) {
-        setSearchResults(searchCache.get(cacheKey));
-        setShowResults(true);
-        setIsSearching(false);
-        return;
-      }
+    try {
+      const allScreenshotsData = [];
+      const batchSize = 5; // Process 5 users at a time to not overwhelm the server
       
-      // Check local users for instant results
-      if (allUsers.length > 0) {
-        const localResults = allUsers.filter(user => {
-          const searchLower = cacheKey;
-          const displayName = (user.display_name || '').toLowerCase();
-          const email = (user.email || '').toLowerCase();
-          const originalName = (user.original_name || '').toLowerCase();
-          
-          return displayName.includes(searchLower) || 
-                 email.includes(searchLower) ||
-                 originalName.includes(searchLower);
+      for (let i = 0; i < allUsers.length; i += batchSize) {
+        const batch = allUsers.slice(i, i + batchSize);
+        
+        const batchPromises = batch.map(async (user) => {
+          try {
+            const apiUrl = `${getApiBaseURL()}/api/Screenshots/`;
+            const params = new URLSearchParams({
+              user_email: user.email,
+              year: selectedYear.toString(),
+              month: selectedMonth.toString(),
+              page: '1',
+              page_size: '10' // Limit to first 10 screenshots per user for overview
+            });
+            
+            const response = await fetch(`${apiUrl}?${params}`);
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.results && data.results.length > 0) {
+                return {
+                  user: user,
+                  screenshots: data.results.slice(0, 5), // Show max 5 screenshots per user
+                  totalCount: data.count || data.results.length
+                };
+              }
+            }
+            return null;
+          } catch (error) {
+            return null;
+          }
         });
         
-        if (localResults.length > 0) {
-          setSearchResults(localResults);
-          setShowResults(true);
-          setIsSearching(false);
-          return;
+        const batchResults = await Promise.allSettled(batchPromises);
+        const validResults = batchResults
+          .filter(result => result.status === 'fulfilled' && result.value !== null)
+          .map(result => result.value);
+        
+        allScreenshotsData.push(...validResults);
+        
+        // Small delay between batches
+        if (i + batchSize < allUsers.length) {
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
       }
       
-      // Show loading only if no immediate results available
-      setShowResults(true);
-      setIsSearching(true);
+      setAllUsersScreenshots(allScreenshotsData);
+      
+    } catch (error) {
+      console.error('❌ Error fetching all users screenshots:', error);
+    } finally {
+      setIsLoadingAllScreenshots(false);
+    }
+  };
+
+  // Search effect - new implementation with proper API endpoint
+  useEffect(() => {
+    const trimmedQuery = searchValue.trim();
+    
+    if (trimmedQuery.length >= 1) {
+      // Debounce search to avoid too many API calls
+      const timer = setTimeout(() => {
+        console.log('🔍 Initiating search for:', trimmedQuery);
+        
+        // For initial search, try without date restrictions first
+        // This will help us get results even if the specific date range has no data
+        searchUsersFromAPI(trimmedQuery, 10, 0, 0, null, null)
+          .then(results => {
+            if (!results || results.length === 0) {
+              console.log('📅 No results without date filter, trying with current month...');
+              // If no results, try with current month range
+              const year = selectedYear;
+              const month = selectedMonth;
+              const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
+              const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
+              
+              return searchUsersFromAPI(trimmedQuery, 10, 0, 0, startOfMonth, endOfMonth);
+            }
+            return results;
+          })
+          .catch(error => {
+            console.error('🚨 Search error:', error);
+          });
+      }, 500);
+      
+      return () => clearTimeout(timer);
     } else {
-      // Show default suggestions when empty
-      setSearchResults(userSuggestions.length > 0 ? userSuggestions : allUsers.slice(0, 10));
+      // When search is empty, show all users
+      setSearchResults(allUsers);
       setShowResults(true);
+      setError(null);
       setIsSearching(false);
+    }
+  }, [searchValue, allUsers, selectedYear, selectedMonth]); // Add selectedYear and selectedMonth as dependencies
+
+  // Enhanced search input handler
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    setShowResults(true);
+    
+    // Show loading state when user starts typing
+    if (value.trim().length >= 1) {
+      setIsSearching(true);
     }
   };
 
@@ -1081,7 +1215,6 @@ const ActivityStream = () => {
             newCache.set(query.toLowerCase(), data.data.users);
             return newCache;
           });
-          console.log(`🔮 Prefetched results for "${query}"`);
         }
       }
     } catch (error) {
@@ -1110,21 +1243,89 @@ const ActivityStream = () => {
 
   // Memoized search results for better performance
   const memoizedSearchResults = useMemo(() => {
-    return searchResults.slice(0, 20); // Limit to first 20 results for better performance
-  }, [searchResults]);
+    // If user is searching (has typed something), show filtered search results
+    // If no search query, show all users by default
+    const trimmedSearchValue = searchValue.trim();
+    
+    console.log('🔄 memoizedSearchResults update:', {
+      trimmedSearchValue,
+      searchResultsLength: searchResults.length,
+      allUsersLength: allUsers.length
+    });
+    
+    if (trimmedSearchValue.length > 0) {
+      // User is actively searching, show search results
+      console.log('📋 Showing search results:', searchResults.length);
+      return searchResults;
+    } else {
+      // No search query, show all users loaded on mount
+      console.log('👥 Showing all users:', allUsers.length);
+      return allUsers;
+    }
+  }, [searchResults, allUsers, searchValue]);
 
   // Memoized result selection handler
   const handleResultSelect = useCallback((user) => {
+    
     setSearchValue(user.display_name || user.email);
     setShowResults(false);
     setSelectedUser(user);
     setUserActivityDates(new Set()); // Reset activity dates
     setActiveDate(null); // Reset active date selection
     setCurrentPage(1); // Reset pagination
-    console.log('Selected user:', user);
     
-    // Fetch screenshots for selected user (full month initially)
-    fetchUserScreenshots(user, null);
+    // Show loading state immediately for better UX
+    setIsLoadingScreenshots(true);
+    setScreenshotError(null);
+    setUserScreenshots([]); // Clear previous screenshots
+    
+    // Scroll to screenshots section after a brief delay
+    setTimeout(() => {
+      const screenshotsSection = document.querySelector('[data-screenshots-section]');
+      if (screenshotsSection) {
+        screenshotsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 500);
+    
+    // Check if this user has existing screenshot data (from API response)
+    if (user.grouped_screenshots && Object.keys(user.grouped_screenshots).length > 0) {
+      
+      // Create a mock API response and load it
+      const mockApiResponse = {
+        status: "success",
+        data: {
+          users: [user]
+        }
+      };
+      
+      loadUserFromApiResponse(mockApiResponse);
+    } else if (user.recent_screenshots && user.recent_screenshots.length > 0) {
+      
+      // Load from recent screenshots
+      const formattedScreenshots = user.recent_screenshots.map(screenshot => ({
+        id: screenshot.filename,
+        filename: screenshot.filename,
+        screenshot_url: screenshot.screenshot_url,
+        thumbnail_url: screenshot.thumbnail_url,
+        timestamp: screenshot.datetime,
+        date: screenshot.date,
+        time: screenshot.time,
+        size_mb: screenshot.size_mb,
+        size_bytes: screenshot.size_bytes,
+        activity_type: 'ACTIVE',
+        folder: screenshot.subfolder_path,
+        full_key: screenshot.full_key
+      }));
+      
+      setUserScreenshots(formattedScreenshots);
+      setTotalScreenshots(user.total_screenshots || formattedScreenshots.length);
+      setAllScreenshots(formattedScreenshots);
+      setIsLoadingScreenshots(false);
+      setScreenshotError(null);
+    } else {
+      // Fetch screenshots for selected user (full month initially)
+      fetchUserScreenshots(user, null);
+    }
   }, [selectedYear, selectedMonth]);
 
   // Generate calendar days for the selected month
@@ -1195,30 +1396,17 @@ const ActivityStream = () => {
   // Load More handler - loads next page and appends to current results
   const handleLoadMore = async () => {
     const nextPage = currentPage + 1;
-    console.log('📸 Load More clicked:', { 
-      currentPage, 
-      nextPage, 
-      totalPages, 
-      totalScreenshots, 
-      screenshotsPerPage,
-      userScreenshotsLength: userScreenshots.length 
-    });
     
     if (selectedUser) {
-      console.log('📸 Attempting to load next page:', nextPage);
       setIsLoadingScreenshots(true);
       
       try {
         // Force load next page regardless of pagination calculations
-        console.log('📸 Calling fetchUserScreenshots for page:', nextPage);
         await fetchUserScreenshots(selectedUser, activeDate, nextPage);
-        console.log('📸 Successfully loaded page:', nextPage);
       } catch (error) {
         console.error('📸 Error loading more screenshots:', error);
         setIsLoadingScreenshots(false);
       }
-    } else {
-      console.log('📸 Cannot load more - no user selected');
     }
   };
 
@@ -1239,7 +1427,6 @@ const ActivityStream = () => {
       
       if (selectedUser) {
         // Fetch screenshots specifically for the selected date
-        console.log(`📅 Selected date: ${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDateStr}`);
         fetchUserScreenshots(selectedUser, day.date);
       }
     }
@@ -1421,41 +1608,71 @@ const ActivityStream = () => {
             isolation: 'isolate'
           }}
         >
-          <SearchInput
-            type="text"
-            placeholder={t('searchEmployeeName')}
-            value={searchValue}
-            onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => setShowResults(true)}
-            style={{
-              transition: 'all 0.2s ease',
-              borderColor: searchValue ? '#4285f4' : undefined,
-              boxShadow: searchValue ? '0 0 0 2px rgba(66, 133, 244, 0.1)' : undefined
-            }}
-          />
-          
-          
-          
-          {/* API Status Indicator */}
-          {apiStatus !== 'unknown' && (
+          <div style={{ position: 'relative' }}>
+            <SearchInput
+              type="text"
+              placeholder="Click to see all users or search by name/email..."
+              value={searchValue}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
+              onFocus={() => {
+                console.log('🎯 Search input focused - showing dropdown');
+                setShowResults(true);
+                
+                // If we have users, show them immediately
+                if (allUsers.length > 0) {
+                  setSearchResults(allUsers);
+                  console.log('📋 Showing', allUsers.length, 'users in dropdown');
+                } else {
+                  // If no users loaded yet, try to load them
+                  console.log('🔄 No users available - loading from API...');
+                  fetchAllUsers().then(users => {
+                    if (users && users.length > 0) {
+                      console.log('✅ Loaded', users.length, 'users and showing in dropdown');
+                      setAllUsers(users);
+                      setSearchResults(users);
+                      setShowResults(true);
+                    } else {
+                      // Try with different search terms if fetchAllUsers fails
+                      console.log('🔍 Trying alternative search...');
+                      searchUsersFromAPI('a', 50, 0, 0, null, null).then(fallbackUsers => {
+                        if (fallbackUsers && fallbackUsers.length > 0) {
+                          console.log('✅ Found', fallbackUsers.length, 'users via fallback search');
+                          setAllUsers(fallbackUsers);
+                          setSearchResults(fallbackUsers);
+                          setShowResults(true);
+                        }
+                      });
+                    }
+                  });
+                }
+              }}
+              style={{ 
+                width: '100%',
+                borderColor: selectedUser ? '#28a745' : undefined,
+                borderWidth: selectedUser ? '2px' : undefined
+              }}
+            />
+            {selectedUser && (
+              <div style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#28a745',
+                fontSize: '18px',
+                pointerEvents: 'none'
+              }}>
+                ✓
+              </div>
+            )}
+          </div>
+
+          {/* Search Results Dropdown */}
+          {showResults && (
             <div style={{
               position: 'absolute',
-              top: '-25px',
-              right: '0',
-              fontSize: '12px',
-              color: apiStatus === 'connected' ? '#28a745' : '#ffc107',
-              fontWeight: '500'
-            }}>
-              {apiStatus === 'connected' }
-            </div>
-          )}
-          
-          {/* Enhanced Search Results Dropdown with performance optimizations */}
-          {showResults && searchResults.length > 0 && (
-            <div style={{
-              position: 'absolute',
-              top: '40px',
+              top: '45px',
               left: 0,
               right: 0,
               backgroundColor: 'white',
@@ -1463,84 +1680,30 @@ const ActivityStream = () => {
               borderRadius: '8px',
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
               zIndex: 9999,
-              maxHeight: '300px',
+              maxHeight: '400px',
               overflowY: 'auto',
-              marginTop: '4px',
-              animation: 'fadeIn 0.15s ease-out' // Faster animation
+              marginTop: '4px'
             }}
             className="search-dropdown"
             >
+              {/* Header */}
+              <div style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid #e1e5e9',
+                backgroundColor: '#f8f9fa',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: '#6c757d',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {searchValue 
+                  ? `🔍 Users with screenshots for "${searchValue}" (${memoizedSearchResults.length})` 
+                  : `📋 All Users with Screenshots (${memoizedSearchResults.length})`
+                }
+              </div>
               
-              {/* Header - Show if these are suggestions or search results */}
-              {(!searchValue || searchValue.trim() === '') && userSuggestions.length > 0 && (
-                <div className="available-header" style={{
-                  padding: '12px 16px',
-                  borderBottom: '1px solid #e1e5e9',
-                  backgroundColor: '#f8f9fa',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#6c757d',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  📋 Available Users ({searchResults.length})
-                </div>
-              )}
-              
-              {/* Google-style search header with enhanced info */}
-              {(searchValue && searchValue.trim() !== '') && (
-                <div className="search-header" style={{
-                  padding: '12px 16px',
-                  borderBottom: '1px solid #e1e5e9',
-                  backgroundColor: '#e3f2fd',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: '#1976d2',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <span>🔍 Results for "{searchValue}" ({memoizedSearchResults.length}{memoizedSearchResults.length >= 15 ? '+' : ''})</span>
-                  {searchPerformance && (
-                    <span style={{ 
-                      fontSize: '10px',
-                      backgroundColor: searchPerformance.source === 'cache' ? '#28a745' : 
-                                     searchPerformance.source === 'local' ? '#17a2b8' : '#ffc107',
-                      color: 'white',
-                      padding: '2px 6px',
-                      borderRadius: '8px',
-                      textTransform: 'none'
-                    }}>
-                      {searchPerformance.time < 1 ? '⚡ Instant' : `${searchPerformance.time.toFixed(0)}ms`}
-                      {searchPerformance.source === 'cache' && ' (Cached)'}
-                      {searchPerformance.source === 'local' && ' (Google-style)'}
-                    </span>
-                  )}
-                </div>
-              )}
-              
-              <style>{`
-                @keyframes fadeIn {
-                  0% { opacity: 0; transform: translateY(-5px); }
-                  100% { opacity: 1; transform: translateY(0); }
-                }
-                [data-theme="dark"] .search-dropdown {
-                  background-color: #1d232c !important;
-                  border-color: #6b7280 !important;
-                  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
-                }
-                [data-theme="dark"] .search-dropdown .available-header {
-                  background-color: #374151 !important;
-                  border-bottom-color: #6b7280 !important;
-                  color: #9ca3af !important;
-                }
-                [data-theme="dark"] .search-dropdown .search-header {
-                  background-color: #1e3a8a !important;
-                  color: #bfdbfe !important;
-                }
-              `}</style>
+              {/* User List */}
               {memoizedSearchResults.map((user, index) => (
                 <div
                   key={user.id || index}
@@ -1548,7 +1711,7 @@ const ActivityStream = () => {
                   style={{
                     padding: '12px 16px',
                     cursor: 'pointer',
-                    borderBottom: index < memoizedSearchResults.length - 1 ? `1px solid var(--border-color)` : 'none',
+                    borderBottom: index < memoizedSearchResults.length - 1 ? '1px solid #e1e5e9' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
@@ -1556,22 +1719,22 @@ const ActivityStream = () => {
                     backgroundColor: 'transparent'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--hover-color)';
+                    e.currentTarget.style.backgroundColor = '#f8f9fa';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   <div style={{
-                    width: '32px',
-                    height: '32px',
+                    width: '36px',
+                    height: '36px',
                     borderRadius: '50%',
                     backgroundColor: '#4285f4',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
-                    fontSize: '14px',
+                    fontSize: '16px',
                     fontWeight: 'bold',
                     flexShrink: 0
                   }}>
@@ -1580,51 +1743,107 @@ const ActivityStream = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ 
                       fontWeight: '500', 
-                      color: 'var(--text-primary)',
+                      color: '#1a1a1a',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
                     }}>
-                      {highlightText(user.display_name || user.email, searchValue)}
+                      {user.display_name || user.email}
                     </div>
                     {user.email && user.display_name && (
                       <div style={{ 
                         fontSize: '12px', 
-                        color: 'var(--text-secondary)',
+                        color: '#6c757d',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap'
                       }}>
-                        {highlightText(user.email, searchValue)}
+                        {user.email}
                       </div>
                     )}
+                    <div style={{ 
+                      fontSize: '11px', 
+                      color: '#28a745',
+                      fontWeight: '500',
+                      marginTop: '2px'
+                    }}>
+                      📷 {user.total_screenshots || 0} screenshots
+                    </div>
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* Fast Search Loading Indicator - More subtle */}
-          {isSearching && (
-            <div style={{
-              position: 'absolute',
-              right: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '12px',
-              height: '12px',
-              border: '1.5px solid #f3f3f3',
-              borderTop: '1.5px solid #4285f4',
-              borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite',
-              opacity: '0.8'
-            }}>
-              <style>{`
-                @keyframes spin {
-                  0% { transform: translateY(-50%) rotate(0deg); }
-                  100% { transform: translateY(-50%) rotate(360deg); }
-                }
-              `}</style>
+              
+              {/* Loading State */}
+              {isSearching && (
+                <div style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#6c757d'
+                }}>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    border: '2px solid #f3f3f3',
+                    borderTop: '2px solid #4285f4',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 8px'
+                  }}></div>
+                  <div>Loading users...</div>
+                  <style>{`
+                    @keyframes spin {
+                      0% { transform: rotate(0deg); }
+                      100% { transform: rotate(360deg); }
+                    }
+                  `}</style>
+                </div>
+              )}
+              
+              {/* No Results */}
+              {!isSearching && memoizedSearchResults.length === 0 && (
+                <div style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  color: '#6c757d'
+                }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
+                  <div>No users with screenshots found{searchValue ? ` for "${searchValue}"` : ''}</div>
+                  {!searchValue && (
+                    <button
+                      onClick={async () => {
+                        console.log('🔄 Manual retry - loading users...');
+                        setIsSearching(true);
+                        try {
+                          const users = await fetchAllUsers();
+                          if (users && users.length > 0) {
+                            setAllUsers(users);
+                            setSearchResults(users);
+                            setShowResults(true);
+                            setError(null);
+                          }
+                        } catch (error) {
+                          console.error('❌ Manual retry failed:', error);
+                          setError('Failed to load users. Please check your connection.');
+                        } finally {
+                          setIsSearching(false);
+                        }
+                      }}
+                      style={{
+                        marginTop: '12px',
+                        padding: '8px 16px',
+                        backgroundColor: '#4285f4',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      🔄 Load Users
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </SearchContainer>
@@ -1829,7 +2048,6 @@ const ActivityStream = () => {
                                   'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
                                   currentHost
                                 );
-                                console.log(' Replaced S3 URL with local:', localUrl);
                                 return localUrl;
                               }
                               
@@ -1839,13 +2057,11 @@ const ActivityStream = () => {
                                 const pathIndex = urlParts.findIndex(part => part.includes('amazonaws.com'));
                                 if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
                                   const s3Path = urlParts.slice(pathIndex + 1).join('/');
-                                  console.log('📸 Using direct path for S3:', s3Path);
                                   return `${currentHost}/${s3Path}`;
                                 }
                               }
                               
                               // Return original URL for non-S3 images
-                              console.log('📸 Using direct URL:', screenshot.screenshot_url);
                               return screenshot.screenshot_url;
                             })()}
                             alt={`Screenshot ${screenshot.timestamp}`}
@@ -1861,7 +2077,6 @@ const ActivityStream = () => {
                               opacity: 0
                             }}
                             onLoad={(e) => {
-                              console.log('✅ Image loaded successfully:', e.target.src);
                               e.target.style.display = 'block';
                               e.target.style.opacity = '1';
                               // Hide the placeholder when image loads
@@ -1872,15 +2087,12 @@ const ActivityStream = () => {
                             }}
                             onError={(e) => {
                               console.error('❌ Image failed to load:', e.target.src);
-                              console.log('📋 Original URL:', screenshot.screenshot_url);
                               
                               // Only try direct S3 URL as fallback
                               if (!e.target.src.startsWith('https://ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-                                console.log('🔄 Local URL failed, trying direct S3 URL...');
                                 e.target.src = screenshot.screenshot_url;
                               } else {
                                 // Show placeholder if direct S3 also fails
-                                console.log('❌ All loading attempts failed, showing placeholder');
                                 e.target.style.display = 'none';
                                 const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
                                 if (placeholder && placeholder.querySelector('span')) {
@@ -2246,88 +2458,281 @@ const ActivityStream = () => {
             )}
           </div>
         ) : (
-          <EmptyStateContainer>
-            {isSearching ? (
-              <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-                <EmptyText>
-                  Searching for "{searchValue}"...
-                </EmptyText>
-              </>
-            ) : error ? (
-              <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-                <EmptyText>
-                  {error}
-                </EmptyText>
-                <button
-                  onClick={() => {
-                    setError(null);
-                    if (searchValue) {
-                      searchUsers(searchValue);
-                    }
-                  }}
-                  style={{
-                    marginTop: '12px',
-                    padding: '8px 16px',
-                    backgroundColor: '#4285f4',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Retry Search
-                </button>
-              </>
-            ) : searchValue && searchResults.length === 0 ? (
-              <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-                <EmptyText>
-                  No users found for "{searchValue}"
-                </EmptyText>
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: '#6c757d', 
-                  marginTop: '8px',
-                  textAlign: 'center'
+          // Show all users' screenshots instead of empty state
+          <div style={{ 
+            flex: 1, 
+            padding: '20px',
+            overflowY: 'auto',
+            maxHeight: '600px'
+          }}>
+            {isLoadingAllScreenshots ? (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px',
+                color: 'var(--text-secondary)'
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
+                <p>Loading screenshots for all users...</p>
+              </div>
+            ) : allUsersScreenshots.length > 0 ? (
+              <div>
+                <div style={{
+                  marginBottom: '20px',
+                  paddingBottom: '10px',
+                  borderBottom: `1px solid var(--border-color)`
                 }}>
-                  API Status: {apiStatus} | Results: {searchResults.length}
-                  <br/>
-                  Try searching for: "k", "haseeb", "nawaz"
+                  <h3 style={{ 
+                    margin: 0, 
+                    fontSize: '18px', 
+                    fontWeight: '600',
+                    color: 'var(--text-primary)'
+                  }}>
+                    All Users Activity - {getFullMonthName(selectedMonth, language)} {selectedYear}
+                  </h3>
+                  <p style={{ 
+                    margin: '4px 0 0 0', 
+                    fontSize: '14px', 
+                    color: 'var(--text-secondary)'
+                  }}>
+                    📊 {allUsersScreenshots.length} users with activity found
+                  </p>
                 </div>
-              </>
-            ) : searchValue && searchResults.length > 0 ? (
-              <>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
-                <EmptyText>
-                  {`Found ${searchResults.length} user(s) for "${searchValue}"`}
-                  <br/>
-                  {t('selectUserToView')}
-                </EmptyText>
-              </>
+                
+                {/* Grid of all users' screenshots */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gap: '20px',
+                  marginTop: '20px'
+                }}>
+                  {allUsersScreenshots.map((userScreenshotData, index) => (
+                    <div key={index} style={{
+                      border: `1px solid var(--border-color)`,
+                      borderRadius: '8px',
+                      padding: '16px',
+                      backgroundColor: 'var(--card-background)',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}>
+                      {/* User Header */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginBottom: '12px',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleResultSelect(userScreenshotData.user)}
+                      >
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          backgroundColor: '#4285f4',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          marginRight: '12px'
+                        }}>
+                          {(userScreenshotData.user.display_name || userScreenshotData.user.email || '').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            color: 'var(--text-primary)'
+                          }}>
+                            {userScreenshotData.user.display_name || userScreenshotData.user.email}
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            color: 'var(--text-secondary)'
+                          }}>
+                            {userScreenshotData.totalCount} screenshots
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Screenshots Grid */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+                        gap: '8px'
+                      }}>
+                        {userScreenshotData.screenshots.map((screenshot, screenshotIndex) => (
+                          <div key={screenshotIndex} style={{
+                            position: 'relative',
+                            aspectRatio: '16/9',
+                            overflow: 'hidden',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => {
+                            handleResultSelect(userScreenshotData.user);
+                            // Optionally scroll to the specific screenshot
+                          }}
+                          >
+                            <img
+                              src={screenshot.screenshot_url}
+                              alt={`Screenshot ${screenshotIndex + 1}`}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                backgroundColor: '#f5f5f5'
+                              }}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                const parent = e.target.parentElement;
+                                if (parent && !parent.querySelector('.error-placeholder')) {
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = 'error-placeholder';
+                                  placeholder.style.cssText = `
+                                    width: 100%;
+                                    height: 100%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    background-color: #f5f5f5;
+                                    color: #999;
+                                    font-size: 12px;
+                                  `;
+                                  placeholder.textContent = '📷';
+                                  parent.appendChild(placeholder);
+                                }
+                              }}
+                            />
+                            {/* Timestamp overlay */}
+                            <div style={{
+                              position: 'absolute',
+                              bottom: '2px',
+                              right: '2px',
+                              backgroundColor: 'rgba(0,0,0,0.7)',
+                              color: 'white',
+                              fontSize: '10px',
+                              padding: '2px 4px',
+                              borderRadius: '2px'
+                            }}>
+                              {new Date(screenshot.timestamp).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* View More Button */}
+                      {userScreenshotData.totalCount > userScreenshotData.screenshots.length && (
+                        <button
+                          onClick={() => handleResultSelect(userScreenshotData.user)}
+                          style={{
+                            width: '100%',
+                            marginTop: '12px',
+                            padding: '8px',
+                            backgroundColor: 'transparent',
+                            border: `1px solid var(--border-color)`,
+                            borderRadius: '4px',
+                            color: 'var(--primary-color)',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          View All {userScreenshotData.totalCount} Screenshots
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
-              <>
-                <svg 
-                  width="40" 
-                  height="40" 
-                  viewBox="0 0 16 16" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path 
-                    d="M7.493 0.015 C 7.442 0.021,7.268 0.039,7.107 0.055 C 5.234 0.242,3.347 1.208,2.071 2.634 C 0.660 4.211,-0.057 6.168,0.009 8.253 C 0.124 11.854,2.599 14.903,6.110 15.771 C 8.169 16.280,10.433 15.917,12.227 14.791 C 14.017 13.666,15.270 11.933,15.771 9.887 C 15.943 9.186,15.983 8.829,15.983 8.000 C 15.983 7.171,15.943 6.814,15.771 6.113 C 14.979 2.878,12.315 0.498,9.000 0.064 C 8.716 0.027,7.683 -0.006,7.493 0.015 M8.853 1.563 C 9.548 1.653,10.198 1.848,10.840 2.160 C 11.538 2.500,12.020 2.846,12.587 3.413 C 13.154 3.980,13.500 4.462,13.840 5.160 C 14.285 6.075,14.486 6.958,14.486 8.000 C 14.486 9.054,14.284 9.932,13.826 10.867 C 13.654 11.218,13.307 11.781,13.145 11.972 L 13.090 12.037 8.527 7.473 L 3.963 2.910 4.028 2.855 C 4.219 2.693,4.782 2.346,5.133 2.174 C 6.305 1.600,7.555 1.395,8.853 1.563 M7.480 8.534 L 12.040 13.095 11.973 13.148 C 11.734 13.338,11.207 13.662,10.867 13.828 C 10.239 14.135,9.591 14.336,8.880 14.444 C 8.456 14.509,7.544 14.509,7.120 14.444 C 5.172 14.148,3.528 13.085,2.493 11.451 C 2.279 11.114,1.999 10.526,1.859 10.119 C 1.468 8.989,1.403 7.738,1.670 6.535 C 1.849 5.734,2.268 4.820,2.766 4.147 C 2.836 4.052,2.899 3.974,2.907 3.974 C 2.914 3.974,4.972 6.026,7.480 8.534 " 
-                    stroke="none" 
-                    fillRule="evenodd" 
-                    fill={isDarkMode ? '#ffffff' : '#1f2937'}
-                  />
-                </svg>
-                <EmptyText style={{ marginTop: '16px' }}>
-                  {t('searchForEmployees')}
-                </EmptyText>
-              </>
+              // Fallback to original empty state if no screenshots found
+              <EmptyStateContainer>
+                {isSearching ? (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+                    <EmptyText>
+                      Searching for "{searchValue}"...
+                    </EmptyText>
+                  </>
+                ) : error ? (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+                    <EmptyText>
+                      {error}
+                    </EmptyText>
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        if (searchValue) {
+                          searchUsersFromAPI(searchValue);
+                        }
+                      }}
+                      style={{
+                        marginTop: '12px',
+                        padding: '8px 16px',
+                        backgroundColor: '#4285f4',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Retry Search
+                    </button>
+                  </>
+                ) : searchValue && searchResults.length === 0 ? (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+                    <EmptyText>
+                      No users with screenshots found for "{searchValue}"
+                    </EmptyText>
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: '#6c757d', 
+                      marginTop: '8px',
+                      textAlign: 'center'
+                    }}>
+                      API Status: {apiStatus} | Results: {searchResults.length}
+                      <br/>
+                      Try searching for: "k", "haseeb", "nawaz"
+                    </div>
+                  </>
+                ) : searchValue && searchResults.length > 0 ? (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
+                    <EmptyText>
+                      {`Found ${searchResults.length} user(s) for "${searchValue}"`}
+                      <br/>
+                      {t('selectUserToView')}
+                    </EmptyText>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
+                    <EmptyText style={{ marginTop: '16px' }}>
+                      Welcome to the Activity Stream
+                    </EmptyText>
+                    <div style={{ 
+                      fontSize: '14px', 
+                      color: 'var(--text-secondary)', 
+                      marginTop: '12px',
+                      textAlign: 'center',
+                      maxWidth: '400px'
+                    }}>
+                      <p>📋 Click the search box above to see all available users</p>
+                      <p>� Type a name or email to search specific users</p>
+                      <p>📊 Select any user to view their detailed activity and screenshots</p>
+                    </div>
+                  </>
+                )}
+              </EmptyStateContainer>
             )}
-          </EmptyStateContainer>
+          </div>
         )}
       </ContentContainer>
     </Container>
