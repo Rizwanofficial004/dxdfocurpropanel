@@ -235,7 +235,8 @@ class UsersScreenshotsView(APIView):
                         "s3_status": "Connected",
                         "primary_source": "users_screenshots"
                     },
-                    "s3_users_sample": screenshots_data['top_users'][:5]  # Top 5 users with current data
+                    "s3_users_sample": screenshots_data['top_users'][:5],  # Top 5 users with current data
+                    "all_users": screenshots_data.get('all_users', [])  # ALL users with screenshots
                 },
                 "meta": {
                     "timestamp": datetime.now().isoformat(),

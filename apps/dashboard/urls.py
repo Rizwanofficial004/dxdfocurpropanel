@@ -3,10 +3,13 @@ from . import views
 from .credentials_views import CredentialsStatusView, CredentialsAPIView, SetAllCredentialsAPIView, GetAllCredentialsAPIView
 from .users_screenshots_view import UsersScreenshotsView
 from .users_search_views import EnhancedUsersSearchView
+from .fast_users_api import FastUsersSearchAPI
 from .employees_details_views import EmployeesDetailsView
 from .staff_details_views import StaffDetailsView
 from .timesheets_views import TimesheetsView
 from .idle_time_api import IdleTimeAPIView
+from .timesheet_summary_api import TimesheetSummaryAPIView
+from .employee_report_api import EmployeeReportAPIView
 from .simple_screenshot_proxy import SimpleScreenshotProxyView, SimpleScreenshotProxyStatusView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
@@ -24,6 +27,9 @@ urlpatterns = [
     # Dashboard-specific endpoints - LIVE TRACKING API (OPTIMIZED)
     path('api/live-tracking/fast-screenshots/', UsersScreenshotsView.as_view(), name='fast-screenshots'),
     
+    # ULTRA FAST Users Search API - New optimized endpoint
+    path('api/users/search/', FastUsersSearchAPI.as_view(), name='fast-users-search'),
+    
     # Simple Screenshot Proxy - Handle S3 CORS issues
     path('api/simple-screenshot-proxy/', SimpleScreenshotProxyView.as_view(), name='simple-screenshot-proxy'),
     path('api/simple-screenshot-proxy/status/', SimpleScreenshotProxyStatusView.as_view(), name='simple-screenshot-proxy-status'),
@@ -36,6 +42,12 @@ urlpatterns = [
     
     # Timesheets API - Fetches all timesheets from CRM
     path('Timesheets/', TimesheetsView.as_view(), name='timesheets'),
+    
+    # Timesheet Summary API - Comprehensive timesheet analytics
+    path('timesheet_summary/', TimesheetSummaryAPIView.as_view(), name='timesheet-summary'),
+    
+    # Employee Report API - Detailed individual employee reports
+    path('employee_report/', EmployeeReportAPIView.as_view(), name='employee-report'),
     
     # Idle Time API - Analyzes idle time from timesheets notes
     path('idle_time/', IdleTimeAPIView.as_view(), name='idle-time'),

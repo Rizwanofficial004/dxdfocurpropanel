@@ -132,7 +132,7 @@ class EnhancedUsersSearchView(APIView):
                 pages = paginator.paginate(
                     Bucket=self.bucket_name,
                     Prefix=prefix,
-                    PaginationConfig={'MaxItems': 5000}
+                    PaginationConfig={'PageSize': 1000}  # Process in chunks but don't limit total
                 )
                 
                 for page_data in pages:
