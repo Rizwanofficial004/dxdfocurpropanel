@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getApiBaseURL } from '../../../config/api';
+import './ActivityStream.css';
 import {
   Container,
   Title,
@@ -217,9 +218,9 @@ const ActivityStream = () => {
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
   const today = new Date();
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1); // getMonth() is 0-indexed
-  const [activeDate, setActiveDate] = useState(today.getDate().toString().padStart(2, '0'));
+  const [selectedYear, setSelectedYear] = useState(2025); // Default to 2025
+  const [selectedMonth, setSelectedMonth] = useState(9); // Default to September (month 9)
+  const [activeDate, setActiveDate] = useState('01'); // Default to 1st day of the month
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
@@ -269,12 +270,10 @@ const ActivityStream = () => {
     
     try {
       if (!query || query.trim().length === 0) {
-        // For empty queries, we should still search the API to get all users
-        console.log('🔍 Empty query - searching for all users with screenshots');
         query = 'a'; // Use a common letter that will match many users
       }
       
-      // Build URL with date range parameters
+      // Build URL with date range parameters - using exact dxdtime.ddsolutions.io format
       const searchParams = new URLSearchParams({
         q: encodeURIComponent(query.trim()),
         limit: limit.toString(),
@@ -285,34 +284,48 @@ const ActivityStream = () => {
       if (startDate && endDate) {
         searchParams.append('start_date', startDate);
         searchParams.append('end_date', endDate);
-        console.log('📅 Using custom date range:', { startDate, endDate });
       } else if (startDate === null && endDate === null) {
-        // Search from September 15, 2025 to current date
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
-        const currentDay = today.getDate();
-        const wideStartDate = '2025-09-15'; // Start from September 15, 2025
-        const wideEndDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
-        searchParams.append('start_date', wideStartDate);
-        searchParams.append('end_date', wideEndDate);
-        console.log('🌐 Searching from September 15 to current date:', { wideStartDate, wideEndDate });
+        // Check if we have an active date selected
+        if (activeDate) {
+          // Use specific selected date for both start and end date
+          const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
+          searchParams.append('start_date', specificDate);
+          searchParams.append('end_date', specificDate);
+          console.log(`🎯 Using specific selected date: ${specificDate}`);
+        } else {
+          // Search from September 1st, 2025 to current date (as requested by user)
+          const today = new Date();
+          const currentYear = today.getFullYear();
+          const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+          const currentDay = today.getDate();
+          const wideStartDate = '2025-09-01'; // Start from September 1st, 2025 as requested
+          const wideEndDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+          searchParams.append('start_date', wideStartDate);
+          searchParams.append('end_date', wideEndDate);
+          console.log(`📅 Using broad date range: ${wideStartDate} to ${wideEndDate}`);
+        }
       } else {
-        // Use selected month/year for date range
-        const year = selectedYear;
-        const month = selectedMonth;
-        const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
-        const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
-        searchParams.append('start_date', startOfMonth);
-        searchParams.append('end_date', endOfMonth);
-        console.log('📅 Using month range:', { startOfMonth, endOfMonth });
+        // Use selected month/year for date range, but check for active date first
+        if (activeDate) {
+          // Use specific selected date
+          const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
+          searchParams.append('start_date', specificDate);
+          searchParams.append('end_date', specificDate);
+          console.log(`🎯 Using specific selected date: ${specificDate}`);
+        } else {
+          // Use selected month/year for date range
+          const year = selectedYear;
+          const month = selectedMonth;
+          const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
+          const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
+          searchParams.append('start_date', startOfMonth);
+          searchParams.append('end_date', endOfMonth);
+          console.log(`📅 Using month range: ${startOfMonth} to ${endOfMonth}`);
+        }
       }
       
       // Use the proxy endpoint that routes to dxdtime.ddsolutions.io
       const apiUrl = `/api/users/search/?${searchParams.toString()}`;
-      
-      console.log('🔍 API Request:', apiUrl);
-      console.log('📅 Search Parameters:', Object.fromEntries(searchParams));
       
       // Make the API request with increased timeout for slow servers
       const fetchPromise = fetch(apiUrl, {
@@ -331,44 +344,27 @@ const ActivityStream = () => {
       
       const response = await Promise.race([fetchPromise, timeoutPromise]);
       
-      console.log('📡 API Response Status:', response.status);
-      
       if (!response.ok) {
-        // Get more details about the error
         let errorText = '';
         try {
           errorText = await response.text();
-          console.log('❌ Error response body:', errorText);
         } catch (e) {
-          console.log('❌ Could not read error response body');
+          // Could not read error response body
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('📊 API Response Data:', data);
-      console.log('📊 API Response Keys:', Object.keys(data));
-      console.log('📊 API Response Type:', typeof data);
       
       // Handle different API response formats
       let users = [];
       
       if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
         users = data.data.users;
-        console.log('✅ Found users in data.data.users format:', users.length);
       } else if (data.users && Array.isArray(data.users)) {
-        // Direct users array
         users = data.users;
-        console.log('✅ Found users in data.users format:', users.length);
       } else if (Array.isArray(data)) {
-        // Response is directly an array of users
         users = data;
-        console.log('✅ Found users in direct array format:', users.length);
-      } else {
-        console.log('❌ Unexpected API response format:', data);
-        console.log('❌ Available keys:', Object.keys(data));
-        console.log('❌ Data type:', typeof data);
-        console.log('❌ Full response:', JSON.stringify(data, null, 2));
       }
       
       if (users.length > 0) {
@@ -376,17 +372,9 @@ const ActivityStream = () => {
         const formattedUsers = users
           .filter(user => {
             // Only include users who have screenshots
-            const hasScreenshots = (user.total_screenshots && user.total_screenshots > 0) || 
-                                  (user.recent_screenshots && user.recent_screenshots.length > 0) ||
-                                  (user.grouped_screenshots && Object.keys(user.grouped_screenshots).length > 0);
-            
-            if (hasScreenshots) {
-              console.log(`✅ User ${user.display_name || user.email} has ${user.total_screenshots || 0} screenshots - INCLUDED`);
-            } else {
-              console.log(`❌ User ${user.display_name || user.email} has no screenshots - EXCLUDED`);
-            }
-            
-            return hasScreenshots;
+            return (user.total_screenshots && user.total_screenshots > 0) || 
+                   (user.recent_screenshots && user.recent_screenshots.length > 0) ||
+                   (user.grouped_screenshots && Object.keys(user.grouped_screenshots).length > 0);
           })
           .map(user => ({
           id: user.email || user.id,
@@ -418,9 +406,6 @@ const ActivityStream = () => {
           match_reasons: user.match_reasons
         }));
         
-        console.log(`✅ Found ${formattedUsers.length} users with screenshots for query "${query}" (filtered from ${users.length} total users)`);
-        console.log('👤 Users with screenshots:', formattedUsers.map(u => `${u.display_name} (${u.total_screenshots} screenshots)`));
-        
         // IMPORTANT: Only update if this is still the most recent request (prevent race conditions)
         setLastRequestId(currentLatestId => {
           if (currentLatestId === requestId) {
@@ -436,7 +421,6 @@ const ActivityStream = () => {
         
         return formattedUsers;
       } else {
-        console.log('⚠️ API returned empty users array');
         setLastRequestId(currentLatestId => {
           if (currentLatestId === requestId) {
             setSearchResults([]);
@@ -457,7 +441,6 @@ const ActivityStream = () => {
         if (currentLatestId === requestId) {
           // Retry logic for timeout and network errors
           if ((error.message.includes('timeout') || error.message.includes('Failed to fetch')) && retryCount < maxRetries) {
-            console.log(`🔄 Retrying search... Attempt ${retryCount + 1} of ${maxRetries}`);
             // Retry after a brief delay
             setTimeout(() => {
               searchUsersFromAPI(query, limit, offset, retryCount + 1, startDate, endDate);
@@ -491,62 +474,91 @@ const ActivityStream = () => {
     }
   };
 
-  // Function to search for a specific user by email (for static user list)
-  const searchUserByEmail = async (email) => {
+  // Function to search for a specific user by name or email
+  const searchUserByNameOrEmail = async (searchQuery, retryCount = 0) => {
+    const maxRetries = 2;
+    
     try {
-      setIsLoadingScreenshots(true); // Use screenshots loading instead of general loading
-      console.log('🔄 Loading state set to TRUE - should show spinner now');
+      setIsLoadingScreenshots(true);
       setError(null);
-      console.log(`🔍 Searching for user with email: ${email}`);
       
-      // Extract the part before @ as the search query
-      const searchQuery = email.split('@')[0];
+      // Use the full search query (name) instead of extracting email
+      const query = searchQuery;
       
-      // Use the API format you provided with broader date range to ensure we find user data
+      // Use specific date if activeDate is selected, otherwise use broad range
+      let startDate, endDate;
+      
+      if (activeDate) {
+        // Use specific selected date for both start and end date
+        const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
+        startDate = specificDate;
+        endDate = specificDate;
+        console.log(`🎯 Using specific date range: ${startDate} to ${endDate}`);
+      } else {
+        // Use dynamic date range from September 1st, 2025 to current date
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
+        startDate = '2025-09-01'; // Start from September 1st, 2025
+        endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+        console.log(`📅 Using broad date range: ${startDate} to ${endDate}`);
+      }
+      
       const searchParams = new URLSearchParams({
-        q: searchQuery,
-        start_date: '2025-09-15', // Use same start date as general search
-        end_date: '2025-10-15',   // Use current date as end date
+        q: query,
+        start_date: startDate,
+        end_date: endDate,
         limit: '20',
         offset: '0'
       });
       
       const apiUrl = `/api/users/search/?${searchParams.toString()}`;
-      console.log('🔍 API Request for user search:', apiUrl);
       
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      let isAborted = false;
+      
+      const timeoutId = setTimeout(() => {
+        if (!isAborted) {
+          isAborted = true;
+          controller.abort();
+        }
+      }, 60000);
       
       const response = await fetch(apiUrl, {
-        signal: controller.signal
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       });
       
       clearTimeout(timeoutId);
+      isAborted = true;
       
       if (!response.ok) {
         let errorText = '';
         try {
           errorText = await response.text();
-          console.log('❌ Error response body:', errorText);
         } catch (e) {
-          console.log('❌ Could not read error response body');
+          // Error reading response
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('📊 User search response:', data);
       
-      // Find the user with matching email
       let foundUser = null;
       if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
-        foundUser = data.data.users.find(user => user.email === email);
+        // Find user by matching display name or email
+        foundUser = data.data.users.find(user => 
+          user.display_name === searchQuery || 
+          user.original_name === searchQuery ||
+          user.email === searchQuery
+        ) || data.data.users[0]; // Use first result if no exact match
       }
       
       if (foundUser) {
-        console.log('✅ Found user:', foundUser);
-        
-        // Set the selected user and load their data
         const formattedUser = {
           id: foundUser.email || foundUser.id,
           email: foundUser.email,
@@ -564,53 +576,17 @@ const ActivityStream = () => {
         
         setSelectedUser(formattedUser);
         setApiStatus('connected');
+        setError(null);
         
-        // Auto-navigate based on grouped_screenshots data (which contains actual dates)
-        let autoNavigated = false;
-        if (foundUser.grouped_screenshots && Object.keys(foundUser.grouped_screenshots).length > 0) {
-          // Get the first available date from grouped_screenshots
-          const availableDates = Object.keys(foundUser.grouped_screenshots).sort((a, b) => new Date(b) - new Date(a)); // Sort newest first
-          const firstAvailableDate = availableDates[0];
-          
-          console.log(`📅 User has screenshots on these dates:`, availableDates);
-          console.log(`🎯 First available date: ${firstAvailableDate}`);
-          
-          if (firstAvailableDate) {
-            const screenshotDate = new Date(firstAvailableDate);
-            if (!isNaN(screenshotDate.getTime())) {
-              const screenshotYear = screenshotDate.getFullYear();
-              const screenshotMonth = screenshotDate.getMonth() + 1; // +1 because getMonth() is 0-based
-              const screenshotDay = screenshotDate.getDate().toString().padStart(2, '0');
-              
-              // Auto-navigate to the month/year if it's different from current selection
-              if (screenshotYear !== selectedYear || screenshotMonth !== selectedMonth) {
-                console.log(`📅 Auto-navigating from ${selectedMonth}/${selectedYear} to ${screenshotMonth}/${screenshotYear} where user has screenshots`);
-                setSelectedYear(screenshotYear);
-                setSelectedMonth(screenshotMonth);
-                setActiveDate(screenshotDay); // Set the specific day too
-                autoNavigated = true;
-              } else if (availableDates.includes(`${screenshotYear}-${screenshotMonth.toString().padStart(2, '0')}-${screenshotDay}`)) {
-                // If we're in the right month/year, just set the active date
-                console.log(`📅 Setting active date to ${screenshotDay} for current month ${screenshotMonth}/${screenshotYear}`);
-                setActiveDate(screenshotDay);
-              }
-            }
-          }
-        }
-        
-        // Load screenshots for this user with active date filtering
         if (formattedUser.recent_screenshots && formattedUser.recent_screenshots.length > 0) {
           setUserScreenshots(formattedUser.recent_screenshots);
           
-          // Extract activity dates from both recent_screenshots and grouped_screenshots
           const activityDates = new Set();
           
-          // Add dates from recent_screenshots
           formattedUser.recent_screenshots.forEach(s => {
             if (s.date) activityDates.add(s.date);
           });
           
-          // Add dates from grouped_screenshots
           if (foundUser.grouped_screenshots) {
             Object.keys(foundUser.grouped_screenshots).forEach(date => {
               activityDates.add(date);
@@ -618,29 +594,7 @@ const ActivityStream = () => {
           }
           
           setUserActivityDates(activityDates);
-          console.log(`📅 User activity dates:`, Array.from(activityDates));
-          
-          // If we didn't auto-navigate yet, try with recent_screenshots
-          if (!autoNavigated) {
-            const recentScreenshot = formattedUser.recent_screenshots[0];
-            if (recentScreenshot && (recentScreenshot.date || recentScreenshot.timestamp)) {
-              const screenshotDate = new Date(recentScreenshot.date || recentScreenshot.timestamp);
-              if (!isNaN(screenshotDate.getTime())) {
-                const screenshotYear = screenshotDate.getFullYear();
-                const screenshotMonth = screenshotDate.getMonth() + 1; // +1 because getMonth() is 0-based
-                
-                // Auto-navigate to the month/year if it's different from current selection
-                if (screenshotYear !== selectedYear || screenshotMonth !== selectedMonth) {
-                  console.log(`📅 Auto-navigating from ${selectedMonth}/${selectedYear} to ${screenshotMonth}/${screenshotYear} where user has screenshots`);
-                  setSelectedYear(screenshotYear);
-                  setSelectedMonth(screenshotMonth);
-                  setActiveDate(null); // Reset active date when changing month/year
-                }
-              }
-            }
-          }
         } else {
-          // If no recent_screenshots, still extract activity dates from grouped_screenshots
           const activityDates = new Set();
           if (foundUser.grouped_screenshots) {
             Object.keys(foundUser.grouped_screenshots).forEach(date => {
@@ -648,10 +602,8 @@ const ActivityStream = () => {
             });
           }
           setUserActivityDates(activityDates);
-          console.log(`📅 User activity dates (from grouped only):`, Array.from(activityDates));
         }
         
-        // Process and set screenshots from the grouped_screenshots data
         let allScreenshots = [];
         if (foundUser.grouped_screenshots) {
           Object.keys(foundUser.grouped_screenshots).forEach(date => {
@@ -664,9 +616,9 @@ const ActivityStream = () => {
                   timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime || screenshot.last_modified,
                   activity_type: 'ACTIVE',
                   file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
-                  date: screenshot.date,
+                  date: screenshot.date || date,
                   size_mb: screenshot.size_mb,
-                  user_email: userData.email,
+                  user_email: foundUser.email,
                   project_folder: screenshot.subfolder_path
                 });
               });
@@ -705,54 +657,49 @@ const ActivityStream = () => {
           return dateB - dateA;
         });
         
-        console.log(`� Processed ${allScreenshots.length} total screenshots from API response`);
-        
-        // Set all screenshots
         setAllScreenshots(allScreenshots);
-        
-        // Filter screenshots for the specific active date if one is selected
-        if (activeDate) {
-          const targetDateStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate.toString().padStart(2, '0')}`;
-          const filteredScreenshots = allScreenshots.filter(screenshot => {
-            const screenshotDate = screenshot.date || 
-                                 (screenshot.timestamp ? new Date(screenshot.timestamp).toISOString().split('T')[0] : null);
-            return screenshotDate === targetDateStr;
-          });
-          
-          console.log(`🗓️ Filtered to ${filteredScreenshots.length} screenshots for date ${targetDateStr}`);
-          setUserScreenshots(filteredScreenshots);
-        } else {
-          // If no specific date, show all screenshots
-          setUserScreenshots(allScreenshots);
-        }
-        
-        // Set total count
+        setUserScreenshots(allScreenshots);
         setTotalScreenshots(allScreenshots.length);
-        
-        console.log(`✅ Screenshots loaded: ${allScreenshots.length} total, displaying ${activeDate ? 'filtered by date' : 'all'}`);
         
         return formattedUser;
       } else {
-        console.log('❌ User not found with email:', email);
-        setError(`User with email ${email} not found in the date range.`);
+        setError(`User "${searchQuery}" not found in the date range.`);
         return null;
       }
       
     } catch (error) {
-      console.error('❌ Error searching for user by email:', error);
-      setError(`Error searching for user: ${error.message}`);
+      const shouldRetry = (
+        (error.name === 'AbortError' || 
+         error.message.includes('504') || 
+         error.message.includes('Gateway Time-out') ||
+         error.message.includes('Failed to fetch')) && 
+        retryCount < maxRetries
+      );
+      
+      if (shouldRetry) {
+        await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1)));
+        return searchUserByNameOrEmail(searchQuery, retryCount + 1);
+      }
+      
+      if (error.name === 'AbortError') {
+        setError(`Search request timed out after ${maxRetries + 1} attempts. The server may be busy. Please try again.`);
+      } else if (error.message.includes('504') || error.message.includes('Gateway Time-out')) {
+        setError('Server is temporarily unavailable (504 Gateway Timeout). Please try again in a moment.');
+      } else if (error.message.includes('Failed to fetch')) {
+        setError('Cannot connect to server. Please check your internet connection.');
+      } else {
+        setError(`Error searching for user: ${error.message}`);
+      }
+      
       setApiStatus('error');
       return null;
     } finally {
-      setIsLoadingScreenshots(false); // Use screenshots loading instead of general loading
+      setIsLoadingScreenshots(false);
     }
   };
 
   // Enhanced function to handle user selection with better feedback
   const handleUserSelect = async (user) => {
-    console.log(`👤 Selecting user: ${user.username} (${user.email})`);
-    console.log('🔄 About to call searchUserByEmail - should trigger loading state');
-    
     // Set the selected user immediately to show the user area
     setSelectedUser({
       email: user.email,
@@ -762,18 +709,9 @@ const ActivityStream = () => {
       recent_screenshots: []
     });
     
-    // Keep the dropdown open - don't close it
-    // setShowResults(false); // Removed this line
-    
-    // Don't change search value - keep the list visible
-    // setSearchValue(user.username); // Removed this line
-    
-    // Load the user data via API
-    const userData = await searchUserByEmail(user.email);
-    
-    if (userData) {
-      console.log('✅ User data loaded successfully:', userData);
-    }
+    // Load the user data via API using display name
+    const searchQuery = user.display_name || user.username || user.original_name || '';
+    await searchUserByNameOrEmail(searchQuery);
   };
 
   // Function to load user data from API response
@@ -947,16 +885,12 @@ const ActivityStream = () => {
   };
 
   useEffect(() => {
-    console.log('🚀 Component mounted - setting up initial load timer');
-    
     // Failsafe timer to ensure component always shows
     const failsafeTimer = setTimeout(() => {
-      console.log('🚨 Failsafe timer - forcing isLoading to false');
       setIsLoading(false);
     }, 1000);
     
     const timer = setTimeout(async () => {
-      console.log('⏰ Timer fired - setting isLoading to false');
       setIsLoading(false);
       clearTimeout(failsafeTimer); // Clear failsafe since we succeeded
       
@@ -1099,11 +1033,14 @@ const ActivityStream = () => {
   // Auto-refresh screenshots when date/month changes for dynamic date-wise loading
   useEffect(() => {
     if (selectedUser && selectedUser.email) {
-      // Clear current screenshots before fetching new ones
-      setUserScreenshots([]);
-      setCurrentPage(1); // Reset to first page
-      // Fetch screenshots for the new date
-      fetchUserScreenshots(selectedUser, null, 1);
+      // Don't make new API calls - just filter existing screenshots
+      // The screenshots are already loaded by searchUserByEmail and stored in allScreenshots
+      console.log(`📅 Date changed to ${selectedMonth}/${selectedYear}, filtering existing screenshots`);
+      
+      // Reset current page when date changes
+      setCurrentPage(1);
+      
+      // The filtering will be handled by the separate useEffect for activeDate filtering
     }
     
     // Also refresh all users' screenshots when date changes
@@ -1112,18 +1049,99 @@ const ActivityStream = () => {
     }
   }, [selectedYear, selectedMonth]); // Dependency on date changes
 
-  // Auto-refresh user search results when API connectivity changes
+  // Auto-refresh user search results when API connectivity changes or when activeDate changes
   useEffect(() => {
     if (searchValue && searchValue.length > 0) {
-      // Calculate current month date range
-      const year = selectedYear;
-      const month = selectedMonth;
-      const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
-      const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
-      
-      searchUsersFromAPI(searchValue, 10, 0, 0, startOfMonth, endOfMonth);
+      // If activeDate is selected, use specific date, otherwise use month range
+      if (activeDate) {
+        const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
+        searchUsersFromAPI(searchValue, 10, 0, 0, specificDate, specificDate);
+      } else {
+        // Calculate current month date range
+        const year = selectedYear;
+        const month = selectedMonth;
+        const startOfMonth = `${year}-${month.toString().padStart(2, '0')}-01`;
+        const endOfMonth = `${year}-${month.toString().padStart(2, '0')}-${getDaysInMonth(year, month).toString().padStart(2, '0')}`;
+        
+        searchUsersFromAPI(searchValue, 10, 0, 0, startOfMonth, endOfMonth);
+      }
     }
-  }, [selectedYear, selectedMonth]); // Refresh search when date changes too
+  }, [selectedYear, selectedMonth, activeDate]); // Added activeDate to dependencies
+
+  useEffect(() => {
+    console.log(`🎯 Date filtering effect triggered - activeDate: ${activeDate}, selectedYear: ${selectedYear}, selectedMonth: ${selectedMonth}, allScreenshots.length: ${allScreenshots.length}`);
+    
+    if (selectedUser && allScreenshots.length > 0) {
+      if (activeDate) {
+        const targetDateStr = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate.toString().padStart(2, '0')}`;
+        console.log(`🔍 Looking for screenshots on specific date: ${targetDateStr}`);
+        
+        const allDates = allScreenshots.map(s => s.date).filter(Boolean);
+        console.log(`📅 Available screenshot dates:`, allDates.slice(0, 10));
+        
+        const filteredScreenshots = allScreenshots.filter(screenshot => {
+          const screenshotDate = screenshot.date || 
+                               (screenshot.timestamp ? new Date(screenshot.timestamp).toISOString().split('T')[0] : null);
+          return screenshotDate === targetDateStr;
+        });
+        
+        console.log(`📸 Filtered screenshots for ${targetDateStr}:`, filteredScreenshots.length);
+        
+        if (filteredScreenshots.length === 0) {
+          const availableDates = [...new Set(allScreenshots.map(s => s.date).filter(Boolean))].sort();
+          const availableDatesInMonth = availableDates.filter(date => 
+            date.startsWith(`${selectedYear}-${selectedMonth.toString().padStart(2, '0')}`)
+          );
+          
+          if (availableDatesInMonth.length > 0) {
+            setError(`No screenshots on ${targetDateStr}. ${selectedUser.display_name} has screenshots on: ${availableDatesInMonth.join(', ')} in this month. Click on a highlighted date to view screenshots.`);
+          } else {
+            const availableMonthsFormatted = availableDates.slice(0, 5).map(date => {
+              const [year, month, day] = date.split('-');
+              return `${month}/${year}`;
+            });
+            setError(`No screenshots on ${targetDateStr}. ${selectedUser.display_name} has screenshots in: ${[...new Set(availableMonthsFormatted)].join(', ')}${availableDates.length > 5 ? ` and more` : ''}. Use the month/year selectors to navigate.`);
+          }
+        } else {
+          setError(null);
+        }
+        
+        setUserScreenshots(filteredScreenshots);
+        setCurrentPage(1);
+      } else {
+        // Show ALL screenshots when no specific date is selected
+        // This allows users to see all available screenshots when first selecting a user
+        console.log(`📸 Showing all ${allScreenshots.length} screenshots (no date filter)`);
+        setUserScreenshots(allScreenshots);
+        setError(null);
+        setCurrentPage(1);
+        
+        // Optional: Show a helpful message about available dates
+        if (allScreenshots.length > 0) {
+          const availableDates = [...new Set(allScreenshots.map(s => s.date).filter(Boolean))].sort();
+          const availableMonths = [...new Set(availableDates.map(date => date.substring(0, 7)))].sort();
+          console.log(`📅 Available screenshot months:`, availableMonths);
+        }
+      }
+    }
+  }, [activeDate, selectedYear, selectedMonth, allScreenshots]);
+
+  // Update activity dates when screenshots change
+  useEffect(() => {
+    if (allScreenshots.length > 0) {
+      const activityDates = new Set();
+      allScreenshots.forEach(screenshot => {
+        if (screenshot.date) {
+          activityDates.add(screenshot.date);
+        }
+      });
+      setUserActivityDates(activityDates);
+      console.log(`📅 Updated activity dates for calendar highlighting:`, Array.from(activityDates));
+    } else {
+      setUserActivityDates(new Set());
+      console.log(`📅 Cleared activity dates - no screenshots available`);
+    }
+  }, [allScreenshots]);
 
   const fetchAllUsers = async () => {
     setError(null);
@@ -1843,8 +1861,9 @@ const ActivityStream = () => {
     }
   }, [searchResults, allUsers, searchValue]);
 
-  // Memoized result selection handler
-  const handleResultSelect = useCallback((user) => {
+  // Enhanced user selection handler that searches API with user name and date
+  const handleResultSelect = useCallback(async (user) => {
+    console.log('🎯 User selected:', user);
     
     setSearchValue(user.display_name || user.email);
     setShowResults(false);
@@ -1857,6 +1876,7 @@ const ActivityStream = () => {
     setIsLoadingScreenshots(true);
     setScreenshotError(null);
     setUserScreenshots([]); // Clear previous screenshots
+    setError(null);
     
     // Scroll to screenshots section after a brief delay
     setTimeout(() => {
@@ -1866,44 +1886,125 @@ const ActivityStream = () => {
       }
     }, 500);
     
-    // Check if this user has existing screenshot data (from API response)
-    if (user.grouped_screenshots && Object.keys(user.grouped_screenshots).length > 0) {
+    // Prepare search query - use user's display name (not email)
+    const searchQuery = user.display_name || user.username || user.original_name || '';
+    
+    // Set default date range - September 1st to current date as requested
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDay = today.getDate();
+    
+    // Default start date: September 1st, 2025 (as requested)
+    const defaultStartDate = '2025-09-01';
+    const defaultEndDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+    
+    console.log(`🔍 Searching API for user name: "${searchQuery}" from ${defaultStartDate} to ${defaultEndDate}`);
+    
+    try {
+      // Call the API with user name and date range
+      const apiUsers = await searchUsersFromAPI(searchQuery, 10, 0, 0, defaultStartDate, defaultEndDate);
       
-      // Create a mock API response and load it
-      const mockApiResponse = {
-        status: "success",
-        data: {
-          users: [user]
+      if (apiUsers && apiUsers.length > 0) {
+        // Find the exact user from API response
+        const apiUser = apiUsers.find(u => 
+          u.email === user.email || 
+          u.display_name === user.display_name || 
+          u.original_name === user.original_name
+        ) || apiUsers[0]; // Use first result if no exact match
+        
+        console.log('✅ Found user data from API:', apiUser);
+        
+        // Update selected user with fresh API data
+        setSelectedUser(apiUser);
+        
+        // Process and load screenshots from API response
+        let allScreenshots = [];
+        const activityDates = new Set();
+        
+        // Extract screenshots from grouped_screenshots
+        if (apiUser.grouped_screenshots && Object.keys(apiUser.grouped_screenshots).length > 0) {
+          Object.keys(apiUser.grouped_screenshots).forEach(date => {
+            const dayData = apiUser.grouped_screenshots[date];
+            activityDates.add(date);
+            
+            if (dayData.screenshots && Array.isArray(dayData.screenshots)) {
+              dayData.screenshots.forEach((screenshot, index) => {
+                allScreenshots.push({
+                  ...screenshot,
+                  id: screenshot.filename || screenshot.full_key || `${date}-${index}`,
+                  timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime || screenshot.last_modified,
+                  activity_type: 'ACTIVE',
+                  file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                  date: screenshot.date || date,
+                  size_mb: screenshot.size_mb,
+                  user_email: apiUser.email,
+                  project_folder: screenshot.subfolder_path
+                });
+              });
+            }
+          });
         }
-      };
+        
+        // Also include recent_screenshots if available (avoid duplicates)
+        if (apiUser.recent_screenshots && Array.isArray(apiUser.recent_screenshots)) {
+          apiUser.recent_screenshots.forEach((screenshot, index) => {
+            if (!allScreenshots.find(s => s.filename === screenshot.filename)) {
+              const screenshotDate = screenshot.date || (screenshot.datetime ? screenshot.datetime.split(' ')[0] : null);
+              if (screenshotDate) activityDates.add(screenshotDate);
+              
+              allScreenshots.push({
+                ...screenshot,
+                id: screenshot.filename || screenshot.full_key || `recent-${index}`,
+                timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime || screenshot.last_modified,
+                activity_type: 'ACTIVE',
+                file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                date: screenshot.date || screenshotDate,
+                size_mb: screenshot.size_mb,
+                user_email: apiUser.email,
+                project_folder: screenshot.subfolder_path
+              });
+            }
+          });
+        }
+        
+        // Sort screenshots by timestamp (newest first)
+        allScreenshots.sort((a, b) => {
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          
+          if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+          if (isNaN(dateA.getTime())) return 1;
+          if (isNaN(dateB.getTime())) return -1;
+          
+          return dateB - dateA;
+        });
+        
+        console.log(`📸 Loaded ${allScreenshots.length} screenshots for ${apiUser.display_name}`);
+        console.log(`📅 Activity dates:`, Array.from(activityDates));
+        console.log(`🔍 Sample screenshot dates:`, allScreenshots.slice(0, 3).map(s => s.date));
+        console.log(`📅 Current UI state - Year: ${selectedYear}, Month: ${selectedMonth}, ActiveDate: ${activeDate}`);
+        
+        // Update state with API data
+        setAllScreenshots(allScreenshots);
+        setUserScreenshots(allScreenshots);
+        setUserActivityDates(activityDates);
+        setTotalScreenshots(apiUser.total_screenshots || allScreenshots.length);
+        setApiStatus('connected');
+        setError(null);
+        
+      } else {
+        console.warn('⚠️ No data found for user from API');
+        setError(`No screenshots found for ${searchQuery} in the specified date range (${defaultStartDate} to ${defaultEndDate})`);
+        setApiStatus('disconnected');
+      }
       
-      loadUserFromApiResponse(mockApiResponse);
-    } else if (user.recent_screenshots && user.recent_screenshots.length > 0) {
-      
-      // Load from recent screenshots
-      const formattedScreenshots = user.recent_screenshots.map(screenshot => ({
-        id: screenshot.filename,
-        filename: screenshot.filename,
-        screenshot_url: screenshot.screenshot_url,
-        thumbnail_url: screenshot.thumbnail_url,
-        timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime,
-        date: screenshot.date,
-        time: screenshot.time,
-        size_mb: screenshot.size_mb,
-        size_bytes: screenshot.size_bytes,
-        activity_type: 'ACTIVE',
-        folder: screenshot.subfolder_path,
-        full_key: screenshot.full_key
-      }));
-      
-      setUserScreenshots(formattedScreenshots);
-      setTotalScreenshots(user.total_screenshots || formattedScreenshots.length);
-      setAllScreenshots(formattedScreenshots);
+    } catch (error) {
+      console.error('❌ Error searching user from API:', error);
+      setError(`Failed to load data for ${searchQuery}: ${error.message}`);
+      setApiStatus('error');
+    } finally {
       setIsLoadingScreenshots(false);
-      setScreenshotError(null);
-    } else {
-      // Fetch screenshots for selected user (full month initially)
-      fetchUserScreenshots(user, null);
     }
   }, [selectedYear, selectedMonth]);
 
@@ -1933,36 +2034,194 @@ const ActivityStream = () => {
     );
   }, [selectedYear, selectedMonth, activeDate, language]);
 
+  // Function to refresh user data from API when date selection changes
+  const refreshUserDataFromAPI = async (user, customStartDate = null, customEndDate = null) => {
+    if (!user) return;
+    
+    setIsLoadingScreenshots(true);
+    setError(null);
+    
+    try {
+      // Prepare search query
+      const searchQuery = user.display_name || user.username || user.email || user.original_name || '';
+      
+      // Determine date range
+      let startDate, endDate;
+      
+      if (customStartDate && customEndDate) {
+        startDate = customStartDate;
+        endDate = customEndDate;
+      } else {
+        // Use current selected year/month or default to September 1st
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
+        
+        if (selectedYear && selectedMonth) {
+          // Use selected month/year
+          startDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`;
+          const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+          endDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${daysInMonth.toString().padStart(2, '0')}`;
+        } else {
+          // Default to September 1st to current date
+          startDate = '2025-09-01';
+          endDate = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+        }
+      }
+      
+      console.log(`🔄 Refreshing user data: "${searchQuery}" from ${startDate} to ${endDate}`);
+      
+      // Call API to get fresh data
+      const apiUsers = await searchUsersFromAPI(searchQuery, 10, 0, 0, startDate, endDate);
+      
+      if (apiUsers && apiUsers.length > 0) {
+        const apiUser = apiUsers.find(u => 
+          u.email === user.email || 
+          u.display_name === user.display_name || 
+          u.original_name === user.original_name
+        ) || apiUsers[0];
+        
+        // Update selected user with fresh data
+        setSelectedUser(apiUser);
+        
+        // Process screenshots and activity dates (same as in handleResultSelect)
+        let allScreenshots = [];
+        const activityDates = new Set();
+        
+        if (apiUser.grouped_screenshots && Object.keys(apiUser.grouped_screenshots).length > 0) {
+          Object.keys(apiUser.grouped_screenshots).forEach(date => {
+            const dayData = apiUser.grouped_screenshots[date];
+            activityDates.add(date);
+            
+            if (dayData.screenshots && Array.isArray(dayData.screenshots)) {
+              dayData.screenshots.forEach((screenshot, index) => {
+                allScreenshots.push({
+                  ...screenshot,
+                  id: screenshot.filename || screenshot.full_key || `${date}-${index}`,
+                  timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime || screenshot.last_modified,
+                  activity_type: 'ACTIVE',
+                  file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                  date: screenshot.date || date,
+                  size_mb: screenshot.size_mb,
+                  user_email: apiUser.email,
+                  project_folder: screenshot.subfolder_path
+                });
+              });
+            }
+          });
+        }
+        
+        if (apiUser.recent_screenshots && Array.isArray(apiUser.recent_screenshots)) {
+          apiUser.recent_screenshots.forEach((screenshot, index) => {
+            if (!allScreenshots.find(s => s.filename === screenshot.filename)) {
+              const screenshotDate = screenshot.date || (screenshot.datetime ? screenshot.datetime.split(' ')[0] : null);
+              if (screenshotDate) activityDates.add(screenshotDate);
+              
+              allScreenshots.push({
+                ...screenshot,
+                id: screenshot.filename || screenshot.full_key || `recent-${index}`,
+                timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime || screenshot.last_modified,
+                activity_type: 'ACTIVE',
+                file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                date: screenshot.date || screenshotDate,
+                size_mb: screenshot.size_mb,
+                user_email: apiUser.email,
+                project_folder: screenshot.subfolder_path
+              });
+            }
+          });
+        }
+        
+        // Sort screenshots by timestamp (newest first)
+        allScreenshots.sort((a, b) => {
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          
+          if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+          if (isNaN(dateA.getTime())) return 1;
+          if (isNaN(dateB.getTime())) return -1;
+          
+          return dateB - dateA;
+        });
+        
+        // Update state
+        setAllScreenshots(allScreenshots);
+        setUserScreenshots(allScreenshots);
+        setUserActivityDates(activityDates);
+        setTotalScreenshots(apiUser.total_screenshots || allScreenshots.length);
+        setCurrentPage(1);
+        setApiStatus('connected');
+        setError(null);
+        
+        console.log(`✅ Refreshed: ${allScreenshots.length} screenshots, ${activityDates.size} activity dates`);
+        
+      } else {
+        setError(`No screenshots found for ${searchQuery} in the date range (${startDate} to ${endDate})`);
+        setUserScreenshots([]);
+        setAllScreenshots([]);
+        setUserActivityDates(new Set());
+      }
+      
+    } catch (error) {
+      console.error('❌ Error refreshing user data:', error);
+      setError(`Failed to refresh data: ${error.message}`);
+    } finally {
+      setIsLoadingScreenshots(false);
+    }
+  };
+
   // Handle year and month changes
-  const handleYearChange = (e) => {
-    setSelectedYear(Number(e.target.value));
-    setActiveDate(null); // Reset active date when year changes
+  const handleYearChange = async (e) => {
+    const newYear = Number(e.target.value);
+    setSelectedYear(newYear);
     setUserActivityDates(new Set()); // Reset activity dates
     setCurrentPage(1); // Reset pagination
-    // Refresh screenshots if user is selected
+    
+    // If user is selected, refresh data with new year but keep active date if selected
     if (selectedUser) {
-      fetchUserScreenshots(selectedUser, null);
+      if (activeDate) {
+        // Keep the selected date and make API call with specific date
+        const specificDate = `${newYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
+        console.log(`📅 Year changed to ${newYear}, refreshing with specific date: ${specificDate}`);
+        await searchUserByNameOrEmail(
+          selectedUser.display_name || selectedUser.original_name || selectedUser.email,
+          0 // retryCount
+        );
+      } else {
+        // No specific date selected, refresh with month range
+        refreshUserDataFromAPI(selectedUser);
+      }
     }
   };
 
-  const handleMonthChange = (e) => {
-    setSelectedMonth(Number(e.target.value));
-    setActiveDate(null); // Reset active date when month changes
-    setUserActivityDates(new Set()); // Reset activity dates
+  const handleMonthChange = async (e) => {
+    const newMonth = Number(e.target.value);
+    setSelectedMonth(newMonth);
+    setUserActivityDates(new Set()); // Reset activity dates  
     setCurrentPage(1); // Reset pagination
-    // Refresh screenshots if user is selected
+    
+    // If user is selected, refresh data with new month but keep active date if selected
     if (selectedUser) {
-      fetchUserScreenshots(selectedUser, null);
+      if (activeDate) {
+        // Keep the selected date and make API call with specific date
+        const specificDate = `${selectedYear}-${newMonth.toString().padStart(2, '0')}-${activeDate}`;
+        console.log(`📅 Month changed to ${newMonth}, refreshing with specific date: ${specificDate}`);
+        await searchUserByNameOrEmail(
+          selectedUser.display_name || selectedUser.original_name || selectedUser.email,
+          0 // retryCount
+        );
+      } else {
+        // No specific date selected, refresh with month range
+        refreshUserDataFromAPI(selectedUser);
+      }
     }
   };
 
-  // Pagination handlers - Updated to use API pagination
+  // Pagination handlers - Updated for local pagination with all data loaded
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
-      // For API-based pagination, fetch new page from server
-      if (selectedUser) {
-        fetchUserScreenshots(selectedUser, activeDate, newPage);
-      }
+      setCurrentPage(newPage);
       
       // Scroll to top of screenshots section
       const screenshotsSection = document.querySelector('[data-screenshots-section]');
@@ -1972,20 +2231,11 @@ const ActivityStream = () => {
     }
   };
 
-  // Load More handler - loads next page and appends to current results
+  // Load More handler - simplified since we have all data
   const handleLoadMore = async () => {
     const nextPage = currentPage + 1;
-    
-    if (selectedUser) {
-      setIsLoadingScreenshots(true);
-      
-      try {
-        // Force load next page regardless of pagination calculations
-        await fetchUserScreenshots(selectedUser, activeDate, nextPage);
-      } catch (error) {
-        console.error('📸 Error loading more screenshots:', error);
-        setIsLoadingScreenshots(false);
-      }
+    if (nextPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
+      setCurrentPage(nextPage);
     }
   };
 
@@ -1999,14 +2249,107 @@ const ActivityStream = () => {
   }, [totalScreenshots, screenshotsPerPage]);
 
   // Handle date selection from calendar
-  const handleDateSelect = (day) => {
+  const handleDateSelect = async (day) => {
     if (day.isCurrentMonth) {
       const selectedDateStr = day.date.toString().padStart(2, '0');
+      console.log(`📅 Date selected: ${selectedDateStr}`);
       setActiveDate(selectedDateStr);
       
-      if (selectedUser) {
-        // Fetch screenshots specifically for the selected date
-        fetchUserScreenshots(selectedUser, day.date);
+      // If a user is selected, make API call with specific date
+      if (selectedUser && selectedUser.email) {
+        const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${selectedDateStr}`;
+        console.log(`🔍 Making API call for user ${selectedUser.display_name} on specific date: ${specificDate}`);
+        
+        // Make API call with the specific date passed directly
+        setIsLoadingScreenshots(true);
+        setError(null);
+        
+        try {
+          const searchParams = new URLSearchParams({
+            q: selectedUser.display_name || selectedUser.original_name || selectedUser.email,
+            start_date: specificDate,
+            end_date: specificDate,
+            limit: '20',
+            offset: '0'
+          });
+          
+          const apiUrl = `/api/users/search/?${searchParams.toString()}`;
+          console.log(`🌐 API call: ${apiUrl}`);
+          
+          const response = await fetch(apiUrl, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.status === 'success' && data.data && data.data.users && data.data.users.length > 0) {
+              const foundUser = data.data.users[0];
+              
+              // Process screenshots for the specific date
+              let allScreenshots = [];
+              if (foundUser.grouped_screenshots) {
+                Object.keys(foundUser.grouped_screenshots).forEach(date => {
+                  if (date === specificDate) {
+                    const dayData = foundUser.grouped_screenshots[date];
+                    if (dayData.screenshots && Array.isArray(dayData.screenshots)) {
+                      dayData.screenshots.forEach((screenshot, index) => {
+                        allScreenshots.push({
+                          ...screenshot,
+                          id: screenshot.filename || screenshot.full_key || `${date}-${index}`,
+                          timestamp: screenshot.datetime || screenshot.last_modified,
+                          activity_type: 'ACTIVE',
+                          file_size: screenshot.size_mb ? `${screenshot.size_mb} MB` : 'N/A',
+                          date: date,
+                          size_mb: screenshot.size_mb,
+                          user_email: foundUser.email,
+                          project_folder: screenshot.subfolder_path
+                        });
+                      });
+                    }
+                  }
+                });
+              }
+              
+              // Sort screenshots by timestamp (newest first)
+              allScreenshots.sort((a, b) => {
+                const dateA = new Date(a.timestamp);
+                const dateB = new Date(b.timestamp);
+                return dateB - dateA;
+              });
+              
+              setUserScreenshots(allScreenshots);
+              setAllScreenshots(allScreenshots);
+              setTotalScreenshots(allScreenshots.length);
+              setCurrentPage(1);
+              
+              if (allScreenshots.length === 0) {
+                setError(`No screenshots found on ${specificDate} for ${selectedUser.display_name}`);
+              } else {
+                setError(null);
+                console.log(`✅ Found ${allScreenshots.length} screenshots for ${specificDate}`);
+              }
+            } else {
+              setError(`No data found for ${selectedUser.display_name} on ${specificDate}`);
+              setUserScreenshots([]);
+              setAllScreenshots([]);
+              setTotalScreenshots(0);
+            }
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        } catch (error) {
+          console.error('❌ Error fetching screenshots for date:', error);
+          setError(`Failed to load screenshots for ${specificDate}: ${error.message}`);
+          setUserScreenshots([]);
+          setAllScreenshots([]);
+          setTotalScreenshots(0);
+        } finally {
+          setIsLoadingScreenshots(false);
+        }
       }
     }
   };
@@ -2026,7 +2369,7 @@ const ActivityStream = () => {
       <Container>
       <Title>
         {t('realTimeActivityStream')}
-        <span className="help-icon" ref={helpRef} style={{ marginLeft: 8 }}>
+        <span className="help-icon" ref={helpRef}>
      
          
         </span>
@@ -2059,19 +2402,8 @@ const ActivityStream = () => {
         {/* Horizontal Date Row */}
         <div 
           ref={dateScrollRef}
-          style={{
-            display: 'flex',
-            gap: '6px',
-            backgroundColor: 'white',
-            padding: '8px 12px',
-            borderRadius: '8px',
-            border: '1px solid #e1e5e9',
-            overflowX: 'auto',
-            flex: 1,
-            scrollBehavior: 'smooth',
-          }}
+          className="date-row-container"
           data-theme-aware="true"
-          className="date-row"
         >
           <style>{`
             .date-row::-webkit-scrollbar {
@@ -2127,45 +2459,21 @@ const ActivityStream = () => {
                   }}
                 >
                   {/* Left side: Day */}
-                  <div style={{
-                    fontSize: '22px',
-                    fontWeight: 'bold',
-                  }}>
+                  <div className="calendar-day">
                     {day.date.toString().padStart(2, '0')}
                   </div>
 
                   {/* Right side: Month and Year */}
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    lineHeight: '1.2'
-                  }}>
-                    <div style={{
-                      fontSize: '11px',
-                      fontWeight: 'normal',
-                      textTransform: 'uppercase',
-                    }}>
+                  <div className="calendar-month-info">
+                    <div className="calendar-month">
                       {getMonthName(day.month, language)}
                     </div>
-                    <div style={{
-                      fontSize: '11px',
-                      fontWeight: 'normal',
-                      opacity: 0.8,
-                    }}>
+                    <div className="calendar-year">
                       {day.year}
                     </div>
                   </div>
                     {day.hasActivity && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '6px',
-                      right: '6px',
-                      width: '7px',
-                      height: '7px',
-                      borderRadius: '50%',
-                      backgroundColor: isSelected ? 'rgba(255,255,255,0.9)' : 'var(--success-color)'
-                    }} />
+                    <div className={`activity-indicator ${isSelected ? 'selected' : ''}`} />
                   )}
                 </div>
               );
@@ -2182,12 +2490,9 @@ const ActivityStream = () => {
       <ContentContainer>
         <SearchContainer 
           ref={searchContainerRef}
-          style={{ 
-            position: 'relative',
-            isolation: 'isolate'
-          }}
+          className="search-container-relative"
         >
-          <div style={{ position: 'relative' }}>
+          <div className="search-input-relative">
             <SearchInput
               type="text"
               placeholder="Search users by name or email (All users shown below) ↓"
@@ -2249,34 +2554,10 @@ const ActivityStream = () => {
 
           {/* Search Results Dropdown */}
           {showResults && (
-            <div style={{
-              position: 'absolute',
-              top: '45px',
-              left: 0,
-              right: 0,
-              backgroundColor: isDarkMode ? '#1d232c' : 'white',
-              border: '1px solid #e1e5e9',
-              borderRadius: '8px',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-              zIndex: 9999,
-              maxHeight: '500px',
-              overflowY: 'auto',
-              marginTop: '4px'
-            }}
-            className="search-dropdown"
-            >
-              <div style={{ position: 'relative' }}>
+            <div className="search-dropdown">
+              <div className="dropdown-relative">
               {/* Header */}
-              <div style={{
-                padding: '12px 16px',
-                borderBottom: '1px solid #e1e5e9',
-                backgroundColor: isDarkMode ? '#252d38' : '#f8f9fa',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: '#6c757d',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
+              <div className="dropdown-header">
                 {searchValue 
                   ? `🔍 Search Results for "${searchValue}" (${filteredStaticUsers.length} found)` 
                   : `� Available Users (${STATIC_USERS.length})`
@@ -2288,64 +2569,22 @@ const ActivityStream = () => {
                 <div
                   key={user.email}
                   onClick={() => handleUserSelect(user)}
-                  style={{
-                    padding: '12px 16px',
-                    cursor: 'pointer',
-                    borderBottom: index < filteredStaticUsers.length - 1 ? '1px solid #e1e5e9' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    transition: 'background-color 0.2s',
-                    backgroundColor: 'transparent'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#2a3441' : '#f8f9fa';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
+                  className="user-item"
                 >
-                  <div style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    backgroundColor: '#17a2b8',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    flexShrink: 0
-                  }}>
-                    {user.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ 
-                      fontWeight: '500', 
-                      color: isDarkMode ? 'white' : '#1a1a1a',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {user.username}
+                  <div className="user-item-content">
+                    <div className="user-avatar">
+                      {user.username.charAt(0).toUpperCase()}
                     </div>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      color: '#6c757d',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {user.email}
-                    </div>
-                    <div style={{ 
-                      fontSize: '11px', 
-                      color: '#6610f2',
-                      fontWeight: '500',
-                      marginTop: '2px'
-                    }}>
-                      👤 Click to load data
+                    <div className="user-info-flex">
+                      <div className="user-name-primary">
+                        {user.username}
+                      </div>
+                      <div className="user-email-secondary">
+                        {user.email}
+                      </div>
+                      <div className="user-stats-small">
+                        👤 Click to load data
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2354,43 +2593,22 @@ const ActivityStream = () => {
               
               {/* Loading State */}
               {isSearching && (
-                <div style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#6c757d'
-                }}>
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    border: '2px solid #f3f3f3',
-                    borderTop: '2px solid #4285f4',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                    margin: '0 auto 8px'
-                  }}></div>
-                  <div>Loading users...</div>
-                  <style>{`
-                    @keyframes spin {
-                      0% { transform: rotate(0deg); }
-                      100% { transform: rotate(360deg); }
-                    }
-                  `}</style>
+                <div className="loading-container">
+                  <div className="loading-content">
+                    <div className="loading-spinner">⏳</div>
+                    <div>Loading users...</div>
+                  </div>
                 </div>
               )}
               
               {/* No Results */}
               {!isSearching && memoizedSearchResults.length === 0 && (
-                <div style={{
-                  padding: '20px',
-                  textAlign: 'center',
-                  color: '#6c757d'
-                }}>
-                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
+                <div className="no-results-container">
+                  <div className="no-results-icon">🔍</div>
                   <div>No users with screenshots found{searchValue ? ` for "${searchValue}"` : ''}</div>
                   {!searchValue && (
                     <button
                       onClick={async () => {
-                        console.log('🔄 Manual retry - loading users...');
                         setIsSearching(true);
                         try {
                           const users = await fetchAllUsers();
@@ -2401,22 +2619,12 @@ const ActivityStream = () => {
                             setError(null);
                           }
                         } catch (error) {
-                          console.error('❌ Manual retry failed:', error);
                           setError('Failed to load users. Please check your connection.');
                         } finally {
                           setIsSearching(false);
                         }
                       }}
-                      style={{
-                        marginTop: '12px',
-                        padding: '8px 16px',
-                        backgroundColor: '#4285f4',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px'
-                      }}
+                      className="retry-button"
                     >
                       🔄 Load Users
                     </button>
@@ -2429,54 +2637,26 @@ const ActivityStream = () => {
         
         {/* Right Side Content - Screenshots or Empty State */}
         {selectedUser ? (
-          <div style={{ 
-            flex: 1, 
-            padding: '20px',
-            overflowY: 'auto'
-          }}>
+          <div className="user-section-wrapper">
             {/* Always show user header and content */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '20px',
-              paddingBottom: '10px',
-              borderBottom: `1px solid var(--border-color)`
-            }}>
+            <div className="user-panel-header">
               <div>
-                <h3 style={{ 
-                  margin: 0, 
-                  fontSize: '18px', 
-                  fontWeight: '600',
-                      color: 'var(--text-primary)'
-                }}>
+                <h3 className="user-panel-title">
                   {selectedUser.display_name || selectedUser.email}
                 </h3>
-                <p style={{ 
-                  margin: '4px 0 0 0', 
-                  fontSize: '14px', 
-                      color: 'var(--text-secondary)'
-                }}>
+                <p className="user-email-secondary">
                   Activity Stream - {getFullMonthName(selectedMonth, language)} {selectedYear}
                   {activeDate && ` (Day ${activeDate})`}
                 </p>
                 {totalScreenshots > 0 && (
-                  <div style={{ 
-                    margin: '4px 0 0 0', 
-                    fontSize: '12px', 
-                    color: 'var(--primary-color)',
-                    fontWeight: '500',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px'
-                  }}>
-                    <div>
+                  <div className="user-details-container">
+                    <div className="user-meta-info">
                       📊 {totalScreenshots} total screenshots found
                     </div>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
+                    <div className="user-stats-info">
                       Currently viewing {userScreenshots.length} screenshots • Page {currentPage} of {totalPages}
                       {currentPage < totalPages && (
-                        <span style={{ color: 'var(--success-color)', marginLeft: '8px' }}>
+                        <span className="screenshot-count">
                           • {Math.min(screenshotsPerPage, totalScreenshots - (currentPage * screenshotsPerPage))} more available
                         </span>
                       )}
@@ -2493,14 +2673,7 @@ const ActivityStream = () => {
                   setCurrentPage(1);
                   setSearchValue('');
                 }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '20px',
-                  cursor: 'pointer',
-                  color: 'var(--text-secondary)',
-                  padding: '4px'
-                }}
+                className="close-button"
               >
                 ✕
               </button>
@@ -2548,7 +2721,7 @@ const ActivityStream = () => {
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
                 <p>{screenshotError}</p>
                 <button
-                  onClick={() => fetchUserScreenshots(selectedUser)}
+                  onClick={() => refreshUserDataFromAPI(selectedUser)}
                   style={{
                     marginTop: '12px',
                     padding: '8px 16px',
@@ -2623,8 +2796,8 @@ const ActivityStream = () => {
                         {screenshot.screenshot_url ? (
                           <img
                             src={(() => {
-                              // Get current host and port for full URL construction
-                              const currentHost = 'http://localhost:3001/s3-images';
+                              // Get current host and port for full URL construction - using Vite dev server proxy
+                              const currentHost = '/s3-images';
                               
                               // Replace S3 URL with current app URL
                               if (screenshot.screenshot_url.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
@@ -2830,10 +3003,7 @@ const ActivityStream = () => {
                           const newPageSize = parseInt(e.target.value);
                           setScreenshotsPerPage(newPageSize);
                           setCurrentPage(1);
-                          // Refetch with new page size
-                          if (selectedUser) {
-                            fetchUserScreenshots(selectedUser, activeDate, 1);
-                          }
+                          // No need to refetch - we have all data loaded already
                         }}
                         style={{
                           padding: '6px 12px',
@@ -2992,7 +3162,7 @@ const ActivityStream = () => {
                       onClick={() => {
                         if (selectedUser) {
                           setCurrentPage(1);
-                          fetchUserScreenshots(selectedUser, activeDate, 1);
+                          refreshUserDataFromAPI(selectedUser);
                         }
                       }}
                       style={{
@@ -3026,7 +3196,7 @@ const ActivityStream = () => {
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
                 <p>No screenshots found for this period</p>
                 <button
-                  onClick={() => fetchUserScreenshots(selectedUser)}
+                  onClick={() => refreshUserDataFromAPI(selectedUser)}
                   style={{
                     marginTop: '12px',
                     padding: '8px 16px',

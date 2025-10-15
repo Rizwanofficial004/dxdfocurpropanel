@@ -193,6 +193,72 @@ export default defineConfig({
           });
         },
       },
+      '/s3-images': {
+        target: 'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => {
+          // Remove /s3-images prefix and keep the rest of the path
+          const newPath = path.replace(/^\/s3-images\//, '');
+          console.log('📸 Rewriting S3 path:', path, '→', newPath);
+          return newPath;
+        },
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('❌ S3 Images proxy error:', err.message, 'for URL:', req.url);
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Image not found');
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('🖼️ Proxying S3 Images:', req.url);
+            // Remove all potentially problematic headers
+            proxyReq.removeHeader('origin');
+            proxyReq.removeHeader('referer');
+            proxyReq.removeHeader('authorization');
+            proxyReq.removeHeader('x-forwarded-for');
+            proxyReq.removeHeader('x-forwarded-host');
+            proxyReq.removeHeader('x-forwarded-proto');
+            proxyReq.removeHeader('host');
+            proxyReq.removeHeader('connection');
+            proxyReq.removeHeader('upgrade-insecure-requests');
+            
+            // Set headers to mimic a direct browser request
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+            proxyReq.setHeader('Accept', 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8');
+            proxyReq.setHeader('Accept-Language', 'en-US,en;q=0.9');
+            proxyReq.setHeader('Accept-Encoding', 'gzip, deflate, br');
+            proxyReq.setHeader('Cache-Control', 'no-cache');
+            proxyReq.setHeader('Pragma', 'no-cache');
+            proxyReq.setHeader('Sec-Fetch-Dest', 'image');
+            proxyReq.setHeader('Sec-Fetch-Mode', 'no-cors');
+            proxyReq.setHeader('Sec-Fetch-Site', 'cross-site');
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('✅ S3 Images Response:', proxyRes.statusCode, req.url);
+            
+            // Handle different response codes
+            if (proxyRes.statusCode === 200) {
+              console.log('🎉 Successfully loaded image:', req.url);
+            } else if (proxyRes.statusCode === 403) {
+              console.log('❌ S3 Access Denied for:', req.url);
+            } else if (proxyRes.statusCode === 404) {
+              console.log('❌ Image not found:', req.url);
+            }
+            
+            // Add comprehensive CORS headers
+            proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+            proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, HEAD, OPTIONS';
+            proxyRes.headers['Access-Control-Allow-Headers'] = '*';
+            proxyRes.headers['Access-Control-Expose-Headers'] = '*';
+            proxyRes.headers['Cross-Origin-Resource-Policy'] = 'cross-origin';
+            
+            // Set caching headers for images
+            if (proxyRes.statusCode === 200) {
+              proxyRes.headers['Cache-Control'] = 'public, max-age=86400'; // 24 hours
+            }
+          });
+        },
+      },
       '/users_screenshots': {
         target: 'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
         changeOrigin: true,
