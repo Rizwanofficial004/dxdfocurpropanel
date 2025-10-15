@@ -3036,34 +3036,37 @@ const ActivityStream = () => {
                           fontSize: '11px',
                           fontWeight: '500'
                         }}>
-                          {formatSafeTime(extractDateFromScreenshot(screenshot))}
+                          {(() => {
+                            // Always use selected date when activeDate is set
+                            if (activeDate && selectedMonth && selectedYear) {
+                              const timestamp = extractDateFromScreenshot(screenshot);
+                              const monthName = getMonthName(selectedMonth, 'short');
+                              const dayStr = activeDate.toString().padStart(2, '0');
+                              
+                              if (timestamp) {
+                                try {
+                                  const time = new Date(timestamp);
+                                  if (!isNaN(time.getTime())) {
+                                    const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+                                    return `${monthName} ${dayStr}, ${timeStr}`;
+                                  }
+                                } catch (e) {
+                                  console.warn('Time parsing error:', e);
+                                }
+                              }
+                              
+                              // Fallback: show selected date without time
+                              return `${monthName} ${dayStr}, ${selectedYear}`;
+                            }
+                            // Fallback: show actual timestamp when no specific date is selected
+                            return formatSafeTime(extractDateFromScreenshot(screenshot));
+                          })()}
                         </div>
                       </div>
 
                       {/* Screenshot Info */}
                       <div style={{ padding: '16px' }}>
-                        <div style={{
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: 'var(--text-primary)',
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <span style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: screenshot.activity_type === 'ACTIVE' ? '#4caf50' : '#ff9800'
-                          }}></span>
-                          {formatSafeDate(extractDateFromScreenshot(screenshot), language, {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </div>
+                 
                         
                         <div style={{
                           fontSize: '11px',
@@ -3391,10 +3394,7 @@ const ActivityStream = () => {
                               padding: '2px 4px',
                               borderRadius: '2px'
                             }}>
-                              {formatSafeTime(extractDateFromScreenshot(screenshot), {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                              
                             </div>
                           </div>
                         ))}
