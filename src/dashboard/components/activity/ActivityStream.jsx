@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getApiBaseURL } from '../../../config/api';
+import ImageModal from '../common/ImageModal';
 import './ActivityStream.css';
 import {
   Container,
@@ -249,6 +250,12 @@ const ActivityStream = () => {
   const [allUsersScreenshots, setAllUsersScreenshots] = useState([]); // Store screenshots for all users
   const [isLoadingAllScreenshots, setIsLoadingAllScreenshots] = useState(false); // Loading state for all screenshots
   const [filteredStaticUsers, setFilteredStaticUsers] = useState(STATIC_USERS); // Filtered static users for local search
+  
+  // Modal state for image viewing
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImages, setModalImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
   const searchContainerRef = useRef(null);
   const dateScrollRef = useRef(null);
 
@@ -509,7 +516,7 @@ const ActivityStream = () => {
         q: query,
         start_date: startDate,
         end_date: endDate,
-        limit: '20',
+        limit: screenshotsPerPage.toString(),
         offset: '0'
       });
       
@@ -2218,6 +2225,142 @@ const ActivityStream = () => {
     }
   };
 
+  // Handle screenshots per page change
+  const handleScreenshotsPerPageChange = async (e) => {
+    const newPerPage = Number(e.target.value);
+    setScreenshotsPerPage(newPerPage);
+    setCurrentPage(1); // Reset to first page when changing page size
+    
+    console.log(`📊 Screenshots per page changed to: ${newPerPage}`);
+    
+    // If user is selected, refresh data with new page size
+    if (selectedUser) {
+      if (activeDate) {
+        // Specific date selected, make API call with new page size
+        const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
+        await searchUserByNameOrEmail(
+          selectedUser.display_name || selectedUser.original_name || selectedUser.email,
+          0 // retryCount
+        );
+      } else {
+        // No specific date selected, refresh with month range and new page size
+        refreshUserDataFromAPI(selectedUser);
+      }
+    }
+  };
+
+  // Shared function to process screenshot URLs consistently
+  const processScreenshotUrl = (screenshotUrl) => {
+    if (!screenshotUrl) {
+      console.log('🖼️ No URL provided');
+      return null;
+    }
+    
+    console.log('🖼️ Processing URL:', screenshotUrl);
+    
+    // If URL is already processed (starts with /s3-images), return as is
+    if (screenshotUrl.startsWith('/s3-images')) {
+      console.log('🖼️ URL already processed:', screenshotUrl);
+      return screenshotUrl;
+    }
+    
+    // Get current host and port for full URL construction - using Vite dev server proxy
+    const currentHost = '/s3-images';
+    
+    // Replace S3 URL with current app URL
+    if (screenshotUrl.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
+      // Replace the S3 domain with proxy server URL
+      const localUrl = screenshotUrl.replace(
+        'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
+        currentHost
+      );
+      console.log('🖼️ Converted S3 URL:', screenshotUrl, '→', localUrl);
+      return localUrl;
+    }
+    
+    // Handle other S3 formats
+    if (screenshotUrl.includes('s3') && screenshotUrl.includes('amazonaws.com')) {
+      const urlParts = screenshotUrl.split('/');
+      const pathIndex = urlParts.findIndex(part => part.includes('amazonaws.com'));
+      if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
+        const s3Path = urlParts.slice(pathIndex + 1).join('/');
+        const finalUrl = `${currentHost}/${s3Path}`;
+        console.log('🖼️ Converted generic S3 URL:', screenshotUrl, '→', finalUrl);
+        return finalUrl;
+      }
+    }
+    
+    // Return original URL for non-S3 images
+    console.log('🖼️ Non-S3 URL, returning original:', screenshotUrl);
+    return screenshotUrl;
+  };
+
+  // Modal functions for image viewing - Use original S3 URLs
+  const openImageModal = (screenshots, clickedIndex) => {
+    console.log('🖼️ Opening modal with screenshots:', screenshots);
+    console.log('🖼️ Clicked index:', clickedIndex);
+    
+    if (!screenshots || screenshots.length === 0) {
+      console.error('❌ No screenshots provided');
+      return;
+    }
+    
+    // Use original S3 URLs directly for the modal (no proxy needed)
+    const imageUrls = screenshots.map((screenshot, index) => {
+      const originalUrl = screenshot.screenshot_url;
+      console.log(`🖼️ Using original S3 URL for image ${index}:`, originalUrl);
+      return originalUrl;
+    }).filter(url => url); // Remove any null/undefined URLs
+    
+    console.log('🖼️ Final image URLs:', imageUrls);
+    
+    if (imageUrls.length === 0) {
+      console.error('❌ No valid image URLs found');
+      return;
+    }
+    
+    setModalImages(imageUrls);
+    setCurrentImageIndex(clickedIndex);
+    setIsModalOpen(true);
+    console.log('🖼️ Modal state set - should be open now');
+  };
+
+  const closeImageModal = () => {
+    setIsModalOpen(false);
+    setModalImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  const handleModalIndexChange = (newIndex) => {
+    setCurrentImageIndex(newIndex);
+  };
+
+  // Keyboard navigation for modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isModalOpen) return;
+      
+      switch (e.key) {
+        case 'Escape':
+          setIsModalOpen(false);
+          break;
+        case 'ArrowLeft':
+          if (currentImageIndex > 0) {
+            setCurrentImageIndex(prev => prev - 1);
+          }
+          break;
+        case 'ArrowRight':
+          if (currentImageIndex < modalImages.length - 1) {
+            setCurrentImageIndex(prev => prev + 1);
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, currentImageIndex, modalImages.length]);
+
   // Pagination handlers - Updated for local pagination with all data loaded
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
@@ -2269,7 +2412,7 @@ const ActivityStream = () => {
             q: selectedUser.display_name || selectedUser.original_name || selectedUser.email,
             start_date: specificDate,
             end_date: specificDate,
-            limit: '20',
+            limit: screenshotsPerPage.toString(),
             offset: '0'
           });
           
@@ -2385,6 +2528,21 @@ const ActivityStream = () => {
           {MONTHS.map(({ value, label }) => (
             <option key={value} value={value}>{label}</option>
           ))}
+        </Select>
+        <Select value={screenshotsPerPage} onChange={handleScreenshotsPerPageChange}>
+          <option value={50}>50 per page</option>
+          <option value={100}>100 per page</option>
+          <option value={200}>200 per page</option>
+          <option value={300}>300 per page</option>
+          <option value={400}>400 per page</option>
+          <option value={500}>500 per page</option>
+          <option value={700}>700 per page</option>
+          <option value={1000}>1000 per page</option>
+          <option value={1200}>1200 per page</option>
+          <option value={1400}>1400 per page</option>
+          <option value={1500}>1500 per page</option>
+          <option value={1700}>1700 per page</option>
+          <option value={2000}>2000 per page</option>
         </Select>
       </SelectContainer>
 
@@ -2769,9 +2927,14 @@ const ActivityStream = () => {
                         e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-color)';
                       }}
                       onClick={() => {
-                        // Open screenshot in new tab
+                        // Open image in modal
+                        console.log('🖼️ Image clicked, screenshot:', screenshot);
+                        
                         if (screenshot.screenshot_url) {
-                          window.open(screenshot.screenshot_url, '_blank');
+                          // Use the openImageModal function with proper image data
+                          openImageModal(userScreenshots, index);
+                        } else {
+                          console.error('❌ No screenshot_url found:', screenshot);
                         }
                       }}
                     >
@@ -2795,33 +2958,7 @@ const ActivityStream = () => {
                       }}>
                         {screenshot.screenshot_url ? (
                           <img
-                            src={(() => {
-                              // Get current host and port for full URL construction - using Vite dev server proxy
-                              const currentHost = '/s3-images';
-                              
-                              // Replace S3 URL with current app URL
-                              if (screenshot.screenshot_url.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-                                // Replace the S3 domain with proxy server URL
-                                const localUrl = screenshot.screenshot_url.replace(
-                                  'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
-                                  currentHost
-                                );
-                                return localUrl;
-                              }
-                              
-                              // Handle other S3 formats
-                              if (screenshot.screenshot_url.includes('s3') && screenshot.screenshot_url.includes('amazonaws.com')) {
-                                const urlParts = screenshot.screenshot_url.split('/');
-                                const pathIndex = urlParts.findIndex(part => part.includes('amazonaws.com'));
-                                if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
-                                  const s3Path = urlParts.slice(pathIndex + 1).join('/');
-                                  return `${currentHost}/${s3Path}`;
-                                }
-                              }
-                              
-                              // Return original URL for non-S3 images
-                              return screenshot.screenshot_url;
-                            })()}
+                            src={processScreenshotUrl(screenshot.screenshot_url)}
                             alt={`Screenshot ${screenshot.timestamp}`}
                             style={{
                               width: '100%',
@@ -2989,7 +3126,7 @@ const ActivityStream = () => {
                   }}>
                     <div>
                       {totalScreenshots > 0 ? (
-                        <strong>📊 Showing {((currentPage - 1) * screenshotsPerPage) + 1} to {Math.min(currentPage * screenshotsPerPage, totalScreenshots)} of {totalScreenshots} screenshots</strong>
+                        <strong>📊 Showing all {userScreenshots.length} screenshots</strong>
                       ) : (
                         <strong>📷 No screenshots found for the selected period</strong>
                       )}
@@ -2999,12 +3136,7 @@ const ActivityStream = () => {
                       <select 
                         id="screenshots-per-page"
                         value={screenshotsPerPage} 
-                        onChange={(e) => {
-                          const newPageSize = parseInt(e.target.value);
-                          setScreenshotsPerPage(newPageSize);
-                          setCurrentPage(1);
-                          // No need to refetch - we have all data loaded already
-                        }}
+                        onChange={handleScreenshotsPerPageChange}
                         style={{
                           padding: '6px 12px',
                           border: `1px solid var(--border-color)`,
@@ -3016,133 +3148,21 @@ const ActivityStream = () => {
                           cursor: 'pointer'
                         }}
                       >
-                        <option value={10}>10 per page</option>
-                        <option value={20}>20 per page</option>
                         <option value={50}>50 per page</option>
-                        <option value={100}>100 per page</option>
+                        <option value={300}>300 per page</option>
+                        <option value={400}>400 per page</option>
+                        <option value={500}>500 per page</option>
+                        <option value={1000}>1000 per page</option>
+                        <option value={1200}>1200 per page</option>
+                        <option value={1400}>1400 per page</option>
+                        <option value={1500}>1500 per page</option>
+                        <option value={1700}>1700 per page</option>
+                        <option value={2000}>2000 per page</option>
                       </select>
                     </div>
                   </div>
 
-                  {/* Temporary: Always show Load More for debugging */}
-                  {userScreenshots.length > 0 && (
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      marginBottom: '16px'
-                    }}>
-                      <button
-                        onClick={handleLoadMore}
-                        disabled={isLoadingScreenshots}
-                        style={{
-                          padding: '12px 24px',
-                          backgroundColor: isLoadingScreenshots ? '#6c757d' : '#28a745',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: isLoadingScreenshots ? 'not-allowed' : 'pointer',
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          transition: 'all 0.2s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}
-                      >
-                        {isLoadingScreenshots ? (
-                          <>
-                            <div style={{
-                              width: '16px',
-                              height: '16px',
-                              border: '2px solid rgba(255,255,255,0.3)',
-                              borderTop: '2px solid white',
-                              borderRadius: '50%',
-                              animation: 'spin 1s linear infinite'
-                            }}></div>
-                            Loading More...
-                          </>
-                        ) : (
-                          <>
-                            📸 Load More
-                            <span style={{
-                              backgroundColor: 'rgba(255,255,255,0.2)',
-                              padding: '3px 8px',
-                              borderRadius: '12px',
-                              fontSize: '12px',
-                              fontWeight: '500'
-                            }}>
-                              Current: {userScreenshots.length}
-                            </span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
-
                  
-
-                  {/* Traditional Pagination - Only show if multiple pages */}
-                  {totalScreenshots > 0 && totalPages > 1 && (
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      gap: '6px',
-                      flexWrap: 'wrap'
-                    }}>
-                      {/* Previous Button */}
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        style={{
-                          padding: '8px 12px',
-                          backgroundColor: currentPage === 1 ? '#6c757d' : '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        ← Prev
-                      </button>
-
-                      {/* Page Info */}
-                      <div style={{
-                        padding: '8px 16px',
-                        backgroundColor: 'var(--bg-tertiary)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: 'var(--text-primary)',
-                        border: `1px solid var(--border-color)`
-                      }}>
-                        Page {currentPage} of {totalPages}
-                      </div>
-
-                      {/* Next Button */}
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        style={{
-                          padding: '8px 12px',
-                          backgroundColor: currentPage === totalPages ? '#6c757d' : '#007bff',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        Next →
-                      </button>
-                    </div>
-                  )}
 
                   {/* Quick Actions */}
                   <div style={{
@@ -3489,6 +3509,186 @@ const ActivityStream = () => {
           </div>
         )}
       </ContentContainer>
+      
+      {/* Simple Image Modal for testing */}
+      {isModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column'
+        }} onClick={() => setIsModalOpen(false)}>
+          
+          {/* Debug: Test if this shows */}
+    
+          
+          {/* Modal Header */}
+          <div style={{ 
+            position: 'absolute',
+            top: '80px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: 'white',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            zIndex: 99999
+          }}>
+            Image {currentImageIndex + 1} of {modalImages.length}
+          </div>
+
+          {/* Image Container */}
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '90%',
+            height: '80%',
+            zIndex: 99999
+          }} onClick={(e) => e.stopPropagation()}>
+            
+            {/* Left Arrow */}
+            {modalImages.length > 1 && currentImageIndex > 0 && (
+              <button
+                onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
+                style={{
+                  position: 'absolute',
+                  left: '20px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  color: 'white',
+                  fontSize: '18px',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  zIndex: 99999
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  e.target.style.transform = 'translateY(-50%) scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  e.target.style.transform = 'translateY(-50%) scale(1)';
+                }}
+                title="Previous Image (←)"
+              >
+                ◀
+              </button>
+            )}
+
+            {/* Image */}
+            {modalImages[currentImageIndex] && (
+              <img 
+                src={modalImages[currentImageIndex]}
+                alt="Screenshot"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+                onLoad={() => console.log('✅ Simple modal image loaded')}
+                onError={(e) => console.error('❌ Simple modal image error:', e)}
+              />
+            )}
+
+            {/* Right Arrow */}
+            {modalImages.length > 1 && currentImageIndex < modalImages.length - 1 && (
+              <button
+                onClick={() => setCurrentImageIndex(prev => Math.min(modalImages.length - 1, prev + 1))}
+                style={{
+                  position: 'absolute',
+                  right: '20px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  color: 'white',
+                  fontSize: '18px',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  zIndex: 99999
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  e.target.style.transform = 'translateY(-50%) scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  e.target.style.transform = 'translateY(-50%) scale(1)';
+                }}
+                title="Next Image (→)"
+              >
+                ▶
+              </button>
+            )}
+          </div>
+
+          {/* Debug URL */}
+          <div style={{ 
+            position: 'absolute',
+            bottom: '60px',
+            left: '20px',
+            right: '20px',
+            color: 'yellow', 
+            fontSize: '12px',
+            textAlign: 'center',
+            wordBreak: 'break-all'
+          }}>
+            URL: {modalImages[currentImageIndex] || 'No URL'}
+          </div>
+
+          {/* Instructions */}
+          <div style={{ 
+            position: 'absolute',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: 'white',
+            fontSize: '14px'
+          }}>
+            Use arrows to navigate • Click outside to close
+          </div>
+        </div>
+      )}
+      
+      {/* Original Image Modal - commented out for testing */}
+      {/*
+      <ImageModal
+        isOpen={isModalOpen}
+        onClose={closeImageModal}
+        images={modalImages}
+        currentIndex={currentImageIndex}
+        onIndexChange={handleModalIndexChange}
+        isDarkMode={isDarkMode}
+      />
+      */}
     </Container>
     </>
   );

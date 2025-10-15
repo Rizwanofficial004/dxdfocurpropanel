@@ -226,12 +226,8 @@ export const ModalImage = styled(motion.img)`
       (theme?.shadows?.lg || '0 10px 15px rgba(0, 0, 0, 0.4)') :
       (theme?.shadows?.md || '0 4px 8px rgba(0, 0, 0, 0.1)');
   }};
-  cursor: ${props => props.fullscreen ? 'zoom-out' : 'zoom-in'};
+  cursor: default;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: ${props => props.fullscreen ? 'none' : 'scale(1.02)'};
-  }
 `;
 
 export const NavigationButton = styled.button`
@@ -368,8 +364,8 @@ const ImageModal = ({
   theme,
   isDarkMode 
 }) => {
+  console.log('🖼️ ImageModal render - isOpen:', isOpen, 'images:', images, 'currentIndex:', currentIndex);
   const [imageLoading, setImageLoading] = useState(true);
-  const [fullscreen, setFullscreen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(currentIndex);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [slideDirection, setSlideDirection] = useState(0); // -1 for left, 1 for right, 0 for no slide
@@ -393,10 +389,6 @@ const ImageModal = ({
           break;
         case 'ArrowRight':
           handleNext();
-          break;
-        case 'f':
-        case 'F':
-          toggleFullscreen();
           break;
         case 'd':
         case 'D':
@@ -491,19 +483,20 @@ const ImageModal = ({
     }
   }, [currentImage, currentImageIndex, downloadLoading]);
 
-  const toggleFullscreen = useCallback(() => {
-    setFullscreen(prev => !prev);
-  }, []);
-
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  if (!isOpen || !currentImage) return null;
+  if (!isOpen || !currentImage) {
+    console.log('🖼️ Modal early return - isOpen:', isOpen, 'currentImage:', currentImage, 'images length:', images.length, 'currentImageIndex:', currentImageIndex);
+    return null;
+  }
 
   const imageUrl = typeof currentImage === 'string' ? currentImage : currentImage.src || currentImage.image;
+  console.log('🖼️ ImageModal rendering with imageUrl:', imageUrl);
+  console.log('🖼️ Current image object:', currentImage);
   const imageTitle = typeof currentImage === 'string' 
     ? `Screenshot ${currentImageIndex + 1}`
     : currentImage.title || currentImage.task || `Screenshot ${currentImageIndex + 1}`;
@@ -546,11 +539,6 @@ const ImageModal = ({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-          style={{ 
-            width: fullscreen ? '100vw' : 'auto',
-            height: fullscreen ? '100vh' : 'auto',
-            borderRadius: fullscreen ? '0' : undefined
-          }}
         >
           <ModalHeader theme={theme} isDarkMode={isDarkMode}>
             <ModalTitle theme={theme} isDarkMode={isDarkMode}>
@@ -592,14 +580,6 @@ const ImageModal = ({
                   </>
                 )}
               </ActionButton>
-              <ActionButton
-                onClick={toggleFullscreen}
-                theme={theme}
-                isDarkMode={isDarkMode}
-                title="Toggle Fullscreen (F)"
-              >
-                {fullscreen ? <FaCompress /> : <FaExpand />}
-              </ActionButton>
               <CloseButton
                 onClick={onClose}
                 theme={theme}
@@ -613,57 +593,59 @@ const ImageModal = ({
 
           <ModalContent theme={theme} isDarkMode={isDarkMode}>
             <ImageContainer>
-              {imageLoading && (
-                <LoadingSpinner 
-                  theme={theme} 
-                  isDarkMode={isDarkMode}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                />
-              )}
+              {/* Temporarily removed loading spinner for debugging */}
+              
+              {/* Simple test image */}
+              <div style={{ 
+                position: 'absolute', 
+                top: '10px', 
+                left: '10px', 
+                background: 'yellow', 
+                padding: '10px',
+                zIndex: 1000
+              }}>
+                URL: {imageUrl ? imageUrl.substring(0, 50) + '...' : 'No URL'}
+              </div>
               
               <ModalImage
                 src={imageUrl}
                 alt={imageTitle}
                 theme={theme}
                 isDarkMode={isDarkMode}
-                fullscreen={fullscreen}
-                onClick={toggleFullscreen}
                 onLoad={() => {
+                  console.log('✅ Image loaded successfully:', imageUrl);
                   setImageLoading(false);
                   setSlideDirection(0);
                 }}
-                onError={() => {
+                onError={(e) => {
+                  console.error('❌ Image load error:', imageUrl, e);
                   setImageLoading(false);
                   setSlideDirection(0);
                 }}
                 key={`image-${currentImageIndex}`}
                 initial={{ 
-                  opacity: 0, 
-                  scale: 0.95, 
-                  x: slideDirection * 50,
-                  y: 20 
+                  opacity: 1, 
+                  scale: 1, 
+                  x: 0,
+                  y: 0 
                 }}
                 animate={{ 
-                  opacity: imageLoading ? 0 : 1, 
-                  scale: imageLoading ? 0.95 : 1,
+                  opacity: 1, 
+                  scale: 1,
                   x: 0,
-                  y: imageLoading ? 20 : 0
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 0.95,
-                  x: slideDirection * -50,
-                  transition: { duration: 0.2 }
+                  y: 0
                 }}
                 transition={{ 
-                  duration: 0.5, 
-                  ease: [0.25, 0.1, 0.25, 1],
-                  delay: imageLoading ? 0 : 0.1
+                  duration: 0.3
                 }}
-                style={{ display: 'block' }}
+                style={{ 
+                  display: 'block',
+                  opacity: 1,
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  width: 'auto',
+                  height: 'auto'
+                }}
               />
 
               {/* Navigation buttons */}
