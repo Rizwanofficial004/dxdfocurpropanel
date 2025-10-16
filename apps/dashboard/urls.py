@@ -7,6 +7,7 @@ from .employees_details_views import EmployeesDetailsView
 from .staff_details_views import StaffDetailsView
 from .timesheets_views import TimesheetsView
 from .idle_time_api import IdleTimeAPIView
+from .productive_time_views import ProductiveTimeAPIView
 from .simple_screenshot_proxy import SimpleScreenshotProxyView, SimpleScreenshotProxyStatusView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
@@ -36,6 +37,9 @@ urlpatterns = [
     
     # Timesheets API - Fetches all timesheets from CRM
     path('Timesheets/', TimesheetsView.as_view(), name='timesheets'),
+    
+    # Productive Time API - Analyzes productive time from timesheets
+    path('productive_time/', ProductiveTimeAPIView.as_view(), name='productive-time'),
     
     # Idle Time API - Analyzes idle time from timesheets notes
     path('idle_time/', IdleTimeAPIView.as_view(), name='idle-time'),
