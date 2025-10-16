@@ -59,8 +59,8 @@ export const searchUsers = async (params = {}) => {
     const searchParams = {
       start_date: params.start_date || getDefaultStartDate(),
       end_date: params.end_date || getDefaultEndDate(),
-      page: params.page || 1,
-      page_size: params.page_size || 50,
+      screenshots_page: params.screenshots_page || params.page || 1,
+      screenshots_per_page: params.screenshots_per_page || params.page_size || 50,
       include_stats: params.include_stats !== false, // Default to true
       ...params
     };
@@ -94,7 +94,7 @@ export const searchUsers = async (params = {}) => {
 export const getAllUsers = async (options = {}) => {
   return await searchUsers({
     q: '', // Empty query to get all users
-    page_size: options.limit || 100,
+    screenshots_per_page: options.limit || 50,
     ...options
   });
 };

@@ -237,7 +237,7 @@ const ActivityStream = () => {
   const [screenshotError, setScreenshotError] = useState(null);
   const [calendarView, setCalendarView] = useState(true); // New state for calendar view toggle
   const [userActivityDates, setUserActivityDates] = useState(new Set()); // Activity dates for calendar highlighting
-  const [currentPage, setCurrentPage] = useState(1); // Pagination state
+  const [currentPage, setCurrentPage] = useState(1); // Pagination state for screenshots_page
   const [totalScreenshots, setTotalScreenshots] = useState(0); // Total screenshots count
   const [allScreenshots, setAllScreenshots] = useState([]); // Store all screenshots
   const [allUsers, setAllUsers] = useState([]);
@@ -246,7 +246,7 @@ const ActivityStream = () => {
   const [userSuggestions, setUserSuggestions] = useState([]); // Store user suggestions
   const [loadingSuggestions, setLoadingSuggestions] = useState(true); // Loading state for suggestions
   const [isDarkMode, setIsDarkMode] = useState(false); // Track dark mode state
-  const [screenshotsPerPage, setScreenshotsPerPage] = useState(50); // Screenshots per page
+  const [screenshotsPerPage, setScreenshotsPerPage] = useState(50); // Screenshots per page (default 50)
   const [allUsersScreenshots, setAllUsersScreenshots] = useState([]); // Store screenshots for all users
   const [isLoadingAllScreenshots, setIsLoadingAllScreenshots] = useState(false); // Loading state for all screenshots
   const [filteredStaticUsers, setFilteredStaticUsers] = useState(STATIC_USERS); // Filtered static users for local search
@@ -284,7 +284,10 @@ const ActivityStream = () => {
       const searchParams = new URLSearchParams({
         q: encodeURIComponent(query.trim()),
         limit: limit.toString(),
-        offset: offset.toString()
+        offset: offset.toString(),
+        // Add pagination parameters for screenshots
+        screenshots_per_page: screenshotsPerPage.toString(),
+        screenshots_page: currentPage.toString()
       });
       
       // Backend API requires start_date and end_date - always add them
@@ -516,8 +519,8 @@ const ActivityStream = () => {
         q: query,
         start_date: startDate,
         end_date: endDate,
-        limit: screenshotsPerPage.toString(),
-        offset: '0'
+        screenshots_per_page: screenshotsPerPage.toString(),
+        screenshots_page: currentPage.toString()
       });
       
       const apiUrl = `/api/users/search/?${searchParams.toString()}`;
@@ -666,7 +669,8 @@ const ActivityStream = () => {
         
         setAllScreenshots(allScreenshots);
         setUserScreenshots(allScreenshots);
-        setTotalScreenshots(allScreenshots.length);
+        // Use total_screenshots from API response, not the length of current page results
+        setTotalScreenshots(foundUser.total_screenshots || allScreenshots.length);
         
         return formattedUser;
       } else {
@@ -1297,8 +1301,8 @@ const ActivityStream = () => {
       // Build the screenshots API endpoint with simplified parameters
       const searchParams = new URLSearchParams({
         q: user.email || user.display_name || user.original_name, // Use email as primary identifier
-        page: page.toString(),
-        page_size: screenshotsPerPage.toString()
+        screenshots_page: page.toString(),
+        screenshots_per_page: screenshotsPerPage.toString()
       });
 
       // Enhanced date filtering - use current month/year by default or specific date
@@ -2228,23 +2232,149 @@ const ActivityStream = () => {
   // Handle screenshots per page change
   const handleScreenshotsPerPageChange = async (e) => {
     const newPerPage = Number(e.target.value);
+    console.log(`📊 Changing screenshots per page from ${screenshotsPerPage} to: ${newPerPage}`);
+    
     setScreenshotsPerPage(newPerPage);
     setCurrentPage(1); // Reset to first page when changing page size
     
-    console.log(`📊 Screenshots per page changed to: ${newPerPage}`);
-    
     // If user is selected, refresh data with new page size
     if (selectedUser) {
+      console.log(`� Refetching data for user: ${selectedUser.display_name || selectedUser.email}`);
+      
+      // Clear current screenshots to show loading state
+      setIsLoadingScreenshots(true);
+      
       if (activeDate) {
         // Specific date selected, make API call with new page size
         const specificDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${activeDate}`;
-        await searchUserByNameOrEmail(
-          selectedUser.display_name || selectedUser.original_name || selectedUser.email,
-          0 // retryCount
-        );
+        console.log(`📅 Fetching for specific date: ${specificDate} with ${newPerPage} per page`);
+        
+        try {
+          const searchParams = new URLSearchParams({
+            q: selectedUser.display_name || selectedUser.original_name || selectedUser.email,
+            start_date: specificDate,
+            end_date: specificDate,
+            screenshots_per_page: newPerPage.toString(),
+            screenshots_page: '1'
+          });
+          
+          const apiUrl = `/api/users/search/?${searchParams.toString()}`;
+          console.log(`🌐 API call: ${apiUrl}`);
+          
+          const response = await fetch(apiUrl, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.status === 'success' && data.data && data.data.users && data.data.users.length > 0) {
+              const foundUser = data.data.users[0];
+              
+              // Process screenshots for the specific date
+              let allScreenshots = [];
+              if (foundUser.grouped_screenshots) {
+                Object.keys(foundUser.grouped_screenshots).forEach(date => {
+                  if (date === specificDate) {
+                    const dayData = foundUser.grouped_screenshots[date];
+                    if (dayData.screenshots && Array.isArray(dayData.screenshots)) {
+                      dayData.screenshots.forEach((screenshot, index) => {
+                        allScreenshots.push({
+                          ...screenshot,
+                          id: screenshot.filename || screenshot.full_key || `${date}-${index}`,
+                          date: date,
+                          url: screenshot.s3_presigned_url || screenshot.url,
+                          thumbnail_url: screenshot.thumbnail_url,
+                          filename: screenshot.filename || screenshot.full_key,
+                          created_at: screenshot.created_at,
+                          user_id: screenshot.user_id
+                        });
+                      });
+                    }
+                  }
+                });
+              }
+              
+              console.log(`✅ Fetched ${allScreenshots.length} screenshots for date ${specificDate}`);
+              setUserScreenshots(allScreenshots);
+              setAllScreenshots(allScreenshots);
+              setTotalScreenshots(foundUser.total_screenshots || allScreenshots.length);
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error fetching screenshots:', error);
+        } finally {
+          setIsLoadingScreenshots(false);
+        }
       } else {
         // No specific date selected, refresh with month range and new page size
-        refreshUserDataFromAPI(selectedUser);
+        const startDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-01`;
+        const lastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+        const endDate = `${selectedYear}-${selectedMonth.toString().padStart(2, '0')}-${lastDay.toString().padStart(2, '0')}`;
+        
+        console.log(`📅 Fetching for date range: ${startDate} to ${endDate} with ${newPerPage} per page`);
+        
+        try {
+          const searchParams = new URLSearchParams({
+            q: selectedUser.display_name || selectedUser.original_name || selectedUser.email,
+            start_date: startDate,
+            end_date: endDate,
+            screenshots_per_page: newPerPage.toString(),
+            screenshots_page: '1'
+          });
+          
+          const apiUrl = `/api/users/search/?${searchParams.toString()}`;
+          console.log(`🌐 API call: ${apiUrl}`);
+          
+          const response = await fetch(apiUrl, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.status === 'success' && data.data && data.data.users && data.data.users.length > 0) {
+              const foundUser = data.data.users[0];
+              
+              // Process all screenshots
+              let allScreenshots = [];
+              if (foundUser.grouped_screenshots) {
+                Object.keys(foundUser.grouped_screenshots).forEach(date => {
+                  const dayData = foundUser.grouped_screenshots[date];
+                  if (dayData.screenshots && Array.isArray(dayData.screenshots)) {
+                    dayData.screenshots.forEach((screenshot, index) => {
+                      allScreenshots.push({
+                        ...screenshot,
+                        id: screenshot.filename || screenshot.full_key || `${date}-${index}`,
+                        date: date,
+                        url: screenshot.s3_presigned_url || screenshot.url,
+                        thumbnail_url: screenshot.thumbnail_url,
+                        filename: screenshot.filename || screenshot.full_key,
+                        created_at: screenshot.created_at,
+                        user_id: screenshot.user_id
+                      });
+                    });
+                  }
+                });
+              }
+              
+              console.log(`✅ Fetched ${allScreenshots.length} screenshots for date range`);
+              setUserScreenshots(allScreenshots);
+              setAllScreenshots(allScreenshots);
+              setTotalScreenshots(foundUser.total_screenshots || allScreenshots.length);
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error fetching screenshots:', error);
+        } finally {
+          setIsLoadingScreenshots(false);
+        }
       }
     }
   };
@@ -2361,10 +2491,15 @@ const ActivityStream = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isModalOpen, currentImageIndex, modalImages.length]);
 
-  // Pagination handlers - Updated for local pagination with all data loaded
-  const handlePageChange = (newPage) => {
+  // Pagination handlers - Updated to refetch data when page changes
+  const handlePageChange = async (newPage) => {
     if (newPage >= 1 && newPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
       setCurrentPage(newPage);
+      
+      // Refetch screenshots for the new page if user is selected
+      if (selectedUser) {
+        await fetchUserScreenshots(selectedUser, activeDate, newPage);
+      }
       
       // Scroll to top of screenshots section
       const screenshotsSection = document.querySelector('[data-screenshots-section]');
@@ -2374,11 +2509,11 @@ const ActivityStream = () => {
     }
   };
 
-  // Load More handler - simplified since we have all data
+  // Load More handler - goes to next page
   const handleLoadMore = async () => {
     const nextPage = currentPage + 1;
     if (nextPage <= Math.ceil(totalScreenshots / screenshotsPerPage)) {
-      setCurrentPage(nextPage);
+      await handlePageChange(nextPage);
     }
   };
 
@@ -2412,8 +2547,8 @@ const ActivityStream = () => {
             q: selectedUser.display_name || selectedUser.original_name || selectedUser.email,
             start_date: specificDate,
             end_date: specificDate,
-            limit: screenshotsPerPage.toString(),
-            offset: '0'
+            screenshots_per_page: screenshotsPerPage.toString(),
+            screenshots_page: currentPage.toString()
           });
           
           const apiUrl = `/api/users/search/?${searchParams.toString()}`;
@@ -2533,16 +2668,8 @@ const ActivityStream = () => {
           <option value={50}>50 per page</option>
           <option value={100}>100 per page</option>
           <option value={200}>200 per page</option>
-          <option value={300}>300 per page</option>
-          <option value={400}>400 per page</option>
           <option value={500}>500 per page</option>
-          <option value={700}>700 per page</option>
           <option value={1000}>1000 per page</option>
-          <option value={1200}>1200 per page</option>
-          <option value={1400}>1400 per page</option>
-          <option value={1500}>1500 per page</option>
-          <option value={1700}>1700 per page</option>
-          <option value={2000}>2000 per page</option>
         </Select>
       </SelectContainer>
 
@@ -3129,7 +3256,7 @@ const ActivityStream = () => {
                   }}>
                     <div>
                       {totalScreenshots > 0 ? (
-                        <strong>📊 Showing all {userScreenshots.length} screenshots</strong>
+                        <strong>📊 Showing {userScreenshots.length} of {totalScreenshots} total screenshots</strong>
                       ) : (
                         <strong>📷 No screenshots found for the selected period</strong>
                       )}
@@ -3152,20 +3279,105 @@ const ActivityStream = () => {
                         }}
                       >
                         <option value={50}>50 per page</option>
-                        <option value={300}>300 per page</option>
-                        <option value={400}>400 per page</option>
+                        <option value={100}>100 per page</option>
+                        <option value={200}>200 per page</option>
                         <option value={500}>500 per page</option>
                         <option value={1000}>1000 per page</option>
-                        <option value={1200}>1200 per page</option>
-                        <option value={1400}>1400 per page</option>
-                        <option value={1500}>1500 per page</option>
-                        <option value={1700}>1700 per page</option>
-                        <option value={2000}>2000 per page</option>
                       </select>
                     </div>
                   </div>
 
-                 
+                  {/* Pagination Controls - Always show when there are screenshots */}
+                  {totalScreenshots > 0 && totalPages > 1 && (
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: '12px',
+                      marginTop: '16px',
+                      paddingTop: '16px',
+                      borderTop: `1px solid var(--border-color)`
+                    }}>
+                      <button
+                        onClick={() => handlePageChange(1)}
+                        disabled={currentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                          color: currentPage === 1 ? 'var(--text-disabled)' : 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        « First
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                          color: currentPage === 1 ? 'var(--text-disabled)' : 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        ‹ Previous
+                      </button>
+                      
+                      <div style={{
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: 'var(--text-primary)',
+                        padding: '8px 16px'
+                      }}>
+                        Page {currentPage} of {totalPages}
+                      </div>
+                      
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                          color: currentPage === totalPages ? 'var(--text-disabled)' : 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        Next ›
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          padding: '8px 12px',
+                          backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
+                          color: currentPage === totalPages ? 'var(--text-disabled)' : 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        Last »
+                      </button>
+                    </div>
+                  )}
 
                   {/* Quick Actions */}
                   <div style={{
