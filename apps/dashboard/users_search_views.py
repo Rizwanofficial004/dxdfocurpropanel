@@ -226,15 +226,15 @@ class EnhancedUsersSearchView(APIView):
                         # Get screenshots for this user with optimized pagination
                         user_prefix = f"{prefix}{user_folder}/"
                         
-                        # Use fast pagination for load more approach
-                        screenshots, _ = self._get_screenshots_for_user_date_paginated(
+                        # Use sequential S3 scanning for accurate results
+                        screenshots, total_screenshots_found = self._get_screenshots_for_user_date_paginated(
                             user_prefix, 
                             screenshots_page, 
                             screenshots_per_page
                         )
                         
-                        # For load more - just use current page count
-                        users_data[user_email]['total_screenshots_estimate'] = len(screenshots)
+                        # Store the true total count
+                        users_data[user_email]['total_screenshots_estimate'] = total_screenshots_found
                         
                         for screenshot_obj in screenshots:
                             objects_scanned += 1
@@ -398,26 +398,22 @@ class EnhancedUsersSearchView(APIView):
             return None
     
     def _get_screenshots_for_user_date_paginated(self, user_prefix, screenshots_page, screenshots_per_page):
-        """Get ONLY the screenshots needed for the current page (optimized for speed)"""
+        """Get screenshots using sequential S3 scanning for large datasets (16,000+)"""
         try:
-            # Calculate the range we need
-            start_index = (screenshots_page - 1) * screenshots_per_page
-            end_index = start_index + screenshots_per_page
-            
-            screenshots = []
-            total_objects_scanned = 0
-            current_index = 0
+            all_screenshots = []
             continuation_token = None
+            total_objects_scanned = 0
+            screenshots_found = 0
             
             start_time = datetime.now()
-            logger.info(f"Fast pagination: fetching screenshots {start_index+1}-{end_index} for {user_prefix}")
+            logger.info(f"Sequential S3 scan: collecting ALL screenshots for {user_prefix} then paginating")
             
-            # Use pagination to skip to roughly the right area and get only what we need
-            while len(screenshots) < screenshots_per_page:
+            # STEP 1: Scan ALL S3 objects to collect ALL screenshots
+            while True:
                 request_params = {
                     'Bucket': self.bucket_name,
                     'Prefix': user_prefix,
-                    'MaxKeys': min(1000, screenshots_per_page * 2)  # Fetch a bit more than needed for buffer
+                    'MaxKeys': 1000  # Use full S3 batch size
                 }
                 
                 if continuation_token:
@@ -428,45 +424,45 @@ class EnhancedUsersSearchView(APIView):
                 if 'Contents' not in response:
                     break
                 
-                # Process this batch
+                # Process this batch - collect ALL screenshot files
                 for obj in response['Contents']:
-                    key = obj['Key']
                     total_objects_scanned += 1
                     
                     # Only include actual screenshot files
-                    if key.lower().endswith(('.webp', '.png', '.jpg', '.jpeg')):
-                        # Check if this screenshot is in our desired page range
-                        if current_index >= start_index and len(screenshots) < screenshots_per_page:
-                            screenshots.append(obj)
-                        
-                        current_index += 1
-                        
-                        # If we've collected enough screenshots, break
-                        if len(screenshots) >= screenshots_per_page:
-                            break
-                        
-                        # If we've passed our target range and have some results, break
-                        if current_index > end_index and len(screenshots) > 0:
-                            break
+                    if obj['Key'].lower().endswith(('.webp', '.png', '.jpg', '.jpeg')):
+                        all_screenshots.append(obj)
+                        screenshots_found += 1
                 
-                # Check if we need to continue
-                if response.get('IsTruncated', False) and len(screenshots) < screenshots_per_page:
-                    continuation_token = response.get('NextContinuationToken')
-                    
-                    # Performance safety: don't scan too much
-                    if total_objects_scanned > screenshots_per_page * 5:
-                        logger.warning(f"Stopping pagination scan after {total_objects_scanned} objects to maintain performance")
-                        break
-                else:
+                # Progress logging for large datasets
+                if screenshots_found > 0 and screenshots_found % 1000 == 0:
+                    elapsed = (datetime.now() - start_time).total_seconds()
+                    logger.info(f"Progress: {screenshots_found} screenshots found (scanned {total_objects_scanned} objects) in {elapsed:.1f}s")
+                
+                # Check if there are more S3 objects to scan
+                if not response.get('IsTruncated', False):
+                    break
+                
+                continuation_token = response.get('NextContinuationToken')
+                if not continuation_token:
                     break
             
-            elapsed = (datetime.now() - start_time).total_seconds()
-            logger.info(f"Fast pagination complete for {user_prefix}: got {len(screenshots)} screenshots (scanned {total_objects_scanned} objects) in {elapsed:.1f}s")
+            elapsed_scan = (datetime.now() - start_time).total_seconds()
+            logger.info(f"S3 scan complete: found {screenshots_found} total screenshots in {elapsed_scan:.1f}s")
             
-            return screenshots, current_index  # Return screenshots and total count estimate
+            # STEP 2: Apply pagination to the collected screenshots
+            start_index = (screenshots_page - 1) * screenshots_per_page
+            end_index = start_index + screenshots_per_page
+            
+            # Get the requested page
+            page_screenshots = all_screenshots[start_index:end_index]
+            
+            elapsed_total = (datetime.now() - start_time).total_seconds()
+            logger.info(f"Pagination applied: returning {len(page_screenshots)} screenshots for page {screenshots_page} (total: {screenshots_found}) in {elapsed_total:.1f}s")
+            
+            return page_screenshots, screenshots_found
             
         except Exception as e:
-            logger.error(f"Error in fast pagination for {user_prefix}: {str(e)}", exc_info=True)
+            logger.error(f"Error in sequential S3 scan for {user_prefix}: {str(e)}", exc_info=True)
             return [], 0
 
     def _get_total_screenshot_count_estimate(self, user_prefix):
@@ -668,11 +664,14 @@ class EnhancedUsersSearchView(APIView):
             all_screenshots = user_data['screenshots']
             current_page_count = len(all_screenshots)
             
-            # For load more approach - no need for accurate total count
-            # Just indicate if there might be more
-            has_more = current_page_count == screenshots_per_page  # If we got full page, might be more
+            # Get the TRUE total count from S3 scan
+            true_total_screenshots = user_data.get('total_screenshots_estimate', current_page_count)
             
-            logger.info(f"Load more approach: {current_page_count} screenshots in current page, has_more: {has_more}")
+            # Calculate accurate load more info
+            total_pages = max(1, (true_total_screenshots + screenshots_per_page - 1) // screenshots_per_page)
+            has_more = screenshots_page < total_pages
+            
+            logger.info(f"Load more with TRUE total: {true_total_screenshots} screenshots, {total_pages} pages, page {screenshots_page}, has_more: {has_more}")
             
             # Group screenshots by date (only for the current page)
             grouped_screenshots = {}
@@ -701,6 +700,7 @@ class EnhancedUsersSearchView(APIView):
                 'email': user_data['email'],
                 'display_name': user_data['display_name'],
                 'original_name': user_data['original_name'],
+                'total_screenshots': true_total_screenshots,  # TRUE total from S3 scan
                 'current_page_screenshots': current_page_count,  # Actual screenshots in current page
                 'total_size_mb': round(user_data['total_size'] / (1024 * 1024), 2),
                 'active_days_count': active_days_count,
@@ -714,27 +714,30 @@ class EnhancedUsersSearchView(APIView):
                 'load_more_info': {
                     'current_page': screenshots_page,
                     'per_page': screenshots_per_page,
+                    'total_pages': total_pages,  # Accurate total pages
+                    'total_screenshots': true_total_screenshots,  # TRUE total
                     'showing_count': current_page_count,
                     'has_more': has_more,
                     'next_page': screenshots_page + 1 if has_more else None,
                     'load_more_available': has_more,
                     'is_full_page': current_page_count == screenshots_per_page,
-                    'summary': f"Showing {current_page_count} screenshots (page {screenshots_page})" + 
-                              (" - Load more available" if has_more else " - All loaded")
+                    'summary': f"Showing {current_page_count} screenshots (page {screenshots_page} of {total_pages}, total: {true_total_screenshots})" + 
+                              (" - Load more available" if has_more else " - All loaded"),
+                    'progress_percentage': round((screenshots_page * screenshots_per_page / true_total_screenshots) * 100, 1) if true_total_screenshots > 0 else 100
                 },
                 'status': 'active' if current_page_count > 0 else 'inactive',
-                'match_reason': f"Content match (grouped by {group_by}) - Load more approach",
+                'match_reason': f"Content match (grouped by {group_by}) - TRUE total count via S3 scan",
                 'activity_summary': {
                     'total_days': active_days_count,
                     'total_months': active_months_count,
-                    'current_page_avg': round(current_page_count / max(active_days_count, 1), 2),
+                    'avg_screenshots_per_day': round(true_total_screenshots / max(active_days_count, 1), 2),
                     'date_range_days': active_days_count
                 },
                 'search_score': 2000.0,
                 'match_reasons': [
                     "Email match",
                     "S3 data found",
-                    "Load more pagination"
+                    "Complete S3 scan performed"
                 ]
             }
         
