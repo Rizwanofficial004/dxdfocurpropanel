@@ -188,7 +188,7 @@ const extractDateFromFilename = (filename) => {
 const STATIC_USERS = [
   { username: 'Begumdamlasen', email: 'begumdamlasen@gmail.com' },
   { username: 'Gulsummelisa', email: 'gulsummelisa.23@gmail.com' },
-  { username: 'Cagla Shr', email: 'cagla.shr@gmail.com' },
+  { username: 'Cagla', email: 'cagla.shr@gmail.com' },
   { username: 'Rignimeyikur', email: 'rignimeyikur02@gmail.com' },
   { username: 'Atakankahraman', email: 'atakankahraman35@outlook.com' },
   { username: 'Mohsinabbass', email: 'mohsinabbass688630@gmail.com' },
@@ -337,6 +337,9 @@ const ActivityStream = () => {
       // Use the proxy endpoint that routes to dxdtime.ddsolutions.io
       const apiUrl = `/api/users/search/?${searchParams.toString()}`;
       
+      console.log('🌐 API REQUEST:', apiUrl);
+      console.log('📤 Request parameters:', Object.fromEntries(searchParams));
+      
       // Make the API request with increased timeout for slow servers
       const fetchPromise = fetch(apiUrl, {
         method: 'GET',
@@ -365,6 +368,21 @@ const ActivityStream = () => {
       }
       
       const data = await response.json();
+      
+      console.log('📥 API RESPONSE:', data);
+      console.log('📊 Response status:', data.status);
+      console.log('👥 Users count:', data.data?.users?.length || 0);
+      
+      if (data.data?.users?.length > 0) {
+        const firstUser = data.data.users[0];
+        console.log('👤 First user details:', {
+          display_name: firstUser.display_name,
+          email: firstUser.email,
+          total_screenshots: firstUser.total_screenshots,
+          grouped_screenshots_dates: Object.keys(firstUser.grouped_screenshots || {}),
+          recent_screenshots_count: firstUser.recent_screenshots?.length || 0
+        });
+      }
       
       // Handle different API response formats
       let users = [];
