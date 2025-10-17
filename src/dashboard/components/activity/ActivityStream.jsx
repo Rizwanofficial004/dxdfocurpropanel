@@ -210,6 +210,10 @@ const STATIC_USERS = [
   { username: 'Eerdoganhsn', email: 'eerdoganhsn@gmail.com' },
   { username: 'Ilahe', email: 'ilahe@dxdglobal.com' },
   { username: 'Nawaz', email: 'nawaz@dxdglobal.com' },
+  { username: 'yusuf', email: 'yusufziyasaygi@gmail.com' },
+  { username: 'hidayet', email: 'hidayetemiryigit_at_gmail.com' },
+  { username: 'hilal', email: 'hilalozclk1953_at_gmail.com' },
+  { username: 'huseyin', email: 'huseyinturguterek_at_gmail.com' },
   { username: 'Deniz', email: 'deniz@dxdglobal.com' }
 ];
 
