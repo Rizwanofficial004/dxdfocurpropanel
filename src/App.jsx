@@ -79,6 +79,10 @@ const TimeLogActivityStream = lazy(() =>
   import('./dashboard/pages/TimeLogActivityStream').catch(() => ({ default: FallbackTimeLogActivityStream }))
 );
 
+const EmployeeReports = lazy(() =>
+  import('./dashboard/pages/EmployeeReports').catch(() => ({ default: FallbackEmployeeReports }))
+);
+
 // Tester Components
 const LoginAPITester = lazy(() =>
   import('./components/LoginAPITester').catch(() => ({ default: FallbackLogin }))
@@ -208,6 +212,7 @@ const FallbackActivityPattern = () => <LoadingSpinner />;
 const FallbackDocumentation = () => <LoadingSpinner />;
 const FallbackTimeLogSummary = () => <LoadingSpinner />;
 const FallbackTimeLogActivityStream = () => <LoadingSpinner />;
+const FallbackEmployeeReports = () => <LoadingSpinner />;
 const FallbackImageTest = () => <LoadingSpinner />;
 const FallbackUsersList = () => <LoadingSpinner />;
 const FallbackAPIDemo = () => <LoadingSpinner />;
@@ -512,6 +517,16 @@ function App() {
                       <ProtectedRoute>
                         <Suspense fallback={<FallbackTimeLogActivityStream />}>
                           <TimeLogActivityStream />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/employee-reports"
+                    element={
+                      <ProtectedRoute>
+                        <Suspense fallback={<FallbackEmployeeReports />}>
+                          <EmployeeReports />
                         </Suspense>
                       </ProtectedRoute>
                     }
