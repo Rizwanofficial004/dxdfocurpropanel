@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
-import toastService from '../../services/toastService';
+import Tooltip from '../../components/common/Tooltip';
 
 // Main Page Wrapper
 const EmployeesPageWrapper = styled.div`
@@ -41,12 +41,13 @@ const TitleSection = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   margin: 0;
   transition: color 0.3s ease;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const InfoIcon = styled.span`
@@ -259,10 +260,10 @@ const DateLabel = styled.span`
 
 const DateInput = styled.input`
   padding: 10px 16px;
-  border: 2px solid ${props => props.theme.colors.error || '#ef4444'};
+  border: 1px solid ${props => props.theme.colors.border};
   border-radius: 6px;
-  font-size: 14px;
-  background: ${props => props.theme.colors.cardBackground};
+  font-size: 13px;
+  background: ${props => props.theme.colors.surface};
   color: ${props => props.theme.colors.text.primary};
   cursor: pointer;
   transition: all 0.3s ease;
@@ -271,28 +272,32 @@ const DateInput = styled.input`
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
   }
 `;
 
 const SearchInput = styled.input`
   padding: 12px 16px;
-  border: 2px solid ${props => props.theme.colors.error || '#ef4444'};
+  border: 1px solid ${props => props.theme.colors.border};
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   width: 100%;
-  background: ${props => props.theme.colors.cardBackground};
+  background: ${props => props.theme.colors.surface};
   color: ${props => props.theme.colors.text.primary};
   transition: all 0.3s ease;
   
   &:focus {
     outline: none;
     border-color: ${props => props.theme.colors.primary};
+    box-shadow: 0 0 0 3px ${props => props.theme.colors.primary}20;
   }
   
   &::placeholder {
-    color: ${props => props.theme.colors.text.light};
+    color: ${props => props.theme.colors.text.secondary};
     font-weight: 500;
     text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
   }
 `;
 
@@ -318,39 +323,37 @@ const StatusDropdown = styled.select`
 `;
 
 // Table Styles
+const TableWrapper = styled.div`
+  padding: 0 32px 32px 32px;
+`;
+
 const TableContainer = styled.div`
   background: ${props => props.theme.colors.cardBackground};
-  border-radius: 12px;
-  border: 2px solid ${props => props.theme.colors.error || '#ef4444'};
-  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid ${props => props.theme.colors.border};
   transition: all 0.3s ease;
 `;
 
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  thead {
+  border-bottom: 1px solid ${props => props.theme.colors.border} !important;
+  }
 `;
 
 const TableHeader = styled.th`
-  padding: 16px;
-  text-align: left;
-  font-weight: 700;
+  padding: 16px 20px;
+  text-align: ${props => props.align || 'left'};
+  font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.5px;
-  color: ${props => props.theme.colors.text.primary};
+  letter-spacing: 0.8px;
+  color: ${props => props.theme.colors.text.secondary};
   background: ${props => props.theme.colors.cardBackground};
-  border-bottom: 2px solid ${props => props.theme.colors.border};
+  border-bottom: 1px solid ${props => props.theme.colors.border};
   text-transform: uppercase;
   transition: all 0.3s ease;
-  
-  &:nth-child(1) { width: 30%; }
-  &:nth-child(2) { width: 15%; text-align: left; }
-  &:nth-child(3) { width: 15%; text-align: center; }
-  &:nth-child(4) { width: 15%; text-align: center; }
-  &:nth-child(5) { width: 10%; text-align: center; }
-  &:nth-child(6) { width: 10%; text-align: center; }
-  &:nth-child(7) { width: 10%; text-align: center; }
-  &:nth-child(8) { width: 10%; text-align: center; }
+  white-space: nowrap;
 `;
 
 const TableRow = styled.tr`
@@ -367,39 +370,53 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-  padding: 14px 16px;
+  padding: 20px;
   color: ${props => props.theme.colors.text.primary};
   font-size: 13px;
   vertical-align: middle;
+  text-align: ${props => props.align || 'left'};
   border-bottom: 1px solid ${props => props.theme.colors.border};
   transition: color 0.3s ease;
-  
-  &:nth-child(1) { width: 30%; }
-  &:nth-child(2) { width: 15%; text-align: left; }
-  &:nth-child(3) { width: 15%; text-align: center; }
-  &:nth-child(4) { width: 15%; text-align: center; }
-  &:nth-child(5) { width: 10%; text-align: center; }
-  &:nth-child(6) { width: 10%; text-align: center; }
-  &:nth-child(7) { width: 10%; text-align: center; }
-  &:nth-child(8) { width: 10%; text-align: center; }
 `;
 
 const EmployeeInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const UserIcon = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+`;
+
+const EmployeeDetails = styled.div`
   display: flex;
   flex-direction: column;
 `;
 
 const EmployeeName = styled.div`
   font-weight: 600;
-  color: ${props => props.theme.colors.primary};
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.primary};
   margin-bottom: 2px;
   transition: color 0.3s ease;
 `;
 
 const TeamName = styled.div`
-  font-size: 12px;
+  font-size: 11px;
   color: ${props => props.theme.colors.text.secondary};
   transition: color 0.3s ease;
+  font-weight: 500;
 `;
 
 const StatusBadge = styled.span`
@@ -434,6 +451,137 @@ const BlueCircle = styled.div`
   background: #3b82f6;
   border-radius: 50%;
   margin: 0 auto;
+`;
+
+// New styled-components for clean table cell content
+const StatusColumn = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const StatusCircle = styled.div`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: ${props => props.active ? '#10b981' : '#6b7280'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+`;
+
+const StatusText = styled.span`
+  font-size: 13px;
+  color: ${props => props.theme.colors.text.primary};
+  font-weight: 500;
+  text-transform: uppercase;
+`;
+
+const StaffIdColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+`;
+
+const StaffIdText = styled.div`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${props => props.theme.colors.primary};
+`;
+
+const StatusRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const StatusDot = styled.div`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${props => props.active ? '#10b981' : '#6b7280'};
+  flex-shrink: 0;
+`;
+
+const StatusLabel = styled.span`
+  font-size: 10px;
+  color: ${props => props.theme.colors.text.secondary};
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+`;
+
+const TimeColumn = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const TimeText = styled.div`
+  font-weight: 600;
+  font-size: 13px;
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const NoDataText = styled.span`
+  color: #6b7280;
+  font-size: 11px;
+  font-style: italic;
+`;
+
+const ActiveTimeColumn = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
+
+const ProductivityColumn = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ProductivityCircle = styled.div`
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid ${props => {
+    // In dark mode, use white/light borders
+    // In light mode, use dark borders
+    const isDarkMode = props.theme.mode === '#fff';
+    
+    if (isDarkMode) {
+      // Dark mode - white/light borders
+      if (props.value >= 80) return '#d1fae5';  // Light green
+      if (props.value >= 50) return '#fef3c7';  // Light yellow
+      if (props.value > 0) return '#fee2e2';    // Light red
+      return '#e5e7eb';  // Light gray
+    } else {
+      // Light mode - dark borders (original colors)
+      if (props.value >= 80) return '#10b981';  // Green
+      if (props.value >= 50) return '#f59e0b';  // Yellow
+      if (props.value > 0) return '#ef4444';    // Red
+      return '#374151';  // Dark gray
+    }
+  }} !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: ${props => props.theme.colors.text.primary};
+  background: ${props => props.theme.colors.surface};
+`;
+
+const EmptyStateCell = styled.div`
+  text-align: center;
+  padding: 40px;
+  color: ${props => props.theme.colors.text.secondary};
+  font-size: 14px;
 `;
 
 // Pagination
@@ -989,8 +1137,9 @@ const QuickView = () => {
         {/* Page Header */}
         <PageHeader>
           <TitleSection>
-            <PageTitle theme={theme}>Quick View</PageTitle>
-            <InfoIcon>ⓘ</InfoIcon>
+           
+              <PageTitle theme={theme}>Quick View</PageTitle>
+       
           </TitleSection>
           
           {/* Controls */}
@@ -1006,146 +1155,133 @@ const QuickView = () => {
             </LeftControls>
             
             <RightControls>
-              <DateLabel theme={theme}>SELECT DATE</DateLabel>
-              <DateInput
-                theme={theme}
-                type="date"
-                defaultValue={new Date().toISOString().split('T')[0]}
-              />
+            
             </RightControls>
           </ControlsSection>
         </PageHeader>
 
         {/* Table */}
-        <div style={{ padding: '0 32px 32px 32px' }}>
+        <TableWrapper>
           <TableContainer theme={theme}>
             <Table>
               <thead>
-                <tr>
-                  <TableHeader theme={theme}>STAFF ID</TableHeader>
-                  <TableHeader theme={theme}>EMPLOYEE NAME </TableHeader>
-                  <TableHeader theme={theme}>LOGIN TIME </TableHeader>
-                  <TableHeader theme={theme}>LAST ACTIVITY </TableHeader>
-                  <TableHeader theme={theme}>PRODUCTIVE</TableHeader>
-                  <TableHeader theme={theme}>MEETING</TableHeader>
-                  <TableHeader theme={theme}>BREAK</TableHeader>
-                  <TableHeader theme={theme}>IDLE </TableHeader>
+                <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
+                  <TableHeader theme={theme} align="left">STATUS</TableHeader>
+                  <TableHeader theme={theme} align="left">EMPLOYEE NAME ↑</TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Total time employee has been logged into the system" theme={theme}>
+                      LOGGED TIME
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Time since last activity was recorded" theme={theme}>
+                      ACTIVE TIME
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Total productive work hours" theme={theme}>
+                      PRODUCTIVE
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Time spent in meetings" theme={theme}>
+                      MEETING
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Break time taken by employee" theme={theme}>
+                      BREAK
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Time when employee was idle" theme={theme}>
+                      IDLE
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Time when employee was offline" theme={theme}>
+                      OFFLINE
+                    </Tooltip>
+                  </TableHeader>
                 </tr>
               </thead>
               <tbody>
                 {paginatedEmployees.length > 0 ? (
                   paginatedEmployees.map((employee) => (
                     <TableRow key={employee.id} theme={theme}>
-                      <TableCell theme={theme}>
-                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px'}}>
-                          <div style={{
-                            fontSize: '14px',
-                            fontWeight: 700,
-                            color: theme.colors.primary,
-                            textAlign: 'left'
-                          }}>
-                            {employee.staffId || 'N/A'}
-                          </div>
-                          <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
-                            <div style={{
-                              width: '12px',
-                              height: '12px',
-                              borderRadius: '50%',
-                              background: employee.status === 'Active' ? '#22c55e' : '#6b7280'
-                            }}></div>
-                            <span style={{fontSize: '10px', color: theme.colors.text.secondary}}>
-                              {employee.status === 'Active' ? 'Active' : 'Inactive'}
-                            </span>
-                          </div>
-                        </div>
+                      <TableCell theme={theme} align="left">
+                        <StatusColumn>
+                          <StatusCircle active={employee.status === 'Active'} />
+                          <StatusText theme={theme}>
+                            {employee.status === 'Active' ? 'Active' : 'OFF'}
+                          </StatusText>
+                        </StatusColumn>
                       </TableCell>
-                      <TableCell theme={theme}>
+                      
+                      <TableCell theme={theme} align="left">
                         <EmployeeInfo>
-                          <EmployeeName theme={theme}>{employee.name}</EmployeeName>
-                          <TeamName theme={theme}>{employee.team || employee.designation}</TeamName>
+                          <EmployeeDetails>
+                            <EmployeeName theme={theme}>{employee.name}</EmployeeName>
+                           
+                          </EmployeeDetails>
                         </EmployeeInfo>
                       </TableCell>
-                      <TableCell theme={theme}>
-                        <div style={{fontWeight: 600, color: '#3b82f6'}}>
-                          {employee.loggedTime}
-                          {employee.rawLastLogin && (
-                            <div style={{fontSize: '10px', color: '#10b981', marginTop: '2px'}}>
-                            
-                            </div>
-                          )}
-                        </div>
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>{employee.loggedTime}</TimeText>
                       </TableCell>
-                      <TableCell theme={theme}>
-                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'}}>
-                          <div style={{fontWeight: 600}}>
-                            {employee.activeTime === 'N/A' ? (
-                              <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
-                            ) : (
-                              employee.activeTime
-                            )}
-                            {employee.rawLastActivity && (
-                              <div style={{fontSize: '10px', color: '#10b981', marginTop: '2px'}}>
-                              
-                              </div>
-                            )}
-                          </div>
-                          <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            border: `3px solid ${employee.productivity > 0 ? (employee.productivity >= 80 ? '#22c55e' : employee.productivity >= 50 ? '#f59e0b' : '#ef4444') : '#6b7280'}`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            color: theme.colors.text.primary
-                          }}>
-                            {employee.productivity > 0 ? `${employee.productivity}%` : ''}
-                          </div>
-                        </div>
+                      
+                      <TableCell theme={theme} align="center">
+                        <ActiveTimeColumn>
+                          <TimeText theme={theme}>
+                            {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
+                          </TimeText>
+                          <ProductivityCircle value={employee.productivity} theme={theme}>
+                            {employee.productivity > 0 ? `${employee.productivity}%` : '0%'}
+                          </ProductivityCircle>
+                        </ActiveTimeColumn>
                       </TableCell>
-                      <TableCell theme={theme}>
-                        {employee.productiveTime === 'N/A' ? (
-                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
-                        ) : (
-                          employee.productiveTime
-                        )}
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell>
-                      <TableCell theme={theme}>
-                        {employee.meetingTime === 'N/A' ? (
-                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
-                        ) : (
-                          employee.meetingTime
-                        )}
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>
+                          {employee.meetingTime === 'N/A' ? '0h 0m' : employee.meetingTime}
+                        </TimeText>
                       </TableCell>
-                      <TableCell theme={theme}>
-                        {employee.breakTime === 'N/A' ? (
-                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
-                        ) : (
-                          employee.breakTime
-                        )}
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>
+                          {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
+                        </TimeText>
                       </TableCell>
-                      <TableCell theme={theme}>
-                        {employee.idleTime === 'N/A' ? (
-                          <span style={{color: '#6b7280', fontSize: '11px'}}>No Data</span>
-                        ) : (
-                          employee.idleTime
-                        )}
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>
+                          {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
+                        </TimeText>
+                      </TableCell>
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="8" style={{textAlign: 'center', padding: '40px'}}>
-                      {loading ? '🔄 Loading users...' : 'No users found.'}
+                    <TableCell theme={theme} colSpan="9">
+                      <EmptyStateCell theme={theme}>
+                        {loading ? '🔄 Loading users...' : 'No users found.'}
+                      </EmptyStateCell>
                     </TableCell>
                   </TableRow>
                 )}
               </tbody>
             </Table>
           </TableContainer>
-        </div>
+        </TableWrapper>
 
         {/* Pagination */}
         <PaginationContainer>
