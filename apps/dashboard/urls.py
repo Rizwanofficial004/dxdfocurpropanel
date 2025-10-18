@@ -8,8 +8,12 @@ from .employees_details_views import EmployeesDetailsView
 from .staff_details_views import StaffDetailsView
 from .timesheets_views import TimesheetsView
 from .idle_time_api import IdleTimeAPIView
+<<<<<<< HEAD
 from .timesheet_summary_api import TimesheetSummaryAPIView
 from .employee_report_api import EmployeeReportAPIView
+=======
+from .productive_time_views import ProductiveTimeAPIView
+>>>>>>> 77557742ac678b80201f5b8f90414ab5d288c9bc
 from .simple_screenshot_proxy import SimpleScreenshotProxyView, SimpleScreenshotProxyStatusView
 from .ai_views import AIStatusView, AIChatView, AIEmployeeAnalysisView, AIReportGeneratorView
 from .crm_comprehensive_views import CRMComprehensiveDashboardView, CRMConnectionTestView, DatabaseTestView
@@ -43,11 +47,16 @@ urlpatterns = [
     # Timesheets API - Fetches all timesheets from CRM
     path('Timesheets/', TimesheetsView.as_view(), name='timesheets'),
     
+<<<<<<< HEAD
     # Timesheet Summary API - Comprehensive timesheet analytics
     path('timesheet_summary/', TimesheetSummaryAPIView.as_view(), name='timesheet-summary'),
     
     # Employee Report API - Detailed individual employee reports
     path('employee_report/', EmployeeReportAPIView.as_view(), name='employee-report'),
+=======
+    # Productive Time API - Analyzes productive time from timesheets
+    path('productive_time/', ProductiveTimeAPIView.as_view(), name='productive-time'),
+>>>>>>> 77557742ac678b80201f5b8f90414ab5d288c9bc
     
     # Idle Time API - Analyzes idle time from timesheets notes
     path('idle_time/', IdleTimeAPIView.as_view(), name='idle-time'),

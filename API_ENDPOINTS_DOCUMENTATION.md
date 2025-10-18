@@ -127,6 +127,11 @@ http://127.0.0.1:8000/
 - **GET** `/api/logs/users-separated/` - **✅ NEW** Logs separated by user for better organization
 - **GET** `/api/logs/{user_identifier}/date-range/` - **✅ NEW** Logs for specific user by identifier
 
+### **⏱️ Timesheet & Productive Time APIs**
+- **GET** `/api/Timesheets/` - Fetch all timesheets from CRM
+- **GET** `/api/idle_time/` - Analyze idle time from timesheets notes
+- **GET** `/api/productive_time/` - **🆕 ENHANCED** Calculate productive time from S3 logs and timesheets
+
 ### **🏢 CRM Endpoints**
 - **GET** `/api/dashboard/crm-comprehensive/` - CRM comprehensive dashboard
 - **GET** `/api/dashboard/crm-test/` - Test CRM connection
