@@ -10,6 +10,9 @@ const EmployeesPageWrapper = styled.div`
   background: ${props => props.theme.colors.background};
   min-height: 100vh;
   transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 `;
 
 // Notification Banner
@@ -29,8 +32,10 @@ const NotificationBanner = styled.div`
 
 // Header Section
 const PageHeader = styled.div`
-  padding: 32px;
+  padding: 32px 32px 24px 32px;
   transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const TitleSection = styled.div`
@@ -235,19 +240,34 @@ const ControlsSection = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
   gap: 16px;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const LeftControls = styled.div`
   flex: 1;
-  max-width: 500px;
+  max-width: 400px;
+  
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
 
 const RightControls = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-start;
+  }
 `;
 
 const DateLabel = styled.span`
@@ -276,8 +296,15 @@ const DateInput = styled.input`
   }
 `;
 
+const DateHelperText = styled.div`
+  font-size: 11px;
+  color: ${props => props.theme.colors.text.secondary};
+  margin-top: 4px;
+  font-style: italic;
+`;
+
 const SearchInput = styled.input`
-  padding: 12px 16px;
+  padding: 10px 16px;
   border: 1px solid ${props => props.theme.colors.border};
   border-radius: 6px;
   font-size: 13px;
@@ -324,7 +351,8 @@ const StatusDropdown = styled.select`
 
 // Table Styles
 const TableWrapper = styled.div`
-  padding: 0 32px 32px 32px;
+  padding: 0;
+  width: 100%;
 `;
 
 const TableContainer = styled.div`
@@ -332,28 +360,40 @@ const TableContainer = styled.div`
   border-radius: 8px;
   border: 1px solid ${props => props.theme.colors.border};
   transition: all 0.3s ease;
+  margin: 0 32px;
+  width: calc(100% - 64px);
 `;
 
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
   thead {
   border-bottom: 1px solid ${props => props.theme.colors.border} !important;
   }
 `;
 
 const TableHeader = styled.th`
-  padding: 16px 20px;
+  padding: 14px 6px;
   text-align: ${props => props.align || 'left'};
-  font-weight: 600;
-  font-size: 11px;
+  font-weight: 800;
+  font-size: 10px;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
   letter-spacing: 0.8px;
-  color: ${props => props.theme.colors.text.secondary};
+  color: ${props => props.theme.colors.text.primary};
   background: ${props => props.theme.colors.cardBackground};
   border-bottom: 1px solid ${props => props.theme.colors.border};
   text-transform: uppercase;
   transition: all 0.3s ease;
   white-space: nowrap;
+  
+  &:first-child {
+    padding-left: 16px;
+  }
+  
+  &:last-child {
+    padding-right: 16px;
+  }
 `;
 
 const TableRow = styled.tr`
@@ -370,33 +410,48 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-  padding: 20px;
+  padding: 14px 6px;
   color: ${props => props.theme.colors.text.primary};
-  font-size: 13px;
+  font-size: 12px;
   vertical-align: middle;
   text-align: ${props => props.align || 'left'};
   border-bottom: 1px solid ${props => props.theme.colors.border};
   transition: color 0.3s ease;
+  white-space: nowrap;
+  
+  &:first-child {
+    padding-left: 16px;
+  }
+  
+  &:last-child {
+    padding-right: 16px;
+  }
 `;
 
 const EmployeeInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const UserIcon = styled.div`
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 4px;
-  background: #3b82f6;
+  background: ${props => props.isManager ? '#f59e0b' : '#3b82f6'}; /* Manager: Turuncu, Employee: Mavi */
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 const EmployeeDetails = styled.div`
@@ -406,17 +461,20 @@ const EmployeeDetails = styled.div`
 
 const EmployeeName = styled.div`
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   color: ${props => props.theme.colors.text.primary};
   margin-bottom: 2px;
   transition: color 0.3s ease;
+  line-height: 1.2;
 `;
 
 const TeamName = styled.div`
-  font-size: 11px;
+  font-size: 10px;
   color: ${props => props.theme.colors.text.secondary};
   transition: color 0.3s ease;
   font-weight: 500;
+  margin-top: 2px;
+  line-height: 1.2;
 `;
 
 const StatusBadge = styled.span`
@@ -457,22 +515,33 @@ const BlueCircle = styled.div`
 const StatusColumn = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 `;
 
 const StatusCircle = styled.div`
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: ${props => props.active ? '#10b981' : '#6b7280'};
+  background: ${props => {
+    // Farklı durumlara göre renk
+    if (props.status === 'Active' || props.status === 'AT WORK') return '#10b981'; // Yeşil
+    if (props.status === 'Available') return '#22c55e'; // Açık yeşil
+    if (props.status === 'In Meeting') return '#f59e0b'; // Turuncu
+    if (props.status === 'On Break') return '#06b6d4'; // Cyan
+    if (props.status === 'Idle') return '#eab308'; // Sarı
+    if (props.status === 'Holiday') return '#ec4899'; // Pembe
+    if (props.status === 'Week Off') return '#8b5cf6'; // Mor
+    return '#9ca3af'; // Varsayılan gri (OFF)
+  }};
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: all 0.3s ease;
 `;
 
 const StatusText = styled.span`
-  font-size: 13px;
+  font-size: 11px;
   color: ${props => props.theme.colors.text.primary};
   font-weight: 500;
   text-transform: uppercase;
@@ -521,7 +590,7 @@ const TimeColumn = styled.div`
 
 const TimeText = styled.div`
   font-weight: 600;
-  font-size: 13px;
+  font-size: 11px;
   color: ${props => props.theme.colors.text.primary};
 `;
 
@@ -535,19 +604,23 @@ const ActiveTimeColumn = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
+  min-width: 120px;
+  padding-left: 20px;
 `;
 
 const ProductivityColumn = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
 `;
 
 const ProductivityCircle = styled.div`
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 1px solid ${props => {
     // In dark mode, use white/light borders
@@ -571,10 +644,11 @@ const ProductivityCircle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   background: ${props => props.theme.colors.surface};
+  flex-shrink: 0;
 `;
 
 const EmptyStateCell = styled.div`
@@ -587,12 +661,11 @@ const EmptyStateCell = styled.div`
 // Pagination
 const PaginationContainer = styled.div`
   background: ${props => props.theme.colors.surface};
-  padding: 16px 32px;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid ${props => props.theme.colors.border};
-  margin: 0 32px;
   border-radius: 0 0 8px 8px;
   transition: all 0.3s ease;
 `;
@@ -673,6 +746,14 @@ const QuickView = () => {
   const [statusFilter, setStatusFilter] = useState('Active');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  
+  // Sorting state
+  const [sortBy, setSortBy] = useState('name'); // 'name' or other fields
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
   
   // Dynamic employee data from API
   const [employeesData, setEmployeesData] = useState([]);
@@ -682,6 +763,81 @@ const QuickView = () => {
   // Timer management
   const [timerValues, setTimerValues] = useState({});
   const [runningTimers, setRunningTimers] = useState({});
+
+  // Durum icon ve metin döndüren yardımcı fonksiyon
+  const getStatusInfo = (status) => {
+    const statusMap = {
+      'Active': {
+        text: 'AT WORK',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 576 512" fill="white">
+            {/* Font Awesome - fa-desktop (Masaüstü PC) */}
+            <path d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z"/>
+          </svg>
+        )
+      },
+      'Available': {
+        text: 'AVAILABLE',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <polyline points="17 11 19 13 23 9"/>
+          </svg>
+        )
+      },
+      'In Meeting': {
+        text: 'IN MEETING',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 640 512" fill="white">
+            <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z"/>
+          </svg>
+        )
+      },
+      'On Break': {
+        text: 'ON BREAK',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
+            <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32V416c0 53 43 96 96 96H288c53 0 96-43 96-96h16c61.9 0 112-50.1 112-112s-50.1-112-112-112H352 32zm352 64h16c26.5 0 48 21.5 48 48s-21.5 48-48 48H384V256zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
+          </svg>
+        )
+      },
+      'Idle': {
+        text: 'IDLE',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
+            <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/>
+          </svg>
+        )
+      },
+      'Holiday': {
+        text: 'HOLIDAY',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
+            <path d="M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"/>
+          </svg>
+        )
+      },
+      'Week Off': {
+        text: 'WEEK OFF',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 448 512" fill="white">
+            <path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zm80 64c-8.8 0-16 7.2-16 16v96c0 8.8 7.2 16 16 16h96c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H80z"/>
+          </svg>
+        )
+      },
+      'Inactive': {
+        text: 'OFF',
+        icon: (
+          <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
+            <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"/>
+          </svg>
+        )
+      }
+    };
+
+    return statusMap[status] || statusMap['Inactive'];
+  };
 
   // API configuration
   // API Configuration
@@ -813,15 +969,31 @@ const QuickView = () => {
           activeTimeFormatted: activeTime,
           productivity: productivityScore,
           staffId: rawData.staffid,
-          statusWork: rawData.status_work
+          statusWork: rawData.status_work,
+          team: rawData.job_position || rawData.department || staff.department_name || staff.organization || 'No Department',
+          jobPosition: rawData.job_position,
+          department: rawData.department,
+          departmentName: staff.department_name,
+          organization: staff.organization
+        });
+
+        // Log role information for debugging
+        console.log(`🔍 Role Debug for ${staff.full_name}:`, {
+          'staff.role': staff.role,
+          'rawData.role': rawData.role,
+          'rawData.admin': rawData.admin,
+          'rawData.job_position': rawData.job_position,
+          'designation (final)': staff.role || rawData.role || 'Staff',
+          'isAdmin?': rawData.admin === '1' || rawData.admin === 1
         });
 
         return {
           id: staff.staffid || rawData.staffid || staff.id,
           name: staff.full_name || `${rawData.firstname || ''} ${rawData.lastname || ''}`.trim(),
-          team: rawData.job_position || staff.department_name || staff.organization || 'No Organization',
+          team: rawData.job_position || rawData.department || staff.department_name || staff.organization || staff.team_name || 'No Department',
           status: workStatus,
-          designation: staff.role || rawData.role || 'Staff',
+          designation: staff.role || rawData.role || rawData.job_position || staff.job_position || 'Staff',
+          isAdmin: rawData.admin === '1' || rawData.admin === 1 || rawData.admin === true,
           email: staff.email || rawData.email,
           isOnline: isLoggedIn,
           lastLogin: staff.last_login || rawData.last_login || 'Never',
@@ -864,11 +1036,11 @@ const QuickView = () => {
   useEffect(() => {
     fetchUsers();
     
-    // Set up polling to refresh data every 30 seconds
+    // Set up polling to refresh data every 30 seconds for real-time updates
     const interval = setInterval(fetchUsers, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedDate]); // Refetch when date changes
 
   // Refresh data manually
   const handleRefresh = () => {
@@ -1118,6 +1290,18 @@ const QuickView = () => {
     await sendNumericValueToAPI(userId, 0, username);
   };
 
+  // Handle sorting
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      // Toggle sort order if clicking the same field
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new field and default to ascending
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
+
   // Filter employees based on search query and status
   const filteredEmployees = employeesData.filter(employee =>
     (employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1125,21 +1309,36 @@ const QuickView = () => {
     (statusFilter === 'All' || employee.status === statusFilter)
   );
 
+  // Sort employees
+  const sortedEmployees = [...filteredEmployees].sort((a, b) => {
+    if (sortBy === 'name') {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      if (sortOrder === 'asc') {
+        return nameA.localeCompare(nameB);
+      } else {
+        return nameB.localeCompare(nameA);
+      }
+    }
+    return 0;
+  });
+
   // Pagination logic
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedEmployees.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedEmployees = filteredEmployees.slice(startIndex, endIndex);
+  const paginatedEmployees = sortedEmployees.slice(startIndex, endIndex);
 
   return (
-    <DashboardLayout headerTitle="Quick View" headerBreadcrumb="Home / Quick View">
+    <DashboardLayout headerTitle={t('quickView')} headerBreadcrumb={`${t('home')} / ${t('quickView')}`}>
       <EmployeesPageWrapper theme={theme}>
         {/* Page Header */}
         <PageHeader>
           <TitleSection>
-           
-              <PageTitle theme={theme}>Quick View</PageTitle>
-       
+            <PageTitle theme={theme}>QUICK VIEW</PageTitle>
+            <Tooltip text="Effortlessly access a comprehensive report to quickly view the current status of all your organization's employees in a single glance." theme={theme}>
+              <InfoIcon theme={theme}>ⓘ</InfoIcon>
+            </Tooltip>
           </TitleSection>
           
           {/* Controls */}
@@ -1155,7 +1354,19 @@ const QuickView = () => {
             </LeftControls>
             
             <RightControls>
-            
+              <DateLabel theme={theme}>SELECT DATE</DateLabel>
+              <DateInput
+                theme={theme}
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                min={(() => {
+                  const threeMonthsAgo = new Date();
+                  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                  return threeMonthsAgo.toISOString().split('T')[0];
+                })()}
+              />
             </RightControls>
           </ControlsSection>
         </PageHeader>
@@ -1167,39 +1378,56 @@ const QuickView = () => {
               <thead>
                 <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
                   <TableHeader theme={theme} align="left">STATUS</TableHeader>
-                  <TableHeader theme={theme} align="left">EMPLOYEE NAME ↑</TableHeader>
+                  <TableHeader 
+                    theme={theme} 
+                    align="left" 
+                    style={{ cursor: 'pointer', userSelect: 'none' }}
+                    onClick={() => handleSort('name')}
+                  >
+                    EMPLOYEE NAME {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                  </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Total time employee has been logged into the system" theme={theme}>
-                      LOGGED TIME
+                    <Tooltip text="Total time employee has been logged into the system" theme={theme} icon="">
+                      LOGGED TIME ⓘ
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Time since last activity was recorded" theme={theme}>
-                      ACTIVE TIME
+                    <Tooltip text="Time actively spent working" theme={theme} icon="">
+                      ACTIVE TIME ⓘ
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Total productive work hours" theme={theme}>
+                    <Tooltip text="Time spent on productive activities" theme={theme} icon="">
                       PRODUCTIVE
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Time spent in meetings" theme={theme}>
+                    <Tooltip text="Time spent on distracting activities" theme={theme} icon="">
+                      DISTRACTION
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Time spent on neutral activities" theme={theme} icon="">
+                      NEUTRAL
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} align="center">
+                    <Tooltip text="Time spent in meetings" theme={theme} icon="">
                       MEETING
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Break time taken by employee" theme={theme}>
+                    <Tooltip text="Break time taken by employee" theme={theme} icon="">
                       BREAK
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Time when employee was idle" theme={theme}>
+                    <Tooltip text="Time when employee was idle" theme={theme} icon="">
                       IDLE
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} align="center">
-                    <Tooltip text="Time when employee was offline" theme={theme}>
+                    <Tooltip text="Time when employee was offline" theme={theme} icon="">
                       OFFLINE
                     </Tooltip>
                   </TableHeader>
@@ -1207,39 +1435,57 @@ const QuickView = () => {
               </thead>
               <tbody>
                 {paginatedEmployees.length > 0 ? (
-                  paginatedEmployees.map((employee) => (
-                    <TableRow key={employee.id} theme={theme}>
-                      <TableCell theme={theme} align="left">
-                        <StatusColumn>
-                          <StatusCircle active={employee.status === 'Active'} />
-                          <StatusText theme={theme}>
-                            {employee.status === 'Active' ? 'Active' : 'OFF'}
-                          </StatusText>
-                        </StatusColumn>
-                      </TableCell>
+                  paginatedEmployees.map((employee) => {
+                    const statusInfo = getStatusInfo(employee.status);
+                    
+                    return (
+                      <TableRow key={employee.id} theme={theme}>
+                        <TableCell theme={theme} align="left">
+                          <StatusColumn>
+                            <StatusCircle status={employee.status}>
+                              {statusInfo.icon}
+                            </StatusCircle>
+                            <StatusText theme={theme}>
+                              {statusInfo.text}
+                            </StatusText>
+                          </StatusColumn>
+                        </TableCell>
                       
                       <TableCell theme={theme} align="left">
                         <EmployeeInfo>
+                          <UserIcon isManager={employee.isAdmin}>
+                            {employee.isAdmin ? 'M' : 'E'}
+                          </UserIcon>
                           <EmployeeDetails>
                             <EmployeeName theme={theme}>{employee.name}</EmployeeName>
-                           
+                            <TeamName theme={theme}>
+                              {employee.team || employee.designation || 'No Department'}
+                            </TeamName>
                           </EmployeeDetails>
                         </EmployeeInfo>
                       </TableCell>
                       
                       <TableCell theme={theme} align="center">
-                        <TimeText theme={theme}>{employee.loggedTime}</TimeText>
+                        <TimeText theme={theme}>{employee.loggedTime || '0h 0m'}</TimeText>
                       </TableCell>
                       
                       <TableCell theme={theme} align="center">
                         <ActiveTimeColumn>
-                          <TimeText theme={theme}>
-                            {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
-                          </TimeText>
                           <ProductivityCircle value={employee.productivity} theme={theme}>
                             {employee.productivity > 0 ? `${employee.productivity}%` : '0%'}
                           </ProductivityCircle>
+                          <TimeText theme={theme}>
+                            {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
+                          </TimeText>
                         </ActiveTimeColumn>
+                      </TableCell>
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>{employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}</TimeText>
+                      </TableCell>
+                      
+                      <TableCell theme={theme} align="center">
+                        <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell>
                       
                       <TableCell theme={theme} align="center">
@@ -1268,12 +1514,13 @@ const QuickView = () => {
                         <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell>
                     </TableRow>
-                  ))
+                  );
+                  })
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="9">
+                    <TableCell theme={theme} colSpan="11">
                       <EmptyStateCell theme={theme}>
-                        {loading ? '🔄 Loading users...' : 'No users found.'}
+                        {loading ? '🔄 Loading employees...' : 'No employees found.'}
                       </EmptyStateCell>
                     </TableCell>
                   </TableRow>
@@ -1286,7 +1533,7 @@ const QuickView = () => {
         {/* Pagination */}
         <PaginationContainer>
           <PaginationInfo>
-            <span>Users per page:</span>
+            <span>Employees per page:</span>
             <ItemsPerPageSelector
               value={itemsPerPage}
               onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -1296,8 +1543,8 @@ const QuickView = () => {
               <option value={100}>100</option>
             </ItemsPerPageSelector>
             <span>
-              {filteredEmployees.length > 0 
-                ? `${startIndex + 1} – ${Math.min(endIndex, filteredEmployees.length)} of ${filteredEmployees.length}`
+              {sortedEmployees.length > 0 
+                ? `${startIndex + 1} – ${Math.min(endIndex, sortedEmployees.length)} of ${sortedEmployees.length}`
                 : '0 – 0 of 0'
               }
             </span>
@@ -1305,21 +1552,39 @@ const QuickView = () => {
           
           <PaginationButtons>
             <PaginationButton
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
+              title="First page"
             >
-              ←
+              «
             </PaginationButton>
             
-            <PaginationButton active="true">
-              1
+            <PaginationButton
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              title="Previous page"
+            >
+              ‹
+            </PaginationButton>
+            
+            <PaginationButton active={true}>
+              {currentPage}
             </PaginationButton>
             
             <PaginationButton
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
+              title="Next page"
             >
-              →
+              ›
+            </PaginationButton>
+            
+            <PaginationButton
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              title="Last page"
+            >
+              »
             </PaginationButton>
           </PaginationButtons>
         </PaginationContainer>
