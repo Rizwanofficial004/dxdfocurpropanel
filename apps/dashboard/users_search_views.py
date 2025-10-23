@@ -1,13 +1,19 @@
 import logging
 import re
 from datetime import datetime, timedelta
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import AllowAny
+from rest_framework import status
 import boto3
+import os
 
 logger = logging.getLogger(__name__)
+
+max_page_size = 500
+max_screenshots_per_page = 1000
+supported_screenshots_per_page = [50, 100, 200, 300, 500, 1000]
 
 class EnhancedUsersSearchView(APIView):
     permission_classes = [AllowAny]
@@ -16,11 +22,11 @@ class EnhancedUsersSearchView(APIView):
         super().__init__()
         self.s3_client = boto3.client(
             's3',
-            aws_access_key_id='AKIARSU6EUUWMQ5I2JWC',
-            aws_secret_access_key='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',
-            region_name='eu-north-1'
+            aws_access_key_id = getattr(settings, "AWS_ACCESS_KEY_ID", os.getenv("AWS_ACCESS_KEY_ID")),
+            aws_secret_access_key= getattr(settings, "AWS_SECRET_ACCESS_KEY", os.getenv("AWS_SECRET_ACCESS_KEY")),
         )
-        self.bucket_name = 'ddsfocustime'
+        self.region_name= getattr(settings, "AWS_REGION", os.getenv("AWS_REGION")),
+        self.bucket_name = getattr(settings, "AWS_STORAGE_BUCKET_NAME", os.getenv("AWS_STORAGE_BUCKET_NAME"))
     
     def get(self, request):
         search_query = request.GET.get('q', '').strip()
@@ -37,8 +43,7 @@ class EnhancedUsersSearchView(APIView):
         screenshots_per_page = int(request.GET.get('screenshots_per_page', 100))
         
         # Validate page sizes for large datasets
-        max_page_size = 500
-        max_screenshots_per_page = 1000
+        
         
         if page_size > max_page_size:
             page_size = max_page_size
@@ -47,7 +52,6 @@ class EnhancedUsersSearchView(APIView):
             screenshots_per_page = max_screenshots_per_page
         
         # Supported page sizes for screenshots
-        supported_screenshots_per_page = [50, 100, 200, 300, 500, 1000]
         if screenshots_per_page not in supported_screenshots_per_page:
             screenshots_per_page = min(supported_screenshots_per_page, key=lambda x: abs(x - screenshots_per_page))
         
@@ -196,8 +200,7 @@ class EnhancedUsersSearchView(APIView):
             
             for prefix in prefixes:
                 logger.debug(f"Searching S3 with prefix: {prefix}")
-                
-<<<<<<< HEAD
+             
                 # List all objects in S3 with this prefix (including nested folders)
                 paginator = self.s3_client.get_paginator('list_objects_v2')
                 pages = paginator.paginate(
@@ -205,10 +208,8 @@ class EnhancedUsersSearchView(APIView):
                     Prefix=prefix,
                     PaginationConfig={'PageSize': 1000}  # Process in chunks but don't limit total
                 )
-=======
                 # First, get user folders for this date to be more accurate
                 date_folders = self._get_user_folders_for_date(prefix)
->>>>>>> 77557742ac678b80201f5b8f90414ab5d288c9bc
                 
                 for user_folder in date_folders:
                     # Only process if user matches search query (or no query)
@@ -626,7 +627,7 @@ class EnhancedUsersSearchView(APIView):
                         break
                 
                 # Create S3 URL
-                screenshot_url = f"https://{self.bucket_name}.s3.eu-north-1.amazonaws.com/{key}"
+                screenshot_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{key}"
                 
                 # Extract file extension
                 file_extension = filename.split('.')[-1].lower()
