@@ -25,6 +25,12 @@ const LiveTracking = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
+  
+  // Staff data from API
+  const [staffData, setStaffData] = useState([]);
+  const [staffMap, setStaffMap] = useState(new Map());
+  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState('all');
 
   // Image Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -172,7 +178,7 @@ const LiveTracking = () => {
     }
   };
 
-  // Filter screenshots based on search query
+  // Filter screenshots based on search query and team filter
   useEffect(() => {
     if (!allScreenshots.length) {
       setFilteredScreenshots([]);
@@ -181,21 +187,43 @@ const LiveTracking = () => {
 
     let filtered = allScreenshots;
     
+    // Filter by search query
     if (searchQuery.trim()) {
       const searchLower = searchQuery.toLowerCase();
-      filtered = filtered.filter(screenshot => 
-        screenshot.user_email?.toLowerCase().includes(searchLower) ||
-        screenshot.filename?.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(screenshot => {
+        const employeeInfo = getEmployeeInfo(screenshot.user_email);
+        return (
+          screenshot.user_email?.toLowerCase().includes(searchLower) ||
+          screenshot.filename?.toLowerCase().includes(searchLower) ||
+          employeeInfo.fullName.toLowerCase().includes(searchLower) ||
+          employeeInfo.team.toLowerCase().includes(searchLower)
+        );
+      });
+    }
+    
+    // Filter by selected team
+    if (selectedTeam !== 'all') {
+      filtered = filtered.filter(screenshot => {
+        const employeeInfo = getEmployeeInfo(screenshot.user_email);
+        return employeeInfo.team === selectedTeam;
+      });
     }
     
     setFilteredScreenshots(filtered);
-    setCurrentPage(1); // Reset to first page when searching
-  }, [searchQuery, allScreenshots]);
+    setCurrentPage(1); // Reset to first page when searching or filtering
+  }, [searchQuery, allScreenshots, selectedTeam, staffMap]);
 
   // Load data on component mount
   useEffect(() => {
-    fetchLiveTrackingData();
+    // Fetch both staff data and screenshots
+    const initializeData = async () => {
+      await Promise.all([
+        fetchStaffData(),
+        fetchLiveTrackingData()
+      ]);
+    };
+    
+    initializeData();
   }, []);
 
   // Close help popover when clicking outside
@@ -264,16 +292,119 @@ const LiveTracking = () => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
 
-  // Get random status for demo (you can replace with actual data from API)
-  const getEmployeeStatus = (index) => {
-    const statuses = ['BREAK', 'MEETING', 'IDLE', 'ACTIVE'];
-    return statuses[index % 4];
+  // Fetch staff data from API
+  const fetchStaffData = async () => {
+    try {
+      console.log('🔄 Fetching staff data from API...');
+      const response = await liveTrackingService.getStaffs();
+      console.log('✅ Staff data received:', response);
+      
+      // Try different response structures
+      let staffArray = [];
+      
+      if (response?.data && Array.isArray(response.data)) {
+        staffArray = response.data;
+      } else if (response?.count && response?.data) {
+        // Response has count and data array
+        staffArray = response.data;
+      } else if (Array.isArray(response)) {
+        staffArray = response;
+      }
+      
+      console.log(`📋 Found ${staffArray.length} staff members`);
+      
+      if (staffArray.length > 0) {
+        setStaffData(staffArray);
+        
+        // Job position mapping (ID to name)
+        const jobPositionMap = {
+          '1': 'Management',
+          '2': 'Development',
+          '3': 'Design',
+          '4': 'Marketing',
+          '5': 'Sales',
+          '6': 'Support',
+          '7': 'HR',
+          '8': 'Finance',
+          '9': 'Operations',
+          '10': 'Quality Assurance',
+          '11': 'Product',
+          '12': 'Customer Success'
+        };
+        
+        // Create a map for quick lookup by email
+        const map = new Map();
+        const teamSet = new Set();
+        
+        staffArray.forEach((staff, index) => {
+          const email = staff.email;
+          
+          // Get team name from job_position ID
+          let team = 'No Department';
+          if (staff.job_position) {
+            team = jobPositionMap[staff.job_position] || `Department ${staff.job_position}`;
+          }
+          
+          console.log(`👤 Staff ${index + 1}: ${staff.name}, Email: ${email}, Job Position ID: ${staff.job_position}, Team: ${team}`);
+          
+          if (email) {
+            map.set(email.toLowerCase(), {
+              fullName: staff.name || 'Unknown',
+              team: team,
+              designation: team, // Use team as designation
+              staffId: staff.staff_id,
+              isAdmin: false // We don't have admin info in this API
+            });
+          }
+          
+          // Collect unique teams
+          if (team && team !== 'No Department') {
+            teamSet.add(team);
+          }
+        });
+        
+        const teamArray = Array.from(teamSet).sort();
+        setStaffMap(map);
+        setTeams(teamArray);
+        console.log(`✅ Staff map created with ${map.size} entries`);
+        console.log(`📋 Teams (${teamArray.length}):`, teamArray);
+      } else {
+        console.warn('⚠️ No staff data found in response');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching staff data:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
   };
 
-  // Get employee team (you can replace with actual data from API)
-  const getEmployeeTeam = (index) => {
-    const teams = ['Marketing', 'IT Team,Promotion', 'Auditing Team,Sales & Marketing', 'Auditing Team,Sales'];
-    return teams[index % 4];
+  // Get employee info from staff data by email
+  const getEmployeeInfo = (email) => {
+    if (!email) return { team: 'Unknown Team', fullName: 'Unknown User' };
+    
+    const cleanEmail = formatUserEmail(email).toLowerCase();
+    const staffInfo = staffMap.get(cleanEmail);
+    
+    if (staffInfo) {
+      return {
+        team: staffInfo.team,
+        fullName: staffInfo.fullName,
+        designation: staffInfo.designation,
+        staffId: staffInfo.staffId,
+        isAdmin: staffInfo.isAdmin
+      };
+    }
+    
+    // Fallback to email username if not found in staff data
+    return {
+      team: 'Unknown Team',
+      fullName: cleanEmail.split('@')[0],
+      designation: 'Staff',
+      staffId: 'N/A',
+      isAdmin: false
+    };
   };
 
   return (
@@ -302,7 +433,6 @@ const LiveTracking = () => {
                     <ul>
                       <li>Select "A specific team or all teams" from the dropdown menu</li>
                       <li>View current date and timer for real-time viewing</li>
-                      <li>FocusRO indicates Meeting, Break, or Idle status</li>
                       <li>Click employee name for detailed report</li>
                       <li>Click screenshot to enlarge</li>
                     </ul>
@@ -314,17 +444,24 @@ const LiveTracking = () => {
             {/* Center: Team Filter */}
             <div className="header-center-section">
               <div className="team-filter">
-                <label htmlFor="team-select">Choose a team</label>
+                <label htmlFor="team-select">Choose a team ({teams.length} teams)</label>
                 <select 
                   id="team-select" 
                   className="team-dropdown"
-                  defaultValue="all"
+                  value={selectedTeam}
+                  onChange={(e) => {
+                    console.log('🔄 Team filter changed to:', e.target.value);
+                    setSelectedTeam(e.target.value);
+                  }}
                 >
                   <option value="all">All Teams</option>
-                  <option value="marketing">Marketing</option>
-                  <option value="sales">Sales & Marketing</option>
-                  <option value="auditing">Auditing Team</option>
-                  <option value="it">IT Team</option>
+                  {teams.length > 0 ? (
+                    teams.map(team => (
+                      <option key={team} value={team}>{team}</option>
+                    ))
+                  ) : (
+                    <option disabled>Loading teams...</option>
+                  )}
                 </select>
               </div>
             </div>
@@ -403,8 +540,7 @@ const LiveTracking = () => {
                   padding: '20px 0'
                 }}>
                   {currentScreenshots.map((screenshot, index) => {
-                    const status = getEmployeeStatus(index);
-                    const team = getEmployeeTeam(index);
+                    const employeeInfo = getEmployeeInfo(screenshot.user_email);
                     
                     return (
                     <div
@@ -461,7 +597,7 @@ const LiveTracking = () => {
                             width: '32px',
                             height: '32px',
                             borderRadius: '50%',
-                            backgroundColor: '#4285f4',
+                            backgroundColor: employeeInfo.isAdmin ? '#f59e0b' : '#4285f4',
                             color: 'white',
                             display: 'flex',
                             alignItems: 'center',
@@ -470,7 +606,7 @@ const LiveTracking = () => {
                             fontWeight: '600',
                             flexShrink: 0
                           }}>
-                            {formatUserEmail(screenshot.user_email).charAt(0).toUpperCase()}
+                            {employeeInfo.fullName.charAt(0).toUpperCase()}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
@@ -482,15 +618,15 @@ const LiveTracking = () => {
                               whiteSpace: 'nowrap',
                               cursor: 'pointer'
                             }}
-                            title="Click for detailed employee report"
+                            title={`${employeeInfo.fullName} - ${employeeInfo.designation}`}
                             >
-                              {formatUserEmail(screenshot.user_email).split('@')[0]}
+                              {employeeInfo.fullName}
                             </div>
                             <div style={{
                               fontSize: '12px',
                               color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368'
                             }}>
-                              {team}
+                              {employeeInfo.team}
                             </div>
                           </div>
                         </div>
@@ -513,7 +649,7 @@ const LiveTracking = () => {
                         </div>
                       </div>
 
-                      {/* Status Display Area - replaces screenshot */}
+                      {/* Screenshot Display Area */}
                       <div style={{
                         width: '100%',
                         height: '200px',
@@ -522,56 +658,23 @@ const LiveTracking = () => {
                         justifyContent: 'center',
                         position: 'relative',
                         overflow: 'hidden',
-                        backgroundColor: status === 'BREAK' ? '#fbbf24' : 
-                                       status === 'MEETING' ? '#3b82f6' : 
-                                       status === 'IDLE' ? '#6b7280' : '#10b981'
+                        backgroundColor: '#10b981'
                       }}>
-                        {/* Status Icon and Text */}
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          textAlign: 'center'
-                        }}>
-                          {status === 'BREAK' && (
-                            <>
-                              <div style={{ fontSize: '64px', marginBottom: '16px' }}>☕</div>
-                              <div style={{ fontSize: '24px', fontWeight: '700' }}>Break</div>
-                            </>
-                          )}
-                          {status === 'MEETING' && (
-                            <>
-                              <div style={{ fontSize: '64px', marginBottom: '16px' }}>👥</div>
-                              <div style={{ fontSize: '24px', fontWeight: '700' }}>Meeting</div>
-                            </>
-                          )}
-                          {status === 'IDLE' && (
-                            <>
-                              <div style={{ fontSize: '24px', fontWeight: '700', color: '#ef4444' }}>Idle</div>
-                            </>
-                          )}
-                          {status === 'ACTIVE' && (
-                            <>
-                              <img
-                                src={screenshot.screenshot_url}
-                                alt="Employee screenshot"
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0
-                                }}
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                }}
-                              />
-                            </>
-                          )}
-                        </div>
+                        <img
+                          src={screenshot.screenshot_url}
+                          alt="Employee screenshot"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
                       </div>
                     </div>
                     );

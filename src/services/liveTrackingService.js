@@ -13,6 +13,8 @@ import { getApiBaseURL } from '../config/api';
 class LiveTrackingService {
   constructor() {
     this.baseUrl = `${getApiBaseURL()}/live-tracking/fast-screenshots/`;
+    this.staffsUrl = `${getApiBaseURL()}/sync-staffs/`;
+    this.updateStaffUrl = `${getApiBaseURL()}/update-staff/`;
     this.defaultParams = {
       aws_region: 'eu-north-1',
       bucket_name: 'ddsfocustime'
@@ -286,6 +288,89 @@ class LiveTrackingService {
       region: apiResponse.data.aws_region || 'eu-north-1',
       bucket: apiResponse.data.bucket_name || 'ddsfocustime'
     };
+  }
+
+  /**
+   * Get all staffs data
+   * @returns {Promise<Object>} API response with staffs data
+   */
+  async getStaffs() {
+    try {
+      console.log('🔄 Fetching staffs data from:', this.staffsUrl);
+
+      const response = await axios.get(this.staffsUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        withCredentials: false
+      });
+
+      console.log('✅ Staffs API response:', response.data);
+      return response.data;
+
+    } catch (error) {
+      console.error('❌ Staffs API error:', error);
+      
+      if (error.response) {
+        throw new Error(
+          error.response.data?.message || 
+          error.response.data?.detail || 
+          `API Error: ${error.response.status}`
+        );
+      }
+      
+      if (error.request) {
+        throw new Error('No response from server - please check your connection');
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Update staff information
+   * @param {number} staffId - Staff ID
+   * @param {Object} data - Staff data to update
+   * @param {string} data.email - Email address
+   * @param {string} data.phone_number - Phone number
+   * @param {string} data.job_position - Job position ID
+   * @param {number} data.screenshot_interval - Screenshot interval in minutes
+   * @returns {Promise<Object>} API response with updated staff data
+   */
+  async updateStaff(staffId, data) {
+    try {
+      const url = `${this.updateStaffUrl}${staffId}/`;
+      console.log('🔄 Updating staff data:', url, data);
+
+      const response = await axios.put(url, data, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        withCredentials: false
+      });
+
+      console.log('✅ Update staff API response:', response.data);
+      return response.data;
+
+    } catch (error) {
+      console.error('❌ Update staff API error:', error);
+      
+      if (error.response) {
+        throw new Error(
+          error.response.data?.message || 
+          error.response.data?.detail || 
+          `API Error: ${error.response.status}`
+        );
+      }
+      
+      if (error.request) {
+        throw new Error('No response from server - please check your connection');
+      }
+      
+      throw error;
+    }
   }
 }
 
