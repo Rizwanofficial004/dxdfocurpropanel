@@ -527,8 +527,8 @@ const StatusCircle = styled.div`
     if (props.status === 'Active' || props.status === 'AT WORK') return '#10b981'; // Yeşil
     if (props.status === 'Available') return '#22c55e'; // Açık yeşil
     if (props.status === 'In Meeting') return '#f59e0b'; // Turuncu
-    if (props.status === 'On Break') return '#06b6d4'; // Cyan
-    if (props.status === 'Idle') return '#eab308'; // Sarı
+    // if (props.status === 'On Break') return '#06b6d4'; // Cyan
+    // if (props.status === 'Idle') return '#eab308'; // Sarı
     if (props.status === 'Holiday') return '#ec4899'; // Pembe
     if (props.status === 'Week Off') return '#8b5cf6'; // Mor
     return '#9ca3af'; // Varsayılan gri (OFF)
@@ -794,22 +794,22 @@ const QuickView = () => {
           </svg>
         )
       },
-      'On Break': {
-        text: 'ON BREAK',
-        icon: (
-          <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
-            <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32V416c0 53 43 96 96 96H288c53 0 96-43 96-96h16c61.9 0 112-50.1 112-112s-50.1-112-112-112H352 32zm352 64h16c26.5 0 48 21.5 48 48s-21.5 48-48 48H384V256zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
-          </svg>
-        )
-      },
-      'Idle': {
-        text: 'IDLE',
-        icon: (
-          <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
-            <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/>
-          </svg>
-        )
-      },
+      // 'On Break': {
+      //   text: 'ON BREAK',
+      //   icon: (
+      //     <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
+      //       <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32V416c0 53 43 96 96 96H288c53 0 96-43 96-96h16c61.9 0 112-50.1 112-112s-50.1-112-112-112H352 32zm352 64h16c26.5 0 48 21.5 48 48s-21.5 48-48 48H384V256zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
+      //     </svg>
+      //   )
+      // },
+      // 'Idle': {
+      //   text: 'IDLE',
+      //   icon: (
+      //     <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
+      //       <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/>
+      //     </svg>
+      //   )
+      // },
       'Holiday': {
         text: 'HOLIDAY',
         icon: (
@@ -1401,36 +1401,36 @@ const QuickView = () => {
                       PRODUCTIVE
                     </Tooltip>
                   </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Time spent on distracting activities" theme={theme} icon="">
                       DISTRACTION
                     </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  </TableHeader> */}
+                  {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Time spent on neutral activities" theme={theme} icon="">
                       NEUTRAL
                     </Tooltip>
-                  </TableHeader>
+                  </TableHeader> */}
                   <TableHeader theme={theme} align="center">
                     <Tooltip text="Time spent in meetings" theme={theme} icon="">
                       MEETING
                     </Tooltip>
                   </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Break time taken by employee" theme={theme} icon="">
                       BREAK
                     </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  </TableHeader> */}
+                  {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Time when employee was idle" theme={theme} icon="">
                       IDLE
                     </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  </TableHeader> */}
+                  {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Time when employee was offline" theme={theme} icon="">
                       OFFLINE
                     </Tooltip>
-                  </TableHeader>
+                  </TableHeader> */}
                 </tr>
               </thead>
               <tbody>
@@ -1484,13 +1484,13 @@ const QuickView = () => {
                         <TimeText theme={theme}>{employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}</TimeText>
                       </TableCell>
                       
-                      <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell>
+                      </TableCell> */}
                       
-                      <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell>
+                      </TableCell> */}
                       
                       <TableCell theme={theme} align="center">
                         <TimeText theme={theme}>
@@ -1498,27 +1498,27 @@ const QuickView = () => {
                         </TimeText>
                       </TableCell>
                       
-                      <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} align="center">
                         <TimeText theme={theme}>
                           {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
                         </TimeText>
-                      </TableCell>
+                      </TableCell> */}
                       
-                      <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} align="center">
                         <TimeText theme={theme}>
                           {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
                         </TimeText>
-                      </TableCell>
+                      </TableCell> */}
                       
-                      <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   );
                   })
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="11">
+                    <TableCell theme={theme} colSpan="6">
                       <EmptyStateCell theme={theme}>
                         {loading ? '🔄 Loading employees...' : 'No employees found.'}
                       </EmptyStateCell>
