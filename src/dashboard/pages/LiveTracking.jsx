@@ -7,6 +7,7 @@ import axios from 'axios';
 import './LiveTracking.css';
 import { removeRedBorders } from '../../utils/removeDebugStyles';
 import { testUserAPIs } from '../../utils/userAPIDebugger';
+import liveTrackingService from '../../services/liveTrackingService';
 
 const LiveTracking = () => {
   const { t } = useLanguage();
@@ -57,16 +58,9 @@ const LiveTracking = () => {
   const testS3Connection = async () => {
     try {
       console.log('🔍 Testing S3 connection...');
-      const testUrl = buildApiUrl({ 
-        test_s3: true,
-        aws_region: 'eu-north-1',
-        bucket_name: 'ddsfocustime'
-      });
-      
-      
-      const response = await axios.get(testUrl, { timeout: 15000 });
-      console.log('✅ S3 Test Response:', response.data);
-      return response.data;
+      const result = await liveTrackingService.testS3Connection();
+      console.log('✅ S3 Test Response:', result);
+      return result;
     } catch (error) {
       console.error('❌ S3 Connection Test Failed:', error);
       return null;
@@ -83,140 +77,58 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      // Use the new API endpoint with S3 parameters
-      const apiUrl = buildApiUrl({
+      // Use the new live tracking service
+      const response = await liveTrackingService.getScreenshots({
         limit_screenshots: 10, // Get more screenshots for better data
         include_metadata_only: false,
         sort_by: 'latest_date',
         order: 'desc',
-        // S3 Configuration
         aws_region: 'eu-north-1',
         bucket_name: 'ddsfocustime',
         force_refresh: true, // Force fresh data from S3
-        _t: Date.now() // Cache buster - ensures fresh data on every request
-      });
-      console.log('🔄 Fetching live tracking data from:', apiUrl);
-      console.log('🌐 Using API endpoint with S3 config:', apiUrl);
-      
-      const response = await axios.get(apiUrl, {
-        timeout: 90000, // Increase timeout to 90 seconds for S3 operations
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'X-AWS-Region': 'eu-north-1',
-          'X-S3-Bucket': 'ddsfocustime'
-        },
-        withCredentials: false
+        timeout: 90000 // Increase timeout to 90 seconds for S3 operations
       });
       
-      console.log('Live tracking API response:', response.data);
-      console.log('📊 API response status:', response.status);
-      console.log('📊 Response data structure:', {
-        hasData: !!response.data?.data,
-        hasUsers: !!response.data?.data?.s3_users_sample,
-        userCount: response.data?.data?.s3_users_sample?.length || 0,
-        totalSize: response.data?.data?.total_size_mb || 0
+      console.log('Live tracking API response:', response);
+      console.log('📊 API response structure:', {
+        hasData: !!response?.data,
+        hasUsers: !!response?.data?.s3_users_sample,
+        userCount: response?.data?.s3_users_sample?.length || 0,
+        totalSize: response?.data?.total_size_mb || 0
       });
-      setApiData(response.data);
+      setApiData(response);
       
-      // Debug the API data structure
-      console.log('🔍 API Data Structure Check:', {
-        hasApiData: !!response.data,
-        hasData: !!response.data?.data,
-        hasDataSources: !!response.data?.data?.data_sources,
-        hasSummary: !!response.data?.data?.summary,
-        hasMetrics: !!response.data?.data?.metrics,
-        hasUsers: !!response.data?.data?.s3_users_sample,
-        dataSources: response.data?.data?.data_sources,
-        keys: response.data?.data ? Object.keys(response.data.data) : []
-      });
+      // Parse screenshots using the service
+      const screenshots = liveTrackingService.parseScreenshots(response);
       
-      // S3-specific debugging
-      console.log('🗄️ S3 Data Analysis:', {
-        s3Status: response.data?.data?.data_sources?.s3_status,
-        s3Users: response.data?.data?.s3_users_sample?.length || 0,
-        bucketName: 'ddsfocustime',
-        region: 'eu-north-1',
-        sampleUserData: response.data?.data?.s3_users_sample?.[0] || null,
-        totalFiles: response.data?.data?.summary?.s3_files || 0,
-        lastUpdated: response.data?.data?.summary?.last_updated
-      });
+      // Log summary statistics
+      const summary = liveTrackingService.getSummary(response);
+      console.log('� Live Tracking Summary:', summary);
       
-      // Check if we have any screenshot URLs
-      if (response.data?.data?.s3_users_sample?.length > 0) {
-        const firstUser = response.data.data.s3_users_sample[0];
-        console.log('📸 Screenshot URL Analysis:', {
-          userEmail: firstUser.user_email,
-          hasScreenshots: !!firstUser.screenshots?.length,
-          screenshotCount: firstUser.screenshots?.length || 0,
-          firstScreenshotUrl: firstUser.screenshots?.[0]?.direct_url || firstUser.direct_file_url,
-          urlDomain: firstUser.screenshots?.[0]?.direct_url?.includes('amazonaws.com') ? 'AWS S3' : 'Other'
-        });
-      }
-      
-      if (response.data && response.data.data && response.data.data.s3_users_sample) {
-        // Create one screenshot entry per user using their latest screenshot
-        const screenshots = [];
-        console.log('🔍 Raw API data:', response.data.data.s3_users_sample);
-        
-        response.data.data.s3_users_sample.forEach(user => {
-          // Get the direct_url from the screenshots array - limit to first 3 for performance
-          let screenshotUrl = null;
-          let fallbackUrl = null;
-          let latestScreenshot = null;
-          
-          // Find the most recent screenshot with direct_url (only check first 3 for performance)
-          if (user.screenshots && Array.isArray(user.screenshots) && user.screenshots.length > 0) {
-            // Sort screenshots by last_modified (newest first) and take only first 3
-            const sortedScreenshots = user.screenshots
-              .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
-              .slice(0, 3); // Only process first 3 screenshots for performance
-            
-            latestScreenshot = sortedScreenshots[0];
-            screenshotUrl = latestScreenshot.direct_url;
-            fallbackUrl = latestScreenshot.file_url;
-          }
-          
-          // Fallback to user-level URLs if no screenshots found
-          if (!screenshotUrl) {
-            screenshotUrl = user.direct_file_url || user.latest_file_url;
-            fallbackUrl = user.latest_file_url || user.direct_file_url;
-          }
-          
-          console.log('📸 Processing user:', user.user_email);
-          console.log('📋 Screenshot direct_url:', latestScreenshot?.direct_url);
-          console.log('📋 Using URL:', screenshotUrl);
-          
-          // Test if the URL looks correct
-          if (screenshotUrl && screenshotUrl.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-            console.log('✅ URL format looks correct for:', user.user_email);
-          } else {
-            console.warn('⚠️ Unexpected URL format for:', user.user_email, screenshotUrl);
-          }
-          
-          screenshots.push({
-            user_email: user.user_email,
-            screenshot_url: screenshotUrl,
-            fallback_url: fallbackUrl,
-            filename: latestScreenshot?.filename || user.latest_file,
-            timestamp: new Date(latestScreenshot?.last_modified || user.latest_date).toISOString(),
-            activity_type: 'ACTIVE',
-            size_mb: latestScreenshot?.file_size_mb || user.total_size_mb,
-            file_count: user.file_count,
-            days_active: user.days_active,
-            latest_date: user.latest_date
-          });
-        });
+      if (screenshots.length > 0) {
+        // Convert parsed screenshots to component format
+        const formattedScreenshots = screenshots.map(screenshot => ({
+          user_email: screenshot.email,
+          screenshot_url: screenshot.url,
+          fallback_url: screenshot.fallbackUrl,
+          filename: screenshot.fileName,
+          timestamp: screenshot.timestamp,
+          activity_type: 'ACTIVE',
+          size_mb: screenshot.fileSize,
+          file_count: screenshot.metadata.totalFiles,
+          days_active: 1,
+          latest_date: screenshot.metadata.latestFileDate
+        }));
         
         // Sort screenshots by timestamp (newest first)
-        screenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        formattedScreenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
-        setAllScreenshots(screenshots);
-        setFilteredScreenshots(screenshots);
+        setAllScreenshots(formattedScreenshots);
+        setFilteredScreenshots(formattedScreenshots);
         setImageErrors(new Set());
+      } else {
+        setAllScreenshots([]);
+        setFilteredScreenshots([]);
       }
       
     } catch (err) {

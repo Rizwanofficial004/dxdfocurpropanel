@@ -92,23 +92,23 @@ export default defineConfig({
           });
         },
       },
-      // Specific proxy for live-tracking to local server (with fresh data)
+      // Specific proxy for live-tracking to production server
       '/api/live-tracking': {
-        target: 'http://127.0.0.1:8000',
+        target: 'https://dxdtime.ddsolutions.io',
         changeOrigin: true,
-        secure: false,
+        secure: true,
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('❌ Live Tracking API proxy error:', err);
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('📸 Live Tracking Request to local API:', req.method, req.url);
+            console.log('📸 Live Tracking Request to production API:', req.method, req.url);
             proxyReq.setHeader('Accept', 'application/json');
             proxyReq.setHeader('Content-Type', 'application/json');
             proxyReq.setHeader('Cache-Control', 'no-cache');
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('📸 Live Tracking Response from local API:', proxyRes.statusCode, req.url);
+            console.log('📸 Live Tracking Response from production API:', proxyRes.statusCode, req.url);
             // Prevent caching of live tracking data
             proxyRes.headers['cache-control'] = 'no-cache, no-store, must-revalidate';
             proxyRes.headers['pragma'] = 'no-cache';
