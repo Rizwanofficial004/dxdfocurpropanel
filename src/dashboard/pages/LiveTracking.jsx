@@ -264,115 +264,88 @@ const LiveTracking = () => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
 
+  // Get random status for demo (you can replace with actual data from API)
+  const getEmployeeStatus = (index) => {
+    const statuses = ['BREAK', 'MEETING', 'IDLE', 'ACTIVE'];
+    return statuses[index % 4];
+  };
+
+  // Get employee team (you can replace with actual data from API)
+  const getEmployeeTeam = (index) => {
+    const teams = ['Marketing', 'IT Team,Promotion', 'Auditing Team,Sales & Marketing', 'Auditing Team,Sales'];
+    return teams[index % 4];
+  };
+
   return (
     <DashboardLayout>
       <div className="live-tracking-page" style={{ display: 'flex', gap: '24px' }}>
         {/* Main Content */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Live Tracking Card */}
-          <div className="live-tracking-card">
-          {/* Top Notification Banner */}
-          <div className="notification-banner">
-            <div className="notification-content">
-              <span>Your user profile has been successfully created.</span>
-              <span>
-                You can now download the client app from{' '}
-                <a href="https://focusro.com/download" className="download-link">
-                  https://focusro.com/download
-                </a>{' '}
-                and log in with your password to explore the features.
+          {/* Unified Header - Outside of card */}
+          <div className="unified-header">
+            {/* Left: Title with Help Icon */}
+            <div className="header-left-section">
+              <h1 className="page-title">LIVE TRACKING</h1>
+              <span className="help-icon-circle" ref={helpRef}>
+                <button
+                  className="help-button"
+                  onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
+                  aria-expanded={showHelp}
+                  aria-label="Live Tracking Help"
+                >
+                  ?
+                </button>
+                {showHelp && (
+                  <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
+                    <p><strong>Live Tracking</strong></p>
+                    <p>Access real-time employee status updates and instant insights through easy screenshot viewing.</p>
+                    <ul>
+                      <li>Select "A specific team or all teams" from the dropdown menu</li>
+                      <li>View current date and timer for real-time viewing</li>
+                      <li>FocusRO indicates Meeting, Break, or Idle status</li>
+                      <li>Click employee name for detailed report</li>
+                      <li>Click screenshot to enlarge</li>
+                    </ul>
+                  </div>
+                )}
               </span>
             </div>
-          </div>
 
-          {/* Header */}
-          <div className="card-header">
-            <div className="header-left">
-              <h1 className="live-tracking-title">
-                LIVE TRACKING - SCREENSHOTS {apiData?.data?.total_employees?.icon}
-                <span className="help-icon" ref={helpRef}>
-                  <button
-                    className="help-button"
-                    onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
-                    aria-expanded={showHelp}
-                    aria-label="Live Tracking Help"
-                  >
-                    ?
-                  </button>
-                  {showHelp && (
-                    <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
-                      <p>{t('liveTrackingHelpShort')}</p>
-                    </div>
-                  )}
-                </span>
-              </h1>
-      
-              
-            </div>
-            <div className="header-controls">
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Search user or filename..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="user-search-input"
-                />
-                <span className="search-icon">🔍</span>
+            {/* Center: Team Filter */}
+            <div className="header-center-section">
+              <div className="team-filter">
+                <label htmlFor="team-select">Choose a team</label>
+                <select 
+                  id="team-select" 
+                  className="team-dropdown"
+                  defaultValue="all"
+                >
+                  <option value="all">All Teams</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="sales">Sales & Marketing</option>
+                  <option value="auditing">Auditing Team</option>
+                  <option value="it">IT Team</option>
+                </select>
               </div>
-              <button 
-                onClick={() => fetchLiveTrackingData(true)}
-                disabled={loading}
-                className="refresh-button"
-                title="Refresh data from API server - Using http://127.0.0.1:8000/api/live-tracking/fast-screenshots/"
-              >
-                {loading ? '🔄' : '↻'} Refresh Data {retryCount > 0 ? `(${retryCount})` : ''}
-              </button>
             </div>
-          </div>
 
-          {/* Statistics Cards */}
-          {apiData && apiData.data && (
-            <div className="stats-section">
-              <div className="stats-grid">
-                {/* Metrics Cards (exclude 'S3 Users' label) */}
-                {Array.isArray(apiData.data.metrics) && apiData.data.metrics
-                  .filter(metric => metric.label !== 'S3 Users')
-                  .map((metric, index) => (
-                    <div key={index} className="stat-card">
-                      <div className="stat-content">
-                        <h3>{metric.value}</h3>
-                        <p>{metric.label}</p>
-                      </div>
-                    </div>
-                ))}
-              </div>
-
-              {/* Data Sources Info */}
-              {apiData?.data?.data_sources && (
-                <div className="data-sources">
-                  <div className="source-item">
-                    <span className="source-label">S3 Status:</span>
-                    <span className={`source-status ${apiData?.data?.data_sources?.s3_status === 'Connected' ? 'connected' : 'disconnected'}`}>
-                      {apiData?.data?.data_sources?.s3_status || 'Unknown'}
-                    </span>
-                  </div>
-                  <div className="source-item">
-                    <span className="source-label">CRM Status:</span>
-                    <span className={`source-status ${apiData?.data?.data_sources?.crm_status === 'Connected' ? 'connected' : 'disconnected'}`}>
-                      {apiData?.data?.data_sources?.crm_status || 'Unknown'}
-                    </span>
-                  </div>
-                  <div className="source-item">
-                    <span className="source-label">Last Updated:</span>
-                    <span className="source-value">{apiData?.data?.summary?.last_updated || 'Not available'}</span>
-                  </div>
+            {/* Right: Date and Time */}
+            <div className="header-right-section">
+              <div className="date-time-display">
+                <div className="date-display">
+                  <span className="icon">📅</span>
+                  <span>Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                 </div>
-              )}
+                <div className="time-display">
+                  <span className="icon">�</span>
+                  <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
 
-          {/* Content Area */}
+          {/* Live Tracking Card - Content Area */}
+          <div className="live-tracking-card">
           <div className="content-area">
             {loading && (
               <div className="loading-container">
@@ -422,14 +395,6 @@ const LiveTracking = () => {
             {/* Screenshots Grid */}
             {!loading && !error && currentScreenshots.length > 0 && (
               <>
-                {/* Screenshots Header */}
-                <div className="screenshots-header">
-                  <h3>Live Users ({totalScreenshots} users)</h3>
-                  <div className="pagination-info">
-                    Showing {startIndex + 1}-{Math.min(endIndex, totalScreenshots)} of {totalScreenshots}
-                  </div>
-                </div>
-
                 {/* Screenshots Grid */}
                 <div style={{
                   display: 'grid',
@@ -437,7 +402,11 @@ const LiveTracking = () => {
                   gap: '20px',
                   padding: '20px 0'
                 }}>
-                  {currentScreenshots.map((screenshot, index) => (
+                  {currentScreenshots.map((screenshot, index) => {
+                    const status = getEmployeeStatus(index);
+                    const team = getEmployeeTeam(index);
+                    
+                    return (
                     <div
                       key={`${screenshot.user_email}-${screenshot.filename}-${index}`}
                       style={{
@@ -462,7 +431,7 @@ const LiveTracking = () => {
                       }}
                       onClick={() => {
                         // Open image modal with all current screenshots
-                        const actualIndex = startIndex + index; // Calculate global index
+                        const actualIndex = startIndex + index;
                         openImageModal(filteredScreenshots, actualIndex);
                       }}
                     >
@@ -474,179 +443,139 @@ const LiveTracking = () => {
                         }
                       `}</style>
                       
-                      {/* Screenshot Image */}
+                      {/* Card Header with User Info and Time */}
+                      <div style={{
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #e1e5e9',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        backgroundColor: '#f8f9fa',
+                        transition: 'all 0.3s ease'
+                      }}
+                      className="card-top-header"
+                      >
+                        {/* Left: User Avatar and Info */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: '#4285f4',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            flexShrink: 0
+                          }}>
+                            {formatUserEmail(screenshot.user_email).charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              cursor: 'pointer'
+                            }}
+                            title="Click for detailed employee report"
+                            >
+                              {formatUserEmail(screenshot.user_email).split('@')[0]}
+                            </div>
+                            <div style={{
+                              fontSize: '12px',
+                              color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368'
+                            }}>
+                              {team}
+                            </div>
+                          </div>
+                        </div>
+                        {/* Right: Time */}
+                        <div style={{
+                          fontSize: '11px',
+                          color: '#5f6368',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap',
+                          backgroundColor: 'white',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid #e1e5e9',
+                          fontWeight: '500'
+                        }}>
+                          <span>⏱️</span>
+                          <span>{new Date(screenshot.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
+                        </div>
+                      </div>
+
+                      {/* Status Display Area - replaces screenshot */}
                       <div style={{
                         width: '100%',
                         height: '200px',
-                        backgroundColor: '#f8f9fa',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        backgroundColor: status === 'BREAK' ? '#fbbf24' : 
+                                       status === 'MEETING' ? '#3b82f6' : 
+                                       status === 'IDLE' ? '#6b7280' : '#10b981'
                       }}>
-                        {screenshot.screenshot_url ? (
-                          <img
-                            src={screenshot.screenshot_url}
-                            alt={`Screenshot ${screenshot.filename}`}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              transition: 'transform 0.2s',
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              zIndex: 2,
-                              opacity: 0
-                            }}
-                            onLoad={(e) => {
-                              console.log('✅ Image loaded successfully for:', screenshot.user_email);
-                              console.log('📋 URL:', e.target.src);
-                              e.target.style.opacity = '1';
-                              // Hide the placeholder when image loads
-                              const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
-                              if (placeholder && placeholder.querySelector('span')) {
-                                placeholder.style.display = 'none';
-                              }
-                            }}
-                            onError={(e) => {
-                              console.error('❌ Image failed to load for:', screenshot.user_email);
-                              console.error('📋 Failed URL:', e.target.src);
-                              
-                              // Try the fallback URL if available and different
-                              if (screenshot.fallback_url && e.target.src !== screenshot.fallback_url) {
-                                console.log('🔄 Trying fallback URL for:', screenshot.user_email);
-                                console.log('📋 Fallback URL:', screenshot.fallback_url);
-                                e.target.src = screenshot.fallback_url;
-                                return;
-                              }
-                              
-                              // Show error placeholder if all attempts fail
-                              console.log('❌ All image loading attempts failed for:', screenshot.user_email);
-                              e.target.style.display = 'none';
-                              const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
-                              if (placeholder && placeholder.querySelector('span')) {
-                                placeholder.style.display = 'flex';
-                                placeholder.querySelector('span').textContent = 'Image unavailable';
-                              }
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                          />
-                        ) : null}
+                        {/* Status Icon and Text */}
                         <div style={{
-                          display: screenshot.screenshot_url ? 'flex' : 'flex',
+                          display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#5f6368',
-                          fontSize: '14px',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: '#f8f9fa',
-                          zIndex: 1
+                          color: 'white',
+                          textAlign: 'center'
                         }}>
-                          <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-                            {screenshot.screenshot_url ? '📸' : '❌'}
-                          </div>
-                          <span>{screenshot.screenshot_url ? 'Loading...' : 'No Image'}</span>
-                          {screenshot.screenshot_url && (
-                            <div style={{ fontSize: '10px', marginTop: '4px', textAlign: 'center', padding: '0 8px' }}>
-                              {screenshot.user_email?.split('_at_')[0]}
-                            </div>
+                          {status === 'BREAK' && (
+                            <>
+                              <div style={{ fontSize: '64px', marginBottom: '16px' }}>☕</div>
+                              <div style={{ fontSize: '24px', fontWeight: '700' }}>Break</div>
+                            </>
+                          )}
+                          {status === 'MEETING' && (
+                            <>
+                              <div style={{ fontSize: '64px', marginBottom: '16px' }}>👥</div>
+                              <div style={{ fontSize: '24px', fontWeight: '700' }}>Meeting</div>
+                            </>
+                          )}
+                          {status === 'IDLE' && (
+                            <>
+                              <div style={{ fontSize: '24px', fontWeight: '700', color: '#ef4444' }}>Idle</div>
+                            </>
+                          )}
+                          {status === 'ACTIVE' && (
+                            <>
+                              <img
+                                src={screenshot.screenshot_url}
+                                alt="Employee screenshot"
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0
+                                }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                            </>
                           )}
                         </div>
-                        
-                        {/* Overlay with timestamp */}
-                        <div style={{
-                          position: 'absolute',
-                          bottom: '8px',
-                          left: '8px',
-                          right: '8px',
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          Latest: {new Date(screenshot.latest_date).toLocaleDateString()}
-                        </div>
-                      </div>
-
-                      {/* Screenshot Info */}
-                      <div style={{ padding: '16px' }}>
-                        <div style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <span style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: screenshot.activity_type === 'ACTIVE' ? '#4caf50' : '#ff9800'
-                          }}></span>
-                          👤 {formatUserEmail(screenshot.user_email)}
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '12px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368',
-                          marginBottom: '8px'
-                        }}>
-                          📁 {screenshot.file_count} files • 📅 {screenshot.days_active} days active
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '11px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '8px'
-                        }}>
-                          <span style={{
-                            backgroundColor: '#e8f5e8',
-                            color: '#2e7d32',
-                            padding: '2px 6px',
-                            borderRadius: '12px',
-                            fontSize: '10px',
-                            fontWeight: '500'
-                          }}>
-                            Latest: {new Date(screenshot.latest_date).toLocaleDateString()}
-                          </span>
-                          <span style={{ fontWeight: '500' }}>
-                            {formatFileSize(screenshot.size_mb || 0)} total
-                          </span>
-                        </div>
-                        
-                        {screenshot.filename && (
-                          <div style={{
-                            fontSize: '10px',
-                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#9ca3af',
-                            fontFamily: 'monospace',
-                            wordBreak: 'break-all',
-                            lineHeight: '1.3'
-                          }}>
-                            {screenshot.filename}
-                          </div>
-                        )}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Pagination Controls */}
@@ -756,7 +685,7 @@ const LiveTracking = () => {
           <div className="pagination-footer">
             <div className="pagination-left">
               <div className="screens-per-page">
-                <span>Users per page:</span>
+                <span>Items per page:</span>
                 <select 
                   className="screens-selector" 
                   value={itemsPerPage} 
@@ -768,26 +697,43 @@ const LiveTracking = () => {
                   <option value={64}>64</option>
                 </select>
               </div>
-            </div>
-            <div className="pagination-right">
               <span className="page-info">
                 {totalScreenshots > 0 ? `${startIndex + 1}-${Math.min(endIndex, totalScreenshots)} of ${totalScreenshots}` : '0 of 0'}
               </span>
+            </div>
+            <div className="pagination-right">
               <div className="pagination-nav">
                 <button 
                   className="nav-button" 
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  title="First page"
+                >
+                  ‹‹
+                </button>
+                <button 
+                  className="nav-button" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  title="Previous page"
                 >
                   ‹
                 </button>
-                <span className="page-number">{currentPage} / {totalPages || 1}</span>
                 <button 
                   className="nav-button" 
                   disabled={currentPage === totalPages || totalPages === 0}
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  title="Next page"
                 >
                   ›
+                </button>
+                <button 
+                  className="nav-button" 
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev))}
+                  title="Last page"
+                >
+                  ››
                 </button>
               </div>
             </div>
