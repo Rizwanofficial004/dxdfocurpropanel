@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/', include('apps.dashboard.urls')),
     path('api/', include('apps.users.urls')),
     path('api/auth/', include('apps.auth_api.urls')),
+    path("api/", include("screenshots.urls")),
     
     # Dashboard web interface
     path('', include('apps.dashboard.urls')),
