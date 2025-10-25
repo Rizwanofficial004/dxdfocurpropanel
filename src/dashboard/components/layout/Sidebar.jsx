@@ -276,7 +276,7 @@ export const Sidebar = ({ isCollapsed = false }) => {
     { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
     { icon: "📺", label: "LOGS REPORT", path: "/dashboard/activity-stream" },
     { icon: "⏰", label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
-    { icon: "📋", label: "EMPLOYEE REPORTS", path: "/dashboard/employee-reports" },
+    { icon: "👥", label: "EMPLOYEES", path: "/dashboard/employee-reports" },
     // { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
     { icon: "📚", label: "DOCUMENTATION", path: "/dashboard/documentation" },
     { 
