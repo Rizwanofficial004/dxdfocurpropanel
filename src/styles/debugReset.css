@@ -4,7 +4,6 @@
 *::after {
   border: none !important;
   outline: none !important;
-  box-shadow: none !important;
 }
 
 /* Reset specific red borders that might be applied */
@@ -40,7 +39,6 @@ div[class*="Container"],
 div[class*="container"] {
   border: none !important;
   outline: none !important;
-  box-shadow: none !important;
 }
 
 /* Remove any browser extension or dev tools highlighting */

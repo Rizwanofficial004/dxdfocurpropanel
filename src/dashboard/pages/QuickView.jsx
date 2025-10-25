@@ -375,7 +375,7 @@ const TableContainer = styled.div`
   border-radius: 8px;
   border: 1px solid ${props => props.theme.colors.border};
   transition: all 0.3s ease;
-  margin: 0 32px;
+  margin: 0 32px 32px 32px;
   width: calc(100% - 64px);
 `;
 
@@ -677,6 +677,7 @@ const EmptyStateCell = styled.div`
 const PaginationContainer = styled.div`
   background: ${props => props.theme.colors.surface};
   padding: 16px 20px;
+  margin: 0 32px 32px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1251,7 +1252,7 @@ const QuickView = () => {
           <TitleSection>
             <PageTitle theme={theme}>QUICK VIEW</PageTitle>
             <Tooltip text="Effortlessly access a comprehensive report to quickly view the current status of all your organization's employees in a single glance." theme={theme}>
-              <InfoIcon theme={theme}>ⓘ</InfoIcon>
+              {/* <InfoIcon theme={theme}>ⓘ</InfoIcon> */}
             </Tooltip>
           </TitleSection>
           

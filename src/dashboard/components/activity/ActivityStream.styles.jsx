@@ -5,7 +5,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
+  padding: ${props => props.dashboard ? '20px 0' : '20px'};
   background: transparent;
   border-radius: 12px;
 //   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -356,7 +356,8 @@ export const Select = styled.select`
   }
 
   [data-theme="dark"] & {
-    background: #0f172a;
+    /* dark-mode selects should use #1e293b as requested */
+    background: #1e293b;
     border-color: #6b7280;
     color: #fff;
 
@@ -366,7 +367,7 @@ export const Select = styled.select`
     }
 
     &:hover {
-      background: #1d232c;
+      background: #334155;
     }
   }
 `;

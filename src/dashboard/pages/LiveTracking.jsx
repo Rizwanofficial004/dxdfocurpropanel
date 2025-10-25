@@ -424,7 +424,10 @@ const LiveTracking = () => {
                   aria-expanded={showHelp}
                   aria-label="Live Tracking Help"
                 >
-                  ?
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"></path>
+                    <circle cx="12" cy="9" r="2.5"></circle>
+                  </svg>
                 </button>
                 {showHelp && (
                   <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
@@ -541,6 +544,12 @@ const LiveTracking = () => {
                 }}>
                   {currentScreenshots.map((screenshot, index) => {
                     const employeeInfo = getEmployeeInfo(screenshot.user_email);
+                    // robust dark-mode detection: supports data-theme="dark" or a dark-theme class on <html> or <body>
+                    const isDark = (
+                      document.documentElement.getAttribute('data-theme') === 'dark' ||
+                      document.documentElement.classList.contains('dark-theme') ||
+                      document.body.classList.contains('dark-theme')
+                    );
                     
                     return (
                     <div
@@ -549,44 +558,26 @@ const LiveTracking = () => {
                         backgroundColor: 'white',
                         border: '1px solid #e1e5e9',
                         borderRadius: '12px',
-                        overflow: 'hidden',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
                         cursor: 'pointer'
                       }}
                       className="screenshot-card"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(0, 0, 0, 0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                        e.currentTarget.style.boxShadow = isDark ? '0 2px 8px rgba(0, 0, 0, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)';
-                      }}
                       onClick={() => {
                         // Open image modal with all current screenshots
                         const actualIndex = startIndex + index;
                         openImageModal(filteredScreenshots, actualIndex);
                       }}
                     >
-                      <style jsx>{`
-                        [data-theme="dark"] .screenshot-card {
-                          background-color: #1d232c !important;
-                          border-color: #6b7280 !important;
-                          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-                        }
-                      `}</style>
+                      {/* CSS-driven dark-mode styling applies from LiveTracking.css;
+                          removed inline style block to avoid !important overrides */}
                       
                       {/* Card Header with User Info and Time */}
                       <div style={{
                         padding: '12px 16px',
-                        borderBottom: '1px solid #e1e5e9',
+                        borderBottom: isDark ? '1px solid #6b7280' : '1px solid #e1e5e9',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        backgroundColor: '#f8f9fa',
+                        backgroundColor: isDark ? '#1d232c' : '#f8f9fa',
                         transition: 'all 0.3s ease'
                       }}
                       className="card-top-header"
@@ -597,7 +588,7 @@ const LiveTracking = () => {
                             width: '32px',
                             height: '32px',
                             borderRadius: '50%',
-                            backgroundColor: employeeInfo.isAdmin ? '#f59e0b' : '#4285f4',
+                            backgroundColor: employeeInfo.isAdmin ? '#f59e0b' : (isDark ? '#4f46e5' : '#4285f4'),
                             color: 'white',
                             display: 'flex',
                             alignItems: 'center',
@@ -609,14 +600,14 @@ const LiveTracking = () => {
                             {employeeInfo.fullName.charAt(0).toUpperCase()}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
+                            <div className="user-email" style={{
                               fontSize: '14px',
                               fontWeight: '600',
-                              color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
-                              cursor: 'pointer'
+                              cursor: 'pointer',
+                              marginRight: '10px'
                             }}
                             title={`${employeeInfo.fullName} - ${employeeInfo.designation}`}
                             >
@@ -624,7 +615,7 @@ const LiveTracking = () => {
                             </div>
                             <div style={{
                               fontSize: '12px',
-                              color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368'
+                              color: isDark ? '#ffffff' : '#5f6368'
                             }}>
                               {employeeInfo.team}
                             </div>
@@ -633,17 +624,11 @@ const LiveTracking = () => {
                         {/* Right: Time */}
                         <div style={{
                           fontSize: '11px',
-                          color: '#5f6368',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          whiteSpace: 'nowrap',
-                          backgroundColor: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
-                          border: '1px solid #e1e5e9',
-                          fontWeight: '500'
-                        }}>
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            whiteSpace: 'nowrap'
+                          }} className="time-badge">
                           <span>⏱️</span>
                           <span>{new Date(screenshot.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
                         </div>
@@ -683,13 +668,13 @@ const LiveTracking = () => {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div style={{
+                    <div style={{
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     gap: '8px',
                     padding: '20px 0',
-                    borderTop: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                    borderTop: isDarkMode ? '1px solid #6b7280' : '1px solid #e1e5e9',
                     marginTop: '20px'
                   }}>
                     {/* Previous Button */}
@@ -698,9 +683,9 @@ const LiveTracking = () => {
                       disabled={currentPage === 1}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === 1 ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
+                        backgroundColor: currentPage === 1 ? (isDarkMode ? '#374151' : '#f8f9fa') : '#4285f4',
                         color: currentPage === 1 ? '#9ca3af' : 'white',
-                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                        border: isDarkMode ? '1px solid #6b7280' : '1px solid #e1e5e9',
                         borderRadius: '6px',
                         cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                         fontSize: '14px',
@@ -732,9 +717,9 @@ const LiveTracking = () => {
                             style={{
                               width: '36px',
                               height: '36px',
-                              backgroundColor: currentPage === pageNumber ? '#4285f4' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#1d232c' : 'white'),
-                              color: currentPage === pageNumber ? 'white' : (document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124'),
-                              border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                              backgroundColor: currentPage === pageNumber ? '#4285f4' : (isDarkMode ? '#1d232c' : 'white'),
+                              color: currentPage === pageNumber ? 'white' : (isDarkMode ? '#fff' : '#202124'),
+                              border: isDarkMode ? '1px solid #6b7280' : '1px solid #e1e5e9',
                               borderRadius: '6px',
                               cursor: 'pointer',
                               fontSize: '14px',
@@ -743,13 +728,13 @@ const LiveTracking = () => {
                             }}
                             onMouseEnter={(e) => {
                               if (currentPage !== pageNumber) {
-                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                                const isDark = isDarkMode;
                                 e.target.style.backgroundColor = isDark ? '#374151' : '#f8f9fa';
                               }
                             }}
                             onMouseLeave={(e) => {
                               if (currentPage !== pageNumber) { 
-                                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                                const isDark = isDarkMode;
                                 e.target.style.backgroundColor = isDark ? '#1d232c' : 'white';
                               }
                             }}
@@ -766,9 +751,9 @@ const LiveTracking = () => {
                       disabled={currentPage === totalPages}
                       style={{
                         padding: '8px 12px',
-                        backgroundColor: currentPage === totalPages ? (document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#f8f9fa') : '#4285f4',
+                        backgroundColor: currentPage === totalPages ? (isDarkMode ? '#374151' : '#f8f9fa') : '#4285f4',
                         color: currentPage === totalPages ? '#9ca3af' : 'white',
-                        border: document.documentElement.getAttribute('data-theme') === 'dark' ? '1px solid #6b7280' : '1px solid #e1e5e9',
+                        border: isDarkMode ? '1px solid #6b7280' : '1px solid #e1e5e9',
                         borderRadius: '6px',
                         cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                         fontSize: '14px',

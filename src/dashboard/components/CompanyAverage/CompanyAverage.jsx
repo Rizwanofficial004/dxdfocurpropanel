@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useLanguage } from '../../context/LanguageContext';
-
+import { useTheme } from '../../context/ThemeContext';
 // Styled Components
 const CompanyAverageContainer = styled.div`
   background: white;
@@ -273,6 +273,7 @@ const WorkTimeLabel = styled.span`
 
 const CompanyAverage = () => {
   const { t } = useLanguage();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [selectedDate, setSelectedDate] = useState('2025-09-05');
 
   const dailyBreaksData = {
@@ -311,11 +312,14 @@ const CompanyAverage = () => {
     <CompanyAverageContainer>
       <CompanyAverageHeader>
         <CompanyAverageTitle>{t('companyAverage')}</CompanyAverageTitle>
-        <DateInput
+        {/* <DateInput
           type="date"
           value={selectedDate}
+           style={{ 
+              backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc'
+            }} 
           onChange={(e) => setSelectedDate(e.target.value)}
-        />
+        /> */}
       </CompanyAverageHeader>
 
       <CompanyAverageContent>
