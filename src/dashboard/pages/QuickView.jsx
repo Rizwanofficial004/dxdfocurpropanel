@@ -82,29 +82,38 @@ const AddButton = styled.button`
 `;
 
 const RefreshButton = styled.button`
-  background: ${props => props.theme.colors.success};
+  background: ${props => props.theme.colors.primary};
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 10px 18px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  margin-right: 12px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: ${props => props.theme.shadows?.sm || '0 1px 2px rgba(0,0,0,0.1)'};
   
   &:hover:not(:disabled) {
-    background: ${props => props.theme.colors.success + 'DD'};
-    transform: translateY(-1px);
+    background: ${props => props.theme.colors.primary + 'DD'};
+    transform: translateY(-2px);
+    box-shadow: ${props => props.theme.shadows?.md || '0 4px 6px rgba(0,0,0,0.1)'};
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
   
   &:disabled {
     background: ${props => props.theme.colors.muted};
     cursor: not-allowed;
     transform: none;
+    opacity: 0.6;
   }
 `;
 
@@ -260,13 +269,14 @@ const LeftControls = styled.div`
 
 const RightControls = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 12px;
   align-items: center;
   flex-shrink: 0;
   
   @media (max-width: 768px) {
     width: 100%;
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 `;
 
@@ -280,14 +290,19 @@ const DateLabel = styled.span`
 
 const DateInput = styled.input`
   padding: 10px 16px;
-  border: 1px solid ${props => props.theme.colors.border};
+  border: 2px solid ${props => props.theme.colors.border};
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   background: ${props => props.theme.colors.surface};
   color: ${props => props.theme.colors.text.primary};
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 180px;
+  min-width: 200px;
+  
+  &:hover {
+    border-color: ${props => props.theme.colors.primary};
+  }
   
   &:focus {
     outline: none;
@@ -299,7 +314,7 @@ const DateInput = styled.input`
 const DateHelperText = styled.div`
   font-size: 11px;
   color: ${props => props.theme.colors.text.secondary};
-  margin-top: 4px;
+  margin-top: 2px;
   font-style: italic;
 `;
 
@@ -375,7 +390,7 @@ const Table = styled.table`
 
 const TableHeader = styled.th`
   padding: 14px 6px;
-  text-align: ${props => props.align || 'left'};
+  text-align: ${props => props.$align || 'left'};
   font-weight: 800;
   font-size: 10px;
   font-family: 'Inter', 'Segoe UI', 'Roboto', 'Arial', sans-serif;
@@ -414,7 +429,7 @@ const TableCell = styled.td`
   color: ${props => props.theme.colors.text.primary};
   font-size: 12px;
   vertical-align: middle;
-  text-align: ${props => props.align || 'left'};
+  text-align: ${props => props.$align || 'left'};
   border-bottom: 1px solid ${props => props.theme.colors.border};
   transition: color 0.3s ease;
   white-space: nowrap;
@@ -708,8 +723,8 @@ const PaginationButtons = styled.div`
 const PaginationButton = styled.button`
   padding: 8px 12px;
   border: 1px solid ${props => props.theme.colors.border};
-  background: ${props => props.active ? props.theme.colors.primary : props.theme.colors.surface};
-  color: ${props => props.active ? '#ffffff' : props.theme.colors.text.primary};
+  background: ${props => props.$active ? props.theme.colors.primary : props.theme.colors.surface};
+  color: ${props => props.$active ? '#ffffff' : props.theme.colors.text.primary};
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
@@ -721,7 +736,7 @@ const PaginationButton = styled.button`
   justify-content: center;
   
   &:hover:not(:disabled) {
-    background: ${props => props.active 
+    background: ${props => props.$active 
       ? props.theme.colors.primary + 'CC' 
       : props.theme.colors.hover};
     transform: translateY(-1px);
@@ -743,7 +758,7 @@ const QuickView = () => {
   const { t } = useLanguage();
   const { isDarkMode, theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('Active');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -839,208 +854,107 @@ const QuickView = () => {
     return statusMap[status] || statusMap['Inactive'];
   };
 
-  // API configuration
-  // API Configuration
-  const getApiUrl = () => {
-    // In development, use Vite proxy
-    if (import.meta.env.DEV) {
-      return '/api';
-    }
-    // In production, use full URL
-    return 'https://dxdtime.ddsolutions.io/api';
-  };
-
-  // Fetch users from external API
+  // Fetch users from QuickView API
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Use proxy to production API
-      const apiEndpoints = [
-        '/api/Staff/Details/'
-      ];
+      const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
       
-      let response;
-      let apiUrl;
+      // Format date as YYYY-MM-DD
+      const formattedDate = selectedDate || new Date().toISOString().split('T')[0];
+      const apiUrl = `${apiBaseUrl}/quickview/?date=${formattedDate}`;
       
-      for (const endpoint of apiEndpoints) {
-        try {
-          apiUrl = endpoint;
-          console.log('🔍 Trying Staff API endpoint:', apiUrl);
-          response = await fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (response.ok) {
-            console.log('✅ Successfully connected to:', apiUrl);
-            break;
-          }
-        } catch (err) {
-          console.log(`❌ Failed to connect to ${endpoint}:`, err.message);
-          continue;
+      console.log('� Fetching QuickView data:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
-      }
+      });
 
-      if (!response || !response.ok) {
-        throw new Error(`All Staff API endpoints failed. Last status: ${response?.status || 'No response'}`);
+      if (!response.ok) {
+        throw new Error(`QuickView API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('📊 Staff API Response:', data);
-      console.log('📊 Sample Staff Object:', data?.data?.staff?.[0]);
+      console.log('✅ QuickView API Response:', data);
       
-      // Log the structure for debugging
-      if (data?.data?.staff?.[0]) {
-        const sampleStaff = data.data.staff[0];
-        console.log('🔍 Available staff fields:', Object.keys(sampleStaff));
-        console.log('🔍 Sample raw_data fields:', Object.keys(sampleStaff.raw_data || {}));
-        console.log('🔍 Staff active status:', sampleStaff.active, 'type:', typeof sampleStaff.active);
-        console.log('🔍 Staff logged_in status:', sampleStaff.raw_data?.is_logged_in, 'type:', typeof sampleStaff.raw_data?.is_logged_in);
+      // Parse the response - structure may vary
+      let usersArray = [];
+      
+      if (data?.data && Array.isArray(data.data)) {
+        usersArray = data.data;
+      } else if (data?.users && Array.isArray(data.users)) {
+        usersArray = data.users;
+      } else if (Array.isArray(data)) {
+        usersArray = data;
+      }
+      
+      console.log(`📋 Found ${usersArray.length} users for date ${formattedDate}`);
+      
+      if (usersArray.length > 0) {
+        console.log('🔍 Sample QuickView user:', usersArray[0]);
+        console.log('� Available fields:', Object.keys(usersArray[0]));
       }
 
-      let staffArray = [];
-      
-      // Handle the Staff Details API response structure
-      if (data?.data?.staff && Array.isArray(data.data.staff)) {
-        staffArray = data.data.staff;
-        console.log(`✅ Loaded ${staffArray.length} staff members`);
-        console.log('📋 Available staff fields:', Object.keys(staffArray[0] || {}));
-      }
-
-      // Transform staff data to employee format for Quick View
-      const users = staffArray.map(staff => {
-        // Get data from raw_data if available, otherwise use main staff object
-        const rawData = staff.raw_data || {};
+      // Transform QuickView API data to employee format
+      const users = usersArray.map((user, index) => {
+        // Extract user status from API (already comes as 'Active' or other status)
+        const status = user.active || user.status || user.work_status || 'Inactive';
         
-        // Calculate work status based on API data
-        const isActive = staff.active === true || staff.active === '1' || staff.active === 1 || 
-                        rawData.active === '1' || rawData.active === 1;
-        const isLoggedIn = staff.is_logged_in === '1' || staff.is_logged_in === 1 || 
-                          rawData.is_logged_in === '1' || rawData.is_logged_in === 1;
-        const workStatus = isActive && isLoggedIn ? 'Active' : isActive ? 'Available' : 'Inactive';
+        // Get logged time - API already provides formatted string like '1h 41m'
+        const loggedTime = user.logged_time || '0h 0m';
         
-        // Extract real data from API - using actual fields from the response
-        // The Staff API provides real data for last_login and last_activity
-        // These are the main time-based fields available in the API
-        const lastLogin = staff.last_login || rawData.last_login;
-        const lastActivity = rawData.last_activity;
-        
-        // Calculate time differences for display
-        const formatTimeData = (timestamp) => {
-          if (!timestamp) return 'N/A';
-          const date = new Date(timestamp);
-          const now = new Date();
-          const diffMs = now - date;
-          const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-          const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-          
-          if (diffHours > 0) {
-            return `${diffHours}h ${diffMinutes}m ago`;
-          } else if (diffMinutes > 0) {
-            return `${diffMinutes}m ago`;
-          } else {
-            return 'Just now';
-          }
-        };
-        
-        // Use actual API data for these columns
-        const loggedTime = lastLogin ? formatTimeData(lastLogin) : 'Never';
-        const activeTime = lastActivity ? formatTimeData(lastActivity) : 'N/A';
-        
-        // Other fields that may not have time tracking data
-        const productivityScore = staff.productivity_score || rawData.productivity_score || 0;
-        const productiveTime = staff.productive_time || rawData.productive_time || 'N/A';
-        const meetingTime = staff.meeting_time || rawData.meeting_time || 'N/A';
-        const breakTime = staff.break_time || rawData.break_time || 'N/A';
-        const idleTime = staff.idle_time || rawData.idle_time || 'N/A';
-        
-        console.log(`👤 Mapped employee: ${staff.full_name}`, {
-          status: workStatus,
-          isActive: isActive,
-          isLoggedIn: isLoggedIn,
-          lastLogin: lastLogin,
-          lastActivity: lastActivity,
-          loggedTimeFormatted: loggedTime,
-          activeTimeFormatted: activeTime,
-          productivity: productivityScore,
-          staffId: rawData.staffid,
-          statusWork: rawData.status_work,
-          team: rawData.job_position || rawData.department || staff.department_name || staff.organization || 'No Department',
-          jobPosition: rawData.job_position,
-          department: rawData.department,
-          departmentName: staff.department_name,
-          organization: staff.organization
-        });
-
-        // Log role information for debugging
-        console.log(`🔍 Role Debug for ${staff.full_name}:`, {
-          'staff.role': staff.role,
-          'rawData.role': rawData.role,
-          'rawData.admin': rawData.admin,
-          'rawData.job_position': rawData.job_position,
-          'designation (final)': staff.role || rawData.role || 'Staff',
-          'isAdmin?': rawData.admin === '1' || rawData.admin === 1
+        console.log(`👤 User ${index + 1}: ${user.name || user.full_name}`, {
+          status: status,
+          loggedTime: loggedTime,
+          idleTime: user.idle_time,
+          breakTime: user.break_time,
+          rawUser: user
         });
 
         return {
-          id: staff.staffid || rawData.staffid || staff.id,
-          name: staff.full_name || `${rawData.firstname || ''} ${rawData.lastname || ''}`.trim(),
-          team: rawData.job_position || rawData.department || staff.department_name || staff.organization || staff.team_name || 'No Department',
-          status: workStatus,
-          designation: staff.role || rawData.role || rawData.job_position || staff.job_position || 'Staff',
-          isAdmin: rawData.admin === '1' || rawData.admin === 1 || rawData.admin === true,
-          email: staff.email || rawData.email,
-          isOnline: isLoggedIn,
-          lastLogin: staff.last_login || rawData.last_login || 'Never',
-          lastActivity: rawData.last_activity || 'Unknown',
-          staffId: rawData.staff_identifi || 'N/A',
-          hourlyRate: rawData.hourly_rate || 'N/A',
-          // Real-time data from Staff API (showing actual availability)
+          id: user.id || user.user_id || user.staff_id || index,
+          name: user.name || user.full_name || user.username || 'Unknown User',
+          team: user.team || user.department || user.job_position || 'No Department',
+          status: status,
+          designation: user.designation || user.role || user.job_position || 'Staff',
+          isAdmin: user.is_admin === true || user.is_admin === '1' || user.is_admin === 1 || false,
+          email: user.email || 'N/A',
+          isOnline: status === 'Active',
+          staffId: user.staff_id || 'N/A',
+          // QuickView API provides logged_time as formatted string (e.g., '1h 41m')
           loggedTime: loggedTime,
-          activeTime: activeTime,
-          productivity: productivityScore,
-          productiveTime: productiveTime,
-          meetingTime: meetingTime,
-          breakTime: breakTime,
-          idleTime: idleTime,
-          // Raw timestamps for indicators
-          rawLastLogin: lastLogin,
-          rawLastActivity: lastActivity,
-          // Additional staff information
-          phoneNumber: rawData.phonenumber || 'N/A',
-          workplace: rawData.workplace || 'N/A',
-          statusWork: rawData.status_work || 'unknown',
-          dateUpdated: rawData.date_update || 'N/A',
-          originalData: staff,
-          apiNote: 'Staff Management API - Time tracking data may not be available'
+          activeTime: loggedTime, // Use same value for active time
+          productivity: user.productivity || 0,
+          // Other fields from QuickView API
+          productiveTime: 'N/A',
+          meetingTime: 'N/A',
+          breakTime: user.break_time || '0h 0m',
+          idleTime: user.idle_time || '0h 0m',
+          originalData: user
         };
       });
 
       setEmployeesData(users);
       
     } catch (error) {
-      console.error('❌ Error fetching staff data:', error);
-      setError(`Failed to load staff data: ${error.message}`);
+      console.error('❌ Error fetching QuickView data:', error);
+      setError(`Failed to load QuickView data: ${error.message}`);
       setEmployeesData([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch users on component mount
+  // Fetch users on component mount (initial load only)
   useEffect(() => {
     fetchUsers();
-    
-    // Set up polling to refresh data every 30 seconds for real-time updates
-    const interval = setInterval(fetchUsers, 30000);
-    
-    return () => clearInterval(interval);
-  }, [selectedDate]); // Refetch when date changes
+  }, []); // Run only once on mount
 
   // Refresh data manually
   const handleRefresh = () => {
@@ -1049,7 +963,7 @@ const QuickView = () => {
 
   // API Testing Functions
   const testPostAPI = async (userId, userData) => {
-    const apiBaseUrl = getApiUrl();
+    const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
     const apiUrl = `${apiBaseUrl}/auth/users/${userId}/update/`;
     
     const postRequestBody = {
@@ -1088,7 +1002,7 @@ const QuickView = () => {
   };
   
   const testPutAPI = async (userId, userData) => {
-    const apiBaseUrl = getApiUrl();
+    const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
     const apiUrl = `${apiBaseUrl}/auth/users/${userId}/`;
     
     const putRequestBody = {
@@ -1132,7 +1046,7 @@ const QuickView = () => {
   };
 
   const testTimerAPI = async (userId, username, action, timerData) => {
-    const apiBaseUrl = getApiUrl();
+    const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
     const apiUrl = `${apiBaseUrl}/timer/sessions/`;
     
     const timerRequestBody = {
@@ -1193,7 +1107,7 @@ const QuickView = () => {
   // Send numeric value to API
   const sendNumericValueToAPI = async (userId, numericValue, username) => {
     try {
-      const apiBaseUrl = getApiUrl();
+      const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
       const apiUrl = `${apiBaseUrl}/auth/register/post_users/`;
       
       console.log(`📤 Sending numeric value to API for ${username}:`, {
@@ -1367,8 +1281,103 @@ const QuickView = () => {
                   return threeMonthsAgo.toISOString().split('T')[0];
                 })()}
               />
+              <RefreshButton 
+                onClick={handleRefresh} 
+                disabled={loading}
+                theme={theme}
+              >
+                {loading ? (
+                  <>
+                    <span style={{ animation: 'spin 1s linear infinite' }}>🔄</span>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    🔍 Fetch Data
+                  </>
+                )}
+              </RefreshButton>
+              <style>{`
+                @keyframes spin {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+              `}</style>
             </RightControls>
           </ControlsSection>
+          
+          {loading && (
+            <LoadingMessage theme={theme}>
+              <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>�</span>
+              {' '}Loading employee data for <strong>{selectedDate}</strong>...
+            </LoadingMessage>
+          )}
+          
+          {error && (
+            <ErrorMessage theme={theme}>
+              ⚠️ {error}
+              <button 
+                onClick={handleRefresh}
+                style={{
+                  marginLeft: '12px',
+                  padding: '4px 12px',
+                  background: 'white',
+                  color: theme.colors.error,
+                  border: `1px solid ${theme.colors.error}`,
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '12px'
+                }}
+              >
+                Retry
+              </button>
+            </ErrorMessage>
+          )}
+          
+          {!loading && !error && employeesData.length > 0 && (
+            <div style={{ 
+              padding: '12px 16px', 
+              background: theme.colors.success + '15',
+              color: theme.colors.success,
+              border: `1px solid ${theme.colors.success}30`,
+              borderRadius: '6px',
+              fontSize: '13px',
+              fontWeight: '600',
+              marginTop: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '16px' }}>✅</span>
+              <span>
+                Successfully loaded <strong>{employeesData.length} employees</strong> for {' '}
+                <strong>{new Date(selectedDate).toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</strong>
+              </span>
+            </div>
+          )}
+          
+          {!loading && !error && employeesData.length === 0 && (
+            <div style={{ 
+              padding: '20px', 
+              textAlign: 'center',
+              color: theme.colors.text.secondary,
+              fontSize: '14px',
+              marginTop: '16px',
+              background: theme.colors.surface,
+              borderRadius: '8px',
+              border: `1px solid ${theme.colors.border}`
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px' }}>No data found for {selectedDate}</div>
+              <div style={{ fontSize: '12px' }}>Try selecting a different date or click "Fetch Data" to reload</div>
+            </div>
+          )}
         </PageHeader>
 
         {/* Table */}
@@ -1377,41 +1386,41 @@ const QuickView = () => {
             <Table>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
-                  <TableHeader theme={theme} align="left">STATUS</TableHeader>
+                  <TableHeader theme={theme} $align="left">STATUS</TableHeader>
                   <TableHeader 
                     theme={theme} 
-                    align="left" 
+                    $align="left" 
                     style={{ cursor: 'pointer', userSelect: 'none' }}
                     onClick={() => handleSort('name')}
                   >
                     EMPLOYEE NAME {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                   </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  <TableHeader theme={theme} $align="center">
                     <Tooltip text="Total time employee has been logged into the system" theme={theme} icon="">
                       LOGGED TIME ⓘ
                     </Tooltip>
                   </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  <TableHeader theme={theme} $align="center">
                     <Tooltip text="Time actively spent working" theme={theme} icon="">
                       ACTIVE TIME ⓘ
                     </Tooltip>
                   </TableHeader>
-                  <TableHeader theme={theme} align="center">
+                  <TableHeader theme={theme} $align="center">
                     <Tooltip text="Time spent on productive activities" theme={theme} icon="">
                       PRODUCTIVE
                     </Tooltip>
                   </TableHeader>
-                  {/* <TableHeader theme={theme} align="center">
+                  {/* <TableHeader theme={theme} $align="center">
                     <Tooltip text="Time spent on distracting activities" theme={theme} icon="">
                       DISTRACTION
                     </Tooltip>
                   </TableHeader> */}
-                  {/* <TableHeader theme={theme} align="center">
+                  {/* <TableHeader theme={theme} $align="center">
                     <Tooltip text="Time spent on neutral activities" theme={theme} icon="">
                       NEUTRAL
                     </Tooltip>
                   </TableHeader> */}
-                  <TableHeader theme={theme} align="center">
+                  <TableHeader theme={theme} $align="center">
                     <Tooltip text="Time spent in meetings" theme={theme} icon="">
                       MEETING
                     </Tooltip>
@@ -1440,7 +1449,7 @@ const QuickView = () => {
                     
                     return (
                       <TableRow key={employee.id} theme={theme}>
-                        <TableCell theme={theme} align="left">
+                        <TableCell theme={theme} $align="left">
                           <StatusColumn>
                             <StatusCircle status={employee.status}>
                               {statusInfo.icon}
@@ -1451,7 +1460,7 @@ const QuickView = () => {
                           </StatusColumn>
                         </TableCell>
                       
-                      <TableCell theme={theme} align="left">
+                      <TableCell theme={theme} $align="left">
                         <EmployeeInfo>
                           <UserIcon isManager={employee.isAdmin}>
                             {employee.isAdmin ? 'M' : 'E'}
@@ -1465,11 +1474,11 @@ const QuickView = () => {
                         </EmployeeInfo>
                       </TableCell>
                       
-                      <TableCell theme={theme} align="center">
+                      <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>{employee.loggedTime || '0h 0m'}</TimeText>
                       </TableCell>
                       
-                      <TableCell theme={theme} align="center">
+                      <TableCell theme={theme} $align="center">
                         <ActiveTimeColumn>
                           <ProductivityCircle value={employee.productivity} theme={theme}>
                             {employee.productivity > 0 ? `${employee.productivity}%` : '0%'}
@@ -1480,37 +1489,37 @@ const QuickView = () => {
                         </ActiveTimeColumn>
                       </TableCell>
                       
-                      <TableCell theme={theme} align="center">
+                      <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>{employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}</TimeText>
                       </TableCell>
                       
-                      {/* <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell> */}
                       
-                      {/* <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell> */}
                       
-                      <TableCell theme={theme} align="center">
+                      <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.meetingTime === 'N/A' ? '0h 0m' : employee.meetingTime}
                         </TimeText>
                       </TableCell>
                       
-                      {/* <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
                         </TimeText>
                       </TableCell> */}
                       
-                      {/* <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
                         </TimeText>
                       </TableCell> */}
                       
-                      {/* <TableCell theme={theme} align="center">
+                      {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell> */}
                     </TableRow>
@@ -1567,7 +1576,7 @@ const QuickView = () => {
               ‹
             </PaginationButton>
             
-            <PaginationButton active={true}>
+            <PaginationButton $active={true}>
               {currentPage}
             </PaginationButton>
             
