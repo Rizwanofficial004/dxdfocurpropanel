@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+﻿import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { getApiBaseURL } from '../../../config/api';
 import ImageModal from '../common/ImageModal';
@@ -140,6 +140,25 @@ const formatSafeTime = (timestamp, options = {}) => {
   }
 };
 
+// Helper function to sanitize S3 URLs (fix malformed region format)
+const sanitizeS3Url = (url) => {
+  if (!url) return url;
+  
+  const originalUrl = url;
+  
+  // Fix malformed region format: s3.('eu-north-1',).amazonaws.com -> s3.eu-north-1.amazonaws.com
+  let sanitizedUrl = url.replace(/s3\.\(['"]?([^'"]+)['"]?,?\)\.amazonaws\.com/g, 's3.$1.amazonaws.com');
+  
+  // Also handle other potential malformations
+  sanitizedUrl = sanitizedUrl.replace(/\(['"]?([^'"]+)['"]?,?\)/g, '$1');
+  
+  if (originalUrl !== sanitizedUrl) {
+    console.log('✅ URL Sanitized:', originalUrl, '→', sanitizedUrl);
+  }
+  
+  return sanitizedUrl;
+};
+
 // Helper function to extract date from filename if timestamp is not available
 const extractDateFromScreenshot = (screenshot) => {
   // Try multiple timestamp fields
@@ -184,49 +203,15 @@ const extractDateFromFilename = (filename) => {
   return null;
 };
 
-// Static user list with usernames and emails
-const STATIC_USERS = [
-  { username: 'Begumdamlasen', email: 'begumdamlasen@gmail.com' },
-  { username: 'Gulsummelisa', email: 'gulsummelisa.23@gmail.com' },
-  { username: 'Cagla', email: 'cagla.shr@gmail.com' },
-  { username: 'Rignimeyikur', email: 'rignimeyikur02@gmail.com' },
-  { username: 'Atakankahraman', email: 'atakankahraman35@outlook.com' },
-  { username: 'Mohsinabbass', email: 'mohsinabbass688630@gmail.com' },
-  { username: 'Drivedeluxe', email: 'drivedeluxe1@gmail.com' },
-  { username: 'Gulaysencer', email: 'gulaysencer95@gmail.com' },
-  { username: 'Haseebcodejourney', email: 'haseebcodejourney@gmail.com' },
-  { username: 'Kadircagtas', email: 'kadircagtas@gmail.com' },
-  { username: 'Kadir Beskardes', email: 'kadir.beskardes11@gmail.com' },
-  { username: 'Laiba Batoll', email: 'batoll576@gmail.com' },
-  { username: 'Metinagacdelen', email: 'metinagacdelen@gmail.com' },
-  { username: 'Ertugrul Desing', email: 'ertugrul.desing@gmail.com' },
-  { username: 'Zainhere', email: 'zainhere41@gmail.com' },
-  { username: 'Umutgny', email: 'umutgny160@gmail.com' },
-  { username: 'Tugbacalik', email: 'tugbacalik84@gmail.com' },
-  { username: 'Sociallabs', email: 'sociallabs101@gmail.com' },
-  { username: 'Shahlar1Design', email: 'shahlar1design@gmail.com' },
-  { username: 'Engin', email: 'engin1466@gmail.com' },
-  { username: 'Kiranaiza', email: 'kiranaiza4@gmail.com' },
-  { username: 'Eerdoganhsn', email: 'eerdoganhsn@gmail.com' },
-  { username: 'Ilahe', email: 'ilahe@dxdglobal.com' },
-  { username: 'Nawaz', email: 'nawaz@dxdglobal.com' },
-  { username: 'yusuf', email: 'yusufziyasaygi@gmail.com' },
-  { username: 'hidayet', email: 'hidayetemiryigit_at_gmail.com' },
-  { username: 'hilal', email: 'hilalozclk1953_at_gmail.com' },
-  { username: 'huseyin', email: 'huseyinturguterek_at_gmail.com' },
-  { username: 'Gulay', email: 'gulaysencer95@gmail.com' },
-  { username: 'Deniz', email: 'deniz@dxdglobal.com' }
-];
-
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
   const today = new Date();
-  const [selectedYear, setSelectedYear] = useState(2025); // Default to 2025
-  const [selectedMonth, setSelectedMonth] = useState(9); // Default to September (month 9)
-  const [activeDate, setActiveDate] = useState('01'); // Default to 1st day of the month
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear()); // Default to current year
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth() + 1); // Default to current month (JavaScript months are 0-indexed)
+  const [activeDate, setActiveDate] = useState(today.getDate().toString().padStart(2, '0')); // Default to today's date
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [searchResults, setSearchResults] = useState([]);
@@ -254,7 +239,8 @@ const ActivityStream = () => {
   const [screenshotsPerPage, setScreenshotsPerPage] = useState(50); // Screenshots per page (default 50)
   const [allUsersScreenshots, setAllUsersScreenshots] = useState([]); // Store screenshots for all users
   const [isLoadingAllScreenshots, setIsLoadingAllScreenshots] = useState(false); // Loading state for all screenshots
-  const [filteredStaticUsers, setFilteredStaticUsers] = useState(STATIC_USERS); // Filtered static users for local search
+  const [syncStaffsUsers, setSyncStaffsUsers] = useState([]); // Users from sync-staffs API
+  const [filteredUsers, setFilteredUsers] = useState([]); // Filtered users for search
   
   // Modal state for image viewing
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -580,15 +566,32 @@ const ActivityStream = () => {
       }
       
       const data = await response.json();
+      console.log('📥 User search API response:', data);
+      console.log('📊 Response structure:', {
+        status: data.status,
+        hasData: !!data.data,
+        hasUsers: !!(data.data && data.data.users),
+        usersCount: data.data?.users?.length || 0
+      });
       
       let foundUser = null;
       if (data.status === 'success' && data.data && data.data.users && Array.isArray(data.data.users)) {
+        console.log(`🔎 Searching for: "${searchQuery}" in ${data.data.users.length} users`);
+        
         // Find user by matching display name or email
         foundUser = data.data.users.find(user => 
           user.display_name === searchQuery || 
           user.original_name === searchQuery ||
           user.email === searchQuery
         ) || data.data.users[0]; // Use first result if no exact match
+        
+        console.log('✅ Found user:', foundUser ? {
+          email: foundUser.email,
+          display_name: foundUser.display_name,
+          total_screenshots: foundUser.total_screenshots,
+          has_grouped: !!foundUser.grouped_screenshots,
+          has_recent: !!foundUser.recent_screenshots
+        } : 'No user found');
       }
       
       if (foundUser) {
@@ -734,17 +737,20 @@ const ActivityStream = () => {
 
   // Enhanced function to handle user selection with better feedback
   const handleUserSelect = async (user) => {
+    console.log('👤 User selected:', user);
+    
     // Set the selected user immediately to show the user area
     setSelectedUser({
       email: user.email,
-      display_name: user.username,
+      display_name: user.display_name || user.username,
       username: user.username,
       total_screenshots: 0,
       recent_screenshots: []
     });
     
-    // Load the user data via API using display name
-    const searchQuery = user.display_name || user.username || user.original_name || '';
+    // Load the user data via API using email (more reliable than name)
+    const searchQuery = user.email; // Use email for exact match
+    console.log(`🔍 Searching screenshots for user: ${searchQuery}`);
     await searchUserByNameOrEmail(searchQuery);
   };
 
@@ -767,8 +773,8 @@ const ActivityStream = () => {
                 formattedScreenshots.push({
                   id: screenshot.filename,
                   filename: screenshot.filename,
-                  screenshot_url: screenshot.screenshot_url,
-                  thumbnail_url: screenshot.thumbnail_url,
+                  screenshot_url: sanitizeS3Url(screenshot.screenshot_url),
+                  thumbnail_url: sanitizeS3Url(screenshot.thumbnail_url),
                   timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime,
                   date: screenshot.date,
                   time: screenshot.time,
@@ -791,8 +797,8 @@ const ActivityStream = () => {
               formattedScreenshots.push({
                 id: screenshot.filename,
                 filename: screenshot.filename,
-                screenshot_url: screenshot.screenshot_url,
-                thumbnail_url: screenshot.thumbnail_url,
+                screenshot_url: sanitizeS3Url(screenshot.screenshot_url),
+                thumbnail_url: sanitizeS3Url(screenshot.thumbnail_url),
                 timestamp: extractDateFromScreenshot(screenshot) || screenshot.datetime,
                 date: screenshot.date,
                 time: screenshot.time,
@@ -918,6 +924,56 @@ const ActivityStream = () => {
     }
   };
 
+  // Fetch users from sync-staffs API
+  const fetchSyncStaffsUsers = async () => {
+    try {
+      console.log('� Fetching users from sync-staffs API...');
+      const response = await fetch('/api/sync-staffs/', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('� Sync-staffs API response:', data);
+
+      const staffList = data.data || []; if (staffList && Array.isArray(staffList) && staffList.length > 0) {
+        // Map sync-staffs data to our user format
+        const formattedUsers = staffList.filter(staff => staff.email).map(staff => ({
+          id: staff.id || staff.email,
+          email: staff.email,
+          username: staff.name || staff.email,
+          display_name: staff.name || staff.email,
+          original_name: staff.name || staff.email,
+          staff_id: staff.staff_id,
+          phone_number: staff.phone_number,
+          job_position: staff.job_position || '',
+          screenshot_interval: staff.screenshot_interval,
+          total_screenshots: 0, // Will be loaded when user is selected
+          status: 'active'
+        }));
+
+        console.log(`✅ Loaded ${formattedUsers.length} users from sync-staffs (total: ${data.count || 0})`);
+        setSyncStaffsUsers(formattedUsers);
+        setFilteredUsers(formattedUsers);
+        return formattedUsers;
+      } else {
+        console.warn('⚠️ Unexpected sync-staffs API response format:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('❌ Error fetching sync-staffs users:', error);
+      setError(`Failed to load users: ${error.message}`);
+      return [];
+    }
+  };
+
   useEffect(() => {
     // Failsafe timer to ensure component always shows
     const failsafeTimer = setTimeout(() => {
@@ -928,69 +984,21 @@ const ActivityStream = () => {
       setIsLoading(false);
       clearTimeout(failsafeTimer); // Clear failsafe since we succeeded
       
-      // Load all users on startup using the simple fetchAllUsers function
+      // Load users from sync-staffs API on startup
       try {
-        console.log('🚀 Loading all users on startup...');
-        const users = await fetchAllUsers();
+        console.log('� Loading users from sync-staffs API...');
+        const users = await fetchSyncStaffsUsers();
         
         if (users && users.length > 0) {
-          console.log(`✅ Loaded ${users.length} users with screenshots successfully`);
-          // Set all users and show them by default
-          setAllUsers(users);
-          setSearchResults(users);
-          setShowResults(true); // Show dropdown by default with all users
+          console.log(`✅ Loaded ${users.length} users from sync-staffs successfully`);
           setError(null);
-          
-          // Immediately show results in dropdown
-          setTimeout(() => {
-            console.log('📋 Auto-showing user dropdown with', users.length, 'users with screenshots');
-            setShowResults(true);
-          }, 100); // Reduced delay for faster appearance
-          
-          // Also set search results immediately so they show in dropdown
-          setSearchResults(users);
         } else {
-          console.log('⚠️ No users with screenshots found from fetchAllUsers');
-          // Try a search with no query to get all users with screenshots
-          console.log('🔍 Trying fallback search to find users with screenshots...');
-          const fallbackUsers = await searchUsersFromAPI('', 100, 0, 0, null, null);
-          if (fallbackUsers && fallbackUsers.length > 0) {
-            console.log(`✅ Found ${fallbackUsers.length} users with screenshots via fallback search`);
-            setAllUsers(fallbackUsers);
-            setSearchResults(fallbackUsers);
-            setShowResults(true);
-            setError(null);
-          } else {
-            console.log('❌ No users with screenshots found in the system');
-            // Try known working search queries to test API
-            console.log('🧪 Testing with known queries...');
-            const testQueries = ['nawaz', 'a', 'admin'];
-            
-            for (const testQuery of testQueries) {
-              console.log(`🔍 Testing search with query: "${testQuery}"`);
-              const testResults = await searchUsersFromAPI(testQuery, 10, 0, 0, null, null);
-              if (testResults && testResults.length > 0) {
-                console.log(`✅ Found ${testResults.length} users with screenshots using query "${testQuery}"`);
-                setAllUsers(testResults);
-                setSearchResults(testResults);
-                setShowResults(true);
-                setError(null);
-                break;
-              }
-            }
-            
-            // If still no results, show helpful error
-            if (!allUsers || allUsers.length === 0) {
-              setError('No users with screenshots found. Please ensure users have uploaded screenshots for the current month.');
-              setAllUsers([]);
-              setSearchResults([]);
-            }
-          }
+          console.log('⚠️ No users found from sync-staffs API');
+          setError('No users found. Please check your connection.');
         }
       } catch (error) {
         console.error('❌ Error loading users on startup:', error);
-        // Show error but still try to make search available
-        setError('Failed to load users. You can still search manually.');
+        setError('Failed to load users. Please try again later.');
       }
     }, 10);
     return () => {
@@ -998,15 +1006,6 @@ const ActivityStream = () => {
       clearTimeout(failsafeTimer);
     };
   }, []);
-
-  // Auto-show dropdown when users are loaded
-  useEffect(() => {
-    if (allUsers.length > 0 && !searchValue) {
-      console.log('👥 Users loaded - ensuring dropdown is visible with', allUsers.length, 'users');
-      setSearchResults(allUsers);
-      setShowResults(true);
-    }
-  }, [allUsers]);
 
   // Track theme changes
   useEffect(() => {
@@ -1729,16 +1728,18 @@ const ActivityStream = () => {
   }, [searchValue, allUsers, selectedYear, selectedMonth]); // Add selectedYear and selectedMonth as dependencies
 
   // Enhanced search input handler
-  // Local search function to filter static users quickly
-  const filterStaticUsers = (query) => {
+  // Local search function to filter sync-staffs users quickly
+  const filterSyncStaffsUsers = (query) => {
     if (!query || query.trim().length === 0) {
-      return STATIC_USERS;
+      return syncStaffsUsers;
     }
     
     const searchTerm = query.toLowerCase().trim();
-    return STATIC_USERS.filter(user => 
-      user.username.toLowerCase().includes(searchTerm) ||
-      user.email.toLowerCase().includes(searchTerm)
+    return syncStaffsUsers.filter(user => 
+      (user.username && user.username.toLowerCase().includes(searchTerm)) ||
+      (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+      (user.display_name && user.display_name.toLowerCase().includes(searchTerm)) ||
+      (user.job_position && user.job_position.toLowerCase().includes(searchTerm))
     );
   };
 
@@ -1747,9 +1748,9 @@ const ActivityStream = () => {
     setSearchValue(value);
     setShowResults(true);
     
-    // Filter static users locally for fast search
-    const filtered = filterStaticUsers(value);
-    setFilteredStaticUsers(filtered);
+    // Filter sync-staffs users locally for fast search
+    const filtered = filterSyncStaffsUsers(value);
+    setFilteredUsers(filtered);
     
     // No API calls needed - just local filtering
     setIsSearching(false);
@@ -2409,43 +2410,45 @@ const ActivityStream = () => {
       return null;
     }
     
-    console.log('🖼️ Processing URL:', screenshotUrl);
+    // FIRST: Sanitize the URL to fix malformed S3 region format
+    const sanitizedUrl = sanitizeS3Url(screenshotUrl);
+    console.log('🖼️ Processing URL:', screenshotUrl, '→ Sanitized:', sanitizedUrl);
     
     // If URL is already processed (starts with /s3-images), return as is
-    if (screenshotUrl.startsWith('/s3-images')) {
-      console.log('🖼️ URL already processed:', screenshotUrl);
-      return screenshotUrl;
+    if (sanitizedUrl.startsWith('/s3-images')) {
+      console.log('🖼️ URL already processed:', sanitizedUrl);
+      return sanitizedUrl;
     }
     
     // Get current host and port for full URL construction - using Vite dev server proxy
     const currentHost = '/s3-images';
     
     // Replace S3 URL with current app URL
-    if (screenshotUrl.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
+    if (sanitizedUrl.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
       // Replace the S3 domain with proxy server URL
-      const localUrl = screenshotUrl.replace(
+      const localUrl = sanitizedUrl.replace(
         'https://ddsfocustime.s3.eu-north-1.amazonaws.com',
         currentHost
       );
-      console.log('🖼️ Converted S3 URL:', screenshotUrl, '→', localUrl);
+      console.log('🖼️ Converted S3 URL:', sanitizedUrl, '→', localUrl);
       return localUrl;
     }
     
     // Handle other S3 formats
-    if (screenshotUrl.includes('s3') && screenshotUrl.includes('amazonaws.com')) {
-      const urlParts = screenshotUrl.split('/');
+    if (sanitizedUrl.includes('s3') && sanitizedUrl.includes('amazonaws.com')) {
+      const urlParts = sanitizedUrl.split('/');
       const pathIndex = urlParts.findIndex(part => part.includes('amazonaws.com'));
       if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
         const s3Path = urlParts.slice(pathIndex + 1).join('/');
         const finalUrl = `${currentHost}/${s3Path}`;
-        console.log('🖼️ Converted generic S3 URL:', screenshotUrl, '→', finalUrl);
+        console.log('🖼️ Converted generic S3 URL:', sanitizedUrl, '→', finalUrl);
         return finalUrl;
       }
     }
     
-    // Return original URL for non-S3 images
-    console.log('🖼️ Non-S3 URL, returning original:', screenshotUrl);
-    return screenshotUrl;
+    // Return sanitized URL for non-S3 images
+    console.log('🖼️ Non-S3 URL, returning sanitized:', sanitizedUrl);
+    return sanitizedUrl;
   };
 
   // Modal functions for image viewing - Use original S3 URLs
@@ -2458,11 +2461,12 @@ const ActivityStream = () => {
       return;
     }
     
-    // Use original S3 URLs directly for the modal (no proxy needed)
+    // Sanitize S3 URLs before using them in modal
     const imageUrls = screenshots.map((screenshot, index) => {
       const originalUrl = screenshot.screenshot_url;
-      console.log(`🖼️ Using original S3 URL for image ${index}:`, originalUrl);
-      return originalUrl;
+      const sanitizedUrl = sanitizeS3Url(originalUrl);
+      console.log(`🖼️ Using sanitized S3 URL for image ${index}:`, originalUrl, '→', sanitizedUrl);
+      return sanitizedUrl;
     }).filter(url => url); // Remove any null/undefined URLs
     
     console.log('🖼️ Final image URLs:', imageUrls);
@@ -2867,13 +2871,13 @@ const ActivityStream = () => {
               {/* Header */}
               <div className="dropdown-header">
                 {searchValue 
-                  ? `🔍 Search Results for "${searchValue}" (${filteredStaticUsers.length} found)` 
-                  : `� Available Users (${STATIC_USERS.length})`
+                  ? `🔍 Search Results for "${searchValue}" (${filteredUsers.length} found)` 
+                  : `� Available Users (${syncStaffsUsers.length})`
                 }
               </div>
               
               {/* User List */}
-              {filteredStaticUsers.map((user, index) => (
+              {filteredUsers.map((user, index) => (
                 <div
                   key={user.email}
                   onClick={() => handleUserSelect(user)}
@@ -2881,17 +2885,17 @@ const ActivityStream = () => {
                 >
                   <div className="user-item-content">
                     <div className="user-avatar">
-                      {user.username.charAt(0).toUpperCase()}
+                      {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
                     </div>
                     <div className="user-info-flex">
                       <div className="user-name-primary">
-                        {user.username}
+                        {user.display_name || user.username}
                       </div>
                       <div className="user-email-secondary">
                         {user.email}
                       </div>
                       <div className="user-stats-small">
-                        👤 Click to load data
+                        {user.job_position ? `💼 ${user.job_position}` : '👤 Click to load data'}
                       </div>
                     </div>
                   </div>
@@ -3133,9 +3137,11 @@ const ActivityStream = () => {
                             onError={(e) => {
                               console.error('❌ Image failed to load:', e.target.src);
                               
-                              // Only try direct S3 URL as fallback
+                              // Only try direct S3 URL as fallback (sanitized)
                               if (!e.target.src.startsWith('https://ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-                                e.target.src = screenshot.screenshot_url;
+                                const sanitizedUrl = sanitizeS3Url(screenshot.screenshot_url);
+                                console.log('🔄 Retrying with sanitized URL:', sanitizedUrl);
+                                e.target.src = sanitizedUrl;
                               } else {
                                 // Show placeholder if direct S3 also fails
                                 e.target.style.display = 'none';
