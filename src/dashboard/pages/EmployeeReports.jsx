@@ -1,162 +1,334 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import {
   Container,
-  LayoutWrapper,
-  TimelineSection,
-  TimelineHeader,
-  TimelineTitle,
-  TimelineList,
-  TimelineItem,
-  TimelineTime,
-  TimelineDot,
-  TimelineLine,
-  TimelineContent,
-  TimelineDuration,
-  TimelineApp,
-  TimelineDescription,
-  ShareSection,
-  ShareHeader,
-  ShareTitle,
-  ExportButton,
-  ShareStats,
-  StatBox,
-  StatNumber,
-  StatLabel,
-  ShareTable,
-  TableHeader,
+  Header,
+  Title,
+  NewEmployeeButton,
+  ContentWrapper,
+  SearchSection,
+  SearchLabel,
+  SearchInput,
+  FilterSection,
+  FilterLabel,
+  FilterSelect,
+  ClearButton,
+  TableWrapper,
+  Table,
+  TableHead,
+  TableBody,
   TableRow,
+  TableHeader,
   TableCell,
-  SortIcon,
-  ActivityLink
+  EmployeeName,
+  EmployeeTeam,
+  StatusBadge,
+  ToggleSwitch,
+  ToggleInput,
+  ToggleSlider,
+  ActionButton,
+  PaginationWrapper,
+  PaginationInfo,
+  PaginationControls,
+  PageButton,
+  PageSelect
 } from './EmployeeReports.styles';
 
 const EmployeeReports = () => {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('Active');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [totalCount, setTotalCount] = useState(0);
 
-  // Sample timeline data
-  const timelineData = [
-    { time: '3:41 PM', duration: '0m 8s', app: 'Wine', description: 'Save' },
-    { time: '3:39 PM', duration: '1m 52s', app: 'Wine', description: 'PhotoScape' },
-    { time: '3:39 PM', duration: '0m 16s', app: 'Google-chrome', description: 'Edit Reports | FocusRO Documentation - Google Chrome' },
-    { time: '3:39 PM', duration: '0m 3s', app: 'Google-chrome-stable', description: 'Save File' },
-    { time: '3:39 PM', duration: '0m 11s', app: 'Google-chrome', description: 'Edit Reports | FocusRO Documentation - Google Chrome' },
-    { time: '3:38 PM', duration: '0m 26s', app: 'Wine', description: 'PhotoScape' },
-    { time: '3:38 PM', duration: '0m 32s', app: 'Google-chrome', description: 'Edit Reports | FocusRO Documentation - Google Chrome' },
-  ];
+  // Fetch employees from API
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
-  // Sample activity data
-  const activityData = [
-    { switches: 846, duration: '3h 11m 58s', activity: 'Google-chrome', type: 'app' },
-    { switches: 1, duration: '0h 20m 26s', activity: 'MEETING', type: 'meeting' },
-    { switches: 24, duration: '0h 11m 11s', activity: 'Wine', type: 'app' },
-    { switches: 3, duration: '0h 2m 32s', activity: 'firefox', type: 'app' },
-    { switches: 2, duration: '0h 1m 33s', activity: 'libreoffice-calc', type: 'app' },
-    { switches: 18, duration: '0h 1m 5s', activity: 'Google-chrome-stable', type: 'app' },
-    { switches: 3, duration: '0h 0m 32s', activity: 'Gnome-control-center', type: 'app' },
-  ];
-
-  const totalSwitches = activityData.reduce((sum, item) => sum + item.switches, 0);
-  
-  // Calculate total duration
-  const calculateTotalDuration = () => {
-    let totalSeconds = 0;
-    activityData.forEach(item => {
-      const match = item.duration.match(/(\d+)h\s*(\d+)m\s*(\d+)s/);
-      if (match) {
-        totalSeconds += parseInt(match[1]) * 3600 + parseInt(match[2]) * 60 + parseInt(match[3]);
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      // Use Vite proxy - it will forward to https://dxdtime.ddsolutions.io/api/sync-staffs/
+      const response = await fetch('/api/sync-staffs/');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    });
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return `${hours}h ${minutes}m ${seconds}s`;
+      
+      const result = await response.json();
+      setEmployees(result.data || []);
+      setTotalCount(result.count || result.data?.length || 0);
+      console.log(`✅ Loaded ${result.data?.length || 0} employees`);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      // Set empty array on error so UI still renders
+      setEmployees([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleExportCSV = () => {
-    console.log('Exporting CSV...');
-    // Implement CSV export logic
+  // Helper function to get job position name
+  const getJobPosition = (positionId) => {
+    if (!positionId) return 'Employee';
+    const positions = {
+      '1': 'HR',
+      '2': 'Employee',
+      '3': 'Team Lead',
+      '4': 'Project Manager',
+      '5': 'Manager',
+      '6': 'Developer',
+      '7': 'Designer',
+      '8': 'QA',
+      '9': 'DevOps'
+    };
+    return positions[positionId] || 'Employee';
+  };
+
+  // Helper function to check if employee is manager
+  const isManager = (positionId) => {
+    return positionId === '5' || positionId === '3' || positionId === '4';
+  };
+
+  // Helper function to format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} year${Math.floor(diffDays / 365) > 1 ? 's' : ''} ago`;
+  };
+
+  // Filter and search employees
+  const filteredEmployees = employees.filter(employee => {
+    const matchesSearch = employee.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.staff_id?.toLowerCase().includes(searchTerm.toLowerCase());
+    // For now, all employees from API are considered active
+    const matchesFilter = filterStatus === 'Active' || filterStatus === 'All';
+    return matchesSearch && matchesFilter;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  // Handlers (non-functional for now)
+  const handleNewEmployee = () => {
+    console.log('Add new employee');
+  };
+
+  const handleResetPassword = (employeeId) => {
+    console.log('Reset password for employee:', employeeId);
+  };
+
+  const handleViewReport = (employeeId) => {
+    console.log('View report for employee:', employeeId);
+  };
+
+  const handleToggleScreenshot = (employeeId) => {
+    console.log('Toggle screenshot for employee:', employeeId);
+  };
+
+  const handleToggleDashboard = (employeeId) => {
+    console.log('Toggle dashboard access for employee:', employeeId);
+  };
+
+  const handleClearFilter = () => {
+    setFilterStatus('Active');
   };
 
   return (
-    <DashboardLayout headerTitle="Employee Reports" headerBreadcrumb="Reports / Employee Reports">
+    <DashboardLayout headerTitle="Employees" headerBreadcrumb="Dashboard / Employees">
       <Container theme={theme}>
-        <LayoutWrapper>
-          {/* Left Side - Timeline */}
-          <TimelineSection theme={theme}>
-            <TimelineHeader>
-              <TimelineTitle theme={theme}>FOCUS TIMELINE</TimelineTitle>
-            </TimelineHeader>
-            
-            <TimelineList>
-              {timelineData.map((item, index) => (
-                <TimelineItem key={index}>
-                  <TimelineTime theme={theme}>{item.time}</TimelineTime>
-                  <TimelineDot theme={theme} />
-                  {index < timelineData.length - 1 && <TimelineLine theme={theme} />}
-                  <TimelineContent>
-                    <TimelineDuration theme={theme}>{item.duration}</TimelineDuration>
-                    <TimelineApp theme={theme}>{item.app}</TimelineApp>
-                    <TimelineDescription theme={theme}>{item.description}</TimelineDescription>
-                  </TimelineContent>
-                </TimelineItem>
-              ))}
-            </TimelineList>
-          </TimelineSection>
+        <Header>
+          <Title theme={theme}>EMPLOYEES</Title>
+          <NewEmployeeButton theme={theme} onClick={handleNewEmployee}>
+            + NEW EMPLOYEE
+          </NewEmployeeButton>
+        </Header>
 
-          {/* Right Side - Focus Share */}
-          <ShareSection theme={theme}>
-            <ShareHeader>
-              <ShareTitle theme={theme}>Focus Share</ShareTitle>
-              <ExportButton theme={theme} onClick={handleExportCSV}>
-                EXPORT CSV
-              </ExportButton>
-            </ShareHeader>
+        <ContentWrapper theme={theme}>
+          {/* Search Section */}
+          <SearchSection>
+            <SearchLabel theme={theme}>SEARCH</SearchLabel>
+            <SearchInput
+              theme={theme}
+              type="text"
+              placeholder="Search employees..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </SearchSection>
 
-            <ShareStats theme={theme}>
-              <StatBox theme={theme}>
-                <StatNumber theme={theme}>{totalSwitches}</StatNumber>
-                <StatLabel theme={theme}>Switches</StatLabel>
-              </StatBox>
-              <StatBox theme={theme}>
-                <StatNumber theme={theme} $isDuration>{calculateTotalDuration()}</StatNumber>
-                <StatLabel theme={theme}>Duration</StatLabel>
-              </StatBox>
-            </ShareStats>
-
-            <ShareTable>
-              <thead>
-                <TableRow $isHeader theme={theme}>
-                  <TableHeader theme={theme}>
-                    Switches <SortIcon>⬍</SortIcon>
-                  </TableHeader>
-                  <TableHeader theme={theme}>
-                    Duration <SortIcon>⬍</SortIcon>
-                  </TableHeader>
-                  <TableHeader theme={theme}>Activity</TableHeader>
+          {/* Table */}
+          <TableWrapper>
+            <Table>
+              <TableHead theme={theme}>
+                <TableRow>
+                  <TableHeader theme={theme} style={{ width: '160px' }}>NAME ⬆</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '80px' }}>STATUS</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '110px' }}>DESIGNATION</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '90px' }}>SCREENS TODAY</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '110px' }}>LAST LOGIN ⓘ</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '130px', textAlign: 'center' }}>CAPTURE SCREENSHOTS ⓘ</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '140px', textAlign: 'center' }}>DASHBOARD ACCESS ⓘ</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '280px', textAlign: 'center' }}>ACTIONS</TableHeader>
                 </TableRow>
-              </thead>
-              <tbody>
-                {activityData.map((item, index) => (
-                  <TableRow key={index} theme={theme}>
-                    <TableCell theme={theme}>{item.switches}</TableCell>
-                    <TableCell theme={theme}>{item.duration}</TableCell>
-                    <TableCell theme={theme}>
-                      {item.type === 'meeting' ? (
-                        <ActivityLink theme={theme} $isMeeting>{item.activity}</ActivityLink>
-                      ) : (
-                        <ActivityLink theme={theme}>{item.activity}</ActivityLink>
-                      )}
+              </TableHead>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
+                      Loading employees...
                     </TableCell>
                   </TableRow>
-                ))}
-              </tbody>
-            </ShareTable>
-          </ShareSection>
-        </LayoutWrapper>
+                ) : currentEmployees.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
+                      No employees found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  currentEmployees.map((employee) => (
+                    <TableRow key={employee.id} theme={theme}>
+                      <TableCell theme={theme}>
+                        <EmployeeName theme={theme}>{employee.name || 'Unknown'}</EmployeeName>
+                        <EmployeeTeam theme={theme}>
+                          {getJobPosition(employee.job_position)}
+                        </EmployeeTeam>
+                      </TableCell>
+                      <TableCell theme={theme}>
+                        <StatusBadge theme={theme} $status="active">Active</StatusBadge>
+                      </TableCell>
+                      <TableCell theme={theme}>{getJobPosition(employee.job_position)}</TableCell>
+                      <TableCell theme={theme}>{employee.screenshot_interval || 0}</TableCell>
+                      <TableCell theme={theme}>{formatDate(employee.updated_at)}</TableCell>
+                      <TableCell theme={theme} style={{ textAlign: 'center' }}>
+                        <ToggleSwitch>
+                          <ToggleInput
+                            type="checkbox"
+                            defaultChecked={employee.screenshot_interval > 0}
+                            onChange={() => handleToggleScreenshot(employee.id)}
+                          />
+                          <ToggleSlider theme={theme} />
+                        </ToggleSwitch>
+                      </TableCell>
+                      <TableCell theme={theme} style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <ToggleSwitch>
+                            <ToggleInput
+                              type="checkbox"
+                              defaultChecked={true}
+                              onChange={() => handleToggleDashboard(employee.id)}
+                            />
+                            <ToggleSlider theme={theme} />
+                          </ToggleSwitch>
+                          {isManager(employee.job_position) && (
+                            <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              Manager
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell theme={theme} style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'nowrap', width: '100%' }}>
+                          <ActionButton
+                            theme={theme}
+                            $variant="reset"
+                            onClick={() => handleResetPassword(employee.id)}
+                            title="Reset Password"
+                          >
+                            🔒 RESET PASSWORD
+                          </ActionButton>
+                          <ActionButton
+                            theme={theme}
+                            $variant="view"
+                            onClick={() => handleViewReport(employee.id)}
+                            title="View Report"
+                          >
+                            📊 VIEW REPORT
+                          </ActionButton>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableWrapper>
+
+          {/* Pagination */}
+          <PaginationWrapper>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '14px', color: theme === 'dark' ? '#e0e0e0' : '#666' }}>
+                Employees per page:
+              </span>
+              <PageSelect
+                theme={theme}
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </PageSelect>
+            </div>
+            
+            <PaginationInfo theme={theme}>
+              {startIndex + 1} – {Math.min(endIndex, filteredEmployees.length)} of {filteredEmployees.length}
+            </PaginationInfo>
+            
+            <PaginationControls>
+              <PageButton
+                theme={theme}
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+              >
+                ⟨⟨
+              </PageButton>
+              <PageButton
+                theme={theme}
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                ⟨
+              </PageButton>
+              <PageButton
+                theme={theme}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                ⟩
+              </PageButton>
+              <PageButton
+                theme={theme}
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+              >
+                ⟩⟩
+              </PageButton>
+            </PaginationControls>
+          </PaginationWrapper>
+        </ContentWrapper>
       </Container>
     </DashboardLayout>
   );
