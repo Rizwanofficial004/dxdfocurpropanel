@@ -77,6 +77,7 @@ export const API_ENDPOINTS = {
   // Live tracking endpoints
   LIVE_TRACKING: {
     SCREENSHOTS: '/live-tracking/fast-screenshots/',
+    FAST_SCREENSHOTS: '/live-tracking/fast-screenshots/', // Alias for consistency
   },
   
   // Database endpoints

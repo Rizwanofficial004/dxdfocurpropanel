@@ -7,6 +7,7 @@ import axios from 'axios';
 import './LiveTracking.css';
 import { removeRedBorders } from '../../utils/removeDebugStyles';
 import { testUserAPIs } from '../../utils/userAPIDebugger';
+import liveTrackingService from '../../services/liveTrackingService';
 
 const LiveTracking = () => {
   const { t } = useLanguage();
@@ -24,6 +25,12 @@ const LiveTracking = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
+  
+  // Staff data from API
+  const [staffData, setStaffData] = useState([]);
+  const [staffMap, setStaffMap] = useState(new Map());
+  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState('all');
 
   // Image Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,16 +64,9 @@ const LiveTracking = () => {
   const testS3Connection = async () => {
     try {
       console.log('🔍 Testing S3 connection...');
-      const testUrl = buildApiUrl({ 
-        test_s3: true,
-        aws_region: 'eu-north-1',
-        bucket_name: 'ddsfocustime'
-      });
-      
-      
-      const response = await axios.get(testUrl, { timeout: 15000 });
-      console.log('✅ S3 Test Response:', response.data);
-      return response.data;
+      const result = await liveTrackingService.testS3Connection();
+      console.log('✅ S3 Test Response:', result);
+      return result;
     } catch (error) {
       console.error('❌ S3 Connection Test Failed:', error);
       return null;
@@ -83,140 +83,58 @@ const LiveTracking = () => {
         setRetryCount(prev => prev + 1);
       }
       
-      // Use the new API endpoint with S3 parameters
-      const apiUrl = buildApiUrl({
+      // Use the new live tracking service
+      const response = await liveTrackingService.getScreenshots({
         limit_screenshots: 10, // Get more screenshots for better data
         include_metadata_only: false,
         sort_by: 'latest_date',
         order: 'desc',
-        // S3 Configuration
         aws_region: 'eu-north-1',
         bucket_name: 'ddsfocustime',
         force_refresh: true, // Force fresh data from S3
-        _t: Date.now() // Cache buster - ensures fresh data on every request
-      });
-      console.log('🔄 Fetching live tracking data from:', apiUrl);
-      console.log('🌐 Using API endpoint with S3 config:', apiUrl);
-      
-      const response = await axios.get(apiUrl, {
-        timeout: 90000, // Increase timeout to 90 seconds for S3 operations
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'X-AWS-Region': 'eu-north-1',
-          'X-S3-Bucket': 'ddsfocustime'
-        },
-        withCredentials: false
+        timeout: 90000 // Increase timeout to 90 seconds for S3 operations
       });
       
-      console.log('Live tracking API response:', response.data);
-      console.log('📊 API response status:', response.status);
-      console.log('📊 Response data structure:', {
-        hasData: !!response.data?.data,
-        hasUsers: !!response.data?.data?.s3_users_sample,
-        userCount: response.data?.data?.s3_users_sample?.length || 0,
-        totalSize: response.data?.data?.total_size_mb || 0
+      console.log('Live tracking API response:', response);
+      console.log('📊 API response structure:', {
+        hasData: !!response?.data,
+        hasUsers: !!response?.data?.s3_users_sample,
+        userCount: response?.data?.s3_users_sample?.length || 0,
+        totalSize: response?.data?.total_size_mb || 0
       });
-      setApiData(response.data);
+      setApiData(response);
       
-      // Debug the API data structure
-      console.log('🔍 API Data Structure Check:', {
-        hasApiData: !!response.data,
-        hasData: !!response.data?.data,
-        hasDataSources: !!response.data?.data?.data_sources,
-        hasSummary: !!response.data?.data?.summary,
-        hasMetrics: !!response.data?.data?.metrics,
-        hasUsers: !!response.data?.data?.s3_users_sample,
-        dataSources: response.data?.data?.data_sources,
-        keys: response.data?.data ? Object.keys(response.data.data) : []
-      });
+      // Parse screenshots using the service
+      const screenshots = liveTrackingService.parseScreenshots(response);
       
-      // S3-specific debugging
-      console.log('🗄️ S3 Data Analysis:', {
-        s3Status: response.data?.data?.data_sources?.s3_status,
-        s3Users: response.data?.data?.s3_users_sample?.length || 0,
-        bucketName: 'ddsfocustime',
-        region: 'eu-north-1',
-        sampleUserData: response.data?.data?.s3_users_sample?.[0] || null,
-        totalFiles: response.data?.data?.summary?.s3_files || 0,
-        lastUpdated: response.data?.data?.summary?.last_updated
-      });
+      // Log summary statistics
+      const summary = liveTrackingService.getSummary(response);
+      console.log('� Live Tracking Summary:', summary);
       
-      // Check if we have any screenshot URLs
-      if (response.data?.data?.s3_users_sample?.length > 0) {
-        const firstUser = response.data.data.s3_users_sample[0];
-        console.log('📸 Screenshot URL Analysis:', {
-          userEmail: firstUser.user_email,
-          hasScreenshots: !!firstUser.screenshots?.length,
-          screenshotCount: firstUser.screenshots?.length || 0,
-          firstScreenshotUrl: firstUser.screenshots?.[0]?.direct_url || firstUser.direct_file_url,
-          urlDomain: firstUser.screenshots?.[0]?.direct_url?.includes('amazonaws.com') ? 'AWS S3' : 'Other'
-        });
-      }
-      
-      if (response.data && response.data.data && response.data.data.s3_users_sample) {
-        // Create one screenshot entry per user using their latest screenshot
-        const screenshots = [];
-        console.log('🔍 Raw API data:', response.data.data.s3_users_sample);
-        
-        response.data.data.s3_users_sample.forEach(user => {
-          // Get the direct_url from the screenshots array - limit to first 3 for performance
-          let screenshotUrl = null;
-          let fallbackUrl = null;
-          let latestScreenshot = null;
-          
-          // Find the most recent screenshot with direct_url (only check first 3 for performance)
-          if (user.screenshots && Array.isArray(user.screenshots) && user.screenshots.length > 0) {
-            // Sort screenshots by last_modified (newest first) and take only first 3
-            const sortedScreenshots = user.screenshots
-              .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
-              .slice(0, 3); // Only process first 3 screenshots for performance
-            
-            latestScreenshot = sortedScreenshots[0];
-            screenshotUrl = latestScreenshot.direct_url;
-            fallbackUrl = latestScreenshot.file_url;
-          }
-          
-          // Fallback to user-level URLs if no screenshots found
-          if (!screenshotUrl) {
-            screenshotUrl = user.direct_file_url || user.latest_file_url;
-            fallbackUrl = user.latest_file_url || user.direct_file_url;
-          }
-          
-          console.log('📸 Processing user:', user.user_email);
-          console.log('📋 Screenshot direct_url:', latestScreenshot?.direct_url);
-          console.log('📋 Using URL:', screenshotUrl);
-          
-          // Test if the URL looks correct
-          if (screenshotUrl && screenshotUrl.includes('ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-            console.log('✅ URL format looks correct for:', user.user_email);
-          } else {
-            console.warn('⚠️ Unexpected URL format for:', user.user_email, screenshotUrl);
-          }
-          
-          screenshots.push({
-            user_email: user.user_email,
-            screenshot_url: screenshotUrl,
-            fallback_url: fallbackUrl,
-            filename: latestScreenshot?.filename || user.latest_file,
-            timestamp: new Date(latestScreenshot?.last_modified || user.latest_date).toISOString(),
-            activity_type: 'ACTIVE',
-            size_mb: latestScreenshot?.file_size_mb || user.total_size_mb,
-            file_count: user.file_count,
-            days_active: user.days_active,
-            latest_date: user.latest_date
-          });
-        });
+      if (screenshots.length > 0) {
+        // Convert parsed screenshots to component format
+        const formattedScreenshots = screenshots.map(screenshot => ({
+          user_email: screenshot.email,
+          screenshot_url: screenshot.url,
+          fallback_url: screenshot.fallbackUrl,
+          filename: screenshot.fileName,
+          timestamp: screenshot.timestamp,
+          activity_type: 'ACTIVE',
+          size_mb: screenshot.fileSize,
+          file_count: screenshot.metadata.totalFiles,
+          days_active: 1,
+          latest_date: screenshot.metadata.latestFileDate
+        }));
         
         // Sort screenshots by timestamp (newest first)
-        screenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        formattedScreenshots.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
-        setAllScreenshots(screenshots);
-        setFilteredScreenshots(screenshots);
+        setAllScreenshots(formattedScreenshots);
+        setFilteredScreenshots(formattedScreenshots);
         setImageErrors(new Set());
+      } else {
+        setAllScreenshots([]);
+        setFilteredScreenshots([]);
       }
       
     } catch (err) {
@@ -260,7 +178,7 @@ const LiveTracking = () => {
     }
   };
 
-  // Filter screenshots based on search query
+  // Filter screenshots based on search query and team filter
   useEffect(() => {
     if (!allScreenshots.length) {
       setFilteredScreenshots([]);
@@ -269,21 +187,43 @@ const LiveTracking = () => {
 
     let filtered = allScreenshots;
     
+    // Filter by search query
     if (searchQuery.trim()) {
       const searchLower = searchQuery.toLowerCase();
-      filtered = filtered.filter(screenshot => 
-        screenshot.user_email?.toLowerCase().includes(searchLower) ||
-        screenshot.filename?.toLowerCase().includes(searchLower)
-      );
+      filtered = filtered.filter(screenshot => {
+        const employeeInfo = getEmployeeInfo(screenshot.user_email);
+        return (
+          screenshot.user_email?.toLowerCase().includes(searchLower) ||
+          screenshot.filename?.toLowerCase().includes(searchLower) ||
+          employeeInfo.fullName.toLowerCase().includes(searchLower) ||
+          employeeInfo.team.toLowerCase().includes(searchLower)
+        );
+      });
+    }
+    
+    // Filter by selected team
+    if (selectedTeam !== 'all') {
+      filtered = filtered.filter(screenshot => {
+        const employeeInfo = getEmployeeInfo(screenshot.user_email);
+        return employeeInfo.team === selectedTeam;
+      });
     }
     
     setFilteredScreenshots(filtered);
-    setCurrentPage(1); // Reset to first page when searching
-  }, [searchQuery, allScreenshots]);
+    setCurrentPage(1); // Reset to first page when searching or filtering
+  }, [searchQuery, allScreenshots, selectedTeam, staffMap]);
 
   // Load data on component mount
   useEffect(() => {
-    fetchLiveTrackingData();
+    // Fetch both staff data and screenshots
+    const initializeData = async () => {
+      await Promise.all([
+        fetchStaffData(),
+        fetchLiveTrackingData()
+      ]);
+    };
+    
+    initializeData();
   }, []);
 
   // Close help popover when clicking outside
@@ -352,115 +292,197 @@ const LiveTracking = () => {
     return email?.replace('_at_', '@') || 'Unknown User';
   };
 
+  // Fetch staff data from API
+  const fetchStaffData = async () => {
+    try {
+      console.log('🔄 Fetching staff data from API...');
+      const response = await liveTrackingService.getStaffs();
+      console.log('✅ Staff data received:', response);
+      
+      // Try different response structures
+      let staffArray = [];
+      
+      if (response?.data && Array.isArray(response.data)) {
+        staffArray = response.data;
+      } else if (response?.count && response?.data) {
+        // Response has count and data array
+        staffArray = response.data;
+      } else if (Array.isArray(response)) {
+        staffArray = response;
+      }
+      
+      console.log(`📋 Found ${staffArray.length} staff members`);
+      
+      if (staffArray.length > 0) {
+        setStaffData(staffArray);
+        
+        // Job position mapping (ID to name)
+        const jobPositionMap = {
+          '1': 'Management',
+          '2': 'Development',
+          '3': 'Design',
+          '4': 'Marketing',
+          '5': 'Sales',
+          '6': 'Support',
+          '7': 'HR',
+          '8': 'Finance',
+          '9': 'Operations',
+          '10': 'Quality Assurance',
+          '11': 'Product',
+          '12': 'Customer Success'
+        };
+        
+        // Create a map for quick lookup by email
+        const map = new Map();
+        const teamSet = new Set();
+        
+        staffArray.forEach((staff, index) => {
+          const email = staff.email;
+          
+          // Get team name from job_position ID
+          let team = 'No Department';
+          if (staff.job_position) {
+            team = jobPositionMap[staff.job_position] || `Department ${staff.job_position}`;
+          }
+          
+          console.log(`👤 Staff ${index + 1}: ${staff.name}, Email: ${email}, Job Position ID: ${staff.job_position}, Team: ${team}`);
+          
+          if (email) {
+            map.set(email.toLowerCase(), {
+              fullName: staff.name || 'Unknown',
+              team: team,
+              designation: team, // Use team as designation
+              staffId: staff.staff_id,
+              isAdmin: false // We don't have admin info in this API
+            });
+          }
+          
+          // Collect unique teams
+          if (team && team !== 'No Department') {
+            teamSet.add(team);
+          }
+        });
+        
+        const teamArray = Array.from(teamSet).sort();
+        setStaffMap(map);
+        setTeams(teamArray);
+        console.log(`✅ Staff map created with ${map.size} entries`);
+        console.log(`📋 Teams (${teamArray.length}):`, teamArray);
+      } else {
+        console.warn('⚠️ No staff data found in response');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching staff data:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
+  };
+
+  // Get employee info from staff data by email
+  const getEmployeeInfo = (email) => {
+    if (!email) return { team: 'Unknown Team', fullName: 'Unknown User' };
+    
+    const cleanEmail = formatUserEmail(email).toLowerCase();
+    const staffInfo = staffMap.get(cleanEmail);
+    
+    if (staffInfo) {
+      return {
+        team: staffInfo.team,
+        fullName: staffInfo.fullName,
+        designation: staffInfo.designation,
+        staffId: staffInfo.staffId,
+        isAdmin: staffInfo.isAdmin
+      };
+    }
+    
+    // Fallback to email username if not found in staff data
+    return {
+      team: 'Unknown Team',
+      fullName: cleanEmail.split('@')[0],
+      designation: 'Staff',
+      staffId: 'N/A',
+      isAdmin: false
+    };
+  };
+
   return (
     <DashboardLayout>
       <div className="live-tracking-page" style={{ display: 'flex', gap: '24px' }}>
         {/* Main Content */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Live Tracking Card */}
-          <div className="live-tracking-card">
-          {/* Top Notification Banner */}
-          <div className="notification-banner">
-            <div className="notification-content">
-              <span>Your user profile has been successfully created.</span>
-              <span>
-                You can now download the client app from{' '}
-                <a href="https://focusro.com/download" className="download-link">
-                  https://focusro.com/download
-                </a>{' '}
-                and log in with your password to explore the features.
+          {/* Unified Header - Outside of card */}
+          <div className="unified-header">
+            {/* Left: Title with Help Icon */}
+            <div className="header-left-section">
+              <h1 className="page-title">LIVE TRACKING</h1>
+              <span className="help-icon-circle" ref={helpRef}>
+                <button
+                  className="help-button"
+                  onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
+                  aria-expanded={showHelp}
+                  aria-label="Live Tracking Help"
+                >
+                  ?
+                </button>
+                {showHelp && (
+                  <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
+                    <p><strong>Live Tracking</strong></p>
+                    <p>Access real-time employee status updates and instant insights through easy screenshot viewing.</p>
+                    <ul>
+                      <li>Select "A specific team or all teams" from the dropdown menu</li>
+                      <li>View current date and timer for real-time viewing</li>
+                      <li>Click employee name for detailed report</li>
+                      <li>Click screenshot to enlarge</li>
+                    </ul>
+                  </div>
+                )}
               </span>
             </div>
-          </div>
 
-          {/* Header */}
-          <div className="card-header">
-            <div className="header-left">
-              <h1 className="live-tracking-title">
-                LIVE TRACKING - SCREENSHOTS {apiData?.data?.total_employees?.icon}
-                <span className="help-icon" ref={helpRef}>
-                  <button
-                    className="help-button"
-                    onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
-                    aria-expanded={showHelp}
-                    aria-label="Live Tracking Help"
-                  >
-                    ?
-                  </button>
-                  {showHelp && (
-                    <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
-                      <p>{t('liveTrackingHelpShort')}</p>
-                    </div>
+            {/* Center: Team Filter */}
+            <div className="header-center-section">
+              <div className="team-filter">
+                <label htmlFor="team-select">Choose a team ({teams.length} teams)</label>
+                <select 
+                  id="team-select" 
+                  className="team-dropdown"
+                  value={selectedTeam}
+                  onChange={(e) => {
+                    console.log('🔄 Team filter changed to:', e.target.value);
+                    setSelectedTeam(e.target.value);
+                  }}
+                >
+                  <option value="all">All Teams</option>
+                  {teams.length > 0 ? (
+                    teams.map(team => (
+                      <option key={team} value={team}>{team}</option>
+                    ))
+                  ) : (
+                    <option disabled>Loading teams...</option>
                   )}
-                </span>
-              </h1>
-      
-              
-            </div>
-            <div className="header-controls">
-              <div className="search-container">
-                <input
-                  type="text"
-                  placeholder="Search user or filename..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="user-search-input"
-                />
-                <span className="search-icon">🔍</span>
+                </select>
               </div>
-              <button 
-                onClick={() => fetchLiveTrackingData(true)}
-                disabled={loading}
-                className="refresh-button"
-                title="Refresh data from API server - Using http://127.0.0.1:8000/api/live-tracking/fast-screenshots/"
-              >
-                {loading ? '🔄' : '↻'} Refresh Data {retryCount > 0 ? `(${retryCount})` : ''}
-              </button>
+            </div>
+
+            {/* Right: Date and Time */}
+            <div className="header-right-section">
+              <div className="date-time-display">
+                <div className="date-display">
+                  <span className="icon">📅</span>
+                  <span>Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                </div>
+                <div className="time-display">
+                  <span className="icon">�</span>
+                  <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Statistics Cards */}
-          {apiData && apiData.data && (
-            <div className="stats-section">
-              <div className="stats-grid">
-                {/* Metrics Cards (exclude 'S3 Users' label) */}
-                {Array.isArray(apiData.data.metrics) && apiData.data.metrics
-                  .filter(metric => metric.label !== 'S3 Users')
-                  .map((metric, index) => (
-                    <div key={index} className="stat-card">
-                      <div className="stat-content">
-                        <h3>{metric.value}</h3>
-                        <p>{metric.label}</p>
-                      </div>
-                    </div>
-                ))}
-              </div>
-
-              {/* Data Sources Info */}
-              {apiData?.data?.data_sources && (
-                <div className="data-sources">
-                  <div className="source-item">
-                    <span className="source-label">S3 Status:</span>
-                    <span className={`source-status ${apiData?.data?.data_sources?.s3_status === 'Connected' ? 'connected' : 'disconnected'}`}>
-                      {apiData?.data?.data_sources?.s3_status || 'Unknown'}
-                    </span>
-                  </div>
-                  <div className="source-item">
-                    <span className="source-label">CRM Status:</span>
-                    <span className={`source-status ${apiData?.data?.data_sources?.crm_status === 'Connected' ? 'connected' : 'disconnected'}`}>
-                      {apiData?.data?.data_sources?.crm_status || 'Unknown'}
-                    </span>
-                  </div>
-                  <div className="source-item">
-                    <span className="source-label">Last Updated:</span>
-                    <span className="source-value">{apiData?.data?.summary?.last_updated || 'Not available'}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Content Area */}
+          {/* Live Tracking Card - Content Area */}
+          <div className="live-tracking-card">
           <div className="content-area">
             {loading && (
               <div className="loading-container">
@@ -510,14 +532,6 @@ const LiveTracking = () => {
             {/* Screenshots Grid */}
             {!loading && !error && currentScreenshots.length > 0 && (
               <>
-                {/* Screenshots Header */}
-                <div className="screenshots-header">
-                  <h3>Live Users ({totalScreenshots} users)</h3>
-                  <div className="pagination-info">
-                    Showing {startIndex + 1}-{Math.min(endIndex, totalScreenshots)} of {totalScreenshots}
-                  </div>
-                </div>
-
                 {/* Screenshots Grid */}
                 <div style={{
                   display: 'grid',
@@ -525,7 +539,10 @@ const LiveTracking = () => {
                   gap: '20px',
                   padding: '20px 0'
                 }}>
-                  {currentScreenshots.map((screenshot, index) => (
+                  {currentScreenshots.map((screenshot, index) => {
+                    const employeeInfo = getEmployeeInfo(screenshot.user_email);
+                    
+                    return (
                     <div
                       key={`${screenshot.user_email}-${screenshot.filename}-${index}`}
                       style={{
@@ -550,7 +567,7 @@ const LiveTracking = () => {
                       }}
                       onClick={() => {
                         // Open image modal with all current screenshots
-                        const actualIndex = startIndex + index; // Calculate global index
+                        const actualIndex = startIndex + index;
                         openImageModal(filteredScreenshots, actualIndex);
                       }}
                     >
@@ -562,179 +579,106 @@ const LiveTracking = () => {
                         }
                       `}</style>
                       
-                      {/* Screenshot Image */}
+                      {/* Card Header with User Info and Time */}
+                      <div style={{
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #e1e5e9',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        backgroundColor: '#f8f9fa',
+                        transition: 'all 0.3s ease'
+                      }}
+                      className="card-top-header"
+                      >
+                        {/* Left: User Avatar and Info */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: employeeInfo.isAdmin ? '#f59e0b' : '#4285f4',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            flexShrink: 0
+                          }}>
+                            {employeeInfo.fullName.charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              cursor: 'pointer'
+                            }}
+                            title={`${employeeInfo.fullName} - ${employeeInfo.designation}`}
+                            >
+                              {employeeInfo.fullName}
+                            </div>
+                            <div style={{
+                              fontSize: '12px',
+                              color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368'
+                            }}>
+                              {employeeInfo.team}
+                            </div>
+                          </div>
+                        </div>
+                        {/* Right: Time */}
+                        <div style={{
+                          fontSize: '11px',
+                          color: '#5f6368',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          whiteSpace: 'nowrap',
+                          backgroundColor: 'white',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid #e1e5e9',
+                          fontWeight: '500'
+                        }}>
+                          <span>⏱️</span>
+                          <span>{new Date(screenshot.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
+                        </div>
+                      </div>
+
+                      {/* Screenshot Display Area */}
                       <div style={{
                         width: '100%',
                         height: '200px',
-                        backgroundColor: '#f8f9fa',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        backgroundColor: '#10b981'
                       }}>
-                        {screenshot.screenshot_url ? (
-                          <img
-                            src={screenshot.screenshot_url}
-                            alt={`Screenshot ${screenshot.filename}`}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              transition: 'transform 0.2s',
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              zIndex: 2,
-                              opacity: 0
-                            }}
-                            onLoad={(e) => {
-                              console.log('✅ Image loaded successfully for:', screenshot.user_email);
-                              console.log('📋 URL:', e.target.src);
-                              e.target.style.opacity = '1';
-                              // Hide the placeholder when image loads
-                              const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
-                              if (placeholder && placeholder.querySelector('span')) {
-                                placeholder.style.display = 'none';
-                              }
-                            }}
-                            onError={(e) => {
-                              console.error('❌ Image failed to load for:', screenshot.user_email);
-                              console.error('📋 Failed URL:', e.target.src);
-                              
-                              // Try the fallback URL if available and different
-                              if (screenshot.fallback_url && e.target.src !== screenshot.fallback_url) {
-                                console.log('🔄 Trying fallback URL for:', screenshot.user_email);
-                                console.log('📋 Fallback URL:', screenshot.fallback_url);
-                                e.target.src = screenshot.fallback_url;
-                                return;
-                              }
-                              
-                              // Show error placeholder if all attempts fail
-                              console.log('❌ All image loading attempts failed for:', screenshot.user_email);
-                              e.target.style.display = 'none';
-                              const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
-                              if (placeholder && placeholder.querySelector('span')) {
-                                placeholder.style.display = 'flex';
-                                placeholder.querySelector('span').textContent = 'Image unavailable';
-                              }
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                          />
-                        ) : null}
-                        <div style={{
-                          display: screenshot.screenshot_url ? 'flex' : 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#5f6368',
-                          fontSize: '14px',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: '#f8f9fa',
-                          zIndex: 1
-                        }}>
-                          <div style={{ fontSize: '32px', marginBottom: '8px' }}>
-                            {screenshot.screenshot_url ? '📸' : '❌'}
-                          </div>
-                          <span>{screenshot.screenshot_url ? 'Loading...' : 'No Image'}</span>
-                          {screenshot.screenshot_url && (
-                            <div style={{ fontSize: '10px', marginTop: '4px', textAlign: 'center', padding: '0 8px' }}>
-                              {screenshot.user_email?.split('_at_')[0]}
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Overlay with timestamp */}
-                        <div style={{
-                          position: 'absolute',
-                          bottom: '8px',
-                          left: '8px',
-                          right: '8px',
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          Latest: {new Date(screenshot.latest_date).toLocaleDateString()}
-                        </div>
-                      </div>
-
-                      {/* Screenshot Info */}
-                      <div style={{ padding: '16px' }}>
-                        <div style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#202124',
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}>
-                          <span style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            backgroundColor: screenshot.activity_type === 'ACTIVE' ? '#4caf50' : '#ff9800'
-                          }}></span>
-                          👤 {formatUserEmail(screenshot.user_email)}
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '12px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368',
-                          marginBottom: '8px'
-                        }}>
-                          📁 {screenshot.file_count} files • 📅 {screenshot.days_active} days active
-                        </div>
-                        
-                        <div style={{
-                          fontSize: '11px',
-                          color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#5f6368',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '8px'
-                        }}>
-                          <span style={{
-                            backgroundColor: '#e8f5e8',
-                            color: '#2e7d32',
-                            padding: '2px 6px',
-                            borderRadius: '12px',
-                            fontSize: '10px',
-                            fontWeight: '500'
-                          }}>
-                            Latest: {new Date(screenshot.latest_date).toLocaleDateString()}
-                          </span>
-                          <span style={{ fontWeight: '500' }}>
-                            {formatFileSize(screenshot.size_mb || 0)} total
-                          </span>
-                        </div>
-                        
-                        {screenshot.filename && (
-                          <div style={{
-                            fontSize: '10px',
-                            color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#9ca3af' : '#9ca3af',
-                            fontFamily: 'monospace',
-                            wordBreak: 'break-all',
-                            lineHeight: '1.3'
-                          }}>
-                            {screenshot.filename}
-                          </div>
-                        )}
+                        <img
+                          src={screenshot.screenshot_url}
+                          alt="Employee screenshot"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Pagination Controls */}
@@ -844,7 +788,7 @@ const LiveTracking = () => {
           <div className="pagination-footer">
             <div className="pagination-left">
               <div className="screens-per-page">
-                <span>Users per page:</span>
+                <span>Items per page:</span>
                 <select 
                   className="screens-selector" 
                   value={itemsPerPage} 
@@ -856,26 +800,43 @@ const LiveTracking = () => {
                   <option value={64}>64</option>
                 </select>
               </div>
-            </div>
-            <div className="pagination-right">
               <span className="page-info">
                 {totalScreenshots > 0 ? `${startIndex + 1}-${Math.min(endIndex, totalScreenshots)} of ${totalScreenshots}` : '0 of 0'}
               </span>
+            </div>
+            <div className="pagination-right">
               <div className="pagination-nav">
                 <button 
                   className="nav-button" 
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  title="First page"
+                >
+                  ‹‹
+                </button>
+                <button 
+                  className="nav-button" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  title="Previous page"
                 >
                   ‹
                 </button>
-                <span className="page-number">{currentPage} / {totalPages || 1}</span>
                 <button 
                   className="nav-button" 
                   disabled={currentPage === totalPages || totalPages === 0}
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  title="Next page"
                 >
                   ›
+                </button>
+                <button 
+                  className="nav-button" 
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev))}
+                  title="Last page"
+                >
+                  ››
                 </button>
               </div>
             </div>
