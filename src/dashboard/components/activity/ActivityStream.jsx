@@ -203,6 +203,20 @@ const extractDateFromFilename = (filename) => {
   return null;
 };
 
+// Helper function to get profile photo URL from CRM
+const getProfilePhotoUrl = (user) => {
+  // Check if user has profile_url and staff_id
+  if (!user || !user.profile_url || !user.staff_id) {
+    return null;
+  }
+  
+  // Build the CRM profile photo URL with small_ prefix for thumbnail
+  // Format: https://crm.deluxebilisim.com/uploads/staff_profile_images/{staff_id}/small_{profile_url}
+  const profileUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${user.staff_id}/small_${encodeURIComponent(user.profile_url)}`;
+  
+  return profileUrl;
+};
+
 // Main component
 const ActivityStream = () => {
   const { t, language } = useLanguage();
@@ -744,6 +758,8 @@ const ActivityStream = () => {
       email: user.email,
       display_name: user.display_name || user.username,
       username: user.username,
+      staff_id: user.staff_id,
+      profile_url: user.profile_url,
       total_screenshots: 0,
       recent_screenshots: []
     });
@@ -952,6 +968,7 @@ const ActivityStream = () => {
           display_name: staff.name || staff.email,
           original_name: staff.name || staff.email,
           staff_id: staff.staff_id,
+          profile_url: staff.profile_url,
           phone_number: staff.phone_number,
           job_position: staff.job_position || '',
           screenshot_interval: staff.screenshot_interval,
@@ -1902,7 +1919,16 @@ const ActivityStream = () => {
     
     setSearchValue(user.display_name || user.email);
     setShowResults(false);
-    setSelectedUser(user);
+    setSelectedUser({
+      ...user,
+      email: user.email,
+      display_name: user.display_name || user.username,
+      username: user.username,
+      staff_id: user.staff_id,
+      profile_url: user.profile_url,
+      total_screenshots: 0,
+      recent_screenshots: []
+    });
     setUserActivityDates(new Set()); // Reset activity dates
     setActiveDate(null); // Reset active date selection
     setCurrentPage(1); // Reset pagination
@@ -1950,8 +1976,12 @@ const ActivityStream = () => {
         
         console.log('✅ Found user data from API:', apiUser);
         
-        // Update selected user with fresh API data
-        setSelectedUser(apiUser);
+        // Update selected user with fresh API data, preserving profile_url and staff_id from original user
+        setSelectedUser({
+          ...apiUser,
+          staff_id: user.staff_id || apiUser.staff_id,
+          profile_url: user.profile_url || apiUser.profile_url
+        });
         
         // Process and load screenshots from API response
         let allScreenshots = [];
@@ -2877,30 +2907,81 @@ const ActivityStream = () => {
               </div>
               
               {/* User List */}
-              {filteredUsers.map((user, index) => (
-                <div
-                  key={user.email}
-                  onClick={() => handleUserSelect(user)}
-                  className="user-item"
-                >
-                  <div className="user-item-content">
-                    <div className="user-avatar">
-                      {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
-                    </div>
-                    <div className="user-info-flex">
-                      <div className="user-name-primary">
-                        {user.display_name || user.username}
+              {filteredUsers.map((user, index) => {
+                const profilePhotoUrl = getProfilePhotoUrl(user);
+                
+                return (
+                  <div
+                    key={user.email}
+                    onClick={() => handleUserSelect(user)}
+                    className="user-item"
+                  >
+                    <div className="user-item-content">
+                      <div className="user-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
+                        {profilePhotoUrl ? (
+                          <>
+                            <img 
+                              src={profilePhotoUrl} 
+                              alt={user.display_name || user.username}
+                              style={{ 
+                                width: '100%', 
+                                height: '100%', 
+                                objectFit: 'cover',
+                                borderRadius: 'inherit',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0
+                              }}
+                              onError={(e) => {
+                                // Hide the broken image and show fallback
+                                e.target.style.display = 'none';
+                                const fallback = e.target.nextSibling;
+                                if (fallback) {
+                                  fallback.style.display = 'flex';
+                                }
+                              }}
+                            />
+                            <div style={{ 
+                              display: 'none',
+                              width: '100%',
+                              height: '100%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '20px',
+                              fontWeight: '600'
+                            }}>
+                              {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
+                            </div>
+                          </>
+                        ) : (
+                          <div style={{ 
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '20px',
+                            fontWeight: '600'
+                          }}>
+                            {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
+                          </div>
+                        )}
                       </div>
-                      <div className="user-email-secondary">
-                        {user.email}
-                      </div>
-                      <div className="user-stats-small">
-                        {user.job_position ? `💼 ${user.job_position}` : '👤 Click to load data'}
+                      <div className="user-info-flex">
+                        <div className="user-name-primary">
+                          {user.display_name || user.username}
+                        </div>
+                        <div className="user-email-secondary">
+                          {user.email}
+                        </div>
+                        <div className="user-stats-small">
+                          {user.job_position ? `💼 ${user.job_position}` : '👤 Click to load data'}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               </div>
               
               {/* Loading State */}

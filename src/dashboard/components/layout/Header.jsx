@@ -679,6 +679,7 @@ export const Header = ({
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [userProfileData, setUserProfileData] = useState(null); // API'den gelecek profil bilgileri
   
   const { isDarkMode, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
@@ -742,6 +743,58 @@ export const Header = ({
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  // Fetch user profile data from sync-staffs API
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        // Get user email from storage
+        const userEmail = user?.email || user?.emailAddress;
+        if (!userEmail) return;
+
+        // Fetch from sync-staffs API
+        const response = await fetch('/api/sync-staffs/', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const staffList = data.data || [];
+          
+          // Find current user in the staff list
+          const currentUserProfile = staffList.find(staff => 
+            staff.email && staff.email.toLowerCase() === userEmail.toLowerCase()
+          );
+
+          if (currentUserProfile) {
+            setUserProfileData({
+              staff_id: currentUserProfile.staff_id,
+              profile_url: currentUserProfile.profile_url,
+              name: currentUserProfile.name,
+              email: currentUserProfile.email,
+              job_position: currentUserProfile.job_position
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user?.email]);
+
+  // Helper function to get profile photo URL
+  const getProfilePhotoUrl = () => {
+    if (!userProfileData || !userProfileData.profile_url || !userProfileData.staff_id) {
+      return null;
+    }
+    return `https://crm.deluxebilisim.com/uploads/staff_profile_images/${userProfileData.staff_id}/small_${encodeURIComponent(userProfileData.profile_url)}`;
+  };
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -799,13 +852,6 @@ export const Header = ({
         </LeftSection>
 
         <RightSection>
-          <SearchContainer>
-            <SearchIcon>
-              <SearchIconSVG />
-            </SearchIcon>
-            <SearchBox placeholder={t('searchHere')} />
-          </SearchContainer>
-
           <DropdownContainer ref={languageRef}>
             <LanguageSelector 
               $isOpen={isLanguageOpen}
@@ -874,10 +920,6 @@ export const Header = ({
             </NotificationDropdownMenu>
           </DropdownContainer>
 
-          <IconButton>
-            <MessageIcon />
-          </IconButton>
-
           <DropdownContainer ref={profileRef}>
             <ProfileSection 
               $isOpen={isProfileOpen}
@@ -887,15 +929,28 @@ export const Header = ({
                 <UserName>{userName}</UserName>
                 <UserRole>{userRole}</UserRole>
               </UserInfo>
-              <Avatar>
-                {userName.split(' ').map(n => n[0]).join('')}
+              <Avatar style={{ 
+                backgroundImage: getProfilePhotoUrl() ? `url(${getProfilePhotoUrl()})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                color: getProfilePhotoUrl() ? 'transparent' : 'white'
+              }}>
+                {!getProfilePhotoUrl() && userName.split(' ').map(n => n[0]).join('')}
               </Avatar>
             </ProfileSection>
 
             <ProfileDropdownMenu $isOpen={isProfileOpen}>
               <ProfileHeader>
-                <Avatar style={{ width: '48px', height: '48px', fontSize: '16px' }}>
-                  {userName.split(' ').map(n => n[0]).join('')}
+                <Avatar style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  fontSize: '16px',
+                  backgroundImage: getProfilePhotoUrl() ? `url(${getProfilePhotoUrl()})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  color: getProfilePhotoUrl() ? 'transparent' : 'white'
+                }}>
+                  {!getProfilePhotoUrl() && userName.split(' ').map(n => n[0]).join('')}
                 </Avatar>
                 <ProfileInfo>
                   <ProfileName>{userName}</ProfileName>
