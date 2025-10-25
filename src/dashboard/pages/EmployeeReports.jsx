@@ -183,9 +183,8 @@ const EmployeeReports = () => {
                   <TableHeader theme={theme} style={{ width: '160px' }}>NAME ⬆</TableHeader>
                   <TableHeader theme={theme} style={{ width: '80px' }}>STATUS</TableHeader>
                   <TableHeader theme={theme} style={{ width: '110px' }}>DESIGNATION</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '90px' }}>SCREENS TODAY</TableHeader>
+                  <TableHeader theme={theme} style={{ width: '120px', textAlign: 'center' }}>SCREENSHOT INTERVAL</TableHeader>
                   <TableHeader theme={theme} style={{ width: '110px' }}>LAST LOGIN ⓘ</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '130px', textAlign: 'center' }}>CAPTURE SCREENSHOTS ⓘ</TableHeader>
                   <TableHeader theme={theme} style={{ width: '140px', textAlign: 'center' }}>DASHBOARD ACCESS ⓘ</TableHeader>
                   <TableHeader theme={theme} style={{ width: '280px', textAlign: 'center' }}>ACTIONS</TableHeader>
                 </TableRow>
@@ -193,13 +192,13 @@ const EmployeeReports = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
+                    <TableCell colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
                       Loading employees...
                     </TableCell>
                   </TableRow>
                 ) : currentEmployees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
+                    <TableCell colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
                       No employees found
                     </TableCell>
                   </TableRow>
@@ -216,18 +215,24 @@ const EmployeeReports = () => {
                         <StatusBadge theme={theme} $status="active">Active</StatusBadge>
                       </TableCell>
                       <TableCell theme={theme}>{getJobPosition(employee.job_position)}</TableCell>
-                      <TableCell theme={theme}>{employee.screenshot_interval || 0}</TableCell>
-                      <TableCell theme={theme}>{formatDate(employee.updated_at)}</TableCell>
                       <TableCell theme={theme} style={{ textAlign: 'center' }}>
-                        <ToggleSwitch>
-                          <ToggleInput
-                            type="checkbox"
-                            defaultChecked={employee.screenshot_interval > 0}
-                            onChange={() => handleToggleScreenshot(employee.id)}
-                          />
-                          <ToggleSlider theme={theme} />
-                        </ToggleSwitch>
+                        <div style={{ 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '6px',
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                          border: `1px solid ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: theme === 'dark' ? '#60a5fa' : '#2563eb'
+                        }}>
+                          <span>⏱️</span>
+                          <span>{employee.screenshot_interval || 0} mins</span>
+                        </div>
                       </TableCell>
+                      <TableCell theme={theme}>{formatDate(employee.updated_at)}</TableCell>
                       <TableCell theme={theme} style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           <ToggleSwitch>
