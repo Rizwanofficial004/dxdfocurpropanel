@@ -34,6 +34,15 @@ const EmployeeGrid = styled.div`
   transform-style: preserve-3d;
 `;
 
+// Page wrapper to provide external padding (24px on left/right/bottom, 0 on top)
+const EmployeeWrapper = styled.div`
+  padding: 0 24px 24px 24px;
+  background: transparent;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+`;
+
 const EmployeeCard = styled.div`
   background: ${props => props.isDarkMode ? 
     'linear-gradient(135deg, #1e293b 0%, #334155 100%)' : 
@@ -102,7 +111,7 @@ const Avatar = styled.div`
   justify-content: center;
   font-size: 2.5rem;
   font-weight: 700;
-  color: white;
+  color: ${props => props.isDarkMode ? 'white' : '#0f172a'};
   border: 4px solid rgba(255, 255, 255, 0.2);
   box-shadow: 
     0 8px 30px rgba(0, 0, 0, 0.3),
@@ -571,7 +580,8 @@ export const EmployeeCards = () => {
   }
 
   return (
-    <EmployeeGrid>
+    <EmployeeWrapper>
+      <EmployeeGrid>
       {employees.map((employee, index) => (
         <EmployeeCard
           key={employee.id}
@@ -580,7 +590,7 @@ export const EmployeeCards = () => {
           ref={el => cardsRef.current[index] = el}
         >
           <AvatarSection>
-            <Avatar>
+            <Avatar isDarkMode={isDarkMode}>
               {employee.avatar_url && employee.avatar_url.includes('http') ? (
                 <AvatarImage src={employee.avatar_url} alt={employee.full_name} />
               ) : (
@@ -666,7 +676,8 @@ export const EmployeeCards = () => {
           </ActionButtons>
         </EmployeeCard>
       ))}
-    </EmployeeGrid>
+      </EmployeeGrid>
+    </EmployeeWrapper>
   );
 };
 

@@ -21,6 +21,7 @@ import {
   TableRow,
   TableHeader,
   TableCell,
+  EmptyStateCell,
   EmployeeName,
   EmployeeTeam,
   StatusBadge,
@@ -200,15 +201,15 @@ const EmployeeReports = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
+                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={7}>
                       Loading employees...
-                    </TableCell>
+                    </EmptyStateCell>
                   </TableRow>
                 ) : currentEmployees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>
+                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={7}>
                       No employees found
-                    </TableCell>
+                    </EmptyStateCell>
                   </TableRow>
                 ) : (
                   currentEmployees.map((employee) => {
@@ -223,9 +224,9 @@ const EmployeeReports = () => {
                               borderRadius: '50%',
                               background: profilePhotoUrl ? 'transparent' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
                               display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: 'white',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: isDarkMode ? 'white' : '#0f172a',
                               fontWeight: '600',
                               fontSize: '14px',
                               flexShrink: 0,

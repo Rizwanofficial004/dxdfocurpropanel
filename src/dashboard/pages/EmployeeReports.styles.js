@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 
 export const Container = styled.div`
-  padding: 0;
+  /* Keep no top padding, but add 24px to left/right/bottom to match page layouts */
+  padding: 0 24px 24px 24px;
   background: transparent;
   min-height: 100vh;
   width: 100%;
@@ -180,7 +181,8 @@ export const TableRow = styled.tr`
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: ${props => props.isDarkMode ? 'rgba(59, 130, 246, 0.05)' : '#f8fafc'};
+    /* Use a subtle light overlay in dark mode (not solid white) so text remains visible */
+    background: ${props => props.isDarkMode ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc'};
   }
 `;
 
@@ -204,6 +206,22 @@ export const TableCell = styled.td`
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  /* Ensure cell text remains readable when the parent row is hovered */
+  ${TableRow}:hover & {
+    color: ${props => props.isDarkMode ? '#e6eefc' : '#0f172a'};
+  }
+`;
+
+// Special variant used for empty/loading full-row cells so we can force a specific hover color
+export const EmptyStateCell = styled(TableCell)`
+  text-align: center;
+  padding: 40px;
+
+  /* In dark mode, when hovered, force black text as requested */
+  ${TableRow}:hover & {
+    color: ${props => props.isDarkMode ? '#000000' : '#0f172a'} !important;
+  }
 `;
 
 export const EmployeeName = styled.div`

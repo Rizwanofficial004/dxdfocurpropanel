@@ -261,7 +261,7 @@ const NotificationDot = styled.div`
   height: 6px;
   background: #ef4444;
   border-radius: 50%;
-  border: 1px solid white;
+  border: 1px solid ${props => props.$isDark ? (props.theme.colors.surface || '#0f172a') : '#ffffff'};
 `;
 
 const ProfileSection = styled(FlexContainer)`
@@ -306,11 +306,11 @@ const Avatar = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: ${props => props.$hasImage ? 'transparent' : (props.$isDark ? 'white' : (props.theme.colors.text.primary || '#0f172a'))};
   font-weight: 600;
   font-size: 13px;
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid ${props => props.$isDark ? (props.theme.colors.surface || '#0f172a') : (props.theme.colors.border || '#e5e7eb')};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 `;
 
 // Icons as simple SVG components
@@ -901,7 +901,7 @@ export const Header = ({
           <DropdownContainer ref={notificationRef}>
             <IconButton onClick={() => setIsNotificationOpen(!isNotificationOpen)}>
               <BellIcon />
-              {unreadCount > 0 && <NotificationDot />}
+              {unreadCount > 0 && <NotificationDot $isDark={isDarkMode} />}
             </IconButton>
 
             <NotificationDropdownMenu $isOpen={isNotificationOpen}>
@@ -956,27 +956,33 @@ export const Header = ({
                 <UserName>{userName}</UserName>
                 <UserRole>{userRole}</UserRole>
               </UserInfo>
-              <Avatar style={{ 
-                backgroundImage: getProfilePhotoUrl() ? `url(${getProfilePhotoUrl()})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                color: getProfilePhotoUrl() ? 'transparent' : 'white'
-              }}>
+              <Avatar
+                $isDark={isDarkMode}
+                $hasImage={!!getProfilePhotoUrl()}
+                style={{
+                  backgroundImage: getProfilePhotoUrl() ? `url(${getProfilePhotoUrl()})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              >
                 {!getProfilePhotoUrl() && userName.split(' ').map(n => n[0]).join('')}
               </Avatar>
             </ProfileSection>
 
             <ProfileDropdownMenu $isOpen={isProfileOpen}>
               <ProfileHeader>
-                <Avatar style={{ 
-                  width: '48px', 
-                  height: '48px', 
-                  fontSize: '16px',
-                  backgroundImage: getProfilePhotoUrl() ? `url(${getProfilePhotoUrl()})` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  color: getProfilePhotoUrl() ? 'transparent' : 'white'
-                }}>
+                <Avatar
+                  $isDark={isDarkMode}
+                  $hasImage={!!getProfilePhotoUrl()}
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    fontSize: '16px',
+                    backgroundImage: getProfilePhotoUrl() ? `url(${getProfilePhotoUrl()})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
                   {!getProfilePhotoUrl() && userName.split(' ').map(n => n[0]).join('')}
                 </Avatar>
                 <ProfileInfo>
