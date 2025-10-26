@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { gsap } from 'gsap';
+import { useTheme } from '../../context/ThemeContext';
 
 // 3D Animation Keyframes
 
@@ -34,7 +35,9 @@ const EmployeeGrid = styled.div`
 `;
 
 const EmployeeCard = styled.div`
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: ${props => props.isDarkMode ? 
+    'linear-gradient(135deg, #1e293b 0%, #334155 100%)' : 
+    'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'};
   border-radius: 1.5rem;
   padding: 2rem;
   position: relative;
@@ -45,23 +48,31 @@ const EmployeeCard = styled.div`
   
   // Glass morphism effect
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${props => props.isDarkMode ? 
+    'rgba(255, 255, 255, 0.1)' : 
+    'rgba(0, 0, 0, 0.1)'};
   
   // 3D Box Shadow
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 4px 16px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: ${props => props.isDarkMode ? 
+    `0 8px 32px rgba(0, 0, 0, 0.3),
+     0 4px 16px rgba(0, 0, 0, 0.2),
+     inset 0 1px 0 rgba(255, 255, 255, 0.1)` :
+    `0 8px 32px rgba(0, 0, 0, 0.08),
+     0 4px 16px rgba(0, 0, 0, 0.04),
+     inset 0 1px 0 rgba(255, 255, 255, 0.8)`};
   
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   
   // 3D Hover Effects
   &:hover {
     transform: perspective(1000px) translateY(-12px) rotateX(8deg) rotateY(5deg) scale(1.02);
-    box-shadow: 
-      0 20px 60px rgba(0, 0, 0, 0.4),
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: ${props => props.isDarkMode ? 
+      `0 20px 60px rgba(0, 0, 0, 0.4),
+       0 8px 32px rgba(0, 0, 0, 0.3),
+       inset 0 2px 0 rgba(255, 255, 255, 0.2)` :
+      `0 20px 60px rgba(0, 0, 0, 0.15),
+       0 8px 32px rgba(59, 130, 246, 0.2),
+       inset 0 2px 0 rgba(255, 255, 255, 0.9)`};
   }
   
   // Floating animation
@@ -117,11 +128,13 @@ const AvatarImage = styled.img`
 const EmployeeName = styled.h2`
   font-size: 1.75rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: ${props => props.isDarkMode ? '#f8fafc' : '#1e293b'};
   text-align: center;
   margin: 0 0 0.5rem 0;
   
-  background: linear-gradient(135deg, #f8fafc, #cbd5e1);
+  background: ${props => props.isDarkMode ? 
+    'linear-gradient(135deg, #f8fafc, #cbd5e1)' : 
+    'linear-gradient(135deg, #1e293b, #475569)'};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -131,7 +144,7 @@ const EmployeeName = styled.h2`
 
 const JobTitle = styled.p`
   font-size: 1rem;
-  color: #94a3b8;
+  color: ${props => props.isDarkMode ? '#94a3b8' : '#64748b'};
   text-align: center;
   margin: 0 0 1rem 0;
   font-weight: 500;
@@ -141,7 +154,7 @@ const JobTitle = styled.p`
 
 const ContactInfo = styled.div`
   margin: 1.5rem 0;
-  color: #cbd5e1;
+  color: ${props => props.isDarkMode ? '#cbd5e1' : '#475569'};
 `;
 
 const ContactItem = styled.div`
@@ -151,12 +164,16 @@ const ContactItem = styled.div`
   margin-bottom: 0.75rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: ${props => props.isDarkMode ? 
+    'rgba(255, 255, 255, 0.05)' : 
+    'rgba(0, 0, 0, 0.03)'};
   
   transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: ${props => props.isDarkMode ? 
+      'rgba(255, 255, 255, 0.1)' : 
+      'rgba(59, 130, 246, 0.1)'};
     transform: translateX(5px);
   }
 `;
@@ -168,7 +185,7 @@ const ContactIcon = styled.span`
 
 const ContactText = styled.span`
   font-size: 0.875rem;
-  color: #e2e8f0;
+  color: ${props => props.isDarkMode ? '#e2e8f0' : '#1e293b'};
 `;
 
 const StatsGrid = styled.div`
@@ -179,24 +196,32 @@ const StatsGrid = styled.div`
 `;
 
 const StatBox = styled.div`
-  background: rgba(255, 255, 255, 0.08);
+  background: ${props => props.isDarkMode ? 
+    'rgba(255, 255, 255, 0.08)' : 
+    'rgba(59, 130, 246, 0.08)'};
   border-radius: 0.75rem;
   padding: 1rem;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid ${props => props.isDarkMode ? 
+    'rgba(255, 255, 255, 0.1)' : 
+    'rgba(59, 130, 246, 0.2)'};
   
   transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: ${props => props.isDarkMode ? 
+      'rgba(255, 255, 255, 0.12)' : 
+      'rgba(59, 130, 246, 0.15)'};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px ${props => props.isDarkMode ? 
+      'rgba(0, 0, 0, 0.2)' : 
+      'rgba(59, 130, 246, 0.2)'};
   }
 `;
 
 const StatLabel = styled.div`
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: ${props => props.isDarkMode ? '#94a3b8' : '#64748b'};
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -205,7 +230,7 @@ const StatLabel = styled.div`
 const StatValue = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: ${props => props.isDarkMode ? '#f8fafc' : '#1e293b'};
 `;
 
 const RatingSection = styled.div`
@@ -222,14 +247,14 @@ const StarRating = styled.div`
 `;
 
 const Star = styled.span`
-  color: ${props => props.filled ? '#fbbf24' : '#374151'};
+  color: ${props => props.filled ? '#fbbf24' : (props.isDarkMode ? '#374151' : '#e5e7eb')};
   font-size: 1.25rem;
 `;
 
 const RatingText = styled.span`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #f8fafc;
+  color: ${props => props.isDarkMode ? '#f8fafc' : '#1e293b'};
   margin-left: 0.5rem;
 `;
 
@@ -297,11 +322,12 @@ const LoadingCard = styled(EmployeeCard)`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: ${props => props.isDarkMode ? '#94a3b8' : '#64748b'};
   font-size: 1.125rem;
 `;
 
 export const EmployeeCards = () => {
+  const { isDarkMode } = useTheme();
   const cardsRef = useRef([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -483,14 +509,14 @@ export const EmployeeCards = () => {
     }
   }, [loading, employees]);
 
-  const renderStars = (rating, maxRating) => {
+  const renderStars = (rating, maxRating, isDarkMode) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     
     for (let i = 0; i < maxRating; i++) {
       stars.push(
-        <Star key={i} filled={i < fullStars || (i === fullStars && hasHalfStar)}>
+        <Star key={i} filled={i < fullStars || (i === fullStars && hasHalfStar)} isDarkMode={isDarkMode}>
           ★
         </Star>
       );
@@ -520,7 +546,7 @@ export const EmployeeCards = () => {
     return (
       <EmployeeGrid>
         {[1, 2, 3, 4].map((_, index) => (
-          <LoadingCard key={index} index={index}>
+          <LoadingCard key={index} index={index} isDarkMode={isDarkMode}>
             <div>
               <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
               <div>Loading employees...</div>
@@ -534,7 +560,7 @@ export const EmployeeCards = () => {
   if (error && employees.length === 0) {
     return (
       <EmployeeGrid>
-        <LoadingCard>
+        <LoadingCard isDarkMode={isDarkMode}>
           <div>
             <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>❌</div>
             <div>Error loading employees: {error}</div>
@@ -550,6 +576,7 @@ export const EmployeeCards = () => {
         <EmployeeCard
           key={employee.id}
           index={index}
+          isDarkMode={isDarkMode}
           ref={el => cardsRef.current[index] = el}
         >
           <AvatarSection>
@@ -562,21 +589,21 @@ export const EmployeeCards = () => {
             </Avatar>
           </AvatarSection>
           
-          <EmployeeName>{employee.full_name}</EmployeeName>
-          <JobTitle>{employee.job_title}</JobTitle>
+          <EmployeeName isDarkMode={isDarkMode}>{employee.full_name}</EmployeeName>
+          <JobTitle isDarkMode={isDarkMode}>{employee.job_title}</JobTitle>
           
-          <ContactInfo>
-            <ContactItem>
+          <ContactInfo isDarkMode={isDarkMode}>
+            <ContactItem isDarkMode={isDarkMode}>
               <ContactIcon>📧</ContactIcon>
-              <ContactText>{employee.email}</ContactText>
+              <ContactText isDarkMode={isDarkMode}>{employee.email}</ContactText>
             </ContactItem>
-            <ContactItem>
+            <ContactItem isDarkMode={isDarkMode}>
               <ContactIcon>📞</ContactIcon>
-              <ContactText>{employee.phone}</ContactText>
+              <ContactText isDarkMode={isDarkMode}>{employee.phone}</ContactText>
             </ContactItem>
-            <ContactItem>
+            <ContactItem isDarkMode={isDarkMode}>
               <ContactIcon>📸</ContactIcon>
-              <ContactText>
+              <ContactText isDarkMode={isDarkMode}>
                 Last activity: {employee.screenshot_last_updated ? 
                   new Date(employee.screenshot_last_updated).toLocaleDateString() : 
                   'No data'
@@ -586,42 +613,42 @@ export const EmployeeCards = () => {
           </ContactInfo>
           
           <StatsGrid>
-            <StatBox>
-              <StatLabel>Hourly Rate</StatLabel>
-              <StatValue>${employee.hourly_rate}/{employee.currency === 'USD' ? 'hr' : 'h'}</StatValue>
+            <StatBox isDarkMode={isDarkMode}>
+              <StatLabel isDarkMode={isDarkMode}>Hourly Rate</StatLabel>
+              <StatValue isDarkMode={isDarkMode}>${employee.hourly_rate}/{employee.currency === 'USD' ? 'hr' : 'h'}</StatValue>
             </StatBox>
-            <StatBox>
-              <StatLabel>Department</StatLabel>
-              <StatValue>{employee.department}</StatValue>
+            <StatBox isDarkMode={isDarkMode}>
+              <StatLabel isDarkMode={isDarkMode}>Department</StatLabel>
+              <StatValue isDarkMode={isDarkMode}>{employee.department}</StatValue>
             </StatBox>
-            <StatBox>
-              <StatLabel>📸 Screenshots</StatLabel>
-              <StatValue>{employee.screenshot_count ? employee.screenshot_count.toLocaleString() : '0'}</StatValue>
+            <StatBox isDarkMode={isDarkMode}>
+              <StatLabel isDarkMode={isDarkMode}>📸 Screenshots</StatLabel>
+              <StatValue isDarkMode={isDarkMode}>{employee.screenshot_count ? employee.screenshot_count.toLocaleString() : '0'}</StatValue>
             </StatBox>
-            <StatBox>
-              <StatLabel>🕐 Last Updated</StatLabel>
-              <StatValue>
+            <StatBox isDarkMode={isDarkMode}>
+              <StatLabel isDarkMode={isDarkMode}>🕐 Last Updated</StatLabel>
+              <StatValue isDarkMode={isDarkMode}>
                 {employee.screenshot_last_updated ? 
                   new Date(employee.screenshot_last_updated).toLocaleString() : 
                   'No data'
                 }
               </StatValue>
             </StatBox>
-            <StatBox>
-              <StatLabel>Activity %</StatLabel>
-              <StatValue>{employee.screenshot_percentage ? `${employee.screenshot_percentage}%` : '0%'}</StatValue>
+            <StatBox isDarkMode={isDarkMode}>
+              <StatLabel isDarkMode={isDarkMode}>Activity %</StatLabel>
+              <StatValue isDarkMode={isDarkMode}>{employee.screenshot_percentage ? `${employee.screenshot_percentage}%` : '0%'}</StatValue>
             </StatBox>
-            <StatBox>
-              <StatLabel>Join Date</StatLabel>
-              <StatValue>{formatJoinDate(employee.join_date)}</StatValue>
+            <StatBox isDarkMode={isDarkMode}>
+              <StatLabel isDarkMode={isDarkMode}>Join Date</StatLabel>
+              <StatValue isDarkMode={isDarkMode}>{formatJoinDate(employee.join_date)}</StatValue>
             </StatBox>
           </StatsGrid>
           
           <RatingSection>
             <StarRating>
-              {renderStars(employee.rating, employee.max_rating)}
+              {renderStars(employee.rating, employee.max_rating, isDarkMode)}
             </StarRating>
-            <RatingText>
+            <RatingText isDarkMode={isDarkMode}>
               {employee.rating}/{employee.max_rating}
             </RatingText>
           </RatingSection>

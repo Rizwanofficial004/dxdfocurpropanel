@@ -453,7 +453,7 @@ const UserIcon = styled.div`
   width: 28px;
   height: 28px;
   border-radius: 4px;
-  background: ${props => props.isManager ? '#f59e0b' : '#3b82f6'}; /* Manager: Turuncu, Employee: Mavi */
+  background: ${props => props.$isManager ? '#f59e0b' : '#3b82f6'}; /* Manager: Turuncu, Employee: Mavi */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -867,8 +867,6 @@ const QuickView = () => {
       const formattedDate = selectedDate || new Date().toISOString().split('T')[0];
       const apiUrl = `${apiBaseUrl}/quickview/?date=${formattedDate}`;
       
-      console.log('� Fetching QuickView data:', apiUrl);
-      
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -882,7 +880,6 @@ const QuickView = () => {
       }
 
       const data = await response.json();
-      console.log('✅ QuickView API Response:', data);
       
       // Parse the response - structure may vary
       let usersArray = [];
@@ -894,13 +891,6 @@ const QuickView = () => {
       } else if (Array.isArray(data)) {
         usersArray = data;
       }
-      
-      console.log(`📋 Found ${usersArray.length} users for date ${formattedDate}`);
-      
-      if (usersArray.length > 0) {
-        console.log('🔍 Sample QuickView user:', usersArray[0]);
-        console.log('� Available fields:', Object.keys(usersArray[0]));
-      }
 
       // Transform QuickView API data to employee format
       const users = usersArray.map((user, index) => {
@@ -909,14 +899,6 @@ const QuickView = () => {
         
         // Get logged time - API already provides formatted string like '1h 41m'
         const loggedTime = user.logged_time || '0h 0m';
-        
-        console.log(`👤 User ${index + 1}: ${user.name || user.full_name}`, {
-          status: status,
-          loggedTime: loggedTime,
-          idleTime: user.idle_time,
-          breakTime: user.break_time,
-          rawUser: user
-        });
 
         return {
           id: user.id || user.user_id || user.staff_id || index,
@@ -944,7 +926,6 @@ const QuickView = () => {
       setEmployeesData(users);
       
     } catch (error) {
-      console.error('❌ Error fetching QuickView data:', error);
       setError(`Failed to load QuickView data: ${error.message}`);
       setEmployeesData([]);
     } finally {
@@ -985,19 +966,11 @@ const QuickView = () => {
       body: JSON.stringify(postRequestBody)
     };
     
-    console.log('🔵 POST API Test - Request Details:');
-    console.log('🌐 API URL:', apiUrl);
-    console.log('🔧 Request Method:', postRequestConfig.method);
-    console.log('📋 Request Headers:', JSON.stringify(postRequestConfig.headers, null, 2));
-    console.log('📦 Request Body:', JSON.stringify(postRequestBody, null, 2));
-    
     try {
       const response = await fetch(apiUrl, postRequestConfig);
       const result = await response.json();
-      console.log('✅ POST API Response:', result);
       return result;
     } catch (error) {
-      console.error('❌ POST API Error:', error);
       return { error: error.message };
     }
   };
@@ -1029,19 +1002,11 @@ const QuickView = () => {
       body: JSON.stringify(putRequestBody)
     };
     
-    console.log('🟣 PUT API Test - Request Details:');
-    console.log('🌐 API URL:', apiUrl);
-    console.log('🔧 Request Method:', putRequestConfig.method);
-    console.log('📋 Request Headers:', JSON.stringify(putRequestConfig.headers, null, 2));
-    console.log('📦 Request Body:', JSON.stringify(putRequestBody, null, 2));
-    
     try {
       const response = await fetch(apiUrl, putRequestConfig);
       const result = await response.json();
-      console.log('✅ PUT API Response:', result);
       return result;
     } catch (error) {
-      console.error('❌ PUT API Error:', error);
       return { error: error.message };
     }
   };
@@ -1080,19 +1045,11 @@ const QuickView = () => {
       body: JSON.stringify(timerRequestBody)
     };
     
-    console.log('⏱️ TIMER API Test - Request Details:');
-    console.log('🌐 API URL:', apiUrl);
-    console.log('🔧 Request Method:', timerRequestConfig.method);
-    console.log('📋 Request Headers:', JSON.stringify(timerRequestConfig.headers, null, 2));
-    console.log('📦 Request Body:', JSON.stringify(timerRequestBody, null, 2));
-    
     try {
       const response = await fetch(apiUrl, timerRequestConfig);
       const result = await response.json();
-      console.log('✅ TIMER API Response:', result);
       return result;
     } catch (error) {
-      console.error('❌ TIMER API Error:', error);
       return { error: error.message };
     }
   };
@@ -1111,11 +1068,7 @@ const QuickView = () => {
       const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
       const apiUrl = `${apiBaseUrl}/auth/register/post_users/`;
       
-      console.log(`📤 Sending numeric value to API for ${username}:`, {
-        userId,
-        numericValue,
-        apiUrl
-      });
+
 
       const requestData = {
         user_id: userId,
@@ -1136,7 +1089,6 @@ const QuickView = () => {
       }
 
       const result = await response.json();
-      console.log(`✅ API Response for ${username}:`, result);
       
       if (result.status === 'success') {
         toastService.success(`✅ Numeric value ${numericValue} sent successfully for ${username}!`);
@@ -1150,7 +1102,6 @@ const QuickView = () => {
       }
 
     } catch (error) {
-      console.error(`❌ Error sending numeric value for ${username}:`, error);
       toastService.error(`❌ Failed to send numeric value for ${username}: ${error.message}`);
     }
   };
@@ -1199,8 +1150,6 @@ const QuickView = () => {
 
   // Reset user numeric value to 0
   const handleResetUser = async (userId, username) => {
-    console.log(`🔄 Resetting numeric value for ${username} to 0`);
-    
     // Send 0 value to API to reset user in SQL database
     await sendNumericValueToAPI(userId, 0, username);
   };
@@ -1447,7 +1396,7 @@ const QuickView = () => {
                       
                       <TableCell theme={theme} $align="left">
                         <EmployeeInfo>
-                          <UserIcon isManager={employee.isAdmin}>
+                          <UserIcon $isManager={employee.isAdmin}>
                             {employee.isAdmin ? 'M' : 'E'}
                           </UserIcon>
                           <EmployeeDetails>

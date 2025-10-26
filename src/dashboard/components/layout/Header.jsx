@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FlexContainer, Button } from '../../styles/commonStyles';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import notificationService from '../../../services/notificationService';
 
 const HeaderContainer = styled.header`
   background: ${props => props.theme.colors.surface || '#ffffff'};
@@ -682,6 +683,7 @@ export const Header = ({
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [userProfileData, setUserProfileData] = useState(null); // API'den gelecek profil bilgileri
+  const [notifications, setNotifications] = useState([]); // Dynamic notifications from API
   
   const { isDarkMode, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
@@ -700,49 +702,7 @@ export const Header = ({
   // Get current language info
   const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
 
-  const notifications = [
-    {
-      id: 1,
-      type: 'success',
-      icon: '✅',
-      text: t('orderProcessed') || 'Your order has been successfully processed',
-      time: t('minutesAgo', { count: 2 }) || '2 minutes ago',
-      isRead: false
-    },
-    {
-      id: 2,
-      type: 'warning',
-      icon: '⚠️',
-      text: t('serverMaintenance') || 'Server maintenance scheduled for tonight',
-      time: t('hourAgo') || '1 hour ago',
-      isRead: false
-    },
-    {
-      id: 3,
-      type: 'info',
-      icon: '📊',
-      text: t('weeklyReportAvailable') || 'Weekly report is now available',
-      time: t('hoursAgo', { count: 3 }) || '3 hours ago',
-      isRead: true
-    },
-    {
-      id: 4,
-      type: 'error',
-      icon: '❌',
-      text: t('syncDataFailed') || 'Failed to sync data. Please try again',
-      time: t('dayAgo') || '1 day ago',
-      isRead: true
-    },
-    {
-      id: 5,
-      type: 'info',
-      icon: '👥',
-      text: t('newUserRegistered') || 'New user registered on your platform',
-      time: t('daysAgo', { count: 2 }) || '2 days ago',
-      isRead: true
-    }
-  ];
-
+  // Calculate unread notification count
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   // Fetch user profile data from sync-staffs API
@@ -782,12 +742,63 @@ export const Header = ({
           }
         }
       } catch (error) {
-        console.error('Failed to fetch user profile:', error);
+        // Error handling without logging
       }
     };
 
     fetchUserProfile();
   }, [user?.email]);
+
+  // Subscribe to notification service
+  useEffect(() => {
+    
+    // Handler for new notifications
+    const handleNotification = (data) => {
+      
+      // Create notification object from API response
+      // The API returns user data when triggered
+      if (data && Array.isArray(data) && data.length > 0) {
+        const newNotifications = data.map((userData, index) => ({
+          id: `folder-msg-${Date.now()}-${index}`,
+          type: 'info',
+          icon: '📁',
+          text: `New folder message from ${userData.name || userData.email}`,
+          detail: userData.email,
+          time: 'Just now',
+          isRead: false,
+          timestamp: Date.now(),
+          userData: userData
+        }));
+        
+        // Add new notifications to the beginning of the list
+        setNotifications(prev => [...newNotifications, ...prev]);
+      }
+    };
+
+    // Subscribe to notification service
+    const unsubscribe = notificationService.subscribe(handleNotification);
+    
+    // Start polling for notifications every 60 seconds
+    notificationService.startPolling(60000);
+    
+    // Cleanup on unmount
+    return () => {
+      unsubscribe();
+      notificationService.stopPolling();
+    };
+  }, []);
+  
+  // Mark notification as read
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(prev => 
+      prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+    );
+  };
+  
+  // Clear all notifications
+  const clearAllNotifications = () => {
+    setNotifications([]);
+  };
 
   // Helper function to get profile photo URL
   const getProfilePhotoUrl = () => {
@@ -902,18 +913,29 @@ export const Header = ({
               {notifications.length > 0 ? (
                 <>
                   {notifications.map((notification) => (
-                    <NotificationItem key={notification.id} $isRead={notification.isRead}>
+                    <NotificationItem 
+                      key={notification.id} 
+                      $isRead={notification.isRead}
+                      onClick={() => markNotificationAsRead(notification.id)}
+                    >
                       <NotificationIcon type={notification.type}>
                         {notification.icon}
                       </NotificationIcon>
                       <NotificationContent>
                         <NotificationText>{notification.text}</NotificationText>
+                        {notification.detail && (
+                          <div style={{ fontSize: '12px', color: 'inherit', opacity: 0.8, marginTop: '2px' }}>
+                            {notification.detail}
+                          </div>
+                        )}
                         <NotificationTime>{notification.time}</NotificationTime>
                       </NotificationContent>
                     </NotificationItem>
                   ))}
                   <NotificationFooter>
-                    <ViewAllButton>{t('viewAllNotifications') || 'View All Notifications'}</ViewAllButton>
+                    <ViewAllButton onClick={clearAllNotifications}>
+                      {t('clearAllNotifications') || 'Clear All'}
+                    </ViewAllButton>
                   </NotificationFooter>
                 </>
               ) : (
