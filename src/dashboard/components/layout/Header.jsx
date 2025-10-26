@@ -854,13 +854,6 @@ export const Header = ({
         </LeftSection>
 
         <RightSection>
-          <SearchContainer>
-            <SearchIcon>
-              <SearchIconSVG />
-            </SearchIcon>
-            <SearchBox $isDark={isDarkMode} data-role="header-input" placeholder={t('searchHere')} />
-          </SearchContainer>
-
           <DropdownContainer ref={languageRef}>
             <LanguageSelector 
               $isOpen={isLanguageOpen}

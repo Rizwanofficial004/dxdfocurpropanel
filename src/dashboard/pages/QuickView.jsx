@@ -952,10 +952,10 @@ const QuickView = () => {
     }
   };
 
-  // Fetch users on component mount (initial load only)
+  // Fetch users on component mount and when selectedDate changes
   useEffect(() => {
     fetchUsers();
-  }, []); // Run only once on mount
+  }, [selectedDate]); // Re-fetch when date changes
 
   // Refresh data manually
   const handleRefresh = () => {
@@ -1282,22 +1282,6 @@ const QuickView = () => {
                   return threeMonthsAgo.toISOString().split('T')[0];
                 })()}
               />
-              <RefreshButton 
-                onClick={handleRefresh} 
-                disabled={loading}
-                theme={theme}
-              >
-                {loading ? (
-                  <>
-                    <span style={{ animation: 'spin 1s linear infinite' }}>🔄</span>
-                    Loading...
-                  </>
-                ) : (
-                  <>
-                    🔍 Fetch Data
-                  </>
-                )}
-              </RefreshButton>
               <style>{`
                 @keyframes spin {
                   from { transform: rotate(0deg); }
@@ -1376,7 +1360,7 @@ const QuickView = () => {
             }}>
               <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
               <div style={{ fontWeight: '600', marginBottom: '4px' }}>No data found for {selectedDate}</div>
-              <div style={{ fontSize: '12px' }}>Try selecting a different date or click "Fetch Data" to reload</div>
+              <div style={{ fontSize: '12px' }}>Try selecting a different date to view employee data</div>
             </div>
           )}
         </PageHeader>
