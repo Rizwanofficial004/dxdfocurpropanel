@@ -136,7 +136,6 @@ const Dashboard = () => {
     localStorage.removeItem('hasSeenWelcomeModal');
     localStorage.removeItem('userFirstVisit');
     localStorage.removeItem('dashboardData');
-    console.log('Welcome modal reset. Refresh the page or visit ?welcome=true to see it again.');
   };
 
   return (

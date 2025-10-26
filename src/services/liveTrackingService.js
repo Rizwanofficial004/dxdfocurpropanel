@@ -87,7 +87,6 @@ class LiveTrackingService {
       }
 
       const url = this.buildUrl(params);
-      console.log('🔄 Fetching live tracking data from:', url);
 
       const response = await axios.get(url, {
         timeout,
@@ -103,11 +102,9 @@ class LiveTrackingService {
         withCredentials: false
       });
 
-      console.log('✅ Live tracking API response:', response.data);
       return response.data;
 
     } catch (error) {
-      console.error('❌ Live tracking API error:', error);
       
       // Enhanced error handling
       if (error.code === 'ECONNABORTED') {
@@ -160,7 +157,6 @@ class LiveTrackingService {
    */
   async testS3Connection() {
     try {
-      console.log('🔍 Testing S3 connection...');
       
       const url = this.buildUrl({ 
         test_s3: true,
@@ -175,11 +171,9 @@ class LiveTrackingService {
         }
       });
       
-      console.log('✅ S3 Test Response:', response.data);
       return response.data;
       
     } catch (error) {
-      console.error('❌ S3 Connection Test Failed:', error);
       throw error;
     }
   }
@@ -218,7 +212,6 @@ class LiveTrackingService {
    */
   parseScreenshots(apiResponse) {
     if (!apiResponse?.data?.s3_users_sample) {
-      console.warn('⚠️ No screenshots data in API response');
       return [];
     }
 
@@ -265,7 +258,6 @@ class LiveTrackingService {
       });
     });
     
-    console.log(`📸 Parsed ${screenshots.length} screenshots from API response`);
     return screenshots;
   }
 
@@ -296,7 +288,6 @@ class LiveTrackingService {
    */
   async getStaffs() {
     try {
-      console.log('🔄 Fetching staffs data from:', this.staffsUrl);
 
       const response = await axios.get(this.staffsUrl, {
         headers: {
@@ -306,11 +297,9 @@ class LiveTrackingService {
         withCredentials: false
       });
 
-      console.log('✅ Staffs API response:', response.data);
       return response.data;
 
     } catch (error) {
-      console.error('❌ Staffs API error:', error);
       
       if (error.response) {
         throw new Error(
@@ -341,7 +330,6 @@ class LiveTrackingService {
   async updateStaff(staffId, data) {
     try {
       const url = `${this.updateStaffUrl}${staffId}/`;
-      console.log('🔄 Updating staff data:', url, data);
 
       const response = await axios.put(url, data, {
         headers: {
@@ -351,11 +339,9 @@ class LiveTrackingService {
         withCredentials: false
       });
 
-      console.log('✅ Update staff API response:', response.data);
       return response.data;
 
     } catch (error) {
-      console.error('❌ Update staff API error:', error);
       
       if (error.response) {
         throw new Error(

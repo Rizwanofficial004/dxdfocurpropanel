@@ -364,7 +364,6 @@ const ImageModal = ({
   theme,
   isDarkMode 
 }) => {
-  console.log('🖼️ ImageModal render - isOpen:', isOpen, 'images:', images, 'currentIndex:', currentIndex);
   const [imageLoading, setImageLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(currentIndex);
   const [downloadLoading, setDownloadLoading] = useState(false);
@@ -473,11 +472,8 @@ const ImageModal = ({
         document.body.removeChild(link);
       }
       
-      // Show success feedback
-      console.log('✅ Download initiated successfully');
     } catch (error) {
-      console.error('❌ Download failed:', error);
-      // Could add toast notification here
+      // Error handling without logging
     } finally {
       setDownloadLoading(false);
     }
@@ -490,13 +486,10 @@ const ImageModal = ({
   };
 
   if (!isOpen || !currentImage) {
-    console.log('🖼️ Modal early return - isOpen:', isOpen, 'currentImage:', currentImage, 'images length:', images.length, 'currentImageIndex:', currentImageIndex);
     return null;
   }
 
   const imageUrl = typeof currentImage === 'string' ? currentImage : currentImage.src || currentImage.image;
-  console.log('🖼️ ImageModal rendering with imageUrl:', imageUrl);
-  console.log('🖼️ Current image object:', currentImage);
   const imageTitle = typeof currentImage === 'string' 
     ? `Screenshot ${currentImageIndex + 1}`
     : currentImage.title || currentImage.task || `Screenshot ${currentImageIndex + 1}`;
@@ -504,7 +497,6 @@ const ImageModal = ({
 
   // Ensure document.body exists before creating portal
   if (typeof document === 'undefined' || !document.body) {
-    console.warn('⚠️ Document body not available for modal portal');
     return null;
   }
 
@@ -611,14 +603,11 @@ const ImageModal = ({
                 src={imageUrl}
                 alt={imageTitle}
                 theme={theme}
-                isDarkMode={isDarkMode}
                 onLoad={() => {
-                  console.log('✅ Image loaded successfully:', imageUrl);
                   setImageLoading(false);
                   setSlideDirection(0);
                 }}
                 onError={(e) => {
-                  console.error('❌ Image load error:', imageUrl, e);
                   setImageLoading(false);
                   setSlideDirection(0);
                 }}
@@ -703,7 +692,6 @@ const ImageModal = ({
   try {
     return createPortal(modalContent, document.body);
   } catch (error) {
-    console.error('❌ Failed to create modal portal:', error);
     return modalContent; // Fallback to regular rendering
   }
 };

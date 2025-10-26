@@ -218,7 +218,6 @@ const IdleTimeTracker = () => {
       setError('');
       
       const apiUrl = `${getApiBaseURL()}${API_CONFIG.ENDPOINTS.IDLE_TIME}`;
-      console.log('🕐 Fetching idle time data from:', apiUrl);
       
       const response = await axios.get(apiUrl, {
         timeout: 15000,
@@ -228,16 +227,12 @@ const IdleTimeTracker = () => {
         }
       });
       
-      console.log('🕐 Idle Time API Response:', response.data);
-      
       if (response.data && response.data.status === 'success') {
         setIdleTimeData(response.data.data || []);
       } else {
-        console.warn('⚠️ Idle time API returned unexpected format:', response.data);
         setIdleTimeData([]);
       }
     } catch (error) {
-      console.error('❌ Error fetching idle time data:', error);
       setError(`Failed to fetch idle time data: ${error.message}`);
       setIdleTimeData([]);
     } finally {

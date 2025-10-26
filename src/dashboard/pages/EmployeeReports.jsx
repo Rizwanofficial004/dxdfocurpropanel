@@ -36,7 +36,7 @@ import {
 } from './EmployeeReports.styles';
 
 const EmployeeReports = () => {
-  const { theme } = useTheme();
+  const { theme, isDarkMode } = useTheme();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -162,20 +162,20 @@ const EmployeeReports = () => {
 
   return (
     <DashboardLayout headerTitle="Employees" headerBreadcrumb="Dashboard / Employees">
-      <Container theme={theme}>
-        <Header>
-          <Title theme={theme}>EMPLOYEES</Title>
-          <NewEmployeeButton theme={theme} onClick={handleNewEmployee}>
+      <Container isDarkMode={isDarkMode}>
+        <Header isDarkMode={isDarkMode}>
+          <Title isDarkMode={isDarkMode}>EMPLOYEES</Title>
+          <NewEmployeeButton isDarkMode={isDarkMode} onClick={handleNewEmployee}>
             + NEW EMPLOYEE
           </NewEmployeeButton>
         </Header>
 
-        <ContentWrapper theme={theme}>
+        <ContentWrapper isDarkMode={isDarkMode}>
           {/* Search Section */}
           <SearchSection>
-            <SearchLabel theme={theme}>SEARCH</SearchLabel>
+            <SearchLabel isDarkMode={isDarkMode}>SEARCH</SearchLabel>
             <SearchInput
-              theme={theme}
+              isDarkMode={isDarkMode}
               type="text"
               placeholder="Search employees..."
               value={searchTerm}
@@ -186,15 +186,15 @@ const EmployeeReports = () => {
           {/* Table */}
           <TableWrapper>
             <Table>
-              <TableHead theme={theme}>
+              <TableHead isDarkMode={isDarkMode}>
                 <TableRow>
-                  <TableHeader theme={theme} style={{ width: '160px' }}>NAME ⬆</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '80px' }}>STATUS</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '110px' }}>DESIGNATION</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '120px', textAlign: 'center' }}>SCREENSHOT INTERVAL</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '110px' }}>LAST LOGIN ⓘ</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '140px', textAlign: 'center' }}>DASHBOARD ACCESS ⓘ</TableHeader>
-                  <TableHeader theme={theme} style={{ width: '280px', textAlign: 'center' }}>ACTIONS</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '160px' }}>NAME ⬆</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '80px' }}>STATUS</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>DESIGNATION</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '120px', textAlign: 'center' }}>SCREENSHOT INTERVAL</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>LAST LOGIN ⓘ</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '140px', textAlign: 'center' }}>DASHBOARD ACCESS ⓘ</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '280px', textAlign: 'center' }}>ACTIONS</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -214,8 +214,8 @@ const EmployeeReports = () => {
                   currentEmployees.map((employee) => {
                     const profilePhotoUrl = getProfilePhotoUrl(employee);
                     return (
-                      <TableRow key={employee.id} theme={theme}>
-                        <TableCell theme={theme}>
+                      <TableRow key={employee.id} isDarkMode={isDarkMode}>
+                        <TableCell isDarkMode={isDarkMode}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{
                               width: '40px',
@@ -230,7 +230,7 @@ const EmployeeReports = () => {
                               fontSize: '14px',
                               flexShrink: 0,
                               border: '2px solid',
-                              borderColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+                              borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
                               overflow: 'hidden',
                               position: 'relative'
                             }}>
@@ -274,36 +274,36 @@ const EmployeeReports = () => {
                               )}
                             </div>
                             <div>
-                              <EmployeeName theme={theme}>{employee.name || 'Unknown'}</EmployeeName>
-                              <EmployeeTeam theme={theme}>
+                              <EmployeeName isDarkMode={isDarkMode}>{employee.name || 'Unknown'}</EmployeeName>
+                              <EmployeeTeam isDarkMode={isDarkMode}>
                                 {getJobPosition(employee.job_position)}
                               </EmployeeTeam>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell theme={theme}>
-                          <StatusBadge theme={theme} $status="active">Active</StatusBadge>
+                        <TableCell isDarkMode={isDarkMode}>
+                          <StatusBadge isDarkMode={isDarkMode} $status="active">Active</StatusBadge>
                         </TableCell>
-                      <TableCell theme={theme}>{getJobPosition(employee.job_position)}</TableCell>
-                      <TableCell theme={theme} style={{ textAlign: 'center' }}>
+                      <TableCell isDarkMode={isDarkMode}>{getJobPosition(employee.job_position)}</TableCell>
+                      <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
                         <div style={{ 
                           display: 'inline-flex', 
                           alignItems: 'center', 
                           gap: '6px',
                           padding: '4px 12px',
                           borderRadius: '6px',
-                          backgroundColor: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
-                          border: `1px solid ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                          backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                          border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: theme === 'dark' ? '#60a5fa' : '#2563eb'
+                          color: isDarkMode ? '#60a5fa' : '#2563eb'
                         }}>
                           <span>⏱️</span>
                           <span>{employee.screenshot_interval || 0} mins</span>
                         </div>
                       </TableCell>
-                      <TableCell theme={theme}>{formatDate(employee.updated_at)}</TableCell>
-                      <TableCell theme={theme} style={{ textAlign: 'center' }}>
+                      <TableCell isDarkMode={isDarkMode}>{formatDate(employee.updated_at)}</TableCell>
+                      <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           <ToggleSwitch>
                             <ToggleInput
@@ -311,7 +311,7 @@ const EmployeeReports = () => {
                               defaultChecked={true}
                               onChange={() => handleToggleDashboard(employee.id)}
                             />
-                            <ToggleSlider theme={theme} />
+                            <ToggleSlider isDarkMode={isDarkMode} />
                           </ToggleSwitch>
                           {isManager(employee.job_position) && (
                             <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
@@ -320,10 +320,10 @@ const EmployeeReports = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell theme={theme} style={{ textAlign: 'center' }}>
+                      <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'nowrap', width: '100%' }}>
                           <ActionButton
-                            theme={theme}
+                            isDarkMode={isDarkMode}
                             $variant="reset"
                             onClick={() => handleResetPassword(employee.id)}
                             title="Reset Password"
@@ -331,7 +331,7 @@ const EmployeeReports = () => {
                             🔒 RESET PASSWORD
                           </ActionButton>
                           <ActionButton
-                            theme={theme}
+                            isDarkMode={isDarkMode}
                             $variant="view"
                             onClick={() => handleViewReport(employee.id)}
                             title="View Report"
@@ -351,11 +351,11 @@ const EmployeeReports = () => {
           {/* Pagination */}
           <PaginationWrapper>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '14px', color: theme === 'dark' ? '#e0e0e0' : '#666' }}>
+              <span style={{ fontSize: '14px', color: isDarkMode ? '#e0e0e0' : '#666' }}>
                 Employees per page:
               </span>
               <PageSelect
-                theme={theme}
+                isDarkMode={isDarkMode}
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value));
@@ -369,34 +369,34 @@ const EmployeeReports = () => {
               </PageSelect>
             </div>
             
-            <PaginationInfo theme={theme}>
+            <PaginationInfo isDarkMode={isDarkMode}>
               {startIndex + 1} – {Math.min(endIndex, filteredEmployees.length)} of {filteredEmployees.length}
             </PaginationInfo>
             
             <PaginationControls>
               <PageButton
-                theme={theme}
+                isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
               >
                 ⟨⟨
               </PageButton>
               <PageButton
-                theme={theme}
+                isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
                 ⟨
               </PageButton>
               <PageButton
-                theme={theme}
+                isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
               >
                 ⟩
               </PageButton>
               <PageButton
-                theme={theme}
+                isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
               >

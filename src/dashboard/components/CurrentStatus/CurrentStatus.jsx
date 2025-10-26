@@ -198,9 +198,7 @@ const CurrentStatus = () => {
       setIdleTimeLoading(true);
       const data = await idleTimeService.fetchAllUsersIdleTime();
       setIdleTimeData(data);
-      console.log('🕐 Loaded idle time data for', data.length, 'users');
     } catch (error) {
-      console.error('❌ Error fetching idle time data:', error);
       setIdleTimeData([]);
     } finally {
       setIdleTimeLoading(false);
@@ -211,8 +209,6 @@ const CurrentStatus = () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/Staff/Details/');
-      
-      console.log('📊 Staff API Response:', response.data);
       
       if (response.data && response.data.status === 'success' && response.data.data) {
         const summary = response.data.data.summary;
@@ -231,11 +227,6 @@ const CurrentStatus = () => {
           const offEmployees = staffList.filter(staff => 
             staff.active === false
           ).length;
-
-          console.log('📊 Status Breakdown:');
-          console.log('  At Work (Active + Logged In):', activeEmployees);
-          console.log('  Idle (Active but not logged in):', idleEmployees);
-          console.log('  OFF (Inactive):', offEmployees);
           
           setStatusData({
             atWork: activeEmployees,
@@ -247,7 +238,7 @@ const CurrentStatus = () => {
         }
       }
     } catch (error) {
-      console.error('❌ Error fetching staff status:', error);
+      // Error handling without logging
     } finally {
       setLoading(false);
     }

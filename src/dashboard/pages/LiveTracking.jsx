@@ -63,12 +63,9 @@ const LiveTracking = () => {
   // Test S3 connection and AWS credentials
   const testS3Connection = async () => {
     try {
-      console.log('🔍 Testing S3 connection...');
       const result = await liveTrackingService.testS3Connection();
-      console.log('✅ S3 Test Response:', result);
       return result;
     } catch (error) {
-      console.error('❌ S3 Connection Test Failed:', error);
       return null;
     }
   };
@@ -95,13 +92,6 @@ const LiveTracking = () => {
         timeout: 90000 // Increase timeout to 90 seconds for S3 operations
       });
       
-      console.log('Live tracking API response:', response);
-      console.log('📊 API response structure:', {
-        hasData: !!response?.data,
-        hasUsers: !!response?.data?.s3_users_sample,
-        userCount: response?.data?.s3_users_sample?.length || 0,
-        totalSize: response?.data?.total_size_mb || 0
-      });
       setApiData(response);
       
       // Parse screenshots using the service
@@ -109,7 +99,6 @@ const LiveTracking = () => {
       
       // Log summary statistics
       const summary = liveTrackingService.getSummary(response);
-      console.log('� Live Tracking Summary:', summary);
       
       if (screenshots.length > 0) {
         // Convert parsed screenshots to component format
@@ -138,13 +127,6 @@ const LiveTracking = () => {
       }
       
     } catch (err) {
-      console.error('❌ Error fetching live tracking data:', err);
-      console.error('❌ Error details:', {
-        message: err.message,
-        code: err.code,
-        response: err.response?.data,
-        status: err.response?.status
-      });
       
       if (err.code === 'ECONNABORTED') {
         setError('⏰ Request timeout (90s). The S3 API is processing a large dataset. Please try again or contact support if this persists.');
@@ -167,12 +149,6 @@ const LiveTracking = () => {
         setError(`❌ Network error: Unable to connect to the API. ${err.message}`);
       }
       
-      // Log performance metrics for debugging
-      console.log('📊 Performance metrics:', {
-        retryCount,
-        error: err.message,
-        duration: Date.now() - startTime + 'ms'
-      });
     } finally {
       setLoading(false);
     }
@@ -253,7 +229,6 @@ const LiveTracking = () => {
       }
     }));
     
-    console.log('🚀 Opening modal with live tracking images:', modalImageData);
     setModalImages(modalImageData);
     setCurrentImageIndex(initialIndex);
     setIsModalOpen(true);
@@ -295,9 +270,7 @@ const LiveTracking = () => {
   // Fetch staff data from API
   const fetchStaffData = async () => {
     try {
-      console.log('🔄 Fetching staff data from API...');
       const response = await liveTrackingService.getStaffs();
-      console.log('✅ Staff data received:', response);
       
       // Try different response structures
       let staffArray = [];
@@ -310,8 +283,6 @@ const LiveTracking = () => {
       } else if (Array.isArray(response)) {
         staffArray = response;
       }
-      
-      console.log(`📋 Found ${staffArray.length} staff members`);
       
       if (staffArray.length > 0) {
         setStaffData(staffArray);
@@ -345,8 +316,6 @@ const LiveTracking = () => {
             team = jobPositionMap[staff.job_position] || `Department ${staff.job_position}`;
           }
           
-          console.log(`👤 Staff ${index + 1}: ${staff.name}, Email: ${email}, Job Position ID: ${staff.job_position}, Team: ${team}`);
-          
           if (email) {
             map.set(email.toLowerCase(), {
               fullName: staff.name || 'Unknown',
@@ -366,17 +335,9 @@ const LiveTracking = () => {
         const teamArray = Array.from(teamSet).sort();
         setStaffMap(map);
         setTeams(teamArray);
-        console.log(`✅ Staff map created with ${map.size} entries`);
-        console.log(`📋 Teams (${teamArray.length}):`, teamArray);
-      } else {
-        console.warn('⚠️ No staff data found in response');
       }
     } catch (error) {
-      console.error('❌ Error fetching staff data:', error);
-      console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack
-      });
+      // Error handling without logging
     }
   };
 
@@ -453,7 +414,6 @@ const LiveTracking = () => {
                   className="team-dropdown"
                   value={selectedTeam}
                   onChange={(e) => {
-                    console.log('🔄 Team filter changed to:', e.target.value);
                     setSelectedTeam(e.target.value);
                   }}
                 >
