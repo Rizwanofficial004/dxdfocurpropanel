@@ -242,6 +242,17 @@ const CalendarTitle = styled.h2`
   text-align: center;
 `;
 
+// Streaming icon component (simple broadcast waves)
+const StreamingIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ verticalAlign: 'middle' }}>
+    <circle cx="12" cy="12" r="2" fill="currentColor" />
+    <path d="M16.24 7.76a6 6 0 0 1 0 8.49" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7.76 16.24a6 6 0 0 1 0-8.49" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M18.36 5.64a9 9 0 0 1 0 12.72" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+    <path d="M5.64 18.36a9 9 0 0 1 0-12.72" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+  </svg>
+);
+
 const YearMonthControls = styled.div`
   display: flex;
   justify-content: center;
@@ -1304,7 +1315,12 @@ const TimeLogActivityStream = () => {
     <DashboardLayout>
       <Container>
         <CalendarContainer>
-          <CalendarTitle>Real Time Activity Stream</CalendarTitle>
+          <CalendarTitle>
+            Real Time Activity Stream
+            <span style={{ marginLeft: 8, display: 'inline-block', verticalAlign: 'middle' }} aria-hidden>
+              <StreamingIcon />
+            </span>
+          </CalendarTitle>
           
           <YearMonthControls>
             <SelectDropdown 

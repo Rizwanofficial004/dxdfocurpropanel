@@ -7,7 +7,7 @@
   background: white;
   border: 2px solid #e1e5e9;
   border-radius: 12px;
-  margin: 20px 24px 24px 24px;
+  margin: 24px 0px;
   gap: 24px;
   flex-wrap: wrap;
   transition: all 0.3s ease;
@@ -249,7 +249,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 12px;
   background: white;
   border: 2px solid #dc2626;
   border-radius: 8px;
@@ -262,7 +262,7 @@
 }
 
 .team-filter label {
-  font-size: 14px;
+  font-size: 13px;
   color: #5f6368;
   font-weight: 500;
   transition: color 0.3s ease;
@@ -362,6 +362,7 @@
   background: #1d232c;
   border-bottom-color: #6b7280;
 }
+
 
 [data-theme="dark"] .notification-banner {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
@@ -525,6 +526,7 @@
 [data-theme="dark"] .pagination-footer {
   background: #1d232c;
   border-top-color: #6b7280;
+  border-radius: 0 0 12px 12px;
 }
 
 [data-theme="dark"] .screens-per-page {
@@ -859,11 +861,19 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s;
+  /* default shadow requested by user */
+  box-shadow: 0 2px 8px rgb(0 0 0 / 16%);
 }
 
 .screenshot-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* stronger hover shadow for emphasis */
+  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
+}
+
+/* Lift card slightly on hover for a tactile feel */
+.screenshot-card:hover {
+  transform: translateY(-4px);
 }
 
 .screenshot-header {
@@ -878,7 +888,6 @@
   font-size: 14px;
   font-weight: 600;
   color: #202124;
-  margin: 0 0 8px 0;
   word-break: break-all;
 }
 
@@ -891,6 +900,35 @@
 .user-stats span {
   font-size: 12px;
   color: #5f6368;
+}
+
+/* Time badge shown on screenshot cards (light + dark) */
+.time-badge {
+  font-size: 11px;
+  color: #5f6368;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #e1e5e9;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .time-badge,
+.dark-theme .time-badge,
+html.dark-theme .time-badge {
+  background: #0f172a;
+  border-color: #334155;
+  color: #ffffff;
+}
+
+/* Utility: force an element to keep a white/default color regardless of theme
+   Use sparingly; example: <div className="keep-default-color">Development</div> */
+.keep-default-color {
+  color: rgb(255 255 255) !important;
 }
 
 .file-count {
@@ -1482,9 +1520,9 @@
   border-radius: 4px;
   padding: 6px 12px;
   font-size: 13px;
-  background: white;
+  background: rgb(248, 250, 252);
   cursor: pointer;
-  min-width: 120px;
+  min-width: 115px;
   color: #3c4043;
 }
 
@@ -1520,7 +1558,7 @@
   padding: 20px;
   border: 2px solid #e1e5e9;
   border-radius: 12px;
-  margin: 0 24px 24px 24px;
+  margin: 0 0 24px 0;
   background: #fff;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -1619,6 +1657,23 @@
   margin: 0;
 }
 
+/* Screenshot card default shadow and transitions */
+.screenshot-card {
+  /* use the requested shadow; keep transitions for transform + shadow */
+  box-shadow: 0 2px 8px rgb(0 0 0 / 16%);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+[data-theme="dark"] .screenshot-card {
+  /* stronger shadow in dark mode for better visibility */
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%);
+}
+
+/* Dark-mode hover shadow */
+[data-theme="dark"] .screenshot-card:hover {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 60%);
+}
+
 .pagination-footer {
   display: flex;
   align-items: center;
@@ -1626,6 +1681,7 @@
   padding: 12px 24px;
   border-top: 1px solid #dadce0;
   background: #f8f9fa;
+  border-radius: 0 0 12px 12px;
   font-size: 13px;
 }
 

@@ -1,7 +1,9 @@
 ﻿import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { getApiBaseURL } from '../../../config/api';
 import ImageModal from '../common/ImageModal';
+import Tooltip from '../../../components/common/Tooltip';
 import './ActivityStream.css';
 import {
   Container,
@@ -218,7 +220,7 @@ const getProfilePhotoUrl = (user) => {
 };
 
 // Main component
-const ActivityStream = () => {
+const ActivityStream = ({ compactPadding }) => {
   const { t, language } = useLanguage();
   const [showHelp, setShowHelp] = useState(false);
   const helpRef = useRef(null);
@@ -255,6 +257,9 @@ const ActivityStream = () => {
   const [isLoadingAllScreenshots, setIsLoadingAllScreenshots] = useState(false); // Loading state for all screenshots
   const [syncStaffsUsers, setSyncStaffsUsers] = useState([]); // Users from sync-staffs API
   const [filteredUsers, setFilteredUsers] = useState([]); // Filtered users for search
+  // Theme context (used for Tooltip theming/positioning)
+  const themeContext = useTheme && useTheme();
+  const { theme: tooltipTheme = {} } = themeContext || {};
   
   // Modal state for image viewing
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -2701,13 +2706,41 @@ const ActivityStream = () => {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      <Container>
+  <Container dashboard={compactPadding}>
       <Title>
         {t('realTimeActivityStream')}
-        <span className="help-icon" ref={helpRef}>
-     
-         
-        </span>
+        {/* Use the shared Tooltip component for the signal icon so the tooltip is positioned and themed consistently */}
+  <Tooltip text={t('realTimeActivityStream')} theme={tooltipTheme} icon="">
+          <span className="help-icon" ref={helpRef} aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '6px' }}>
+            {/* Local SVG matching the attached 'signal stream' icon: symmetric left/right arcs + center dot */}
+            <svg
+              width="22.5"
+              height="22.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible', transform: 'translateY(0.5px)' }}
+              aria-hidden="true"
+              focusable="false"
+              role="img"
+            >
+              {/* center dot */}
+              <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+
+              {/* inner arcs (radius 3.5) - right and left */}
+              <path d="M12 8.5 A3.5 3.5 0 0 1 12 15.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              <path d="M12 8.5 A3.5 3.5 0 0 0 12 15.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+              {/* middle arcs (radius 6) - right and left */}
+              <path d="M12 6 A6 6 0 0 1 12 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.98" />
+              <path d="M12 6 A6 6 0 0 0 12 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.98" />
+
+              {/* outer small accent arcs to emulate the thicker outer parentheses look (radius 8.2) */}
+              <path d="M12 4 A8.2 8.2 0 0 1 12 20" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9" />
+              <path d="M12 4 A8.2 8.2 0 0 0 12 20" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9" />
+            </svg>
+          </span>
+        </Tooltip>
       </Title>
 
       <SelectContainer>
@@ -2834,8 +2867,23 @@ const ActivityStream = () => {
           ref={searchContainerRef}
           className="search-container-relative"
         >
+          <style>{`
+            .search-input-relative .activity-search-input { background-color: #ffffff !important; color: var(--text-primary) !important; padding-right: 30px !important; }
+            .dark-theme .search-input-relative .activity-search-input,
+            [data-theme="dark"] .search-input-relative .activity-search-input { background-color: #1e293b !important; color: #ffffff !important; padding-right: 30px !important; }
+
+            /* User section background: white by default, dark variant in dark mode */
+            .user-section-wrapper { background-color: #ffffff !important; border-radius: 8px !important; }
+            .dark-theme .user-section-wrapper,
+            [data-theme="dark"] .user-section-wrapper { background-color: #1d232c !important; border-radius: 8px !important; }
+            /* Make only the user list scrollable so header stays fixed */
+            .search-dropdown .dropdown-relative { display: flex; flex-direction: column; }
+            .search-dropdown .dropdown-header { flex: 0 0 auto; padding: 8px 12px; border-bottom: 1px solid var(--border-color); }
+            .search-dropdown .user-list { flex: 1 1 auto; overflow-y: auto; max-height: 300px; }
+          `}</style>
           <div className="search-input-relative">
             <SearchInput
+              className="activity-search-input"
               type="text"
               placeholder="Search users by name or email (All users shown below) ↓"
               value={searchValue}
@@ -2898,90 +2946,92 @@ const ActivityStream = () => {
           {showResults && (
             <div className="search-dropdown">
               <div className="dropdown-relative">
-              {/* Header */}
-              <div className="dropdown-header">
-                {searchValue 
-                  ? `🔍 Search Results for "${searchValue}" (${filteredUsers.length} found)` 
-                  : `� Available Users (${syncStaffsUsers.length})`
-                }
-              </div>
-              
-              {/* User List */}
-              {filteredUsers.map((user, index) => {
-                const profilePhotoUrl = getProfilePhotoUrl(user);
-                
-                return (
-                  <div
-                    key={user.email}
-                    onClick={() => handleUserSelect(user)}
-                    className="user-item"
-                  >
-                    <div className="user-item-content">
-                      <div className="user-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
-                        {profilePhotoUrl ? (
-                          <>
-                            <img 
-                              src={profilePhotoUrl} 
-                              alt={user.display_name || user.username}
-                              style={{ 
-                                width: '100%', 
-                                height: '100%', 
-                                objectFit: 'cover',
-                                borderRadius: 'inherit',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0
-                              }}
-                              onError={(e) => {
-                                // Hide the broken image and show fallback
-                                e.target.style.display = 'none';
-                                const fallback = e.target.nextSibling;
-                                if (fallback) {
-                                  fallback.style.display = 'flex';
-                                }
-                              }}
-                            />
-                            <div style={{ 
-                              display: 'none',
-                              width: '100%',
-                              height: '100%',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '20px',
-                              fontWeight: '600'
-                            }}>
-                              {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
-                            </div>
-                          </>
-                        ) : (
-                          <div style={{ 
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '20px',
-                            fontWeight: '600'
-                          }}>
-                            {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
+                {/* Header */}
+                <div className="dropdown-header">
+                  {searchValue 
+                    ? `🔍 Search Results for "${searchValue}" (${filteredUsers.length} found)` 
+                    : `👥 Available Users (${syncStaffsUsers.length})`
+                  }
+                </div>
+
+                {/* User List - make this the only scrollable area so header stays fixed */}
+                <div className="user-list">
+                  {filteredUsers.map((user, index) => {
+                    const profilePhotoUrl = getProfilePhotoUrl(user);
+                    
+                    return (
+                      <div
+                        key={user.email}
+                        onClick={() => handleUserSelect(user)}
+                        className="user-item"
+                      >
+                        <div className="user-item-content">
+                          <div className="user-avatar" style={{ position: 'relative', overflow: 'hidden' }}>
+                            {profilePhotoUrl ? (
+                              <>
+                                <img 
+                                  src={profilePhotoUrl} 
+                                  alt={user.display_name || user.username}
+                                  style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                    borderRadius: 'inherit',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0
+                                  }}
+                                  onError={(e) => {
+                                    // Hide the broken image and show fallback
+                                    e.target.style.display = 'none';
+                                    const fallback = e.target.nextSibling;
+                                    if (fallback) {
+                                      fallback.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                                <div style={{ 
+                                  display: 'none',
+                                  width: '100%',
+                                  height: '100%',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '20px',
+                                  fontWeight: '600'
+                                }}>
+                                  {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
+                                </div>
+                              </>
+                            ) : (
+                              <div style={{ 
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '20px',
+                                fontWeight: '600'
+                              }}>
+                                {(user.display_name || user.username || user.email || '').charAt(0).toUpperCase()}
+                              </div>
+                            )}
                           </div>
-                        )}
+                          <div className="user-info-flex">
+                            <div className="user-name-primary">
+                              {user.display_name || user.username}
+                            </div>
+                            <div className="user-email-secondary">
+                              {user.email}
+                            </div>
+                            <div className="user-stats-small">
+                              {user.job_position ? `💼 ${user.job_position}` : '👤 Click to load data'}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="user-info-flex">
-                        <div className="user-name-primary">
-                          {user.display_name || user.username}
-                        </div>
-                        <div className="user-email-secondary">
-                          {user.email}
-                        </div>
-                        <div className="user-stats-small">
-                          {user.job_position ? `💼 ${user.job_position}` : '👤 Click to load data'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
               </div>
               
               {/* Loading State */}
@@ -3147,9 +3197,6 @@ const ActivityStream = () => {
                         backgroundColor: 'white',
                         border: '1px solid #e1e5e9',
                         borderRadius: '12px',
-                        overflow: 'hidden',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                        transition: 'transform 0.2s, box-shadow 0.2s',
                         cursor: 'pointer'
                       }}
                       className="screenshot-card"
@@ -3561,7 +3608,7 @@ const ActivityStream = () => {
           // Show all users' screenshots instead of empty state
           <div style={{ 
             flex: 1, 
-            padding: '20px',
+            padding: '0px 20px 20px 20px',
             overflowY: 'auto'
           }}>
             {isLoadingAllScreenshots ? (
@@ -3925,11 +3972,29 @@ const ActivityStream = () => {
                 style={{
                   maxWidth: '100%',
                   maxHeight: '100%',
-                  objectFit: 'contain'
+                  objectFit: 'contain',
+                  width: '100%',
+                  borderColor: selectedUser ? '#28a745' : undefined,
+                  borderWidth: selectedUser ? '2px' : undefined,
+                  backgroundColor: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#1e293b' : '#ffffff',
+                  color: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#ffffff' : 'var(--text-primary)'
                 }}
                 onLoad={() => console.log('✅ Simple modal image loaded')}
                 onError={(e) => console.error('❌ Simple modal image error:', e)}
               />
+            )}
+            {selectedUser && (
+              <div style={{
+                position: 'absolute',
+                right: '10px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#28a745',
+                fontSize: '18px',
+                pointerEvents: 'none'
+              }}>
+                ✓
+              </div>
             )}
 
             {/* Right Arrow */}

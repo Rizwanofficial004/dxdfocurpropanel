@@ -75,6 +75,44 @@ body {
   border-color: var(--border-color);
 }
 
+/* Specific overrides for header controls that should use the header input color
+   (higher specificity than the generic .dark-theme input rule). This ensures
+   styled-component generated inputs (e.g. class `dNRWdg`) keep the exact
+   header-style colors you want. */
+.dark-theme input.dNRWdg,
+.dark-theme .dNRWdg {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Also support the data-theme attribute usage (some parts of the app use
+   [data-theme="dark"] instead of the .dark-theme class). This ensures the
+   override applies regardless of how dark mode is applied to the document. */
+[data-theme="dark"] input.dNRWdg,
+[data-theme="dark"] .dNRWdg {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Target header input via stable data-role attribute to avoid relying on generated
+   class names from styled-components. This ensures the header input uses the
+   exact colors you want in dark mode. */
+.dark-theme input[data-role="header-input"],
+.dark-theme input[data-role="header-input"]::placeholder {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] input[data-role="header-input"],
+[data-theme="dark"] input[data-role="header-input"]::placeholder {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
 .dark-theme input::placeholder,
 .dark-theme textarea::placeholder {
   color: var(--text-tertiary);

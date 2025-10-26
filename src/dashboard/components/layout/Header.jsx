@@ -116,8 +116,9 @@ const SearchContainer = styled.div`
 `;
 
 const SearchBox = styled.input`
-  background: ${props => props.theme.colors.background || '#f9fafb'};
-  border: 1px solid ${props => props.theme.colors.border || '#e5e7eb'};
+  /* Use exact dark header input color when dark mode is active */
+  background: ${props => props.$isDark ? '#0f172a' : (props.theme.colors.background || '#f9fafb')};
+  border: 1px solid ${props => props.$isDark ? '#334155' : (props.theme.colors.border || '#e5e7eb')};
   border-radius: 6px;
   padding: 8px 12px 8px 36px;
   color: ${props => props.theme.colors.text.primary || '#111827'};
@@ -211,10 +212,11 @@ const LanguageSelector = styled.div`
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  border: 1px solid ${props => props.theme.colors.border || '#e5e7eb'};
+  /* Use exact dark header input color when dark mode is active */
+  border: 1px solid ${props => props.$isDark ? '#334155' : (props.theme.colors.border || '#e5e7eb')};
   border-radius: 6px;
   cursor: pointer;
-  background: ${props => props.theme.colors.surface || '#ffffff'};
+  background: ${props => props.$isDark ? '#0f172a' : (props.theme.colors.surface || '#ffffff')};
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
   font-size: 13px;
   font-weight: 500;
@@ -222,7 +224,7 @@ const LanguageSelector = styled.div`
   position: relative;
 
   &:hover {
-    background: ${props => props.theme.colors.background || '#f9fafb'};
+    background: ${props => props.$isDark ? '#111827' : (props.theme.colors.background || '#f9fafb')};
     border-color: ${props => props.theme.colors.primary || '#4f46e5'};
   }
 
@@ -852,9 +854,19 @@ export const Header = ({
         </LeftSection>
 
         <RightSection>
+          <SearchContainer>
+            <SearchIcon>
+              <SearchIconSVG />
+            </SearchIcon>
+            <SearchBox $isDark={isDarkMode} data-role="header-input" placeholder={t('searchHere')} />
+          </SearchContainer>
+
           <DropdownContainer ref={languageRef}>
             <LanguageSelector 
               $isOpen={isLanguageOpen}
+              style={{ 
+                  backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc'
+                }}
               onClick={() => setIsLanguageOpen(!isLanguageOpen)}
             >
               <span>{currentLanguage.flag}</span>

@@ -18,7 +18,7 @@ const DashboardContainer = styled.div`
   min-height: 100vh;
   padding: ${props => props.theme.spacing.lg} 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: background-color 0.3s ease;
 
   &::before {
@@ -154,7 +154,7 @@ const Dashboard = () => {
 
           {/* For Activity Stream */}
           <ContentSection theme={theme}>
-            <ActivityStream />
+            <ActivityStream compactPadding />
           </ContentSection>
 
            {/* For Announcement Table  */}
