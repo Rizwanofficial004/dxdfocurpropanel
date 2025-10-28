@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import {
   Container,
@@ -38,6 +39,7 @@ import {
 
 const EmployeeReports = () => {
   const { theme, isDarkMode } = useTheme();
+  const { t } = useLanguage();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,6 +47,9 @@ const EmployeeReports = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
   const [totalCount, setTotalCount] = useState(0);
+  const [editingInterval, setEditingInterval] = useState(null);
+  const [intervalValue, setIntervalValue] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   // Fetch employees from API
   useEffect(() => {
@@ -141,20 +146,55 @@ const EmployeeReports = () => {
     console.log('Add new employee');
   };
 
-  const handleResetPassword = (employeeId) => {
-    console.log('Reset password for employee:', employeeId);
-  };
-
   const handleViewReport = (employeeId) => {
     console.log('View report for employee:', employeeId);
   };
 
-  const handleToggleScreenshot = (employeeId) => {
-    console.log('Toggle screenshot for employee:', employeeId);
+  const handleEditInterval = (employee) => {
+    setEditingInterval(employee.staff_id);
+    setIntervalValue(employee.screenshot_interval || 0);
   };
 
-  const handleToggleDashboard = (employeeId) => {
-    console.log('Toggle dashboard access for employee:', employeeId);
+  const handleCancelEdit = () => {
+    setEditingInterval(null);
+    setIntervalValue('');
+  };
+
+  const handleSaveInterval = async (employee) => {
+    try {
+      setUpdating(true);
+      const response = await fetch(`/api/update-staff/${employee.staff_id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          screenshot_interval: parseInt(intervalValue, 10)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Update local state
+      setEmployees(prevEmployees =>
+        prevEmployees.map(emp =>
+          emp.staff_id === employee.staff_id
+            ? { ...emp, screenshot_interval: parseInt(intervalValue, 10) }
+            : emp
+        )
+      );
+
+      setEditingInterval(null);
+      setIntervalValue('');
+      console.log('✅ Screenshot interval updated successfully');
+    } catch (error) {
+      console.error('Error updating screenshot interval:', error);
+      alert('Failed to update screenshot interval. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleClearFilter = () => {
@@ -162,23 +202,23 @@ const EmployeeReports = () => {
   };
 
   return (
-    <DashboardLayout headerTitle="Employees" headerBreadcrumb="Dashboard / Employees">
+    <DashboardLayout headerTitle={t('employees')} headerBreadcrumb={`${t('dashboard')} / ${t('employees')}`}>
       <Container isDarkMode={isDarkMode}>
         <Header isDarkMode={isDarkMode}>
-          <Title isDarkMode={isDarkMode}>EMPLOYEES</Title>
+          <Title isDarkMode={isDarkMode}>{t('employees').toUpperCase()}</Title>
           <NewEmployeeButton isDarkMode={isDarkMode} onClick={handleNewEmployee}>
-            + NEW EMPLOYEE
+            {t('newEmployee')}
           </NewEmployeeButton>
         </Header>
 
         <ContentWrapper isDarkMode={isDarkMode}>
           {/* Search Section */}
           <SearchSection>
-            <SearchLabel isDarkMode={isDarkMode}>SEARCH</SearchLabel>
+            <SearchLabel isDarkMode={isDarkMode}>{t('search').toUpperCase()}</SearchLabel>
             <SearchInput
               isDarkMode={isDarkMode}
               type="text"
-              placeholder="Search employees..."
+              placeholder={t('searchEmployeeName')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -189,26 +229,25 @@ const EmployeeReports = () => {
             <Table>
               <TableHead isDarkMode={isDarkMode}>
                 <TableRow>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '160px' }}>NAME ⬆</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '80px' }}>STATUS</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>DESIGNATION</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '120px', textAlign: 'center' }}>SCREENSHOT INTERVAL</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>LAST LOGIN ⓘ</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '140px', textAlign: 'center' }}>DASHBOARD ACCESS ⓘ</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '280px', textAlign: 'center' }}>ACTIONS</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '160px' }}>{t('name')} ⬆</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '80px' }}>{t('status').toUpperCase()}</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>{t('designation').toUpperCase()}</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '180px', textAlign: 'center' }}>{t('screenshotInterval').toUpperCase()}</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>{t('lastLogin').toUpperCase()} ⓘ</TableHeader>
+                  <TableHeader isDarkMode={isDarkMode} style={{ width: '140px', textAlign: 'center' }}>{t('actions').toUpperCase()}</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {loading ? (
                   <TableRow>
                     <EmptyStateCell isDarkMode={isDarkMode} colSpan={7}>
-                      Loading employees...
+                      {t('loadingEmployees')}
                     </EmptyStateCell>
                   </TableRow>
                 ) : currentEmployees.length === 0 ? (
                   <TableRow>
-                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={7}>
-                      No employees found
+                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={6}>
+                      {t('noEmployeesFound')}
                     </EmptyStateCell>
                   </TableRow>
                 ) : (
@@ -283,61 +322,121 @@ const EmployeeReports = () => {
                           </div>
                         </TableCell>
                         <TableCell isDarkMode={isDarkMode}>
-                          <StatusBadge isDarkMode={isDarkMode} $status="active">Active</StatusBadge>
+                          <StatusBadge isDarkMode={isDarkMode} $status="active">{t('active')}</StatusBadge>
                         </TableCell>
                       <TableCell isDarkMode={isDarkMode}>{getJobPosition(employee.job_position)}</TableCell>
                       <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
-                        <div style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          padding: '4px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
-                          border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: isDarkMode ? '#60a5fa' : '#2563eb'
-                        }}>
-                          <span>⏱️</span>
-                          <span>{employee.screenshot_interval || 0} mins</span>
-                        </div>
+                        {editingInterval === employee.staff_id ? (
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            gap: '8px'
+                          }}>
+                            <input
+                              type="number"
+                              min="0"
+                              max="60"
+                              value={intervalValue}
+                              onChange={(e) => setIntervalValue(e.target.value)}
+                              style={{
+                                width: '70px',
+                                padding: '6px 10px',
+                                borderRadius: '6px',
+                                border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.3)'}`,
+                                backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'white',
+                                color: isDarkMode ? '#e0e0e0' : '#0f172a',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                outline: 'none',
+                                textAlign: 'center'
+                              }}
+                              disabled={updating}
+                              autoFocus
+                            />
+                            <span style={{ fontSize: '12px', color: isDarkMode ? '#94a3b8' : '#64748b' }}>
+                              {t('mins')}
+                            </span>
+                            <button
+                              onClick={() => handleSaveInterval(employee)}
+                              disabled={updating}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                border: 'none',
+                                backgroundColor: '#10b981',
+                                color: 'white',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: updating ? 'not-allowed' : 'pointer',
+                                opacity: updating ? 0.6 : 1,
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {updating ? '...' : '✓'}
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              disabled={updating}
+                              style={{
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                border: 'none',
+                                backgroundColor: isDarkMode ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: updating ? 'not-allowed' : 'pointer',
+                                opacity: updating ? 0.6 : 1,
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ) : (
+                          <div 
+                            onClick={() => handleEditInterval(employee)}
+                            style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '8px',
+                              padding: '6px 14px',
+                              borderRadius: '6px',
+                              backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                              border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              color: isDarkMode ? '#60a5fa' : '#2563eb',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = isDarkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(59, 130, 246, 0.12)';
+                              e.currentTarget.style.transform = 'scale(1.02)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)';
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }}
+                            title={t('edit')}
+                          >
+                            <span>⏱️</span>
+                            <span>{employee.screenshot_interval || 0} {t('mins')}</span>
+                            <span style={{ fontSize: '11px', opacity: 0.7 }}>✏️</span>
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell isDarkMode={isDarkMode}>{formatDate(employee.updated_at)}</TableCell>
-                      <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                          <ToggleSwitch>
-                            <ToggleInput
-                              type="checkbox"
-                              defaultChecked={true}
-                              onChange={() => handleToggleDashboard(employee.id)}
-                            />
-                            <ToggleSlider isDarkMode={isDarkMode} />
-                          </ToggleSwitch>
-                          {isManager(employee.job_position) && (
-                            <span style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic' }}>
-                              Manager
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
                       <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'nowrap', width: '100%' }}>
                           <ActionButton
                             isDarkMode={isDarkMode}
-                            $variant="reset"
-                            onClick={() => handleResetPassword(employee.id)}
-                            title="Reset Password"
-                          >
-                            🔒 RESET PASSWORD
-                          </ActionButton>
-                          <ActionButton
-                            isDarkMode={isDarkMode}
                             $variant="view"
                             onClick={() => handleViewReport(employee.id)}
-                            title="View Report"
+                            title={t('viewReport')}
                           >
-                            📊 VIEW REPORT
+                            📊 {t('viewReport')}
                           </ActionButton>
                         </div>
                       </TableCell>
@@ -353,7 +452,7 @@ const EmployeeReports = () => {
           <PaginationWrapper>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '14px', color: isDarkMode ? '#e0e0e0' : '#666' }}>
-                Employees per page:
+                {t('employeesPerPage')}
               </span>
               <PageSelect
                 isDarkMode={isDarkMode}
@@ -371,7 +470,7 @@ const EmployeeReports = () => {
             </div>
             
             <PaginationInfo isDarkMode={isDarkMode}>
-              {startIndex + 1} – {Math.min(endIndex, filteredEmployees.length)} of {filteredEmployees.length}
+              {startIndex + 1} – {Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length}
             </PaginationInfo>
             
             <PaginationControls>

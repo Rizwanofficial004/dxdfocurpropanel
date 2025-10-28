@@ -268,6 +268,31 @@ const ActivityStream = ({ compactPadding }) => {
     label: getMonthName(i + 1, language)
   }));
 
+  // Auto-scroll to today's date when component mounts or month/year changes
+  useEffect(() => {
+    if (!isLoading && dateScrollRef.current && activeDate) {
+      // Small delay to ensure DOM is fully rendered
+      const timer = setTimeout(() => {
+        // Calculate the scroll position based on the active date
+        const dateNumber = parseInt(activeDate, 10);
+        const dateWidth = 120; // Width of each date element
+        const containerWidth = dateScrollRef.current.offsetWidth;
+        
+        // Calculate scroll position to center the selected date
+        // Each date is 120px wide, so multiply by (dateNumber - 1) to get the position
+        const scrollPosition = (dateNumber - 1) * dateWidth - (containerWidth / 2) + (dateWidth / 2);
+        
+        // Scroll to the calculated position
+        dateScrollRef.current.scrollTo({
+          left: Math.max(0, scrollPosition),
+          behavior: 'smooth'
+        });
+      }, 500); // Increased delay to ensure everything is rendered
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, selectedYear, selectedMonth, activeDate]);
+
   // Enhanced API-based user search function with better error handling and retry logic
   const searchUsersFromAPI = async (query = '', limit = 10, offset = 0, retryCount = 0, startDate = null, endDate = null) => {
     setIsSearching(true);
@@ -2685,11 +2710,11 @@ const ActivityStream = ({ compactPadding }) => {
           ))}
         </Select>
         <Select value={screenshotsPerPage} onChange={handleScreenshotsPerPageChange}>
-          <option value={50}>50 per page</option>
-          <option value={100}>100 per page</option>
-          <option value={200}>200 per page</option>
-          <option value={500}>500 per page</option>
-          <option value={1000}>1000 per page</option>
+          <option value={50}>50 {t('perPage')}</option>
+          <option value={100}>100 {t('perPage')}</option>
+          <option value={200}>200 {t('perPage')}</option>
+          <option value={500}>500 {t('perPage')}</option>
+          <option value={1000}>1000 {t('perPage')}</option>
         </Select>
       </SelectContainer>
 
@@ -2815,7 +2840,7 @@ const ActivityStream = ({ compactPadding }) => {
             <SearchInput
               className="activity-search-input"
               type="text"
-              placeholder="Search users by name or email (All users shown below) ↓"
+              placeholder={t('searchUsersByName')}
               value={searchValue}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
@@ -2879,8 +2904,8 @@ const ActivityStream = ({ compactPadding }) => {
                 {/* Header */}
                 <div className="dropdown-header">
                   {searchValue 
-                    ? `🔍 Search Results for "${searchValue}" (${filteredUsers.length} found)` 
-                    : `👥 Available Users (${syncStaffsUsers.length})`
+                    ? `🔍 ${t('searchResultsFor')} "${searchValue}" (${filteredUsers.length} ${t('found')})` 
+                    : `👥 ${t('availableUsers')} (${syncStaffsUsers.length})`
                   }
                 </div>
 
@@ -2954,7 +2979,7 @@ const ActivityStream = ({ compactPadding }) => {
                               {user.email}
                             </div>
                             <div className="user-stats-small">
-                              {user.job_position ? `💼 ${user.job_position}` : '👤 Click to load data'}
+                              {user.job_position ? `💼 ${user.job_position}` : `👤 ${t('clickToLoadData')}`}
                             </div>
                           </div>
                         </div>
@@ -2969,7 +2994,7 @@ const ActivityStream = ({ compactPadding }) => {
                 <div className="loading-container">
                   <div className="loading-content">
                     <div className="loading-spinner">⏳</div>
-                    <div>Loading users...</div>
+                    <div>{t('loadingUsers')}</div>
                   </div>
                 </div>
               )}
@@ -2978,7 +3003,7 @@ const ActivityStream = ({ compactPadding }) => {
               {!isSearching && memoizedSearchResults.length === 0 && (
                 <div className="no-results-container">
                   <div className="no-results-icon">🔍</div>
-                  <div>No users with screenshots found{searchValue ? ` for "${searchValue}"` : ''}</div>
+                  <div>{t('noUsersWithScreenshots')}{searchValue ? ` ${t('searchResultsFor').toLowerCase()} "${searchValue}"` : ''}</div>
                   {!searchValue && (
                     <button
                       onClick={async () => {
@@ -2999,7 +3024,7 @@ const ActivityStream = ({ compactPadding }) => {
                       }}
                       className="retry-button"
                     >
-                      🔄 Load Users
+                      🔄 {t('loadUsers')}
                     </button>
                   )}
                 </div>
@@ -3011,47 +3036,6 @@ const ActivityStream = ({ compactPadding }) => {
         {/* Right Side Content - Screenshots or Empty State */}
         {selectedUser ? (
           <div className="user-section-wrapper">
-            {/* Always show user header and content */}
-            <div className="user-panel-header">
-              <div>
-                <h3 className="user-panel-title">
-                  {selectedUser.display_name || selectedUser.email}
-                </h3>
-                <p className="user-email-secondary">
-                  Activity Stream - {getFullMonthName(selectedMonth, language)} {selectedYear}
-                  {activeDate && ` (Day ${activeDate})`}
-                </p>
-                {totalScreenshots > 0 && (
-                  <div className="user-details-container">
-                    <div className="user-meta-info">
-                      📊 {totalScreenshots} total screenshots found
-                    </div>
-                    <div className="user-stats-info">
-                      Currently viewing {userScreenshots.length} screenshots • Page {currentPage} of {totalPages}
-                      {currentPage < totalPages && (
-                        <span className="screenshot-count">
-                          • {Math.min(screenshotsPerPage, totalScreenshots - (currentPage * screenshotsPerPage))} more available
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedUser(null);
-                  setUserScreenshots([]);
-                  setAllScreenshots([]);
-                  setTotalScreenshots(0);
-                  setCurrentPage(1);
-                  setSearchValue('');
-                }}
-                className="close-button"
-              >
-                ✕
-              </button>
-            </div>
-
             {/* Screenshots Loading */}
                 {isLoadingScreenshots && (
               <div style={{
@@ -3071,7 +3055,7 @@ const ActivityStream = ({ compactPadding }) => {
                   animation: 'spin 1s linear infinite',
                   marginBottom: '16px'
                 }}></div>
-                <p>Loading screenshots...</p>
+                <p>{t('loadingScreenshots')}</p>
                 <style>{`
                   @keyframes spin {
                     0% { transform: rotate(0deg); }
@@ -3105,7 +3089,7 @@ const ActivityStream = ({ compactPadding }) => {
                     cursor: 'pointer'
                   }}
                 >
-                  Retry
+                  {t('retry')}
                 </button>
               </div>
             )}
@@ -3343,13 +3327,13 @@ const ActivityStream = ({ compactPadding }) => {
                   }}>
                     <div>
                       {totalScreenshots > 0 ? (
-                        <strong>📊 Showing {userScreenshots.length} of {totalScreenshots} total screenshots</strong>
+                        <strong>📊 {t('showingOf')} {userScreenshots.length} {t('of')} {totalScreenshots} {t('totalScreenshots')}</strong>
                       ) : (
-                        <strong>📷 No screenshots found for the selected period</strong>
+                        <strong>📷 {t('noScreenshotsForPeriod')}</strong>
                       )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                      <label htmlFor="screenshots-per-page" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>Screenshots per page:</label>
+                      <label htmlFor="screenshots-per-page" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>{t('screenshotsPerPage')}</label>
                       <select 
                         id="screenshots-per-page"
                         value={screenshotsPerPage} 
@@ -3365,11 +3349,11 @@ const ActivityStream = ({ compactPadding }) => {
                           cursor: 'pointer'
                         }}
                       >
-                        <option value={50}>50 per page</option>
-                        <option value={100}>100 per page</option>
-                        <option value={200}>200 per page</option>
-                        <option value={500}>500 per page</option>
-                        <option value={1000}>1000 per page</option>
+                        <option value={50}>50 {t('perPage')}</option>
+                        <option value={100}>100 {t('perPage')}</option>
+                        <option value={200}>200 {t('perPage')}</option>
+                        <option value={500}>500 {t('perPage')}</option>
+                        <option value={1000}>1000 {t('perPage')}</option>
                       </select>
                     </div>
                   </div>
@@ -3400,7 +3384,7 @@ const ActivityStream = ({ compactPadding }) => {
                           transition: 'all 0.2s'
                         }}
                       >
-                        « First
+                        « {t('first')}
                       </button>
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
@@ -3417,7 +3401,7 @@ const ActivityStream = ({ compactPadding }) => {
                           transition: 'all 0.2s'
                         }}
                       >
-                        ‹ Previous
+                        ‹ {t('previous')}
                       </button>
                       
                       <div style={{
@@ -3426,7 +3410,7 @@ const ActivityStream = ({ compactPadding }) => {
                         color: 'var(--text-primary)',
                         padding: '8px 16px'
                       }}>
-                        Page {currentPage} of {totalPages}
+                        {t('page')} {currentPage} {t('of')} {totalPages}
                       </div>
                       
                       <button
@@ -3444,7 +3428,7 @@ const ActivityStream = ({ compactPadding }) => {
                           transition: 'all 0.2s'
                         }}
                       >
-                        Next ›
+                        {t('next')} ›
                       </button>
                       <button
                         onClick={() => handlePageChange(totalPages)}
@@ -3461,7 +3445,7 @@ const ActivityStream = ({ compactPadding }) => {
                           transition: 'all 0.2s'
                         }}
                       >
-                        Last »
+                        {t('last')} »
                       </button>
                     </div>
                   )}
@@ -3478,7 +3462,7 @@ const ActivityStream = ({ compactPadding }) => {
                     color: 'var(--text-tertiary)'
                   }}>
                     <div>
-                      🕒 Last updated: {new Date().toLocaleTimeString()}
+                      🕒 {t('lastUpdated')} {new Date().toLocaleTimeString()}
                     </div>
                     <button
                       onClick={() => {
@@ -3498,7 +3482,7 @@ const ActivityStream = ({ compactPadding }) => {
                         fontWeight: '500'
                       }}
                     >
-                      🔄 Refresh
+                      🔄 {t('refresh')}
                     </button>
                   </div>
                 </div>
@@ -3516,7 +3500,7 @@ const ActivityStream = ({ compactPadding }) => {
                 color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
-                <p>No screenshots found for this period</p>
+                <p>{t('noScreenshotsFound')}</p>
                 <button
                   onClick={() => refreshUserDataFromAPI(selectedUser)}
                   style={{
@@ -3529,7 +3513,7 @@ const ActivityStream = ({ compactPadding }) => {
                     cursor: 'pointer'
                   }}
                 >
-                  Refresh
+                  {t('refresh')}
                 </button>
               </div>
             )}
@@ -3551,7 +3535,7 @@ const ActivityStream = ({ compactPadding }) => {
                 color: 'var(--text-secondary)'
               }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
-                <p>Loading screenshots for all users...</p>
+                <p>{t('loadingScreenshots')}</p>
               </div>
             ) : allUsersScreenshots.length > 0 ? (
               <div>
@@ -3566,14 +3550,14 @@ const ActivityStream = ({ compactPadding }) => {
                     fontWeight: '600',
                     color: 'var(--text-primary)'
                   }}>
-                    All Users Activity - {getFullMonthName(selectedMonth, language)} {selectedYear}
+                    {t('allUsersActivity')} - {getFullMonthName(selectedMonth, language)} {selectedYear}
                   </h3>
                   <p style={{ 
                     margin: '4px 0 0 0', 
                     fontSize: '14px', 
                     color: 'var(--text-secondary)'
                   }}>
-                    📊 {allUsersScreenshots.length} users with activity found
+                    📊 {allUsersScreenshots.length} {t('usersWithActivity')}
                   </p>
                 </div>
                 
@@ -3628,7 +3612,7 @@ const ActivityStream = ({ compactPadding }) => {
                             fontSize: '12px',
                             color: 'var(--text-secondary)'
                           }}>
-                            {userScreenshotData.totalCount} screenshots
+                            {userScreenshotData.totalCount} {t('screenshots')}
                           </div>
                         </div>
                       </div>
@@ -3715,7 +3699,7 @@ const ActivityStream = ({ compactPadding }) => {
                             cursor: 'pointer'
                           }}
                         >
-                          View All {userScreenshotData.totalCount} Screenshots
+                          {t('viewAll')} {userScreenshotData.totalCount} {t('screenshots')}
                         </button>
                       )}
                     </div>
@@ -3729,7 +3713,7 @@ const ActivityStream = ({ compactPadding }) => {
                   <>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
                     <EmptyText>
-                      Searching for "{searchValue}"...
+                      {t('searchingFor')} "{searchValue}"...
                     </EmptyText>
                   </>
                 ) : error ? (
@@ -3755,14 +3739,14 @@ const ActivityStream = ({ compactPadding }) => {
                         cursor: 'pointer'
                       }}
                     >
-                      Retry Search
+                      {t('retrySearch')}
                     </button>
                   </>
                 ) : searchValue && searchResults.length === 0 ? (
                   <>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
                     <EmptyText>
-                      No users with screenshots found for "{searchValue}"
+                      {t('noUsersWithScreenshots')} {t('searchResultsFor').toLowerCase()} "{searchValue}"
                     </EmptyText>
                     <div style={{ 
                       fontSize: '12px', 
@@ -3770,16 +3754,16 @@ const ActivityStream = ({ compactPadding }) => {
                       marginTop: '8px',
                       textAlign: 'center'
                     }}>
-                      API Status: {apiStatus} | Results: {searchResults.length}
+                      {t('apiStatus')}: {apiStatus} | {t('results')}: {searchResults.length}
                       <br/>
-                      Try searching for: "k", "haseeb", "nawaz"
+                      {t('trySearchingFor')} "k", "haseeb", "nawaz"
                     </div>
                   </>
                 ) : searchValue && searchResults.length > 0 ? (
                   <>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
                     <EmptyText>
-                      {`Found ${searchResults.length} user(s) for "${searchValue}"`}
+                      {`${t('found')} ${searchResults.length} user(s) ${t('searchResultsFor').toLowerCase()} "${searchValue}"`}
                       <br/>
                       {t('selectUserToView')}
                     </EmptyText>
@@ -3788,7 +3772,7 @@ const ActivityStream = ({ compactPadding }) => {
                   <>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
                     <EmptyText style={{ marginTop: '16px' }}>
-                      Welcome to the Activity Stream
+                      {t('welcomeActivityStream')}
                     </EmptyText>
                     <div style={{ 
                       fontSize: '14px', 
@@ -3797,9 +3781,9 @@ const ActivityStream = ({ compactPadding }) => {
                       textAlign: 'center',
                       maxWidth: '400px'
                     }}>
-                      <p>📋 Click the search box above to see all available users</p>
-                      <p>� Type a name or email to search specific users</p>
-                      <p>📊 Select any user to view their detailed activity and screenshots</p>
+                      <p>📋 {t('clickSearchBox')}</p>
+                      <p>🔍 {t('typeNameOrEmail')}</p>
+                      <p>📊 {t('selectAnyUser')}</p>
                     </div>
                   </>
                 )}

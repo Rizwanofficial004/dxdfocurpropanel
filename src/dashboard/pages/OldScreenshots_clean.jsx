@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { useLanguage } from '../context/LanguageContext';
 
 const OldScreenshots = () => {
+  const { t, translations } = useLanguage();
   const [currentDate] = useState(new Date());
   const [screenshots, setScreenshots] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -105,13 +107,13 @@ const OldScreenshots = () => {
             marginBottom: '10px',
             textShadow: '0 2px 4px rgba(0,0,0,0.3)'
           }}>
-            📷 Real Time Activity Stream
+            📷 {t('oldScreenshotsHeader')}
           </h1>
           <p style={{
             fontSize: '1.1rem',
             opacity: 0.9
           }}>
-            Monitor live screenshots and user activity
+            {t('oldScreenshotsSubheader')}
           </p>
         </div>
 
@@ -133,10 +135,9 @@ const OldScreenshots = () => {
             <h3 style={{
               marginBottom: '15px',
               fontSize: '1.2rem'
-            }}>📅 Quick Filters</h3>
-            
+            }}>📅 {t('quickFilters')}</h3>
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Year</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>{t('year')}</label>
               <select style={{
                 width: '100%',
                 padding: '8px',
@@ -150,9 +151,8 @@ const OldScreenshots = () => {
                 <option>2023</option>
               </select>
             </div>
-
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Month</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>{t('month')}</label>
               <select style={{
                 width: '100%',
                 padding: '8px',
@@ -166,12 +166,11 @@ const OldScreenshots = () => {
                 <option>July</option>
               </select>
             </div>
-
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>User Search</label>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>{t('userSearch')}</label>
               <input 
                 type="text" 
-                placeholder="Search users..."
+                placeholder={t('searchUsers')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -184,7 +183,6 @@ const OldScreenshots = () => {
                 }}
               />
             </div>
-
             <div style={{
               padding: '15px',
               background: 'rgba(255, 255, 255, 0.05)',
@@ -192,9 +190,9 @@ const OldScreenshots = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '2rem', marginBottom: '5px' }}>📊</div>
-              <div style={{ fontSize: '0.9rem' }}>Live Statistics</div>
+              <div style={{ fontSize: '0.9rem' }}>{t('liveStatistics')}</div>
               <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '5px' }}>{screenshots.length}</div>
-              <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>Screenshots Today</div>
+              <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>{t('screenshotsToday')}</div>
             </div>
           </div>
 
@@ -214,7 +212,7 @@ const OldScreenshots = () => {
               alignItems: 'center',
               gap: '10px'
             }}>
-              📸 Live Activity Feed
+              📸 {t('liveActivityFeed')}
               <span style={{
                 background: '#10b981',
                 color: 'white',
@@ -222,7 +220,7 @@ const OldScreenshots = () => {
                 padding: '2px 8px',
                 borderRadius: '12px',
                 fontWeight: 'bold'
-              }}>LIVE</span>
+              }}>{t('live')}</span>
             </h3>
 
             {/* Calendar Grid */}
@@ -235,7 +233,7 @@ const OldScreenshots = () => {
               padding: '15px',
               borderRadius: '8px'
             }}>
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              {translations.calendarDays.map(day => (
                 <div key={day} style={{
                   textAlign: 'center',
                   fontWeight: 'bold',
@@ -246,7 +244,6 @@ const OldScreenshots = () => {
                   {day}
                 </div>
               ))}
-              
               {calendarDays.map((dayObj, i) => (
                 <div key={i} style={{
                   background: dayObj.isToday ? '#10b981' : 
@@ -335,7 +332,6 @@ const OldScreenshots = () => {
                 </div>
               ))}
             </div>
-
             {screenshots.length === 0 && (
               <div style={{
                 textAlign: 'center',
@@ -343,9 +339,9 @@ const OldScreenshots = () => {
                 opacity: 0.7
               }}>
                 <div style={{ fontSize: '3rem', marginBottom: '10px' }}>📷</div>
-                <div>No screenshots available</div>
+                <div>{t('noScreenshots')}</div>
                 <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>
-                  Screenshots will appear here as users are active
+                  {t('screenshotsWillAppear')}
                 </div>
               </div>
             )}

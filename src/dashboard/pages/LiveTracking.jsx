@@ -377,13 +377,13 @@ const LiveTracking = () => {
           <div className="unified-header">
             {/* Left: Title with Help Icon */}
             <div className="header-left-section">
-              <h1 className="page-title">LIVE TRACKING</h1>
+              <h1 className="page-title">{t('liveTrackingTitle')}</h1>
               <span className="help-icon-circle" ref={helpRef}>
                 <button
                   className="help-button"
                   onClick={(e) => { e.stopPropagation(); setShowHelp(prev => !prev); }}
                   aria-expanded={showHelp}
-                  aria-label="Live Tracking Help"
+                  aria-label={t('liveTracking')}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"></path>
@@ -391,14 +391,12 @@ const LiveTracking = () => {
                   </svg>
                 </button>
                 {showHelp && (
-                  <div className="help-popover" role="dialog" aria-label="Live Tracking Help">
-                    <p><strong>Live Tracking</strong></p>
-                    <p>Access real-time employee status updates and instant insights through easy screenshot viewing.</p>
+                  <div className="help-popover" role="dialog" aria-label={t('liveTracking')}>
+                    <p><strong>{t('liveTracking')}</strong></p>
+                    <p>{t('liveTrackingHelp')}</p>
                     <ul>
-                      <li>Select "A specific team or all teams" from the dropdown menu</li>
-                      <li>View current date and timer for real-time viewing</li>
-                      <li>Click employee name for detailed report</li>
-                      <li>Click screenshot to enlarge</li>
+                      <li>{t('chooseTeam')}</li>
+                      <li>{t('viewReport')}</li>
                     </ul>
                   </div>
                 )}
@@ -408,7 +406,7 @@ const LiveTracking = () => {
             {/* Center: Team Filter */}
             <div className="header-center-section">
               <div className="team-filter">
-                <label htmlFor="team-select">Choose a team ({teams.length} teams)</label>
+                <label htmlFor="team-select">{t('chooseTeam')} ({teams.length} {t('teams').toLowerCase()})</label>
                 <select 
                   id="team-select" 
                   className="team-dropdown"
@@ -417,13 +415,13 @@ const LiveTracking = () => {
                     setSelectedTeam(e.target.value);
                   }}
                 >
-                  <option value="all">All Teams</option>
+                  <option value="all">{t('allTeams')}</option>
                   {teams.length > 0 ? (
                     teams.map(team => (
                       <option key={team} value={team}>{team}</option>
                     ))
                   ) : (
-                    <option disabled>Loading teams...</option>
+                    <option disabled>{t('loadingTeams')}</option>
                   )}
                 </select>
               </div>
@@ -450,16 +448,16 @@ const LiveTracking = () => {
             {loading && (
               <div className="loading-container">
                 <div className="spinner"></div>
-                <p>Loading screenshots data...</p>
+                <p>{t('loadingScreenshotsData')}</p>
                 <div style={{ 
                   fontSize: '12px', 
                   color: '#666', 
                   marginTop: '8px',
                   textAlign: 'center'
                 }}>
-                  Processing {apiData?.data?.summary?.s3_files || '11,000+'} files across {apiData?.data?.summary?.s3_users || '5'} users...
+                  {t('processingFiles')} {apiData?.data?.summary?.s3_files || '11,000+'} {t('filesAcross')} {apiData?.data?.summary?.s3_users || '5'} {t('users')}...
                   <br />
-                  This may take 30-60 seconds for large datasets.
+                  {t('mayTake')}
                 </div>
               </div>
             )}
@@ -470,7 +468,7 @@ const LiveTracking = () => {
                   <span className="error-icon">⚠️</span>
                   <p>{error}</p>
                   <button onClick={fetchLiveTrackingData} className="retry-button">
-                    Retry
+                    {t('retry')}
                   </button>
                 </div>
               </div>
@@ -488,7 +486,7 @@ const LiveTracking = () => {
                     </div>
                   </div>
                 </div>
-                <p className="no-data-text">No users data available</p>
+                <p className="no-data-text">{t('noUsersDataAvailable')}</p>
               </div>
             )}
 

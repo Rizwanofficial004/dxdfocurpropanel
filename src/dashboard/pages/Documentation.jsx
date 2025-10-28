@@ -180,8 +180,7 @@ const Documentation = () => {
     { id: 'overview', label: 'Project Overview' },
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'live-tracking', label: 'Live Tracking' },
-    { id: 'logs-report', label: 'Logs Report' },
-    { id: 'quick-view', label: 'Quick View' },
+        { id: 'quick-view', label: 'Quick View' },
     { id: 'image-modal', label: 'Image Modal' },
     { id: 'settings', label: 'Settings' },
     { id: 'api-integration', label: 'API Integration' },
@@ -199,7 +198,7 @@ const Documentation = () => {
           <ul>
             <li><strong>📊 Dashboard:</strong> Central hub with overview widgets and statistics</li>
             <li><strong>🛰️ Live Tracking:</strong> Real-time employee activity monitoring with screenshots</li>
-            <li><strong>📺 Logs Report:</strong> Activity stream with calendar view and session logs</li>
+
             <li><strong>👁️ Quick View:</strong> Quick access to employee data and activities</li>
             <li><strong>⚙️ Settings:</strong> System configuration and preferences</li>
             <li><strong>📷 Image Modal:</strong> Enhanced image viewing with animations and download</li>
@@ -287,39 +286,6 @@ const Documentation = () => {
           
           <h4>🔒 Privacy & Compliance</h4>
           <p>All monitoring is conducted with employee awareness and compliance with privacy regulations. Screenshots are captured at configurable intervals.</p>
-        `
-      },
-      'logs-report': {
-        title: '📺 Logs Report (Activity Stream)',
-        content: `
-          <h3>Session Logs & Activity Timeline</h3>
-          <p>The Logs Report component provides a comprehensive view of employee session logs with calendar interface and activity timeline.</p>
-          
-          <h4>📅 Calendar Interface</h4>
-          <ul>
-            <li><strong>Date Selection:</strong> Click on any date to view logs for that day</li>
-            <li><strong>Month Navigation:</strong> Navigate between months using arrow controls</li>
-            <li><strong>Activity Indicators:</strong> Days with activity are highlighted</li>
-          </ul>
-          
-          <h4>🔍 Search & Filter</h4>
-          <ul>
-            <li><strong>Employee Search:</strong> Filter logs by specific employees</li>
-            <li><strong>Date Range:</strong> Select custom date ranges for analysis</li>
-            <li><strong>Activity Type:</strong> Filter by different types of activities</li>
-          </ul>
-          
-          <h4>📊 Session Data</h4>
-          <p>Each session log includes:</p>
-          <ul>
-            <li>Session start and end times</li>
-            <li>Total duration and productivity metrics</li>
-            <li>Application usage statistics</li>
-            <li>Screenshots and activity snapshots</li>
-          </ul>
-          
-          <h4>🔄 Data Source</h4>
-          <p>Session logs are retrieved from S3 storage with automatic refresh and caching for optimal performance.</p>
         `
       },
       'quick-view': {
