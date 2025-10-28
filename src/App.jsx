@@ -511,16 +511,7 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  <Route
-                    path="/dashboard/activity-stream"
-                    element={
-                      <ProtectedRoute>
-                        <Suspense fallback={<FallbackTimeLogActivityStream />}>
-                          <TimeLogActivityStream />
-                        </Suspense>
-                      </ProtectedRoute>
-                    }
-                  />
+
                   <Route
                     path="/dashboard/employee-reports"
                     element={

@@ -784,7 +784,7 @@ const QuickView = () => {
   const getStatusInfo = (status) => {
     const statusMap = {
       'Active': {
-        text: 'AT WORK',
+        text: t('atWork'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 576 512" fill="white">
             {/* Font Awesome - fa-desktop (Masaüstü PC) */}
@@ -793,7 +793,7 @@ const QuickView = () => {
         )
       },
       'Available': {
-        text: 'AVAILABLE',
+        text: t('available'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -803,31 +803,15 @@ const QuickView = () => {
         )
       },
       'In Meeting': {
-        text: 'IN MEETING',
+        text: t('inMeeting'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 640 512" fill="white">
             <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z"/>
           </svg>
         )
       },
-      // 'On Break': {
-      //   text: 'ON BREAK',
-      //   icon: (
-      //     <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
-      //       <path d="M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32V416c0 53 43 96 96 96H288c53 0 96-43 96-96h16c61.9 0 112-50.1 112-112s-50.1-112-112-112H352 32zm352 64h16c26.5 0 48 21.5 48 48s-21.5 48-48 48H384V256zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"/>
-      //     </svg>
-      //   )
-      // },
-      // 'Idle': {
-      //   text: 'IDLE',
-      //   icon: (
-      //     <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
-      //       <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344V280H168c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V168c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H280v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"/>
-      //     </svg>
-      //   )
-      // },
       'Holiday': {
-        text: 'HOLIDAY',
+        text: t('holiday'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
             <path d="M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"/>
@@ -835,7 +819,7 @@ const QuickView = () => {
         )
       },
       'Week Off': {
-        text: 'WEEK OFF',
+        text: t('weekOff'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 448 512" fill="white">
             <path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zm80 64c-8.8 0-16 7.2-16 16v96c0 8.8 7.2 16 16 16h96c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H80z"/>
@@ -843,7 +827,7 @@ const QuickView = () => {
         )
       },
       'Inactive': {
-        text: 'OFF',
+        text: t('offStatus'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
             <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"/>
@@ -1199,8 +1183,8 @@ const QuickView = () => {
         {/* Page Header */}
         <PageHeader>
           <TitleSection>
-            <PageTitle theme={theme}>QUICK VIEW</PageTitle>
-            <Tooltip text="Effortlessly access a comprehensive report to quickly view the current status of all your organization's employees in a single glance." theme={theme}>
+            <PageTitle theme={theme}>{t('quickViewTitle')}</PageTitle>
+            <Tooltip text={t('quickViewTooltip')} theme={theme}>
               {/* <InfoIcon theme={theme}>ⓘ</InfoIcon> */}
             </Tooltip>
           </TitleSection>
@@ -1211,14 +1195,14 @@ const QuickView = () => {
               <SearchInput
                 theme={theme}
                 type="text"
-                placeholder="SEARCH"
+                placeholder={t('search').toUpperCase()}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </LeftControls>
             
             <RightControls>
-              <DateLabel theme={theme}>SELECT DATE</DateLabel>
+              <DateLabel theme={theme}>{t('selectDate').toUpperCase()}</DateLabel>
               <DateInput
                 theme={theme}
                 type="date"
@@ -1242,8 +1226,8 @@ const QuickView = () => {
           
           {loading && (
             <LoadingMessage theme={theme}>
-              <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>�</span>
-              {' '}Loading employee data for <strong>{selectedDate}</strong>...
+              <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>🔄</span>
+              {' '}{t('loadingEmployeeData')} <strong>{selectedDate}</strong>...
             </LoadingMessage>
           )}
           
@@ -1264,7 +1248,7 @@ const QuickView = () => {
                   fontSize: '12px'
                 }}
               >
-                Retry
+                {t('retry')}
               </button>
             </ErrorMessage>
           )}
@@ -1285,8 +1269,8 @@ const QuickView = () => {
             }}>
               <span style={{ fontSize: '16px' }}>✅</span>
               <span>
-                Successfully loaded <strong>{employeesData.length} employees</strong> for {' '}
-                <strong>{new Date(selectedDate).toLocaleDateString('en-US', { 
+                {t('successfullyLoaded')} <strong>{employeesData.length} {t('employees').toLowerCase()}</strong> {t('employeesFor')} {' '}
+                <strong>{new Date(selectedDate).toLocaleDateString(t('language') === 'tr' ? 'tr-TR' : 'en-US', { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
@@ -1308,8 +1292,8 @@ const QuickView = () => {
               border: `1px solid ${theme.colors.border}`
             }}>
               <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-              <div style={{ fontWeight: '600', marginBottom: '4px' }}>No data found for {selectedDate}</div>
-              <div style={{ fontSize: '12px' }}>Try selecting a different date to view employee data</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px' }}>{t('noDataFound')} {selectedDate}</div>
+              <div style={{ fontSize: '12px' }}>{t('tryDifferentDate')}</div>
             </div>
           )}
         </PageHeader>
@@ -1320,28 +1304,28 @@ const QuickView = () => {
             <Table>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
-                  <TableHeader theme={theme} $align="left">STATUS</TableHeader>
+                  <TableHeader theme={theme} $align="left">{t('status').toUpperCase()}</TableHeader>
                   <TableHeader 
                     theme={theme} 
                     $align="left" 
                     style={{ cursor: 'pointer', userSelect: 'none' }}
                     onClick={() => handleSort('name')}
                   >
-                    EMPLOYEE NAME {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    {t('employeeName').toUpperCase()} {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Total time employee has been logged into the system" theme={theme} icon="">
-                      LOGGED TIME ⓘ
+                    <Tooltip text={t('totalTimeLogged')} theme={theme} icon="">
+                      {t('loggedTime').toUpperCase()} ⓘ
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Time actively spent working" theme={theme} icon="">
-                      ACTIVE TIME ⓘ
+                    <Tooltip text={t('timeActivelyWorking')} theme={theme} icon="">
+                      {t('activeTime').toUpperCase()} ⓘ
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Time spent on productive activities" theme={theme} icon="">
-                      PRODUCTIVE
+                    <Tooltip text={t('timeProductiveActivities')} theme={theme} icon="">
+                      {t('productive').toUpperCase()}
                     </Tooltip>
                   </TableHeader>
                   {/* <TableHeader theme={theme} $align="center">
@@ -1355,8 +1339,8 @@ const QuickView = () => {
                     </Tooltip>
                   </TableHeader> */}
                   <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Time spent in meetings" theme={theme} icon="">
-                      MEETING
+                    <Tooltip text={t('timeMeetings')} theme={theme} icon="">
+                      {t('meeting').toUpperCase()}
                     </Tooltip>
                   </TableHeader>
                   {/* <TableHeader theme={theme} align="center">
@@ -1463,7 +1447,7 @@ const QuickView = () => {
                   <TableRow theme={theme}>
                     <TableCell theme={theme} colSpan="6">
                       <EmptyStateCell theme={theme}>
-                        {loading ? '🔄 Loading employees...' : 'No employees found.'}
+                        {loading ? `🔄 ${t('loadingEmployees')}` : t('noEmployeesFound')}
                       </EmptyStateCell>
                     </TableCell>
                   </TableRow>
@@ -1476,7 +1460,7 @@ const QuickView = () => {
         {/* Pagination */}
         <PaginationContainer>
           <PaginationInfo>
-            <span>Employees per page:</span>
+            <span>{t('employeesPerPage')}</span>
             <ItemsPerPageSelector
               value={itemsPerPage}
               onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -1487,8 +1471,8 @@ const QuickView = () => {
             </ItemsPerPageSelector>
             <span>
               {sortedEmployees.length > 0 
-                ? `${startIndex + 1} – ${Math.min(endIndex, sortedEmployees.length)} of ${sortedEmployees.length}`
-                : '0 – 0 of 0'
+                ? `${startIndex + 1} – ${Math.min(endIndex, sortedEmployees.length)} ${t('of')} ${sortedEmployees.length}`
+                : `0 – 0 ${t('of')} 0`
               }
             </span>
           </PaginationInfo>
@@ -1497,7 +1481,7 @@ const QuickView = () => {
             <PaginationButton
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              title="First page"
+              title={t('page') + ' 1'}
             >
               «
             </PaginationButton>
@@ -1505,7 +1489,7 @@ const QuickView = () => {
             <PaginationButton
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              title="Previous page"
+              title={t('previous')}
             >
               ‹
             </PaginationButton>
@@ -1517,7 +1501,7 @@ const QuickView = () => {
             <PaginationButton
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              title="Next page"
+              title={t('next')}
             >
               ›
             </PaginationButton>
@@ -1525,7 +1509,7 @@ const QuickView = () => {
             <PaginationButton
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
-              title="Last page"
+              title={t('page') + ' ' + totalPages}
             >
               »
             </PaginationButton>
