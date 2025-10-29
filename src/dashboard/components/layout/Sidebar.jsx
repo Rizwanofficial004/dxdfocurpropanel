@@ -272,9 +272,9 @@ export const Sidebar = ({ isCollapsed = false }) => {
   const navigationItems = [
     { icon: "📊", label: t('dashboard').toUpperCase(), path: "/dashboard", isActive: true },
     { icon: "🛰️", label: t('liveTracking').toUpperCase(), path: "/dashboard/live-tracking" },
-    { icon: "📷", label: t('oldScreenshots').toUpperCase(), path: "/dashboard/old-screenshots" },
+    // { icon: "📷", label: t('oldScreenshots').toUpperCase(), path: "/dashboard/old-screenshots" },
     { icon: "👁️", label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
-    { icon: "⏰", label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
+    // { icon: "⏰", label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
     { icon: "👥", label: t('employees').toUpperCase(), path: "/dashboard/employee-reports" },
     // { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
     { icon: "📚", label: t('documentation').toUpperCase(), path: "/dashboard/documentation" },

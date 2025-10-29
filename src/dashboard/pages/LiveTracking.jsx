@@ -404,28 +404,6 @@ const LiveTracking = () => {
             </div>
 
             {/* Center: Team Filter */}
-            <div className="header-center-section">
-              <div className="team-filter">
-                <label htmlFor="team-select">{t('chooseTeam')} ({teams.length} {t('teams').toLowerCase()})</label>
-                <select 
-                  id="team-select" 
-                  className="team-dropdown"
-                  value={selectedTeam}
-                  onChange={(e) => {
-                    setSelectedTeam(e.target.value);
-                  }}
-                >
-                  <option value="all">{t('allTeams')}</option>
-                  {teams.length > 0 ? (
-                    teams.map(team => (
-                      <option key={team} value={team}>{team}</option>
-                    ))
-                  ) : (
-                    <option disabled>{t('loadingTeams')}</option>
-                  )}
-                </select>
-              </div>
-            </div>
 
             {/* Right: Date and Time */}
             <div className="header-right-section">

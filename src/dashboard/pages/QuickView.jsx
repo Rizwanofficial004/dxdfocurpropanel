@@ -7,7 +7,7 @@ import Tooltip from '../../components/common/Tooltip';
 
 // Main Page Wrapper
 const EmployeesPageWrapper = styled.div`
-  background: ${props => props.theme.colors.background};
+  // background: ${props => props.theme.colors.background};
   min-height: 100vh;
   transition: background-color 0.3s ease;
   width: 100%;
@@ -371,7 +371,7 @@ const TableWrapper = styled.div`
 `;
 
 const TableContainer = styled.div`
-  background: ${props => props.theme.colors.cardBackground};
+  // background: ${props => props.theme.colors.cardBackground};
   border-radius: 8px;
   border: 1px solid ${props => props.theme.colors.border};
   transition: all 0.3s ease;

@@ -316,7 +316,7 @@
 
 /* Dark mode live tracking page */
 [data-theme="dark"] .live-tracking-page {
-  background-color: #0f172a;
+  background-color: transparent;
 }
 
 .live-tracking-card {
@@ -1570,7 +1570,7 @@ html.dark-theme .time-badge {
 }
 
 [data-theme="dark"] .content-area {
-  background: #1d232c;
+  background: transparent;
   border-color: #6b7280;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
