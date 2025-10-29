@@ -43,6 +43,7 @@ const EmployeeReport = () => {
         position: staff.job_position || 'N/A',
         status: staff.active === '1' || staff.active === 1 || staff.active === true ? 'Active' : 'Inactive',
         loginStatus: staff.is_logged_in === '1' ? 'Logged In' : 'Logged Out',
+        idleTime: staff.idle_time || '0h 0m', // Add idle time from API
       }));
 
       setEmployeesData(employees);
@@ -184,6 +185,13 @@ const EmployeeReport = () => {
               <TimeSection>
                 <TimeLabel theme={theme}>LOGGED TIME</TimeLabel>
                 <TimeValue theme={theme}>9h 50m ⓘ</TimeValue>
+              </TimeSection>
+
+              {/* Idle Time Section */}
+              <TimeSection>
+                <TimeLabel theme={theme}>IDLE TIME</TimeLabel>
+                <IdleTimeValue theme={theme}>{selectedEmployee?.idleTime || '0h 29m'} ⓘ</IdleTimeValue>
+                <IdlePercentage theme={theme}>4.92% of total time</IdlePercentage>
               </TimeSection>
 
               {/* Active Hours Section */}
@@ -518,7 +526,7 @@ const HoursCard = styled.div`
 
 const HoursRow = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr 1fr;
+  grid-template-columns: auto auto 1fr 1fr;
   gap: 24px;
 `;
 
@@ -541,6 +549,19 @@ const TimeValue = styled.div`
   font-size: 24px;
   font-weight: 700;
   color: ${props => props.theme.colors.primary};
+`;
+
+const IdleTimeValue = styled.div`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${props => props.theme.mode === 'dark' ? '#9e9e9e' : '#757575'};
+`;
+
+const IdlePercentage = styled.div`
+  font-size: 11px;
+  font-weight: 500;
+  color: ${props => props.theme.colors.text.secondary};
+  margin-top: 4px;
 `;
 
 const HoursSection = styled.div`

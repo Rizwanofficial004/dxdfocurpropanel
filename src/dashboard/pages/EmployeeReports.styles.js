@@ -50,7 +50,7 @@ export const NewEmployeeButton = styled.button`
 `;
 
 export const ContentWrapper = styled.div`
-  background: ${props => props.isDarkMode ? '#1a1f2e' : '#ffffff'};
+  background: ${props => props.isDarkMode ? 'none' : 'none'};
   border: 1px solid ${props => props.isDarkMode ? '#2d3748' : '#e2e8f0'};
   border-top: none;
   padding: 24px 32px;
@@ -153,7 +153,7 @@ export const TableWrapper = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: ${props => props.isDarkMode ? '#0f1419' : '#f1f5f9'};
+    background: ${props => props.isDarkMode ? 'none' : 'none'};
   }
 
   &::-webkit-scrollbar-thumb {
@@ -170,7 +170,7 @@ export const Table = styled.table`
 `;
 
 export const TableHead = styled.thead`
-  background: ${props => props.isDarkMode ? '#0f1419' : '#f8fafc'};
+  background: ${props => props.isDarkMode ? 'none' : 'none'};
   border-bottom: 2px solid ${props => props.isDarkMode ? '#374151' : '#cbd5e1'};
 `;
 
@@ -182,7 +182,7 @@ export const TableRow = styled.tr`
 
   &:hover {
     /* Use a subtle light overlay in dark mode (not solid white) so text remains visible */
-    background: ${props => props.isDarkMode ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc'};
+    background: ${props => props.isDarkMode ? 'none' : '#f8fafc'};
   }
 `;
 

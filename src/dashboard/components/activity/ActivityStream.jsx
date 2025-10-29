@@ -1193,9 +1193,9 @@ const ActivityStream = ({ compactPadding }) => {
         setApiStatus('connected');
         return allFoundUsers;
       } else {
-        console.log('❌ No users with screenshots found with any strategy');
+        
         setApiStatus('disconnected');
-        setError('No users with screenshots found in the system');
+        
         return [];
       }
     } catch (error) {

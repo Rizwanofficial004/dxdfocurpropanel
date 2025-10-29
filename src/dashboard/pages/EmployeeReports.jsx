@@ -136,10 +136,17 @@ const EmployeeReports = () => {
   });
 
   // Pagination
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentEmployees = filteredEmployees.slice(startIndex, endIndex);
+
+  // Reset to page 1 if current page exceeds total pages
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
 
   // Handlers (non-functional for now)
   const handleNewEmployee = () => {
@@ -234,19 +241,18 @@ const EmployeeReports = () => {
                   <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>{t('designation').toUpperCase()}</TableHeader>
                   <TableHeader isDarkMode={isDarkMode} style={{ width: '180px', textAlign: 'center' }}>{t('screenshotInterval').toUpperCase()}</TableHeader>
                   <TableHeader isDarkMode={isDarkMode} style={{ width: '110px' }}>{t('lastLogin').toUpperCase()} ⓘ</TableHeader>
-                  <TableHeader isDarkMode={isDarkMode} style={{ width: '140px', textAlign: 'center' }}>{t('actions').toUpperCase()}</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={7}>
+                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={5}>
                       {t('loadingEmployees')}
                     </EmptyStateCell>
                   </TableRow>
                 ) : currentEmployees.length === 0 ? (
                   <TableRow>
-                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={6}>
+                    <EmptyStateCell isDarkMode={isDarkMode} colSpan={5}>
                       {t('noEmployeesFound')}
                     </EmptyStateCell>
                   </TableRow>
@@ -428,18 +434,6 @@ const EmployeeReports = () => {
                         )}
                       </TableCell>
                       <TableCell isDarkMode={isDarkMode}>{formatDate(employee.updated_at)}</TableCell>
-                      <TableCell isDarkMode={isDarkMode} style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'nowrap', width: '100%' }}>
-                          <ActionButton
-                            isDarkMode={isDarkMode}
-                            $variant="view"
-                            onClick={() => handleViewReport(employee.id)}
-                            title={t('viewReport')}
-                          >
-                            📊 {t('viewReport')}
-                          </ActionButton>
-                        </div>
-                      </TableCell>
                     </TableRow>
                   );
                 })
@@ -470,35 +464,107 @@ const EmployeeReports = () => {
             </div>
             
             <PaginationInfo isDarkMode={isDarkMode}>
-              {startIndex + 1} – {Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length}
+              {filteredEmployees.length > 0 ? (
+                <>
+                  {startIndex + 1} – {Math.min(endIndex, filteredEmployees.length)} {t('of')} {filteredEmployees.length}
+                  <span style={{ 
+                    marginLeft: '12px', 
+                    padding: '4px 12px',
+                    borderRadius: '4px',
+                    backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                    border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: isDarkMode ? '#60a5fa' : '#2563eb'
+                  }}>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                </>
+              ) : (
+                '0 – 0 of 0'
+              )}
             </PaginationInfo>
             
             <PaginationControls>
               <PageButton
                 isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || filteredEmployees.length === 0}
+                title="First Page"
               >
                 ⟨⟨
               </PageButton>
               <PageButton
                 isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || filteredEmployees.length === 0}
+                title="Previous Page"
               >
                 ⟨
               </PageButton>
+              
+              {/* Page Number Input */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px',
+                margin: '0 8px'
+              }}>
+                <input
+                  type="number"
+                  min="1"
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = parseInt(e.target.value);
+                    if (page >= 1 && page <= totalPages) {
+                      setCurrentPage(page);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const page = parseInt(e.target.value);
+                    if (isNaN(page) || page < 1) {
+                      setCurrentPage(1);
+                    } else if (page > totalPages) {
+                      setCurrentPage(totalPages);
+                    }
+                  }}
+                  disabled={filteredEmployees.length === 0}
+                  style={{
+                    width: '50px',
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    border: `1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                    backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'white',
+                    color: isDarkMode ? '#e0e0e0' : '#0f172a',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    outline: 'none'
+                  }}
+                />
+                <span style={{ 
+                  fontSize: '13px', 
+                  color: isDarkMode ? '#94a3b8' : '#64748b',
+                  fontWeight: '500'
+                }}>
+                  {totalPages}
+                </span>
+              </div>
+              
               <PageButton
                 isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || filteredEmployees.length === 0}
+                title="Next Page"
               >
                 ⟩
               </PageButton>
               <PageButton
                 isDarkMode={isDarkMode}
                 onClick={() => setCurrentPage(totalPages)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || filteredEmployees.length === 0}
+                title="Last Page"
               >
                 ⟩⟩
               </PageButton>
