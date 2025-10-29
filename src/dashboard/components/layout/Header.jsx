@@ -13,7 +13,7 @@ const HeaderContainer = styled.header`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
-  z-index: 101;
+  z-index: 9999;
   margin-left: ${props => props.$isCollapsed ? '60px' : '240px'};
   transition: margin-left 0.25s ease;
 `;
