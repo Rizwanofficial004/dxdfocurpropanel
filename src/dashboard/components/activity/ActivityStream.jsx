@@ -2668,32 +2668,7 @@ const ActivityStream = ({ compactPadding }) => {
   <Tooltip text={t('realTimeActivityStream')} theme={tooltipTheme} icon="">
           <span className="help-icon" ref={helpRef} aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '6px' }}>
             {/* Local SVG matching the attached 'signal stream' icon: symmetric left/right arcs + center dot */}
-            <svg
-              width="22.5"
-              height="22.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ display: 'inline-block', verticalAlign: 'middle', overflow: 'visible', transform: 'translateY(0.5px)' }}
-              aria-hidden="true"
-              focusable="false"
-              role="img"
-            >
-              {/* center dot */}
-              <circle cx="12" cy="12" r="1.8" fill="currentColor" />
-
-              {/* inner arcs (radius 3.5) - right and left */}
-              <path d="M12 8.5 A3.5 3.5 0 0 1 12 15.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              <path d="M12 8.5 A3.5 3.5 0 0 0 12 15.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-
-              {/* middle arcs (radius 6) - right and left */}
-              <path d="M12 6 A6 6 0 0 1 12 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.98" />
-              <path d="M12 6 A6 6 0 0 0 12 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.98" />
-
-              {/* outer small accent arcs to emulate the thicker outer parentheses look (radius 8.2) */}
-              <path d="M12 4 A8.2 8.2 0 0 1 12 20" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9" />
-              <path d="M12 4 A8.2 8.2 0 0 0 12 20" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.9" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
           </span>
         </Tooltip>
       </Title>
@@ -2892,7 +2867,6 @@ const ActivityStream = ({ compactPadding }) => {
                 fontSize: '18px',
                 pointerEvents: 'none'
               }}>
-                ✓
               </div>
             )}
           </div>
@@ -2991,12 +2965,10 @@ const ActivityStream = ({ compactPadding }) => {
               
               {/* Loading State */}
               {isSearching && (
-                <div className="loading-container">
-                  <div className="loading-content">
-                    <div className="loading-spinner">⏳</div>
-                    <div>{t('loadingUsers')}</div>
+                  <div className="loader-wrap">
+                    <div className="loader"></div>
+                    <div style={{marginTop:"7px"}}>{t('loadingUsers')}</div>
                   </div>
-                </div>
               )}
               
               {/* No Results */}
@@ -3770,7 +3742,6 @@ const ActivityStream = ({ compactPadding }) => {
                   </>
                 ) : (
                   <>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
                     <EmptyText style={{ marginTop: '16px' }}>
                       {t('welcomeActivityStream')}
                     </EmptyText>
@@ -3801,7 +3772,7 @@ const ActivityStream = ({ compactPadding }) => {
           left: 0,
           width: '100vw',
           height: '100vh',
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
           zIndex: 99999,
@@ -3890,7 +3861,7 @@ const ActivityStream = ({ compactPadding }) => {
                   width: '100%',
                   borderColor: selectedUser ? '#28a745' : undefined,
                   borderWidth: selectedUser ? '2px' : undefined,
-                  backgroundColor: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#1e293b' : '#ffffff',
+                  backgroundColor: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#1e293b' : 'transparent',
                   color: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#ffffff' : 'var(--text-primary)'
                 }}
                 onLoad={() => console.log('✅ Simple modal image loaded')}
@@ -3907,7 +3878,7 @@ const ActivityStream = ({ compactPadding }) => {
                 fontSize: '18px',
                 pointerEvents: 'none'
               }}>
-                ✓
+
               </div>
             )}
 
@@ -3962,7 +3933,6 @@ const ActivityStream = ({ compactPadding }) => {
             textAlign: 'center',
             wordBreak: 'break-all'
           }}>
-            URL: {modalImages[currentImageIndex] || 'No URL'}
           </div>
 
           {/* Instructions */}

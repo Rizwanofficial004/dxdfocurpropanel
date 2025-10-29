@@ -14,7 +14,7 @@ import WelcomeModal from '../components/common/WelcomeModal';
 import '../styles/globalSliders.css';
 
 const DashboardContainer = styled.div`
-  background: ${props => props.theme.colors.background};
+  // background: ${props => props.theme.colors.background};
   min-height: 100vh;
   padding: ${props => props.theme.spacing.lg} 0;
   position: relative;

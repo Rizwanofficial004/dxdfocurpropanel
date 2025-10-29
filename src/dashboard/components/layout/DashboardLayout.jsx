@@ -14,16 +14,15 @@ const LayoutContainer = styled.div`
 `;
 
 const LayoutBody = styled.div`
-  display: flex;
   flex: 1;
 `;
 
 const MainContent = styled.main`
   flex: 1;
-  overflow-x: hidden;
   background: transparent;
   min-height: calc(100vh - 80px);
   position: relative;
+  z-index:999;
   margin-left: ${props => props.$isSidebarCollapsed ? '60px' : '240px'};
   margin-right: ${props => props.$isRightSidebarExpanded ? '280px' : '60px'};
   transition: margin-left 0.3s ease, margin-right 0.3s ease;
