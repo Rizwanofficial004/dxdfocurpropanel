@@ -53,7 +53,7 @@ export const ContentWrapper = styled.div`
   background: ${props => props.isDarkMode ? 'none' : 'none'};
   border: 1px solid ${props => props.isDarkMode ? '#2d3748' : '#e2e8f0'};
   border-top: none;
-  padding: 24px 32px;
+  padding: 24px 0px;
   min-height: calc(100vh - 200px);
   overflow-x: auto;
 `;

@@ -213,9 +213,9 @@ const EmployeeReports = () => {
       <Container isDarkMode={isDarkMode}>
         <Header isDarkMode={isDarkMode}>
           <Title isDarkMode={isDarkMode}>{t('employees').toUpperCase()}</Title>
-          <NewEmployeeButton isDarkMode={isDarkMode} onClick={handleNewEmployee}>
+          {/* <NewEmployeeButton isDarkMode={isDarkMode} onClick={handleNewEmployee}>
             {t('newEmployee')}
-          </NewEmployeeButton>
+          </NewEmployeeButton> */}
         </Header>
 
         <ContentWrapper isDarkMode={isDarkMode}>
@@ -509,6 +509,7 @@ const EmployeeReports = () => {
                 alignItems: 'center', 
                 gap: '6px',
                 margin: '0 8px'
+
               }}>
                 <input
                   type="number"
@@ -540,16 +541,11 @@ const EmployeeReports = () => {
                     fontSize: '13px',
                     fontWeight: '600',
                     textAlign: 'center',
+                    overflow: 'hidden',
                     outline: 'none'
                   }}
                 />
-                <span style={{ 
-                  fontSize: '13px', 
-                  color: isDarkMode ? '#94a3b8' : '#64748b',
-                  fontWeight: '500'
-                }}>
-                  {totalPages}
-                </span>
+             
               </div>
               
               <PageButton
