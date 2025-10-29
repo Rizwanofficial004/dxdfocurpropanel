@@ -1344,6 +1344,11 @@ const QuickView = () => {
                       {t('meeting').toUpperCase()}
                     </Tooltip>
                   </TableHeader>
+                  <TableHeader theme={theme} $align="center">
+                    <Tooltip text={t('timeIdle')} theme={theme} icon="">
+                      {t('idleTime').toUpperCase()} ⓘ
+                    </Tooltip>
+                  </TableHeader>
                   {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Break time taken by employee" theme={theme} icon="">
                       BREAK
@@ -1426,6 +1431,26 @@ const QuickView = () => {
                         </TimeText>
                       </TableCell>
                       
+                      <TableCell theme={theme} $align="center">
+                        <div style={{ 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '6px',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          backgroundColor: isDarkMode ? 'rgba(158, 158, 158, 0.1)' : 'rgba(158, 158, 158, 0.08)',
+                          border: `1px solid ${isDarkMode ? 'rgba(158, 158, 158, 0.3)' : 'rgba(158, 158, 158, 0.2)'}`,
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: isDarkMode ? '#9e9e9e' : '#757575',
+                        }}>
+                          <span>⏸️</span>
+                          <TimeText theme={theme} style={{ color: 'inherit' }}>
+                            {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
+                          </TimeText>
+                        </div>
+                      </TableCell>
+                      
                       {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
@@ -1446,7 +1471,7 @@ const QuickView = () => {
                   })
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="6">
+                    <TableCell theme={theme} colSpan="7">
                       <EmptyStateCell theme={theme}>
                         {loading ? <div className="loader-wrap">
                     <div className="loader" style={{width:"30px" , height:"30px"}}></div>
