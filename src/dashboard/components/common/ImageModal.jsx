@@ -588,16 +588,7 @@ const ImageModal = ({
               {/* Temporarily removed loading spinner for debugging */}
               
               {/* Simple test image */}
-              <div style={{ 
-                position: 'absolute', 
-                top: '10px', 
-                left: '10px', 
-                background: 'yellow', 
-                padding: '10px',
-                zIndex: 1000
-              }}>
-                URL: {imageUrl ? imageUrl.substring(0, 50) + '...' : 'No URL'}
-              </div>
+           
               
               <ModalImage
                 src={imageUrl}

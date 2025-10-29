@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import Tooltip from '../../components/common/Tooltip';
+import './QuickView.css';
 
 // Main Page Wrapper
 const EmployeesPageWrapper = styled.div`
@@ -1447,7 +1448,9 @@ const QuickView = () => {
                   <TableRow theme={theme}>
                     <TableCell theme={theme} colSpan="6">
                       <EmptyStateCell theme={theme}>
-                        {loading ? `🔄 ${t('loadingEmployees')}` : t('noEmployeesFound')}
+                        {loading ? <div className="loader-wrap">
+                    <div className="loader" style={{width:"30px" , height:"30px"}}></div>
+                  </div> : t('noEmployeesFound')}
                       </EmptyStateCell>
                     </TableCell>
                   </TableRow>

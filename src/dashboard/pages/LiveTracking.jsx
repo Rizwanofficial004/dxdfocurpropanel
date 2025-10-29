@@ -385,10 +385,7 @@ const LiveTracking = () => {
                   aria-expanded={showHelp}
                   aria-label={t('liveTracking')}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"></path>
-                    <circle cx="12" cy="9" r="2.5"></circle>
-                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ffffff"><path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>
                 </button>
                 {showHelp && (
                   <div className="help-popover" role="dialog" aria-label={t('liveTracking')}>
@@ -424,20 +421,9 @@ const LiveTracking = () => {
           <div className="live-tracking-card">
           <div className="content-area">
             {loading && (
-              <div className="loading-container">
-                <div className="spinner"></div>
-                <p>{t('loadingScreenshotsData')}</p>
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginTop: '8px',
-                  textAlign: 'center'
-                }}>
-                  {t('processingFiles')} {apiData?.data?.summary?.s3_files || '11,000+'} {t('filesAcross')} {apiData?.data?.summary?.s3_users || '5'} {t('users')}...
-                  <br />
-                  {t('mayTake')}
-                </div>
-              </div>
+              <div className="loader-wrap">
+                    <div className="loader" style={{width:"30px" , height:"30px"}}></div>
+                  </div>
             )}
 
             {error && (
@@ -772,8 +758,8 @@ const LiveTracking = () => {
           currentIndex={currentImageIndex}
           onClose={closeImageModal}
           onIndexChange={(newIndex) => setCurrentImageIndex(newIndex)}
-          theme="light"
-          isDarkMode={false}
+          theme="dark"
+          isDarkMode={true}
         />
       </div>
     </DashboardLayout>
