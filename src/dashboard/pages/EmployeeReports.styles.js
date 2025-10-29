@@ -182,7 +182,7 @@ export const TableRow = styled.tr`
 
   &:hover {
     /* Use a subtle light overlay in dark mode (not solid white) so text remains visible */
-    background: ${props => props.isDarkMode ? 'none' : '#f8fafc'};
+    background: ${props => props.isDarkMode ? 'none' : '#143556'};
   }
 `;
 
