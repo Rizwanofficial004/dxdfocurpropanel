@@ -1405,7 +1405,7 @@ const QuickView = () => {
                       <TableCell theme={theme} $align="center">
                         <ActiveTimeColumn>
                           <ProductivityCircle value={employee.productivity} theme={theme}>
-                            {employee.productivity > 0 ? `${employee.productivity}%` : '0%'}
+                            {employee.productivity > 0 ? `${employee.productivity}` : '0'}
                           </ProductivityCircle>
                           <TimeText theme={theme}>
                             {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
