@@ -15,7 +15,8 @@ const HeaderContainer = styled.header`
   top: 0;
   z-index: 9999;
   margin-left: ${props => props.$isCollapsed ? '60px' : '240px'};
-  transition: margin-left 0.25s ease;
+  transition: margin-left 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
+  will-change: background-color, border-color;
 `;
 
 const HeaderContent = styled(FlexContainer)`
@@ -39,6 +40,8 @@ const MenuButton = styled.button`
   align-items: center;
   justify-content: center;
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
+  transition: background-color 0.2s ease, color 0.2s ease;
+  will-change: background-color;
   
   &:hover {
     background: ${props => props.theme.colors.background || '#f9fafb'};
@@ -94,6 +97,8 @@ const LogoText = styled.span`
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary || '#111827'};
   display: ${props => props.$isCollapsed ? 'none' : 'inline'};
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const Greeting = styled.div`
@@ -103,6 +108,8 @@ const Greeting = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const RightSection = styled(FlexContainer)`
@@ -125,10 +132,12 @@ const SearchBox = styled.input`
   color: ${props => props.theme.colors.text.primary || '#111827'};
   font-size: 13px;
   width: 240px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  will-change: background-color, border-color, color;
 
   &::placeholder {
     color: ${props => props.theme.colors.text.light || '#9ca3af'};
+    transition: color 0.2s ease;
   }
 
   &:focus {
@@ -147,6 +156,8 @@ const SearchIcon = styled.div`
   justify-content: center;
   width: 16px;
   height: 16px;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const DropdownContainer = styled.div`
@@ -168,8 +179,13 @@ const DropdownMenu = styled.div`
   opacity: ${props => props.$isOpen ? 1 : 0};
   visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
   transform: ${props => props.$isOpen ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(0.95)'};
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              visibility 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease;
   transform-origin: top right;
+  will-change: opacity, transform, background-color, border-color;
 `;
 
 const DropdownItem = styled.div`
@@ -181,8 +197,9 @@ const DropdownItem = styled.div`
   color: ${props => props.theme.colors.text.primary || '#111827'};
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.2s ease;
   border-bottom: 1px solid ${props => props.theme.colors.border || '#e5e7eb'};
+  will-change: background-color, color;
 
   &:last-child {
     border-bottom: none;
@@ -221,8 +238,9 @@ const LanguageSelector = styled.div`
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
   position: relative;
+  will-change: background-color, border-color, color;
 
   &:hover {
     background: ${props => props.$isDark ? '#111827' : (props.theme.colors.background || '#f9fafb')};
@@ -246,7 +264,8 @@ const IconButton = styled.button`
   justify-content: center;
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  will-change: background-color, color;
   
   &:hover {
     background: ${props => props.theme.colors.background || '#f9fafb'};
@@ -269,8 +288,9 @@ const ProfileSection = styled(FlexContainer)`
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   position: relative;
+  will-change: background-color;
 
   &:hover {
     background: ${props => props.theme.colors.background || '#f9fafb'};
@@ -291,11 +311,15 @@ const UserName = styled.span`
   color: ${props => props.theme.colors.text.primary || '#111827'};
   font-weight: 600;
   font-size: 13px;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const UserRole = styled.span`
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
   font-size: 11px;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const Avatar = styled.div`
@@ -311,6 +335,8 @@ const Avatar = styled.div`
   font-size: 13px;
   border: 2px solid ${props => props.$isDark ? (props.theme.colors.surface || '#0f172a') : (props.theme.colors.border || '#e5e7eb')};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: border-color 0.2s ease, color 0.2s ease;
+  will-change: border-color, color;
 `;
 
 // Icons as simple SVG components
@@ -401,11 +427,15 @@ const ProfileName = styled.div`
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary || '#111827'};
   margin-bottom: 2px;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const ProfileEmail = styled.div`
   font-size: 13px;
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const StatusBadge = styled.div`
@@ -436,6 +466,8 @@ const NotificationTitle = styled.h3`
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary || '#111827'};
   margin: 0;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const NotificationCount = styled.span`
@@ -453,9 +485,10 @@ const NotificationItem = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.2s ease;
   border-bottom: 1px solid ${props => props.theme.colors.border || '#e5e7eb'};
   position: relative;
+  will-change: background-color;
 
   &:last-child {
     border-bottom: none;
@@ -514,11 +547,15 @@ const NotificationText = styled.div`
   color: ${props => props.theme.colors.text.primary || '#111827'};
   margin-bottom: 4px;
   line-height: 1.4;
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const NotificationTime = styled.div`
   font-size: 12px;
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 const NotificationFooter = styled.div`
@@ -536,7 +573,8 @@ const ViewAllButton = styled.button`
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  will-change: background-color;
 
   &:hover {
     background: ${props => props.theme.colors.background || '#f9fafb'};
@@ -547,6 +585,8 @@ const EmptyNotifications = styled.div`
   padding: 40px 20px;
   text-align: center;
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
+  transition: color 0.2s ease;
+  will-change: color;
 `;
 
 // Add theme toggle styled components
@@ -560,9 +600,10 @@ const ThemeToggleButton = styled.button`
   align-items: center;
   justify-content: center;
   color: ${props => props.theme.colors.text.secondary || '#6b7280'};
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   width: 36px;
   height: 36px;
+  will-change: background-color, border-color, color;
 
   &:hover {
     background: ${props => props.theme.colors.background || '#f9fafb'};

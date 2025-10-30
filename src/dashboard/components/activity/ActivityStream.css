@@ -610,12 +610,26 @@
   color: #9ca3af;
 }
 
-/* Screenshots Grid */
+/* Screenshots Grid - Force 4 columns */
 .screenshots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr) !important;
   gap: 16px;
   padding: 20px 0;
+}
+
+/* Only reduce columns on very small screens */
+@media (max-width: 768px) {
+  .screenshots-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .screenshots-grid {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
 }
 
 .screenshot-item {

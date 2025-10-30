@@ -3071,7 +3071,7 @@ const ActivityStream = ({ compactPadding }) => {
               <div data-screenshots-section>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
                   gap: '20px',
                   padding: '8px 0',
                   marginBottom: '30px'
