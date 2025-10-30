@@ -616,16 +616,6 @@ const NoDataText = styled.span`
   font-style: italic;
 `;
 
-const ActiveTimeColumn = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  min-width: 120px;
-  padding-left: 20px;
-`;
-
 const ProductivityColumn = styled.div`
   display: flex;
   align-items: center;
@@ -897,7 +887,6 @@ const QuickView = () => {
           staffId: user.staff_id || 'N/A',
           // QuickView API provides logged_time as formatted string (e.g., '1h 41m')
           loggedTime: loggedTime,
-          activeTime: loggedTime, // Use same value for active time
           productivity: user.productivity || 0,
           // Other fields from QuickView API
           productiveTime: 'N/A',
@@ -1293,11 +1282,6 @@ const QuickView = () => {
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
-                    <Tooltip text={t('timeActivelyWorking')} theme={theme} icon="">
-                      {t('activeTime').toUpperCase()} ⓘ
-                    </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} $align="center">
                     <Tooltip text={t('timeProductiveActivities')} theme={theme} icon="">
                       {t('productive').toUpperCase()}
                     </Tooltip>
@@ -1373,17 +1357,6 @@ const QuickView = () => {
                       
                       <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>{employee.loggedTime || '0h 0m'}</TimeText>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <ActiveTimeColumn>
-                          <ProductivityCircle value={employee.productivity} theme={theme}>
-                            {employee.productivity > 0 ? `${employee.productivity}` : '0'}
-                          </ProductivityCircle>
-                          <TimeText theme={theme}>
-                            {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
-                          </TimeText>
-                        </ActiveTimeColumn>
                       </TableCell>
                       
                       <TableCell theme={theme} $align="center">
