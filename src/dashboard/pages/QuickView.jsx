@@ -1387,7 +1387,6 @@ const QuickView = () => {
             <Table>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
-                  <TableHeader theme={theme} $align="left">{t('status').toUpperCase()}</TableHeader>
                   <TableHeader 
                     theme={theme} 
                     $align="left" 
@@ -1398,7 +1397,7 @@ const QuickView = () => {
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
                     <Tooltip text={t('totalTimeLogged')} theme={theme} icon="">
-                      {t('loggedTime').toUpperCase()} ⓘ
+                      {t('loggedTime').toUpperCase()}
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
@@ -1423,17 +1422,17 @@ const QuickView = () => {
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
                     <Tooltip text={t('timeIdle')} theme={theme} icon="">
-                      {t('idleTime').toUpperCase()} ⓘ
+                      {t('idleTime').toUpperCase()}
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
                     <Tooltip text="Total number of programs used by the employee" theme={theme} icon="">
-                      TOTAL PROGRAMS ⓘ
+                      TOTAL PROGRAMS
                     </Tooltip>
                   </TableHeader>
                   <TableHeader theme={theme} $align="center">
                     <Tooltip text="List of programs used by the employee" theme={theme} icon="">
-                      PROGRAM NAMES ⓘ
+                      PROGRAM NAMES
                     </Tooltip>
                   </TableHeader>
                   {/* <TableHeader theme={theme} align="center">
@@ -1460,17 +1459,6 @@ const QuickView = () => {
                     
                     return (
                       <TableRow key={employee.id} theme={theme}>
-                        <TableCell theme={theme} $align="left">
-                          <StatusColumn>
-                            <StatusCircle status={employee.status}>
-                              {statusInfo.icon}
-                            </StatusCircle>
-                            <StatusText theme={theme}>
-                              {statusInfo.text}
-                            </StatusText>
-                          </StatusColumn>
-                        </TableCell>
-                      
                       <TableCell theme={theme} $align="left">
                         <EmployeeInfo>
                           <UserIcon $isManager={employee.isAdmin}>
@@ -1594,7 +1582,7 @@ const QuickView = () => {
                   })
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="9">
+                    <TableCell theme={theme} colSpan="8">
                       <EmptyStateCell theme={theme}>
                         {loading ? <div className="loader-wrap">
                     <div className="loader" style={{width:"30px" , height:"30px"}}></div>
