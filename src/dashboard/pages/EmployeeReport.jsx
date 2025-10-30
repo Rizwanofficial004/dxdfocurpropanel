@@ -40,7 +40,7 @@ const EmployeeReport = () => {
         id: staff.staffid || staff.id,
         name: staff.full_name || `${staff.firstname || ''} ${staff.lastname || ''}`.trim(),
         email: staff.email,
-        position: staff.job_position || 'N/A',
+        position: staff.job_position || '',
         status: staff.active === '1' || staff.active === 1 || staff.active === true ? 'Active' : 'Inactive',
         loginStatus: staff.is_logged_in === '1' ? 'Logged In' : 'Logged Out',
         idleTime: staff.idle_time || '0h 0m', // Add idle time from API

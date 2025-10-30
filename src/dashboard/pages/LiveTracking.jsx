@@ -288,33 +288,14 @@ const LiveTracking = () => {
         setStaffData(staffArray);
 
         // Job position mapping (ID to name)
-        const jobPositionMap = {
-          '1': 'Management',
-          '2': 'Development',
-          '3': 'Design',
-          '4': 'Marketing',
-          '5': 'Sales',
-          '6': 'Support',
-          '7': 'HR',
-          '8': 'Finance',
-          '9': 'Operations',
-          '10': 'Quality Assurance',
-          '11': 'Product',
-          '12': 'Customer Success'
-        };
-
         // Create a map for quick lookup by email
         const map = new Map();
         const teamSet = new Set();
 
         staffArray.forEach((staff, index) => {
           const email = staff.email;
-
-          // Get team name from job_position ID
-          let team = 'No Department';
-          if (staff.job_position) {
-            team = jobPositionMap[staff.job_position] || `Department ${staff.job_position}`;
-          }
+          // Use team name directly from API if available, otherwise fallback
+          let team = staff.team || staff.department || staff.job_position || 'No Department';
 
           if (email) {
             map.set(email.toLowerCase(), {
