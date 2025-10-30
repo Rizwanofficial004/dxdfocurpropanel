@@ -1254,33 +1254,6 @@ const QuickView = () => {
             </ErrorMessage>
           )}
           
-          {!loading && !error && employeesData.length > 0 && (
-            <div style={{ 
-              padding: '12px 16px', 
-              background: theme.colors.success + '15',
-              color: theme.colors.success,
-              border: `1px solid ${theme.colors.success}30`,
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              marginTop: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <span style={{ fontSize: '16px' }}>✅</span>
-              <span>
-                {t('successfullyLoaded')} <strong>{employeesData.length} {t('employees').toLowerCase()}</strong> {t('employeesFor')} {' '}
-                <strong>{new Date(selectedDate).toLocaleDateString(t('language') === 'tr' ? 'tr-TR' : 'en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</strong>
-              </span>
-            </div>
-          )}
-          
           {!loading && !error && employeesData.length === 0 && (
             <div style={{ 
               padding: '20px', 
