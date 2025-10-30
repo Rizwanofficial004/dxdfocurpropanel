@@ -994,10 +994,8 @@ const CredentialsSettings = () => {
       <SettingsWrapper isDarkMode={isDarkMode} ref={settingsRef}>
         <SettingsContainer>
           <SettingsHeader>
-            <SettingsTitle isDarkMode={isDarkMode}>🔐 API Keys & Credentials</SettingsTitle>
-            <SettingsSubtitle isDarkMode={isDarkMode}>
-              Manage OpenAI, AWS, database, and email service credentials securely. Data is saved to SQL database via http://127.0.0.1:8000/api/credentials/
-            </SettingsSubtitle>
+            <SettingsTitle isDarkMode={isDarkMode}>API Keys & Credentials</SettingsTitle>
+            
           </SettingsHeader>
 
           {/* Add CSS for pulse animation */}

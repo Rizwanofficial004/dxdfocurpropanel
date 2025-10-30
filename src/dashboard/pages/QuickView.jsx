@@ -33,7 +33,7 @@ const NotificationBanner = styled.div`
 
 // Header Section
 const PageHeader = styled.div`
-  padding: 32px 32px 24px 32px;
+  padding: 10px 32px 24px 32px;
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
@@ -47,7 +47,7 @@ const TitleSection = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   margin: 0;

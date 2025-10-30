@@ -13,8 +13,7 @@ export const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 32px;
-  background: ${props => props.isDarkMode ? '#1a1f2e' : '#ffffff'};
+  padding: 10px 0px 24px;
   border-bottom: 1px solid ${props => props.isDarkMode ? '#2d3748' : '#e2e8f0'};
 `;
 

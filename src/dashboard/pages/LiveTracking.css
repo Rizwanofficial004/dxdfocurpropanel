@@ -3,15 +3,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  background: white;
-  border: 2px solid #e1e5e9;
+  padding: 10px 0px;
+  background: transparent;
+  border: transparent;
   border-radius: 12px;
   margin: 0px 0px 12px 0px;
   gap: 24px;
   flex-wrap: wrap;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(49, 145, 67, 0.08);
+  /* box-shadow: 0 2px 8px rgba(49, 145, 67, 0.08); */
+}
+
+.unified-header .page-title {
+  font-size: 24px;
 }
 
 .loader-wrap {
@@ -108,9 +112,9 @@
 
 
 [data-theme="dark"] .unified-header {
-  background: #1d232c;
-  border-color: #6b7280;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  /* background: #1d232c; */
+  /* border-color: #6b7280; */
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); */
 }
 
 .header-left-section {
@@ -149,8 +153,8 @@
 }
 
 .help-icon-circle .help-button {
-  width: 20px;
-  height: 20px;
+  width: auto;
+  height: auto;
   border-radius: 50%;
   background: transparent;
   color: white;
@@ -267,8 +271,8 @@
 }
 
 .help-icon-circle .help-button {
-  width: 20px;
-  height: 20px;
+  width: auto;
+  height: auto;
   border-radius: 50%;
   background: transparent;
   color: white;
@@ -1669,8 +1673,6 @@ html.dark-theme .time-badge {
 
 [data-theme="dark"] .content-area {
   background: transparent;
-  border-color: #6b7280;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .no-data-container {
