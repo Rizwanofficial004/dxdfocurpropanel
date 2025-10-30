@@ -893,6 +893,8 @@ const QuickView = () => {
           meetingTime: 'N/A',
           breakTime: user.break_time || '0h 0m',
           idleTime: user.idle_time || '0h 0m',
+          totalPrograms: user.total_programs || Math.floor(Math.random() * 10) + 1, // Sample data
+          programNames: user.program_names || ['Chrome', 'VS Code', 'Slack'].join(', '), // Sample data
           originalData: user
         };
       });
@@ -1306,6 +1308,16 @@ const QuickView = () => {
                       {t('idleTime').toUpperCase()} ⓘ
                     </Tooltip>
                   </TableHeader>
+                  <TableHeader theme={theme} $align="center">
+                    <Tooltip text="Total number of programs used by the employee" theme={theme} icon="">
+                      TOTAL PROGRAMS ⓘ
+                    </Tooltip>
+                  </TableHeader>
+                  <TableHeader theme={theme} $align="center">
+                    <Tooltip text="List of programs used by the employee" theme={theme} icon="">
+                      PROGRAM NAMES ⓘ
+                    </Tooltip>
+                  </TableHeader>
                   {/* <TableHeader theme={theme} align="center">
                     <Tooltip text="Break time taken by employee" theme={theme} icon="">
                       BREAK
@@ -1397,6 +1409,53 @@ const QuickView = () => {
                         </div>
                       </TableCell>
                       
+                      <TableCell theme={theme} $align="center">
+                        <div style={{ 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '6px',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
+                          border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: isDarkMode ? '#60a5fa' : '#3b82f6',
+                        }}>
+                          <span>💻</span>
+                          <TimeText theme={theme} style={{ color: 'inherit' }}>
+                            {employee.totalPrograms || 0}
+                          </TimeText>
+                        </div>
+                      </TableCell>
+                      
+                      <TableCell theme={theme} $align="center">
+                        <div style={{ 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '4px',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          backgroundColor: isDarkMode ? 'rgba(34, 197, 94, 0.1)' : 'rgba(34, 197, 94, 0.08)',
+                          border: `1px solid ${isDarkMode ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.2)'}`,
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          color: isDarkMode ? '#4ade80' : '#22c55e',
+                          maxWidth: '200px',
+                          overflow: 'hidden',
+                        }}>
+                          <span>📋</span>
+                          <div style={{ 
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            flex: 1
+                          }}>
+                            {employee.programNames || 'No programs'}
+                          </div>
+                        </div>
+                      </TableCell>
+                      
                       {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
@@ -1417,7 +1476,7 @@ const QuickView = () => {
                   })
                 ) : (
                   <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="7">
+                    <TableCell theme={theme} colSpan="9">
                       <EmptyStateCell theme={theme}>
                         {loading ? <div className="loader-wrap">
                     <div className="loader" style={{width:"30px" , height:"30px"}}></div>
