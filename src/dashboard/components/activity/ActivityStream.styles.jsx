@@ -301,11 +301,11 @@ export const EmptyStateContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 60px 40px;
-  background: #f9fafb;
+  background: transparent;
   border-radius: 8px;
 
   [data-theme="dark"] & {
-    background: #1d232c;
+    background: transparent;
   }
 `;
 

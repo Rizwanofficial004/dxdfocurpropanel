@@ -2803,9 +2803,9 @@ const ActivityStream = ({ compactPadding }) => {
             [data-theme="dark"] .search-input-relative .activity-search-input { background-color: #1e293b !important; color: #ffffff !important; padding-right: 30px !important; }
 
             /* User section background: white by default, dark variant in dark mode */
-            .user-section-wrapper { background-color: #ffffff !important; border-radius: 8px !important; }
+            .user-section-wrapper { background-color: transparent !important; border-radius: 8px !important; }
             .dark-theme .user-section-wrapper,
-            [data-theme="dark"] .user-section-wrapper { background-color: #1d232c !important; border-radius: 8px !important; }
+            [data-theme="dark"] .user-section-wrapper { background-color: transparent !important; border-radius: 8px !important; }
             /* Make only the user list scrollable so header stays fixed */
             .search-dropdown .dropdown-relative { display: flex; flex-direction: column; }
             .search-dropdown .dropdown-header { flex: 0 0 auto; padding: 8px 12px; border-bottom: 1px solid var(--border-color); }
@@ -2971,36 +2971,6 @@ const ActivityStream = ({ compactPadding }) => {
                   </div>
               )}
               
-              {/* No Results */}
-              {!isSearching && memoizedSearchResults.length === 0 && (
-                <div className="no-results-container">
-                  <div className="no-results-icon">🔍</div>
-                  <div>{t('noUsersWithScreenshots')}{searchValue ? ` ${t('searchResultsFor').toLowerCase()} "${searchValue}"` : ''}</div>
-                  {!searchValue && (
-                    <button
-                      onClick={async () => {
-                        setIsSearching(true);
-                        try {
-                          const users = await fetchAllUsers();
-                          if (users && users.length > 0) {
-                            setAllUsers(users);
-                            setSearchResults(users);
-                            setShowResults(true);
-                            setError(null);
-                          }
-                        } catch (error) {
-                          setError('Failed to load users. Please check your connection.');
-                        } finally {
-                          setIsSearching(false);
-                        }
-                      }}
-                      className="retry-button"
-                    >
-                      🔄 {t('loadUsers')}
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           )}
         </SearchContainer>

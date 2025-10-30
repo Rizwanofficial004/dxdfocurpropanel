@@ -410,7 +410,7 @@ const LiveTracking = () => {
                   <span>Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                 </div>
                 <div className="time-display">
-                  <span className="icon">�</span>
+                  <span className="icon">⏰</span>
                   <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}</span>
                 </div>
               </div>
