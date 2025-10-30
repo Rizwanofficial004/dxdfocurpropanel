@@ -47,13 +47,14 @@ const TitleSection = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 14px;
+  font-size: 18px; 
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   margin: 0;
   transition: color 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  
 `;
 
 const InfoIcon = styled.span`
@@ -175,8 +176,8 @@ const TimerInput = styled.input`
 `;
 
 const StartButton = styled.button`
-  background: ${props => props.running 
-    ? props.theme.colors.error 
+  background: ${props => props.running
+    ? props.theme.colors.error
     : props.theme.colors.success};
   color: white;
   border: none;
@@ -196,9 +197,9 @@ const StartButton = styled.button`
   box-shadow: ${props => props.theme.shadows.sm};
   
   &:hover:not(:disabled) {
-    background: ${props => props.running 
-      ? props.theme.colors.error + 'DD' 
-      : props.theme.colors.success + 'DD'};
+    background: ${props => props.running
+    ? props.theme.colors.error + 'DD'
+    : props.theme.colors.success + 'DD'};
     transform: translateY(-2px);
     box-shadow: ${props => props.theme.shadows.md};
   }
@@ -390,7 +391,7 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.th`
-  padding: 14px 6px;
+  padding: 18px 6px;
   text-align: ${props => props.$align || 'left'};
   font-weight: 800;
   font-size: 10px;
@@ -642,7 +643,7 @@ const ProductivityCircle = styled.div`
     // In dark mode, use white/light borders
     // In light mode, use dark borders
     const isDarkMode = props.theme.mode === '#fff';
-    
+
     if (isDarkMode) {
       // Dark mode - white/light borders
       if (props.value >= 80) return '#d1fae5';  // Light green
@@ -738,9 +739,9 @@ const PaginationButton = styled.button`
   justify-content: center;
   
   &:hover:not(:disabled) {
-    background: ${props => props.$active 
-      ? props.theme.colors.primary + 'CC' 
-      : props.theme.colors.hover};
+    background: ${props => props.$active
+    ? props.theme.colors.primary + 'CC'
+    : props.theme.colors.hover};
     transform: translateY(-1px);
   }
   
@@ -767,16 +768,16 @@ const QuickView = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
-  
+
   // Sorting state
   const [sortBy, setSortBy] = useState('name'); // 'name' or other fields
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
-  
+
   // Dynamic employee data from API
   const [employeesData, setEmployeesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Timer management
   const [timerValues, setTimerValues] = useState({});
   const [runningTimers, setRunningTimers] = useState({});
@@ -789,7 +790,7 @@ const QuickView = () => {
         icon: (
           <svg width="20" height="20" viewBox="0 0 576 512" fill="white">
             {/* Font Awesome - fa-desktop (Masaüstü PC) */}
-            <path d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z"/>
+            <path d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V288H64V64H512z" />
           </svg>
         )
       },
@@ -797,9 +798,9 @@ const QuickView = () => {
         text: t('available'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <polyline points="17 11 19 13 23 9"/>
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <polyline points="17 11 19 13 23 9" />
           </svg>
         )
       },
@@ -807,7 +808,7 @@ const QuickView = () => {
         text: t('inMeeting'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 640 512" fill="white">
-            <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z"/>
+            <path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z" />
           </svg>
         )
       },
@@ -815,7 +816,7 @@ const QuickView = () => {
         text: t('holiday'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
-            <path d="M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"/>
+            <path d="M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z" />
           </svg>
         )
       },
@@ -823,7 +824,7 @@ const QuickView = () => {
         text: t('weekOff'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 448 512" fill="white">
-            <path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zm80 64c-8.8 0-16 7.2-16 16v96c0 8.8 7.2 16 16 16h96c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H80z"/>
+            <path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zm80 64c-8.8 0-16 7.2-16 16v96c0 8.8 7.2 16 16 16h96c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H80z" />
           </svg>
         )
       },
@@ -831,7 +832,7 @@ const QuickView = () => {
         text: t('offStatus'),
         icon: (
           <svg width="20" height="20" viewBox="0 0 512 512" fill="white">
-            <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"/>
+            <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z" />
           </svg>
         )
       }
@@ -844,14 +845,14 @@ const QuickView = () => {
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
-      
+
       // Format date as YYYY-MM-DD
       const formattedDate = selectedDate || new Date().toISOString().split('T')[0];
       const apiUrl = `${apiBaseUrl}/quickview/?date=${formattedDate}`;
-      
+
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -865,10 +866,10 @@ const QuickView = () => {
       }
 
       const data = await response.json();
-      
+
       // Parse the response - structure may vary
       let usersArray = [];
-      
+
       if (data?.data && Array.isArray(data.data)) {
         usersArray = data.data;
       } else if (data?.users && Array.isArray(data.users)) {
@@ -881,7 +882,7 @@ const QuickView = () => {
       const users = usersArray.map((user, index) => {
         // Extract user status from API (already comes as 'Active' or other status)
         const status = user.active || user.status || user.work_status || 'Inactive';
-        
+
         // Get logged time - API already provides formatted string like '1h 41m'
         const loggedTime = user.logged_time || '0h 0m';
 
@@ -909,7 +910,7 @@ const QuickView = () => {
       });
 
       setEmployeesData(users);
-      
+
     } catch (error) {
       setError(`Failed to load QuickView data: ${error.message}`);
       setEmployeesData([]);
@@ -932,7 +933,7 @@ const QuickView = () => {
   const testPostAPI = async (userId, userData) => {
     const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
     const apiUrl = `${apiBaseUrl}/auth/users/${userId}/update/`;
-    
+
     const postRequestBody = {
       user_id: userId,
       action: 'update_profile',
@@ -940,7 +941,7 @@ const QuickView = () => {
       timestamp: new Date().toISOString(),
       source: 'dashboard_quickview'
     };
-    
+
     const postRequestConfig = {
       method: 'POST',
       headers: {
@@ -950,7 +951,7 @@ const QuickView = () => {
       },
       body: JSON.stringify(postRequestBody)
     };
-    
+
     try {
       const response = await fetch(apiUrl, postRequestConfig);
       const result = await response.json();
@@ -959,11 +960,11 @@ const QuickView = () => {
       return { error: error.message };
     }
   };
-  
+
   const testPutAPI = async (userId, userData) => {
     const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
     const apiUrl = `${apiBaseUrl}/auth/users/${userId}/`;
-    
+
     const putRequestBody = {
       user_id: userId,
       full_name: userData.name,
@@ -976,7 +977,7 @@ const QuickView = () => {
       is_active: userData.status === 'Active',
       updated_by: 'dashboard_admin'
     };
-    
+
     const putRequestConfig = {
       method: 'PUT',
       headers: {
@@ -986,7 +987,7 @@ const QuickView = () => {
       },
       body: JSON.stringify(putRequestBody)
     };
-    
+
     try {
       const response = await fetch(apiUrl, putRequestConfig);
       const result = await response.json();
@@ -999,7 +1000,7 @@ const QuickView = () => {
   const testTimerAPI = async (userId, username, action, timerData) => {
     const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
     const apiUrl = `${apiBaseUrl}/timer/sessions/`;
-    
+
     const timerRequestBody = {
       user_id: userId,
       username: username,
@@ -1018,7 +1019,7 @@ const QuickView = () => {
         session_id: timerData.sessionId
       }
     };
-    
+
     const timerRequestConfig = {
       method: 'POST',
       headers: {
@@ -1029,7 +1030,7 @@ const QuickView = () => {
       },
       body: JSON.stringify(timerRequestBody)
     };
-    
+
     try {
       const response = await fetch(apiUrl, timerRequestConfig);
       const result = await response.json();
@@ -1052,7 +1053,7 @@ const QuickView = () => {
     try {
       const apiBaseUrl = import.meta.env.DEV ? '/api' : 'https://dxdtime.ddsolutions.io/api';
       const apiUrl = `${apiBaseUrl}/auth/register/post_users/`;
-      
+
 
 
       const requestData = {
@@ -1074,10 +1075,10 @@ const QuickView = () => {
       }
 
       const result = await response.json();
-      
+
       if (result.status === 'success') {
         toastService.success(`✅ Numeric value ${numericValue} sent successfully for ${username}!`);
-        
+
         // Refresh user data to reflect the update
         setTimeout(() => {
           fetchUsers();
@@ -1094,17 +1095,17 @@ const QuickView = () => {
   const handleStartTimer = async (userId, username) => {
     const timerSeconds = timerValues[userId] || 5; // Default 5 seconds
     const sessionId = Math.random().toString(36).substring(2, 15);
-    
+
     // Test Timer API with POST request
     const timerData = {
       duration: timerSeconds,
       startTime: new Date().toISOString(),
       sessionId: sessionId
     };
-    
+
     // Call the Timer API test
     await testTimerAPI(userId, username, 'start', timerData);
-    
+
     // Mark timer as running
     setRunningTimers(prev => ({
       ...prev,
@@ -1122,9 +1123,9 @@ const QuickView = () => {
         endTime: new Date().toISOString(),
         actualDuration: timerSeconds
       };
-      
+
       await testTimerAPI(userId, username, 'complete', completeTimerData);
-      
+
       setRunningTimers(prev => ({
         ...prev,
         [userId]: false
@@ -1154,7 +1155,7 @@ const QuickView = () => {
   // Filter employees based on search query and status
   const filteredEmployees = employeesData.filter(employee =>
     (employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     employee.designation.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      employee.designation.toLowerCase().includes(searchQuery.toLowerCase())) &&
     (statusFilter === 'All' || employee.status === statusFilter)
   );
 
@@ -1189,7 +1190,7 @@ const QuickView = () => {
               {/* <InfoIcon theme={theme}>ⓘ</InfoIcon> */}
             </Tooltip>
           </TitleSection>
-          
+
           {/* Controls */}
           <ControlsSection>
             <LeftControls>
@@ -1201,7 +1202,7 @@ const QuickView = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </LeftControls>
-            
+
             <RightControls>
               <DateLabel theme={theme}>{t('selectDate').toUpperCase()}</DateLabel>
               <DateInput
@@ -1224,18 +1225,18 @@ const QuickView = () => {
               `}</style>
             </RightControls>
           </ControlsSection>
-          
+
           {loading && (
             <LoadingMessage theme={theme}>
               <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>🔄</span>
               {' '}{t('loadingEmployeeData')} <strong>{selectedDate}</strong>...
             </LoadingMessage>
           )}
-          
+
           {error && (
             <ErrorMessage theme={theme}>
               ⚠️ {error}
-              <button 
+              <button
                 onClick={handleRefresh}
                 style={{
                   marginLeft: '12px',
@@ -1253,10 +1254,10 @@ const QuickView = () => {
               </button>
             </ErrorMessage>
           )}
-          
+
           {!loading && !error && employeesData.length === 0 && (
-            <div style={{ 
-              padding: '20px', 
+            <div style={{
+              padding: '20px',
               textAlign: 'center',
               color: theme.colors.text.secondary,
               fontSize: '14px',
@@ -1279,9 +1280,9 @@ const QuickView = () => {
               <thead>
                 <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
                   <TableHeader theme={theme} $align="left">{t('status').toUpperCase()}</TableHeader>
-                  <TableHeader 
-                    theme={theme} 
-                    $align="left" 
+                  <TableHeader
+                    theme={theme}
+                    $align="left"
                     style={{ cursor: 'pointer', userSelect: 'none' }}
                     onClick={() => handleSort('name')}
                   >
@@ -1343,7 +1344,7 @@ const QuickView = () => {
                 {paginatedEmployees.length > 0 ? (
                   paginatedEmployees.map((employee) => {
                     const statusInfo = getStatusInfo(employee.status);
-                    
+
                     return (
                       <TableRow key={employee.id} theme={theme}>
                         <TableCell theme={theme} $align="left">
@@ -1356,99 +1357,99 @@ const QuickView = () => {
                             </StatusText>
                           </StatusColumn>
                         </TableCell>
-                      
-                      <TableCell theme={theme} $align="left">
-                        <EmployeeInfo>
-                          <UserIcon $isManager={employee.isAdmin}>
-                            {employee.isAdmin ? 'M' : 'E'}
-                          </UserIcon>
-                          <EmployeeDetails>
-                            <EmployeeName theme={theme}>{employee.name}</EmployeeName>
-                            <TeamName theme={theme}>
-                              {employee.team || employee.designation || 'No Department'}
-                            </TeamName>
-                          </EmployeeDetails>
-                        </EmployeeInfo>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>{employee.loggedTime || '0h 0m'}</TimeText>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <ActiveTimeColumn>
-                          <ProductivityCircle value={employee.productivity} theme={theme}>
-                            {employee.productivity > 0 ? `${employee.productivity}` : '0'}
-                          </ProductivityCircle>
+
+                        <TableCell theme={theme} $align="left">
+                          <EmployeeInfo>
+                            <UserIcon $isManager={employee.isAdmin}>
+                              {employee.isAdmin ? 'M' : 'E'}
+                            </UserIcon>
+                            <EmployeeDetails>
+                              <EmployeeName theme={theme}>{employee.name}</EmployeeName>
+                              <TeamName theme={theme}>
+                                {employee.team || employee.designation || 'No Department'}
+                              </TeamName>
+                            </EmployeeDetails>
+                          </EmployeeInfo>
+                        </TableCell>
+
+                        <TableCell theme={theme} $align="center">
+                          <TimeText theme={theme}>{employee.loggedTime || '0h 0m'}</TimeText>
+                        </TableCell>
+
+                        <TableCell theme={theme} $align="center">
+                          <ActiveTimeColumn>
+                            <ProductivityCircle value={employee.productivity} theme={theme}>
+                              {employee.productivity > 0 ? `${employee.productivity}` : '0'}
+                            </ProductivityCircle>
+                            <TimeText theme={theme}>
+                              {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
+                            </TimeText>
+                          </ActiveTimeColumn>
+                        </TableCell>
+
+                        <TableCell theme={theme} $align="center">
+                          <TimeText theme={theme}>{employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}</TimeText>
+                        </TableCell>
+
+                        {/* <TableCell theme={theme} $align="center">
+                        <TimeText theme={theme}>0h 0m</TimeText>
+                      </TableCell> */}
+
+                        {/* <TableCell theme={theme} $align="center">
+                        <TimeText theme={theme}>0h 0m</TimeText>
+                      </TableCell> */}
+
+                        <TableCell theme={theme} $align="center">
                           <TimeText theme={theme}>
-                            {employee.activeTime === 'N/A' ? '0h 0m' : employee.activeTime}
+                            {employee.meetingTime === 'N/A' ? '0h 0m' : employee.meetingTime}
                           </TimeText>
-                        </ActiveTimeColumn>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>{employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}</TimeText>
-                      </TableCell>
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell> */}
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell> */}
-                      
-                      <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>
-                          {employee.meetingTime === 'N/A' ? '0h 0m' : employee.meetingTime}
-                        </TimeText>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <div style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: isDarkMode ? 'rgba(158, 158, 158, 0.1)' : 'rgba(158, 158, 158, 0.08)',
-                          border: `1px solid ${isDarkMode ? 'rgba(158, 158, 158, 0.3)' : 'rgba(158, 158, 158, 0.2)'}`,
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: isDarkMode ? '#9e9e9e' : '#757575',
-                        }}>
-                          <span>⏸️</span>
-                          <TimeText theme={theme} style={{ color: 'inherit' }}>
-                            {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
-                          </TimeText>
-                        </div>
-                      </TableCell>
-                      
-                      {/* <TableCell theme={theme} $align="center">
+                        </TableCell>
+
+                        <TableCell theme={theme} $align="center">
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            backgroundColor: isDarkMode ? 'rgba(158, 158, 158, 0.1)' : 'rgba(158, 158, 158, 0.08)',
+                            border: `1px solid ${isDarkMode ? 'rgba(158, 158, 158, 0.3)' : 'rgba(158, 158, 158, 0.2)'}`,
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: isDarkMode ? '#9e9e9e' : '#757575',
+                          }}>
+                            <span>⏸️</span>
+                            <TimeText theme={theme} style={{ color: 'inherit' }}>
+                              {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
+                            </TimeText>
+                          </div>
+                        </TableCell>
+
+                        {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
                         </TimeText>
                       </TableCell> */}
-                      
-                      {/* <TableCell theme={theme} $align="center">
+
+                        {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>
                           {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
                         </TimeText>
                       </TableCell> */}
-                      
-                      {/* <TableCell theme={theme} $align="center">
+
+                        {/* <TableCell theme={theme} $align="center">
                         <TimeText theme={theme}>0h 0m</TimeText>
                       </TableCell> */}
-                    </TableRow>
-                  );
+                      </TableRow>
+                    );
                   })
                 ) : (
                   <TableRow theme={theme}>
                     <TableCell theme={theme} colSpan="7">
                       <EmptyStateCell theme={theme}>
                         {loading ? <div className="loader-wrap">
-                    <div className="loader" style={{width:"30px" , height:"30px"}}></div>
-                  </div> : t('noEmployeesFound')}
+                          <div className="loader" style={{ width: "30px", height: "30px" }}></div>
+                        </div> : t('noEmployeesFound')}
                       </EmptyStateCell>
                     </TableCell>
                   </TableRow>
@@ -1471,13 +1472,13 @@ const QuickView = () => {
               <option value={100}>100</option>
             </ItemsPerPageSelector>
             <span>
-              {sortedEmployees.length > 0 
+              {sortedEmployees.length > 0
                 ? `${startIndex + 1} – ${Math.min(endIndex, sortedEmployees.length)} ${t('of')} ${sortedEmployees.length}`
                 : `0 – 0 ${t('of')} 0`
               }
             </span>
           </PaginationInfo>
-          
+
           <PaginationButtons>
             <PaginationButton
               onClick={() => setCurrentPage(1)}
@@ -1486,7 +1487,7 @@ const QuickView = () => {
             >
               «
             </PaginationButton>
-            
+
             <PaginationButton
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
@@ -1494,11 +1495,11 @@ const QuickView = () => {
             >
               ‹
             </PaginationButton>
-            
+
             <PaginationButton $active={true}>
               {currentPage}
             </PaginationButton>
-            
+
             <PaginationButton
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
@@ -1506,7 +1507,7 @@ const QuickView = () => {
             >
               ›
             </PaginationButton>
-            
+
             <PaginationButton
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}

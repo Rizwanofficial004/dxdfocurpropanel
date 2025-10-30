@@ -136,7 +136,7 @@ const Change = styled.div`
   padding: 0.25rem 0.75rem;
   border-radius: 16px;
   
-  background: ${props => props.type === 'positive' ? 
+  background: ${props => props.type === 'positive' ?
     '#10b98115' : props.type === 'negative' ? '#ef444415' : '#f3f4f610'
   };
   
@@ -159,13 +159,13 @@ export const Cards = () => {
       try {
         setLoading(true);
         console.log('Starting API fetch...');
-        
+
         // Fetch employee data from enhanced employees API (fallback from screenshots API)
         const apiBaseURL = getApiBaseURL();
         console.log('API Base URL:', apiBaseURL);
-        
+
         let screenshotsData = null;
-        
+
         // First try the screenshots API with realistic parameters
         try {
           const screenshotsResponse = await fetch(`${apiBaseURL}/employees/screenshots/search/?fast_mode=true&min_screenshots=0&max_screenshots=100000`, {
@@ -176,7 +176,7 @@ export const Cards = () => {
             },
             timeout: 15000 // 15 second timeout
           });
-          
+
           if (screenshotsResponse.ok) {
             screenshotsData = await screenshotsResponse.json();
             console.log('Screenshots data:', screenshotsData);
@@ -186,7 +186,7 @@ export const Cards = () => {
         } catch (error) {
           console.warn('Screenshots API error:', error.message);
         }
-        
+
         // Fallback to enhanced employees API if screenshots API fails
         if (!screenshotsData || !screenshotsData.success) {
           const enhancedResponse = await fetch(`${apiBaseURL}/dashboard/employees/enhanced/?include_profiles=true&format=detailed`, {
@@ -196,18 +196,18 @@ export const Cards = () => {
               'Content-Type': 'application/json',
             },
           });
-          
+
           console.log('Enhanced employees response status:', enhancedResponse.status);
-          
+
           if (!enhancedResponse.ok) {
             throw new Error(`Enhanced employees API failed: ${enhancedResponse.status}`);
           }
-          
+
           screenshotsData = await enhancedResponse.json();
           console.log('Enhanced employees data:', screenshotsData);
         }
         console.log('Screenshots data:', screenshotsData);
-        
+
         // Fetch users count
         const usersResponse = await fetch(`${apiBaseURL}/dashboard/analytics/employees/?include_list=true`, {
           method: 'GET',
@@ -216,7 +216,7 @@ export const Cards = () => {
             'Content-Type': 'application/json',
           },
         });
-        
+
         let usersData = { success: false };
         if (usersResponse.ok) {
           usersData = await usersResponse.json();
@@ -224,26 +224,26 @@ export const Cards = () => {
         } else {
           console.warn('Users API failed, using screenshots data for employee count');
         }
-        
+
         // Check for data success
         if (screenshotsData && screenshotsData.success) {
           // Handle both screenshots API format and enhanced employees API format
           const employeesFromScreenshots = screenshotsData.data?.employees || screenshotsData.data?.employees || [];
           const employeesData = usersData.success ? usersData.data : null;
-          
+
           // Set users count from screenshots data if users API fails
-          const totalEmployees = employeesData?.total_employees || 
-                                 employeesData?.employee_list?.length || 
-                                 employeesFromScreenshots.length || 0;
+          const totalEmployees = employeesData?.total_employees ||
+            employeesData?.employee_list?.length ||
+            employeesFromScreenshots.length || 0;
           const growthPercentage = employeesData?.growth_percentage || 5.0;
-          
+
           // Calculate total screenshots - handle both API formats
           let totalScreenshots = 0;
           if (employeesFromScreenshots.length > 0) {
             // Screenshots API format
             if (employeesFromScreenshots[0].screenshot_count !== undefined) {
               totalScreenshots = employeesFromScreenshots.reduce((sum, emp) => sum + (emp.screenshot_count || 0), 0);
-            } 
+            }
             // Enhanced employees API format
             else if (employeesFromScreenshots[0].screenshots_count !== undefined) {
               totalScreenshots = employeesFromScreenshots.reduce((sum, emp) => sum + (emp.screenshots_count || 0), 0);
@@ -253,7 +253,7 @@ export const Cards = () => {
               totalScreenshots = employeesFromScreenshots.length * Math.floor(Math.random() * 10000) + 5000;
             }
           }
-          
+
           // Create stats data array with screenshots data
           const newStatsData = [
             {
@@ -276,9 +276,11 @@ export const Cards = () => {
               number: totalScreenshots,
               subStats: [
                 { label: 'Total Screenshots', value: totalScreenshots.toLocaleString() },
-                { label: 'Active Employees', value: employeesFromScreenshots.filter(emp => 
-                  emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
-                ).length },
+                {
+                  label: 'Active Employees', value: employeesFromScreenshots.filter(emp =>
+                    emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
+                  ).length
+                },
                 { label: 'Average per Employee', value: Math.round(totalScreenshots / Math.max(employeesFromScreenshots.length, 1)).toLocaleString() },
                 { label: 'Employees Tracked', value: employeesFromScreenshots.length }
               ],
@@ -289,17 +291,21 @@ export const Cards = () => {
             {
               icon: "✅",
               title: 'Employee Activity',
-              number: employeesFromScreenshots.filter(emp => 
+              number: employeesFromScreenshots.filter(emp =>
                 emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
               ).length,
               subStats: [
-                { label: 'Active Employees', value: employeesFromScreenshots.filter(emp => 
-                  emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
-                ).length },
+                {
+                  label: 'Active Employees', value: employeesFromScreenshots.filter(emp =>
+                    emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
+                  ).length
+                },
                 { label: 'Total Employees', value: employeesFromScreenshots.length },
-                { label: 'Activity Rate', value: `${Math.round((employeesFromScreenshots.filter(emp => 
-                  emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
-                ).length / Math.max(employeesFromScreenshots.length, 1)) * 100)}%` },
+                {
+                  label: 'Activity Rate', value: `${Math.round((employeesFromScreenshots.filter(emp =>
+                    emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
+                  ).length / Math.max(employeesFromScreenshots.length, 1)) * 100)}%`
+                },
                 { label: 'Last Scan', value: new Date().toLocaleDateString() }
               ],
               change: `📈 Employee engagement tracking`,
@@ -326,9 +332,11 @@ export const Cards = () => {
               number: Math.round(totalScreenshots / 1000),
               subStats: [
                 { label: 'Data Points (K)', value: `${Math.round(totalScreenshots / 1000)}K` },
-                { label: 'Coverage Rate', value: `${Math.round((employeesFromScreenshots.filter(emp => 
-                  emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
-                ).length / Math.max(employeesFromScreenshots.length, 1)) * 100)}%` },
+                {
+                  label: 'Coverage Rate', value: `${Math.round((employeesFromScreenshots.filter(emp =>
+                    emp.has_screenshots || emp.screenshots_count > 0 || emp.screenshot_count > 0
+                  ).length / Math.max(employeesFromScreenshots.length, 1)) * 100)}%`
+                },
                 { label: 'Quality Score', value: '95%' },
                 { label: 'Reliability', value: 'High' }
               ],
@@ -337,7 +345,7 @@ export const Cards = () => {
               color: "#ef4444" // Red
             }
           ];
-          
+
           console.log('Setting stats data:', newStatsData);
           setStatsData(newStatsData);
           setUsersCount(totalEmployees);
@@ -346,7 +354,7 @@ export const Cards = () => {
         }
       } catch (error) {
         console.error('Error fetching data:', error);
-        
+
         // Fallback data with your actual API structure for testing
         const fallbackStatsData = [
           {
@@ -392,7 +400,7 @@ export const Cards = () => {
             color: "#f59e0b"
           }
         ];
-        
+
         setStatsData(fallbackStatsData);
         setUsersCount(32);
       } finally {
@@ -423,8 +431,8 @@ export const Cards = () => {
   return (
     <CardWrapper>
       {statsData.map((stat, index) => (
-        <Card 
-          key={index} 
+        <Card
+          key={index}
           color={stat.color}
         >
           <CardHeader>
@@ -437,7 +445,7 @@ export const Cards = () => {
               <Change type={stat.changeType}>{stat.change}</Change>
             </Info>
           </CardHeader>
-          
+
           {stat.subStats && (
             <SubStats>
               {stat.subStats.map((subStat, subIndex) => (

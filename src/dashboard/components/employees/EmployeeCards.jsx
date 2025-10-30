@@ -29,7 +29,7 @@ const EmployeeGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 2rem;
-  padding: 2rem 0;
+  padding: 0;
   perspective: 1000px;
   transform-style: preserve-3d;
 `;
@@ -44,8 +44,8 @@ const EmployeeWrapper = styled.div`
 `;
 
 const EmployeeCard = styled.div`
-  background: ${props => props.isDarkMode ? 
-    'linear-gradient(135deg, #1e293b 0%, #334155 100%)' : 
+  background: ${props => props.isDarkMode ?
+    'linear-gradient(135deg, #1e293b 0%, #334155 100%)' :
     'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'};
   border-radius: 1.5rem;
   padding: 2rem;
@@ -57,12 +57,12 @@ const EmployeeCard = styled.div`
   
   // Glass morphism effect
   backdrop-filter: blur(20px);
-  border: 1px solid ${props => props.isDarkMode ? 
-    'rgba(255, 255, 255, 0.1)' : 
+  border: 1px solid ${props => props.isDarkMode ?
+    'rgba(255, 255, 255, 0.1)' :
     'rgba(0, 0, 0, 0.1)'};
   
   // 3D Box Shadow
-  box-shadow: ${props => props.isDarkMode ? 
+  box-shadow: ${props => props.isDarkMode ?
     `0 8px 32px rgba(0, 0, 0, 0.3),
      0 4px 16px rgba(0, 0, 0, 0.2),
      inset 0 1px 0 rgba(255, 255, 255, 0.1)` :
@@ -75,11 +75,11 @@ const EmployeeCard = styled.div`
   // 3D Hover Effects
   &:hover {
     transform: perspective(1000px) translateY(-12px) rotateX(8deg) rotateY(5deg) scale(1.02);
-    box-shadow: ${props => props.isDarkMode ? 
-      `0 20px 60px rgba(0, 0, 0, 0.4),
+    box-shadow: ${props => props.isDarkMode ?
+    `0 20px 60px rgba(0, 0, 0, 0.4),
        0 8px 32px rgba(0, 0, 0, 0.3),
        inset 0 2px 0 rgba(255, 255, 255, 0.2)` :
-      `0 20px 60px rgba(0, 0, 0, 0.15),
+    `0 20px 60px rgba(0, 0, 0, 0.15),
        0 8px 32px rgba(59, 130, 246, 0.2),
        inset 0 2px 0 rgba(255, 255, 255, 0.9)`};
   }
@@ -141,8 +141,8 @@ const EmployeeName = styled.h2`
   text-align: center;
   margin: 0 0 0.5rem 0;
   
-  background: ${props => props.isDarkMode ? 
-    'linear-gradient(135deg, #f8fafc, #cbd5e1)' : 
+  background: ${props => props.isDarkMode ?
+    'linear-gradient(135deg, #f8fafc, #cbd5e1)' :
     'linear-gradient(135deg, #1e293b, #475569)'};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -173,16 +173,16 @@ const ContactItem = styled.div`
   margin-bottom: 0.75rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background: ${props => props.isDarkMode ? 
-    'rgba(255, 255, 255, 0.05)' : 
+  background: ${props => props.isDarkMode ?
+    'rgba(255, 255, 255, 0.05)' :
     'rgba(0, 0, 0, 0.03)'};
   
   transition: all 0.3s ease;
   
   &:hover {
-    background: ${props => props.isDarkMode ? 
-      'rgba(255, 255, 255, 0.1)' : 
-      'rgba(59, 130, 246, 0.1)'};
+    background: ${props => props.isDarkMode ?
+    'rgba(255, 255, 255, 0.1)' :
+    'rgba(59, 130, 246, 0.1)'};
     transform: translateX(5px);
   }
 `;
@@ -205,26 +205,26 @@ const StatsGrid = styled.div`
 `;
 
 const StatBox = styled.div`
-  background: ${props => props.isDarkMode ? 
-    'rgba(255, 255, 255, 0.08)' : 
+  background: ${props => props.isDarkMode ?
+    'rgba(255, 255, 255, 0.08)' :
     'rgba(59, 130, 246, 0.08)'};
   border-radius: 0.75rem;
   padding: 1rem;
   text-align: center;
-  border: 1px solid ${props => props.isDarkMode ? 
-    'rgba(255, 255, 255, 0.1)' : 
+  border: 1px solid ${props => props.isDarkMode ?
+    'rgba(255, 255, 255, 0.1)' :
     'rgba(59, 130, 246, 0.2)'};
   
   transition: all 0.3s ease;
   
   &:hover {
-    background: ${props => props.isDarkMode ? 
-      'rgba(255, 255, 255, 0.12)' : 
-      'rgba(59, 130, 246, 0.15)'};
+    background: ${props => props.isDarkMode ?
+    'rgba(255, 255, 255, 0.12)' :
+    'rgba(59, 130, 246, 0.15)'};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px ${props => props.isDarkMode ? 
-      'rgba(0, 0, 0, 0.2)' : 
-      'rgba(59, 130, 246, 0.2)'};
+    box-shadow: 0 4px 12px ${props => props.isDarkMode ?
+    'rgba(0, 0, 0, 0.2)' :
+    'rgba(59, 130, 246, 0.2)'};
   }
 `;
 
@@ -348,7 +348,7 @@ export const EmployeeCards = () => {
       try {
         setLoading(true);
         console.log('Fetching employees from CRM...');
-        
+
         const response = await fetch('https://crm.deluxebilisim.com/api/staffs', {
           method: 'GET',
           headers: {
@@ -358,14 +358,14 @@ export const EmployeeCards = () => {
             'User-Agent': 'DDS-Focus-Time-Dashboard/1.0'
           },
         });
-        
+
         if (!response.ok) {
           throw new Error(`CRM API failed: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('CRM data received:', data);
-        
+
         // Transform CRM data to component format
         const transformedEmployees = data.map(staff => ({
           id: staff.staffid,
@@ -386,13 +386,13 @@ export const EmployeeCards = () => {
           avatar_url: staff.profile_image ? `https://crm.deluxebilisim.com/${staff.profile_image}` : `https://ui-avatars.com/api/?name=${staff.firstname}+${staff.lastname}&background=6366f1&color=fff&size=200`,
           active: staff.active === '1'
         }));
-        
+
         setEmployees(transformedEmployees);
-        
+
       } catch (error) {
         console.error('Error fetching CRM employees:', error);
         setError(`Failed to load employees: ${error.message}`);
-        
+
         // Fallback demo data for development
         const demoEmployees = [
           {
@@ -436,15 +436,15 @@ export const EmployeeCards = () => {
     if (!phoneNumber || phoneNumber.trim() === '') {
       return 'N/A';
     }
-    
+
     // Clean the phone number (remove spaces, dashes, parentheses, plus signs)
     const cleaned = phoneNumber.replace(/\D/g, '');
-    
+
     // If it's empty after cleaning, return N/A
     if (cleaned.length === 0) {
       return 'N/A';
     }
-    
+
     // Handle different international formats based on the actual CRM data patterns
     if (cleaned.startsWith('90') && cleaned.length === 12) {
       // Turkish numbers: 905XXXXXXXXX -> +90 (5XX) XXX XX XX
@@ -485,7 +485,7 @@ export const EmployeeCards = () => {
         return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
       }
     }
-    
+
     // If we can't format it nicely, return the original with + prefix if it doesn't have one
     const original = phoneNumber.trim();
     return original.startsWith('+') ? original : `+${original}`;
@@ -522,7 +522,7 @@ export const EmployeeCards = () => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
-    
+
     for (let i = 0; i < maxRating; i++) {
       stars.push(
         <Star key={i} filled={i < fullStars || (i === fullStars && hasHalfStar)} isDarkMode={isDarkMode}>
@@ -530,7 +530,7 @@ export const EmployeeCards = () => {
         </Star>
       );
     }
-    
+
     return stars;
   };
 
@@ -582,100 +582,100 @@ export const EmployeeCards = () => {
   return (
     <EmployeeWrapper>
       <EmployeeGrid>
-      {employees.map((employee, index) => (
-        <EmployeeCard
-          key={employee.id}
-          index={index}
-          isDarkMode={isDarkMode}
-          ref={el => cardsRef.current[index] = el}
-        >
-          <AvatarSection>
-            <Avatar isDarkMode={isDarkMode}>
-              {employee.avatar_url && employee.avatar_url.includes('http') ? (
-                <AvatarImage src={employee.avatar_url} alt={employee.full_name} />
-              ) : (
-                employee.initials
-              )}
-            </Avatar>
-          </AvatarSection>
-          
-          <EmployeeName isDarkMode={isDarkMode}>{employee.full_name}</EmployeeName>
-          <JobTitle isDarkMode={isDarkMode}>{employee.job_title}</JobTitle>
-          
-          <ContactInfo isDarkMode={isDarkMode}>
-            <ContactItem isDarkMode={isDarkMode}>
-              <ContactIcon>📧</ContactIcon>
-              <ContactText isDarkMode={isDarkMode}>{employee.email}</ContactText>
-            </ContactItem>
-            <ContactItem isDarkMode={isDarkMode}>
-              <ContactIcon>📞</ContactIcon>
-              <ContactText isDarkMode={isDarkMode}>{employee.phone}</ContactText>
-            </ContactItem>
-            <ContactItem isDarkMode={isDarkMode}>
-              <ContactIcon>📸</ContactIcon>
-              <ContactText isDarkMode={isDarkMode}>
-                Last activity: {employee.screenshot_last_updated ? 
-                  new Date(employee.screenshot_last_updated).toLocaleDateString() : 
-                  'No data'
-                }
-              </ContactText>
-            </ContactItem>
-          </ContactInfo>
-          
-          <StatsGrid>
-            <StatBox isDarkMode={isDarkMode}>
-              <StatLabel isDarkMode={isDarkMode}>Hourly Rate</StatLabel>
-              <StatValue isDarkMode={isDarkMode}>${employee.hourly_rate}/{employee.currency === 'USD' ? 'hr' : 'h'}</StatValue>
-            </StatBox>
-            <StatBox isDarkMode={isDarkMode}>
-              <StatLabel isDarkMode={isDarkMode}>Department</StatLabel>
-              <StatValue isDarkMode={isDarkMode}>{employee.department}</StatValue>
-            </StatBox>
-            <StatBox isDarkMode={isDarkMode}>
-              <StatLabel isDarkMode={isDarkMode}>📸 Screenshots</StatLabel>
-              <StatValue isDarkMode={isDarkMode}>{employee.screenshot_count ? employee.screenshot_count.toLocaleString() : '0'}</StatValue>
-            </StatBox>
-            <StatBox isDarkMode={isDarkMode}>
-              <StatLabel isDarkMode={isDarkMode}>🕐 Last Updated</StatLabel>
-              <StatValue isDarkMode={isDarkMode}>
-                {employee.screenshot_last_updated ? 
-                  new Date(employee.screenshot_last_updated).toLocaleString() : 
-                  'No data'
-                }
-              </StatValue>
-            </StatBox>
-            <StatBox isDarkMode={isDarkMode}>
-              <StatLabel isDarkMode={isDarkMode}>Activity %</StatLabel>
-              <StatValue isDarkMode={isDarkMode}>{employee.screenshot_percentage ? `${employee.screenshot_percentage}%` : '0%'}</StatValue>
-            </StatBox>
-            <StatBox isDarkMode={isDarkMode}>
-              <StatLabel isDarkMode={isDarkMode}>Join Date</StatLabel>
-              <StatValue isDarkMode={isDarkMode}>{formatJoinDate(employee.join_date)}</StatValue>
-            </StatBox>
-          </StatsGrid>
-          
-          <RatingSection>
-            <StarRating>
-              {renderStars(employee.rating, employee.max_rating, isDarkMode)}
-            </StarRating>
-            <RatingText isDarkMode={isDarkMode}>
-              {employee.rating}/{employee.max_rating}
-            </RatingText>
-          </RatingSection>
-          
-          <ActionButtons>
-            <ActionButton variant="view">
-              👁️ View
-            </ActionButton>
-            <ActionButton variant="edit">
-              ✏️ Edit
-            </ActionButton>
-            <ActionButton variant="delete">
-              🗑️ Delete
-            </ActionButton>
-          </ActionButtons>
-        </EmployeeCard>
-      ))}
+        {employees.map((employee, index) => (
+          <EmployeeCard
+            key={employee.id}
+            index={index}
+            isDarkMode={isDarkMode}
+            ref={el => cardsRef.current[index] = el}
+          >
+            <AvatarSection>
+              <Avatar isDarkMode={isDarkMode}>
+                {employee.avatar_url && employee.avatar_url.includes('http') ? (
+                  <AvatarImage src={employee.avatar_url} alt={employee.full_name} />
+                ) : (
+                  employee.initials
+                )}
+              </Avatar>
+            </AvatarSection>
+
+            <EmployeeName isDarkMode={isDarkMode}>{employee.full_name}</EmployeeName>
+            <JobTitle isDarkMode={isDarkMode}>{employee.job_title}</JobTitle>
+
+            <ContactInfo isDarkMode={isDarkMode}>
+              <ContactItem isDarkMode={isDarkMode}>
+                <ContactIcon>📧</ContactIcon>
+                <ContactText isDarkMode={isDarkMode}>{employee.email}</ContactText>
+              </ContactItem>
+              <ContactItem isDarkMode={isDarkMode}>
+                <ContactIcon>📞</ContactIcon>
+                <ContactText isDarkMode={isDarkMode}>{employee.phone}</ContactText>
+              </ContactItem>
+              <ContactItem isDarkMode={isDarkMode}>
+                <ContactIcon>📸</ContactIcon>
+                <ContactText isDarkMode={isDarkMode}>
+                  Last activity: {employee.screenshot_last_updated ?
+                    new Date(employee.screenshot_last_updated).toLocaleDateString() :
+                    'No data'
+                  }
+                </ContactText>
+              </ContactItem>
+            </ContactInfo>
+
+            <StatsGrid>
+              <StatBox isDarkMode={isDarkMode}>
+                <StatLabel isDarkMode={isDarkMode}>Hourly Rate</StatLabel>
+                <StatValue isDarkMode={isDarkMode}>${employee.hourly_rate}/{employee.currency === 'USD' ? 'hr' : 'h'}</StatValue>
+              </StatBox>
+              <StatBox isDarkMode={isDarkMode}>
+                <StatLabel isDarkMode={isDarkMode}>Department</StatLabel>
+                <StatValue isDarkMode={isDarkMode}>{employee.department}</StatValue>
+              </StatBox>
+              <StatBox isDarkMode={isDarkMode}>
+                <StatLabel isDarkMode={isDarkMode}>📸 Screenshots</StatLabel>
+                <StatValue isDarkMode={isDarkMode}>{employee.screenshot_count ? employee.screenshot_count.toLocaleString() : '0'}</StatValue>
+              </StatBox>
+              <StatBox isDarkMode={isDarkMode}>
+                <StatLabel isDarkMode={isDarkMode}>🕐 Last Updated</StatLabel>
+                <StatValue isDarkMode={isDarkMode}>
+                  {employee.screenshot_last_updated ?
+                    new Date(employee.screenshot_last_updated).toLocaleString() :
+                    'No data'
+                  }
+                </StatValue>
+              </StatBox>
+              <StatBox isDarkMode={isDarkMode}>
+                <StatLabel isDarkMode={isDarkMode}>Activity %</StatLabel>
+                <StatValue isDarkMode={isDarkMode}>{employee.screenshot_percentage ? `${employee.screenshot_percentage}%` : '0%'}</StatValue>
+              </StatBox>
+              <StatBox isDarkMode={isDarkMode}>
+                <StatLabel isDarkMode={isDarkMode}>Join Date</StatLabel>
+                <StatValue isDarkMode={isDarkMode}>{formatJoinDate(employee.join_date)}</StatValue>
+              </StatBox>
+            </StatsGrid>
+
+            <RatingSection>
+              <StarRating>
+                {renderStars(employee.rating, employee.max_rating, isDarkMode)}
+              </StarRating>
+              <RatingText isDarkMode={isDarkMode}>
+                {employee.rating}/{employee.max_rating}
+              </RatingText>
+            </RatingSection>
+
+            <ActionButtons>
+              <ActionButton variant="view">
+                👁️ View
+              </ActionButton>
+              <ActionButton variant="edit">
+                ✏️ Edit
+              </ActionButton>
+              <ActionButton variant="delete">
+                🗑️ Delete
+              </ActionButton>
+            </ActionButtons>
+          </EmployeeCard>
+        ))}
       </EmployeeGrid>
     </EmployeeWrapper>
   );

@@ -16,7 +16,6 @@ import '../styles/globalSliders.css';
 const DashboardContainer = styled.div`
   // background: ${props => props.theme.colors.background};
   min-height: 100vh;
-  padding: ${props => props.theme.spacing.lg} 0;
   position: relative;
   overflow: visible;
   transition: background-color 0.3s ease;
@@ -92,25 +91,25 @@ const Dashboard = () => {
       const hasSeenModal = localStorage.getItem('hasSeenWelcomeModal');
       const userFirstVisit = localStorage.getItem('userFirstVisit');
       const dashboardData = localStorage.getItem('dashboardData');
-      
+
       // Check if this is truly a new user (no previous dashboard data and no modal seen)
       const isNewUser = !hasSeenModal && !dashboardData;
-      
+
       // For debugging: Check URL params for force showing modal
       const urlParams = new URLSearchParams(window.location.search);
       const forceWelcome = urlParams.get('welcome') === 'true';
-      
+
       if (isNewUser || forceWelcome) {
         // Mark that we've detected a first visit (unless forced)
         if (!forceWelcome) {
           localStorage.setItem('userFirstVisit', new Date().toISOString());
         }
-        
+
         // Small delay to ensure the page has loaded properly
         const timer = setTimeout(() => {
           setShowWelcomeModal(true);
         }, 1000);
-        
+
         return () => clearTimeout(timer);
       }
     };
@@ -124,7 +123,7 @@ const Dashboard = () => {
     localStorage.setItem('hasSeenWelcomeModal', 'true');
     // Set some basic dashboard data to prevent modal from showing again
     localStorage.setItem('dashboardData', JSON.stringify({ initialized: true, timestamp: new Date().toISOString() }));
-    
+
     // Remove any URL params used for testing
     const url = new URL(window.location);
     url.searchParams.delete('welcome');
@@ -156,7 +155,7 @@ const Dashboard = () => {
             <ActivityStream compactPadding />
           </ContentSection>
 
-           {/* For Announcement Table  */}
+          {/* For Announcement Table  */}
           <ContentSection theme={theme}>
             <AnnouncementTable />
           </ContentSection>
