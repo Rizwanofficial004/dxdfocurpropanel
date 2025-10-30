@@ -10,6 +10,7 @@ const CompanyAverageContainer = styled.div`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   height: fit-content;
+  min-height: 330px;
 
   [data-theme="dark"] & {
     background: #1d232c;
