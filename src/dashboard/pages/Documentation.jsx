@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 // Styled Components
 const DocumentationContainer = styled.div`
-  padding: 24px;
+  padding: 10px 24px 24px;
 //   max-width: 1200px;
   margin: 0 auto;
   background: transparent;
@@ -18,14 +18,14 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 700;
   color: ${props => props.theme.colors.text.primary};
   margin-bottom: 8px;
 `;
 
 const Subtitle = styled.p`
-  font-size: 16px;
+  font-size: 14px;
   color: ${props => props.theme.colors.text.secondary};
   margin-bottom: 24px;
 `;
@@ -460,7 +460,7 @@ const [selectedImage, setSelectedImage] = useState('');
     <DashboardLayout>
       <DocumentationContainer theme={theme}>
         <Header>
-          <Title theme={theme}>Documentation</Title>
+          <Title theme={theme}>DOCUMENTATION</Title>
           <Subtitle theme={theme}>
             Comprehensive guide to using the Admin Focus dashboard
           </Subtitle>

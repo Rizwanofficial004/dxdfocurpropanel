@@ -33,7 +33,7 @@ const NotificationBanner = styled.div`
 
 // Header Section
 const PageHeader = styled.div`
-  padding: 32px 32px 24px 32px;
+  padding: 10px 32px 24px 32px;
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
@@ -47,7 +47,7 @@ const TitleSection = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   margin: 0;
@@ -899,7 +899,125 @@ const QuickView = () => {
         };
       });
 
-      setEmployeesData(users);
+      // Fetch additional data from new APIs with detailed error handling
+      const fetchIdleTime = async () => {
+        try {
+          const url = `${apiBaseUrl}/auto-paused-records/?date=${formattedDate}`;
+          console.log('Fetching idle time from:', url);
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: { 
+              'Accept': 'application/json', 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('authToken') || 'no-token'}`
+            }
+          });
+          console.log('Idle time response status:', response.status, response.statusText);
+          if (!response.ok) {
+            console.error('Idle time API error:', response.status, response.statusText);
+            const errorText = await response.text();
+            console.error('Idle time error response:', errorText);
+            return null;
+          }
+          const data = await response.json();
+          console.log('Idle time response data:', data);
+          return data;
+        } catch (error) {
+          console.error('Idle time fetch error:', error);
+          return null;
+        }
+      };
+
+      const fetchMeetingTime = async () => {
+        try {
+          const url = `${apiBaseUrl}/meeting-time-summary/?date=${formattedDate}`;
+          console.log('Fetching meeting time from:', url);
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: { 
+              'Accept': 'application/json', 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('authToken') || 'no-token'}`
+            }
+          });
+          console.log('Meeting time response status:', response.status, response.statusText);
+          if (!response.ok) {
+            console.error('Meeting time API error:', response.status, response.statusText);
+            const errorText = await response.text();
+            console.error('Meeting time error response:', errorText);
+            return null;
+          }
+          const data = await response.json();
+          console.log('Meeting time response data:', data);
+          return data;
+        } catch (error) {
+          console.error('Meeting time fetch error:', error);
+          return null;
+        }
+      };
+
+      const [idleTimeData, meetingTimeData] = await Promise.all([
+        fetchIdleTime(),
+        fetchMeetingTime()
+      ]);
+
+      // Debug logging
+      console.log('API Debug Info:');
+      console.log('Date:', formattedDate);
+      console.log('Idle Time API URL:', `${apiBaseUrl}/auto-paused-records/?date=${formattedDate}`);
+      console.log('Meeting Time API URL:', `${apiBaseUrl}/meeting-time-summary/?date=${formattedDate}`);
+      console.log('Idle Time Data:', idleTimeData);
+      console.log('Meeting Time Data:', meetingTimeData);
+
+      // Create lookup maps for additional data
+      const idleTimeLookup = {};
+      if (idleTimeData?.data && Array.isArray(idleTimeData.data)) {
+        console.log('Processing idle time data:', idleTimeData.data);
+        idleTimeData.data.forEach(record => {
+          const userId = record.user_id || record.id;
+          if (userId) {
+            idleTimeLookup[userId] = record.total_idle_time || record.idle_time || '0h 0m';
+          }
+        });
+      } else if (Array.isArray(idleTimeData)) {
+        console.log('Processing idle time data (direct array):', idleTimeData);
+        idleTimeData.forEach(record => {
+          const userId = record.user_id || record.id;
+          if (userId) {
+            idleTimeLookup[userId] = record.total_idle_time || record.idle_time || '0h 0m';
+          }
+        });
+      }
+      console.log('Idle Time Lookup:', idleTimeLookup);
+
+      const meetingTimeLookup = {};
+      if (meetingTimeData?.data && Array.isArray(meetingTimeData.data)) {
+        console.log('Processing meeting time data:', meetingTimeData.data);
+        meetingTimeData.data.forEach(record => {
+          const userId = record.user_id || record.id;
+          if (userId) {
+            meetingTimeLookup[userId] = record.total_meeting_time || record.meeting_time || '0h 0m';
+          }
+        });
+      } else if (Array.isArray(meetingTimeData)) {
+        console.log('Processing meeting time data (direct array):', meetingTimeData);
+        meetingTimeData.forEach(record => {
+          const userId = record.user_id || record.id;
+          if (userId) {
+            meetingTimeLookup[userId] = record.total_meeting_time || record.meeting_time || '0h 0m';
+          }
+        });
+      }
+      console.log('Meeting Time Lookup:', meetingTimeLookup);
+
+      // Update users with additional API data
+      const updatedUsers = users.map(user => ({
+        ...user,
+        idleTime: idleTimeLookup[user.id] || user.idleTime || '0h 0m',
+        meetingTime: meetingTimeLookup[user.id] || user.meetingTime || 'N/A'
+      }));
+
+      setEmployeesData(updatedUsers);
       
     } catch (error) {
       setError(`Failed to load QuickView data: ${error.message}`);

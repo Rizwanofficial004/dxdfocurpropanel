@@ -122,10 +122,9 @@ export const SettingsTitle = styled.h1`
   font-weight: 800;
   margin-bottom: 1rem;
   background: ${props => props.isDarkMode 
-    ? 'linear-gradient(135deg, #60a5fa, #a78bfa, #34d399)'
-    : 'linear-gradient(135deg, #1e40af, #7c3aed, #059669)'
+    ? 'linear-gradient(135deg, #fff, #fff, #fff)'
+    : 'linear-gradient(135deg, #1e293b, #1e293b, #1e293b)'
   };
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: ${props => props.isDarkMode 
