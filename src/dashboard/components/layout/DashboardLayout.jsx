@@ -42,7 +42,7 @@ const HeaderBorderExtension = styled.div`
 
 export const DashboardLayout = ({ children, headerTitle, headerBreadcrumb }) => {
   const [isRightSidebarExpanded, setIsRightSidebarExpanded] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { theme } = useTheme(); // Use theme to access colors
 
   const toggleSidebar = () => setIsSidebarCollapsed(prev => !prev);

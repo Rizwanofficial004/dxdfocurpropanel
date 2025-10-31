@@ -303,6 +303,23 @@ const QuickViewIcon = () => (
   </svg>
 );
 
+// Reports SVG Icon Component
+const ReportsIcon = () => (
+  <svg 
+    width="16" 
+    height="16" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M3 3V21H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M9 9L12 6L16 10L20 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <rect x="7" y="13" width="2" height="8" fill="currentColor"/>
+    <rect x="11" y="10" width="2" height="11" fill="currentColor"/>
+    <rect x="15" y="14" width="2" height="7" fill="currentColor"/>
+  </svg>
+);
+
 // Employees SVG Icon Component
 const EmployeesIcon = () => (
   <svg 
@@ -446,6 +463,7 @@ export const Sidebar = ({ isCollapsed = false }) => {
     { icon: <LiveTrackingIcon />, label: t('liveTracking').toUpperCase(), path: "/dashboard/live-tracking" },
     // { icon: "📷", label: t('oldScreenshots').toUpperCase(), path: "/dashboard/old-screenshots" },
     { icon: <QuickViewIcon />, label: t('quickView').toUpperCase(), path: "/dashboard/quick-view" },
+    { icon: <ReportsIcon />, label: t('reports').toUpperCase(), path: "/dashboard/reports" },
     // { icon: "⏰", label: t('timeLogSummary').toUpperCase(), path: "/dashboard/reports/time-log" },
     { icon: <EmployeesIcon />, label: t('employees').toUpperCase(), path: "/dashboard/employee-reports" },
     // { icon: "🏢", label: t('teams').toUpperCase(), path: "/dashboard/teams" },
