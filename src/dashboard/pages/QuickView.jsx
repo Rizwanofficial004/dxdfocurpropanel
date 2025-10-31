@@ -758,6 +758,9 @@ const QuickView = () => {
     return today.toISOString().split('T')[0];
   });
   
+  // Track last refresh time
+  const [lastRefresh, setLastRefresh] = useState(null);
+  
   // Sorting state
   const [sortBy, setSortBy] = useState('name'); // 'name' or other fields
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
@@ -840,7 +843,10 @@ const QuickView = () => {
       
       // Format date as YYYY-MM-DD
       const formattedDate = selectedDate || new Date().toISOString().split('T')[0];
+      console.log(`🗓️ Fetching data for date: ${formattedDate}`);
+      
       const apiUrl = `${apiBaseUrl}/quickview/?date=${formattedDate}`;
+      console.log(`📡 QuickView API URL: ${apiUrl}`);
       
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -902,7 +908,7 @@ const QuickView = () => {
       // Fetch additional data from new APIs with detailed error handling
       const fetchIdleTime = async () => {
         try {
-          const url = `${apiBaseUrl}/auto-paused-records/?date=${formattedDate}`;
+          const url = `${apiBaseUrl}/auto_paused_records/?date=${formattedDate}`;
           console.log('Fetching idle time from:', url);
           const response = await fetch(url, {
             method: 'GET',
@@ -930,7 +936,7 @@ const QuickView = () => {
 
       const fetchMeetingTime = async () => {
         try {
-          const url = `${apiBaseUrl}/meeting-time-summary/?date=${formattedDate}`;
+          const url = `${apiBaseUrl}/meeting_time_summary/?date=${formattedDate}`;
           console.log('Fetching meeting time from:', url);
           const response = await fetch(url, {
             method: 'GET',
@@ -956,22 +962,76 @@ const QuickView = () => {
         }
       };
 
-      const [idleTimeData, meetingTimeData] = await Promise.all([
+      const fetchSyncStaffs = async () => {
+        try {
+          const url = `${apiBaseUrl}/sync-staffs`;
+          console.log('Fetching sync-staffs from:', url);
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: { 
+              'Accept': 'application/json', 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('authToken') || 'no-token'}`
+            }
+          });
+          console.log('Sync-staffs response status:', response.status, response.statusText);
+          if (!response.ok) {
+            console.error('Sync-staffs API error:', response.status, response.statusText);
+            const errorText = await response.text();
+            console.error('Sync-staffs error response:', errorText);
+            return null;
+          }
+          const data = await response.json();
+          console.log('Sync-staffs response data:', data);
+          return data;
+        } catch (error) {
+          console.error('Sync-staffs fetch error:', error);
+          return null;
+        }
+      };
+
+      const [idleTimeData, meetingTimeData, syncStaffsData] = await Promise.all([
         fetchIdleTime(),
-        fetchMeetingTime()
+        fetchMeetingTime(),
+        fetchSyncStaffs()
       ]);
 
       // Debug logging
       console.log('API Debug Info:');
       console.log('Date:', formattedDate);
-      console.log('Idle Time API URL:', `${apiBaseUrl}/auto-paused-records/?date=${formattedDate}`);
-      console.log('Meeting Time API URL:', `${apiBaseUrl}/meeting-time-summary/?date=${formattedDate}`);
+      console.log('Idle Time API URL:', `${apiBaseUrl}/auto_paused_records/?date=${formattedDate}`);
+      console.log('Meeting Time API URL:', `${apiBaseUrl}/meeting_time_summary/?date=${formattedDate}`);
+      console.log('Sync-Staffs API URL:', `${apiBaseUrl}/sync-staffs`);
       console.log('Idle Time Data:', idleTimeData);
       console.log('Meeting Time Data:', meetingTimeData);
+      console.log('Sync-Staffs Data:', syncStaffsData);
 
       // Create lookup maps for additional data
       const idleTimeLookup = {};
-      if (idleTimeData?.data && Array.isArray(idleTimeData.data)) {
+      const idleStaffInfo = {}; // Store idle time staff details
+      
+      // Handle the idle time API response structure with 'records' array
+      if (idleTimeData?.records && Array.isArray(idleTimeData.records)) {
+        console.log('📊 Processing idle time records array');
+        console.log('📅 Date:', idleTimeData.date);
+        console.log('👥 Total Staffs:', idleTimeData.total_staffs);
+        console.log('📋 Records:', idleTimeData.records);
+        
+        idleTimeData.records.forEach(record => {
+          const staffId = record.staff_id;
+          const idleCount = record.total_count || 0;
+          
+          if (staffId) {
+            idleTimeLookup[staffId] = `${idleCount} pauses`;
+            idleStaffInfo[staffId] = {
+              staffId: staffId,
+              idleCount: idleCount,
+              idleTime: `${idleCount} pauses`
+            };
+            console.log(`✅ Staff ID ${staffId} → Idle Time: ${idleCount} pauses`);
+          }
+        });
+      } else if (idleTimeData?.data && Array.isArray(idleTimeData.data)) {
         console.log('Processing idle time data:', idleTimeData.data);
         idleTimeData.data.forEach(record => {
           const userId = record.user_id || record.id;
@@ -989,35 +1049,330 @@ const QuickView = () => {
         });
       }
       console.log('Idle Time Lookup:', idleTimeLookup);
+      console.log('Idle Staff Info:', idleStaffInfo);
+
+      // Create staff ID lookup from sync-staffs API
+      const staffIdLookup = {};
+      if (syncStaffsData?.data && Array.isArray(syncStaffsData.data)) {
+        console.log('🔍 Processing sync-staffs data:', syncStaffsData.data);
+        syncStaffsData.data.forEach(staff => {
+          // Create lookup by name, email, and ID for flexible matching
+          const staffName = staff.name?.toLowerCase().trim();
+          const staffEmail = staff.email?.toLowerCase().trim();
+          const staffId = staff.staff_id;
+          const staffUserId = staff.id;
+          
+          if (staffName && staffId) {
+            staffIdLookup[staffName] = {
+              staffId: staffId,
+              name: staff.name,
+              email: staff.email,
+              userId: staffUserId
+            };
+          }
+          if (staffEmail && staffId) {
+            staffIdLookup[staffEmail] = {
+              staffId: staffId,
+              name: staff.name,
+              email: staff.email,
+              userId: staffUserId
+            };
+          }
+          if (staffUserId && staffId) {
+            staffIdLookup[staffUserId] = {
+              staffId: staffId,
+              name: staff.name,
+              email: staff.email,
+              userId: staffUserId
+            };
+          }
+          console.log(`✅ Mapped: ${staffName} (${staffEmail}) → Staff ID: ${staffId}`);
+        });
+      }
+      console.log('📋 Staff ID Lookup Map:', staffIdLookup);
 
       const meetingTimeLookup = {};
-      if (meetingTimeData?.data && Array.isArray(meetingTimeData.data)) {
+      const meetingStaffInfo = {}; // Store staff details
+      
+      // Handle the meeting time API response structure with 'results' array
+      if (meetingTimeData?.results && Array.isArray(meetingTimeData.results)) {
+        console.log('📊 Processing meeting time results array');
+        console.log('📅 Date:', meetingTimeData.date);
+        console.log('👥 Total Staffs:', meetingTimeData.total_staffs);
+        console.log('📋 Results:', meetingTimeData.results);
+        
+        meetingTimeData.results.forEach(record => {
+          const staffId = record.staff_id;
+          const meetingTime = record.total_meeting_time || '0h 0m';
+          
+          if (staffId) {
+            meetingTimeLookup[staffId] = meetingTime;
+            meetingStaffInfo[staffId] = {
+              staffId: staffId,
+              meetingTime: meetingTime
+            };
+            console.log(`✅ Staff ID ${staffId} → Meeting Time: ${meetingTime}`);
+          }
+        });
+      } else if (meetingTimeData?.data && Array.isArray(meetingTimeData.data)) {
         console.log('Processing meeting time data:', meetingTimeData.data);
         meetingTimeData.data.forEach(record => {
-          const userId = record.user_id || record.id;
-          if (userId) {
-            meetingTimeLookup[userId] = record.total_meeting_time || record.meeting_time || '0h 0m';
+          const staffId = record.staff_id || record.user_id || record.id;
+          const meetingTime = record.total_meeting_time || record.meeting_time || '0h 0m';
+          const staffName = record.staff_name || record.name || 'Unknown';
+          
+          if (staffId) {
+            meetingTimeLookup[staffId] = meetingTime;
+            meetingStaffInfo[staffId] = {
+              staffId: staffId,
+              staffName: staffName,
+              meetingTime: meetingTime
+            };
           }
         });
       } else if (Array.isArray(meetingTimeData)) {
         console.log('Processing meeting time data (direct array):', meetingTimeData);
         meetingTimeData.forEach(record => {
-          const userId = record.user_id || record.id;
-          if (userId) {
-            meetingTimeLookup[userId] = record.total_meeting_time || record.meeting_time || '0h 0m';
+          const staffId = record.staff_id || record.user_id || record.id;
+          const meetingTime = record.total_meeting_time || record.meeting_time || '0h 0m';
+          const staffName = record.staff_name || record.name || 'Unknown';
+          
+          if (staffId) {
+            meetingTimeLookup[staffId] = meetingTime;
+            meetingStaffInfo[staffId] = {
+              staffId: staffId,
+              staffName: staffName,
+              meetingTime: meetingTime
+            };
           }
         });
       }
       console.log('Meeting Time Lookup:', meetingTimeLookup);
+      console.log('Meeting Staff Info:', meetingStaffInfo);
 
-      // Update users with additional API data
-      const updatedUsers = users.map(user => ({
-        ...user,
-        idleTime: idleTimeLookup[user.id] || user.idleTime || '0h 0m',
-        meetingTime: meetingTimeLookup[user.id] || user.meetingTime || 'N/A'
-      }));
+      // Create a comprehensive user list by combining QuickView users and Meeting Time staff
+      const allUserIds = new Set();
+      const combinedUsers = [...users];
+      
+      // Add users from QuickView to the set
+      users.forEach(user => {
+        allUserIds.add(user.id);
+      });
+      
+      // Add staff from meeting time API who might not be in QuickView
+      Object.keys(meetingStaffInfo).forEach(staffId => {
+        const numericStaffId = parseInt(staffId);
+        const stringStaffId = String(staffId);
+        
+        // Check if this staff member is already in QuickView data
+        const existsInQuickView = users.some(user => 
+          user.id == staffId || 
+          user.staffId == staffId ||
+          user.id == numericStaffId ||
+          user.staffId == numericStaffId
+        );
+        
+        if (!existsInQuickView) {
+          console.log(`➕ Adding missing staff from meeting data: Staff ID ${staffId}`);
+          
+          // Find staff info from sync-staffs data
+          let staffInfo = null;
+          Object.values(staffIdLookup).forEach(staff => {
+            if (staff.staffId == staffId) {
+              staffInfo = staff;
+            }
+          });
+          
+          // Create a user entry for this staff member
+          const missingUser = {
+            id: numericStaffId,
+            name: staffInfo?.name || `Staff ${staffId}`,
+            team: 'Unknown Department',
+            status: 'Unknown',
+            designation: 'Staff',
+            isAdmin: false,
+            email: staffInfo?.email || 'N/A',
+            isOnline: false,
+            staffId: staffId,
+            loggedTime: '0h 0m',
+            productivity: 0,
+            productiveTime: 'N/A',
+            meetingTime: meetingStaffInfo[staffId]?.meetingTime || 'N/A',
+            breakTime: '0h 0m',
+            idleTime: '0h 0m',
+            totalPrograms: 0,
+            programNames: 'N/A',
+            syncStaffInfo: staffInfo,
+            staffInfo: meetingStaffInfo[staffId],
+            originalData: { fromMeetingAPI: true }
+          };
+          
+          combinedUsers.push(missingUser);
+          console.log(`✅ Added staff ${staffId} (${missingUser.name}) with meeting time: ${missingUser.meetingTime}`);
+        }
+      });
+
+      // Add staff from idle time API who might not be in QuickView or Meeting data
+      Object.keys(idleStaffInfo).forEach(staffId => {
+        const numericStaffId = parseInt(staffId);
+        const stringStaffId = String(staffId);
+        
+        // Check if this staff member is already in combined data
+        const existsInCombined = combinedUsers.some(user => 
+          user.id == staffId || 
+          user.staffId == staffId ||
+          user.id == numericStaffId ||
+          user.staffId == numericStaffId
+        );
+        
+        if (!existsInCombined) {
+          console.log(`➕ Adding missing staff from idle time data: Staff ID ${staffId}`);
+          
+          // Find staff info from sync-staffs data
+          let staffInfo = null;
+          Object.values(staffIdLookup).forEach(staff => {
+            if (staff.staffId == staffId) {
+              staffInfo = staff;
+            }
+          });
+          
+          // Create a user entry for this staff member
+          const missingUser = {
+            id: numericStaffId,
+            name: staffInfo?.name || `Staff ${staffId}`,
+            team: 'Unknown Department',
+            status: 'Unknown',
+            designation: 'Staff',
+            isAdmin: false,
+            email: staffInfo?.email || 'N/A',
+            isOnline: false,
+            staffId: staffId,
+            loggedTime: '0h 0m',
+            productivity: 0,
+            productiveTime: 'N/A',
+            meetingTime: 'N/A',
+            breakTime: '0h 0m',
+            idleTime: idleStaffInfo[staffId]?.idleTime || '0 pauses',
+            totalPrograms: 0,
+            programNames: 'N/A',
+            syncStaffInfo: staffInfo,
+            staffInfo: null,
+            originalData: { fromIdleAPI: true }
+          };
+          
+          combinedUsers.push(missingUser);
+          console.log(`✅ Added staff ${staffId} (${missingUser.name}) with idle time: ${missingUser.idleTime}`);
+        }
+      });
+
+      // Update users with additional API data and staff info
+      const updatedUsers = combinedUsers.map(user => {
+        const staffInfo = meetingStaffInfo[user.id];
+        
+        // Try to find actual staff ID from sync-staffs API
+        const userName = user.name?.toLowerCase().trim();
+        const userEmail = user.email?.toLowerCase().trim();
+        const userId = user.id;
+        
+        let actualStaffId = user.staffId; // Default to original
+        let syncStaffInfo = null;
+        
+        // Look up in sync-staffs data by name, email, or ID
+        if (userName && staffIdLookup[userName]) {
+          syncStaffInfo = staffIdLookup[userName];
+          actualStaffId = syncStaffInfo.staffId;
+          console.log(`🎯 Found staff by name: ${userName} → ${actualStaffId}`);
+        } else if (userEmail && staffIdLookup[userEmail]) {
+          syncStaffInfo = staffIdLookup[userEmail];
+          actualStaffId = syncStaffInfo.staffId;
+          console.log(`🎯 Found staff by email: ${userEmail} → ${actualStaffId}`);
+        } else if (userId && staffIdLookup[userId]) {
+          syncStaffInfo = staffIdLookup[userId];
+          actualStaffId = syncStaffInfo.staffId;
+          console.log(`🎯 Found staff by ID: ${userId} → ${actualStaffId}`);
+        } else {
+          console.log(`❌ No staff match found for: ${userName} (${userEmail}) [ID: ${userId}]`);
+        }
+        
+        // Get meeting time using the actual staff ID
+        let userMeetingTime = 'N/A';
+        
+        // Try multiple ways to find meeting time
+        if (actualStaffId && actualStaffId !== 'N/A') {
+          // Convert staff ID to string and number for flexible lookup
+          const staffIdStr = String(actualStaffId);
+          const staffIdNum = parseInt(actualStaffId);
+          
+          userMeetingTime = meetingTimeLookup[staffIdStr] || 
+                           meetingTimeLookup[staffIdNum] || 
+                           meetingTimeLookup[actualStaffId] ||
+                           meetingTimeLookup[user.id] || 
+                           'N/A';
+          
+          console.log(`🔍 Looking for meeting time - Staff ID: ${actualStaffId} (${typeof actualStaffId})`);
+          console.log(`🔍 Available meeting time keys:`, Object.keys(meetingTimeLookup));
+          console.log(`🔍 Meeting time result: ${userMeetingTime}`);
+          
+          if (userMeetingTime !== 'N/A') {
+            console.log(`📅 ✅ Meeting time found for Staff ID ${actualStaffId}: ${userMeetingTime}`);
+          } else {
+            console.log(`📅 ❌ No meeting time found for Staff ID ${actualStaffId}`);
+          }
+        } else {
+          console.log(`📅 ⚠️ No valid staff ID for user ${user.name} (${user.id})`);
+        }
+        
+        // Get idle time using the actual staff ID
+        let userIdleTime = '0h 0m';
+        
+        // Try multiple ways to find idle time
+        if (actualStaffId && actualStaffId !== 'N/A') {
+          // Convert staff ID to string and number for flexible lookup
+          const staffIdStr = String(actualStaffId);
+          const staffIdNum = parseInt(actualStaffId);
+          
+          userIdleTime = idleTimeLookup[staffIdStr] || 
+                        idleTimeLookup[staffIdNum] || 
+                        idleTimeLookup[actualStaffId] ||
+                        idleTimeLookup[user.id] || 
+                        user.idleTime || 
+                        '0h 0m';
+          
+          console.log(`🔍 Looking for idle time - Staff ID: ${actualStaffId} (${typeof actualStaffId})`);
+          console.log(`🔍 Available idle time keys:`, Object.keys(idleTimeLookup));
+          console.log(`🔍 Idle time result: ${userIdleTime}`);
+          
+          if (userIdleTime !== '0h 0m') {
+            console.log(`⏸️ ✅ Idle time found for Staff ID ${actualStaffId}: ${userIdleTime}`);
+          } else {
+            console.log(`⏸️ ❌ No idle time found for Staff ID ${actualStaffId}`);
+          }
+        } else {
+          userIdleTime = user.idleTime || '0h 0m';
+          console.log(`⏸️ ⚠️ Using default idle time for user ${user.name} (${user.id}): ${userIdleTime}`);
+        }
+        
+        return {
+          ...user,
+          idleTime: userIdleTime,
+          meetingTime: userMeetingTime,
+          // Update staff ID with actual value from sync-staffs
+          staffId: actualStaffId,
+          syncStaffInfo: syncStaffInfo,
+          // Add staff info for display
+          staffInfo: staffInfo || null
+        };
+      });
+
+      console.log('👥 Updated Users with Staff Info:', updatedUsers.filter(u => u.syncStaffInfo).map(u => ({ 
+        id: u.id, 
+        name: u.name, 
+        staffId: u.staffId,
+        syncStaffInfo: u.syncStaffInfo 
+      })));
 
       setEmployeesData(updatedUsers);
+      setLastRefresh(new Date());
       
     } catch (error) {
       setError(`Failed to load QuickView data: ${error.message}`);
@@ -1029,6 +1384,7 @@ const QuickView = () => {
 
   // Fetch users on component mount and when selectedDate changes
   useEffect(() => {
+    console.log(`📅 Date changed to: ${selectedDate} - Fetching new data...`);
     fetchUsers();
   }, [selectedDate]); // Re-fetch when date changes
 
@@ -1324,7 +1680,30 @@ const QuickView = () => {
                   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
                   return threeMonthsAgo.toISOString().split('T')[0];
                 })()}
+                title={`Current date: ${selectedDate} - Change to filter data by date`}
               />
+              {lastRefresh && !loading && (
+                <div style={{
+                  fontSize: '10px',
+                  color: theme.colors.text.secondary,
+                  marginLeft: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <span>🔄</span>
+                  <span>Updated: {lastRefresh.toLocaleTimeString()}</span>
+                </div>
+              )}
+              <div style={{
+                fontSize: '11px',
+                color: theme.colors.text.secondary,
+                marginTop: '4px',
+                fontStyle: 'italic',
+                textAlign: 'center'
+              }}>
+                📊 Showing data for: <strong>{selectedDate}</strong>
+              </div>
               <style>{`
                 @keyframes spin {
                   from { transform: rotate(0deg); }
@@ -1337,7 +1716,10 @@ const QuickView = () => {
           {loading && (
             <LoadingMessage theme={theme}>
               <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>🔄</span>
-              {' '}{t('loadingEmployeeData')} <strong>{selectedDate}</strong>...
+              {' '}Loading data for <strong>{selectedDate}</strong>...
+              <div style={{ fontSize: '11px', marginTop: '4px', opacity: 0.8 }}>
+                📊 QuickView • 📅 Meeting Times • 👥 Staff Records
+              </div>
             </LoadingMessage>
           )}
           
@@ -1381,12 +1763,123 @@ const QuickView = () => {
           )}
         </PageHeader>
 
+        {/* Meeting Time Staff Summary */}
+        {!loading && !error && employeesData.length > 0 && (
+          <div style={{
+            background: theme.colors.surface,
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '16px',
+            border: `1px solid ${theme.colors.border}`
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{
+                margin: 0,
+                color: theme.colors.text.primary,
+                fontSize: '16px',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                📅 Meeting Time Details - {selectedDate}
+              </h3>
+              <span style={{
+                fontSize: '12px',
+                color: theme.colors.text.secondary,
+                background: theme.colors.background,
+                padding: '4px 8px',
+                borderRadius: '4px'
+              }}>
+                {employeesData.filter(emp => emp.staffInfo && emp.meetingTime !== 'N/A').length} staff with meetings
+              </span>
+            </div>
+
+            {/* Staff with Meeting Time */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '12px',
+              maxHeight: '200px',
+              overflowY: 'auto'
+            }}>
+              {employeesData
+                .filter(emp => emp.staffInfo && emp.meetingTime !== 'N/A')
+                .map(employee => (
+                  <div
+                    key={employee.id}
+                    style={{
+                      background: theme.colors.background,
+                      border: `1px solid ${theme.colors.success}40`,
+                      borderRadius: '6px',
+                      padding: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontWeight: '600',
+                        color: theme.colors.text.primary,
+                        fontSize: '14px',
+                        marginBottom: '2px'
+                      }}>
+                        {employee.staffInfo.staffName}
+                      </div>
+                      <div style={{
+                        fontSize: '11px',
+                        color: theme.colors.text.secondary,
+                        marginBottom: '4px'
+                      }}>
+                        Staff ID: {employee.staffInfo.staffId}
+                      </div>
+                      <div style={{
+                        fontSize: '12px',
+                        color: theme.colors.success,
+                        fontWeight: '600',
+                        background: `${theme.colors.success}15`,
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        display: 'inline-block'
+                      }}>
+                        📅 {employee.meetingTime}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              
+              {employeesData.filter(emp => emp.staffInfo && emp.meetingTime !== 'N/A').length === 0 && (
+                <div style={{
+                  textAlign: 'center',
+                  color: theme.colors.text.secondary,
+                  fontSize: '14px',
+                  padding: '20px',
+                  gridColumn: '1 / -1'
+                }}>
+                  📭 No staff in meetings today
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <TableWrapper>
           <TableContainer theme={theme}>
             <Table>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
+                  <TableHeader theme={theme} $align="center">
+                    <Tooltip text="Employee Staff ID from system" theme={theme} icon="">
+                      STAFF ID
+                    </Tooltip>
+                  </TableHeader>
                   <TableHeader 
                     theme={theme} 
                     $align="left" 
@@ -1459,6 +1952,24 @@ const QuickView = () => {
                     
                     return (
                       <TableRow key={employee.id} theme={theme}>
+                      <TableCell theme={theme} $align="center">
+                        <div style={{
+                          background: theme.colors.primary + '15',
+                          padding: '6px 10px',
+                          borderRadius: '6px',
+                          border: `1px solid ${theme.colors.primary}40`,
+                          fontWeight: '700',
+                          fontSize: '13px',
+                          color: theme.colors.primary,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <span>🆔</span>
+                          {employee.staffId || employee.id || 'N/A'}
+                        </div>
+                      </TableCell>
+                      
                       <TableCell theme={theme} $align="left">
                         <EmployeeInfo>
                           <UserIcon $isManager={employee.isAdmin}>
