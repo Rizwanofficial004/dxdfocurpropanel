@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -7,28 +7,34 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 // Main wrapper
 const ReportsWrapper = styled.div`
   padding: 24px;
-  min-height: 100vh;
   background: ${props => props.theme.colors.background};
   color: ${props => props.theme.colors.text.primary};
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
 `;
 
 // Layout container
 const ReportsLayout = styled.div`
   display: flex;
   gap: 24px;
-  height: calc(100vh - 120px);
   box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-width: 0;
 `;
 
 // Left sidebar for employee selection
 const EmployeeSelection = styled.div`
-  width: 280px;
+  width: 300px;
+  min-width: 280px;
   background: ${props => props.theme.colors.surface};
   border: 2px solid #ef4444;
   border-radius: 8px;
   padding: 20px;
   height: fit-content;
   box-sizing: border-box;
+  flex-shrink: 0;
 `;
 
 const EmployeeHeader = styled.div`
@@ -56,7 +62,6 @@ const EmployeeSearchInput = styled.input`
 `;
 
 const EmployeeList = styled.div`
-  max-height: 400px;
   overflow-y: auto;
 `;
 
@@ -64,6 +69,9 @@ const EmployeeItem = styled.div`
   padding: 12px;
   cursor: pointer;
   border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 8px;
   background: ${props => props.selected ? props.theme.colors.primary + '20' : 'transparent'};
   border: ${props => props.selected ? `1px solid ${props.theme.colors.primary}` : '1px solid transparent'};
@@ -72,7 +80,9 @@ const EmployeeItem = styled.div`
     background: ${props => props.theme.colors.primary}10;
   }
 `;
+const EmployeeInner = styled.div` 
 
+`;
 const EmployeeName = styled.div`
   font-weight: 500;
   color: ${props => props.theme.colors.text.primary};
@@ -91,6 +101,10 @@ const ReportsContent = styled.div`
   border: 2px solid #ef4444;
   border-radius: 8px;
   padding: 24px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-width: 0;
 `;
 
 const ReportsHeader = styled.div`
@@ -324,17 +338,17 @@ const TabContainer = styled.div`
   gap: 6px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   width: 100%;
+  box-sizing: border-box;
   overflow: hidden;
 `;
 
 const TabScrollContainer = styled.div`
   display: flex;
   gap: 6px;
-  overflow-x: hidden;
+  overflow-x: auto;
   scroll-behavior: smooth;
   flex: 1;
   padding: 0 4px;
-  max-width: 100%;
   
   &::-webkit-scrollbar {
     display: none;
@@ -922,6 +936,263 @@ const LegendText = styled.span`
   font-weight: 500;
 `;
 
+// Time Log Summary Sub-tabs
+const TimeLogSummaryContainer = styled.div`
+  background: ${props => props.theme.colors.surface};
+  border: 2px solid #ef4444;
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+const TimeLogSummaryHeader = styled.div`
+  background: ${props => props.theme.colors.background};
+  padding: 16px 20px;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+`;
+
+const TimeLogSummaryTitle = styled.h3`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.primary};
+  text-transform: uppercase;
+  margin: 0;
+`;
+
+const SubTabContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  padding: 16px 20px;
+  background: ${props => props.theme.colors.background};
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+`;
+
+const SubTabButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1px solid ${props => props.active ? 'transparent' : props.theme.colors.border};
+  border-radius: 8px;
+  background: ${props => {
+    if (props.active) {
+      return props.theme.mode === 'dark' ? '#3b82f6' : '#2563eb';
+    }
+    return props.theme.mode === 'dark' ? '#374151' : '#ffffff';
+  }};
+  color: ${props => {
+    if (props.active) return 'white';
+    return props.theme.mode === 'dark' ? '#e5e7eb' : '#374151';
+  }};
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  position: relative;
+  
+  &:hover {
+    background: ${props => {
+      if (props.active) return props.theme.mode === 'dark' ? '#3b82f6' : '#2563eb';
+      return props.theme.mode === 'dark' ? '#4b5563' : '#f1f5f9';
+    }};
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const SubTabIcon = styled.span`
+  font-size: 14px;
+  opacity: ${props => props.active ? 1 : 0.7};
+`;
+
+const HelpIcon = styled.span`
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: ${props => props.theme.colors.text.tertiary};
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  margin-left: 8px;
+`;
+
+const TimeLogContent = styled.div`
+  padding: 24px;
+  min-height: 400px;
+`;
+
+// Weekly Report Table Components
+const WeeklyTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const WeeklyTableHeader = styled.thead`
+  background: ${props => props.theme.colors.background};
+`;
+
+const WeeklyHeaderRow = styled.tr`
+  border-bottom: 2px solid ${props => props.theme.colors.border};
+`;
+
+const WeeklyHeaderCell = styled.th`
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.secondary};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  cursor: pointer;
+  
+  &:hover {
+    background: ${props => props.theme.colors.background + '80'};
+  }
+`;
+
+const SortIcon = styled.span`
+  margin-left: 8px;
+  font-size: 10px;
+  opacity: 0.6;
+`;
+
+const WeeklyTableBody = styled.tbody``;
+
+const WeeklyRow = styled.tr`
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:nth-child(even) {
+    background: ${props => props.theme.colors.background + '50'};
+  }
+  
+  &:hover {
+    background: ${props => props.theme.colors.primary}10;
+  }
+`;
+
+const WeeklyCell = styled.td`
+  padding: 16px 20px;
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const EmployeeNameCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const WeeklyEmployeeName = styled.span`
+  font-weight: 600;
+  color: ${props => props.theme.colors.primary};
+  font-size: 14px;
+`;
+
+const EmployeeTeams = styled.span`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const HoursCell = styled.span`
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const NotEnoughData = styled.span`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.tertiary};
+  font-style: italic;
+`;
+
+const NoteText = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.secondary};
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: ${props => props.theme.colors.background};
+  border-radius: 6px;
+  border-left: 3px solid ${props => props.theme.colors.primary};
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: ${props => props.theme.colors.background};
+  border-radius: 8px;
+`;
+
+const PaginationLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const PaginationSelect = styled.select`
+  padding: 6px 12px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 14px;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
+
+const PaginationInfo = styled.div`
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const PaginationControls = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+const PaginationArrow = styled.button`
+  width: 32px;
+  height: 32px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: ${props => props.theme.colors.primary};
+    color: white;
+    border-color: ${props => props.theme.colors.primary};
+  }
+  
+  &:disabled {
+    opacity: 0.3;
+  }
+`;
+
 const Reports = () => {
   const { t } = useLanguage();
   const { theme } = useTheme();
@@ -935,6 +1206,7 @@ const Reports = () => {
   const [selectedDate, setSelectedDate] = useState('27');
   const [selectedHour, setSelectedHour] = useState('All');
   const [activeTab, setActiveTab] = useState('TASK');
+  const [activeTimeLogTab, setActiveTimeLogTab] = useState('WEEKLY');
 
   // Tab scroll states
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -953,6 +1225,7 @@ const Reports = () => {
     { id: 'BREAKS_MEET', name: 'BREAKS & MEET', icon: '☕' },
     { id: 'IDLE', name: 'IDLE', icon: '😴' },
     { id: 'OFFLINE', name: 'OFFLINE', icon: '📴' },
+    { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
 
   // Task data for TASK tab
@@ -1026,6 +1299,15 @@ const Reports = () => {
     { start: '6:39 PM', stop: '6:42 PM', duration: '0h 3m' }
   ];
 
+  // OFFLINE data for OFFLINE tab
+  const offlineData = [
+    { start: '10:59 AM', stop: '11:11 AM', duration: '0h 12m' },
+    { start: '11:25 AM', stop: '11:29 AM', duration: '0h 4m' },
+    { start: '4:26 PM', stop: '4:31 PM', duration: '0h 5m' },
+    { start: '5:08 PM', stop: '5:13 PM', duration: '0h 5m' },
+    { start: '6:39 PM', stop: '6:42 PM', duration: '0h 3m' }
+  ];
+
   // Sample employee data
   const sampleEmployees = [
     { id: 1, name: 'Abaa', department: 'No Department', selected: true },
@@ -1033,6 +1315,17 @@ const Reports = () => {
     { id: 3, name: 'Sarah Johnson', department: 'Marketing' },
     { id: 4, name: 'Mike Wilson', department: 'Sales' },
     { id: 5, name: 'Lisa Chen', department: 'Design' },
+  ];
+
+  // Weekly Report data
+  const weeklyReportData = [
+    { name: 'Aba', teams: 'Sales,Auditing Team,Finance', apr2024: '31h 29m', mar2024: '36h 25m', feb2024: null },
+    { name: 'Adams', teams: 'Sales & Marketting,Auditing Team', apr2024: '20h 25m', mar2024: null, feb2024: '0h 3m' },
+    { name: 'Alita', teams: 'Promotion,IT Team', apr2024: '0h 12m', mar2024: '8h 9m', feb2024: '0h 5m' },
+    { name: 'Diana', teams: 'Auditing Team', apr2024: '13h 43m', mar2024: '8h 52m', feb2024: '0h 24m' },
+    { name: 'farina', teams: 'HR Admin,Back Office', apr2024: null, mar2024: null, feb2024: '0h 45m' },
+    { name: 'Veronica', teams: 'Marketing,Sales,Auditing Team', apr2024: '4h 5m', mar2024: null, feb2024: null },
+    { name: 'Alexei', teams: 'Finance,Auditing Team', apr2024: null, mar2024: null, feb2024: null },
   ];
 
   // Filter options
@@ -1078,33 +1371,17 @@ const Reports = () => {
     setSelectedEmployee(sampleEmployees[0]);
   }, []);
 
-  useEffect(() => {
-    checkScrollButtons();
-    // Add scroll detection when component mounts and when window resizes
-    const handleResize = () => {
-      setTimeout(checkScrollButtons, 100);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    // Check scroll buttons when tabs might have changed
-    setTimeout(checkScrollButtons, 100);
-  }, [tabs]);
-
-  const checkScrollButtons = () => {
+  const checkScrollButtons = useCallback(() => {
     if (tabScrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = tabScrollRef.current;
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
     }
-  };
+  }, []);
 
-  const scrollTabs = (direction) => {
+  const scrollTabs = useCallback((direction) => {
     if (tabScrollRef.current) {
-      const scrollAmount = 200;
+      const scrollAmount = 250;
       const newScrollLeft = direction === 'left' 
         ? tabScrollRef.current.scrollLeft - scrollAmount
         : tabScrollRef.current.scrollLeft + scrollAmount;
@@ -1116,7 +1393,27 @@ const Reports = () => {
       
       setTimeout(checkScrollButtons, 300);
     }
-  };
+  }, [checkScrollButtons]);
+
+  useEffect(() => {
+    // Multiple checks to ensure DOM is ready
+    const timer1 = setTimeout(checkScrollButtons, 50);
+    const timer2 = setTimeout(checkScrollButtons, 200);
+    const timer3 = setTimeout(checkScrollButtons, 500);
+    
+    // Add scroll detection when component mounts and when window resizes
+    const handleResize = () => {
+      setTimeout(checkScrollButtons, 100);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [checkScrollButtons]);
 
   const filteredEmployees = employees.filter(emp => 
     emp.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -1410,10 +1707,165 @@ const Reports = () => {
       
       case 'OFFLINE':
         return (
-          <div style={{ padding: '40px', textAlign: 'center', background: theme.colors.surface, borderRadius: '8px' }}>
-            <h3>Offline Status</h3>
-            <p>Offline time tracking and system status information.</p>
-          </div>
+          <IdleContainer>
+            {/* OFFLINE Table Section */}
+            <IdleTableSection theme={theme}>
+              <IdleHeader theme={theme}>
+                <IdleTitle theme={theme}>OFFLINE</IdleTitle>
+              </IdleHeader>
+              <IdleTable>
+                <IdleTableHeader theme={theme}>
+                  <IdleHeaderRow>
+                    <IdleHeaderCell theme={theme}>START</IdleHeaderCell>
+                    <IdleHeaderCell theme={theme}>STOP</IdleHeaderCell>
+                    <IdleHeaderCell theme={theme}>DURATION</IdleHeaderCell>
+                  </IdleHeaderRow>
+                </IdleTableHeader>
+                <IdleTableBody>
+                  {offlineData.map((offline, index) => (
+                    <IdleRow key={index}>
+                      <IdleCell theme={theme}>{offline.start}</IdleCell>
+                      <IdleCell theme={theme}>{offline.stop}</IdleCell>
+                      <IdleCell theme={theme}>{offline.duration}</IdleCell>
+                    </IdleRow>
+                  ))}
+                  <IdleRow>
+                    <IdleCell theme={theme} className="total-row">Total duration</IdleCell>
+                    <IdleCell theme={theme} className="total-row"></IdleCell>
+                    <IdleCell theme={theme} className="total-row">0h 29m</IdleCell>
+                  </IdleRow>
+                </IdleTableBody>
+              </IdleTable>
+            </IdleTableSection>
+
+            {/* OFFLINE Chart Section */}
+            <IdleChartSection theme={theme}>
+              <IdleHeader theme={theme}>
+                <IdleTitle theme={theme}>OFFLINE CHART</IdleTitle>
+              </IdleHeader>
+              <PieChartWrapper>
+                <PieChart theme={theme} />
+                <ChartLegend>
+                  <LegendItem theme={theme}>
+                    <LegendColor color="#3b82f6" />
+                    <LegendText>Logged Hours 9h 50m</LegendText>
+                  </LegendItem>
+                  <LegendItem theme={theme}>
+                    <LegendColor color="#e5e7eb" />
+                    <LegendText>Offline Hours 0h 29m</LegendText>
+                  </LegendItem>
+                </ChartLegend>
+              </PieChartWrapper>
+            </IdleChartSection>
+          </IdleContainer>
+        );
+      
+      case 'TIME_LOG_SUMMARY':
+        return (
+          <TimeLogSummaryContainer theme={theme}>
+            <TimeLogSummaryHeader theme={theme}>
+              <TimeLogSummaryTitle theme={theme}>Time Log Summary</TimeLogSummaryTitle>
+            </TimeLogSummaryHeader>
+            <SubTabContainer theme={theme}>
+              <SubTabButton
+                theme={theme}
+                active={activeTimeLogTab === 'WEEKLY'}
+                onClick={() => setActiveTimeLogTab('WEEKLY')}
+              >
+                <SubTabIcon active={activeTimeLogTab === 'WEEKLY'}>📊</SubTabIcon>
+                Weekly Report
+                <HelpIcon theme={theme}>?</HelpIcon>
+              </SubTabButton>
+              <SubTabButton
+                theme={theme}
+                active={activeTimeLogTab === 'MONTHLY'}
+                onClick={() => setActiveTimeLogTab('MONTHLY')}
+              >
+                <SubTabIcon active={activeTimeLogTab === 'MONTHLY'}>⏰</SubTabIcon>
+                Monthly Reports
+                <HelpIcon theme={theme}>?</HelpIcon>
+              </SubTabButton>
+            </SubTabContainer>
+            <TimeLogContent theme={theme}>
+              {activeTimeLogTab === 'WEEKLY' && (
+                <>
+                  <NoteText theme={theme}>
+                    Current month calculation does not include today's data.
+                  </NoteText>
+                </>
+              )}
+              {activeTimeLogTab === 'MONTHLY' && (
+                <>
+                  <WeeklyTable>
+                    <WeeklyTableHeader theme={theme}>
+                      <WeeklyHeaderRow>
+                        <WeeklyHeaderCell theme={theme}>
+                          Name
+                          <SortIcon>▲</SortIcon>
+                        </WeeklyHeaderCell>
+                        <WeeklyHeaderCell theme={theme}>Apr 2024</WeeklyHeaderCell>
+                        <WeeklyHeaderCell theme={theme}>Mar 2024</WeeklyHeaderCell>
+                        <WeeklyHeaderCell theme={theme}>Feb 2024</WeeklyHeaderCell>
+                      </WeeklyHeaderRow>
+                    </WeeklyTableHeader>
+                    <WeeklyTableBody>
+                      {weeklyReportData.map((employee, index) => (
+                        <WeeklyRow key={index}>
+                          <WeeklyCell theme={theme}>
+                            <EmployeeNameCell>
+                              <WeeklyEmployeeName theme={theme}>{employee.name}</WeeklyEmployeeName>
+                              <EmployeeTeams theme={theme}>{employee.teams}</EmployeeTeams>
+                            </EmployeeNameCell>
+                          </WeeklyCell>
+                          <WeeklyCell theme={theme}>
+                            {employee.apr2024 ? (
+                              <HoursCell theme={theme}>{employee.apr2024}</HoursCell>
+                            ) : (
+                              <NotEnoughData theme={theme}>Not enough data</NotEnoughData>
+                            )}
+                          </WeeklyCell>
+                          <WeeklyCell theme={theme}>
+                            {employee.mar2024 ? (
+                              <HoursCell theme={theme}>{employee.mar2024}</HoursCell>
+                            ) : (
+                              <NotEnoughData theme={theme}>Not enough data</NotEnoughData>
+                            )}
+                          </WeeklyCell>
+                          <WeeklyCell theme={theme}>
+                            {employee.feb2024 ? (
+                              <HoursCell theme={theme}>{employee.feb2024}</HoursCell>
+                            ) : (
+                              <NotEnoughData theme={theme}>Not enough data</NotEnoughData>
+                            )}
+                          </WeeklyCell>
+                        </WeeklyRow>
+                      ))}
+                    </WeeklyTableBody>
+                  </WeeklyTable>
+
+                  <PaginationContainer theme={theme}>
+                    <PaginationLeft>
+                      <span style={{ fontSize: '14px', color: theme.colors.text.secondary }}>
+                        Employees per page:
+                      </span>
+                      <PaginationSelect theme={theme}>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </PaginationSelect>
+                      <PaginationInfo theme={theme}>1 - 7 of 7</PaginationInfo>
+                    </PaginationLeft>
+                    <PaginationControls>
+                      <PaginationArrow theme={theme} disabled>«</PaginationArrow>
+                      <PaginationArrow theme={theme} disabled>‹</PaginationArrow>
+                      <PaginationArrow theme={theme} disabled>›</PaginationArrow>
+                      <PaginationArrow theme={theme} disabled>»</PaginationArrow>
+                    </PaginationControls>
+                  </PaginationContainer>
+                </>
+              )}
+            </TimeLogContent>
+          </TimeLogSummaryContainer>
         );
       
       default:
@@ -1532,8 +1984,10 @@ const Reports = () => {
                   selected={selectedEmployee?.id === employee.id}
                   onClick={() => handleEmployeeSelect(employee)}
                 >
+                  <EmployeeInner>
                   <EmployeeName theme={theme}>{employee.name}</EmployeeName>
                   <EmployeeDepartment theme={theme}>{employee.department}</EmployeeDepartment>
+                  </EmployeeInner>
                   {selectedEmployee?.id === employee.id && (
                     <div style={{ marginTop: '8px', fontSize: '12px', color: '#ef4444' }}>✕</div>
                   )}
