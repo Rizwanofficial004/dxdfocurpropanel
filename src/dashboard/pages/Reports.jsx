@@ -1,1211 +1,129 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import {
+  TaskTab,
+  ScreensTab,
+  FocusTimelineTab,
+  IdleTab,
+  BreaksMeetTab,
+  TimeLogSummaryTab,
+  TopActivityTab,
+  ActivityPatternTab,
+  OTReportTab,
+  MonitoringActionsTab,
+  OfflineTab
+} from '../components/reports';
+import {
+  ReportsWrapper,
+  ReportsLayout,
+  EmployeeSelection,
+  EmployeeHeader,
+  EmployeeSearchInput,
+  EmployeeList,
+  EmployeeItem,
+  EmployeeInner,
+  EmployeeName,
+  EmployeeDepartment,
+  ReportsContent,
+  ReportsHeader,
+  ActivePassiveContainer,
+  TimeSection,
+  TimeSectionLabel,
+  TimeSectionValue,
+  TimeBreakdown,
+  TimeCategory,
+  CategoryHeader,
+  CategoryValue,
+  CategoryPercentage,
+  CategoryIcon,
+  FilterSection,
+  FilterRow,
+  FilterGroup,
+  FilterLabel,
+  FilterSelect,
+  CalendarGrid,
+  CalendarDay,
+  DayHeader,
+  HourGrid,
+  HourSlot,
+  SummaryContainer,
+  SummaryText,
+  TabContainer,
+  TabScrollContainer,
+  TabButton,
+  TabIcon,
+  NavigationArrow
+} from './Reports.styles';
 
-// Main wrapper
-const ReportsWrapper = styled.div`
-  padding: 24px;
-  background: ${props => props.theme.colors.background};
-  color: ${props => props.theme.colors.text.primary};
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
-`;
-
-// Layout container
-const ReportsLayout = styled.div`
-  display: flex;
-  gap: 24px;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  min-width: 0;
-`;
-
-// Left sidebar for employee selection
-const EmployeeSelection = styled.div`
-  width: 300px;
-  min-width: 280px;
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  padding: 20px;
-  height: fit-content;
-  box-sizing: border-box;
-  flex-shrink: 0;
-`;
-
-const EmployeeHeader = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  margin-bottom: 16px;
-  text-transform: uppercase;
-`;
-
-const EmployeeSearchInput = styled.input`
-  width: 100%;
-  padding: 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  background: ${props => props.theme.colors.background};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
-  margin-bottom: 16px;
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
+// Add spinner animation
+const spinnerStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 `;
 
-const EmployeeList = styled.div`
-  overflow-y: auto;
-`;
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('spinner-styles')) {
+  const style = document.createElement('style');
+  style.id = 'spinner-styles';
+  style.textContent = spinnerStyles;
+  document.head.appendChild(style);
+}
 
-const EmployeeItem = styled.div`
-  padding: 12px;
-  cursor: pointer;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  background: ${props => props.selected ? props.theme.colors.primary + '20' : 'transparent'};
-  border: ${props => props.selected ? `1px solid ${props.theme.colors.primary}` : '1px solid transparent'};
-  
-  &:hover {
-    background: ${props => props.theme.colors.primary}10;
-  }
-`;
-const EmployeeInner = styled.div` 
-
-`;
-const EmployeeName = styled.div`
-  font-weight: 500;
-  color: ${props => props.theme.colors.text.primary};
-  margin-bottom: 4px;
-`;
-
-const EmployeeDepartment = styled.div`
-  font-size: 12px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-// Right content area for reports
-const ReportsContent = styled.div`
-  flex: 1;
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  padding: 24px;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  min-width: 0;
-`;
-
-const ReportsHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-`;
-
-const ActivePassiveContainer = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const TimeSection = styled.div`
-  text-align: center;
-`;
-
-const TimeSectionLabel = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.secondary};
-  text-transform: uppercase;
-  margin-bottom: 8px;
-`;
-
-const TimeSectionValue = styled.div`
-  font-size: 18px;
-  font-weight: 700;
-  color: ${props => props.color || props.theme.colors.primary};
-`;
-
-// Time breakdown grid
-const TimeBreakdown = styled.div`
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 16px;
-  margin-top: 20px;
-`;
-
-const TimeCategory = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px;
-  border-radius: 8px;
-  text-align: center;
-  border: 1px solid ${props => props.theme.colors.border};
-`;
-
-const CategoryHeader = styled.div`
-  font-size: 10px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.secondary};
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-`;
-
-const CategoryValue = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  margin-bottom: 4px;
-`;
-
-const CategoryPercentage = styled.div`
-  font-size: 10px;
-  color: ${props => props.theme.colors.text.tertiary};
-`;
-
-const CategoryIcon = styled.span`
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  background: ${props => props.color};
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: bold;
-`;
-
-// Filter Components
-const FilterSection = styled.div`
-  background: ${props => props.theme.colors.background};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 24px;
-`;
-
-const FilterRow = styled.div`
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const FilterGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-`;
-
-const FilterLabel = styled.div`
-  font-size: 11px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-`;
-
-const FilterSelect = styled.select`
-  padding: 10px 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  background: ${props => props.theme.colors.surface};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
-  width: 100%;
-  cursor: pointer;
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
-  }
-`;
-
-const CalendarGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 3px;
-  width: 100%;
-`;
-
-const CalendarDay = styled.div`
-  padding: 6px 2px;
-  text-align: center;
-  font-size: 10px;
-  cursor: pointer;
-  border-radius: 4px;
-  background: ${props => {
-    if (props.selected) return '#3b82f6';
-    if (props.today) return '#10b981';
-    return props.theme.colors.surface;
-  }};
-  color: ${props => {
-    if (props.selected || props.today) return 'white';
-    return props.theme.colors.text.primary;
-  }};
-  border: 1px solid ${props => props.theme.colors.border};
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: ${props => {
-      if (props.selected) return '#3b82f6';
-      if (props.today) return '#10b981';
-      return props.theme.colors.primary + '20';
-    }};
-  }
-`;
-
-const DayHeader = styled.div`
-  font-size: 9px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.tertiary};
-  margin-bottom: 2px;
-  text-transform: uppercase;
-`;
-
-const HourGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 3px;
-  width: 100%;
-`;
-
-const HourSlot = styled.div`
-  padding: 6px 4px;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 500;
-  border-radius: 4px;
-  background: ${props => {
-    if (props.selected) return '#3b82f6';
-    return props.theme.colors.surface;
-  }};
-  color: ${props => props.selected ? 'white' : props.theme.colors.text.primary};
-  border: 1px solid ${props => props.theme.colors.border};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: ${props => props.selected ? '#3b82f6' : props.theme.colors.primary + '20'};
-  }
-`;
-
-const SummaryContainer = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  padding: 12px 16px;
-  margin-top: 16px;
-`;
-
-const SummaryText = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  
-  span {
-    color: ${props => props.theme.colors.primary};
-  }
-`;
-
-// Tab Navigation Components
-const TabContainer = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${props => props.theme.mode === 'dark' ? '#1e293b' : '#f8fafc'};
-  border: 2px solid ${props => props.theme.mode === 'dark' ? '#334155' : '#e2e8f0'};
-  border-radius: 12px;
-  padding: 8px 12px;
-  margin-bottom: 24px;
-  gap: 6px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-`;
-
-const TabScrollContainer = styled.div`
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  flex: 1;
-  padding: 0 4px;
-  
-  &::-webkit-scrollbar {
-    display: none;
+// Helper function to get profile photo URL from CRM (same as ActivityStream)
+const getProfilePhotoUrl = (user) => {
+  // Check if user has profile_url and staff_id
+  if (!user || !user.profile_url || !user.staff_id) {
+    return null;
   }
   
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-`;
-
-const TabButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border: 1px solid ${props => props.active ? 'transparent' : props.theme.colors.border};
-  border-radius: 8px;
-  background: ${props => {
-    if (props.active) {
-      return props.theme.mode === 'dark' ? '#3b82f6' : '#2563eb';
-    }
-    return props.theme.mode === 'dark' ? '#374151' : '#ffffff';
-  }};
-  color: ${props => {
-    if (props.active) return 'white';
-    return props.theme.mode === 'dark' ? '#e5e7eb' : '#374151';
-  }};
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  min-width: fit-content;
-  flex-shrink: 0;
-  box-shadow: ${props => props.active ? '0 4px 8px rgba(59, 130, 246, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.1)'};
+  // Build the CRM profile photo URL with small_ prefix for thumbnail
+  // Format: https://crm.deluxebilisim.com/uploads/staff_profile_images/{staff_id}/small_{profile_url}
+  const profileUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${user.staff_id}/small_${encodeURIComponent(user.profile_url)}`;
   
-  &:hover {
-    background: ${props => {
-      if (props.active) return props.theme.mode === 'dark' ? '#3b82f6' : '#2563eb';
-      return props.theme.mode === 'dark' ? '#4b5563' : '#f1f5f9';
-    }};
-    transform: translateY(-1px);
-    box-shadow: ${props => props.active ? '0 6px 12px rgba(59, 130, 246, 0.4)' : '0 4px 8px rgba(0, 0, 0, 0.15)'};
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const TabIcon = styled.span`
-  font-size: 14px;
-  opacity: ${props => props.active ? 1 : 0.7};
-`;
-
-const NavigationArrow = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 8px;
-  background: ${props => props.theme.mode === 'dark' ? '#374151' : '#ffffff'};
-  color: ${props => props.theme.mode === 'dark' ? '#e5e7eb' : '#374151'};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-  
-  &:hover:not(:disabled) {
-    background: ${props => props.theme.mode === 'dark' ? '#4b5563' : '#f1f5f9'};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    transform: none;
-    background: ${props => props.theme.mode === 'dark' ? '#1f2937' : '#f9fafb'};
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-`;
-
-// Top Activity Components
-const TopActivityContainer = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const TopActivityHeader = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px 20px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const TopActivityTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  margin: 0;
-`;
-
-const TopActivityContent = styled.div`
-  padding: 24px;
-`;
-
-const WorkTimeSection = styled.div`
-  display: flex;
-  gap: 24px;
-  margin-bottom: 32px;
-`;
-
-const WorkTimeStats = styled.div`
-  flex: 1;
-`;
-
-const WorkTimeItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const WorkTimeLabel = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${props => props.color || props.theme.colors.text.primary};
-  text-transform: uppercase;
-  min-width: 80px;
-`;
-
-const WorkTimeBar = styled.div`
-  flex: 1;
-  height: 8px;
-  background: ${props => props.theme.colors.background};
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-`;
-
-const WorkTimeProgress = styled.div`
-  height: 100%;
-  background: ${props => props.color};
-  width: ${props => props.percentage}%;
-  border-radius: 4px;
-`;
-
-const WorkTimeValue = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  min-width: 60px;
-`;
-
-const WorkTimePercentage = styled.div`
-  font-size: 11px;
-  color: ${props => props.theme.colors.text.secondary};
-  min-width: 40px;
-`;
-
-const UserInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: ${props => props.theme.colors.background};
-  border-radius: 8px;
-  min-width: 120px;
-`;
-
-const UserName = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  margin-bottom: 4px;
-`;
-
-const UserDuration = styled.div`
-  font-size: 12px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const ApplicationsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-`;
-
-const ApplicationCard = styled.div`
-  background: ${props => props.theme.colors.background};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const AppIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  background: ${props => props.color};
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  margin-bottom: 12px;
-`;
-
-const AppName = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  margin-bottom: 8px;
-`;
-
-const AppDuration = styled.div`
-  font-size: 12px;
-  color: ${props => props.theme.colors.text.secondary};
-  margin-bottom: 4px;
-`;
-
-const AppPercentage = styled.div`
-  font-size: 11px;
-  color: ${props => props.theme.colors.text.tertiary};
-`;
-
-// Breaks & Meetings Components
-const BreaksMeetContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-`;
-
-const BreakMeetSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const BreakMeetHeader = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px 20px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const BreakMeetTitle = styled.h3`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  margin: 0;
-`;
-
-const InfoIcon = styled.span`
-  width: 16px;
-  height: 16px;
-  background: ${props => props.theme.colors.text.tertiary};
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-`;
-
-const BreakMeetTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const BreakMeetTableHeader = styled.thead`
-  background: ${props => props.theme.colors.background};
-`;
-
-const BreakMeetHeaderRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const BreakMeetHeaderCell = styled.th`
-  padding: 12px 20px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.secondary};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const BreakMeetTableBody = styled.tbody``;
-
-const BreakMeetRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
-  }
-`;
-
-const BreakMeetCell = styled.td`
-  padding: 16px 20px;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.primary};
-  
-  &.total-row {
-    font-weight: 600;
-    background: ${props => props.theme.colors.background};
-  }
-`;
-
-const DefinedBreakSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-top: 24px;
-`;
-
-const DefinedBreakHeader = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px 20px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const DefinedBreakTitle = styled.h3`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  margin: 0;
-`;
-
-// Task Table Components (for TASK tab)
-const TaskContainer = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const TaskHeader = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px 20px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const TaskTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  margin: 0;
-`;
-
-const TaskTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const TaskTableHeader = styled.thead`
-  background: ${props => props.theme.colors.background};
-`;
-
-const TaskHeaderRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const TaskHeaderCell = styled.th`
-  padding: 12px 20px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.secondary};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const TaskTableBody = styled.tbody``;
-
-const TaskRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
-  }
-`;
-
-const TaskCell = styled.td`
-  padding: 16px 20px;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.primary};
-  
-  &.total-row {
-    font-weight: 600;
-    background: ${props => props.theme.colors.background};
-  }
-`;
-
-// IDLE Tab Components
-const IdleContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-`;
-
-const IdleTableSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const IdleChartSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const IdleHeader = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px 20px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const IdleTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  margin: 0;
-`;
-
-const IdleTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const IdleTableHeader = styled.thead`
-  background: ${props => props.theme.colors.background};
-`;
-
-const IdleHeaderRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const IdleHeaderCell = styled.th`
-  padding: 12px 20px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.secondary};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`;
-
-const IdleTableBody = styled.tbody``;
-
-const IdleRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
-  }
-`;
-
-const IdleCell = styled.td`
-  padding: 16px 20px;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.primary};
-  
-  &.total-row {
-    font-weight: 600;
-    background: ${props => props.theme.colors.background};
-  }
-`;
-
-const PieChartWrapper = styled.div`
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-`;
-
-const PieChart = styled.div`
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #3b82f6 0deg 18deg,
-    #e5e7eb 18deg 360deg
-  );
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  
-  &::before {
-    content: '';
-    width: 120px;
-    height: 120px;
-    background: ${props => props.theme.colors.surface};
-    border-radius: 50%;
-    position: absolute;
-  }
-  
-  &::after {
-    content: '95%';
-    position: absolute;
-    z-index: 1;
-    font-size: 24px;
-    font-weight: 700;
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-const ChartLegend = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 12px;
-`;
-
-const LegendItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: ${props => props.theme.colors.text.primary};
-`;
-
-const LegendColor = styled.div`
-  width: 12px;
-  height: 12px;
-  background: ${props => props.color};
-  border-radius: 2px;
-`;
-
-const LegendText = styled.span`
-  font-weight: 500;
-`;
-
-// Time Log Summary Sub-tabs
-const TimeLogSummaryContainer = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border: 2px solid #ef4444;
-  border-radius: 8px;
-  overflow: hidden;
-`;
-
-const TimeLogSummaryHeader = styled.div`
-  background: ${props => props.theme.colors.background};
-  padding: 16px 20px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const TimeLogSummaryTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  text-transform: uppercase;
-  margin: 0;
-`;
-
-const SubTabContainer = styled.div`
-  display: flex;
-  gap: 8px;
-  padding: 16px 20px;
-  background: ${props => props.theme.colors.background};
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-`;
-
-const SubTabButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border: 1px solid ${props => props.active ? 'transparent' : props.theme.colors.border};
-  border-radius: 8px;
-  background: ${props => {
-    if (props.active) {
-      return props.theme.mode === 'dark' ? '#3b82f6' : '#2563eb';
-    }
-    return props.theme.mode === 'dark' ? '#374151' : '#ffffff';
-  }};
-  color: ${props => {
-    if (props.active) return 'white';
-    return props.theme.mode === 'dark' ? '#e5e7eb' : '#374151';
-  }};
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  position: relative;
-  
-  &:hover {
-    background: ${props => {
-      if (props.active) return props.theme.mode === 'dark' ? '#3b82f6' : '#2563eb';
-      return props.theme.mode === 'dark' ? '#4b5563' : '#f1f5f9';
-    }};
-    transform: translateY(-1px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const SubTabIcon = styled.span`
-  font-size: 14px;
-  opacity: ${props => props.active ? 1 : 0.7};
-`;
-
-const HelpIcon = styled.span`
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: ${props => props.theme.colors.text.tertiary};
-  color: white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: bold;
-  margin-left: 8px;
-`;
-
-const TimeLogContent = styled.div`
-  padding: 24px;
-  min-height: 400px;
-`;
-
-// Weekly Report Table Components
-const WeeklyTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const WeeklyTableHeader = styled.thead`
-  background: ${props => props.theme.colors.background};
-`;
-
-const WeeklyHeaderRow = styled.tr`
-  border-bottom: 2px solid ${props => props.theme.colors.border};
-`;
-
-const WeeklyHeaderCell = styled.th`
-  padding: 16px 20px;
-  text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.secondary};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
-  cursor: pointer;
-  
-  &:hover {
-    background: ${props => props.theme.colors.background + '80'};
-  }
-`;
-
-const SortIcon = styled.span`
-  margin-left: 8px;
-  font-size: 10px;
-  opacity: 0.6;
-`;
-
-const WeeklyTableBody = styled.tbody``;
-
-const WeeklyRow = styled.tr`
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
-  }
-  
-  &:hover {
-    background: ${props => props.theme.colors.primary}10;
-  }
-`;
-
-const WeeklyCell = styled.td`
-  padding: 16px 20px;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.primary};
-`;
-
-const EmployeeNameCell = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const WeeklyEmployeeName = styled.span`
-  font-weight: 600;
-  color: ${props => props.theme.colors.primary};
-  font-size: 14px;
-`;
-
-const EmployeeTeams = styled.span`
-  font-size: 12px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const HoursCell = styled.span`
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-`;
-
-const NotEnoughData = styled.span`
-  font-size: 12px;
-  color: ${props => props.theme.colors.text.tertiary};
-  font-style: italic;
-`;
-
-const NoteText = styled.div`
-  font-size: 12px;
-  color: ${props => props.theme.colors.text.secondary};
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  background: ${props => props.theme.colors.background};
-  border-radius: 6px;
-  border-left: 3px solid ${props => props.theme.colors.primary};
-`;
-
-const PaginationContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  padding: 16px 20px;
-  background: ${props => props.theme.colors.background};
-  border-radius: 8px;
-`;
-
-const PaginationLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const PaginationSelect = styled.select`
-  padding: 6px 12px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  background: ${props => props.theme.colors.surface};
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 14px;
-  cursor: pointer;
-  
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
-  }
-`;
-
-const PaginationInfo = styled.div`
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
-
-const PaginationControls = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
-
-const PaginationArrow = styled.button`
-  width: 32px;
-  height: 32px;
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: 6px;
-  background: ${props => props.theme.colors.surface};
-  color: ${props => props.theme.colors.text.primary};
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  
-  &:hover:not(:disabled) {
-    background: ${props => props.theme.colors.primary};
-    color: white;
-    border-color: ${props => props.theme.colors.primary};
-  }
-  
-  &:disabled {
-    opacity: 0.3;
-  }
-`;
+  return profileUrl;
+};
 
 const Reports = () => {
   const { t } = useLanguage();
   const { theme } = useTheme();
+  
+  // Define constants first
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                 'July', 'August', 'September', 'October', 'November', 'December'];
+  
+  // Filter states - Set defaults to current date
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear().toString();
+  const currentMonthIndex = currentDate.getMonth();
+  const currentDay = currentDate.getDate().toString();
+  
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [employees, setEmployees] = useState([]);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+  const [syncStaffsUsers, setSyncStaffsUsers] = useState([]); // Users from sync-staffs API
+  const [filteredUsers, setFilteredUsers] = useState([]); // Filtered users for search
   
-  // Filter states
-  const [selectedYear, setSelectedYear] = useState('2024');
-  const [selectedMonth, setSelectedMonth] = useState('August');
-  const [selectedDate, setSelectedDate] = useState('27');
+  // API Data States
+  const [meetingTimeData, setMeetingTimeData] = useState(null);
+  const [idleTimeData, setIdleTimeData] = useState(null);
+  const [focusTimelineData, setFocusTimelineData] = useState(null);
+  const [taskReportData, setTaskReportData] = useState(null);
+  const [loggedTimeData, setLoggedTimeData] = useState(null);
+  const [screenshotCountData, setScreenshotCountData] = useState(null);
+  const [isLoadingReportData, setIsLoadingReportData] = useState(false);
+  const [reportError, setReportError] = useState(null);
+  
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState(months[currentMonthIndex]);
+  const [selectedDate, setSelectedDate] = useState(currentDay);
   const [selectedHour, setSelectedHour] = useState('All');
-  const [activeTab, setActiveTab] = useState('TASK');
+  const [activeTab, setActiveTab] = useState('FOCUS_TIMELINE'); // Start with Focus Timeline
   const [activeTimeLogTab, setActiveTimeLogTab] = useState('WEEKLY');
 
   // Tab scroll states
@@ -1308,16 +226,347 @@ const Reports = () => {
     { start: '6:39 PM', stop: '6:42 PM', duration: '0h 3m' }
   ];
 
-  // Sample employee data
-  const sampleEmployees = [
-    { id: 1, name: 'Abaa', department: 'No Department', selected: true },
-    { id: 2, name: 'John Smith', department: 'Engineering' },
-    { id: 3, name: 'Sarah Johnson', department: 'Marketing' },
-    { id: 4, name: 'Mike Wilson', department: 'Sales' },
-    { id: 5, name: 'Lisa Chen', department: 'Design' },
-  ];
+  // Fetch users from sync-staffs API (same as ActivityStream)
+  const fetchSyncStaffsUsers = async () => {
+    try {
+      const response = await fetch('/api/sync-staffs/', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
 
-  // Weekly Report data
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const staffList = data.data || [];
+      
+      if (staffList && Array.isArray(staffList) && staffList.length > 0) {
+        // Map sync-staffs data to our user format
+        const formattedUsers = staffList.filter(staff => staff.email).map(staff => ({
+          id: staff.id || staff.email,
+          email: staff.email,
+          username: staff.name || staff.email,
+          display_name: staff.name || staff.email,
+          name: staff.name || staff.email, // For compatibility
+          department: staff.job_position || 'No Department',
+          staff_id: staff.staff_id,
+          profile_url: staff.profile_url,
+          phone_number: staff.phone_number,
+          job_position: staff.job_position || '',
+          screenshot_interval: staff.screenshot_interval,
+          totalScreenshots: 0, // Will be loaded when user is selected
+          status: 'active'
+        }));
+
+        setSyncStaffsUsers(formattedUsers);
+        setFilteredUsers(formattedUsers);
+        setEmployees(formattedUsers);
+        
+        if (formattedUsers.length > 0) {
+          setSelectedEmployee(formattedUsers[0]);
+        }
+        
+        return formattedUsers;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error.message);
+      return [];
+    }
+  };
+
+  // API Functions for Employee Reports
+  const fetchMeetingTimeData = async (employee, month) => {
+    if (!employee?.staff_id) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/meeting_summary/monthly/?staff_id=${employee.staff_id}&month=${month}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Meeting Time Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching meeting time data:', error);
+    }
+    return null;
+  };
+
+  const fetchIdleTimeData = async (employee, month) => {
+    if (!employee?.staff_id) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/idle_summary/?staff_id=${employee.staff_id}&month=${month}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Idle Time Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching idle time data:', error);
+    }
+    return null;
+  };
+
+  const fetchFocusTimelineData = async (employee, month) => {
+    if (!employee?.email) {
+      console.log('❌ Focus Timeline API: No employee email provided');
+      return null;
+    }
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/focus_timeline/?email=${employee.email}&month=${month}`;
+      console.log('🚀 Focus Timeline API: Calling', url);
+      
+      // TEMPORARY TEST: Return sample data if email matches test data
+      if (employee.email === 'hussainnaqvi1306@gmail.com' || month === '2025-11') {
+        console.log('🧪 Using test data for Focus Timeline');
+        return {
+          "month": "2025-11",
+          "email": employee.email,
+          "total_worked_hours": 21.32,
+          "monthly_app_usage": [
+            {
+              "process_name": "chrome.exe",
+              "total_seconds": 56778.9,
+              "total_hours": 15.77,
+              "percent": 73.99
+            },
+            {
+              "process_name": "Code.exe",
+              "total_seconds": 7105.3,
+              "total_hours": 1.97,
+              "percent": 9.26
+            }
+          ],
+          "daily_report": {
+            "2025-11-06": {
+              "status": "works_done",
+              "note": "data_found",
+              "total_worked_seconds": 14430.999999999998,
+              "total_worked_hours": 4.01,
+              "applications_used": [
+                {
+                  "process_name": "chrome.exe",
+                  "total_seconds": 8279.0,
+                  "total_hours": 2.3,
+                  "percent": 57.37,
+                  "window_titles": [
+                    "Google Chrome",
+                    "DDS Focus Pro - Google Chrome"
+                  ]
+                }
+              ]
+            }
+          }
+        };
+      }
+      
+      const response = await fetch(url);
+      console.log('📡 Focus Timeline API Response:', response.status, response.statusText);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Focus Timeline Data received:', data);
+        return data;
+      } else {
+        console.log('❌ Focus Timeline API Error:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching focus timeline data:', error);
+    }
+    return null;
+  };
+
+  const fetchTaskReportData = async (employee, month) => {
+    if (!employee?.email) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/monthly_task_report/?email=${employee.email}&month=${month}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Task Report Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching task report data:', error);
+    }
+    return null;
+  };
+
+  const fetchLoggedTimeData = async (employee, month, date = null) => {
+    if (!employee?.email) return null;
+    
+    try {
+      let url;
+      if (date) {
+        // Daily logged time
+        url = `https://dxdtime.ddsolutions.io/api/logged_time?email=${employee.email}&date=${date}`;
+      } else {
+        // Monthly logged time
+        url = `https://dxdtime.ddsolutions.io/api/logged_time/monthly/?email=${employee.email}&month=${month}`;
+      }
+      
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Logged Time Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching logged time data:', error);
+    }
+    return null;
+  };
+
+  const fetchScreenshotCountData = async (date) => {
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/screenshot_count/?date=${date}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Screenshot Count Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching screenshot count data:', error);
+    }
+    return null;
+  };
+
+  const fetchMeetingTimeQuickview = async (employee, date) => {
+    if (!employee?.email) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/meeting_time_summary?email=${employee.email}&date=${date}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Meeting Time Quickview Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching meeting time quickview data:', error);
+    }
+    return null;
+  };
+
+  const fetchIdleTimeQuickview = async (employee, date) => {
+    if (!employee?.staff_id) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/auto_paused_records/?staff_id=${employee.staff_id}&date=${date}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Idle Time Quickview Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching idle time quickview data:', error);
+    }
+    return null;
+  };
+
+  // Main function to fetch all report data
+  const fetchReportData = async (employee) => {
+    if (!employee) {
+      console.log('❌ fetchReportData: No employee provided');
+      return;
+    }
+    
+    console.log('🔄 fetchReportData: Starting data fetch for employee:', employee);
+    console.log('🔄 Setting isLoadingReportData to true');
+    setIsLoadingReportData(true);
+    setReportError(null);
+    
+    try {
+      // Format current month as YYYY-MM
+      const currentMonth = `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}`;
+      console.log('📅 fetchReportData: Using month:', currentMonth);
+      
+      // Format specific date as YYYY-MM-DD
+      const specificDate = selectedDate 
+        ? `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+        : null;
+      
+      console.log(`🔄 Fetching report data for ${employee.display_name || employee.email}`);
+      console.log(`� Employee email: ${employee.email}`);
+      console.log(`�📅 Month: ${currentMonth}, Date: ${specificDate}`);
+      console.log(`🔍 Will call Focus Timeline API: https://dxdtime.ddsolutions.io/api/focus_timeline/?email=${employee.email}&month=${currentMonth}`);
+      
+      // Fetch all data in parallel
+      const [
+        meetingData,
+        idleData,
+        focusData,
+        taskData,
+        loggedData,
+        screenshotData,
+        meetingQuickview,
+        idleQuickview
+      ] = await Promise.all([
+        fetchMeetingTimeData(employee, currentMonth),
+        fetchIdleTimeData(employee, currentMonth),
+        fetchFocusTimelineData(employee, currentMonth),
+        fetchTaskReportData(employee, currentMonth),
+        fetchLoggedTimeData(employee, currentMonth, specificDate),
+        specificDate ? fetchScreenshotCountData(specificDate) : null,
+        specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
+        specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null
+      ]);
+      
+      // Update state with fetched data
+      console.log('📝 Setting Focus Timeline Data:', focusData);
+      setMeetingTimeData(meetingData);
+      setIdleTimeData(idleData);
+      setFocusTimelineData(focusData);
+      setTaskReportData(taskData);
+      setLoggedTimeData(loggedData);
+      setScreenshotCountData(screenshotData);
+      
+      console.log('✅ All report data fetched successfully');
+      
+    } catch (error) {
+      console.error('❌ Error fetching report data:', error);
+      setReportError(`Failed to load report data: ${error.message}`);
+    } finally {
+      console.log('🔄 Setting isLoadingReportData to false');
+      setIsLoadingReportData(false);
+    }
+  };
+
+  // Local search function to filter sync-staffs users quickly (same as ActivityStream)
+  const filterSyncStaffsUsers = (query) => {
+    if (!query || query.trim().length === 0) {
+      return syncStaffsUsers;
+    }
+    
+    const searchTerm = query.toLowerCase().trim();
+    return syncStaffsUsers.filter(user => 
+      (user.username && user.username.toLowerCase().includes(searchTerm)) ||
+      (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+      (user.display_name && user.display_name.toLowerCase().includes(searchTerm)) ||
+      (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+      (user.job_position && user.job_position.toLowerCase().includes(searchTerm)) ||
+      (user.department && user.department.toLowerCase().includes(searchTerm))
+    );
+  };
   const weeklyReportData = [
     { name: 'Aba', teams: 'Sales,Auditing Team,Finance', apr2024: '31h 29m', mar2024: '36h 25m', feb2024: null },
     { name: 'Adams', teams: 'Sales & Marketting,Auditing Team', apr2024: '20h 25m', mar2024: null, feb2024: '0h 3m' },
@@ -1330,8 +579,6 @@ const Reports = () => {
 
   // Filter options
   const years = ['2023', '2024', '2025'];
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                 'July', 'August', 'September', 'October', 'November', 'December'];
   const dates = Array.from({length: 31}, (_, i) => (i + 1).toString());
   const hours = ['All', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', 
                 '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM'];
@@ -1367,9 +614,34 @@ const Reports = () => {
   };
 
   useEffect(() => {
-    setEmployees(sampleEmployees);
-    setSelectedEmployee(sampleEmployees[0]);
-  }, []);
+    // Load users from sync-staffs API on startup (same as ActivityStream)
+    const timer = setTimeout(async () => {
+      setIsLoadingEmployees(false);
+      
+      try {
+        const users = await fetchSyncStaffsUsers();
+        
+        if (users && users.length > 0) {
+          console.log('✅ Loaded', users.length, 'users from sync-staffs API');
+        } else {
+          console.log('⚠️ No users found from sync-staffs API');
+        }
+      } catch (error) {
+        console.error('❌ Failed to load users:', error);
+      }
+    }, 10);
+    
+    return () => clearTimeout(timer);
+  }, [selectedDate, selectedMonth, selectedYear]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
 
   const checkScrollButtons = useCallback(() => {
     if (tabScrollRef.current) {
@@ -1415,457 +687,154 @@ const Reports = () => {
     };
   }, [checkScrollButtons]);
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEmployees = filteredUsers.filter(emp => 
+    emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (emp.email && emp.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (emp.display_name && emp.display_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (emp.department && emp.department.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleEmployeeSelect = (employee) => {
+    console.log('👤 Employee Selected:', employee);
     setSelectedEmployee(employee);
+    
+    // Fetch report data for the selected employee
+    console.log('🔄 Fetching report data for selected employee...');
+    fetchReportData(employee);
   };
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    // Filter sync-staffs users locally for fast search (same as ActivityStream)
+    const filtered = filterSyncStaffsUsers(query);
+    setFilteredUsers(filtered);
+    
+    // No API calls needed - just local filtering
+    setIsLoadingEmployees(false);
+  };
+
+  // Fetch report data when filters change
+  useEffect(() => {
+    if (selectedEmployee) {
+      fetchReportData(selectedEmployee);
+    }
+  }, [selectedEmployee, selectedYear, selectedMonth, selectedDate, selectedHour]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
   };
 
   const renderTabContent = () => {
+    // Show error state
+    if (reportError) {
+      return (
+        <div style={{ 
+          padding: '60px', 
+          textAlign: 'center', 
+          background: theme.colors.surface, 
+          borderRadius: '8px',
+          border: '2px solid #ef4444',
+          color: '#ef4444'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+          <h3>Error Loading Report Data</h3>
+          <p>{reportError}</p>
+          <button
+            onClick={() => selectedEmployee && fetchReportData(selectedEmployee)}
+            style={{
+              marginTop: '16px',
+              padding: '8px 16px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+
+    // Common props to pass to all tab components
+    const tabProps = {
+      theme,
+      selectedEmployee,
+      selectedYear,
+      selectedMonth,
+      selectedDate,
+      months,
+      isLoadingReportData // Pass loading state to individual tabs
+    };
+
     switch (activeTab) {
       case 'TASK':
         return (
-          <TaskContainer theme={theme}>
-            <TaskHeader theme={theme}>
-              <TaskTitle theme={theme}>Task</TaskTitle>
-            </TaskHeader>
-            <TaskTable>
-              <TaskTableHeader theme={theme}>
-                <TaskHeaderRow>
-                  <TaskHeaderCell theme={theme}>Name</TaskHeaderCell>
-                  <TaskHeaderCell theme={theme}>Project</TaskHeaderCell>
-                  <TaskHeaderCell theme={theme}>Start</TaskHeaderCell>
-                  <TaskHeaderCell theme={theme}>Stop</TaskHeaderCell>
-                  <TaskHeaderCell theme={theme}>Duration</TaskHeaderCell>
-                </TaskHeaderRow>
-              </TaskTableHeader>
-              <TaskTableBody>
-                {taskData.map((task, index) => (
-                  <TaskRow key={index}>
-                    <TaskCell theme={theme}>{task.name}</TaskCell>
-                    <TaskCell theme={theme}>{task.project}</TaskCell>
-                    <TaskCell theme={theme}>{task.start}</TaskCell>
-                    <TaskCell theme={theme}>{task.stop}</TaskCell>
-                    <TaskCell theme={theme}>{task.duration}</TaskCell>
-                  </TaskRow>
-                ))}
-                <TaskRow>
-                  <TaskCell theme={theme} className="total-row">Total duration</TaskCell>
-                  <TaskCell theme={theme} className="total-row"></TaskCell>
-                  <TaskCell theme={theme} className="total-row"></TaskCell>
-                  <TaskCell theme={theme} className="total-row"></TaskCell>
-                  <TaskCell theme={theme} className="total-row">{totalDuration}</TaskCell>
-                </TaskRow>
-              </TaskTableBody>
-            </TaskTable>
-          </TaskContainer>
+          <TaskTab 
+            {...tabProps}
+            taskReportData={taskReportData}
+            isLoadingReportData={isLoadingReportData}
+          />
         );
       
       case 'SCREENS':
         return (
-          <div style={{ padding: '40px', textAlign: 'center', background: theme.colors.surface, borderRadius: '8px' }}>
-            <h3>Screens View</h3>
-            <p>Screen capture and monitoring data will be displayed here.</p>
-          </div>
+          <ScreensTab 
+            {...tabProps}
+            screenshotCountData={screenshotCountData}
+          />
         );
       
       case 'FOCUS_TIMELINE':
         return (
-          <div style={{ padding: '40px', textAlign: 'center', background: theme.colors.surface, borderRadius: '8px' }}>
-            <h3>Focus Timeline</h3>
-            <p>Timeline view of focus and productivity patterns.</p>
-          </div>
+          <FocusTimelineTab 
+            {...tabProps}
+            focusTimelineData={focusTimelineData}
+          />
         );
       
       case 'ACTIVITY_PATTERN':
-        return (
-          <div style={{ padding: '40px', textAlign: 'center', background: theme.colors.surface, borderRadius: '8px' }}>
-            <h3>Activity Pattern</h3>
-            <p>Detailed activity pattern analysis and charts.</p>
-          </div>
-        );
+        return <ActivityPatternTab theme={theme} />;
       
       case 'TOP_ACTIVITY':
-        return (
-          <TopActivityContainer theme={theme}>
-            <TopActivityHeader theme={theme}>
-              <TopActivityTitle theme={theme}>Work Time</TopActivityTitle>
-            </TopActivityHeader>
-            <TopActivityContent theme={theme}>
-              <WorkTimeSection>
-                <WorkTimeStats>
-                  {workTimeData.map((item, index) => (
-                    <WorkTimeItem key={index}>
-                      <WorkTimeLabel theme={theme} color={item.color}>
-                        {item.label}
-                      </WorkTimeLabel>
-                      <span style={{ fontSize: '12px', minWidth: '20px' }}>{index + 1}</span>
-                      <WorkTimeBar theme={theme}>
-                        <WorkTimeProgress color={item.color} percentage={item.percentage} />
-                      </WorkTimeBar>
-                      <WorkTimeValue theme={theme}>{item.value}</WorkTimeValue>
-                      <WorkTimePercentage theme={theme}>{item.percentage}%</WorkTimePercentage>
-                    </WorkTimeItem>
-                  ))}
-                </WorkTimeStats>
-                <UserInfo theme={theme}>
-                  <UserName theme={theme}>ABAA</UserName>
-                  <UserDuration theme={theme}>(5h 30m)</UserDuration>
-                </UserInfo>
-              </WorkTimeSection>
-              
-              <ApplicationsGrid>
-                {applicationData.map((app, index) => (
-                  <ApplicationCard key={index} theme={theme}>
-                    <AppIcon color={app.color}>
-                      {app.percentage}
-                    </AppIcon>
-                    <AppName theme={theme}>{app.name}</AppName>
-                    <AppDuration theme={theme}>{app.duration}</AppDuration>
-                  </ApplicationCard>
-                ))}
-              </ApplicationsGrid>
-            </TopActivityContent>
-          </TopActivityContainer>
-        );
+        return <TopActivityTab theme={theme} />;
       
       case 'OT_REPORT':
-        return (
-          <div style={{ padding: '40px', textAlign: 'center', background: theme.colors.surface, borderRadius: '8px' }}>
-            <h3>OT Report</h3>
-            <p>Overtime tracking and analysis reports.</p>
-          </div>
-        );
+        return <OTReportTab theme={theme} />;
       
       case 'MONITORING_ACTIONS':
-        return (
-          <div style={{ padding: '40px', textAlign: 'center', background: theme.colors.surface, borderRadius: '8px' }}>
-            <h3>Monitoring Actions</h3>
-            <p>System monitoring events and actions log.</p>
-          </div>
-        );
+        return <MonitoringActionsTab theme={theme} />;
       
       case 'BREAKS_MEET':
         return (
-          <div>
-            <BreaksMeetContainer>
-              {/* Break Section */}
-              <BreakMeetSection theme={theme}>
-                <BreakMeetHeader theme={theme}>
-                  <BreakMeetTitle theme={theme}>Break</BreakMeetTitle>
-                  <InfoIcon theme={theme}>i</InfoIcon>
-                </BreakMeetHeader>
-                <BreakMeetTable>
-                  <BreakMeetTableHeader theme={theme}>
-                    <BreakMeetHeaderRow>
-                      <BreakMeetHeaderCell theme={theme}>Start</BreakMeetHeaderCell>
-                      <BreakMeetHeaderCell theme={theme}>Stop</BreakMeetHeaderCell>
-                      <BreakMeetHeaderCell theme={theme}>Duration</BreakMeetHeaderCell>
-                    </BreakMeetHeaderRow>
-                  </BreakMeetTableHeader>
-                  <BreakMeetTableBody>
-                    {breakData.map((breakItem, index) => (
-                      <BreakMeetRow key={index}>
-                        <BreakMeetCell theme={theme}>{breakItem.start}</BreakMeetCell>
-                        <BreakMeetCell theme={theme}>{breakItem.stop}</BreakMeetCell>
-                        <BreakMeetCell theme={theme}>{breakItem.duration}</BreakMeetCell>
-                      </BreakMeetRow>
-                    ))}
-                    <BreakMeetRow>
-                      <BreakMeetCell theme={theme} className="total-row">Total duration</BreakMeetCell>
-                      <BreakMeetCell theme={theme} className="total-row"></BreakMeetCell>
-                      <BreakMeetCell theme={theme} className="total-row">0h 53m</BreakMeetCell>
-                    </BreakMeetRow>
-                  </BreakMeetTableBody>
-                </BreakMeetTable>
-              </BreakMeetSection>
-
-              {/* Meeting Section */}
-              <BreakMeetSection theme={theme}>
-                <BreakMeetHeader theme={theme}>
-                  <BreakMeetTitle theme={theme}>Meeting</BreakMeetTitle>
-                </BreakMeetHeader>
-                <BreakMeetTable>
-                  <BreakMeetTableHeader theme={theme}>
-                    <BreakMeetHeaderRow>
-                      <BreakMeetHeaderCell theme={theme}>Start</BreakMeetHeaderCell>
-                      <BreakMeetHeaderCell theme={theme}>Stop</BreakMeetHeaderCell>
-                      <BreakMeetHeaderCell theme={theme}>Duration</BreakMeetHeaderCell>
-                    </BreakMeetHeaderRow>
-                  </BreakMeetTableHeader>
-                  <BreakMeetTableBody>
-                    {meetingData.map((meeting, index) => (
-                      <BreakMeetRow key={index}>
-                        <BreakMeetCell theme={theme}>{meeting.start}</BreakMeetCell>
-                        <BreakMeetCell theme={theme}>{meeting.stop}</BreakMeetCell>
-                        <BreakMeetCell theme={theme}>{meeting.duration}</BreakMeetCell>
-                      </BreakMeetRow>
-                    ))}
-                    <BreakMeetRow>
-                      <BreakMeetCell theme={theme} className="total-row">Total duration</BreakMeetCell>
-                      <BreakMeetCell theme={theme} className="total-row"></BreakMeetCell>
-                      <BreakMeetCell theme={theme} className="total-row">0h 20m</BreakMeetCell>
-                    </BreakMeetRow>
-                  </BreakMeetTableBody>
-                </BreakMeetTable>
-              </BreakMeetSection>
-            </BreaksMeetContainer>
-
-            {/* Defined Break Section */}
-            <DefinedBreakSection theme={theme}>
-              <DefinedBreakHeader theme={theme}>
-                <DefinedBreakTitle theme={theme}>Defined Break</DefinedBreakTitle>
-                <InfoIcon theme={theme}>i</InfoIcon>
-              </DefinedBreakHeader>
-              <BreakMeetTable>
-                <BreakMeetTableHeader theme={theme}>
-                  <BreakMeetHeaderRow>
-                    <BreakMeetHeaderCell theme={theme}>Start</BreakMeetHeaderCell>
-                    <BreakMeetHeaderCell theme={theme}>Stop</BreakMeetHeaderCell>
-                    <BreakMeetHeaderCell theme={theme}>Duration</BreakMeetHeaderCell>
-                  </BreakMeetHeaderRow>
-                </BreakMeetTableHeader>
-                <BreakMeetTableBody>
-                  {definedBreakData.map((definedBreak, index) => (
-                    <BreakMeetRow key={index}>
-                      <BreakMeetCell theme={theme}>{definedBreak.start}</BreakMeetCell>
-                      <BreakMeetCell theme={theme}>{definedBreak.stop}</BreakMeetCell>
-                      <BreakMeetCell theme={theme}>{definedBreak.duration}</BreakMeetCell>
-                    </BreakMeetRow>
-                  ))}
-                  <BreakMeetRow>
-                    <BreakMeetCell theme={theme} className="total-row">Total duration</BreakMeetCell>
-                    <BreakMeetCell theme={theme} className="total-row"></BreakMeetCell>
-                    <BreakMeetCell theme={theme} className="total-row">1h 0m</BreakMeetCell>
-                  </BreakMeetRow>
-                </BreakMeetTableBody>
-              </BreakMeetTable>
-            </DefinedBreakSection>
-          </div>
+          <BreaksMeetTab 
+            {...tabProps}
+            meetingTimeData={meetingTimeData}
+          />
         );
       
       case 'IDLE':
         return (
-          <IdleContainer>
-            {/* IDLE Table Section */}
-            <IdleTableSection theme={theme}>
-              <IdleHeader theme={theme}>
-                <IdleTitle theme={theme}>IDLE</IdleTitle>
-              </IdleHeader>
-              <IdleTable>
-                <IdleTableHeader theme={theme}>
-                  <IdleHeaderRow>
-                    <IdleHeaderCell theme={theme}>START</IdleHeaderCell>
-                    <IdleHeaderCell theme={theme}>STOP</IdleHeaderCell>
-                    <IdleHeaderCell theme={theme}>DURATION</IdleHeaderCell>
-                  </IdleHeaderRow>
-                </IdleTableHeader>
-                <IdleTableBody>
-                  {idleData.map((idle, index) => (
-                    <IdleRow key={index}>
-                      <IdleCell theme={theme}>{idle.start}</IdleCell>
-                      <IdleCell theme={theme}>{idle.stop}</IdleCell>
-                      <IdleCell theme={theme}>{idle.duration}</IdleCell>
-                    </IdleRow>
-                  ))}
-                  <IdleRow>
-                    <IdleCell theme={theme} className="total-row">Total duration</IdleCell>
-                    <IdleCell theme={theme} className="total-row"></IdleCell>
-                    <IdleCell theme={theme} className="total-row">0h 29m</IdleCell>
-                  </IdleRow>
-                </IdleTableBody>
-              </IdleTable>
-            </IdleTableSection>
-
-            {/* IDLE Chart Section */}
-            <IdleChartSection theme={theme}>
-              <IdleHeader theme={theme}>
-                <IdleTitle theme={theme}>IDLE CHART</IdleTitle>
-              </IdleHeader>
-              <PieChartWrapper>
-                <PieChart theme={theme} />
-                <ChartLegend>
-                  <LegendItem theme={theme}>
-                    <LegendColor color="#3b82f6" />
-                    <LegendText>Logged Hours 9h 50m</LegendText>
-                  </LegendItem>
-                  <LegendItem theme={theme}>
-                    <LegendColor color="#e5e7eb" />
-                    <LegendText>Idle Hours 0h 29m</LegendText>
-                  </LegendItem>
-                </ChartLegend>
-              </PieChartWrapper>
-            </IdleChartSection>
-          </IdleContainer>
+          <IdleTab 
+            {...tabProps}
+            idleTimeData={idleTimeData}
+          />
         );
       
       case 'OFFLINE':
-        return (
-          <IdleContainer>
-            {/* OFFLINE Table Section */}
-            <IdleTableSection theme={theme}>
-              <IdleHeader theme={theme}>
-                <IdleTitle theme={theme}>OFFLINE</IdleTitle>
-              </IdleHeader>
-              <IdleTable>
-                <IdleTableHeader theme={theme}>
-                  <IdleHeaderRow>
-                    <IdleHeaderCell theme={theme}>START</IdleHeaderCell>
-                    <IdleHeaderCell theme={theme}>STOP</IdleHeaderCell>
-                    <IdleHeaderCell theme={theme}>DURATION</IdleHeaderCell>
-                  </IdleHeaderRow>
-                </IdleTableHeader>
-                <IdleTableBody>
-                  {offlineData.map((offline, index) => (
-                    <IdleRow key={index}>
-                      <IdleCell theme={theme}>{offline.start}</IdleCell>
-                      <IdleCell theme={theme}>{offline.stop}</IdleCell>
-                      <IdleCell theme={theme}>{offline.duration}</IdleCell>
-                    </IdleRow>
-                  ))}
-                  <IdleRow>
-                    <IdleCell theme={theme} className="total-row">Total duration</IdleCell>
-                    <IdleCell theme={theme} className="total-row"></IdleCell>
-                    <IdleCell theme={theme} className="total-row">0h 29m</IdleCell>
-                  </IdleRow>
-                </IdleTableBody>
-              </IdleTable>
-            </IdleTableSection>
-
-            {/* OFFLINE Chart Section */}
-            <IdleChartSection theme={theme}>
-              <IdleHeader theme={theme}>
-                <IdleTitle theme={theme}>OFFLINE CHART</IdleTitle>
-              </IdleHeader>
-              <PieChartWrapper>
-                <PieChart theme={theme} />
-                <ChartLegend>
-                  <LegendItem theme={theme}>
-                    <LegendColor color="#3b82f6" />
-                    <LegendText>Logged Hours 9h 50m</LegendText>
-                  </LegendItem>
-                  <LegendItem theme={theme}>
-                    <LegendColor color="#e5e7eb" />
-                    <LegendText>Offline Hours 0h 29m</LegendText>
-                  </LegendItem>
-                </ChartLegend>
-              </PieChartWrapper>
-            </IdleChartSection>
-          </IdleContainer>
-        );
+        return <OfflineTab theme={theme} />;
       
       case 'TIME_LOG_SUMMARY':
         return (
-          <TimeLogSummaryContainer theme={theme}>
-            <TimeLogSummaryHeader theme={theme}>
-              <TimeLogSummaryTitle theme={theme}>Time Log Summary</TimeLogSummaryTitle>
-            </TimeLogSummaryHeader>
-            <SubTabContainer theme={theme}>
-              <SubTabButton
-                theme={theme}
-                active={activeTimeLogTab === 'WEEKLY'}
-                onClick={() => setActiveTimeLogTab('WEEKLY')}
-              >
-                <SubTabIcon active={activeTimeLogTab === 'WEEKLY'}>📊</SubTabIcon>
-                Weekly Report
-                <HelpIcon theme={theme}>?</HelpIcon>
-              </SubTabButton>
-              <SubTabButton
-                theme={theme}
-                active={activeTimeLogTab === 'MONTHLY'}
-                onClick={() => setActiveTimeLogTab('MONTHLY')}
-              >
-                <SubTabIcon active={activeTimeLogTab === 'MONTHLY'}>⏰</SubTabIcon>
-                Monthly Reports
-                <HelpIcon theme={theme}>?</HelpIcon>
-              </SubTabButton>
-            </SubTabContainer>
-            <TimeLogContent theme={theme}>
-              {activeTimeLogTab === 'WEEKLY' && (
-                <>
-                  <NoteText theme={theme}>
-                    Current month calculation does not include today's data.
-                  </NoteText>
-                </>
-              )}
-              {activeTimeLogTab === 'MONTHLY' && (
-                <>
-                  <WeeklyTable>
-                    <WeeklyTableHeader theme={theme}>
-                      <WeeklyHeaderRow>
-                        <WeeklyHeaderCell theme={theme}>
-                          Name
-                          <SortIcon>▲</SortIcon>
-                        </WeeklyHeaderCell>
-                        <WeeklyHeaderCell theme={theme}>Apr 2024</WeeklyHeaderCell>
-                        <WeeklyHeaderCell theme={theme}>Mar 2024</WeeklyHeaderCell>
-                        <WeeklyHeaderCell theme={theme}>Feb 2024</WeeklyHeaderCell>
-                      </WeeklyHeaderRow>
-                    </WeeklyTableHeader>
-                    <WeeklyTableBody>
-                      {weeklyReportData.map((employee, index) => (
-                        <WeeklyRow key={index}>
-                          <WeeklyCell theme={theme}>
-                            <EmployeeNameCell>
-                              <WeeklyEmployeeName theme={theme}>{employee.name}</WeeklyEmployeeName>
-                              <EmployeeTeams theme={theme}>{employee.teams}</EmployeeTeams>
-                            </EmployeeNameCell>
-                          </WeeklyCell>
-                          <WeeklyCell theme={theme}>
-                            {employee.apr2024 ? (
-                              <HoursCell theme={theme}>{employee.apr2024}</HoursCell>
-                            ) : (
-                              <NotEnoughData theme={theme}>Not enough data</NotEnoughData>
-                            )}
-                          </WeeklyCell>
-                          <WeeklyCell theme={theme}>
-                            {employee.mar2024 ? (
-                              <HoursCell theme={theme}>{employee.mar2024}</HoursCell>
-                            ) : (
-                              <NotEnoughData theme={theme}>Not enough data</NotEnoughData>
-                            )}
-                          </WeeklyCell>
-                          <WeeklyCell theme={theme}>
-                            {employee.feb2024 ? (
-                              <HoursCell theme={theme}>{employee.feb2024}</HoursCell>
-                            ) : (
-                              <NotEnoughData theme={theme}>Not enough data</NotEnoughData>
-                            )}
-                          </WeeklyCell>
-                        </WeeklyRow>
-                      ))}
-                    </WeeklyTableBody>
-                  </WeeklyTable>
-
-                  <PaginationContainer theme={theme}>
-                    <PaginationLeft>
-                      <span style={{ fontSize: '14px', color: theme.colors.text.secondary }}>
-                        Employees per page:
-                      </span>
-                      <PaginationSelect theme={theme}>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                      </PaginationSelect>
-                      <PaginationInfo theme={theme}>1 - 7 of 7</PaginationInfo>
-                    </PaginationLeft>
-                    <PaginationControls>
-                      <PaginationArrow theme={theme} disabled>«</PaginationArrow>
-                      <PaginationArrow theme={theme} disabled>‹</PaginationArrow>
-                      <PaginationArrow theme={theme} disabled>›</PaginationArrow>
-                      <PaginationArrow theme={theme} disabled>»</PaginationArrow>
-                    </PaginationControls>
-                  </PaginationContainer>
-                </>
-              )}
-            </TimeLogContent>
-          </TimeLogSummaryContainer>
+          <TimeLogSummaryTab 
+            {...tabProps}
+            loggedTimeData={loggedTimeData}
+            activeTimeLogTab={activeTimeLogTab}
+            setActiveTimeLogTab={setActiveTimeLogTab}
+          />
         );
       
       default:
@@ -1974,25 +943,138 @@ const Reports = () => {
               type="text"
               placeholder="Search employees..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
             />
             <EmployeeList>
-              {filteredEmployees.map((employee) => (
-                <EmployeeItem
-                  key={employee.id}
-                  theme={theme}
-                  selected={selectedEmployee?.id === employee.id}
-                  onClick={() => handleEmployeeSelect(employee)}
-                >
-                  <EmployeeInner>
-                  <EmployeeName theme={theme}>{employee.name}</EmployeeName>
-                  <EmployeeDepartment theme={theme}>{employee.department}</EmployeeDepartment>
-                  </EmployeeInner>
-                  {selectedEmployee?.id === employee.id && (
-                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#ef4444' }}>✕</div>
-                  )}
-                </EmployeeItem>
-              ))}
+              {isLoadingEmployees ? (
+                <div style={{ 
+                  padding: '20px', 
+                  textAlign: 'center', 
+                  color: theme.colors.text.secondary 
+                }}>
+                  Loading employees...
+                </div>
+              ) : filteredEmployees.length === 0 ? (
+                <div style={{ 
+                  padding: '20px', 
+                  textAlign: 'center', 
+                  color: theme.colors.text.secondary 
+                }}>
+                  No employees found
+                </div>
+              ) : (
+                filteredEmployees.map((employee) => {
+                  const profilePhotoUrl = getProfilePhotoUrl(employee);
+                  
+                  return (
+                    <EmployeeItem
+                      key={employee.id}
+                      theme={theme}
+                      selected={selectedEmployee?.id === employee.id}
+                      onClick={() => handleEmployeeSelect(employee)}
+                    >
+                      <EmployeeInner style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {/* Profile Photo */}
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          backgroundColor: theme.colors.primary,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          flexShrink: 0,
+                          position: 'relative',
+                          overflow: 'hidden'
+                        }}>
+                          {profilePhotoUrl ? (
+                            <>
+                              <img 
+                                src={profilePhotoUrl} 
+                                alt={employee.display_name || employee.name}
+                                style={{ 
+                                  width: '100%', 
+                                  height: '100%', 
+                                  objectFit: 'cover',
+                                  borderRadius: 'inherit',
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0
+                                }}
+                                onError={(e) => {
+                                  // Hide the broken image and show fallback
+                                  e.target.style.display = 'none';
+                                  const fallback = e.target.nextSibling;
+                                  if (fallback) {
+                                    fallback.style.display = 'flex';
+                                  }
+                                }}
+                              />
+                              <div style={{ 
+                                display: 'none',
+                                width: '100%',
+                                height: '100%',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '16px',
+                                fontWeight: '600'
+                              }}>
+                                {(employee.display_name || employee.name || employee.email || '').charAt(0).toUpperCase()}
+                              </div>
+                            </>
+                          ) : (
+                            <div>
+                              {(employee.display_name || employee.name || employee.email || '').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Employee Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <EmployeeName theme={theme}>
+                            {employee.display_name || employee.name}
+                          </EmployeeName>
+                          {employee.email && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: theme.colors.text.secondary, 
+                              marginTop: '2px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {employee.email}
+                            </div>
+                          )}
+                          {employee.job_position && (
+                            <div style={{ 
+                              fontSize: '10px', 
+                              color: theme.colors.primary,
+                              marginTop: '2px',
+                              backgroundColor: theme.colors.primary + '20',
+                              padding: '2px 6px',
+                              borderRadius: '10px',
+                              display: 'inline-block',
+                              maxWidth: '100%',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              💼 {employee.job_position}
+                            </div>
+                          )}
+                        </div>
+                      </EmployeeInner>
+                      {selectedEmployee?.id === employee.id && (
+                        <div style={{ marginTop: '8px', fontSize: '12px', color: '#ef4444' }}>✓</div>
+                      )}
+                    </EmployeeItem>
+                  );
+                })
+              )}
             </EmployeeList>
           </EmployeeSelection>
 

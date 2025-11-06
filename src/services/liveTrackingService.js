@@ -21,7 +21,7 @@ class LiveTrackingService {
     };
   }
 
-  /**
+  /** 
    * Build API URL with query parameters
    * @param {Object} params - Query parameters
    * @returns {string} Complete API URL
