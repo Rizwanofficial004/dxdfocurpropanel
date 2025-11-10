@@ -192,7 +192,6 @@ const TopActivityTab = ({
   months,
   isLoadingReportData
 }) => {
-  // Calculate work time data from API responses
   const calculateWorkTimeData = () => {
     // Get total logged time in seconds
     let totalLoggedSeconds = 0;
