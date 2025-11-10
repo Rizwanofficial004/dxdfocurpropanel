@@ -1,5 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+
+// Add spinner animation
+const spinnerStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('top-activity-spinner-styles')) {
+  const style = document.createElement('style');
+  style.id = 'top-activity-spinner-styles';
+  style.textContent = spinnerStyles;
+  document.head.appendChild(style);
+}
 
 const TopActivityContainer = styled.div`
   background: ${props => props.theme.colors.surface};
@@ -141,63 +157,270 @@ const AppDuration = styled.div`
   color: ${props => props.theme.colors.text.secondary};
 `;
 
-const TopActivityTab = ({ theme }) => {
-  // Sample data
-  const workTimeData = [
-    { label: 'IDLE', value: '0h 6m', percentage: 1.82, color: '#6b7280' },
-    { label: 'MEETING', value: '0h 20m', percentage: 6.19, color: '#3b82f6' },
-    { label: 'BREAKS', value: '0h 54m', percentage: 16.14, color: '#f97316' },
-    { label: 'Active hours', value: '4h 30m', percentage: 82.04, color: '#10b981' },
-  ];
+// Helper function to format seconds to readable time
+const formatTime = (seconds) => {
+  if (!seconds && seconds !== 0) return '0h 0m';
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+};
 
-  const applicationData = [
-    { name: 'Google-chrome', duration: '3h 25m', percentage: '98%', color: '#4285f4' },
-    { name: 'Wine', duration: '0h 15m', percentage: '22%', color: '#8b5cf6' },
-    { name: 'firefox', duration: '0h 3m', percentage: '3%', color: '#ff7139' },
-    { name: 'Google-chrome-s', duration: '0h 1m', percentage: '2%', color: '#4285f4' },
-    { name: 'libreoffice-calc', duration: '0h 1m', percentage: '1%', color: '#0369a1' },
-  ];
+// Helper function to format hours to readable time
+const formatHours = (hours) => {
+  if (!hours && hours !== 0) return '0h 0m';
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  return `${h}h ${m}m`;
+};
+
+// Helper function to calculate percentage
+const calculatePercentage = (value, total) => {
+  if (!total || total === 0) return 0;
+  return ((value / total) * 100).toFixed(2);
+};
+
+const TopActivityTab = ({
+  theme,
+  meetingTimeData,
+  idleTimeData,
+  focusTimelineData,
+  loggedTimeData,
+  selectedEmployee,
+  selectedYear,
+  selectedMonth,
+  selectedDate,
+  months,
+  isLoadingReportData
+}) => {
+  // Calculate work time data from API responses
+  const calculateWorkTimeData = () => {
+    // Get total logged time in seconds
+    let totalLoggedSeconds = 0;
+    if (loggedTimeData?.total_logged_time) {
+      // Parse "X hr Y min" format (e.g., "30 hr 4 min")
+      const loggedMatch = loggedTimeData.total_logged_time.match(/(\d+)\s*hr\s*(\d+)\s*min/);
+      if (loggedMatch) {
+        totalLoggedSeconds = parseInt(loggedMatch[1]) * 3600 + parseInt(loggedMatch[2]) * 60;
+      }
+    }
+
+    // Get meeting time in seconds
+    let meetingSeconds = 0;
+    if (meetingTimeData?.total_meeting_seconds) {
+      meetingSeconds = meetingTimeData.total_meeting_seconds;
+    } else if (meetingTimeData?.total_duration) {
+      // Parse "X hr Y min" format (e.g., "5 hr 17 min")
+      const meetingMatch = meetingTimeData.total_duration.match(/(\d+)\s*hr\s*(\d+)\s*min/);
+      if (meetingMatch) {
+        meetingSeconds = parseInt(meetingMatch[1]) * 3600 + parseInt(meetingMatch[2]) * 60;
+      }
+    } else if (meetingTimeData?.total_meeting_time) {
+      // Parse "Xh Ym" format (fallback for other formats)
+      const meetingMatch = meetingTimeData.total_meeting_time.match(/(\d+)h\s*(\d+)m/);
+      if (meetingMatch) {
+        meetingSeconds = parseInt(meetingMatch[1]) * 3600 + parseInt(meetingMatch[2]) * 60;
+      }
+    }
+
+    // Get idle time in seconds (total_monthly_idle is in hours)
+    let idleSeconds = 0;
+    if (idleTimeData?.total_monthly_idle) {
+      idleSeconds = idleTimeData.total_monthly_idle * 3600; // Convert hours to seconds
+    }
+
+    // Calculate breaks (assuming breaks are part of idle or separate)
+    // For now, we'll use a placeholder or calculate from other data
+    const breaksSeconds = 0; // This would come from breaks API if available
+
+    // Calculate active hours (logged - idle - meeting - breaks)
+    const activeSeconds = Math.max(0, totalLoggedSeconds - idleSeconds - meetingSeconds - breaksSeconds);
+
+    // Calculate percentages
+    const total = totalLoggedSeconds || 1; // Avoid division by zero
+
+    return [
+      {
+        label: 'IDLE',
+        value: formatTime(idleSeconds),
+        percentage: parseFloat(calculatePercentage(idleSeconds, total)),
+        color: '#6b7280'
+      },
+      {
+        label: 'MEETING',
+        value: formatTime(meetingSeconds),
+        percentage: parseFloat(calculatePercentage(meetingSeconds, total)),
+        color: '#3b82f6'
+      },
+      {
+        label: 'BREAKS',
+        value: formatTime(breaksSeconds),
+        percentage: parseFloat(calculatePercentage(breaksSeconds, total)),
+        color: '#f97316'
+      },
+      {
+        label: 'Active hours',
+        value: formatTime(activeSeconds),
+        percentage: parseFloat(calculatePercentage(activeSeconds, total)),
+        color: '#10b981'
+      },
+    ];
+  };
+
+  // Get application data from focus timeline
+  const getApplicationData = () => {
+    // Get total time for percentage calculation
+    const totalHours = focusTimelineData.total_worked_hours || 0;
+    const totalSeconds = totalHours * 3600;
+
+    return focusTimelineData.monthly_app_usage
+      .sort((a, b) => b.total_hours - a.total_hours) // Top 10 applications
+      .map(app => ({
+        name: app.process_name?.replace('.exe', '') || 'Unknown',
+        duration: formatHours(app.total_hours),
+        percentage: `${app.percent?.toFixed(0) || 0}%`,
+        color: getAppColor(app.process_name)
+      }));
+  };
+
+  // Get app color based on process name
+  const getAppColor = (processName) => {
+    const colors = {
+      'chrome.exe': '#4285f4',
+      'Code.exe': '#007acc',
+      'explorer.exe': '#ffc107',
+      'notepad.exe': '#28a745',
+      'WINWORD.EXE': '#2b579a',
+      'Postman.exe': '#ff6c37',
+      'firefox.exe': '#ff7139',
+      'wine': '#8b5cf6',
+      'libreoffice-calc': '#0369a1'
+    };
+    return colors[processName?.toLowerCase()] || '#6c757d';
+  };
+
+  // Calculate total duration for display
+  const getTotalDuration = () => {
+    if (loggedTimeData?.total_time) {
+      return loggedTimeData.total_time;
+    } else if (loggedTimeData?.total_logged_time) {
+      return loggedTimeData.total_logged_time;
+    } else if (focusTimelineData?.total_worked_hours) {
+      return formatHours(focusTimelineData.total_worked_hours);
+    } else if (loggedTimeData?.total_seconds) {
+      return formatTime(loggedTimeData.total_seconds);
+    }
+    return '0h 0m';
+  };
+
+  // Use API data or fallback to sample data
+  const workTimeData = calculateWorkTimeData()
+
+  const applicationData = focusTimelineData?.monthly_app_usage?.length > 0 && getApplicationData()
 
   return (
     <TopActivityContainer theme={theme}>
       <TopActivityHeader theme={theme}>
         <TopActivityTitle theme={theme}>Work Time</TopActivityTitle>
+        {selectedEmployee && (
+          <div style={{ fontSize: '12px', color: theme.colors.text.secondary, marginTop: '8px' }}>
+            📊 {selectedEmployee.display_name || selectedEmployee.email}
+            {selectedDate && ` • Date: ${selectedDate}`}
+            {!selectedDate && ` • Month: ${selectedMonth} ${selectedYear}`}
+          </div>
+        )}
       </TopActivityHeader>
-      <TopActivityContent theme={theme}>
-        <WorkTimeSection>
-          <WorkTimeStats>
-            {workTimeData.map((item, index) => (
-              <WorkTimeItem key={index}>
-                <WorkTimeLabel theme={theme} color={item.color}>
-                  {item.label}
-                </WorkTimeLabel>
-                <span style={{ fontSize: '12px', minWidth: '20px' }}>{index + 1}</span>
-                <WorkTimeBar theme={theme}>
-                  <WorkTimeProgress color={item.color} percentage={item.percentage} />
-                </WorkTimeBar>
-                <WorkTimeValue theme={theme}>{item.value}</WorkTimeValue>
-                <WorkTimePercentage theme={theme}>{item.percentage}%</WorkTimePercentage>
-              </WorkTimeItem>
-            ))}
-          </WorkTimeStats>
-          <UserInfo theme={theme}>
-            <UserName theme={theme}>ABAA</UserName>
-            <UserDuration theme={theme}>(5h 30m)</UserDuration>
-          </UserInfo>
-        </WorkTimeSection>
-        
-        <ApplicationsGrid>
-          {applicationData.map((app, index) => (
-            <ApplicationCard key={index} theme={theme}>
-              <AppIcon color={app.color}>
-                {app.percentage}
-              </AppIcon>
-              <AppName theme={theme}>{app.name}</AppName>
-              <AppDuration theme={theme}>{app.duration}</AppDuration>
-            </ApplicationCard>
-          ))}
-        </ApplicationsGrid>
-      </TopActivityContent>
+
+      {/* Loading State */}
+      {isLoadingReportData && (
+        <div style={{
+          padding: '40px',
+          textAlign: 'center',
+          color: theme.colors.text.secondary,
+          border: '2px dashed #3b82f6',
+          borderRadius: '8px',
+          background: '#eff6ff'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
+          <h4>Loading Top Activity Data...</h4>
+        </div>
+      )}
+
+      {/* No Data State */}
+      {!isLoadingReportData && !selectedEmployee && (
+        <div style={{
+          padding: '40px',
+          textAlign: 'center',
+          color: theme.colors.text.secondary,
+          border: '2px dashed #e9ecef',
+          borderRadius: '8px'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
+          <h4>Select an Employee</h4>
+          <p>Please select an employee from the left panel to view their top activity data.</p>
+        </div>
+      )}
+
+      {/* Data Content */}
+      {!isLoadingReportData && selectedEmployee && (
+        <TopActivityContent theme={theme}>
+          {/* <WorkTimeSection>
+            <WorkTimeStats>
+              {workTimeData.map((item, index) => (
+                <WorkTimeItem key={index}>
+                  <WorkTimeLabel theme={theme} color={item.color}>
+                    {item.label}
+                  </WorkTimeLabel>
+                  <span style={{ fontSize: '12px', minWidth: '20px' }}>{index + 1}</span>
+                  <WorkTimeBar theme={theme}>
+                    <WorkTimeProgress color={item.color} percentage={item.percentage} />
+                  </WorkTimeBar>
+                  <WorkTimeValue theme={theme}>{item.value}</WorkTimeValue>
+                  <WorkTimePercentage theme={theme}>{item.percentage.toFixed(2)}%</WorkTimePercentage>
+                </WorkTimeItem>
+              ))}
+            </WorkTimeStats>
+            <UserInfo theme={theme}>
+              <UserName theme={theme}>
+                {selectedEmployee.display_name || selectedEmployee.name || 'Employee'}
+              </UserName>
+              <UserDuration theme={theme}>({getTotalDuration()})</UserDuration>
+            </UserInfo>
+          </WorkTimeSection> */}
+
+          {applicationData.length > 0 ? (
+            <ApplicationsGrid>
+              {applicationData.map((app, index) => (
+                <ApplicationCard key={index} theme={theme}>
+                  <AppIcon color={app.color}>
+                    {app.percentage}
+                  </AppIcon>
+                  <AppName theme={theme}>{app.name}</AppName>
+                  <AppDuration theme={theme}>{app.duration}</AppDuration>
+                </ApplicationCard>
+              ))}
+            </ApplicationsGrid>
+          ) : (
+            <div style={{
+              padding: '20px',
+              textAlign: 'center',
+              color: theme.colors.text.secondary,
+              border: '1px dashed #e9ecef',
+              borderRadius: '8px'
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📱</div>
+              <p>No application usage data available</p>
+            </div>
+          )}
+        </TopActivityContent>
+      )}
     </TopActivityContainer>
   );
 };

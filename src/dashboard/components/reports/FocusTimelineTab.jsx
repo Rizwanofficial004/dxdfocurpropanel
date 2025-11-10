@@ -1,4 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import moment from 'moment';
+
+// Add spinner animation
+const spinnerStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('focus-spinner-styles')) {
+  const style = document.createElement('style');
+  style.id = 'focus-spinner-styles';
+  style.textContent = spinnerStyles;
+  document.head.appendChild(style);
+}
 
 const FocusTimelineTab = ({ 
   theme, 
@@ -10,463 +27,642 @@ const FocusTimelineTab = ({
   months,
   isLoadingReportData
 }) => {
-  const [activeView, setActiveView] = useState('monthly'); // 'monthly' or 'daily'
-  const [selectedDay, setSelectedDay] = useState(null);
+  const [sortColumn, setSortColumn] = useState('duration'); // 'switches' or 'duration'
+  const [sortDirection, setSortDirection] = useState('desc'); // 'asc' or 'desc'
+  const [timelineFilter, setTimelineFilter] = useState('daily'); // 'monthly' or 'daily'
 
-  // Add spinner styles
-  useEffect(() => {
-    const spinnerStyles = `
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `;
-
-    if (typeof document !== 'undefined' && !document.getElementById('focus-spinner-styles')) {
-      const style = document.createElement('style');
-      style.id = 'focus-spinner-styles';
-      style.textContent = spinnerStyles;
-      document.head.appendChild(style);
+  // Format seconds to readable time (e.g., "3h 50m 12s" or "0m 8s")
+  const formatDuration = (seconds) => {
+    if (!seconds && seconds !== 0) return '0m 0s';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
     }
-  }, []);
-
-  // Debug logging
-  console.log('🔍 FocusTimelineTab Debug:');
-  console.log('- Selected Employee:', selectedEmployee);
-  console.log('- Focus Timeline Data:', focusTimelineData);
-  console.log('- Is Loading Report Data:', isLoadingReportData);
-  console.log('- Selected Year:', selectedYear);
-  console.log('- Selected Month:', selectedMonth);
-  console.log('- Selected Date:', selectedDate);
-
-  // Get app icon color based on app name
-  const getAppColor = (processName) => {
-    const colors = {
-      'chrome.exe': '#4285f4',
-      'Code.exe': '#007acc',
-      'explorer.exe': '#ffc107',
-      'notepad.exe': '#28a745',
-      'WINWORD.EXE': '#2b579a',
-      'Postman.exe': '#ff6c37',
-      'dbeaver.exe': '#372923',
-      'DDSFocusPro.exe': '#6f42c1',
-      'Taskmgr.exe': '#dc3545'
-    };
-    return colors[processName] || '#6c757d';
   };
 
-  // Get app icon based on app name
-  const getAppIcon = (processName) => {
-    const icons = {
-      'chrome.exe': '🌐',
-      'Code.exe': '💻',
-      'explorer.exe': '📁',
-      'notepad.exe': '📝',
-      'WINWORD.EXE': '📄',
-      'Postman.exe': '📡',
-      'dbeaver.exe': '🗄️',
-      'DDSFocusPro.exe': '🎯',
-      'Taskmgr.exe': '⚙️'
-    };
-    return icons[processName] || '💼';
-  };
-
-  // Format hours to readable format
+  // Format hours to readable time
   const formatHours = (hours) => {
-    if (!hours) return '0h 0m';
+    if (!hours && hours !== 0) return '0h 0m';
     const h = Math.floor(hours);
     const m = Math.round((hours - h) * 60);
     return `${h}h ${m}m`;
   };
 
-  // Get working days from daily report
-  const getWorkingDays = () => {
-    if (!focusTimelineData?.daily_report) return [];
-    
-    return Object.entries(focusTimelineData.daily_report)
-      .filter(([date, data]) => data.status === 'works_done')
-      .sort(([a], [b]) => new Date(a) - new Date(b));
+  // Format time from timestamp
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    return moment(timestamp).format('h:mm A');
   };
 
+  // Process monthly timeline data from monthly_app_usage
+  const monthlyTimelineEntries = useMemo(() => {
+    if (!focusTimelineData?.monthly_app_usage) return [];
+    
+    const entries = [];
+    const month = focusTimelineData.month || '';
+    
+    focusTimelineData.monthly_app_usage.forEach((app) => {
+      entries.push({
+        date: month,
+        processName: app.process_name || 'Unknown',
+        totalHours: app.total_hours || 0,
+        totalSeconds: app.total_seconds || 0,
+        percent: app.percent || 0
+      });
+    });
+    
+    // Sort by total seconds or hours (descending)
+    return entries.sort((a, b) => {
+      const aValue = a.totalSeconds || (a.totalHours * 3600);
+      const bValue = b.totalSeconds || (b.totalHours * 3600);
+      return bValue - aValue;
+    });
+  }, [focusTimelineData]);
+
+  // Process timeline data from daily reports
+  const dailyTimelineEntries = useMemo(() => {
+    if (!focusTimelineData?.daily_report) return [];
+    
+    const entries = [];
+    const days = Object.entries(focusTimelineData.daily_report)
+      .filter(([_, data]) => data.status === 'works_done')
+    console.log("🚀 ~ FocusTimelineTab ~ days:", days)
+    
+    days.forEach(([date, dayData]) => {
+      if (dayData.applications_used) {
+        dayData.applications_used.forEach((app) => {
+          entries.push({
+            date,
+            processName: app.process_name || 'Unknown',
+            totalHours: app.total_hours || 0,
+            totalSeconds: app.total_seconds || 0,
+            percent: app.percent || 0,
+            windowTitles: app.window_titles || []
+          });
+        });
+      }
+    });
+    
+    return entries;
+  }, [focusTimelineData]);
+
+  // Select timeline entries based on filter
+  const timelineEntries = useMemo(() => {
+    return timelineFilter === 'monthly' ? monthlyTimelineEntries : dailyTimelineEntries;
+  }, [timelineFilter, monthlyTimelineEntries, dailyTimelineEntries]);
+
+  // Process Focus Share data (aggregate by application)
+  const focusShareData = useMemo(() => {
+    if (!focusTimelineData?.daily_report) return [];
+    
+    const appMap = new Map();
+    
+    Object.entries(focusTimelineData.daily_report).forEach(([date, dayData]) => {
+      if (dayData.status === 'works_done' && dayData.applications_used) {
+        dayData.applications_used.forEach((app) => {
+          const appName = app.process_name?.replace('.exe', '') || 'Unknown';
+          const processName = app.process_name || 'Unknown';
+          
+          if (!appMap.has(processName)) {
+            appMap.set(processName, {
+              appName,
+              processName,
+              switches: 0,
+              totalSeconds: 0
+            });
+          }
+          
+          const entry = appMap.get(processName);
+          entry.switches += 1; // Count each occurrence as a switch
+          entry.totalSeconds += app.total_seconds || 0;
+        });
+      }
+    });
+    
+    return Array.from(appMap.values());
+  }, [focusTimelineData]);
+
+  // Calculate totals
+  const totalSwitches = useMemo(() => {
+    return focusShareData.reduce((sum, item) => sum + item.switches, 0);
+  }, [focusShareData]);
+
+  const totalDuration = useMemo(() => {
+    const totalSeconds = focusShareData.reduce((sum, item) => sum + item.totalSeconds, 0);
+    return formatDuration(totalSeconds);
+  }, [focusShareData]);
+
+  // Sorted Focus Share data
+  const sortedFocusShareData = useMemo(() => {
+    const sorted = [...focusShareData];
+    sorted.sort((a, b) => {
+      let comparison = 0;
+      if (sortColumn === 'switches') {
+        comparison = a.switches - b.switches;
+      } else {
+        comparison = a.totalSeconds - b.totalSeconds;
+      }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+    return sorted;
+  }, [focusShareData, sortColumn, sortDirection]);
+
+  // Handle sort
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  };
+
+  // Export CSV
+  const handleExportCSV = () => {
+    const csvContent = [
+      ['Activity', 'Switches', 'Duration'],
+      ...sortedFocusShareData.map(item => [
+        item.appName,
+        item.switches,
+        formatDuration(item.totalSeconds)
+      ])
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `focus-share-${focusTimelineData?.month || 'report'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  // Loading state
+  if (isLoadingReportData) {
+    return (
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center', 
+        color: theme.colors.text.secondary,
+        border: '2px dashed #3b82f6',
+        borderRadius: '8px',
+        background: '#eff6ff'
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }}></div>
+        <h4>Loading Focus Timeline Data...</h4>
+      </div>
+    );
+  }
+
+  // No employee selected
+  if (!selectedEmployee) {
+    return (
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center', 
+        color: theme.colors.text.secondary,
+        border: '2px dashed #e9ecef',
+        borderRadius: '8px'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
+        <h4>Select an Employee</h4>
+        <p>Please select an employee from the left panel to view their focus timeline data.</p>
+      </div>
+    );
+  }
+
+  // No data available
+  const hasMonthlyData = focusTimelineData?.monthly_app_usage && focusTimelineData.monthly_app_usage.length > 0;
+  const hasDailyData = focusTimelineData?.daily_report && 
+    Object.values(focusTimelineData.daily_report).some(dayData => dayData.status === 'works_done');
+  const hasData = timelineFilter === 'monthly' ? hasMonthlyData : hasDailyData;
+
+  if (!focusTimelineData || (!hasMonthlyData && !hasDailyData)) {
+    return (
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center', 
+        color: theme.colors.text.secondary,
+        border: '2px dashed #e9ecef',
+        borderRadius: '8px'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+        <h4>No Data Available</h4>
+        <p>No focus timeline data found for {selectedEmployee?.display_name || selectedEmployee?.email}.</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: '20px', background: theme.colors.surface, borderRadius: '8px' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ margin: '0 0 8px 0', color: theme.colors.text.primary }}>
-          Focus Timeline - Application Usage Report
-        </h3>
-        <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-          {selectedEmployee ? (
-            <>
-              � Employee: <strong>{selectedEmployee.display_name || selectedEmployee.email}</strong>
-              <br />
-              📅 Period: {selectedDate || `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}`}
-            </>
-          ) : (
-            'Please select an employee to view focus timeline data'
-          )}
+    <>
+                  {/* Filter Buttons */}
+                  <div style={{
+                height: '40px',
+          display: 'flex',
+          gap: '10px',
+          marginBottom: '20px',
+          // justifyContent: 'center'
+        }}>
+          <button
+            onClick={() => setTimelineFilter('monthly')}
+            style={{
+              padding: '10px 20px',
+              background: timelineFilter === 'monthly' ? '#3b82f6' : '#f3f4f6',
+              color: timelineFilter === 'monthly' ? 'white' : theme.colors.text.primary,
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: timelineFilter === 'monthly' ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none'
+            }}
+          >
+            Monthly Timeline
+          </button>
+          <button
+            onClick={() => setTimelineFilter('daily')}
+            style={{
+              padding: '10px 20px',
+              background: timelineFilter === 'daily' ? '#3b82f6' : '#f3f4f6',
+              color: timelineFilter === 'daily' ? 'white' : theme.colors.text.primary,
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: timelineFilter === 'daily' ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none'
+            }}
+          >
+            Daily Timeline
+          </button>
         </div>
+    <div style={{ 
+      display: 'grid', 
+      gridTemplateColumns: '1fr 1fr', 
+      gap: '20px',
+      padding: '20px',
+      background: theme.colors.surface,
+      borderRadius: '8px'
+    }}>
+
+      {/* Left Panel: FOCUS TIMELINE */}
+      <div style={{ 
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        maxHeight: '80vh',
+        overflowY: 'auto'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 20px 0', 
+          textAlign: 'center',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: theme.colors.text.primary
+        }}>
+          FOCUS TIMELINE
+        </h3>
+
+        
+        {!hasData ? (
+          <div style={{
+            padding: '40px',
+            textAlign: 'center',
+            color: theme.colors.text.secondary
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+            <h4>No {timelineFilter === 'monthly' ? 'Monthly' : 'Daily'} Data Available</h4>
+            <p>No {timelineFilter === 'monthly' ? 'monthly' : 'daily'} timeline data found for this period.</p>
+          </div>
+        ) : (
+          <div style={{ position: 'relative' }}>
+            {/* Timeline line */}
+            <div style={{
+              position: 'absolute',
+              left: '20px',
+              top: '0',
+              bottom: '0',
+              width: '2px',
+              background: '#e5e7eb'
+            }} />
+            
+            {/* Timeline entries */}
+            <div style={{ position: 'relative' }}>
+              {timelineEntries.slice(0, 50).map((entry, index) => (
+                <div key={index} style={{
+                  display: 'flex',
+                  marginBottom: '20px',
+                  position: 'relative',
+                  paddingLeft: '50px'
+                }}>
+                  {/* Timeline marker */}
+                  <div style={{
+                    position: 'absolute',
+                    left: '11px',
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: '#3b82f6',
+                    border: '3px solid white',
+                    boxShadow: '0 0 0 2px #3b82f6',
+                    zIndex: 1
+                  }} />
+                  
+                  {/* Timeline content */}
+                  <div style={{ flex: 1 }}>
+                    {/* Date/Time header */}
+                    {timelineFilter === 'daily' && entry.date && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: theme.colors.text.secondary,
+                        fontWeight: '500',
+                        marginBottom: '8px'
+                      }}>
+                        {moment(entry.date).format('MMM DD, YYYY')}
+                      </div>
+                    )}
+                    {timelineFilter === 'monthly' && entry.date && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: theme.colors.text.secondary,
+                        fontWeight: '500',
+                        marginBottom: '8px'
+                      }}>
+                        {moment(entry.date + '-01').format('MMMM YYYY')}
+                      </div>
+                    )}
+                    
+                    {/* Process Name */}
+                    <div style={{ 
+                      fontSize: '14px', 
+                      fontWeight: 'bold',
+                      color: theme.colors.text.primary,
+                      marginBottom: '8px'
+                    }}>
+                      {entry.processName?.replace('.exe', '') || entry.processName || 'Unknown'}
+                    </div>
+                    
+                    {/* Total Seconds/Hours and Percentage */}
+                    <div style={{ 
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'center',
+                      marginBottom: timelineFilter === 'daily' ? '8px' : '0'
+                    }}>
+                      <span style={{ 
+                        fontSize: '12px', 
+                        color: theme.colors.text.secondary,
+                        fontWeight: '500'
+                      }}>
+                        {entry.totalSeconds ? formatDuration(entry.totalSeconds) : formatHours(entry.totalHours)}
+                      </span>
+                      <span style={{ 
+                        padding: '2px 8px',
+                        background: '#e0e7ff',
+                        borderRadius: '4px',
+                        color: '#3b82f6',
+                        fontWeight: '600',
+                        fontSize: '12px'
+                      }}>
+                        {entry.percent?.toFixed(2) || '0.00'}%
+                      </span>
+                    </div>
+                    
+                    {/* Window Titles (Daily only) */}
+                    {timelineFilter === 'daily' && entry.windowTitles && entry.windowTitles.length > 0 && (
+                      <div style={{ 
+                        marginTop: '8px',
+                        padding: '8px',
+                        background: '#f8f9fa',
+                        borderRadius: '4px',
+                        border: '1px solid #e9ecef'
+                      }}>
+                        <div style={{ 
+                          fontSize: '11px',
+                          color: theme.colors.text.secondary,
+                          fontWeight: '600',
+                          marginBottom: '4px'
+                        }}>
+                          Window Titles:
+                        </div>
+                        <div style={{ 
+                          fontSize: '11px',
+                          color: theme.colors.text.secondary,
+                          lineHeight: '1.5'
+                        }}>
+                          {entry.windowTitles.map((title, idx) => (
+                            <div key={idx} style={{ marginBottom: '2px' }}>
+                              • {title}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Show when employee is selected but data is loading */}
-      {selectedEmployee && isLoadingReportData && (
+      {/* Right Panel: Focus Share */}
+      <div style={{ 
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        maxHeight: '80vh',
+        overflowY: 'auto'
+      }}>
+        {/* Header */}
         <div style={{ 
-          padding: '40px', 
-          textAlign: 'center', 
-          color: theme.colors.text.secondary,
-          border: '2px dashed #3b82f6',
-          borderRadius: '8px',
-          background: '#eff6ff'
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '20px'
         }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #3b82f6',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <h4>Loading Focus Timeline Data...</h4>
-          <p>Fetching application usage data for {selectedEmployee.display_name || selectedEmployee.email}</p>
+          <h3 style={{ 
+            margin: 0,
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            Focus Share
+          </h3>
+          <button
+            onClick={handleExportCSV}
+            style={{
+              padding: '8px 16px',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              textTransform: 'uppercase'
+            }}
+          >
+            EXPORT CSV
+          </button>
         </div>
-      )}
 
-      {/* Show when employee is selected but no data yet and not loading */}
-      {selectedEmployee && !focusTimelineData && !isLoadingReportData && (
-        <div style={{ 
-          padding: '40px', 
-          textAlign: 'center', 
-          color: theme.colors.text.secondary,
-          border: '2px dashed #f59e0b',
-          borderRadius: '8px',
-          background: '#fef3c7'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-          <h4>No Data Available</h4>
-          <p>No focus timeline data found for {selectedEmployee.display_name || selectedEmployee.email}</p>
-        </div>
-      )}
-
-      {/* Monthly Summary */}
-      {focusTimelineData && (
-        <div style={{ 
-          background: theme.colors.card || '#f8f9fa',
+        {/* Summary Box */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-around',
           padding: '16px',
+          background: '#f8f9fa',
           borderRadius: '8px',
           marginBottom: '20px',
           border: '1px solid #e9ecef'
         }}>
-          <h4 style={{ margin: '0 0 12px 0', color: theme.colors.text.primary }}>
-            � Monthly Summary for {selectedEmployee?.display_name || selectedEmployee?.email}
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-            <div>
-              <strong>Total Worked Hours:</strong><br />
-              <span style={{ color: '#10b981', fontSize: '18px', fontWeight: 'bold' }}>
-                {formatHours(focusTimelineData.total_worked_hours)}
-              </span>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold',
+              color: theme.colors.text.primary,
+              marginBottom: '4px'
+            }}>
+              {totalSwitches}
             </div>
-            <div>
-              <strong>Working Days:</strong><br />
-              <span style={{ color: '#3b82f6', fontSize: '18px', fontWeight: 'bold' }}>
-                {getWorkingDays().length} days
-              </span>
+            <div style={{ 
+              fontSize: '12px',
+              color: theme.colors.text.secondary
+            }}>
+              Switches
             </div>
-            <div>
-              <strong>Applications Used:</strong><br />
-              <span style={{ color: '#8b5cf6', fontSize: '18px', fontWeight: 'bold' }}>
-                {focusTimelineData.monthly_app_usage?.length || 0} apps
-              </span>
+          </div>
+          <div style={{
+            width: '1px',
+            background: '#dee2e6',
+            margin: '0 16px'
+          }} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold',
+              color: theme.colors.text.primary,
+              marginBottom: '4px'
+            }}>
+              {totalDuration}
             </div>
-            <div>
-              <strong>Month/Year:</strong><br />
-              <span style={{ color: '#f59e0b', fontSize: '18px', fontWeight: 'bold' }}>
-                {focusTimelineData.month}
-              </span>
+            <div style={{ 
+              fontSize: '12px',
+              color: theme.colors.text.secondary
+            }}>
+              Duration
             </div>
           </div>
         </div>
-      )}
 
-      {/* View Toggle */}
-      {focusTimelineData && (
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setActiveView('monthly')}
-              style={{
-                padding: '8px 16px',
-                border: activeView === 'monthly' ? '2px solid #3b82f6' : '1px solid #e9ecef',
-                borderRadius: '6px',
-                background: activeView === 'monthly' ? '#3b82f6' : 'white',
-                color: activeView === 'monthly' ? 'white' : theme.colors.text.primary,
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '12px'
-              }}
-            >
-              📊 Monthly App Usage
-            </button>
-            <button
-              onClick={() => setActiveView('daily')}
-              style={{
-                padding: '8px 16px',
-                border: activeView === 'daily' ? '2px solid #3b82f6' : '1px solid #e9ecef',
-                borderRadius: '6px',
-                background: activeView === 'daily' ? '#3b82f6' : 'white',
-                color: activeView === 'daily' ? 'white' : theme.colors.text.primary,
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '12px'
-              }}
-            >
-              📅 Daily Breakdown
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Monthly App Usage View */}
-      {focusTimelineData && activeView === 'monthly' && focusTimelineData.monthly_app_usage && (
-        <div style={{ marginBottom: '20px' }}>
-          <h4 style={{ margin: '0 0 16px 0', color: theme.colors.text.primary }}>
-            � Monthly Application Usage ({focusTimelineData.monthly_app_usage.length} applications)
-          </h4>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-            {focusTimelineData.monthly_app_usage.map((app, index) => (
-              <div key={index} style={{
-                background: 'white',
-                border: '1px solid #e9ecef',
-                borderRadius: '8px',
-                padding: '16px',
-                transition: 'transform 0.2s ease',
-                ':hover': { transform: 'translateY(-2px)' }
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: getAppColor(app.process_name),
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '18px',
-                    marginRight: '12px'
-                  }}>
-                    {getAppIcon(app.process_name)}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 'bold', color: theme.colors.text.primary, marginBottom: '4px' }}>
-                      {app.process_name.replace('.exe', '')}
-                    </div>
-                    <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-                      {formatHours(app.total_hours)} • {app.percent.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Progress bar */}
-                <div style={{
-                  width: '100%',
-                  height: '6px',
-                  background: '#e9ecef',
-                  borderRadius: '3px',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    width: `${app.percent}%`,
-                    height: '100%',
-                    background: getAppColor(app.process_name),
-                    borderRadius: '3px'
-                  }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Daily Breakdown View */}
-      {focusTimelineData && activeView === 'daily' && (
+        {/* Activity Table */}
         <div>
-          <h4 style={{ margin: '0 0 16px 0', color: theme.colors.text.primary }}>
-            📅 Daily Activity Breakdown ({getWorkingDays().length} working days)
-          </h4>
-          
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
-            {getWorkingDays().map(([date, dayData]) => (
-              <button
-                key={date}
-                onClick={() => setSelectedDay(selectedDay === date ? null : date)}
-                style={{
-                  padding: '8px 12px',
-                  border: selectedDay === date ? '2px solid #3b82f6' : '1px solid #e9ecef',
-                  borderRadius: '6px',
-                  background: selectedDay === date ? '#3b82f6' : 'white',
-                  color: selectedDay === date ? 'white' : theme.colors.text.primary,
-                  cursor: 'pointer',
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid #e9ecef' }}>
+                <th style={{ 
+                  padding: '12px',
+                  textAlign: 'left',
                   fontSize: '12px',
-                  fontWeight: 'bold'
-                }}
-              >
-                {new Date(date).toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric' 
-                })}
-                <br />
-                <span style={{ fontSize: '10px', opacity: 0.8 }}>
-                  {formatHours(dayData.total_worked_hours)}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Selected Day Details */}
-          {selectedDay && focusTimelineData.daily_report[selectedDay] && (
-            <div style={{
-              background: 'white',
-              border: '1px solid #e9ecef',
-              borderRadius: '8px',
-              padding: '20px',
-              marginBottom: '20px'
-            }}>
-              <h5 style={{ margin: '0 0 16px 0', color: theme.colors.text.primary }}>
-                📆 {new Date(selectedDay).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </h5>
-              
-              <div style={{ marginBottom: '16px' }}>
-                <strong>Total Working Time: </strong>
-                <span style={{ color: '#10b981', fontWeight: 'bold' }}>
-                  {formatHours(focusTimelineData.daily_report[selectedDay].total_worked_hours)}
-                </span>
-              </div>
-
-              {focusTimelineData.daily_report[selectedDay].applications_used && (
-                <div>
-                  <h6 style={{ margin: '0 0 12px 0', color: theme.colors.text.primary }}>
-                    Applications Used ({focusTimelineData.daily_report[selectedDay].applications_used.length})
-                  </h6>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
-                    {focusTimelineData.daily_report[selectedDay].applications_used.map((app, index) => (
-                      <div key={index} style={{
-                        background: '#f8f9fa',
-                        border: '1px solid #e9ecef',
-                        borderRadius: '6px',
-                        padding: '12px'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                          <span style={{ marginRight: '8px', fontSize: '16px' }}>
-                            {getAppIcon(app.process_name)}
-                          </span>
-                          <div>
-                            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
-                              {app.process_name.replace('.exe', '')}
-                            </div>
-                            <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-                              {formatHours(app.total_hours)} • {app.percent.toFixed(1)}%
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Window titles */}
-                        {app.window_titles && app.window_titles.length > 0 && (
-                          <details style={{ fontSize: '11px', color: theme.colors.text.tertiary }}>
-                            <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
-                              Window titles ({app.window_titles.length})
-                            </summary>
-                            <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
-                              {app.window_titles.slice(0, 5).map((title, idx) => (
-                                <li key={idx} style={{ marginBottom: '2px' }}>
-                                  {title.length > 50 ? title.substring(0, 50) + '...' : title}
-                                </li>
-                              ))}
-                              {app.window_titles.length > 5 && (
-                                <li style={{ fontStyle: 'italic', color: theme.colors.text.secondary }}>
-                                  ... and {app.window_titles.length - 5} more
-                                </li>
-                              )}
-                            </ul>
-                          </details>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {!selectedDay && (
-            <div style={{
-              padding: '40px',
-              textAlign: 'center',
-              color: theme.colors.text.secondary,
-              border: '2px dashed #e9ecef',
-              borderRadius: '8px'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
-              <h4>Select a Day</h4>
-              <p>Click on any working day above to see detailed application usage for that day.</p>
-            </div>
-          )}
+                  fontWeight: '600',
+                  color: theme.colors.text.secondary,
+                  cursor: 'pointer'
+                }} onClick={() => handleSort('switches')}>
+                  Switches
+                  {sortColumn === 'switches' && (
+                    <span style={{ marginLeft: '4px' }}>
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </th>
+                <th style={{ 
+                  padding: '12px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: theme.colors.text.secondary,
+                  cursor: 'pointer'
+                }} onClick={() => handleSort('duration')}>
+                  Duration
+                  {sortColumn === 'duration' && (
+                    <span style={{ marginLeft: '4px' }}>
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </th>
+                <th style={{ 
+                  padding: '12px',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: theme.colors.text.secondary
+                }}>
+                  Activity
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedFocusShareData.map((item, index) => (
+                <tr key={index} style={{ 
+                  borderBottom: '1px solid #f3f4f6'
+                }}>
+                  <td style={{ padding: '12px' }}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '4px 8px',
+                      background: '#f3f4f6',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      color: theme.colors.text.primary,
+                      fontWeight: '500'
+                    }}>
+                      {item.switches}
+                    </span>
+                  </td>
+                  <td style={{ 
+                    padding: '12px',
+                    fontSize: '12px',
+                    color: theme.colors.text.primary
+                  }}>
+                    {formatDuration(item.totalSeconds)}
+                  </td>
+                  <td style={{ 
+                    padding: '12px',
+                    fontSize: '12px',
+                    color: theme.colors.text.primary,
+                    textDecoration: 'underline',
+                    cursor: 'pointer'
+                  }}>
+                    {item.appName}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-
-      {/* No Data State */}
-      {!selectedEmployee ? (
-        <div style={{ 
-          padding: '40px', 
-          textAlign: 'center', 
-          color: theme.colors.text.secondary,
-          border: '2px dashed #e9ecef',
-          borderRadius: '8px'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
-          <h4>Select an Employee</h4>
-          <p>Please select an employee from the left panel to view their focus timeline data.</p>
-        </div>
-      ) : focusTimelineData && (!focusTimelineData.monthly_app_usage || focusTimelineData.monthly_app_usage.length === 0) ? (
-        <div style={{ 
-          padding: '40px', 
-          textAlign: 'center', 
-          color: theme.colors.text.secondary,
-          border: '2px dashed #e9ecef',
-          borderRadius: '8px'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>�</div>
-          <h4>No Activity Data Found</h4>
-          <p>No application usage data available for {selectedEmployee?.display_name || selectedEmployee?.email} for the selected period.</p>
-        </div>
-      ) : null}
-
-      {/* Debug Information */}
-      {focusTimelineData && (
-        <div style={{ 
-          marginTop: '20px',
-          padding: '12px', 
-          background: '#f8f9fa', 
-          borderRadius: '6px',
-          fontSize: '11px',
-          color: '#666'
-        }}>
-          <details>
-            <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>🔍 Debug Info (Click to expand)</summary>
-            <pre style={{ marginTop: '8px', fontSize: '10px', overflow: 'auto', maxHeight: '200px' }}>
-              {JSON.stringify(focusTimelineData, null, 2)}
-            </pre>
-          </details>
-        </div>
-      )}
+      </div>
     </div>
+    </>
   );
 };
 

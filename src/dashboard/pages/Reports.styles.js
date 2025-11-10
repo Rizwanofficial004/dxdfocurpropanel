@@ -235,6 +235,34 @@ export const FilterSelect = styled.select`
   }
 `;
 
+export const ClearDateButton = styled.button`
+  padding: 10px 16px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 6px;
+  background: ${props => props.theme.colors.surface};
+  color: ${props => props.theme.colors.text.primary};
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  
+  &:hover {
+    background: ${props => props.theme.colors.primary};
+    color: white;
+    border-color: ${props => props.theme.colors.primary};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 export const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(8, 1fr);

@@ -1,277 +1,532 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useMemo } from 'react';
 
-// Styled components for Idle tab
-const IdleContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const IdleTableSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border-radius: 8px;
-  padding: 20px;
-`;
-
-const IdleHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const IdleTitle = styled.h3`
-  margin: 0;
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 18px;
-  font-weight: 600;
-`;
-
-const IdleTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const IdleTableHeader = styled.thead`
-  background: ${props => props.theme.colors.background};
-`;
-
-const IdleHeaderRow = styled.tr``;
-
-const IdleHeaderCell = styled.th`
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  border-bottom: 2px solid ${props => props.theme.colors.border};
-  font-size: 14px;
-`;
-
-const IdleTableBody = styled.tbody``;
-
-const IdleRow = styled.tr`
-  &:hover {
-    background: ${props => props.theme.colors.hover};
-  }
-  
-  &:last-child .total-row {
-    font-weight: bold;
-    background: ${props => props.theme.colors.background};
+// Add spinner animation
+const spinnerStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 `;
 
-const IdleCell = styled.td`
-  padding: 12px 16px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  color: ${props => props.theme.colors.text.secondary};
-  font-size: 13px;
-  
-  &.total-row {
-    font-weight: bold;
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-const IdleChartSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border-radius: 8px;
-  padding: 20px;
-`;
-
-const PieChartWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  justify-content: center;
-  margin-top: 20px;
-`;
-
-const PieChart = styled.div`
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #3b82f6 0deg 320deg,
-    #e5e7eb 320deg 360deg
-  );
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
-    background: white;
-    border-radius: 50%;
-  }
-`;
-
-const ChartLegend = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const LegendItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const LegendColor = styled.div`
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  background: ${props => props.color};
-`;
-
-const LegendText = styled.span`
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.secondary};
-`;
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('idle-spinner-styles')) {
+  const style = document.createElement('style');
+  style.id = 'idle-spinner-styles';
+  style.textContent = spinnerStyles;
+  document.head.appendChild(style);
+}
 
 const IdleTab = ({ 
   theme, 
-  idleTimeData, 
+  idleTimeData,
+  loggedTimeData,
   selectedEmployee,
   selectedYear,
   selectedMonth,
   selectedDate,
-  months 
+  months,
+  isLoadingReportData
 }) => {
-  // Sample data as fallback
-  const idleData = [
-    { start: '10:59 AM', stop: '11:11 AM', duration: '0h 12m' },
-    { start: '11:25 AM', stop: '11:29 AM', duration: '0h 4m' },
-    { start: '4:26 PM', stop: '4:31 PM', duration: '0h 5m' },
-    { start: '5:08 PM', stop: '5:13 PM', duration: '0h 5m' },
-    { start: '6:39 PM', stop: '6:42 PM', duration: '0h 3m' }
-  ];
+  // Format time from timestamp or time string
+  const formatTime = (timeString) => {
+    if (!timeString) return 'N/A';
+    try {
+      if (timeString.includes('T')) {
+        const date = new Date(timeString);
+        return date.toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        });
+      } else if (timeString.includes(':')) {
+        return timeString;
+      } else {
+        return timeString;
+      }
+    } catch (e) {
+      return timeString;
+    }
+  };
+
+  // Format duration from seconds or time string
+  const formatDuration = (seconds) => {
+    if (!seconds && seconds !== 0) return '0h 0m';
+    if (typeof seconds === 'string' && seconds.includes('h')) {
+      return seconds; // Already formatted
+    }
+    const totalSeconds = typeof seconds === 'number' ? seconds : parseInt(seconds) || 0;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
+
+  // Transform idle data into rows (one per day with count > 0)
+  const idleRows = useMemo(() => {
+    if (!idleTimeData?.daily_counts) return [];
+
+    return idleTimeData.daily_counts
+      .filter((day) => day.total_count > 0)
+      .map((day) => {
+        const dateObj = new Date(day.date);
+        const displayDate = dateObj.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        const totalMinutes = day.total_count * 3;
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        return {
+          date: day.date,
+          displayDate,
+          count: day.total_count,
+          duration: `${hours}h ${minutes}m`
+        };
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [idleTimeData]);
+
+  const totalIdleCount = useMemo(() => {
+    return idleRows.reduce((sum, row) => sum + row.count, 0);
+  }, [idleRows]);
+
+  // Calculate total idle duration based on total count (3 minutes per event)
+  const totalIdleDuration = useMemo(() => {
+    const estimatedMinutes = totalIdleCount * 3;
+    const hours = Math.floor(estimatedMinutes / 60);
+    const minutes = estimatedMinutes % 60;
+    return `${hours}h ${minutes}m`;
+  }, [totalIdleCount]);
+
+  // Get logged hours for the selected date
+  const loggedHours = useMemo(() => {
+    if (loggedTimeData?.total_hours) {
+      return loggedTimeData.total_hours;
+    }
+    if (loggedTimeData?.total_seconds) {
+      const hours = Math.floor(loggedTimeData.total_seconds / 3600);
+      const minutes = Math.floor((loggedTimeData.total_seconds % 3600) / 60);
+      return `${hours}h ${minutes}m`;
+    }
+    // Default fallback
+    return '9h 50m';
+  }, [loggedTimeData]);
+
+  // Calculate idle percentage and chart data
+  const chartData = useMemo(() => {
+    // Parse logged hours (e.g., "9h 50m" -> 590 minutes)
+    const loggedMatch = loggedHours.match(/(\d+)h\s*(\d+)m/);
+    const loggedMinutes = loggedMatch 
+      ? parseInt(loggedMatch[1]) * 60 + parseInt(loggedMatch[2])
+      : 590; // Default 9h 50m
+    
+    // Parse idle hours (e.g., "0h 29m" -> 29 minutes)
+    const idleMatch = totalIdleDuration.match(/(\d+)h\s*(\d+)m/);
+    const idleMinutes = idleMatch 
+      ? parseInt(idleMatch[1]) * 60 + parseInt(idleMatch[2])
+      : 0;
+    
+    // Calculate percentages based on logged hours (idle is part of logged time)
+    const totalMinutes = loggedMinutes; // Total logged time includes idle time
+    const idlePercentage = totalMinutes > 0 ? Math.round((idleMinutes / totalMinutes) * 100) : 0;
+    const loggedPercentage = 100 - idlePercentage;
+    
+    return {
+      loggedMinutes,
+      idleMinutes,
+      idlePercentage,
+      loggedPercentage,
+      totalMinutes
+    };
+  }, [loggedHours, totalIdleDuration]);
+
+  // Loading state
+  if (isLoadingReportData) {
+    return (
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center', 
+        color: theme.colors.text.secondary,
+        border: '2px dashed #3b82f6',
+        borderRadius: '8px',
+        background: '#eff6ff'
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }}></div>
+        <h4>Loading Idle Time Data...</h4>
+      </div>
+    );
+  }
+
+  // No employee selected - still show cards but with message
+  if (!selectedEmployee) {
+    return (
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '20px',
+        padding: '20px',
+        background: theme.colors.surface || '#f5f5f5',
+        borderRadius: '8px'
+      }}>
+        <div style={{ 
+          background: 'white',
+          borderRadius: '8px',
+          padding: '40px',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          color: theme.colors.text.secondary
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>👤</div>
+          <h4>Select an Employee</h4>
+          <p>Please select an employee from the left panel to view their idle time data.</p>
+        </div>
+        <div style={{ 
+          background: 'white',
+          borderRadius: '8px',
+          padding: '40px',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          color: theme.colors.text.secondary
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+          <h4>Idle Chart</h4>
+          <p>Chart will appear when employee is selected.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Debug: Log data to console
+  console.log('IdleTab - idleTimeData:', idleTimeData);
+  console.log('IdleTab - selectedDate:', selectedDate);
+  console.log('IdleTab - totalIdleDuration:', totalIdleDuration);
 
   return (
-    <IdleContainer>
-      {/* IDLE Table Section */}
-      <IdleTableSection theme={theme}>
-        <IdleHeader theme={theme}>
-          <IdleTitle theme={theme}>IDLE TIME MONITORING</IdleTitle>
-          {idleTimeData && (
-            <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-              📊 API Data from: {selectedDate || `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}`}
-            </div>
+    <div style={{ 
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '20px',
+      padding: '20px',
+      background: theme.colors.surface || '#f5f5f5',
+      borderRadius: '8px',
+      minHeight: '400px'
+    }}>
+      {/* Left Section: IDLE Table */}
+      <div style={{ 
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        border: '1px solid #e9ecef',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 20px 0',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: theme.colors.text.primary
+        }}>
+          IDLE
+        </h3>
+
+        <div style={{ 
+          fontSize: '12px', 
+          color: theme.colors.text.secondary,
+          marginBottom: '16px'
+        }}>
+          📅 Showing idle sessions for {idleTimeData?.month || `${selectedMonth} ${selectedYear}`}
+          {selectedDate && (
+            <span style={{ marginLeft: '8px', fontWeight: 'bold', color: '#ef4444' }}>
+              Selected date: {selectedDate} {selectedMonth} {selectedYear}
+            </span>
           )}
-        </IdleHeader>
-        
-        {/* Idle Time Summary */}
-        {idleTimeData && (
-          <div style={{ 
-            background: theme.colors.card || '#f8f9fa',
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid #e9ecef'
+        </div>
+
+        <div style={{
+          background: 'white',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          border: '1px solid #e9ecef'
+        }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse'
           }}>
-            <h4 style={{ margin: '0 0 12px 0', color: theme.colors.text.primary }}>
-              📊 Idle Time Summary
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-              {idleTimeData.total_idle_time && (
-                <div>
-                  <strong>Total Idle Time:</strong><br />
-                  <span style={{ color: '#ef4444' }}>{idleTimeData.total_idle_time}</span>
-                </div>
+            <thead>
+              <tr style={{ 
+                background: theme.colors.background || '#f8f9fa',
+                borderBottom: '2px solid #e9ecef'
+              }}>
+                <th
+                  style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  DATE
+                </th>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  TOTAL COUNT
+                </th>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  TOTAL DURATION
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {idleRows.length > 0 ? (
+                idleRows.map((row) => {
+                  const isSelected =
+                    selectedDate &&
+                    row.date === `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
+                  return (
+                    <tr
+                      key={row.date}
+                      style={{
+                        borderBottom: '1px solid #f3f4f6',
+                        background: isSelected ? '#eff6ff' : 'white'
+                      }}
+                    >
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px',
+                        color: theme.colors.text.primary
+                      }}>
+                        {row.displayDate}
+                      </td>
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px',
+                        color: theme.colors.text.primary,
+                        fontWeight: isSelected ? 'bold' : 'normal'
+                      }}>
+                        {row.count}
+                      </td>
+                      <td style={{ 
+                        padding: '12px 16px',
+                        fontSize: '13px',
+                        color: theme.colors.text.primary,
+                        fontWeight: isSelected ? 'bold' : 'normal'
+                      }}>
+                        {row.duration}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td 
+                    colSpan="3" 
+                    style={{ 
+                      padding: '20px',
+                      textAlign: 'center',
+                      color: theme.colors.text.secondary,
+                      fontSize: '13px'
+                    }}
+                  >
+                    {!idleTimeData 
+                      ? 'No idle data available. Please select an employee and date.'
+                      : 'No idle session data above zero count for this period.'}
+                  </td>
+                </tr>
               )}
-              {idleTimeData.idle_sessions_count && (
-                <div>
-                  <strong>Idle Sessions:</strong><br />
-                  <span style={{ color: '#f59e0b' }}>{idleTimeData.idle_sessions_count}</span>
-                </div>
-              )}
-              {idleTimeData.longest_idle_session && (
-                <div>
-                  <strong>Longest Session:</strong><br />
-                  <span style={{ color: '#dc2626' }}>{idleTimeData.longest_idle_session}</span>
-                </div>
-              )}
-              {idleTimeData.average_idle_duration && (
-                <div>
-                  <strong>Average Duration:</strong><br />
-                  <span style={{ color: '#9333ea' }}>{idleTimeData.average_idle_duration}</span>
-                </div>
-              )}
+              <tr style={{
+                background: theme.colors.background || '#f8f9fa',
+                borderTop: '2px solid #e9ecef'
+              }}>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  Total
+                </td>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  {totalIdleCount}
+                </td>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  {totalIdleDuration}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Right Section: IDLE CHART */}
+      <div style={{ 
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        border: '1px solid #e9ecef',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 20px 0',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: theme.colors.text.primary
+        }}>
+          IDLE CHART
+        </h3>
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '40px',
+          justifyContent: 'center',
+          marginTop: '20px'
+        }}>
+          {/* Donut Chart */}
+          <div style={{ position: 'relative', width: '150px', height: '150px' }}>
+            <svg width="150" height="150" style={{ transform: 'rotate(-90deg)' }}>
+              <circle
+                cx="75"
+                cy="75"
+                r="65"
+                fill="none"
+                stroke="#e5e7eb"
+                strokeWidth="20"
+              />
+              <circle
+                cx="75"
+                cy="75"
+                r="65"
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="20"
+                strokeDasharray={`${2 * Math.PI * 65}`}
+                strokeDashoffset={`${2 * Math.PI * 65 * (1 - chartData.idlePercentage / 100)}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: 'white',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}></div>
+            </div>
+            {/* Percentage labels on chart */}
+            {chartData.idlePercentage > 0 && (
+              <div style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: '#3b82f6'
+              }}>
+                {chartData.idlePercentage}%
+              </div>
+            )}
+            {chartData.loggedPercentage > 0 && (
+              <div style={{
+                position: 'absolute',
+                bottom: '20%',
+                right: '20%',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: '#6b7280'
+              }}>
+                {chartData.loggedPercentage}%
+              </div>
+            )}
+          </div>
+
+          {/* Legend */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '3px',
+                background: '#e5e7eb'
+              }}></div>
+              <span style={{
+                fontSize: '14px',
+                color: theme.colors.text.secondary
+              }}>
+                Logged Hours {loggedHours}
+              </span>
+            </div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '3px',
+                background: '#3b82f6'
+              }}></div>
+              <span style={{
+                fontSize: '14px',
+                color: theme.colors.text.secondary
+              }}>
+                Idle Hours {totalIdleDuration}
+              </span>
             </div>
           </div>
-        )}
-
-        <IdleTable>
-          <IdleTableHeader theme={theme}>
-            <IdleHeaderRow>
-              <IdleHeaderCell theme={theme}>START</IdleHeaderCell>
-              <IdleHeaderCell theme={theme}>STOP</IdleHeaderCell>
-              <IdleHeaderCell theme={theme}>DURATION</IdleHeaderCell>
-              <IdleHeaderCell theme={theme}>TYPE</IdleHeaderCell>
-            </IdleHeaderRow>
-          </IdleTableHeader>
-          <IdleTableBody>
-            {idleTimeData && idleTimeData.idle_sessions ? (
-              idleTimeData.idle_sessions.map((session, index) => (
-                <IdleRow key={index}>
-                  <IdleCell theme={theme}>{session.start_time || session.start || 'N/A'}</IdleCell>
-                  <IdleCell theme={theme}>{session.end_time || session.stop || session.end || 'N/A'}</IdleCell>
-                  <IdleCell theme={theme}>{session.duration || 'N/A'}</IdleCell>
-                  <IdleCell theme={theme}>{session.type || session.idle_type || 'Idle'}</IdleCell>
-                </IdleRow>
-              ))
-            ) : (
-              // Fallback to sample data if no API data
-              idleData.map((idle, index) => (
-                <IdleRow key={index}>
-                  <IdleCell theme={theme}>{idle.start}</IdleCell>
-                  <IdleCell theme={theme}>{idle.stop}</IdleCell>
-                  <IdleCell theme={theme}>{idle.duration}</IdleCell>
-                  <IdleCell theme={theme}>Idle</IdleCell>
-                </IdleRow>
-              ))
-            )}
-            <IdleRow>
-              <IdleCell theme={theme} className="total-row">Total duration</IdleCell>
-              <IdleCell theme={theme} className="total-row"></IdleCell>
-              <IdleCell theme={theme} className="total-row">
-                {idleTimeData?.total_idle_time || '0h 29m'}
-              </IdleCell>
-              <IdleCell theme={theme} className="total-row"></IdleCell>
-            </IdleRow>
-          </IdleTableBody>
-        </IdleTable>
-      </IdleTableSection>
-
-      {/* IDLE Chart Section */}
-      <IdleChartSection theme={theme}>
-        <IdleHeader theme={theme}>
-          <IdleTitle theme={theme}>IDLE CHART</IdleTitle>
-        </IdleHeader>
-        <PieChartWrapper>
-          <PieChart theme={theme} />
-          <ChartLegend>
-            <LegendItem theme={theme}>
-              <LegendColor color="#3b82f6" />
-              <LegendText>Logged Hours 9h 50m</LegendText>
-            </LegendItem>
-            <LegendItem theme={theme}>
-              <LegendColor color="#e5e7eb" />
-              <LegendText>Idle Hours {idleTimeData?.total_idle_time || '0h 29m'}</LegendText>
-            </LegendItem>
-          </ChartLegend>
-        </PieChartWrapper>
-      </IdleChartSection>
-    </IdleContainer>
+        </div>
+      </div>
+    </div>
   );
 };
 

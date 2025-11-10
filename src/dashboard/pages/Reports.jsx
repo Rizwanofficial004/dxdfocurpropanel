@@ -116,6 +116,8 @@ const Reports = () => {
   const [taskReportData, setTaskReportData] = useState(null);
   const [loggedTimeData, setLoggedTimeData] = useState(null);
   const [screenshotCountData, setScreenshotCountData] = useState(null);
+  const [monitoringActionsData, setMonitoringActionsData] = useState(null);
+  const [idleQuickviewData, setIdleQuickviewData] = useState(null);
   const [isLoadingReportData, setIsLoadingReportData] = useState(false);
   const [reportError, setReportError] = useState(null);
   
@@ -136,14 +138,14 @@ const Reports = () => {
     { id: 'SCREENS', name: 'SCREENS', icon: '🖥️' },
     { id: 'FOCUS_TIMELINE', name: 'FOCUS TIMELINE', icon: '⏱️' },
     { id: 'TASK', name: 'TASK', icon: '📋' },
-    { id: 'ACTIVITY_PATTERN', name: 'ACTIVITY PATTERN', icon: '📊' },
+    // { id: 'ACTIVITY_PATTERN', name: 'ACTIVITY PATTERN', icon: '📊' },
     { id: 'TOP_ACTIVITY', name: 'TOP ACTIVITY', icon: '🔥' },
-    { id: 'OT_REPORT', name: 'OT REPORT', icon: '📈' },
-    { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
-    { id: 'BREAKS_MEET', name: 'BREAKS & MEET', icon: '☕' },
+    // { id: 'OT_REPORT', name: 'OT REPORT', icon: '📈' },
+    // { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
+    // { id: 'BREAKS_MEET', name: 'BREAKS & MEET', icon: '☕' },
     { id: 'IDLE', name: 'IDLE', icon: '😴' },
-    { id: 'OFFLINE', name: 'OFFLINE', icon: '📴' },
-    { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
+    // { id: 'OFFLINE', name: 'OFFLINE', icon: '📴' },
+    // { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
 
   // Task data for TASK tab
@@ -267,7 +269,7 @@ const Reports = () => {
         setEmployees(formattedUsers);
         
         if (formattedUsers.length > 0) {
-          setSelectedEmployee(formattedUsers[0]);
+          setSelectedEmployee(prev => prev || formattedUsers[0]);
         }
         
         return formattedUsers;
@@ -325,54 +327,11 @@ const Reports = () => {
     
     try {
       const url = `https://dxdtime.ddsolutions.io/api/focus_timeline/?email=${employee.email}&month=${month}`;
-      console.log('🚀 Focus Timeline API: Calling', url);
       
       // TEMPORARY TEST: Return sample data if email matches test data
-      if (employee.email === 'hussainnaqvi1306@gmail.com' || month === '2025-11') {
-        console.log('🧪 Using test data for Focus Timeline');
-        return {
-          "month": "2025-11",
-          "email": employee.email,
-          "total_worked_hours": 21.32,
-          "monthly_app_usage": [
-            {
-              "process_name": "chrome.exe",
-              "total_seconds": 56778.9,
-              "total_hours": 15.77,
-              "percent": 73.99
-            },
-            {
-              "process_name": "Code.exe",
-              "total_seconds": 7105.3,
-              "total_hours": 1.97,
-              "percent": 9.26
-            }
-          ],
-          "daily_report": {
-            "2025-11-06": {
-              "status": "works_done",
-              "note": "data_found",
-              "total_worked_seconds": 14430.999999999998,
-              "total_worked_hours": 4.01,
-              "applications_used": [
-                {
-                  "process_name": "chrome.exe",
-                  "total_seconds": 8279.0,
-                  "total_hours": 2.3,
-                  "percent": 57.37,
-                  "window_titles": [
-                    "Google Chrome",
-                    "DDS Focus Pro - Google Chrome"
-                  ]
-                }
-              ]
-            }
-          }
-        };
-      }
+ 
       
       const response = await fetch(url);
-      console.log('📡 Focus Timeline API Response:', response.status, response.statusText);
       
       if (response.ok) {
         const data = await response.json();
@@ -388,7 +347,10 @@ const Reports = () => {
   };
 
   const fetchTaskReportData = async (employee, month) => {
-    if (!employee?.email) return null;
+    if (!employee?.email) {
+      console.log('❌ fetchTaskReportData: No employee email provided');
+      return null;
+    }
     
     try {
       const url = `https://dxdtime.ddsolutions.io/api/monthly_task_report/?email=${employee.email}&month=${month}`;
@@ -396,11 +358,13 @@ const Reports = () => {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Task Report Data:', data);
+        console.log('✅ Task Report Data received:', data);
         return data;
+      } else {
+        console.log('❌ fetchTaskReportData: API Error:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching task report data:', error);
+      console.error('❌ Error fetching task report data:', error);
     }
     return null;
   };
@@ -483,32 +447,27 @@ const Reports = () => {
     return null;
   };
 
+
   // Main function to fetch all report data
-  const fetchReportData = async (employee) => {
+  const fetchReportData = useCallback(async (employee) => {
     if (!employee) {
       console.log('❌ fetchReportData: No employee provided');
       return;
     }
     
-    console.log('🔄 fetchReportData: Starting data fetch for employee:', employee);
-    console.log('🔄 Setting isLoadingReportData to true');
     setIsLoadingReportData(true);
     setReportError(null);
     
     try {
       // Format current month as YYYY-MM
-      const currentMonth = `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}`;
-      console.log('📅 fetchReportData: Using month:', currentMonth);
+      const monthIndex = months.indexOf(selectedMonth);
+      const currentMonth = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}`;
       
       // Format specific date as YYYY-MM-DD
       const specificDate = selectedDate 
-        ? `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+        ? `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
         : null;
-      
-      console.log(`🔄 Fetching report data for ${employee.display_name || employee.email}`);
-      console.log(`� Employee email: ${employee.email}`);
-      console.log(`�📅 Month: ${currentMonth}, Date: ${specificDate}`);
-      console.log(`🔍 Will call Focus Timeline API: https://dxdtime.ddsolutions.io/api/focus_timeline/?email=${employee.email}&month=${currentMonth}`);
+    
       
       // Fetch all data in parallel
       const [
@@ -525,7 +484,7 @@ const Reports = () => {
         fetchIdleTimeData(employee, currentMonth),
         fetchFocusTimelineData(employee, currentMonth),
         fetchTaskReportData(employee, currentMonth),
-        fetchLoggedTimeData(employee, currentMonth, specificDate),
+        fetchLoggedTimeData(employee, currentMonth, null), // Always fetch monthly data for TopActivityTab
         specificDate ? fetchScreenshotCountData(specificDate) : null,
         specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
         specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null
@@ -539,6 +498,7 @@ const Reports = () => {
       setTaskReportData(taskData);
       setLoggedTimeData(loggedData);
       setScreenshotCountData(screenshotData);
+      setIdleQuickviewData(idleQuickview);
       
       console.log('✅ All report data fetched successfully');
       
@@ -549,7 +509,7 @@ const Reports = () => {
       console.log('🔄 Setting isLoadingReportData to false');
       setIsLoadingReportData(false);
     }
-  };
+  }, [selectedYear, selectedMonth, selectedDate, months]);
 
   // Local search function to filter sync-staffs users quickly (same as ActivityStream)
   const filterSyncStaffsUsers = (query) => {
@@ -579,25 +539,56 @@ const Reports = () => {
 
   // Filter options
   const years = ['2023', '2024', '2025'];
-  const dates = Array.from({length: 31}, (_, i) => (i + 1).toString());
+  
+  // Calculate valid dates for selected month
+  const getValidDates = () => {
+    const monthIndex = months.indexOf(selectedMonth);
+    const year = parseInt(selectedYear);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    return Array.from({length: daysInMonth}, (_, i) => (i + 1).toString());
+  };
+  const dates = getValidDates();
+  
   const hours = ['All', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', 
                 '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM'];
 
-  // Calendar days for display
-  const calendarDays = [
-    { day: 17, dayName: 'Sat' },
-    { day: 18, dayName: 'Sun' },
-    { day: 19, dayName: 'Mon' },
-    { day: 20, dayName: 'Tue' },
-    { day: 21, dayName: 'Wed' },
-    { day: 22, dayName: 'Thu' },
-    { day: 23, dayName: 'Fri' },
-    { day: 24, dayName: 'Sat' },
-    { day: 25, dayName: 'Sun' },
-    { day: 26, dayName: 'Mon' },
-    { day: 27, dayName: 'Tue', selected: true },
-    { day: 28, dayName: 'Wed', today: true },
-  ];
+  // Calculate calendar days dynamically based on selected month/year
+  const getCalendarDays = () => {
+    const monthIndex = months.indexOf(selectedMonth);
+    const year = parseInt(selectedYear);
+    const month = monthIndex + 1; // JavaScript months are 0-indexed
+    
+    // Get first and last day of the month
+    const firstDay = new Date(year, monthIndex, 1);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    
+    // Get today's date for comparison
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === monthIndex;
+    const todayDay = today.getDate();
+    
+    // Generate array of days for the month
+    const days = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, monthIndex, day);
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const isToday = isCurrentMonth && day === todayDay;
+      const isSelected = day.toString() === selectedDate;
+      
+      days.push({
+        day,
+        dayName,
+        today: isToday,
+        selected: isSelected
+      });
+    }
+    
+    return days;
+  };
+
+  const calendarDays = getCalendarDays();
 
   // Sample time data
   const timeData = {
@@ -632,7 +623,7 @@ const Reports = () => {
     }, 10);
     
     return () => clearTimeout(timer);
-  }, [selectedDate, selectedMonth, selectedYear]);
+  }, []);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -715,6 +706,25 @@ const Reports = () => {
     setIsLoadingEmployees(false);
   };
 
+  // Ensure current date is selected when viewing current month
+  useEffect(() => {
+    const monthIndex = months.indexOf(selectedMonth);
+    const isCurrentMonth = selectedYear === currentYear && monthIndex === currentMonthIndex;
+    
+    // If viewing current month and no date is selected, select current date
+    if (isCurrentMonth && !selectedDate) {
+      setSelectedDate(currentDay);
+    }
+    
+    // If viewing current month and selected date is not valid for current month, select current date
+    if (isCurrentMonth && selectedDate) {
+      const daysInMonth = new Date(parseInt(selectedYear), monthIndex + 1, 0).getDate();
+      if (parseInt(selectedDate) > daysInMonth) {
+        setSelectedDate(currentDay);
+      }
+    }
+  }, [selectedYear, selectedMonth, currentYear, currentMonthIndex, currentDay, months]);
+
   // Fetch report data when filters change
   useEffect(() => {
     if (selectedEmployee) {
@@ -796,46 +806,70 @@ const Reports = () => {
           />
         );
       
-      case 'ACTIVITY_PATTERN':
-        return <ActivityPatternTab theme={theme} />;
+      // case 'ACTIVITY_PATTERN':
+      //   return <ActivityPatternTab theme={theme} />;
       
       case 'TOP_ACTIVITY':
-        return <TopActivityTab theme={theme} />;
-      
-      case 'OT_REPORT':
-        return <OTReportTab theme={theme} />;
-      
-      case 'MONITORING_ACTIONS':
-        return <MonitoringActionsTab theme={theme} />;
-      
-      case 'BREAKS_MEET':
         return (
-          <BreaksMeetTab 
+          <TopActivityTab 
             {...tabProps}
             meetingTimeData={meetingTimeData}
+            idleTimeData={idleTimeData}
+            focusTimelineData={focusTimelineData}
+            loggedTimeData={loggedTimeData}
+            isLoadingReportData={isLoadingReportData}
           />
         );
+      
+      // case 'OT_REPORT':
+      //   return (
+      //     <OTReportTab 
+      //       {...tabProps}
+      //       loggedTimeData={loggedTimeData}
+      //       focusTimelineData={focusTimelineData}
+      //       isLoadingReportData={isLoadingReportData}
+      //     />
+      //   );
+      
+      // case 'MONITORING_ACTIONS':
+      //   return (
+      //     <MonitoringActionsTab 
+      //       {...tabProps}
+      //       monitoringActionsData={monitoringActionsData}
+      //       isLoadingReportData={isLoadingReportData}
+      //     />
+      //   );
+      
+      // case 'BREAKS_MEET':
+      //   return (
+      //     <BreaksMeetTab 
+      //       {...tabProps}
+      //       meetingTimeData={meetingTimeData}
+      //     />
+      //   );
       
       case 'IDLE':
         return (
           <IdleTab 
             {...tabProps}
             idleTimeData={idleTimeData}
-          />
-        );
-      
-      case 'OFFLINE':
-        return <OfflineTab theme={theme} />;
-      
-      case 'TIME_LOG_SUMMARY':
-        return (
-          <TimeLogSummaryTab 
-            {...tabProps}
             loggedTimeData={loggedTimeData}
-            activeTimeLogTab={activeTimeLogTab}
-            setActiveTimeLogTab={setActiveTimeLogTab}
+            isLoadingReportData={isLoadingReportData}
           />
         );
+      
+      // case 'OFFLINE':
+      //   return <OfflineTab theme={theme} />;
+      
+      // case 'TIME_LOG_SUMMARY':
+      //   return (
+      //     <TimeLogSummaryTab 
+      //       {...tabProps}
+      //       loggedTimeData={loggedTimeData}
+      //       activeTimeLogTab={activeTimeLogTab}
+      //       setActiveTimeLogTab={setActiveTimeLogTab}
+      //     />
+      //   );
       
       default:
         return (
@@ -1127,7 +1161,7 @@ const Reports = () => {
                 </FilterGroup>
 
                 {/* Hour Filter */}
-                <FilterGroup>
+                {/* <FilterGroup>
                   <FilterLabel theme={theme}>Hour</FilterLabel>
                   <FilterSelect
                     theme={theme}
@@ -1138,29 +1172,40 @@ const Reports = () => {
                       <option key={hour} value={hour}>{hour}</option>
                     ))}
                   </FilterSelect>
-                </FilterGroup>
+                </FilterGroup> */}
 
                 {/* Calendar View */}
                 <FilterGroup style={{ flex: 2 }}>
                   <FilterLabel theme={theme}>Calendar View</FilterLabel>
                   <CalendarGrid>
-                    {calendarDays.map((day, index) => (
-                      <CalendarDay
-                        key={index}
-                        theme={theme}
-                        selected={day.day.toString() === selectedDate}
-                        today={day.today}
-                        onClick={() => setSelectedDate(day.day.toString())}
-                      >
-                        <DayHeader theme={theme}>{day.dayName}</DayHeader>
-                        <div>{day.day}</div>
-                      </CalendarDay>
-                    ))}
+                    {calendarDays.map((day, index) => {
+                      const isSelected = day.day.toString() === selectedDate;
+                      return (
+                        <CalendarDay
+                          key={index}
+                          theme={theme}
+                          selected={isSelected}
+                          today={day.today}
+                          onClick={() => {
+                            // Toggle: if already selected, deselect it
+                            if (isSelected) {
+                              setSelectedDate('');
+                            } else {
+                              setSelectedDate(day.day.toString());
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <DayHeader theme={theme}>{day.dayName}</DayHeader>
+                          <div>{day.day}</div>
+                        </CalendarDay>
+                      );
+                    })}
                   </CalendarGrid>
                 </FilterGroup>
 
                 {/* Hour Range */}
-                <FilterGroup style={{ flex: 1.5 }}>
+                {/* <FilterGroup style={{ flex: 1.5 }}>
                   <FilterLabel theme={theme}>Hour Range</FilterLabel>
                   <HourGrid>
                     {hours.slice(1, 13).map((hour, index) => (
@@ -1174,7 +1219,7 @@ const Reports = () => {
                       </HourSlot>
                     ))}
                   </HourGrid>
-                </FilterGroup>
+                </FilterGroup> */}
               </FilterRow>
 
               {/* Summary */}
