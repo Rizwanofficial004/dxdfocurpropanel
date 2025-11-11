@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import dayjs from 'dayjs';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
@@ -56,6 +57,10 @@ import {
   TabIcon,
   NavigationArrow
 } from './Reports.styles';
+import {
+  getProfilePhotoUrl,
+  fetchScreenshotsData as fetchScreenshotsDataUtil
+} from '../../utils/reportUtils';
 
 // Add spinner animation
 const spinnerStyles = `
@@ -72,20 +77,6 @@ if (typeof document !== 'undefined' && !document.getElementById('spinner-styles'
   style.textContent = spinnerStyles;
   document.head.appendChild(style);
 }
-
-// Helper function to get profile photo URL from CRM (same as ActivityStream)
-const getProfilePhotoUrl = (user) => {
-  // Check if user has profile_url and staff_id
-  if (!user || !user.profile_url || !user.staff_id) {
-    return null;
-  }
-  
-  // Build the CRM profile photo URL with small_ prefix for thumbnail
-  // Format: https://crm.deluxebilisim.com/uploads/staff_profile_images/{staff_id}/small_{profile_url}
-  const profileUrl = `https://crm.deluxebilisim.com/uploads/staff_profile_images/${user.staff_id}/small_${encodeURIComponent(user.profile_url)}`;
-  
-  return profileUrl;
-};
 
 const Reports = () => {
   const { t } = useLanguage();
@@ -116,17 +107,45 @@ const Reports = () => {
   const [taskReportData, setTaskReportData] = useState(null);
   const [loggedTimeData, setLoggedTimeData] = useState(null);
   const [screenshotCountData, setScreenshotCountData] = useState(null);
+  const [screenshots, setScreenshots] = useState([]);
+  const [screenshotsTotal, setScreenshotsTotal] = useState(0);
+  const [screenshotsPage, setScreenshotsPage] = useState(1);
+  const [screenshotsPerPage, setScreenshotsPerPage] = useState(9);
+  const [screenshotsDateRange, setScreenshotsDateRange] = useState([null, null]);
+  const [isLoadingScreenshots, setIsLoadingScreenshots] = useState(false);
+  const [screenshotsError, setScreenshotsError] = useState(null);
   const [monitoringActionsData, setMonitoringActionsData] = useState(null);
   const [idleQuickviewData, setIdleQuickviewData] = useState(null);
   const [isLoadingReportData, setIsLoadingReportData] = useState(false);
   const [reportError, setReportError] = useState(null);
   
+  // Ref to prevent concurrent API calls
+  const isFetchingRef = useRef(false);
+  
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(months[currentMonthIndex]);
   const [selectedDate, setSelectedDate] = useState(currentDay);
   const [selectedHour, setSelectedHour] = useState('All');
-  const [activeTab, setActiveTab] = useState('FOCUS_TIMELINE'); // Start with Focus Timeline
+  const [activeTab, setActiveTab] = useState('SCREENS'); // Start with Focus Timeline
   const [activeTimeLogTab, setActiveTimeLogTab] = useState('WEEKLY');
+
+  const computeDefaultScreenshotRange = useCallback(() => {
+    const monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex < 0) {
+      return [null, null];
+    }
+
+    const baseMonth = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const monthStart = dayjs(`${baseMonth}-01`).startOf('day');
+
+    if (selectedDate) {
+      const normalizedDate = dayjs(`${baseMonth}-${String(selectedDate).padStart(2, '0')}`).startOf('day');
+      return [normalizedDate, normalizedDate];
+    }
+
+    const monthEnd = monthStart.endOf('month').startOf('day');
+    return [monthStart, monthEnd];
+  }, [months, selectedMonth, selectedYear, selectedDate]);
 
   // Tab scroll states
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -148,30 +167,6 @@ const Reports = () => {
     // { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
 
-  // Task data for TASK tab
-  const taskData = [
-    {
-      name: 'BackEnd Work',
-      project: 'Software development',
-      start: '7:56 PM',
-      stop: '8:21 PM',
-      duration: '0h 24m'
-    },
-    {
-      name: 'BackEnd Work',
-      project: 'Software development',
-      start: '4:34 PM',
-      stop: '7:32 PM',
-      duration: '2h 57m'
-    },
-    {
-      name: 'BackEnd Work',
-      project: 'Software development',
-      start: '4:21 PM',
-      stop: '4:34 PM',
-      duration: '0h 13m'
-    }
-  ];
 
   // Calculate total duration
   const totalDuration = '3h 35m';
@@ -447,6 +442,118 @@ const Reports = () => {
     return null;
   };
 
+  const fetchScreenshotsData = useCallback((params) => fetchScreenshotsDataUtil(params), []);
+
+  const applyScreenshotResult = useCallback((result, meta) => {
+    const { page, perPage, dateRange } = meta;
+
+    if (result?.error) {
+      setScreenshotsError(result.error);
+    } else {
+      setScreenshotsError(null);
+    }
+
+    setScreenshots(result?.items ?? []);
+    setScreenshotsTotal(result?.total ?? 0);
+    
+    // Only update page if it's different to prevent unnecessary re-renders
+    setScreenshotsPage(prev => {
+      const newPage = result?.page ?? page ?? 1;
+      return prev !== newPage ? newPage : prev;
+    });
+    
+    // Only update perPage if it's different to prevent infinite loops
+    setScreenshotsPerPage(prev => {
+      const newPerPage = perPage ?? 9;
+      return prev !== newPerPage ? newPerPage : prev;
+    });
+
+    if (Array.isArray(dateRange)) {
+      setScreenshotsDateRange(prev => {
+        // Only update if the range actually changed
+        const [prevStart, prevEnd] = prev || [null, null];
+        const [newStart, newEnd] = dateRange || [null, null];
+        if (prevStart?.valueOf() === newStart?.valueOf() && prevEnd?.valueOf() === newEnd?.valueOf()) {
+          return prev;
+        }
+        return dateRange;
+      });
+    }
+  }, []);
+
+  const loadScreenshots = useCallback(async ({
+    page = screenshotsPage,
+    perPage = screenshotsPerPage,
+    dateRange,
+    showLoader = true
+  } = {}) => {
+    if (!selectedEmployee?.email) {
+      setScreenshots([]);
+      setScreenshotsTotal(0);
+      setScreenshotsError('Please select an employee to view screenshots.');
+      return;
+    }
+
+    const targetRange = Array.isArray(dateRange)
+      ? dateRange
+      : (screenshotsDateRange[0] && screenshotsDateRange[1])
+        ? screenshotsDateRange
+        : computeDefaultScreenshotRange();
+
+    if (showLoader) {
+      setIsLoadingScreenshots(true);
+    }
+    setScreenshotsError(null);
+
+    try {
+      const result = await fetchScreenshotsData({
+        employee: selectedEmployee,
+        page,
+        perPage,
+        dateRange: targetRange,
+      });
+
+      applyScreenshotResult(result, { page, perPage, dateRange: targetRange });
+    } catch (error) {
+      console.error('Failed to load screenshots:', error);
+      setScreenshots([]);
+      setScreenshotsTotal(0);
+      setScreenshotsError(error.message || 'Failed to load screenshots.');
+    } finally {
+      if (showLoader) {
+        setIsLoadingScreenshots(false);
+      }
+    }
+  }, [
+    selectedEmployee,
+    fetchScreenshotsData,
+    applyScreenshotResult,
+    screenshotsPage,
+    screenshotsPerPage,
+    screenshotsDateRange,
+    computeDefaultScreenshotRange
+  ]);
+
+  const handleScreenshotsPageChange = useCallback((_, page) => {
+    loadScreenshots({ page });
+  }, [loadScreenshots]);
+
+  const handleScreenshotsPerPageChange = useCallback((value) => {
+    loadScreenshots({ page: 1, perPage: value });
+  }, [loadScreenshots]);
+
+  const handleScreenshotsDateRangeChange = useCallback((range) => {
+    setScreenshotsDateRange(range);
+    const [start, end] = range || [];
+    if (start && end) {
+      loadScreenshots({ page: 1, dateRange: range });
+    }
+  }, [loadScreenshots]);
+
+  const handleScreenshotsRefresh = useCallback(() => {
+    loadScreenshots({ page: screenshotsPage });
+  }, [loadScreenshots, screenshotsPage]);
+
 
   // Main function to fetch all report data
   const fetchReportData = useCallback(async (employee) => {
@@ -455,8 +562,17 @@ const Reports = () => {
       return;
     }
     
+    // Prevent concurrent calls
+    if (isFetchingRef.current) {
+      console.log('⏸️ fetchReportData: Already fetching, skipping...');
+      return;
+    }
+    
+    isFetchingRef.current = true;
     setIsLoadingReportData(true);
     setReportError(null);
+    setIsLoadingScreenshots(true);
+    setScreenshotsError(null);
     
     try {
       // Format current month as YYYY-MM
@@ -467,7 +583,8 @@ const Reports = () => {
       const specificDate = selectedDate 
         ? `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
         : null;
-    
+
+      const defaultRange = computeDefaultScreenshotRange();
       
       // Fetch all data in parallel
       const [
@@ -476,7 +593,8 @@ const Reports = () => {
         focusData,
         taskData,
         loggedData,
-        screenshotData,
+        screenshotCount,
+        screenshotsResult,
         meetingQuickview,
         idleQuickview
       ] = await Promise.all([
@@ -486,6 +604,12 @@ const Reports = () => {
         fetchTaskReportData(employee, currentMonth),
         fetchLoggedTimeData(employee, currentMonth, null), // Always fetch monthly data for TopActivityTab
         specificDate ? fetchScreenshotCountData(specificDate) : null,
+        fetchScreenshotsData({
+          employee,
+          page: 1,
+          perPage: screenshotsPerPage,
+          dateRange: defaultRange,
+        }),
         specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
         specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null
       ]);
@@ -497,7 +621,12 @@ const Reports = () => {
       setFocusTimelineData(focusData);
       setTaskReportData(taskData);
       setLoggedTimeData(loggedData);
-      setScreenshotCountData(screenshotData);
+      setScreenshotCountData(screenshotCount);
+      applyScreenshotResult(screenshotsResult, {
+        page: 1,
+        perPage: screenshotsPerPage,
+        dateRange: defaultRange,
+      });
       setIdleQuickviewData(idleQuickview);
       
       console.log('✅ All report data fetched successfully');
@@ -507,9 +636,19 @@ const Reports = () => {
       setReportError(`Failed to load report data: ${error.message}`);
     } finally {
       console.log('🔄 Setting isLoadingReportData to false');
+      isFetchingRef.current = false;
       setIsLoadingReportData(false);
+      setIsLoadingScreenshots(false);
     }
-  }, [selectedYear, selectedMonth, selectedDate, months]);
+  }, [
+    selectedYear,
+    selectedMonth,
+    selectedDate,
+    months,
+    fetchScreenshotsData,
+    applyScreenshotResult,
+    computeDefaultScreenshotRange
+  ]);
 
   // Local search function to filter sync-staffs users quickly (same as ActivityStream)
   const filterSyncStaffsUsers = (query) => {
@@ -795,6 +934,17 @@ const Reports = () => {
           <ScreensTab 
             {...tabProps}
             screenshotCountData={screenshotCountData}
+            screenshots={screenshots}
+            screenshotsTotal={screenshotsTotal}
+            screenshotsPage={screenshotsPage}
+            screenshotsPerPage={screenshotsPerPage}
+            screenshotsDateRange={screenshotsDateRange}
+            isLoadingScreenshots={isLoadingScreenshots}
+            screenshotsError={screenshotsError}
+            onScreenshotsPageChange={handleScreenshotsPageChange}
+            onScreenshotsPerPageChange={handleScreenshotsPerPageChange}
+            onScreenshotsDateRangeChange={handleScreenshotsDateRangeChange}
+            onScreenshotsRefresh={handleScreenshotsRefresh}
           />
         );
       

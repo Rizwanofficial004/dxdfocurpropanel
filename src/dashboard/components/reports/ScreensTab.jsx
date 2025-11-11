@@ -1,118 +1,534 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import {
+  Box,
+  Typography,
+  Stack,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Tooltip,
+  Skeleton,
+  Button,
+  Divider
+} from '@mui/material';
+import Pagination from '@mui/material/Pagination';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import dayjs from 'dayjs';
 
-const ScreensTab = ({ 
-  theme, 
-  screenshotCountData, 
+const getSizeLabel = (sizeMb) => {
+  if (sizeMb === null || sizeMb === undefined || Number.isNaN(Number(sizeMb))) {
+    return null;
+  }
+  const numericValue = Number(sizeMb);
+  if (numericValue >= 1) {
+    return `${numericValue.toFixed(2)} MB`;
+  }
+  return `${(numericValue * 1024).toFixed(0)} KB`;
+};
+
+const formatDateTime = (timestamp, date, time) => {
+  if (timestamp) {
+    const parsed = dayjs(timestamp);
+    if (parsed.isValid()) {
+      return {
+        dateLabel: parsed.format('MMM D, YYYY'),
+        timeLabel: parsed.format('hh:mm A'),
+      };
+    }
+  }
+  const parsedDate = date ? dayjs(date) : null;
+  return {
+    dateLabel: parsedDate && parsedDate.isValid() ? parsedDate.format('MMM D, YYYY') : 'Date unavailable',
+    timeLabel: time || 'Time unavailable',
+  };
+};
+
+const ScreensTab = ({
+  theme,
+  screenshotCountData,
+  screenshots = [],
+  screenshotsTotal = 0,
+  screenshotsPage = 1,
+  screenshotsPerPage = 9,
+  screenshotsDateRange = [null, null],
+  isLoadingScreenshots = false,
+  screenshotsError = null,
+  onScreenshotsPageChange,
+  onScreenshotsPerPageChange,
+  onScreenshotsDateRangeChange,
+  onScreenshotsRefresh,
   selectedEmployee,
-  selectedYear,
-  selectedMonth,
-  selectedDate,
-  months 
 }) => {
+  const [startDate, endDate] = Array.isArray(screenshotsDateRange)
+    ? screenshotsDateRange
+    : [null, null];
+
+  const perPageOptions = useMemo(() => [9, 12, 15, 18, 24, 30], []);
+  const displayedScreenshots = useMemo(() => {
+    const perPageCount = screenshotsPerPage || 9;
+    return Array.isArray(screenshots) ? screenshots.slice(0, perPageCount) : [];
+  }, [screenshots, screenshotsPerPage]);
+  const summaryMetrics = useMemo(() => {
+    if (!screenshotCountData) return [];
+
+    return [
+      {
+        key: 'total',
+        label: 'Total Screenshots',
+        value: screenshotCountData.total_screenshots,
+        color: '#3b82f6',
+      },
+      {
+        key: 'perHour',
+        label: 'Per Hour',
+        value: screenshotCountData.screenshots_per_hour,
+        color: '#10b981',
+      },
+      {
+        key: 'duration',
+        label: 'Monitoring Duration',
+        value: screenshotCountData.monitoring_duration,
+        color: '#f59e0b',
+      },
+      {
+        key: 'activeHours',
+        label: 'Active Hours',
+        value: screenshotCountData.active_hours,
+        color: '#8b5cf6',
+      },
+    ].filter(metric => metric.value !== undefined && metric.value !== null);
+  }, [screenshotCountData]);
+
+  const hourlyBuckets = Array.isArray(screenshotCountData?.hourly_counts)
+    ? screenshotCountData.hourly_counts
+    : [];
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil((screenshotsTotal || 0) / (screenshotsPerPage || 1))
+  );
+
+  const placeholderItems = useMemo(() => {
+    const perPageCount = screenshotsPerPage || 9;
+    const rows = Math.max(1, Math.ceil(perPageCount / 3));
+    const totalPlaceholders = rows * 3;
+    return Array.from({ length: totalPlaceholders }, (_, index) => index);
+  }, [screenshotsPerPage]);
+
+  const filtersSummary = useMemo(() => {
+    if (startDate && endDate) {
+      const startLabel = dayjs(startDate).format('MMM D, YYYY');
+      const endLabel = dayjs(endDate).format('MMM D, YYYY');
+      if (startLabel === endLabel) {
+        return startLabel;
+      }
+      return `${startLabel} – ${endLabel}`;
+    }
+    return 'All dates';
+  }, [startDate, endDate]);
+
+  const handlePerPageSelect = (event) => {
+    if (onScreenshotsPerPageChange) {
+      onScreenshotsPerPageChange(Number(event.target.value));
+    }
+  };
+
+  const handleDateRangeChange = (value) => {
+    onScreenshotsDateRangeChange?.(value);
+  };
+
+  const handleCardClick = (url) => {
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const emptyStateMessage = selectedEmployee
+    ? `No screenshots found for ${selectedEmployee.display_name || selectedEmployee.email || 'the selected employee'} in this range.`
+    : 'Select an employee to view their screenshots.';
+
   return (
-    <div style={{ padding: '20px', background: theme.colors.surface, borderRadius: '8px' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ margin: '0 0 8px 0', color: theme.colors.text.primary }}>
-          Screenshot Monitoring
-        </h3>
-        {screenshotCountData && (
-          <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-            📊 API Data from: {selectedDate || `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}`}
-          </div>
-        )}
-      </div>
+    <Box
+      sx={{
+        p: 3,
+        backgroundColor: theme.colors.surface,
+        borderRadius: 3,
+        minHeight: '100%',
+        border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.08)'}`,
+      }}
+    >
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={2}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', md: 'center' }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ color: theme.colors.text.primary, fontWeight: 600 }}>
+            Screenshot Monitoring
+          </Typography>
+          <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mt: 0.5 }}>
+            {filtersSummary}
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1} alignItems="center">
+          {isLoadingScreenshots && (
+            <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+              Loading screenshots…
+            </Typography>
+          )}
+          <Tooltip title="Refresh screenshots">
+            <span>
+              <IconButton
+                onClick={onScreenshotsRefresh}
+                disabled={isLoadingScreenshots}
+                size="small"
+                sx={{
+                  backgroundColor: theme.colors.backgroundAlt || 'rgba(59,130,246,0.08)',
+                  color: theme.colors.primary || '#2563eb',
+                  '&:hover': { backgroundColor: theme.colors.primary, color: '#fff' }
+                }}
+              >
+                <RefreshIcon fontSize="small" />
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Stack>
+      </Stack>
 
-      {/* Screenshot Summary */}
-      {screenshotCountData && (
-        <div style={{ 
-          background: theme.colors.card || '#f8f9fa',
-          padding: '16px',
-          borderRadius: '8px',
-          marginBottom: '20px',
-          border: '1px solid #e9ecef'
-        }}>
-          <h4 style={{ margin: '0 0 12px 0', color: theme.colors.text.primary }}>
-            📸 Screenshot Summary
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-            {screenshotCountData.total_screenshots && (
-              <div>
-                <strong>Total Screenshots:</strong><br />
-                <span style={{ color: '#3b82f6' }}>{screenshotCountData.total_screenshots}</span>
-              </div>
-            )}
-            {screenshotCountData.screenshots_per_hour && (
-              <div>
-                <strong>Per Hour:</strong><br />
-                <span style={{ color: '#10b981' }}>{screenshotCountData.screenshots_per_hour}</span>
-              </div>
-            )}
-            {screenshotCountData.monitoring_duration && (
-              <div>
-                <strong>Monitoring Duration:</strong><br />
-                <span style={{ color: '#f59e0b' }}>{screenshotCountData.monitoring_duration}</span>
-              </div>
-            )}
-            {screenshotCountData.active_hours && (
-              <div>
-                <strong>Active Hours:</strong><br />
-                <span style={{ color: '#8b5cf6' }}>{screenshotCountData.active_hours}</span>
-              </div>
-            )}
-          </div>
-        </div>
+      {!!summaryMetrics.length && (
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {summaryMetrics.map((metric) => (
+            <Grid item xs={12} sm={6} md={3} key={metric.key}>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: theme.colors.card || 'rgba(59,130,246,0.08)',
+                  border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.05)'}`,
+                  height: '100%',
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.colors.text.secondary, fontWeight: 500 }}
+                >
+                  {metric.label}
+                </Typography>
+                <Typography
+                  variant="h5"
+                  sx={{ mt: 1, color: metric.color, fontWeight: 700 }}
+                >
+                  {metric.value}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
       )}
 
-      {/* Screenshot Count by Hour */}
-      {screenshotCountData && screenshotCountData.hourly_counts ? (
-        <div style={{ 
-          background: 'white',
-          padding: '16px',
-          borderRadius: '8px',
-          border: '1px solid #e9ecef',
-          marginBottom: '20px'
-        }}>
-          <h4 style={{ margin: '0 0 16px 0', color: theme.colors.text.primary }}>
-            📊 Hourly Screenshot Distribution
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '8px' }}>
-            {screenshotCountData.hourly_counts.map((hour, index) => (
-              <div key={index} style={{
-                padding: '8px',
-                background: '#f8f9fa',
-                borderRadius: '4px',
-                textAlign: 'center',
-                border: '1px solid #e9ecef'
-              }}>
-                <div style={{ fontWeight: 'bold', fontSize: '12px' }}>
-                  {hour.hour || `${index}:00`}
-                </div>
-                <div style={{ color: '#3b82f6', fontSize: '14px', fontWeight: 'bold' }}>
-                  {hour.count || hour.screenshots || 0}
-                </div>
-              </div>
+      {!!hourlyBuckets.length && (
+        <Box
+          sx={{
+            mt: 3,
+            border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.05)'}`,
+            borderRadius: 2,
+            p: 2,
+            backgroundColor: theme.colors.backgroundAlt || '#fff',
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+            Hourly Distribution
+          </Typography>
+          <Grid container spacing={1}>
+            {hourlyBuckets.map((hourSlot, index) => (
+              <Grid item xs={6} sm={4} md={3} lg={2} key={`${hourSlot.hour}-${index}`}>
+                <Box
+                  sx={{
+                    p: 1.5,
+                    borderRadius: 2,
+                    border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.06)'}`,
+                    backgroundColor: 'rgba(15, 118, 110, 0.04)',
+                    textAlign: 'center',
+                  }}
+                >
+                  <Typography variant="caption" sx={{ fontWeight: 600, color: theme.colors.text.secondary }}>
+                    {hourSlot.hour || `${index}:00`}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: theme.colors.primary || '#2563eb' }}>
+                    {hourSlot.count ?? hourSlot.screenshots ?? 0}
+                  </Typography>
+                </Box>
+              </Grid>
             ))}
-          </div>
-        </div>
-      ) : (
-        <div style={{ 
-          padding: '40px', 
-          textAlign: 'center', 
-          color: theme.colors.text.secondary,
-          border: '2px dashed #e9ecef',
-          borderRadius: '8px'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📸</div>
-          <h4>No Screenshot Data Available</h4>
-          <p>
-            {selectedEmployee 
-              ? `No screenshot data found for ${selectedEmployee.display_name || selectedEmployee.email}`
-              : 'Please select an employee to view screenshot monitoring data'
-            }
-          </p>
-        </div>
+          </Grid>
+        </Box>
       )}
-    </div>
+
+      <Box
+        sx={{
+          mt: 3,
+          p: 2,
+          borderRadius: 2,
+          border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.05)'}`,
+          backgroundColor: theme.colors.backgroundAlt || '#fff',
+        }}
+      >
+        <Stack
+          direction={{ xs: 'column', lg: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'stretch', lg: 'center' }}
+          justifyContent="space-between"
+        >
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateRangePicker
+              value={[startDate, endDate]}
+              onChange={handleDateRangeChange}
+              calendars={2}
+              disableFuture
+              slotProps={{
+                textField: {
+                  variant: 'outlined',
+                  size: 'small',
+                //   fullWidth: true,
+                },
+              }}
+            />
+          </LocalizationProvider>
+
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="screenshots-per-page-label">Per Page</InputLabel>
+              <Select
+                labelId="screenshots-per-page-label"
+                value={screenshotsPerPage}
+                label="Per Page"
+                onChange={handlePerPageSelect}
+              >
+                {perPageOptions.map((option) => (
+                  <MenuItem value={option} key={option}>
+                    {option} screenshots
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Box>
+              <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+                Showing {(displayedScreenshots.length || 0)} of {screenshotsTotal || 0}
+              </Typography>
+            </Box>
+          </Stack>
+        </Stack>
+      </Box>
+
+      {screenshotsError && (
+        <Box
+          sx={{
+            mt: 3,
+            p: 3,
+            textAlign: 'center',
+            borderRadius: 2,
+            border: '1px solid rgba(239,68,68,0.3)',
+            backgroundColor: 'rgba(239,68,68,0.1)',
+            color: '#b91c1c',
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            Failed to load screenshots
+          </Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            {screenshotsError}
+          </Typography>
+          {onScreenshotsRefresh && (
+            <Button
+              variant="contained"
+              size="small"
+              sx={{ mt: 2 }}
+              onClick={onScreenshotsRefresh}
+            >
+              Try again
+            </Button>
+          )}
+        </Box>
+      )}
+
+      <Divider sx={{ my: 3 }} />
+
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gap: 2,
+        }}
+      >
+        {isLoadingScreenshots
+          ? placeholderItems.map((item) => (
+              <Box key={`skeleton-${item}`}>
+                <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+                  <Skeleton variant="rectangular" height={180} />
+                  <CardContent>
+                    <Skeleton variant="text" width="80%" />
+                    <Skeleton variant="text" width="60%" />
+                  </CardContent>
+                </Card>
+              </Box>
+            ))
+          : displayedScreenshots.map((screenshot) => {
+              const { dateLabel, timeLabel } = formatDateTime(
+                screenshot.timestamp,
+                screenshot.date,
+                screenshot.time
+              );
+              const sizeLabel = getSizeLabel(screenshot.size_mb);
+
+              return (
+                <Box key={screenshot.id}>
+                  <Card
+                    sx={{
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.08)'}`,
+                      boxShadow: 'none',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 12px 24px rgba(15,23,42,0.12)',
+                      },
+                    }}
+                  >
+                    <CardActionArea onClick={() => handleCardClick(screenshot.screenshot_url)}>
+                      <Box sx={{ position: 'relative', pt: '62%' }}>
+                        {screenshot.thumbnail_url || screenshot.screenshot_url ? (
+                          <CardMedia
+                            component="img"
+                            image={screenshot.thumbnail_url || screenshot.screenshot_url}
+                            alt={screenshot.filename || 'Screenshot'}
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: 'rgba(148,163,184,0.15)',
+                              color: theme.colors.text.secondary,
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <ImageNotSupportedIcon fontSize="large" />
+                            <Typography variant="caption">Preview unavailable</Typography>
+                          </Box>
+                        )}
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            bottom: 8,
+                            right: 8,
+                            bgcolor: 'rgba(15,23,42,0.55)',
+                            color: '#fff',
+                            borderRadius: '50%',
+                            width: 36,
+                            height: 36,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <OpenInNewIcon fontSize="small" />
+                        </Box>
+                      </Box>
+                      <CardContent sx={{ minHeight: 96 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 600, mb: 0.5 }}
+                          noWrap
+                        >
+                          {screenshot.filename || screenshot.project_folder || 'Screenshot'}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+                          {dateLabel} · {timeLabel}
+                        </Typography>
+                        <Stack direction="row" spacing={1} sx={{ mt: 1 }} alignItems="center">
+                          {sizeLabel && (
+                            <Chip
+                              size="small"
+                              label={sizeLabel}
+                              sx={{ backgroundColor: 'rgba(59,130,246,0.12)', color: theme.colors.primary || '#2563eb' }}
+                            />
+                          )}
+                          {screenshot.project_folder && (
+                            <Chip
+                              size="small"
+                              label={screenshot.project_folder}
+                              sx={{ backgroundColor: 'rgba(15,118,110,0.12)', color: '#0f766e' }}
+                            />
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Box>
+              );
+            })}
+      </Box>
+
+      {!isLoadingScreenshots && (!screenshots || screenshots.length === 0) && !screenshotsError && (
+        <Box
+          sx={{
+            mt: 4,
+            borderRadius: 3,
+            border: `2px dashed ${theme.colors.border || 'rgba(148,163,184,0.6)'}`,
+            p: 4,
+            textAlign: 'center',
+            color: theme.colors.text.secondary,
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+            No screenshots to display
+          </Typography>
+          <Typography variant="body2">{emptyStateMessage}</Typography>
+        </Box>
+      )}
+
+      {screenshotsTotal > screenshotsPerPage && (
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Pagination
+            color="primary"
+            page={Math.min(screenshotsPage, totalPages)}
+            count={totalPages}
+            onChange={onScreenshotsPageChange}
+            disabled={isLoadingScreenshots}
+            showFirstButton
+            showLastButton
+          />
+        </Box>
+      )}
+    </Box>
   );
 };
 
