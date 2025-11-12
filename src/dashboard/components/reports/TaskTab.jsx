@@ -176,17 +176,17 @@ const LoadingState = styled.div`
   background: #eff6ff;
 `;
 
-const TaskTab = ({ 
-  theme, 
-  taskReportData, 
-  isLoadingReportData, 
+const TaskTab = ({
+  theme,
+  taskReportData,
+  isLoadingReportData,
   selectedEmployee,
   selectedYear,
   selectedMonth,
-  months 
+  months
 }) => {
   const [expandedDays, setExpandedDays] = useState({});
-  const [viewMode, setViewMode] = useState('daily'); // 'monthly' or 'daily'
+  const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'daily'
 
   // Toggle day expansion
   const toggleDay = (date) => {
@@ -196,21 +196,23 @@ const TaskTab = ({
     }));
   };
 
-  // Format date for display
+  // Format date for display (using Turkey timezone)
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    // Add 3 hours for Turkey timezone (UTC+3)
+    const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+    return turkeyDate.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   // Get all tasks from all days (for monthly view)
   const getAllTasks = () => {
     if (!taskReportData?.days) return [];
-    
+
     const allTasks = [];
     taskReportData.days.forEach(day => {
       if (day.tasks && Array.isArray(day.tasks)) {
@@ -275,6 +277,39 @@ const TaskTab = ({
 
   return (
     <TaskContainer theme={theme}>
+      {/* View Mode Toggle */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <button
+          onClick={() => setViewMode('monthly')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'monthly' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+            borderRadius: '6px',
+            background: viewMode === 'monthly' ? '#3b82f6' : 'white',
+            color: viewMode === 'monthly' ? 'white' : theme.colors.text.primary,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '12px'
+          }}
+        >
+          📊 Monthly Tasks
+        </button>
+        <button
+          onClick={() => setViewMode('daily')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'daily' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+            borderRadius: '6px',
+            background: viewMode === 'daily' ? '#3b82f6' : 'white',
+            color: viewMode === 'daily' ? 'white' : theme.colors.text.primary,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '12px'
+          }}
+        >
+          📅 Daily Breakdown
+        </button>
+      </div>
       <TaskHeader theme={theme}>
         <TaskTitle theme={theme}>Task Report</TaskTitle>
         {taskReportData && (
@@ -312,40 +347,6 @@ const TaskTab = ({
           </SummaryGrid>
         </SummaryCard>
       )}
-
-      {/* View Mode Toggle */}
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
-        <button
-          onClick={() => setViewMode('monthly')}
-          style={{
-            padding: '8px 16px',
-            border: viewMode === 'monthly' ? '2px solid #3b82f6' : '1px solid #e9ecef',
-            borderRadius: '6px',
-            background: viewMode === 'monthly' ? '#3b82f6' : 'white',
-            color: viewMode === 'monthly' ? 'white' : theme.colors.text.primary,
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            fontSize: '12px'
-          }}
-        >
-          📊 Monthly Tasks
-        </button>
-        <button
-          onClick={() => setViewMode('daily')}
-          style={{
-            padding: '8px 16px',
-            border: viewMode === 'daily' ? '2px solid #3b82f6' : '1px solid #e9ecef',
-            borderRadius: '6px',
-            background: viewMode === 'daily' ? '#3b82f6' : 'white',
-            color: viewMode === 'daily' ? 'white' : theme.colors.text.primary,
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            fontSize: '12px'
-          }}
-        >
-          📅 Daily Breakdown
-        </button>
-      </div>
 
       {/* Monthly View - All Tasks */}
       {viewMode === 'monthly' && taskReportData.month_tasks && (

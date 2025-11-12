@@ -10,3 +10,4 @@ export { default as ActivityPatternTab } from './ActivityPatternTab';
 export { default as OTReportTab } from './OTReportTab';
 export { default as MonitoringActionsTab } from './MonitoringActionsTab';
 export { default as OfflineTab } from './OfflineTab';
+export { default as AdvancedReportTab } from './AdvancedReportTab';

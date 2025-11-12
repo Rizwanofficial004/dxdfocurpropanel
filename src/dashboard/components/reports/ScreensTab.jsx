@@ -42,15 +42,25 @@ const formatDateTime = (timestamp, date, time) => {
   if (timestamp) {
     const parsed = dayjs(timestamp);
     if (parsed.isValid()) {
+      // Add 3 hours for Turkey timezone (UTC+3)
+      const turkeyTime = parsed.add(3, 'hours');
       return {
-        dateLabel: parsed.format('MMM D, YYYY'),
-        timeLabel: parsed.format('hh:mm A'),
+        dateLabel: turkeyTime.format('MMM D, YYYY'),
+        timeLabel: turkeyTime.format('hh:mm A'),
       };
     }
   }
   const parsedDate = date ? dayjs(date) : null;
+  if (parsedDate && parsedDate.isValid()) {
+    // Add 3 hours for Turkey timezone (UTC+3)
+    const turkeyDate = parsedDate.add(3, 'hours');
+    return {
+      dateLabel: turkeyDate.format('MMM D, YYYY'),
+      timeLabel: time || 'Time unavailable',
+    };
+  }
   return {
-    dateLabel: parsedDate && parsedDate.isValid() ? parsedDate.format('MMM D, YYYY') : 'Date unavailable',
+    dateLabel: 'Date unavailable',
     timeLabel: time || 'Time unavailable',
   };
 };
@@ -75,7 +85,35 @@ const ScreensTab = ({
     ? screenshotsDateRange
     : [null, null];
 
-  const perPageOptions = useMemo(() => [9, 12, 15, 18, 24, 30], []);
+  const perPageOptions = useMemo(() => {
+    const options = [];
+    
+    // Generate options in intervals of 100 until we cover screenshotsTotal
+    if (screenshotsTotal > 0) {
+      if (screenshotsTotal < 100) {
+        // If screenshotsTotal is less than 100, just add it
+        options.push(screenshotsTotal);
+      } else {
+        // Add options: 100, 200, 300, ... stopping before exceeding screenshotsTotal
+        for (let i = 100; i < screenshotsTotal; i += 100) {
+          options.push(i);
+        }
+        
+        // Always add screenshotsTotal to cover all screenshots
+        if (!options.includes(screenshotsTotal)) {
+          options.push(screenshotsTotal);
+        }
+      }
+    }
+    
+    // Ensure current screenshotsPerPage is in options if it's not already
+    if (screenshotsPerPage && !options.includes(screenshotsPerPage)) {
+      options.push(screenshotsPerPage);
+      options.sort((a, b) => a - b); // Sort to maintain order
+    }
+    
+    return options;
+  }, [screenshotsTotal, screenshotsPerPage]);
   const displayedScreenshots = useMemo(() => {
     const perPageCount = screenshotsPerPage || 9;
     return Array.isArray(screenshots) ? screenshots.slice(0, perPageCount) : [];
@@ -129,8 +167,9 @@ const ScreensTab = ({
 
   const filtersSummary = useMemo(() => {
     if (startDate && endDate) {
-      const startLabel = dayjs(startDate).format('MMM D, YYYY');
-      const endLabel = dayjs(endDate).format('MMM D, YYYY');
+      // Add 3 hours for Turkey timezone (UTC+3)
+      const startLabel = dayjs(startDate).add(3, 'hours').format('MMM D, YYYY');
+      const endLabel = dayjs(endDate).add(3, 'hours').format('MMM D, YYYY');
       if (startLabel === endLabel) {
         return startLabel;
       }

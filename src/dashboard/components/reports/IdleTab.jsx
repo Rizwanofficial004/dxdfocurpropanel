@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Label } from 'recharts';
 
 // Add spinner animation
 const spinnerStyles = `
@@ -27,13 +28,16 @@ const IdleTab = ({
   months,
   isLoadingReportData
 }) => {
-  // Format time from timestamp or time string
+  console.log("🚀 ~ IdleTab ~ loggedTimeData:", loggedTimeData)
+  // Format time from timestamp or time string (using Turkey timezone)
   const formatTime = (timeString) => {
     if (!timeString) return 'N/A';
     try {
       if (timeString.includes('T')) {
         const date = new Date(timeString);
-        return date.toLocaleTimeString('en-US', { 
+        // Add 3 hours for Turkey timezone (UTC+3)
+        const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+        return turkeyDate.toLocaleTimeString('en-US', { 
           hour: 'numeric', 
           minute: '2-digit',
           hour12: true 
@@ -68,7 +72,9 @@ const IdleTab = ({
       .filter((day) => day.total_count > 0)
       .map((day) => {
         const dateObj = new Date(day.date);
-        const displayDate = dateObj.toLocaleDateString('en-US', {
+        // Add 3 hours for Turkey timezone (UTC+3)
+        const turkeyDate = new Date(dateObj.getTime() + (3 * 60 * 60 * 1000));
+        const displayDate = turkeyDate.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
           year: 'numeric'
@@ -87,6 +93,7 @@ const IdleTab = ({
       })
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [idleTimeData]);
+  console.log("🚀 ~ IdleTab ~ idleRows:", idleRows)
 
   const totalIdleCount = useMemo(() => {
     return idleRows.reduce((sum, row) => sum + row.count, 0);
@@ -100,8 +107,11 @@ const IdleTab = ({
     return `${hours}h ${minutes}m`;
   }, [totalIdleCount]);
 
-  // Get logged hours for the selected date
+  // Get logged hours from loggedTimeData
   const loggedHours = useMemo(() => {
+    if (loggedTimeData?.total_logged_time) {
+      return loggedTimeData.total_logged_time;
+    }
     if (loggedTimeData?.total_hours) {
       return loggedTimeData.total_hours;
     }
@@ -110,17 +120,29 @@ const IdleTab = ({
       const minutes = Math.floor((loggedTimeData.total_seconds % 3600) / 60);
       return `${hours}h ${minutes}m`;
     }
-    // Default fallback
-    return '9h 50m';
+    return null;
   }, [loggedTimeData]);
 
   // Calculate idle percentage and chart data
   const chartData = useMemo(() => {
-    // Parse logged hours (e.g., "9h 50m" -> 590 minutes)
-    const loggedMatch = loggedHours.match(/(\d+)h\s*(\d+)m/);
+    // Check for missing data and return reason
+    if (!loggedTimeData) {
+      return { error: 'No logged time data available. Please select an employee and date range.' };
+    }
+    
+    if (!loggedHours) {
+      return { error: 'Unable to parse logged time data. Please ensure valid time data is available.' };
+    }
+
+    // Parse logged hours (e.g., "30 hr 4 min" or "9h 50m" -> minutes)
+    const loggedMatch = loggedHours.match(/(\d+)\s*(?:hr|h)\s*(\d+)\s*(?:min|m)/);
     const loggedMinutes = loggedMatch 
       ? parseInt(loggedMatch[1]) * 60 + parseInt(loggedMatch[2])
-      : 590; // Default 9h 50m
+      : 0;
+    
+    if (loggedMinutes === 0) {
+      return { error: 'No logged time found. There is no active time data to display.' };
+    }
     
     // Parse idle hours (e.g., "0h 29m" -> 29 minutes)
     const idleMatch = totalIdleDuration.match(/(\d+)h\s*(\d+)m/);
@@ -128,19 +150,35 @@ const IdleTab = ({
       ? parseInt(idleMatch[1]) * 60 + parseInt(idleMatch[2])
       : 0;
     
+    // Calculate active time
+    const activeMinutes = loggedMinutes - idleMinutes;
+    
+    // Check if active time exists
+    if (activeMinutes <= 0) {
+      return { error: 'No active time available. All logged time is idle time, so the chart cannot be displayed.' };
+    }
+    
     // Calculate percentages based on logged hours (idle is part of logged time)
     const totalMinutes = loggedMinutes; // Total logged time includes idle time
     const idlePercentage = totalMinutes > 0 ? Math.round((idleMinutes / totalMinutes) * 100) : 0;
     const loggedPercentage = 100 - idlePercentage;
     
+    // Prepare data for Recharts PieChart
+    const pieData = [
+      { name: 'Active Time', value: activeMinutes, percentage: loggedPercentage, color: '#e5e7eb' },
+      { name: 'Idle Time', value: idleMinutes, percentage: idlePercentage, color: '#3b82f6' }
+    ];
+    
     return {
       loggedMinutes,
       idleMinutes,
+      activeMinutes,
       idlePercentage,
       loggedPercentage,
-      totalMinutes
+      totalMinutes,
+      pieData
     };
-  }, [loggedHours, totalIdleDuration]);
+  }, [loggedTimeData, loggedHours, totalIdleDuration]);
 
   // Loading state
   if (isLoadingReportData) {
@@ -390,142 +428,241 @@ const IdleTab = ({
       </div>
 
       {/* Right Section: IDLE CHART */}
-      <div style={{ 
-        background: 'white',
-        borderRadius: '8px',
-        padding: '20px',
-        border: '1px solid #e9ecef',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-      }}>
-        <h3 style={{ 
-          margin: '0 0 20px 0',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: theme.colors.text.primary
+      {chartData && !chartData.error ? (
+        <div style={{ 
+          background: 'white',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
         }}>
-          IDLE CHART
-        </h3>
+          <h3 style={{ 
+            margin: '0 0 20px 0',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            IDLE CHART
+          </h3>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '40px',
-          justifyContent: 'center',
-          marginTop: '20px'
-        }}>
-          {/* Donut Chart */}
-          <div style={{ position: 'relative', width: '150px', height: '150px' }}>
-            <svg width="150" height="150" style={{ transform: 'rotate(-90deg)' }}>
-              <circle
-                cx="75"
-                cy="75"
-                r="65"
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="20"
-              />
-              <circle
-                cx="75"
-                cy="75"
-                r="65"
-                fill="none"
-                stroke="#3b82f6"
-                strokeWidth="20"
-                strokeDasharray={`${2 * Math.PI * 65}`}
-                strokeDashoffset={`${2 * Math.PI * 65 * (1 - chartData.idlePercentage / 100)}`}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                background: 'white',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}></div>
-            </div>
-            {/* Percentage labels on chart */}
-            {chartData.idlePercentage > 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '20%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                color: '#3b82f6'
-              }}>
-                {chartData.idlePercentage}%
-              </div>
-            )}
-            {chartData.loggedPercentage > 0 && (
-              <div style={{
-                position: 'absolute',
-                bottom: '20%',
-                right: '20%',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                color: '#6b7280'
-              }}>
-                {chartData.loggedPercentage}%
-              </div>
-            )}
-          </div>
-
-          {/* Legend */}
           <div style={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
+            alignItems: 'center',
+            gap: '50px',
+            justifyContent: 'center',
+            marginTop: '20px',
+            flexWrap: 'wrap'
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+            {/* Donut Chart using Recharts */}
+            <div style={{ 
+              width: '240px', 
+              height: '240px',
+              position: 'relative'
             }}>
-              <div style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '3px',
-                background: '#e5e7eb'
-              }}></div>
-              <span style={{
-                fontSize: '14px',
-                color: theme.colors.text.secondary
-              }}>
-                Logged Hours {loggedHours}
-              </span>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData.pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
+                    stroke="white"
+                    strokeWidth={2}
+                  >
+                    {chartData.pieData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color}
+                        style={{ 
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                          transition: 'opacity 0.3s'
+                        }}
+                      />
+                    ))}
+                    <Label
+                      value={`${chartData.idlePercentage}%`}
+                      position="center"
+                      style={{
+                        fontSize: '32px',
+                        fontWeight: 'bold',
+                        fill: '#3b82f6',
+                        fontFamily: 'system-ui, -apple-system, sans-serif'
+                      }}
+                    />
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => {
+                      const item = chartData.pieData.find(d => d.value === value);
+                      return [`${item?.percentage}%`, name];
+                    }}
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #e9ecef',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}
+                    cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
+
+            {/* Enhanced Legend */}
             <div style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
+              flexDirection: 'column',
+              gap: '16px',
+              minWidth: '200px'
             }}>
               <div style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '3px',
-                background: '#3b82f6'
-              }}></div>
-              <span style={{
-                fontSize: '14px',
-                color: theme.colors.text.secondary
-              }}>
-                Idle Hours {totalIdleDuration}
-              </span>
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                background: '#f8f9fa',
+                borderRadius: '8px',
+                border: '1px solid #e9ecef',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f1f3f5';
+                e.currentTarget.style.transform = 'translateX(4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8f9fa';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  background: '#e5e7eb',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: theme.colors.text.primary,
+                    marginBottom: '2px'
+                  }}>
+                    Active Time
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: theme.colors.text.secondary
+                  }}>
+                    {loggedHours} ({chartData.loggedPercentage}%)
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                background: '#f8f9fa',
+                borderRadius: '8px',
+                border: '1px solid #e9ecef',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f1f3f5';
+                e.currentTarget.style.transform = 'translateX(4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8f9fa';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  background: '#3b82f6',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: theme.colors.text.primary,
+                    marginBottom: '2px'
+                  }}>
+                    Idle Time
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: theme.colors.text.secondary
+                  }}>
+                    {totalIdleDuration} ({chartData.idlePercentage}%)
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ 
+          background: 'white',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          color: theme.colors.text.secondary
+        }}>
+          <h3 style={{ 
+            margin: '0 0 20px 0',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            IDLE CHART
+          </h3>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              opacity: 0.3
+            }}>
+              📊
+            </div>
+            <div style={{
+              fontSize: '14px',
+              textAlign: 'center',
+              maxWidth: '350px',
+              lineHeight: '1.6'
+            }}>
+              <p style={{ 
+                margin: '0 0 8px 0',
+                fontWeight: '600',
+                color: theme.colors.text.primary
+              }}>
+                Why is the chart not showing?
+              </p>
+              <p style={{ margin: 0 }}>
+                {chartData?.error || 'Chart data unavailable. Logged time data is required to display the chart.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

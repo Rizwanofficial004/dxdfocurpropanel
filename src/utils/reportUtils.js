@@ -1,4 +1,87 @@
 import dayjs from 'dayjs';
+import moment from 'moment';
+
+// Turkey timezone offset (UTC+3)
+const TURKEY_OFFSET = 3;
+
+// Get current date in Turkey timezone
+export const getCurrentDateInTurkey = () => {
+  return moment.utc().add(TURKEY_OFFSET, 'hours').format('YYYY-MM-DD');
+};
+
+// Format date using moment with Turkey timezone
+export const formatDateTurkey = (dateString, format = 'MMM DD, YYYY') => {
+  if (!dateString) return '';
+  // If dateString is already in YYYY-MM-DD format, parse it directly
+  if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    return moment(dateString, 'YYYY-MM-DD').format(format);
+  }
+  // Otherwise, parse as ISO or timestamp and convert to Turkey timezone
+  const turkeyOffset = TURKEY_OFFSET * 60; // Convert to minutes
+  return moment.utc(dateString).utcOffset(turkeyOffset).format(format);
+};
+
+// Format time using moment with Turkey timezone
+export const formatTimeTurkey = (timestamp, format = 'h:mm A') => {
+  if (!timestamp) return 'N/A';
+  const turkeyOffset = TURKEY_OFFSET * 60;
+  return moment.utc(timestamp).utcOffset(turkeyOffset).format(format);
+};
+
+// Format date-time using moment with Turkey timezone
+export const formatDateTimeTurkey = (timestamp, dateFormat = 'MMM D, YYYY', timeFormat = 'hh:mm A') => {
+  if (!timestamp) return { dateLabel: 'Date unavailable', timeLabel: 'Time unavailable' };
+  const turkeyOffset = TURKEY_OFFSET * 60;
+  const turkeyTime = moment.utc(timestamp).utcOffset(turkeyOffset);
+  return {
+    dateLabel: turkeyTime.format(dateFormat),
+    timeLabel: turkeyTime.format(timeFormat),
+  };
+};
+
+// Format date using toLocaleDateString with Turkey timezone consideration
+export const formatDateLocaleTurkey = (dateString, options = {}) => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    // Add 3 hours to convert to Turkey timezone
+    const turkeyDate = new Date(date.getTime() + (TURKEY_OFFSET * 60 * 60 * 1000));
+    return turkeyDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      ...options
+    });
+  } catch (e) {
+    return '';
+  }
+};
+
+// Format time using toLocaleTimeString with Turkey timezone consideration
+export const formatTimeLocaleTurkey = (timeString, options = {}) => {
+  if (!timeString) return 'N/A';
+  try {
+    if (timeString.includes('T')) {
+      const date = new Date(timeString);
+      if (isNaN(date.getTime())) return timeString;
+      // Add 3 hours to convert to Turkey timezone
+      const turkeyDate = new Date(date.getTime() + (TURKEY_OFFSET * 60 * 60 * 1000));
+      return turkeyDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        ...options
+      });
+    } else if (timeString.includes(':')) {
+      return timeString; // Already formatted
+    } else {
+      return timeString;
+    }
+  } catch (e) {
+    return timeString;
+  }
+};
 
 export const getProfilePhotoUrl = (user) => {
   if (!user || !user.profile_url || !user.staff_id) {

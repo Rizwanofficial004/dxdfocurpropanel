@@ -1,119 +1,11 @@
-import React from 'react';
-import styled from 'styled-components';
-
-// Styled components for Breaks & Meet tab
-const BreaksMeetContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin-bottom: 30px;
-`;
-
-const BreakMeetSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border-radius: 8px;
-  padding: 20px;
-`;
-
-const BreakMeetHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const BreakMeetTitle = styled.h3`
-  margin: 0;
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 16px;
-  font-weight: 600;
-`;
-
-const InfoIcon = styled.span`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: ${props => props.theme.colors.info};
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-`;
-
-const BreakMeetTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const BreakMeetTableHeader = styled.thead`
-  background: ${props => props.theme.colors.background};
-`;
-
-const BreakMeetHeaderRow = styled.tr``;
-
-const BreakMeetHeaderCell = styled.th`
-  padding: 12px 16px;
-  text-align: left;
-  font-weight: 600;
-  color: ${props => props.theme.colors.text.primary};
-  border-bottom: 2px solid ${props => props.theme.colors.border};
-  font-size: 14px;
-`;
-
-const BreakMeetTableBody = styled.tbody``;
-
-const BreakMeetRow = styled.tr`
-  &:hover {
-    background: ${props => props.theme.colors.hover};
-  }
-  
-  &:last-child .total-row {
-    font-weight: bold;
-    background: ${props => props.theme.colors.background};
-  }
-`;
-
-const BreakMeetCell = styled.td`
-  padding: 12px 16px;
-  border-bottom: 1px solid ${props => props.theme.colors.border};
-  color: ${props => props.theme.colors.text.secondary};
-  font-size: 13px;
-  
-  &.total-row {
-    font-weight: bold;
-    color: ${props => props.theme.colors.text.primary};
-  }
-`;
-
-const DefinedBreakSection = styled.div`
-  background: ${props => props.theme.colors.surface};
-  border-radius: 8px;
-  padding: 20px;
-`;
-
-const DefinedBreakHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const DefinedBreakTitle = styled.h3`
-  margin: 0;
-  color: ${props => props.theme.colors.text.primary};
-  font-size: 16px;
-  font-weight: 600;
-`;
+import React, { useMemo } from 'react';
+import { formatDateTurkey } from '../../../utils/reportUtils';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Label } from 'recharts';
 
 const BreaksMeetTab = ({ 
   theme, 
   meetingTimeData, 
+  loggedTimeData,
   selectedEmployee,
   selectedYear,
   selectedMonth,
@@ -125,144 +17,704 @@ const BreaksMeetTab = ({
     { start: '2:24 PM', stop: '3:17 PM', duration: '0h 53m' }
   ];
 
-  const meetingData = [
-    { start: '2:03 PM', stop: '2:24 PM', duration: '0h 20m' }
-  ];
+  // Transform meeting_summary API data into table format
+  const meetingRows = useMemo(() => {
+    if (!meetingTimeData?.daily_summary) return [];
+    
+    const rows = [];
+    meetingTimeData.daily_summary.forEach((daySummary) => {
+      if (daySummary.meetings && Array.isArray(daySummary.meetings)) {
+        daySummary.meetings.forEach((meeting) => {
+          // Convert duration_min to hours and minutes format
+          const hours = Math.floor(meeting.duration_min / 60);
+          const minutes = meeting.duration_min % 60;
+          const durationFormatted = `${hours}h ${minutes}m`;
+          
+          // Format date for display
+          const displayDate = formatDateTurkey(daySummary.date, 'MMM DD, YYYY');
+          
+          rows.push({
+            date: daySummary.date,
+            displayDate,
+            duration: durationFormatted,
+            durationMin: meeting.duration_min,
+            note: meeting.note || '',
+            meetingCount: meeting.meeting_count || 1
+          });
+        });
+      }
+    });
+    
+    return rows;
+  }, [meetingTimeData]);
 
-  const definedBreakData = [
-    { start: '11:00 AM', stop: '11:15 AM', duration: '0h 15m' },
-    { start: '2:00 PM', stop: '2:30 PM', duration: '0h 30m' },
-    { start: '5:30 PM', stop: '5:45 PM', duration: '0h 15m' }
-  ];
+  // Calculate total break duration
+  const totalBreakDuration = breakData.reduce((total, item) => {
+    const match = item.duration.match(/(\d+)h\s*(\d+)m/);
+    if (match) {
+      return total + parseInt(match[1]) * 60 + parseInt(match[2]);
+    }
+    return total;
+  }, 0);
+  const totalBreakHours = Math.floor(totalBreakDuration / 60);
+  const totalBreakMinutes = totalBreakDuration % 60;
+  const totalBreakFormatted = `${totalBreakHours}h ${totalBreakMinutes}m`;
+
+  // Get total meeting duration from API or calculate from rows
+  const totalMeetingDuration = useMemo(() => {
+    if (meetingTimeData?.total_duration) {
+      return meetingTimeData.total_duration;
+    }
+    if (meetingRows.length > 0) {
+      const totalMinutes = meetingRows.reduce((sum, row) => sum + row.durationMin, 0);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${hours} hr ${minutes} min`;
+    }
+    return '0h 0m';
+  }, [meetingTimeData, meetingRows]);
+
+  // Get logged hours from loggedTimeData
+  const loggedHours = useMemo(() => {
+    if (loggedTimeData?.total_logged_time) {
+      return loggedTimeData.total_logged_time;
+    }
+    if (loggedTimeData?.total_hours) {
+      return loggedTimeData.total_hours;
+    }
+    if (loggedTimeData?.total_seconds) {
+      const hours = Math.floor(loggedTimeData.total_seconds / 3600);
+      const minutes = Math.floor((loggedTimeData.total_seconds % 3600) / 60);
+      return `${hours}h ${minutes}m`;
+    }
+    return null;
+  }, [loggedTimeData]);
+
+  // Calculate meeting chart data based on meetingTimeData and loggedTimeData
+  const chartData = useMemo(() => {
+    // Check for missing data and return reason
+    if (!loggedTimeData) {
+      return { error: 'No logged time data available. Please select an employee and date range.' };
+    }
+    
+    if (!loggedHours) {
+      return { error: 'Unable to parse logged time data. Please ensure valid time data is available.' };
+    }
+    
+    if (!meetingTimeData) {
+      return { error: 'No meeting time data available. Please ensure meeting data exists for the selected period.' };
+    }
+
+    // Get total meetings count from API
+    const totalMeetings = meetingTimeData.total_meetings || 0;
+    
+    // Parse total meeting duration from API (e.g., "28 hr 32 min" -> 1712 minutes)
+    const meetingDurationStr = meetingTimeData.total_duration || totalMeetingDuration;
+    const meetingMatch = meetingDurationStr.match(/(\d+)\s*(?:hr|h)\s*(\d+)\s*(?:min|m)/);
+    const totalMeetingMinutes = meetingMatch 
+      ? parseInt(meetingMatch[1]) * 60 + parseInt(meetingMatch[2])
+      : 0;
+    
+    // Parse logged hours (e.g., "30 hr 4 min" -> 1804 minutes)
+    const loggedMatch = loggedHours.match(/(\d+)\s*(?:hr|h)\s*(\d+)\s*(?:min|m)/);
+    const loggedMinutes = loggedMatch 
+      ? parseInt(loggedMatch[1]) * 60 + parseInt(loggedMatch[2])
+      : 0;
+    
+    if (loggedMinutes === 0) {
+      return { error: 'No logged time found. There is no active time data to display.' };
+    }
+    
+    // Calculate active time (non-meeting time)
+    const activeMinutes = loggedMinutes - totalMeetingMinutes;
+    
+    // Check if active time exists
+    if (activeMinutes <= 0) {
+      return { error: 'No active time available. All logged time is meeting time, so the chart cannot be displayed.' };
+    }
+    
+    // Calculate percentages based on logged hours (meeting is part of logged time)
+    const meetingPercentage = loggedMinutes > 0 
+      ? Math.round((totalMeetingMinutes / loggedMinutes) * 100) 
+      : 0;
+    const nonMeetingPercentage = Math.max(0, 100 - meetingPercentage);
+    
+    // Prepare data for Recharts PieChart
+    const pieData = [
+      { name: 'Active Time', value: activeMinutes, percentage: nonMeetingPercentage, color: '#e5e7eb' },
+      { name: 'Meeting Time', value: totalMeetingMinutes, percentage: meetingPercentage, color: '#3b82f6' }
+    ];
+    
+    return {
+      totalMeetings,
+      totalMeetingMinutes,
+      loggedMinutes,
+      activeMinutes,
+      totalMeetingDuration: meetingDurationStr,
+      meetingPercentage: Math.min(100, meetingPercentage),
+      nonMeetingPercentage,
+      pieData
+    };
+  }, [meetingTimeData, loggedTimeData, loggedHours, totalMeetingDuration]);
 
   return (
-    <div>
-      {/* API Data Indicator */}
-      {meetingTimeData && (
+    <div style={{ 
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '20px',
+      padding: '20px',
+      background: theme.colors.surface || '#f5f5f5',
+      borderRadius: '8px',
+      minHeight: '400px'
+    }}>
+      {/* Left Section: BREAK */}
+      {/* <div style={{ 
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        border: '1px solid #e9ecef',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 20px 0',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: theme.colors.text.primary
+        }}>
+          BREAK
+        </h3>
+
         <div style={{ 
-          marginBottom: '20px',
-          padding: '12px',
-          background: theme.colors.card || '#f8f9fa',
+          fontSize: '12px', 
+          color: theme.colors.text.secondary,
+          marginBottom: '16px'
+        }}>
+          📅 Showing break sessions for {selectedDate ? `${selectedDate} ${selectedMonth} ${selectedYear}` : `${selectedMonth} ${selectedYear}`}
+        </div>
+
+        <div style={{
+          background: 'white',
           borderRadius: '8px',
+          overflow: 'hidden',
           border: '1px solid #e9ecef'
         }}>
-          <div style={{ fontSize: '12px', color: theme.colors.text.secondary }}>
-            📊 API Data from: {selectedDate || `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}`}
-          </div>
-          {meetingTimeData.total_meeting_time && (
-            <div style={{ marginTop: '8px' }}>
-              <strong>Total Meeting Time: </strong>
-              <span style={{ color: '#3b82f6' }}>{meetingTimeData.total_meeting_time}</span>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse'
+          }}>
+            <thead>
+              <tr style={{ 
+                background: theme.colors.background || '#f8f9fa',
+                borderBottom: '2px solid #e9ecef'
+              }}>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  START
+                </th>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  STOP
+                </th>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  DURATION
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {breakData.length > 0 ? (
+                breakData.map((breakItem, index) => (
+                  <tr
+                    key={index}
+                    style={{
+                      borderBottom: '1px solid #f3f4f6'
+                    }}
+                  >
+                    <td style={{ 
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      color: theme.colors.text.primary
+                    }}>
+                      {breakItem.start}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      color: theme.colors.text.primary
+                    }}>
+                      {breakItem.stop}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      color: theme.colors.text.primary
+                    }}>
+                      {breakItem.duration}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td 
+                    colSpan="3" 
+                    style={{ 
+                      padding: '20px',
+                      textAlign: 'center',
+                      color: theme.colors.text.secondary,
+                      fontSize: '13px'
+                    }}
+                  >
+                    {!meetingTimeData 
+                      ? 'No break data available. Please select an employee and date.'
+                      : 'No break session data for this period.'}
+                  </td>
+                </tr>
+              )}
+              <tr style={{
+                background: theme.colors.background || '#f8f9fa',
+                borderTop: '2px solid #e9ecef'
+              }}>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  Total
+                </td>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}></td>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  {totalBreakFormatted}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> */}
+
+      {/* Left Section: MEETING */}
+      <div style={{ 
+        background: 'white',
+        borderRadius: '8px',
+        padding: '20px',
+        border: '1px solid #e9ecef',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 20px 0',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          color: theme.colors.text.primary
+        }}>
+          MEETING
+        </h3>
+
+        <div style={{ 
+          fontSize: '12px', 
+          color: theme.colors.text.secondary,
+          marginBottom: '16px'
+        }}>
+          📅 Showing meeting sessions for {selectedDate ? `${selectedDate} ${selectedMonth} ${selectedYear}` : `${selectedMonth} ${selectedYear}`}
+        </div>
+
+        <div style={{
+          background: 'white',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          border: '1px solid #e9ecef'
+        }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse'
+          }}>
+            <thead>
+              <tr style={{ 
+                background: theme.colors.background || '#f8f9fa',
+                borderBottom: '2px solid #e9ecef'
+              }}>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  DATE
+                </th>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  NOTE
+                </th>
+                <th style={{ 
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: theme.colors.text.primary
+                }}>
+                  DURATION
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {meetingRows.length > 0 ? (
+                meetingRows.map((row, index) => (
+                  <tr
+                    key={`${row.date}-${index}`}
+                    style={{
+                      borderBottom: '1px solid #f3f4f6'
+                    }}
+                  >
+                    <td style={{ 
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      color: theme.colors.text.primary
+                    }}>
+                      {row.displayDate}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      color: theme.colors.text.primary
+                    }}>
+                      {row.note ? (
+                        <div style={{ maxWidth: '300px' }}>
+                          <div style={{ 
+                            fontSize: '12px',
+                            color: theme.colors.text.secondary,
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                          }}>
+                            {row.note}
+                          </div>
+                        </div>
+                      ) : 'N/A'}
+                    </td>
+                    <td style={{ 
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      color: theme.colors.text.primary
+                    }}>
+                      {row.duration}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td 
+                    colSpan="3" 
+                    style={{ 
+                      padding: '20px',
+                      textAlign: 'center',
+                      color: theme.colors.text.secondary,
+                      fontSize: '13px'
+                    }}
+                  >
+                    {!meetingTimeData 
+                      ? 'No meeting data available. Please select an employee and date.'
+                      : 'No meeting session data for this period.'}
+                  </td>
+                </tr>
+              )}
+              <tr style={{
+                background: theme.colors.background || '#f8f9fa',
+                borderTop: '2px solid #e9ecef'
+              }}>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  Total
+                </td>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}></td>
+                <td style={{ 
+                  padding: '12px 16px',
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: theme.colors.text.primary
+                }}>
+                  {totalMeetingDuration}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Right Section: MEETING CHART */}
+      {chartData && !chartData.error ? (
+        <div style={{ 
+          background: 'white',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}>
+          <h3 style={{ 
+            margin: '0 0 20px 0',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            MEETING CHART
+          </h3>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '50px',
+            justifyContent: 'center',
+            marginTop: '20px',
+            flexWrap: 'wrap'
+          }}>
+            {/* Donut Chart using Recharts */}
+            <div style={{ 
+              width: '240px', 
+              height: '240px',
+              position: 'relative'
+            }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData.pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={2}
+                    dataKey="value"
+                    startAngle={90}
+                    endAngle={-270}
+                    stroke="white"
+                    strokeWidth={2}
+                  >
+                    {chartData.pieData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.color}
+                        style={{ 
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                          transition: 'opacity 0.3s'
+                        }}
+                      />
+                    ))}
+                    <Label
+                      value={`${chartData.meetingPercentage}%`}
+                      position="center"
+                      style={{
+                        fontSize: '32px',
+                        fontWeight: 'bold',
+                        fill: '#3b82f6',
+                        fontFamily: 'system-ui, -apple-system, sans-serif'
+                      }}
+                    />
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value, name, props) => {
+                      const item = chartData.pieData.find(d => d.value === value);
+                      return [`${item?.percentage}%`, name];
+                    }}
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #e9ecef',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}
+                    cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          )}
+
+            {/* Enhanced Legend */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              minWidth: '200px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                background: '#f8f9fa',
+                borderRadius: '8px',
+                border: '1px solid #e9ecef',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f1f3f5';
+                e.currentTarget.style.transform = 'translateX(4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8f9fa';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  background: '#e5e7eb',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: theme.colors.text.primary,
+                    marginBottom: '2px'
+                  }}>
+                    Active Time
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: theme.colors.text.secondary
+                  }}>
+                    {loggedHours} ({chartData.nonMeetingPercentage}%)
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                background: '#f8f9fa',
+                borderRadius: '8px',
+                border: '1px solid #e9ecef',
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f1f3f5';
+                e.currentTarget.style.transform = 'translateX(4px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8f9fa';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  background: '#3b82f6',
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                }}></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: theme.colors.text.primary,
+                    marginBottom: '2px'
+                  }}>
+                    Meeting Time
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: theme.colors.text.secondary
+                  }}>
+                    {totalMeetingDuration} ({chartData.meetingPercentage}%)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ 
+          background: 'white',
+          borderRadius: '8px',
+          padding: '20px',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          color: theme.colors.text.secondary
+        }}>
+          <h3 style={{ 
+            margin: '0 0 20px 0',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            MEETING CHART
+          </h3>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              fontSize: '48px',
+              opacity: 0.3
+            }}>
+              📊
+            </div>
+            <div style={{
+              fontSize: '14px',
+              textAlign: 'center',
+              maxWidth: '350px',
+              lineHeight: '1.6'
+            }}>
+              <p style={{ 
+                margin: '0 0 8px 0',
+                fontWeight: '600',
+                color: theme.colors.text.primary
+              }}>
+                Why is the chart not showing?
+              </p>
+              <p style={{ margin: 0 }}>
+                {chartData?.error || 'Chart data unavailable. Logged time data is required to display the chart.'}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
-      <BreaksMeetContainer>
-        {/* Break Section */}
-        <BreakMeetSection theme={theme}>
-          <BreakMeetHeader theme={theme}>
-            <BreakMeetTitle theme={theme}>Break</BreakMeetTitle>
-            <InfoIcon theme={theme}>i</InfoIcon>
-          </BreakMeetHeader>
-          <BreakMeetTable>
-            <BreakMeetTableHeader theme={theme}>
-              <BreakMeetHeaderRow>
-                <BreakMeetHeaderCell theme={theme}>Start</BreakMeetHeaderCell>
-                <BreakMeetHeaderCell theme={theme}>Stop</BreakMeetHeaderCell>
-                <BreakMeetHeaderCell theme={theme}>Duration</BreakMeetHeaderCell>
-              </BreakMeetHeaderRow>
-            </BreakMeetTableHeader>
-            <BreakMeetTableBody>
-              {breakData.map((breakItem, index) => (
-                <BreakMeetRow key={index}>
-                  <BreakMeetCell theme={theme}>{breakItem.start}</BreakMeetCell>
-                  <BreakMeetCell theme={theme}>{breakItem.stop}</BreakMeetCell>
-                  <BreakMeetCell theme={theme}>{breakItem.duration}</BreakMeetCell>
-                </BreakMeetRow>
-              ))}
-              <BreakMeetRow>
-                <BreakMeetCell theme={theme} className="total-row">Total duration</BreakMeetCell>
-                <BreakMeetCell theme={theme} className="total-row"></BreakMeetCell>
-                <BreakMeetCell theme={theme} className="total-row">0h 53m</BreakMeetCell>
-              </BreakMeetRow>
-            </BreakMeetTableBody>
-          </BreakMeetTable>
-        </BreakMeetSection>
-
-        {/* Meeting Section */}
-        <BreakMeetSection theme={theme}>
-          <BreakMeetHeader theme={theme}>
-            <BreakMeetTitle theme={theme}>Meeting</BreakMeetTitle>
-          </BreakMeetHeader>
-          <BreakMeetTable>
-            <BreakMeetTableHeader theme={theme}>
-              <BreakMeetHeaderRow>
-                <BreakMeetHeaderCell theme={theme}>Start</BreakMeetHeaderCell>
-                <BreakMeetHeaderCell theme={theme}>Stop</BreakMeetHeaderCell>
-                <BreakMeetHeaderCell theme={theme}>Duration</BreakMeetHeaderCell>
-              </BreakMeetHeaderRow>
-            </BreakMeetTableHeader>
-            <BreakMeetTableBody>
-              {meetingTimeData && meetingTimeData.meetings ? (
-                meetingTimeData.meetings.map((meeting, index) => (
-                  <BreakMeetRow key={index}>
-                    <BreakMeetCell theme={theme}>{meeting.start_time || meeting.start || 'N/A'}</BreakMeetCell>
-                    <BreakMeetCell theme={theme}>{meeting.end_time || meeting.stop || meeting.end || 'N/A'}</BreakMeetCell>
-                    <BreakMeetCell theme={theme}>{meeting.duration || 'N/A'}</BreakMeetCell>
-                  </BreakMeetRow>
-                ))
-              ) : (
-                meetingData.map((meeting, index) => (
-                  <BreakMeetRow key={index}>
-                    <BreakMeetCell theme={theme}>{meeting.start}</BreakMeetCell>
-                    <BreakMeetCell theme={theme}>{meeting.stop}</BreakMeetCell>
-                    <BreakMeetCell theme={theme}>{meeting.duration}</BreakMeetCell>
-                  </BreakMeetRow>
-                ))
-              )}
-              <BreakMeetRow>
-                <BreakMeetCell theme={theme} className="total-row">Total duration</BreakMeetCell>
-                <BreakMeetCell theme={theme} className="total-row"></BreakMeetCell>
-                <BreakMeetCell theme={theme} className="total-row">
-                  {meetingTimeData?.total_meeting_time || '0h 20m'}
-                </BreakMeetCell>
-              </BreakMeetRow>
-            </BreakMeetTableBody>
-          </BreakMeetTable>
-        </BreakMeetSection>
-      </BreaksMeetContainer>
-
-      {/* Defined Break Section */}
-      <DefinedBreakSection theme={theme}>
-        <DefinedBreakHeader theme={theme}>
-          <DefinedBreakTitle theme={theme}>Defined Break</DefinedBreakTitle>
-          <InfoIcon theme={theme}>i</InfoIcon>
-        </DefinedBreakHeader>
-        <BreakMeetTable>
-          <BreakMeetTableHeader theme={theme}>
-            <BreakMeetHeaderRow>
-              <BreakMeetHeaderCell theme={theme}>Start</BreakMeetHeaderCell>
-              <BreakMeetHeaderCell theme={theme}>Stop</BreakMeetHeaderCell>
-              <BreakMeetHeaderCell theme={theme}>Duration</BreakMeetHeaderCell>
-            </BreakMeetHeaderRow>
-          </BreakMeetTableHeader>
-          <BreakMeetTableBody>
-            {definedBreakData.map((definedBreak, index) => (
-              <BreakMeetRow key={index}>
-                <BreakMeetCell theme={theme}>{definedBreak.start}</BreakMeetCell>
-                <BreakMeetCell theme={theme}>{definedBreak.stop}</BreakMeetCell>
-                <BreakMeetCell theme={theme}>{definedBreak.duration}</BreakMeetCell>
-              </BreakMeetRow>
-            ))}
-            <BreakMeetRow>
-              <BreakMeetCell theme={theme} className="total-row">Total duration</BreakMeetCell>
-              <BreakMeetCell theme={theme} className="total-row"></BreakMeetCell>
-              <BreakMeetCell theme={theme} className="total-row">1h 0m</BreakMeetCell>
-            </BreakMeetRow>
-          </BreakMeetTableBody>
-        </BreakMeetTable>
-      </DefinedBreakSection>
     </div>
   );
 };

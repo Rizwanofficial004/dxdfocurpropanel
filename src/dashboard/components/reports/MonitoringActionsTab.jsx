@@ -28,13 +28,15 @@ const MonitoringActionsTab = ({
 }) => {
   const [tooltipVisible, setTooltipVisible] = useState({});
 
-  // Format time from timestamp or time string
+  // Format time from timestamp or time string (using Turkey timezone)
   const formatTime = (timeString) => {
     if (!timeString) return 'N/A';
     try {
       if (timeString.includes('T')) {
         const date = new Date(timeString);
-        return date.toLocaleTimeString('en-US', { 
+        // Add 3 hours for Turkey timezone (UTC+3)
+        const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
+        return turkeyDate.toLocaleTimeString('en-US', { 
           hour: 'numeric', 
           minute: '2-digit',
           hour12: true 

@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import moment from 'moment';
+import { getCurrentDateInTurkey, formatDateTurkey } from '../../../utils/reportUtils';
 
 // Add spinner animation
 const spinnerStyles = `
@@ -157,6 +159,66 @@ const AppDuration = styled.div`
   color: ${props => props.theme.colors.text.secondary};
 `;
 
+
+const DailyReportContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const DailyReportCard = styled.div`
+  background: white;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 8px;
+  padding: 20px;
+`;
+
+const DailyReportHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid ${props => props.theme.colors.border};
+`;
+
+const DailyReportDate = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${props => props.theme.colors.text.primary};
+`;
+
+const DailyReportStats = styled.div`
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const DailyReportStatus = styled.div`
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background: ${props => props.status === 'works_done' ? '#d1fae5' : '#fee2e2'};
+  color: ${props => props.status === 'works_done' ? '#065f46' : '#991b1b'};
+`;
+
+const DailyApplicationsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+`;
+
+const NoDataMessage = styled.div`
+  padding: 20px;
+  text-align: center;
+  color: ${props => props.theme.colors.text.secondary};
+  border: 1px dashed #e9ecef;
+  border-radius: 8px;
+  background: #f9fafb;
+`;
+
 // Helper function to format seconds to readable time
 const formatTime = (seconds) => {
   if (!seconds && seconds !== 0) return '0h 0m';
@@ -192,6 +254,7 @@ const TopActivityTab = ({
   months,
   isLoadingReportData
 }) => {
+  const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'daily'
   const calculateWorkTimeData = () => {
     // Get total logged time in seconds
     let totalLoggedSeconds = 0;
@@ -285,6 +348,7 @@ const TopActivityTab = ({
   const getAppColor = (processName) => {
     const colors = {
       'chrome.exe': '#4285f4',
+      'msedge.exe': '#0078d4',
       'Code.exe': '#007acc',
       'explorer.exe': '#ffc107',
       'notepad.exe': '#28a745',
@@ -292,7 +356,12 @@ const TopActivityTab = ({
       'Postman.exe': '#ff6c37',
       'firefox.exe': '#ff7139',
       'wine': '#8b5cf6',
-      'libreoffice-calc': '#0369a1'
+      'libreoffice-calc': '#0369a1',
+      'applicationframehost.exe': '#25d366',
+      'focusproapp.exe': '#6366f1',
+      'ddsfocuspro.exe': '#6366f1',
+      'pickerhost.exe': '#9ca3af',
+      'shellexperiencehost.exe': '#9ca3af'
     };
     return colors[processName?.toLowerCase()] || '#6c757d';
   };
@@ -315,6 +384,36 @@ const TopActivityTab = ({
   const workTimeData = calculateWorkTimeData()
 
   const applicationData = focusTimelineData?.monthly_app_usage?.length > 0 && getApplicationData()
+
+  // Use utility function for current date in Turkey timezone
+
+  // Get daily report data
+  const getDailyReportData = () => {
+    if (!focusTimelineData?.daily_report) return [];
+    
+    const currentDate = getCurrentDateInTurkey(); // Using utility function
+    
+    return Object.entries(focusTimelineData.daily_report)
+      .filter(([date]) => {
+        // Only include dates up to current date (in Turkey timezone)
+        return date <= currentDate;
+      })
+      .sort(([dateA], [dateB]) => {
+        // Sort by date descending (newest first)
+        return moment(dateB, 'YYYY-MM-DD').diff(moment(dateA, 'YYYY-MM-DD'));
+      })
+      .map(([date, dayData]) => ({
+        date,
+        ...dayData
+      }));
+  };
+
+  const dailyReportData = getDailyReportData();
+
+  // Format date for display using utility function with Turkey timezone
+  const formatDateDisplay = (dateString) => {
+    return formatDateTurkey(dateString, 'ddd, MMM DD, YYYY');
+  };
 
   return (
     <TopActivityContainer theme={theme}>
@@ -370,53 +469,116 @@ const TopActivityTab = ({
       {/* Data Content */}
       {!isLoadingReportData && selectedEmployee && (
         <TopActivityContent theme={theme}>
-          {/* <WorkTimeSection>
-            <WorkTimeStats>
-              {workTimeData.map((item, index) => (
-                <WorkTimeItem key={index}>
-                  <WorkTimeLabel theme={theme} color={item.color}>
-                    {item.label}
-                  </WorkTimeLabel>
-                  <span style={{ fontSize: '12px', minWidth: '20px' }}>{index + 1}</span>
-                  <WorkTimeBar theme={theme}>
-                    <WorkTimeProgress color={item.color} percentage={item.percentage} />
-                  </WorkTimeBar>
-                  <WorkTimeValue theme={theme}>{item.value}</WorkTimeValue>
-                  <WorkTimePercentage theme={theme}>{item.percentage.toFixed(2)}%</WorkTimePercentage>
-                </WorkTimeItem>
-              ))}
-            </WorkTimeStats>
-            <UserInfo theme={theme}>
-              <UserName theme={theme}>
-                {selectedEmployee.display_name || selectedEmployee.name || 'Employee'}
-              </UserName>
-              <UserDuration theme={theme}>({getTotalDuration()})</UserDuration>
-            </UserInfo>
-          </WorkTimeSection> */}
+          {/* View Toggle Buttons */}
+          <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+            <button
+              onClick={() => setViewMode('monthly')}
+              style={{
+                padding: '8px 16px',
+                border: viewMode === 'monthly' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+                borderRadius: '6px',
+                background: viewMode === 'monthly' ? '#3b82f6' : 'white',
+                color: viewMode === 'monthly' ? 'white' : theme.colors.text.primary,
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '12px'
+              }}
+            >
+              📊 Monthly Activity
+            </button>
+            <button
+              onClick={() => setViewMode('daily')}
+              style={{
+                padding: '8px 16px',
+                border: viewMode === 'daily' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+                borderRadius: '6px',
+                background: viewMode === 'daily' ? '#3b82f6' : 'white',
+                color: viewMode === 'daily' ? 'white' : theme.colors.text.primary,
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '12px'
+              }}
+            >
+              📅 Daily Activity Breakdown
+            </button>
+          </div>
 
-          {applicationData.length > 0 ? (
-            <ApplicationsGrid>
-              {applicationData.map((app, index) => (
-                <ApplicationCard key={index} theme={theme}>
-                  <AppIcon color={app.color}>
-                    {app.percentage}
-                  </AppIcon>
-                  <AppName theme={theme}>{app.name}</AppName>
-                  <AppDuration theme={theme}>{app.duration}</AppDuration>
-                </ApplicationCard>
-              ))}
-            </ApplicationsGrid>
-          ) : (
-            <div style={{
-              padding: '20px',
-              textAlign: 'center',
-              color: theme.colors.text.secondary,
-              border: '1px dashed #e9ecef',
-              borderRadius: '8px'
-            }}>
-              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📱</div>
-              <p>No application usage data available</p>
-            </div>
+          {/* Monthly Activity View */}
+          {viewMode === 'monthly' && (
+            <>
+              {applicationData && applicationData.length > 0 ? (
+                <ApplicationsGrid>
+                  {applicationData.map((app, index) => (
+                    <ApplicationCard key={index} theme={theme}>
+                      <AppIcon color={app.color}>
+                        {app.percentage}
+                      </AppIcon>
+                      <AppName theme={theme}>{app.name}</AppName>
+                      <AppDuration theme={theme}>{app.duration}</AppDuration>
+                    </ApplicationCard>
+                  ))}
+                </ApplicationsGrid>
+              ) : (
+                <NoDataMessage theme={theme}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📱</div>
+                  <p>No application usage data available</p>
+                </NoDataMessage>
+              )}
+            </>
+          )}
+
+          {/* Daily Activity Breakdown View */}
+          {viewMode === 'daily' && (
+            <DailyReportContainer theme={theme}>
+              {dailyReportData.length > 0 ? (
+                dailyReportData.map((dayData, index) => (
+                  <DailyReportCard key={index} theme={theme}>
+                    <DailyReportHeader theme={theme}>
+                      <DailyReportDate theme={theme}>
+                        {formatDateDisplay(dayData.date)}
+                      </DailyReportDate>
+                      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        {dayData.status === 'works_done' && (
+                          <DailyReportStats theme={theme}>
+                            <span>Total: {formatHours(dayData.total_worked_hours || 0)}</span>
+                          </DailyReportStats>
+                        )}
+                        <DailyReportStatus status={dayData.status}>
+                          {dayData.status === 'works_done' ? 'Work Done' : 'No Data'}
+                        </DailyReportStatus>
+                      </div>
+                    </DailyReportHeader>
+                    
+                    {dayData.status === 'works_done' && dayData.applications_used && dayData.applications_used.length > 0 ? (
+                      <DailyApplicationsGrid>
+                        {dayData.applications_used.map((app, appIndex) => (
+                          <ApplicationCard key={appIndex} theme={theme}>
+                            <AppIcon color={getAppColor(app.process_name)}>
+                              {app.percent?.toFixed(0) || 0}%
+                            </AppIcon>
+                            <AppName theme={theme}>
+                              {app.process_name?.replace('.exe', '') || 'Unknown'}
+                            </AppName>
+                            <AppDuration theme={theme}>
+                              {formatHours(app.total_hours || 0)}
+                            </AppDuration>
+                          </ApplicationCard>
+                        ))}
+                      </DailyApplicationsGrid>
+                    ) : (
+                      <NoDataMessage theme={theme}>
+                        <p>{dayData.note || 'No working found'}</p>
+                      </NoDataMessage>
+                    )}
+                  </DailyReportCard>
+                ))
+              ) : (
+                <NoDataMessage theme={theme}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📅</div>
+                  <p>No daily report data available</p>
+                </NoDataMessage>
+              )}
+            </DailyReportContainer>
           )}
         </TopActivityContent>
       )}

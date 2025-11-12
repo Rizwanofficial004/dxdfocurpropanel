@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import moment from 'moment';
+import { formatDateTurkey, formatTimeTurkey } from '../../../utils/reportUtils';
 
 // Add spinner animation
 const spinnerStyles = `
@@ -29,7 +30,7 @@ const FocusTimelineTab = ({
 }) => {
   const [sortColumn, setSortColumn] = useState('duration'); // 'switches' or 'duration'
   const [sortDirection, setSortDirection] = useState('desc'); // 'asc' or 'desc'
-  const [timelineFilter, setTimelineFilter] = useState('daily'); // 'monthly' or 'daily'
+  const [timelineFilter, setTimelineFilter] = useState('monthly'); // 'monthly' or 'daily'
 
   // Format seconds to readable time (e.g., "3h 50m 12s" or "0m 8s")
   const formatDuration = (seconds) => {
@@ -55,10 +56,10 @@ const FocusTimelineTab = ({
     return `${h}h ${m}m`;
   };
 
-  // Format time from timestamp
+  // Format time from timestamp (using Turkey timezone)
   const formatTime = (timestamp) => {
     if (!timestamp) return '';
-    return moment(timestamp).format('h:mm A');
+    return formatTimeTurkey(timestamp);
   };
 
   // Process monthly timeline data from monthly_app_usage
@@ -272,49 +273,39 @@ const FocusTimelineTab = ({
 
   return (
     <>
-                  {/* Filter Buttons */}
-                  <div style={{
-                height: '40px',
-          display: 'flex',
-          gap: '10px',
-          marginBottom: '20px',
-          // justifyContent: 'center'
-        }}>
-          <button
-            onClick={() => setTimelineFilter('monthly')}
-            style={{
-              padding: '10px 20px',
-              background: timelineFilter === 'monthly' ? '#3b82f6' : '#f3f4f6',
-              color: timelineFilter === 'monthly' ? 'white' : theme.colors.text.primary,
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: timelineFilter === 'monthly' ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none'
-            }}
-          >
-            Monthly Timeline
-          </button>
-          <button
-            onClick={() => setTimelineFilter('daily')}
-            style={{
-              padding: '10px 20px',
-              background: timelineFilter === 'daily' ? '#3b82f6' : '#f3f4f6',
-              color: timelineFilter === 'daily' ? 'white' : theme.colors.text.primary,
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: timelineFilter === 'daily' ? '0 2px 4px rgba(59, 130, 246, 0.3)' : 'none'
-            }}
-          >
-            Daily Timeline
-          </button>
-        </div>
+      {/* View Toggle Buttons */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <button
+          onClick={() => setTimelineFilter('monthly')}
+          style={{
+            padding: '8px 16px',
+            border: timelineFilter === 'monthly' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+            borderRadius: '6px',
+            background: timelineFilter === 'monthly' ? '#3b82f6' : 'white',
+            color: timelineFilter === 'monthly' ? 'white' : theme.colors.text.primary,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '12px'
+          }}
+        >
+          📊 Monthly Timeline
+        </button>
+        <button
+          onClick={() => setTimelineFilter('daily')}
+          style={{
+            padding: '8px 16px',
+            border: timelineFilter === 'daily' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+            borderRadius: '6px',
+            background: timelineFilter === 'daily' ? '#3b82f6' : 'white',
+            color: timelineFilter === 'daily' ? 'white' : theme.colors.text.primary,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '12px'
+          }}
+        >
+          📅 Daily Timeline
+        </button>
+      </div>
     <div style={{ 
       display: 'grid', 
       gridTemplateColumns: '1fr 1fr', 
@@ -397,7 +388,7 @@ const FocusTimelineTab = ({
                         fontWeight: '500',
                         marginBottom: '8px'
                       }}>
-                        {moment(entry.date).format('MMM DD, YYYY')}
+                        {formatDateTurkey(entry.date, 'MMM DD, YYYY')}
                       </div>
                     )}
                     {timelineFilter === 'monthly' && entry.date && (
@@ -407,7 +398,7 @@ const FocusTimelineTab = ({
                         fontWeight: '500',
                         marginBottom: '8px'
                       }}>
-                        {moment(entry.date + '-01').format('MMMM YYYY')}
+                        {formatDateTurkey(entry.date + '-01', 'MMMM YYYY')}
                       </div>
                     )}
                     

@@ -14,7 +14,8 @@ import {
   ActivityPatternTab,
   OTReportTab,
   MonitoringActionsTab,
-  OfflineTab
+  OfflineTab,
+  AdvancedReportTab
 } from '../components/reports';
 import {
   ReportsWrapper,
@@ -161,8 +162,9 @@ const Reports = () => {
     { id: 'TOP_ACTIVITY', name: 'TOP ACTIVITY', icon: '🔥' },
     // { id: 'OT_REPORT', name: 'OT REPORT', icon: '📈' },
     // { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
-    // { id: 'BREAKS_MEET', name: 'BREAKS & MEET', icon: '☕' },
+    { id: 'BREAKS_MEET', name: 'MEETINGS', icon: '☕' },
     { id: 'IDLE', name: 'IDLE', icon: '😴' },
+    { id: 'ADVANCED_REPORT', name: 'ADVANCED REPORT', icon: '📊' },
     // { id: 'OFFLINE', name: 'OFFLINE', icon: '📴' },
     // { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
@@ -990,13 +992,14 @@ const Reports = () => {
       //     />
       //   );
       
-      // case 'BREAKS_MEET':
-      //   return (
-      //     <BreaksMeetTab 
-      //       {...tabProps}
-      //       meetingTimeData={meetingTimeData}
-      //     />
-      //   );
+      case 'BREAKS_MEET':
+        return (
+          <BreaksMeetTab 
+            {...tabProps}
+            meetingTimeData={meetingTimeData}
+            loggedTimeData={loggedTimeData}
+          />
+        );
       
       case 'IDLE':
         return (
@@ -1005,6 +1008,14 @@ const Reports = () => {
             idleTimeData={idleTimeData}
             loggedTimeData={loggedTimeData}
             isLoadingReportData={isLoadingReportData}
+          />
+        );
+      
+      case 'ADVANCED_REPORT':
+        return (
+          <AdvancedReportTab 
+            theme={theme}
+            employees={employees}
           />
         );
       
