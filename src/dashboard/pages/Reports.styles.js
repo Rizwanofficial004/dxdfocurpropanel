@@ -59,6 +59,28 @@ export const EmployeeSearchInput = styled.input`
 
 export const EmployeeList = styled.div`
   overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 100px);
+  padding-right: 4px;
+  
+  /* Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: ${props => props.theme.colors.background};
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: ${props => props.theme.colors.border};
+    border-radius: 3px;
+    
+    &:hover {
+      background: ${props => props.theme.colors.text.tertiary};
+    }
+  }
 `;
 
 export const EmployeeItem = styled.div`

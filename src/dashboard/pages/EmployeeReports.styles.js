@@ -49,7 +49,7 @@ export const NewEmployeeButton = styled.button`
 `;
 
 export const ContentWrapper = styled.div`
-  background: ${props => props.isDarkMode ? 'none' : 'none'};
+  background: transparent;
   border: 1px solid ${props => props.isDarkMode ? '#2d3748' : '#e2e8f0'};
   border-top: none;
   padding: 24px 0px;
@@ -152,7 +152,7 @@ export const TableWrapper = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: ${props => props.isDarkMode ? 'none' : 'none'};
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -169,7 +169,7 @@ export const Table = styled.table`
 `;
 
 export const TableHead = styled.thead`
-  background: ${props => props.isDarkMode ? 'none' : 'none'};
+  background: transparent;
   border-bottom: 2px solid ${props => props.isDarkMode ? '#374151' : '#cbd5e1'};
 `;
 
@@ -180,8 +180,7 @@ export const TableRow = styled.tr`
   transition: background-color 0.2s ease;
 
   &:hover {
-    /* Use a subtle light overlay in dark mode (not solid white) so text remains visible */
-    background: ${props => props.isDarkMode ? 'none' : '#143556'};
+    background: ${props => props.isDarkMode ? 'rgba(59, 130, 246, 0.08)' : '#f1f5f9'};
   }
 `;
 
@@ -208,7 +207,7 @@ export const TableCell = styled.td`
 
   /* Ensure cell text remains readable when the parent row is hovered */
   ${TableRow}:hover & {
-    color: ${props => props.isDarkMode ? '#e6eefc' : '#0f172a'};
+    color: ${props => props.isDarkMode ? '#e0e0e0' : '#1a202c'};
   }
 `;
 
@@ -217,9 +216,9 @@ export const EmptyStateCell = styled(TableCell)`
   text-align: center;
   padding: 40px;
 
-  /* In dark mode, when hovered, force black text as requested */
+  /* Ensure text remains readable in both modes when hovered */
   ${TableRow}:hover & {
-    color: ${props => props.isDarkMode ? '#000000' : '#0f172a'} !important;
+    color: ${props => props.isDarkMode ? '#e0e0e0' : '#1a202c'} !important;
   }
 `;
 

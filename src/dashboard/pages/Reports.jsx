@@ -158,10 +158,10 @@ const Reports = () => {
     { id: 'SCREENS', name: 'SCREENS', icon: '🖥️' },
     { id: 'FOCUS_TIMELINE', name: 'FOCUS TIMELINE', icon: '⏱️' },
     { id: 'TASK', name: 'TASK', icon: '📋' },
-    // { id: 'ACTIVITY_PATTERN', name: 'ACTIVITY PATTERN', icon: '📊' },
+    { id: 'ACTIVITY_PATTERN', name: 'ACTIVITY PATTERN', icon: '📊' },
     { id: 'TOP_ACTIVITY', name: 'TOP ACTIVITY', icon: '🔥' },
     // { id: 'OT_REPORT', name: 'OT REPORT', icon: '📈' },
-    // { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
+    { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
     { id: 'BREAKS_MEET', name: 'MEETINGS', icon: '☕' },
     { id: 'IDLE', name: 'IDLE', icon: '😴' },
     { id: 'ADVANCED_REPORT', name: 'ADVANCED REPORT', icon: '📊' },
@@ -958,8 +958,12 @@ const Reports = () => {
           />
         );
       
-      // case 'ACTIVITY_PATTERN':
-      //   return <ActivityPatternTab theme={theme} />;
+      case 'ACTIVITY_PATTERN':
+        return (
+          <ActivityPatternTab 
+            {...tabProps}
+          />
+        );
       
       case 'TOP_ACTIVITY':
         return (
@@ -983,14 +987,14 @@ const Reports = () => {
       //     />
       //   );
       
-      // case 'MONITORING_ACTIONS':
-      //   return (
-      //     <MonitoringActionsTab 
-      //       {...tabProps}
-      //       monitoringActionsData={monitoringActionsData}
-      //       isLoadingReportData={isLoadingReportData}
-      //     />
-      //   );
+      case 'MONITORING_ACTIONS':
+        return (
+          <MonitoringActionsTab 
+            {...tabProps}
+            monitoringActionsData={monitoringActionsData}
+            isLoadingReportData={isLoadingReportData}
+          />
+        );
       
       case 'BREAKS_MEET':
         return (

@@ -16,7 +16,8 @@ import {
   Tooltip,
   Skeleton,
   Button,
-  Divider
+  Divider,
+  Grid
 } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -254,7 +255,7 @@ const ScreensTab = ({
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  background: theme.colors.card || 'rgba(59,130,246,0.08)',
+                  backgroundColor: theme.colors.background || theme.colors.surface,
                   border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.05)'}`,
                   height: '100%',
                 }}
@@ -284,10 +285,10 @@ const ScreensTab = ({
             border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.05)'}`,
             borderRadius: 2,
             p: 2,
-            backgroundColor: theme.colors.backgroundAlt || '#fff',
+            backgroundColor: theme.colors.background || theme.colors.surface,
           }}
         >
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: theme.colors.text.primary }}>
             Hourly Distribution
           </Typography>
           <Grid container spacing={1}>
@@ -298,7 +299,7 @@ const ScreensTab = ({
                     p: 1.5,
                     borderRadius: 2,
                     border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.06)'}`,
-                    backgroundColor: 'rgba(15, 118, 110, 0.04)',
+                    backgroundColor: theme.colors.background || theme.colors.surface,
                     textAlign: 'center',
                   }}
                 >
@@ -340,20 +341,94 @@ const ScreensTab = ({
                 textField: {
                   variant: 'outlined',
                   size: 'small',
-                //   fullWidth: true,
+                  sx: {
+                    '& .MuiInputLabel-root': {
+                      color: theme.colors.text.secondary,
+                    },
+                    '& .MuiOutlinedInput-root': {
+                      color: theme.colors.text.primary,
+                      backgroundColor: theme.colors.background || theme.colors.surface,
+                      '& fieldset': {
+                        borderColor: theme.colors.border,
+                      },
+                      '&:hover fieldset': {
+                        borderColor: theme.colors.primary,
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.colors.primary,
+                      },
+                    },
+                  },
+                },
+                popper: {
+                  sx: {
+                    '& .MuiPaper-root': {
+                      backgroundColor: theme.colors.surface,
+                      color: theme.colors.text.primary,
+                      border: `1px solid ${theme.colors.border}`,
+                    },
+                    '& .MuiPickersCalendarHeader-root': {
+                      color: theme.colors.text.primary,
+                    },
+                    '& .MuiDayCalendar-weekContainer .MuiPickersDay-root': {
+                      color: theme.colors.text.primary,
+                      '&.Mui-selected': {
+                        backgroundColor: theme.colors.primary,
+                        color: '#fff',
+                      },
+                      '&:hover': {
+                        backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
+                      },
+                    },
+                  },
                 },
               }}
             />
           </LocalizationProvider>
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
-            <FormControl size="small" sx={{ minWidth: 160 }}>
+            <FormControl 
+              size="small" 
+              sx={{ 
+                minWidth: 160,
+                '& .MuiInputLabel-root': {
+                  color: theme.colors.text.secondary,
+                },
+                '& .MuiOutlinedInput-root': {
+                  color: theme.colors.text.primary,
+                  backgroundColor: theme.colors.background || theme.colors.surface,
+                  '& fieldset': {
+                    borderColor: theme.colors.border,
+                  },
+                  '&:hover fieldset': {
+                    borderColor: theme.colors.primary,
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: theme.colors.primary,
+                  },
+                },
+              }}
+            >
               <InputLabel id="screenshots-per-page-label">Per Page</InputLabel>
               <Select
                 labelId="screenshots-per-page-label"
                 value={screenshotsPerPage}
                 label="Per Page"
                 onChange={handlePerPageSelect}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      backgroundColor: theme.colors.surface,
+                      color: theme.colors.text.primary,
+                      '& .MuiMenuItem-root': {
+                        color: theme.colors.text.primary,
+                        '&:hover': {
+                          backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
+                        },
+                      },
+                    },
+                  },
+                }}
               >
                 {perPageOptions.map((option) => (
                   <MenuItem value={option} key={option}>
@@ -379,22 +454,29 @@ const ScreensTab = ({
             p: 3,
             textAlign: 'center',
             borderRadius: 2,
-            border: '1px solid rgba(239,68,68,0.3)',
-            backgroundColor: 'rgba(239,68,68,0.1)',
-            color: '#b91c1c',
+            border: `1px solid ${theme.mode === 'dark' ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`,
+            backgroundColor: theme.mode === 'dark' ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)',
+            color: theme.mode === 'dark' ? '#fca5a5' : '#b91c1c',
           }}
         >
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'inherit' }}>
             Failed to load screenshots
           </Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
+          <Typography variant="body2" sx={{ mt: 1, color: 'inherit' }}>
             {screenshotsError}
           </Typography>
           {onScreenshotsRefresh && (
             <Button
               variant="contained"
               size="small"
-              sx={{ mt: 2 }}
+              sx={{ 
+                mt: 2,
+                backgroundColor: theme.colors.primary || '#2563eb',
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: theme.mode === 'dark' ? '#3b82f6' : '#1d4ed8',
+                },
+              }}
               onClick={onScreenshotsRefresh}
             >
               Try again
@@ -403,7 +485,7 @@ const ScreensTab = ({
         </Box>
       )}
 
-      <Divider sx={{ my: 3 }} />
+      <Divider sx={{ my: 3, borderColor: theme.colors.border }} />
 
       <Box
         sx={{
@@ -439,11 +521,14 @@ const ScreensTab = ({
                       borderRadius: 2,
                       overflow: 'hidden',
                       border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.08)'}`,
+                      backgroundColor: theme.colors.surface,
                       boxShadow: 'none',
                       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                       '&:hover': {
                         transform: 'translateY(-2px)',
-                        boxShadow: '0 12px 24px rgba(15,23,42,0.12)',
+                        boxShadow: theme.mode === 'dark' 
+                          ? '0 12px 24px rgba(0,0,0,0.3)' 
+                          : '0 12px 24px rgba(15,23,42,0.12)',
                       },
                     }}
                   >
@@ -474,7 +559,7 @@ const ScreensTab = ({
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: 'rgba(148,163,184,0.15)',
+                              backgroundColor: theme.colors.background || 'rgba(148,163,184,0.15)',
                               color: theme.colors.text.secondary,
                               flexDirection: 'column',
                             }}
@@ -488,7 +573,7 @@ const ScreensTab = ({
                             position: 'absolute',
                             bottom: 8,
                             right: 8,
-                            bgcolor: 'rgba(15,23,42,0.55)',
+                            bgcolor: theme.mode === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(15,23,42,0.55)',
                             color: '#fff',
                             borderRadius: '50%',
                             width: 36,
@@ -501,10 +586,10 @@ const ScreensTab = ({
                           <OpenInNewIcon fontSize="small" />
                         </Box>
                       </Box>
-                      <CardContent sx={{ minHeight: 96 }}>
+                      <CardContent sx={{ minHeight: 96, backgroundColor: theme.colors.surface }}>
                         <Typography
                           variant="subtitle2"
-                          sx={{ fontWeight: 600, mb: 0.5 }}
+                          sx={{ fontWeight: 600, mb: 0.5, color: theme.colors.text.primary }}
                           noWrap
                         >
                           {screenshot.filename || screenshot.project_folder || 'Screenshot'}
@@ -564,6 +649,21 @@ const ScreensTab = ({
             disabled={isLoadingScreenshots}
             showFirstButton
             showLastButton
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: theme.colors.text.primary,
+                '&.Mui-selected': {
+                  backgroundColor: theme.colors.primary,
+                  color: '#fff',
+                  '&:hover': {
+                    backgroundColor: theme.colors.primary,
+                  },
+                },
+                '&:hover': {
+                  backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
+                },
+              },
+            }}
           />
         </Box>
       )}
