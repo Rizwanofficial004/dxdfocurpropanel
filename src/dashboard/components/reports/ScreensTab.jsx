@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -13,19 +13,19 @@ import {
   Select,
   MenuItem,
   IconButton,
-  Tooltip,
   Skeleton,
   Button,
   Divider,
-  Grid
+  Grid,
+  Dialog,
+  DialogContent
 } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 
 const getSizeLabel = (sizeMb) => {
@@ -72,19 +72,20 @@ const ScreensTab = ({
   screenshots = [],
   screenshotsTotal = 0,
   screenshotsPage = 1,
-  screenshotsPerPage = 9,
+  screenshotsPerPage = 10,
   screenshotsDateRange = [null, null],
   isLoadingScreenshots = false,
   screenshotsError = null,
   onScreenshotsPageChange,
   onScreenshotsPerPageChange,
-  onScreenshotsDateRangeChange,
   onScreenshotsRefresh,
   selectedEmployee,
 }) => {
   const [startDate, endDate] = Array.isArray(screenshotsDateRange)
     ? screenshotsDateRange
     : [null, null];
+  const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc');
 
   const perPageOptions = useMemo(() => {
     const options = [];
@@ -115,10 +116,42 @@ const ScreensTab = ({
     
     return options;
   }, [screenshotsTotal, screenshotsPerPage]);
+  const sortedScreenshots = useMemo(() => {
+    if (!Array.isArray(screenshots)) return [];
+    const list = [...screenshots];
+
+    const getComparableTime = (shot) => {
+      if (shot?.timestamp) {
+        const parsed = dayjs(shot.timestamp);
+        if (parsed.isValid()) return parsed.valueOf();
+      }
+      if (shot?.date) {
+        const dateOnly = dayjs(shot.date);
+        if (shot.time) {
+          const combined = dayjs(`${shot.date} ${shot.time}`);
+          if (combined.isValid()) return combined.valueOf();
+        }
+        if (dateOnly.isValid()) return dateOnly.valueOf();
+      }
+      return 0;
+    };
+
+    list.sort((a, b) => {
+      const aTime = getComparableTime(a);
+      const bTime = getComparableTime(b);
+      if (sortOrder === 'desc') {
+        return bTime - aTime;
+      }
+      return aTime - bTime;
+    });
+
+    return list;
+  }, [screenshots, sortOrder]);
+
   const displayedScreenshots = useMemo(() => {
-    const perPageCount = screenshotsPerPage || 9;
-    return Array.isArray(screenshots) ? screenshots.slice(0, perPageCount) : [];
-  }, [screenshots, screenshotsPerPage]);
+    const perPageCount = screenshotsPerPage || 10;
+    return sortedScreenshots.slice(0, perPageCount);
+  }, [sortedScreenshots, screenshotsPerPage]);
   const summaryMetrics = useMemo(() => {
     if (!screenshotCountData) return [];
 
@@ -160,7 +193,7 @@ const ScreensTab = ({
   );
 
   const placeholderItems = useMemo(() => {
-    const perPageCount = screenshotsPerPage || 9;
+    const perPageCount = screenshotsPerPage || 10;
     const rows = Math.max(1, Math.ceil(perPageCount / 3));
     const totalPlaceholders = rows * 3;
     return Array.from({ length: totalPlaceholders }, (_, index) => index);
@@ -185,14 +218,56 @@ const ScreensTab = ({
     }
   };
 
-  const handleDateRangeChange = (value) => {
-    onScreenshotsDateRangeChange?.(value);
+  const handleSortOrderChange = (event) => {
+    setSortOrder(event.target.value);
   };
 
-  const handleCardClick = (url) => {
-    if (!url) return;
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const handleCardClick = (index) => {
+    if (!displayedScreenshots[index]) return;
+    setActiveScreenshotIndex(index);
   };
+
+  const handleCloseModal = () => setActiveScreenshotIndex(null);
+
+  const handleModalNavigation = useCallback((direction) => {
+    setActiveScreenshotIndex((prevIndex) => {
+      if (prevIndex === null) return prevIndex;
+      const total = displayedScreenshots.length;
+      if (!total) return null;
+
+      if (direction === 'next') {
+        return prevIndex < total - 1 ? prevIndex + 1 : prevIndex;
+      }
+
+      if (direction === 'previous') {
+        return prevIndex > 0 ? prevIndex - 1 : prevIndex;
+      }
+
+      return prevIndex;
+    });
+  }, [displayedScreenshots.length]);
+
+  const handleModalKeyDown = useCallback((event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      handleModalNavigation('previous');
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      handleModalNavigation('next');
+    } else if (event.key === 'Escape') {
+      handleCloseModal();
+    }
+  }, [handleModalNavigation, handleCloseModal]);
+
+  const activeScreenshot = activeScreenshotIndex !== null
+    ? displayedScreenshots[activeScreenshotIndex]
+    : null;
+  const modalDateTime = activeScreenshot
+    ? formatDateTime(activeScreenshot.timestamp, activeScreenshot.date, activeScreenshot.time)
+    : null;
+  const modalSizeLabel = activeScreenshot ? getSizeLabel(activeScreenshot.size_mb) : null;
+  const canGoPrevious = activeScreenshotIndex > 0;
+  const canGoNext = activeScreenshotIndex !== null && activeScreenshotIndex < displayedScreenshots.length - 1;
 
   const emptyStateMessage = selectedEmployee
     ? `No screenshots found for ${selectedEmployee.display_name || selectedEmployee.email || 'the selected employee'} in this range.`
@@ -218,9 +293,9 @@ const ScreensTab = ({
           <Typography variant="h5" sx={{ color: theme.colors.text.primary, fontWeight: 600 }}>
             Screenshot Monitoring
           </Typography>
-          <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mt: 0.5 }}>
+          {/* <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mt: 0.5 }}>
             {filtersSummary}
-          </Typography>
+          </Typography> */}
         </Box>
         <Stack direction="row" spacing={1} alignItems="center">
           {isLoadingScreenshots && (
@@ -228,22 +303,6 @@ const ScreensTab = ({
               Loading screenshots…
             </Typography>
           )}
-          <Tooltip title="Refresh screenshots">
-            <span>
-              <IconButton
-                onClick={onScreenshotsRefresh}
-                disabled={isLoadingScreenshots}
-                size="small"
-                sx={{
-                  backgroundColor: theme.colors.backgroundAlt || 'rgba(59,130,246,0.08)',
-                  color: theme.colors.primary || '#2563eb',
-                  '&:hover': { backgroundColor: theme.colors.primary, color: '#fff' }
-                }}
-              >
-                <RefreshIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
         </Stack>
       </Stack>
 
@@ -316,137 +375,6 @@ const ScreensTab = ({
         </Box>
       )}
 
-      <Box
-        sx={{
-          mt: 3,
-          p: 2,
-          borderRadius: 2,
-          border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.05)'}`,
-          backgroundColor: theme.colors.backgroundAlt || '#fff',
-        }}
-      >
-        <Stack
-          direction={{ xs: 'column', lg: 'row' }}
-          spacing={2}
-          alignItems={{ xs: 'stretch', lg: 'center' }}
-          justifyContent="space-between"
-        >
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateRangePicker
-              value={[startDate, endDate]}
-              onChange={handleDateRangeChange}
-              calendars={2}
-              disableFuture
-              slotProps={{
-                textField: {
-                  variant: 'outlined',
-                  size: 'small',
-                  sx: {
-                    '& .MuiInputLabel-root': {
-                      color: theme.colors.text.secondary,
-                    },
-                    '& .MuiOutlinedInput-root': {
-                      color: theme.colors.text.primary,
-                      backgroundColor: theme.colors.background || theme.colors.surface,
-                      '& fieldset': {
-                        borderColor: theme.colors.border,
-                      },
-                      '&:hover fieldset': {
-                        borderColor: theme.colors.primary,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: theme.colors.primary,
-                      },
-                    },
-                  },
-                },
-                popper: {
-                  sx: {
-                    '& .MuiPaper-root': {
-                      backgroundColor: theme.colors.surface,
-                      color: theme.colors.text.primary,
-                      border: `1px solid ${theme.colors.border}`,
-                    },
-                    '& .MuiPickersCalendarHeader-root': {
-                      color: theme.colors.text.primary,
-                    },
-                    '& .MuiDayCalendar-weekContainer .MuiPickersDay-root': {
-                      color: theme.colors.text.primary,
-                      '&.Mui-selected': {
-                        backgroundColor: theme.colors.primary,
-                        color: '#fff',
-                      },
-                      '&:hover': {
-                        backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
-                      },
-                    },
-                  },
-                },
-              }}
-            />
-          </LocalizationProvider>
-
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
-            <FormControl 
-              size="small" 
-              sx={{ 
-                minWidth: 160,
-                '& .MuiInputLabel-root': {
-                  color: theme.colors.text.secondary,
-                },
-                '& .MuiOutlinedInput-root': {
-                  color: theme.colors.text.primary,
-                  backgroundColor: theme.colors.background || theme.colors.surface,
-                  '& fieldset': {
-                    borderColor: theme.colors.border,
-                  },
-                  '&:hover fieldset': {
-                    borderColor: theme.colors.primary,
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: theme.colors.primary,
-                  },
-                },
-              }}
-            >
-              <InputLabel id="screenshots-per-page-label">Per Page</InputLabel>
-              <Select
-                labelId="screenshots-per-page-label"
-                value={screenshotsPerPage}
-                label="Per Page"
-                onChange={handlePerPageSelect}
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      backgroundColor: theme.colors.surface,
-                      color: theme.colors.text.primary,
-                      '& .MuiMenuItem-root': {
-                        color: theme.colors.text.primary,
-                        '&:hover': {
-                          backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
-                        },
-                      },
-                    },
-                  },
-                }}
-              >
-                {perPageOptions.map((option) => (
-                  <MenuItem value={option} key={option}>
-                    {option} screenshots
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <Box>
-              <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
-                Showing {(displayedScreenshots.length || 0)} of {screenshotsTotal || 0}
-              </Typography>
-            </Box>
-          </Stack>
-        </Stack>
-      </Box>
-
       {screenshotsError && (
         <Box
           sx={{
@@ -506,7 +434,7 @@ const ScreensTab = ({
                 </Card>
               </Box>
             ))
-          : displayedScreenshots.map((screenshot) => {
+          : displayedScreenshots.map((screenshot, index) => {
               const { dateLabel, timeLabel } = formatDateTime(
                 screenshot.timestamp,
                 screenshot.date,
@@ -532,7 +460,7 @@ const ScreensTab = ({
                       },
                     }}
                   >
-                    <CardActionArea onClick={() => handleCardClick(screenshot.screenshot_url)}>
+                    <CardActionArea onClick={() => handleCardClick(index)}>
                       <Box sx={{ position: 'relative', pt: '62%' }}>
                         {screenshot.thumbnail_url || screenshot.screenshot_url ? (
                           <CardMedia
@@ -583,7 +511,7 @@ const ScreensTab = ({
                             justifyContent: 'center',
                           }}
                         >
-                          <OpenInNewIcon fontSize="small" />
+                          <ZoomInMapIcon fontSize="small" />
                         </Box>
                       </Box>
                       <CardContent sx={{ minHeight: 96, backgroundColor: theme.colors.surface }}>
@@ -605,13 +533,13 @@ const ScreensTab = ({
                               sx={{ backgroundColor: 'rgba(59,130,246,0.12)', color: theme.colors.primary || '#2563eb' }}
                             />
                           )}
-                          {screenshot.project_folder && (
+                          {/* {screenshot.project_folder && (
                             <Chip
                               size="small"
                               label={screenshot.project_folder}
                               sx={{ backgroundColor: 'rgba(15,118,110,0.12)', color: '#0f766e' }}
                             />
-                          )}
+                          )} */}
                         </Stack>
                       </CardContent>
                     </CardActionArea>
@@ -624,7 +552,6 @@ const ScreensTab = ({
       {!isLoadingScreenshots && (!screenshots || screenshots.length === 0) && !screenshotsError && (
         <Box
           sx={{
-            mt: 4,
             borderRadius: 3,
             border: `2px dashed ${theme.colors.border || 'rgba(148,163,184,0.6)'}`,
             p: 4,
@@ -638,6 +565,121 @@ const ScreensTab = ({
           <Typography variant="body2">{emptyStateMessage}</Typography>
         </Box>
       )}
+
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={2}
+        alignItems={{ xs: 'stretch', md: 'center' }}
+        justifyContent="space-between"
+        sx={{ mt: 3 }}
+      >
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
+          <FormControl
+            size="small"
+            sx={{
+              minWidth: 160,
+              '& .MuiInputLabel-root': {
+                color: theme.colors.text.secondary,
+              },
+              '& .MuiOutlinedInput-root': {
+                color: theme.colors.text.primary,
+                backgroundColor: theme.colors.background || theme.colors.surface,
+                '& fieldset': {
+                  borderColor: theme.colors.border,
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.colors.primary,
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: theme.colors.primary,
+                },
+              },
+            }}
+          >
+            <InputLabel id="screenshots-per-page-label">Per Page</InputLabel>
+            <Select
+              labelId="screenshots-per-page-label"
+              value={screenshotsPerPage}
+              label="Per Page"
+              onChange={handlePerPageSelect}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    backgroundColor: theme.colors.surface,
+                    color: theme.colors.text.primary,
+                    '& .MuiMenuItem-root': {
+                      color: theme.colors.text.primary,
+                      '&:hover': {
+                        backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
+                      },
+                    },
+                  },
+                },
+              }}
+            >
+              {perPageOptions.map((option) => (
+                <MenuItem value={option} key={option}>
+                  {option} screenshots
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl
+            size="small"
+            sx={{
+              minWidth: 200,
+              '& .MuiInputLabel-root': {
+                color: theme.colors.text.secondary,
+              },
+              '& .MuiOutlinedInput-root': {
+                color: theme.colors.text.primary,
+                backgroundColor: theme.colors.background || theme.colors.surface,
+                '& fieldset': {
+                  borderColor: theme.colors.border,
+                },
+                '&:hover fieldset': {
+                  borderColor: theme.colors.primary,
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: theme.colors.primary,
+                },
+              },
+            }}
+          >
+            <InputLabel id="screenshots-sort-order-label">Sort Order</InputLabel>
+            <Select
+              labelId="screenshots-sort-order-label"
+              value={sortOrder}
+              label="Sort Order"
+              onChange={handleSortOrderChange}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    backgroundColor: theme.colors.surface,
+                    color: theme.colors.text.primary,
+                    '& .MuiMenuItem-root': {
+                      color: theme.colors.text.primary,
+                      '&:hover': {
+                        backgroundColor: theme.colors.background || 'rgba(59,130,246,0.1)',
+                      },
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="desc">Latest screenshots first</MenuItem>
+              <MenuItem value="asc">Oldest screenshots first</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+
+        <Box>
+          <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+            Showing {displayedScreenshots.length || 0} of {screenshotsTotal || 0}
+          </Typography>
+        </Box>
+      </Stack>
 
       {screenshotsTotal > screenshotsPerPage && (
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
@@ -666,6 +708,168 @@ const ScreensTab = ({
             }}
           />
         </Box>
+      )}
+
+      {activeScreenshot && (
+        <Dialog
+          open
+          fullWidth
+          maxWidth="lg"
+          onClose={handleCloseModal}
+          onKeyDown={handleModalKeyDown}
+          PaperProps={{
+            sx: {
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+              zIndex: 10000
+            },
+          }}
+        >
+          <DialogContent
+            sx={{
+              p: 0,
+              position: 'relative',
+              backgroundColor: theme.mode === 'dark' ? '#000' : '#0f172a',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              scrollbarWidth: 'thin',
+              scrollbarColor: `${theme.colors.border} ${theme.colors.background}`,
+              '&::-webkit-scrollbar': {
+                width: 2,
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: theme.colors.background,
+                borderRadius: 3,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: theme.colors.border,
+                borderRadius: 3,
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: theme.colors.text.tertiary,
+              },
+            }}
+          >
+            <IconButton
+              onClick={handleCloseModal}
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                zIndex: 2,
+                color: '#fff',
+                backgroundColor: 'rgba(15,23,42,0.5)',
+                '&:hover': { backgroundColor: 'rgba(15,23,42,0.7)' },
+              }}
+              aria-label="Close screenshot preview"
+            >
+              <CloseIcon />
+            </IconButton>
+
+            {canGoPrevious && (
+              <IconButton
+                onClick={() => handleModalNavigation('previous')}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: 16,
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  color: '#fff',
+                  backgroundColor: 'rgba(15,23,42,0.5)',
+                  '&:hover': { backgroundColor: 'rgba(15,23,42,0.7)' },
+                }}
+                aria-label="Previous screenshot"
+              >
+                <ArrowBackIosNewIcon />
+              </IconButton>
+            )}
+            {canGoNext && (
+              <IconButton
+                onClick={() => handleModalNavigation('next')}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: 16,
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  color: '#fff',
+                  backgroundColor: 'rgba(15,23,42,0.5)',
+                  '&:hover': { backgroundColor: 'rgba(15,23,42,0.7)' },
+                }}
+                aria-label="Next screenshot"
+              >
+                <ArrowForwardIosIcon />
+              </IconButton>
+            )}
+
+            {activeScreenshot.screenshot_url || activeScreenshot.thumbnail_url ? (
+              <Box
+                component="img"
+                src={activeScreenshot.screenshot_url || activeScreenshot.thumbnail_url}
+                alt={activeScreenshot.filename || 'Screenshot preview'}
+                sx={{
+                  width: '100%',
+                  maxHeight: '80vh',
+                  objectFit: 'contain',
+                  display: 'block',
+                  backgroundColor: theme.mode === 'dark' ? '#000' : '#0f172a',
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  minHeight: '60vh',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  flexDirection: 'column',
+                  gap: 1,
+                }}
+              >
+                <ImageNotSupportedIcon fontSize="large" />
+                <Typography variant="subtitle1" sx={{ color: '#fff' }}>
+                  Preview unavailable
+                </Typography>
+              </Box>
+            )}
+
+            <Box
+              sx={{
+                p: 2,
+                backgroundColor: theme.colors.surface,
+                color: theme.colors.text.primary,
+              }}
+            >
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                {activeScreenshot.filename || activeScreenshot.project_folder || 'Screenshot'}
+              </Typography>
+              {modalDateTime && (
+                <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+                  {modalDateTime.dateLabel} · {modalDateTime.timeLabel}
+                </Typography>
+              )}
+              <Stack direction="row" spacing={1} sx={{ mt: 1 }} alignItems="center">
+                {modalSizeLabel && (
+                  <Chip
+                    size="small"
+                    label={modalSizeLabel}
+                    sx={{ backgroundColor: 'rgba(59,130,246,0.12)', color: theme.colors.primary || '#2563eb' }}
+                  />
+                )}
+                {activeScreenshot.project_folder && (
+                  <Chip
+                    size="small"
+                    label={activeScreenshot.project_folder}
+                    sx={{ backgroundColor: 'rgba(15,118,110,0.12)', color: '#0f766e' }}
+                  />
+                )}
+              </Stack>
+            </Box>
+          </DialogContent>
+        </Dialog>
       )}
     </Box>
   );

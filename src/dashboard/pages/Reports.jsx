@@ -58,26 +58,11 @@ import {
   TabIcon,
   NavigationArrow
 } from './Reports.styles';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   getProfilePhotoUrl,
   fetchScreenshotsData as fetchScreenshotsDataUtil
 } from '../../utils/reportUtils';
-
-// Add spinner animation
-const spinnerStyles = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-// Inject styles
-if (typeof document !== 'undefined' && !document.getElementById('spinner-styles')) {
-  const style = document.createElement('style');
-  style.id = 'spinner-styles';
-  style.textContent = spinnerStyles;
-  document.head.appendChild(style);
-}
 
 const Reports = () => {
   const { t } = useLanguage();
@@ -111,7 +96,7 @@ const Reports = () => {
   const [screenshots, setScreenshots] = useState([]);
   const [screenshotsTotal, setScreenshotsTotal] = useState(0);
   const [screenshotsPage, setScreenshotsPage] = useState(1);
-  const [screenshotsPerPage, setScreenshotsPerPage] = useState(9);
+  const [screenshotsPerPage, setScreenshotsPerPage] = useState(10);
   const [screenshotsDateRange, setScreenshotsDateRange] = useState([null, null]);
   const [isLoadingScreenshots, setIsLoadingScreenshots] = useState(false);
   const [screenshotsError, setScreenshotsError] = useState(null);
@@ -466,7 +451,7 @@ const Reports = () => {
     
     // Only update perPage if it's different to prevent infinite loops
     setScreenshotsPerPage(prev => {
-      const newPerPage = perPage ?? 9;
+      const newPerPage = perPage ?? 10;
       return prev !== newPerPage ? newPerPage : prev;
     });
 
@@ -746,9 +731,11 @@ const Reports = () => {
   };
 
   useEffect(() => {
+    let isMounted = true;
     // Load users from sync-staffs API on startup (same as ActivityStream)
     const timer = setTimeout(async () => {
-      setIsLoadingEmployees(false);
+      if (!isMounted) return;
+      setIsLoadingEmployees(true);
       
       try {
         const users = await fetchSyncStaffsUsers();
@@ -760,10 +747,17 @@ const Reports = () => {
         }
       } catch (error) {
         console.error('❌ Failed to load users:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingEmployees(false);
+        }
       }
     }, 10);
     
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, []);
 
   // Cleanup timeout on unmount
@@ -1146,12 +1140,25 @@ const Reports = () => {
             />
             <EmployeeList>
               {isLoadingEmployees ? (
-                <div style={{ 
-                  padding: '20px', 
-                  textAlign: 'center', 
-                  color: theme.colors.text.secondary 
-                }}>
-                  Loading employees...
+                <div
+                  style={{
+                    padding: '40px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    color: theme.colors.text.secondary,
+                  }}
+                >
+                  <CircularProgress
+                    size={32}
+                    thickness={4}
+                    sx={{
+                      color:  theme.colors.text.primary,
+                    }}
+                  />
+                  <div>Loading employees…</div>
                 </div>
               ) : filteredEmployees.length === 0 ? (
                 <div style={{ 
