@@ -56,7 +56,8 @@ import {
   TabScrollContainer,
   TabButton,
   TabIcon,
-  NavigationArrow
+  NavigationArrow,
+  DataIndicator
 } from './Reports.styles';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
@@ -104,6 +105,8 @@ const Reports = () => {
   const [idleQuickviewData, setIdleQuickviewData] = useState(null);
   const [isLoadingReportData, setIsLoadingReportData] = useState(false);
   const [reportError, setReportError] = useState(null);
+  const [dataAvailability, setDataAvailability] = useState(null);
+  const [screenshotsOrder, setScreenshotsOrder] = useState('desc');
   
   // Ref to prevent concurrent API calls
   const isFetchingRef = useRef(false);
@@ -429,6 +432,24 @@ const Reports = () => {
     return null;
   };
 
+  const fetchDataAvailability = async (employee, month) => {
+    if (!employee?.email) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/users/data-availability/?email=${employee.email}&month=${month}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Data Availability:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching data availability:', error);
+    }
+    return null;
+  };
+
   const fetchScreenshotsData = useCallback((params) => fetchScreenshotsDataUtil(params), []);
 
   const applyScreenshotResult = useCallback((result, meta) => {
@@ -472,6 +493,7 @@ const Reports = () => {
     page = screenshotsPage,
     perPage = screenshotsPerPage,
     dateRange,
+    order = screenshotsOrder,
     showLoader = true
   } = {}) => {
     if (!selectedEmployee?.email) {
@@ -498,6 +520,7 @@ const Reports = () => {
         page,
         perPage,
         dateRange: targetRange,
+        order: order || screenshotsOrder,
       });
 
       applyScreenshotResult(result, { page, perPage, dateRange: targetRange });
@@ -541,6 +564,12 @@ const Reports = () => {
     loadScreenshots({ page: screenshotsPage });
   }, [loadScreenshots, screenshotsPage]);
 
+  const handleScreenshotsOrderChange = useCallback((order) => {
+    setScreenshotsOrder(order);
+    // Refetch screenshots with new order - reset to page 1
+    loadScreenshots({ page: 1, order, showLoader: true });
+  }, [loadScreenshots]);
+
 
   // Main function to fetch all report data
   const fetchReportData = useCallback(async (employee) => {
@@ -583,7 +612,8 @@ const Reports = () => {
         screenshotCount,
         screenshotsResult,
         meetingQuickview,
-        idleQuickview
+        idleQuickview,
+        availabilityData
       ] = await Promise.all([
         fetchMeetingTimeData(employee, currentMonth),
         fetchIdleTimeData(employee, currentMonth),
@@ -596,9 +626,11 @@ const Reports = () => {
           page: 1,
           perPage: screenshotsPerPage,
           dateRange: defaultRange,
+          order: screenshotsOrder,
         }),
         specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
-        specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null
+        specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null,
+        fetchDataAvailability(employee, currentMonth)
       ]);
       
       // Update state with fetched data
@@ -615,6 +647,7 @@ const Reports = () => {
         dateRange: defaultRange,
       });
       setIdleQuickviewData(idleQuickview);
+      setDataAvailability(availabilityData);
       
       console.log('✅ All report data fetched successfully');
       
@@ -937,10 +970,12 @@ const Reports = () => {
             screenshotsDateRange={screenshotsDateRange}
             isLoadingScreenshots={isLoadingScreenshots}
             screenshotsError={screenshotsError}
+            screenshotsOrder={screenshotsOrder}
             onScreenshotsPageChange={handleScreenshotsPageChange}
             onScreenshotsPerPageChange={handleScreenshotsPerPageChange}
             onScreenshotsDateRangeChange={handleScreenshotsDateRangeChange}
             onScreenshotsRefresh={handleScreenshotsRefresh}
+            onScreenshotsOrderChange={handleScreenshotsOrderChange}
           />
         );
       
@@ -1352,6 +1387,11 @@ const Reports = () => {
                   <CalendarGrid>
                     {calendarDays.map((day, index) => {
                       const isSelected = day.day.toString() === selectedDate;
+                      // Format date as YYYY-MM-DD to check data availability
+                      const monthIndex = months.indexOf(selectedMonth);
+                      const dateString = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(day.day).padStart(2, '0')}`;
+                      const hasData = dataAvailability?.data_availability?.[dateString] === true;
+                      
                       return (
                         <CalendarDay
                           key={index}
@@ -1370,6 +1410,7 @@ const Reports = () => {
                         >
                           <DayHeader theme={theme}>{day.dayName}</DayHeader>
                           <div>{day.day}</div>
+                          {hasData && <DataIndicator theme={theme} />}
                         </CalendarDay>
                       );
                     })}
@@ -1396,6 +1437,9 @@ const Reports = () => {
 
               {/* Summary */}
               <SummaryContainer theme={theme}>
+                <SummaryText>
+                  Employee Name: <span theme={theme}> {selectedEmployee?.display_name || selectedEmployee?.name}</span>
+                </SummaryText>
                 <SummaryText theme={theme}>
                   Showing data for: <span>{selectedMonth} {selectedDate}, {selectedYear}</span>
                   {selectedHour !== 'All' && <span> at {selectedHour}</span>}

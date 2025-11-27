@@ -236,7 +236,7 @@ export const normalizeScreenshotResponse = (payload, fallbackEmail) => {
   };
 };
 
-export const fetchScreenshotsData = async ({ employee, page = 1, perPage = 9, dateRange } = {}) => {
+export const fetchScreenshotsData = async ({ employee, page = 1, perPage = 10, dateRange, order = 'desc' } = {}) => {
   if (!employee?.email) {
     return {
       items: [],
@@ -261,6 +261,11 @@ export const fetchScreenshotsData = async ({ employee, page = 1, perPage = 9, da
 
   if (formattedStart) params.set('start_date', formattedStart);
   if (formattedEnd) params.set('end_date', formattedEnd);
+  
+  // Add order parameter (ASC or DESC)
+  if (order && (order.toLowerCase() === 'asc' || order.toLowerCase() === 'desc')) {
+    params.set('order', order.toUpperCase());
+  }
 
   const signal =
     typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'

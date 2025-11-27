@@ -309,6 +309,8 @@ export const CalendarDay = styled.div`
   }};
   border: 1px solid ${props => props.theme.colors.border};
   transition: all 0.2s ease;
+  position: relative;
+  overflow: visible;
   
   &:hover {
     background: ${props => {
@@ -316,6 +318,35 @@ export const CalendarDay = styled.div`
       if (props.today) return '#10b981';
       return props.theme.colors.primary + '20';
     }};
+  }
+`;
+
+export const DataIndicator = styled.div`
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 1px solid ${props => {
+    if (props.theme?.mode === 'dark') return '#1e293b';
+    return 'white';
+  }};
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.5), 0 0 0 0.5px rgba(16, 185, 129, 0.15);
+  z-index: 10;
+  animation: pulse 2s ease-in-out infinite;
+  pointer-events: none;
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.85;
+    }
   }
 `;
 
@@ -360,6 +391,9 @@ export const SummaryContainer = styled.div`
   border-radius: 6px;
   padding: 12px 16px;
   margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 export const SummaryText = styled.div`

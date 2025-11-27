@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -76,82 +76,66 @@ const ScreensTab = ({
   screenshotsDateRange = [null, null],
   isLoadingScreenshots = false,
   screenshotsError = null,
+  screenshotsOrder = 'desc',
   onScreenshotsPageChange,
   onScreenshotsPerPageChange,
   onScreenshotsRefresh,
+  onScreenshotsOrderChange,
   selectedEmployee,
 }) => {
   const [startDate, endDate] = Array.isArray(screenshotsDateRange)
     ? screenshotsDateRange
     : [null, null];
   const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(null);
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [sortOrder, setSortOrder] = useState(screenshotsOrder || 'desc');
+
+  // Sync local sortOrder with prop when it changes
+  useEffect(() => {
+    if (screenshotsOrder) {
+      setSortOrder(screenshotsOrder);
+    }
+  }, [screenshotsOrder]);
 
   const perPageOptions = useMemo(() => {
-    const options = [];
+    const options = new Set();
+    
+    // Always include standard pagination options
+    const standardOptions = [10, 50, 100];
+    standardOptions.forEach(opt => options.add(opt));
     
     // Generate options in intervals of 100 until we cover screenshotsTotal
     if (screenshotsTotal > 0) {
       if (screenshotsTotal < 100) {
-        // If screenshotsTotal is less than 100, just add it
-        options.push(screenshotsTotal);
+        // If screenshotsTotal is less than 100, add it if it's not a standard option
+        if (!standardOptions.includes(screenshotsTotal)) {
+          options.add(screenshotsTotal);
+        }
       } else {
         // Add options: 100, 200, 300, ... stopping before exceeding screenshotsTotal
         for (let i = 100; i < screenshotsTotal; i += 100) {
-          options.push(i);
+          options.add(i);
         }
         
         // Always add screenshotsTotal to cover all screenshots
-        if (!options.includes(screenshotsTotal)) {
-          options.push(screenshotsTotal);
-        }
+        options.add(screenshotsTotal);
       }
     }
     
     // Ensure current screenshotsPerPage is in options if it's not already
-    if (screenshotsPerPage && !options.includes(screenshotsPerPage)) {
-      options.push(screenshotsPerPage);
-      options.sort((a, b) => a - b); // Sort to maintain order
+    if (screenshotsPerPage && screenshotsPerPage > 0) {
+      options.add(screenshotsPerPage);
     }
     
-    return options;
+    // Convert Set to Array and sort
+    return Array.from(options).sort((a, b) => a - b);
   }, [screenshotsTotal, screenshotsPerPage]);
-  const sortedScreenshots = useMemo(() => {
-    if (!Array.isArray(screenshots)) return [];
-    const list = [...screenshots];
-
-    const getComparableTime = (shot) => {
-      if (shot?.timestamp) {
-        const parsed = dayjs(shot.timestamp);
-        if (parsed.isValid()) return parsed.valueOf();
-      }
-      if (shot?.date) {
-        const dateOnly = dayjs(shot.date);
-        if (shot.time) {
-          const combined = dayjs(`${shot.date} ${shot.time}`);
-          if (combined.isValid()) return combined.valueOf();
-        }
-        if (dateOnly.isValid()) return dateOnly.valueOf();
-      }
-      return 0;
-    };
-
-    list.sort((a, b) => {
-      const aTime = getComparableTime(a);
-      const bTime = getComparableTime(b);
-      if (sortOrder === 'desc') {
-        return bTime - aTime;
-      }
-      return aTime - bTime;
-    });
-
-    return list;
-  }, [screenshots, sortOrder]);
-
+  
+  // Use screenshots directly from backend (already sorted and paginated)
   const displayedScreenshots = useMemo(() => {
-    const perPageCount = screenshotsPerPage || 10;
-    return sortedScreenshots.slice(0, perPageCount);
-  }, [sortedScreenshots, screenshotsPerPage]);
+    if (!Array.isArray(screenshots)) return [];
+    // Backend already handles pagination and sorting, so use screenshots as-is
+    return screenshots;
+  }, [screenshots]);
   const summaryMetrics = useMemo(() => {
     if (!screenshotCountData) return [];
 
@@ -219,7 +203,12 @@ const ScreensTab = ({
   };
 
   const handleSortOrderChange = (event) => {
-    setSortOrder(event.target.value);
+    const newOrder = event.target.value;
+    setSortOrder(newOrder);
+    // Notify parent to refetch with new order
+    if (onScreenshotsOrderChange) {
+      onScreenshotsOrderChange(newOrder);
+    }
   };
 
   const handleCardClick = (index) => {
@@ -291,7 +280,7 @@ const ScreensTab = ({
       >
         <Box>
           <Typography variant="h5" sx={{ color: theme.colors.text.primary, fontWeight: 600 }}>
-            Screenshot Monitoring
+            {selectedEmployee && (selectedEmployee?.display_name || selectedEmployee?.name)} {selectedEmployee ? '\'s' : ''} Screenshots
           </Typography>
           {/* <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mt: 0.5 }}>
             {filtersSummary}
@@ -717,11 +706,17 @@ const ScreensTab = ({
           maxWidth="lg"
           onClose={handleCloseModal}
           onKeyDown={handleModalKeyDown}
+          sx={{
+            zIndex: 10000,
+            '& .MuiBackdrop-root': {
+              zIndex: 10000,
+            },
+          }}
           PaperProps={{
             sx: {
               backgroundColor: 'transparent',
               boxShadow: 'none',
-              zIndex: 10000
+              zIndex: 10000,
             },
           }}
         >
@@ -731,23 +726,23 @@ const ScreensTab = ({
               position: 'relative',
               backgroundColor: theme.mode === 'dark' ? '#000' : '#0f172a',
               maxHeight: '90vh',
-              overflowY: 'auto',
-              scrollbarWidth: 'thin',
-              scrollbarColor: `${theme.colors.border} ${theme.colors.background}`,
-              '&::-webkit-scrollbar': {
-                width: 2,
-              },
-              '&::-webkit-scrollbar-track': {
-                backgroundColor: theme.colors.background,
-                borderRadius: 3,
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: theme.colors.border,
-                borderRadius: 3,
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                backgroundColor: theme.colors.text.tertiary,
-              },
+              // overflowY: 'auto',
+              // scrollbarWidth: 'thin',
+              // scrollbarColor: `${theme.colors.border} ${theme.colors.background}`,
+              // '&::-webkit-scrollbar': {
+              //   width: 2,
+              // },
+              // '&::-webkit-scrollbar-track': {
+              //   backgroundColor: theme.colors.background,
+              //   borderRadius: 3,
+              // },
+              // '&::-webkit-scrollbar-thumb': {
+              //   backgroundColor: theme.colors.border,
+              //   borderRadius: 3,
+              // },
+              // '&::-webkit-scrollbar-thumb:hover': {
+              //   backgroundColor: theme.colors.text.tertiary,
+              // },
             }}
           >
             <IconButton
@@ -835,7 +830,7 @@ const ScreensTab = ({
                 </Typography>
               </Box>
             )}
-
+{/* 
             <Box
               sx={{
                 p: 2,
@@ -867,7 +862,7 @@ const ScreensTab = ({
                   />
                 )}
               </Stack>
-            </Box>
+            </Box> */}
           </DialogContent>
         </Dialog>
       )}
