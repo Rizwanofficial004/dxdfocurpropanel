@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Label } from 'recharts';
 
 // Add spinner animation
@@ -28,6 +28,15 @@ const IdleTab = ({
   months,
   isLoadingReportData
 }) => {
+  const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'daily'
+  
+  // Auto-switch to monthly view if daily view is selected but no date is selected
+  React.useEffect(() => {
+    if (viewMode === 'daily' && !selectedDate) {
+      setViewMode('monthly');
+    }
+  }, [viewMode, selectedDate]);
+  
   console.log("🚀 ~ IdleTab ~ loggedTimeData:", loggedTimeData)
   // Format time from timestamp or time string (using Turkey timezone)
   const formatTime = (timeString) => {
@@ -64,11 +73,29 @@ const IdleTab = ({
     return `${hours}h ${minutes}m`;
   };
 
+  // Get selected date in YYYY-MM-DD format
+  const selectedDateFormatted = useMemo(() => {
+    if (!selectedDate || !selectedMonth || !selectedYear) return null;
+    const monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex < 0) return null;
+    return `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
+  }, [selectedDate, selectedMonth, selectedYear, months]);
+
   // Transform idle data into rows (one per day with count > 0)
   const idleRows = useMemo(() => {
     if (!idleTimeData?.daily_counts) return [];
 
-    return idleTimeData.daily_counts
+    let filteredData = idleTimeData.daily_counts;
+
+    // Filter by selected date if in daily view
+    if (viewMode === 'daily' && selectedDateFormatted) {
+      filteredData = filteredData.filter((day) => day.date === selectedDateFormatted);
+    } else if (viewMode === 'daily') {
+      // If daily view but no date selected, return empty
+      return [];
+    }
+
+    return filteredData
       .filter((day) => day.total_count > 0)
       .map((day) => {
         const dateObj = new Date(day.date);
@@ -92,7 +119,7 @@ const IdleTab = ({
         };
       })
       .sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [idleTimeData]);
+  }, [idleTimeData, viewMode, selectedDateFormatted]);
   console.log("🚀 ~ IdleTab ~ idleRows:", idleRows)
 
   const totalIdleCount = useMemo(() => {
@@ -107,8 +134,20 @@ const IdleTab = ({
     return `${hours}h ${minutes}m`;
   }, [totalIdleCount]);
 
-  // Get logged hours from loggedTimeData
+  // Get logged hours from loggedTimeData (monthly or daily based on view mode)
   const loggedHours = useMemo(() => {
+    // If daily view, get data from daily_summary for selected date
+    if (viewMode === 'daily' && selectedDateFormatted && loggedTimeData?.daily_summary) {
+      const dailyData = loggedTimeData.daily_summary.find(
+        (day) => day.date === selectedDateFormatted
+      );
+      if (dailyData?.total_logged_time) {
+        return dailyData.total_logged_time;
+      }
+      return null;
+    }
+
+    // Monthly view - use total logged time
     if (loggedTimeData?.total_logged_time) {
       return loggedTimeData.total_logged_time;
     }
@@ -121,7 +160,7 @@ const IdleTab = ({
       return `${hours}h ${minutes}m`;
     }
     return null;
-  }, [loggedTimeData]);
+  }, [loggedTimeData, viewMode, selectedDateFormatted]);
 
   // Calculate idle percentage and chart data
   const chartData = useMemo(() => {
@@ -269,25 +308,85 @@ const IdleTab = ({
         border: '1px solid #e9ecef',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
       }}>
-        <h3 style={{ 
-          margin: '0 0 20px 0',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: theme.colors.text.primary
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px'
         }}>
-          IDLE
-        </h3>
+          <h3 style={{ 
+            margin: 0,
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            IDLE
+          </h3>
+
+          {/* View Toggle Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            background: theme.colors.background || '#f8f9fa',
+            padding: '4px',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef'
+          }}>
+            <button
+              onClick={() => setViewMode('monthly')}
+              style={{
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: viewMode === 'monthly' 
+                  ? (theme.colors.primary || '#3b82f6')
+                  : 'transparent',
+                color: viewMode === 'monthly' 
+                  ? 'white'
+                  : theme.colors.text.secondary,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Monthly View
+            </button>
+            <button
+              onClick={() => setViewMode('daily')}
+              style={{
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: viewMode === 'daily' 
+                  ? (theme.colors.primary || '#3b82f6')
+                  : 'transparent',
+                color: viewMode === 'daily' 
+                  ? 'white'
+                  : theme.colors.text.secondary,
+                transition: 'all 0.2s ease',
+                opacity: selectedDate ? 1 : 0.5,
+                pointerEvents: selectedDate ? 'auto' : 'none'
+              }}
+              disabled={!selectedDate}
+            >
+              Daily View
+            </button>
+          </div>
+        </div>
 
         <div style={{ 
           fontSize: '12px', 
           color: theme.colors.text.secondary,
           marginBottom: '16px'
         }}>
-          📅 Showing idle sessions for {idleTimeData?.month || `${selectedMonth} ${selectedYear}`}
-          {selectedDate && (
-            <span style={{ marginLeft: '8px', fontWeight: 'bold', color: '#ef4444' }}>
-              Selected date: {selectedDate} {selectedMonth} {selectedYear}
-            </span>
+          {viewMode === 'monthly' ? (
+            <>📅 Showing idle sessions for {idleTimeData?.month || `${selectedMonth} ${selectedYear}`}</>
+          ) : (
+            <>📅 Showing idle sessions for {selectedDateFormatted ? new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'selected date'}</>
           )}
         </div>
 
@@ -389,39 +488,45 @@ const IdleTab = ({
                   >
                     {!idleTimeData 
                       ? 'No idle data available. Please select an employee and date.'
-                      : 'No idle session data above zero count for this period.'}
+                      : viewMode === 'daily' 
+                        ? (selectedDateFormatted 
+                          ? `No idle session data for ${new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`
+                          : 'Please select a date to view daily idle data.')
+                        : 'No idle session data above zero count for this period.'}
                   </td>
                 </tr>
               )}
-              <tr style={{
-                background: theme.colors.background || '#f8f9fa',
-                borderTop: '2px solid #e9ecef'
-              }}>
-                <td style={{ 
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary
+              {idleRows.length > 0 && (
+                <tr style={{
+                  background: theme.colors.background || '#f8f9fa',
+                  borderTop: '2px solid #e9ecef'
                 }}>
-                  Total
-                </td>
-                <td style={{ 
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary
-                }}>
-                  {totalIdleCount}
-                </td>
-                <td style={{ 
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary
-                }}>
-                  {totalIdleDuration}
-                </td>
-              </tr>
+                  <td style={{ 
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary
+                  }}>
+                    {viewMode === 'daily' ? 'Daily Total' : 'Monthly Total'}
+                  </td>
+                  <td style={{ 
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary
+                  }}>
+                    {totalIdleCount}
+                  </td>
+                  <td style={{ 
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary
+                  }}>
+                    {totalIdleDuration}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

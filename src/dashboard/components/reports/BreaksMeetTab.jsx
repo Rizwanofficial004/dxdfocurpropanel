@@ -1,6 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { formatDateTurkey } from '../../../utils/reportUtils';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Label } from 'recharts';
+
+// Add spinner animation
+const spinnerStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('meeting-spinner-styles')) {
+  const style = document.createElement('style');
+  style.id = 'meeting-spinner-styles';
+  style.textContent = spinnerStyles;
+  document.head.appendChild(style);
+}
 
 const BreaksMeetTab = ({ 
   theme, 
@@ -10,8 +26,25 @@ const BreaksMeetTab = ({
   selectedYear,
   selectedMonth,
   selectedDate,
-  months 
+  months,
+  isLoadingReportData
 }) => {
+  const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'daily'
+  
+  // Auto-switch to monthly view if daily view is selected but no date is selected
+  React.useEffect(() => {
+    if (viewMode === 'daily' && !selectedDate) {
+      setViewMode('monthly');
+    }
+  }, [viewMode, selectedDate]);
+
+  // Get selected date in YYYY-MM-DD format
+  const selectedDateFormatted = useMemo(() => {
+    if (!selectedDate || !selectedMonth || !selectedYear) return null;
+    const monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex < 0) return null;
+    return `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
+  }, [selectedDate, selectedMonth, selectedYear, months]);
   // Sample data as fallback
   const breakData = [
     { start: '2:24 PM', stop: '3:17 PM', duration: '0h 53m' }
@@ -21,8 +54,18 @@ const BreaksMeetTab = ({
   const meetingRows = useMemo(() => {
     if (!meetingTimeData?.daily_summary) return [];
     
+    let filteredData = meetingTimeData.daily_summary;
+
+    // Filter by selected date if in daily view
+    if (viewMode === 'daily' && selectedDateFormatted) {
+      filteredData = filteredData.filter((daySummary) => daySummary.date === selectedDateFormatted);
+    } else if (viewMode === 'daily') {
+      // If daily view but no date selected, return empty
+      return [];
+    }
+    
     const rows = [];
-    meetingTimeData.daily_summary.forEach((daySummary) => {
+    filteredData.forEach((daySummary) => {
       if (daySummary.meetings && Array.isArray(daySummary.meetings)) {
         daySummary.meetings.forEach((meeting) => {
           // Convert duration_min to hours and minutes format
@@ -46,7 +89,7 @@ const BreaksMeetTab = ({
     });
     
     return rows;
-  }, [meetingTimeData]);
+  }, [meetingTimeData, viewMode, selectedDateFormatted]);
 
   // Calculate total break duration
   const totalBreakDuration = breakData.reduce((total, item) => {
@@ -62,6 +105,18 @@ const BreaksMeetTab = ({
 
   // Get total meeting duration from API or calculate from rows
   const totalMeetingDuration = useMemo(() => {
+    // If daily view, calculate from filtered rows
+    if (viewMode === 'daily') {
+      if (meetingRows.length > 0) {
+        const totalMinutes = meetingRows.reduce((sum, row) => sum + row.durationMin, 0);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        return `${hours} hr ${minutes} min`;
+      }
+      return '0h 0m';
+    }
+
+    // Monthly view - use total from API or calculate from all rows
     if (meetingTimeData?.total_duration) {
       return meetingTimeData.total_duration;
     }
@@ -72,10 +127,22 @@ const BreaksMeetTab = ({
       return `${hours} hr ${minutes} min`;
     }
     return '0h 0m';
-  }, [meetingTimeData, meetingRows]);
+  }, [meetingTimeData, meetingRows, viewMode]);
 
-  // Get logged hours from loggedTimeData
+  // Get logged hours from loggedTimeData (monthly or daily based on view mode)
   const loggedHours = useMemo(() => {
+    // If daily view, get data from daily_summary for selected date
+    if (viewMode === 'daily' && selectedDateFormatted && loggedTimeData?.daily_summary) {
+      const dailyData = loggedTimeData.daily_summary.find(
+        (day) => day.date === selectedDateFormatted
+      );
+      if (dailyData?.total_logged_time) {
+        return dailyData.total_logged_time;
+      }
+      return null;
+    }
+
+    // Monthly view - use total logged time
     if (loggedTimeData?.total_logged_time) {
       return loggedTimeData.total_logged_time;
     }
@@ -88,7 +155,7 @@ const BreaksMeetTab = ({
       return `${hours}h ${minutes}m`;
     }
     return null;
-  }, [loggedTimeData]);
+  }, [loggedTimeData, viewMode, selectedDateFormatted]);
 
   // Calculate meeting chart data based on meetingTimeData and loggedTimeData
   const chartData = useMemo(() => {
@@ -105,11 +172,13 @@ const BreaksMeetTab = ({
       return { error: 'No meeting time data available. Please ensure meeting data exists for the selected period.' };
     }
 
-    // Get total meetings count from API
-    const totalMeetings = meetingTimeData.total_meetings || 0;
+    // Get total meetings count from API (only for monthly view)
+    const totalMeetings = viewMode === 'daily' 
+      ? meetingRows.length 
+      : (meetingTimeData.total_meetings || 0);
     
-    // Parse total meeting duration from API (e.g., "28 hr 32 min" -> 1712 minutes)
-    const meetingDurationStr = meetingTimeData.total_duration || totalMeetingDuration;
+    // Parse total meeting duration (use calculated totalMeetingDuration which handles both views)
+    const meetingDurationStr = totalMeetingDuration;
     const meetingMatch = meetingDurationStr.match(/(\d+)\s*(?:hr|h)\s*(\d+)\s*(?:min|m)/);
     const totalMeetingMinutes = meetingMatch 
       ? parseInt(meetingMatch[1]) * 60 + parseInt(meetingMatch[2])
@@ -155,7 +224,32 @@ const BreaksMeetTab = ({
       nonMeetingPercentage,
       pieData
     };
-  }, [meetingTimeData, loggedTimeData, loggedHours, totalMeetingDuration]);
+  }, [meetingTimeData, loggedTimeData, loggedHours, totalMeetingDuration, viewMode, meetingRows]);
+
+  // Loading state
+  if (isLoadingReportData) {
+    return (
+      <div style={{ 
+        padding: '40px', 
+        textAlign: 'center', 
+        color: theme.colors.text.secondary,
+        border: '2px dashed #3b82f6',
+        borderRadius: '8px',
+        background: '#eff6ff'
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px'
+        }}></div>
+        <h4>Loading Meeting Time Data...</h4>
+      </div>
+    );
+  }
 
   return (
     <div style={{ 
@@ -325,21 +419,86 @@ const BreaksMeetTab = ({
         border: '1px solid #e9ecef',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
       }}>
-        <h3 style={{ 
-          margin: '0 0 20px 0',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          color: theme.colors.text.primary
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px'
         }}>
-          MEETING
-        </h3>
+          <h3 style={{ 
+            margin: 0,
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: theme.colors.text.primary
+          }}>
+            MEETING
+          </h3>
+
+          {/* View Toggle Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            background: theme.colors.background || '#f8f9fa',
+            padding: '4px',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef'
+          }}>
+            <button
+              onClick={() => setViewMode('monthly')}
+              style={{
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: viewMode === 'monthly' 
+                  ? (theme.colors.primary || '#3b82f6')
+                  : 'transparent',
+                color: viewMode === 'monthly' 
+                  ? 'white'
+                  : theme.colors.text.secondary,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Monthly View
+            </button>
+            <button
+              onClick={() => setViewMode('daily')}
+              style={{
+                padding: '8px 16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: viewMode === 'daily' 
+                  ? (theme.colors.primary || '#3b82f6')
+                  : 'transparent',
+                color: viewMode === 'daily' 
+                  ? 'white'
+                  : theme.colors.text.secondary,
+                transition: 'all 0.2s ease',
+                opacity: selectedDate ? 1 : 0.5,
+                pointerEvents: selectedDate ? 'auto' : 'none'
+              }}
+              disabled={!selectedDate}
+            >
+              Daily View
+            </button>
+          </div>
+        </div>
 
         <div style={{ 
           fontSize: '12px', 
           color: theme.colors.text.secondary,
           marginBottom: '16px'
         }}>
-          📅 Showing meeting sessions for {selectedDate ? `${selectedDate} ${selectedMonth} ${selectedYear}` : `${selectedMonth} ${selectedYear}`}
+          {viewMode === 'monthly' ? (
+            <>📅 Showing meeting sessions for {meetingTimeData?.month || `${selectedMonth} ${selectedYear}`}</>
+          ) : (
+            <>📅 Showing meeting sessions for {selectedDateFormatted ? new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'selected date'}</>
+          )}
         </div>
 
         <div style={{
@@ -442,37 +601,43 @@ const BreaksMeetTab = ({
                   >
                     {!meetingTimeData 
                       ? 'No meeting data available. Please select an employee and date.'
-                      : 'No meeting session data for this period.'}
+                      : viewMode === 'daily' 
+                        ? (selectedDateFormatted 
+                          ? `No meeting session data for ${new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`
+                          : 'Please select a date to view daily meeting data.')
+                        : 'No meeting session data for this period.'}
                   </td>
                 </tr>
               )}
-              <tr style={{
-                background: theme.colors.background || '#f8f9fa',
-                borderTop: '2px solid #e9ecef'
-              }}>
-                <td style={{ 
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary
+              {meetingRows.length > 0 && (
+                <tr style={{
+                  background: theme.colors.background || '#f8f9fa',
+                  borderTop: '2px solid #e9ecef'
                 }}>
-                  Total
-                </td>
-                <td style={{ 
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary
-                }}></td>
-                <td style={{ 
-                  padding: '12px 16px',
-                  fontSize: '13px',
-                  fontWeight: 'bold',
-                  color: theme.colors.text.primary
-                }}>
-                  {totalMeetingDuration}
-                </td>
-              </tr>
+                  <td style={{ 
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary
+                  }}>
+                    {viewMode === 'daily' ? 'Daily Total' : 'Monthly Total'}
+                  </td>
+                  <td style={{ 
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary
+                  }}></td>
+                  <td style={{ 
+                    padding: '12px 16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    color: theme.colors.text.primary
+                  }}>
+                    {totalMeetingDuration}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
