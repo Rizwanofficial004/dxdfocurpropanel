@@ -103,6 +103,7 @@ const Reports = () => {
   const [screenshotsError, setScreenshotsError] = useState(null);
   const [monitoringActionsData, setMonitoringActionsData] = useState(null);
   const [idleQuickviewData, setIdleQuickviewData] = useState(null);
+  const [activityPatternData, setActivityPatternData] = useState(null);
   const [isLoadingReportData, setIsLoadingReportData] = useState(false);
   const [reportError, setReportError] = useState(null);
   const [dataAvailability, setDataAvailability] = useState(null);
@@ -152,7 +153,7 @@ const Reports = () => {
     { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
     { id: 'BREAKS_MEET', name: 'MEETINGS', icon: '☕' },
     { id: 'IDLE', name: 'IDLE', icon: '😴' },
-    { id: 'ADVANCED_REPORT', name: 'ADVANCED REPORT', icon: '📊' },
+    // { id: 'ADVANCED_REPORT', name: 'ADVANCED REPORT', icon: '📊' },
     // { id: 'OFFLINE', name: 'OFFLINE', icon: '📴' },
     // { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
@@ -450,6 +451,24 @@ const Reports = () => {
     return null;
   };
 
+  const fetchActivityPatternData = async (employee, date) => {
+    if (!employee?.staff_id || !date) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/activity-pattern/?staff_id=${employee.staff_id}&date=${date}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Activity Pattern Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching activity pattern data:', error);
+    }
+    return null;
+  };
+
   const fetchScreenshotsData = useCallback((params) => fetchScreenshotsDataUtil(params), []);
 
   const applyScreenshotResult = useCallback((result, meta) => {
@@ -613,7 +632,8 @@ const Reports = () => {
         screenshotsResult,
         meetingQuickview,
         idleQuickview,
-        availabilityData
+        availabilityData,
+        activityPattern
       ] = await Promise.all([
         fetchMeetingTimeData(employee, currentMonth),
         fetchIdleTimeData(employee, currentMonth),
@@ -630,7 +650,8 @@ const Reports = () => {
         }),
         specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
         specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null,
-        fetchDataAvailability(employee, currentMonth)
+        fetchDataAvailability(employee, currentMonth),
+        specificDate ? fetchActivityPatternData(employee, specificDate) : null
       ]);
       
       // Update state with fetched data
@@ -648,6 +669,7 @@ const Reports = () => {
       });
       setIdleQuickviewData(idleQuickview);
       setDataAvailability(availabilityData);
+      setActivityPatternData(activityPattern);
       
       console.log('✅ All report data fetched successfully');
       
@@ -991,6 +1013,8 @@ const Reports = () => {
         return (
           <ActivityPatternTab 
             {...tabProps}
+            activityPatternData={activityPatternData}
+            isLoadingReportData={isLoadingReportData}
           />
         );
       
@@ -1044,13 +1068,13 @@ const Reports = () => {
           />
         );
       
-      case 'ADVANCED_REPORT':
-        return (
-          <AdvancedReportTab 
-            theme={theme}
-            employees={employees}
-          />
-        );
+      // case 'ADVANCED_REPORT':
+      //   return (
+      //     <AdvancedReportTab 
+      //       theme={theme}
+      //       employees={employees}
+      //     />
+      //   );
       
       // case 'OFFLINE':
       //   return <OfflineTab theme={theme} />;
