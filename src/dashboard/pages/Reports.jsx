@@ -104,6 +104,7 @@ const Reports = () => {
   const [monitoringActionsData, setMonitoringActionsData] = useState(null);
   const [idleQuickviewData, setIdleQuickviewData] = useState(null);
   const [activityPatternData, setActivityPatternData] = useState(null);
+  const [advancedReportData, setAdvancedReportData] = useState(null);
   const [isLoadingReportData, setIsLoadingReportData] = useState(false);
   const [reportError, setReportError] = useState(null);
   const [dataAvailability, setDataAvailability] = useState(null);
@@ -153,7 +154,7 @@ const Reports = () => {
     { id: 'MONITORING_ACTIONS', name: 'MONITORING ACTIONS', icon: '👁️' },
     { id: 'BREAKS_MEET', name: 'MEETINGS', icon: '☕' },
     { id: 'IDLE', name: 'IDLE', icon: '😴' },
-    // { id: 'ADVANCED_REPORT', name: 'ADVANCED REPORT', icon: '📊' },
+    { id: 'ADVANCED_REPORT', name: 'ADVANCED REPORT', icon: '📊' },
     // { id: 'OFFLINE', name: 'OFFLINE', icon: '📴' },
     // { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
@@ -469,6 +470,36 @@ const Reports = () => {
     return null;
   };
 
+  const fetchAdvancedReportData = async (employee, startDate, endDate, period = null) => {
+    if (!employee?.staff_id) return null;
+    
+    try {
+      let url;
+      if (period) {
+        // Use period parameter (this_month, this_week, etc.)
+        url = `https://dxdtime.ddsolutions.io/api/advanced-report/?staff_id=${employee.staff_id}&period=${period}`;
+      } else if (startDate && endDate) {
+        // Use date range
+        url = `https://dxdtime.ddsolutions.io/api/advanced-report/?staff_id=${employee.staff_id}&start_date=${startDate}&end_date=${endDate}`;
+      } else {
+        return null;
+      }
+      
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Advanced Report Data:', data);
+        return data;
+      } else {
+        console.log('Advanced Report API Error:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching advanced report data:', error);
+    }
+    return null;
+  };
+
   const fetchScreenshotsData = useCallback((params) => fetchScreenshotsDataUtil(params), []);
 
   const applyScreenshotResult = useCallback((result, meta) => {
@@ -621,6 +652,20 @@ const Reports = () => {
 
       const defaultRange = computeDefaultScreenshotRange();
       
+      // Calculate date range for advanced report (use current month if no specific date)
+      let advancedStartDate = null;
+      let advancedEndDate = null;
+      if (specificDate) {
+        advancedStartDate = specificDate;
+        advancedEndDate = specificDate;
+      } else {
+        // Use month range
+        const monthStart = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-01`;
+        const lastDay = new Date(parseInt(selectedYear), monthIndex + 1, 0).getDate();
+        advancedStartDate = monthStart;
+        advancedEndDate = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      }
+
       // Fetch all data in parallel
       const [
         meetingData,
@@ -633,7 +678,8 @@ const Reports = () => {
         meetingQuickview,
         idleQuickview,
         availabilityData,
-        activityPattern
+        activityPattern,
+        advancedReport
       ] = await Promise.all([
         fetchMeetingTimeData(employee, currentMonth),
         fetchIdleTimeData(employee, currentMonth),
@@ -651,7 +697,8 @@ const Reports = () => {
         specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
         specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null,
         fetchDataAvailability(employee, currentMonth),
-        specificDate ? fetchActivityPatternData(employee, specificDate) : null
+        specificDate ? fetchActivityPatternData(employee, specificDate) : null,
+        fetchAdvancedReportData(employee, advancedStartDate, advancedEndDate, null)
       ]);
       
       // Update state with fetched data
@@ -670,6 +717,7 @@ const Reports = () => {
       setIdleQuickviewData(idleQuickview);
       setDataAvailability(availabilityData);
       setActivityPatternData(activityPattern);
+      setAdvancedReportData(advancedReport);
       
       console.log('✅ All report data fetched successfully');
       
@@ -1068,13 +1116,19 @@ const Reports = () => {
           />
         );
       
-      // case 'ADVANCED_REPORT':
-      //   return (
-      //     <AdvancedReportTab 
-      //       theme={theme}
-      //       employees={employees}
-      //     />
-      //   );
+      case 'ADVANCED_REPORT':
+        return (
+          <AdvancedReportTab 
+            theme={theme}
+            employees={employees}
+            selectedEmployee={selectedEmployee}
+            advancedReportData={advancedReportData}
+            isLoadingReportData={isLoadingReportData}
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            months={months}
+          />
+        );
       
       // case 'OFFLINE':
       //   return <OfflineTab theme={theme} />;

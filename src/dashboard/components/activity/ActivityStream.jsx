@@ -1,4 +1,33 @@
 ﻿import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import {
+  Box,
+  Typography,
+  Stack,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select as MuiSelect,
+  MenuItem,
+  IconButton,
+  Skeleton,
+  Button,
+  Divider,
+  Grid,
+  Dialog,
+  DialogContent,
+  Pagination,
+  CircularProgress
+} from '@mui/material';
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import ZoomInMapIcon from '@mui/icons-material/ZoomInMap';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import CloseIcon from '@mui/icons-material/Close';
+import dayjs from 'dayjs';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { getApiBaseURL } from '../../../config/api';
@@ -140,6 +169,46 @@ const formatSafeTime = (timestamp, options = {}) => {
   }
 };
 
+// Helper function to format file size (from ScreensTab.jsx)
+const getSizeLabel = (sizeMb) => {
+  if (sizeMb === null || sizeMb === undefined || Number.isNaN(Number(sizeMb))) {
+    return null;
+  }
+  const numericValue = Number(sizeMb);
+  if (numericValue >= 1) {
+    return `${numericValue.toFixed(2)} MB`;
+  }
+  return `${(numericValue * 1024).toFixed(0)} KB`;
+};
+
+// Helper function to format date and time (from ScreensTab.jsx)
+const formatDateTime = (timestamp, date, time) => {
+  if (timestamp) {
+    const parsed = dayjs(timestamp);
+    if (parsed.isValid()) {
+      // Add 3 hours for Turkey timezone (UTC+3)
+      const turkeyTime = parsed.add(3, 'hours');
+      return {
+        dateLabel: turkeyTime.format('MMM D, YYYY'),
+        timeLabel: turkeyTime.format('hh:mm A'),
+      };
+    }
+  }
+  const parsedDate = date ? dayjs(date) : null;
+  if (parsedDate && parsedDate.isValid()) {
+    // Add 3 hours for Turkey timezone (UTC+3)
+    const turkeyDate = parsedDate.add(3, 'hours');
+    return {
+      dateLabel: turkeyDate.format('MMM D, YYYY'),
+      timeLabel: time || 'Time unavailable',
+    };
+  }
+  return {
+    dateLabel: 'Date unavailable',
+    timeLabel: time || 'Time unavailable',
+  };
+};
+
 // Helper function to sanitize S3 URLs (fix malformed region format)
 const sanitizeS3Url = (url) => {
   if (!url) return url;
@@ -251,14 +320,12 @@ const ActivityStream = ({ compactPadding }) => {
   const [isLoadingAllScreenshots, setIsLoadingAllScreenshots] = useState(false); // Loading state for all screenshots
   const [syncStaffsUsers, setSyncStaffsUsers] = useState([]); // Users from sync-staffs API
   const [filteredUsers, setFilteredUsers] = useState([]); // Filtered users for search
+  const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(null); // Active screenshot index for modal
   // Theme context (used for Tooltip theming/positioning)
   const themeContext = useTheme && useTheme();
-  const { theme: tooltipTheme = {} } = themeContext || {};
+  const { theme: tooltipTheme = {}, theme: themeObj = {} } = themeContext || {};
   
-  // Modal state for image viewing
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalImages, setModalImages] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // Modal state for image viewing (using activeScreenshotIndex instead)
   
   const searchContainerRef = useRef(null);
   const dateScrollRef = useRef(null);
@@ -2441,72 +2508,45 @@ const ActivityStream = ({ compactPadding }) => {
     return sanitizedUrl;
   };
 
-  // Modal functions for image viewing - Use original S3 URLs
-  const openImageModal = (screenshots, clickedIndex) => {
-    console.log('🖼️ Opening modal with screenshots:', screenshots);
-    console.log('🖼️ Clicked index:', clickedIndex);
-    
-    if (!screenshots || screenshots.length === 0) {
-      console.error('❌ No screenshots provided');
-      return;
-    }
-    
-    // Sanitize S3 URLs before using them in modal
-    const imageUrls = screenshots.map((screenshot, index) => {
-      const originalUrl = screenshot.screenshot_url;
-      const sanitizedUrl = sanitizeS3Url(originalUrl);
-      console.log(`🖼️ Using sanitized S3 URL for image ${index}:`, originalUrl, '→', sanitizedUrl);
-      return sanitizedUrl;
-    }).filter(url => url); // Remove any null/undefined URLs
-    
-    console.log('🖼️ Final image URLs:', imageUrls);
-    
-    if (imageUrls.length === 0) {
-      console.error('❌ No valid image URLs found');
-      return;
-    }
-    
-    setModalImages(imageUrls);
-    setCurrentImageIndex(clickedIndex);
-    setIsModalOpen(true);
-    console.log('🖼️ Modal state set - should be open now');
+  // Modal functions for image viewing - Use MUI Dialog
+  const handleCardClick = (index) => {
+    if (!userScreenshots[index]) return;
+    setActiveScreenshotIndex(index);
   };
 
-  const closeImageModal = () => {
-    setIsModalOpen(false);
-    setModalImages([]);
-    setCurrentImageIndex(0);
-  };
+  const handleCloseModal = () => setActiveScreenshotIndex(null);
 
-  const handleModalIndexChange = (newIndex) => {
-    setCurrentImageIndex(newIndex);
-  };
+  const handleModalNavigation = useCallback((direction) => {
+    setActiveScreenshotIndex((prevIndex) => {
+      if (prevIndex === null) return prevIndex;
+      const total = userScreenshots.length;
+      if (!total) return null;
 
-  // Keyboard navigation for modal
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!isModalOpen) return;
-      
-      switch (e.key) {
-        case 'Escape':
-          setIsModalOpen(false);
-          break;
-        case 'ArrowLeft':
-          if (currentImageIndex > 0) {
-            setCurrentImageIndex(prev => prev - 1);
-          }
-          break;
-        case 'ArrowRight':
-          if (currentImageIndex < modalImages.length - 1) {
-            setCurrentImageIndex(prev => prev + 1);
-          }
-          break;
+      if (direction === 'next') {
+        return prevIndex < total - 1 ? prevIndex + 1 : prevIndex;
       }
-    };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen, currentImageIndex, modalImages.length]);
+      if (direction === 'previous') {
+        return prevIndex > 0 ? prevIndex - 1 : prevIndex;
+      }
+
+      return prevIndex;
+    });
+  }, [userScreenshots.length]);
+
+  const handleModalKeyDown = useCallback((event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      handleModalNavigation('previous');
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      handleModalNavigation('next');
+    } else if (event.key === 'Escape') {
+      handleCloseModal();
+    }
+  }, [handleModalNavigation, handleCloseModal]);
+
+  // Keyboard navigation for modal (handled in handleModalKeyDown callback)
 
   // Pagination handlers - Updated to refetch data when page changes
   const handlePageChange = async (newPage) => {
@@ -2979,485 +3019,320 @@ const ActivityStream = ({ compactPadding }) => {
         {selectedUser ? (
           <div className="user-section-wrapper">
             {/* Screenshots Loading */}
-                {isLoadingScreenshots && (
-              <div style={{
+            {isLoadingScreenshots && (
+              <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '40px',
-                    color: 'var(--text-secondary)'
+                color: themeObj.colors?.text?.secondary || '#6b7280'
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  border: '4px solid #f3f3f3',
-                  borderTop: '4px solid #4285f4',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  marginBottom: '16px'
-                }}></div>
-                <p>{t('loadingScreenshots')}</p>
-                <style>{`
-                  @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                  }
-                `}</style>
-              </div>
+                <CircularProgress size={40} sx={{ color: themeObj.colors?.primary || '#2563eb', mb: 2 }} />
+                <Typography variant="body1">{t('loadingScreenshots')}</Typography>
+              </Box>
             )}
 
             {/* Screenshot Error */}
-                {screenshotError && !isLoadingScreenshots && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '40px',
-                    color: 'var(--error-color)'
-              }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-                <p>{screenshotError}</p>
-                <button
-                  onClick={() => refreshUserDataFromAPI(selectedUser)}
-                  style={{
-                    marginTop: '12px',
-                    padding: '8px 16px',
-                    backgroundColor: '#4285f4',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
+            {screenshotError && !isLoadingScreenshots && (
+              <Box
+                sx={{
+                  mt: 3,
+                  p: 3,
+                  textAlign: 'center',
+                  borderRadius: 2,
+                  border: `1px solid ${themeObj.mode === 'dark' ? 'rgba(239,68,68,0.4)' : 'rgba(239,68,68,0.3)'}`,
+                  backgroundColor: themeObj.mode === 'dark' ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)',
+                  color: themeObj.mode === 'dark' ? '#fca5a5' : '#b91c1c',
+                }}
+              >
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'inherit', mb: 1 }}>
+                  Failed to load screenshots
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'inherit', mb: 2 }}>
+                  {screenshotError}
+                </Typography>
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{ 
+                    backgroundColor: themeObj.colors?.primary || '#2563eb',
+                    color: '#fff',
+                    '&:hover': {
+                      backgroundColor: themeObj.mode === 'dark' ? '#3b82f6' : '#1d4ed8',
+                    },
                   }}
+                  onClick={() => refreshUserDataFromAPI(selectedUser)}
                 >
                   {t('retry')}
-                </button>
-              </div>
+                </Button>
+              </Box>
             )}
 
-            {/* Screenshots Grid */}
+            {/* Screenshots Grid - MUI Design */}
             {!isLoadingScreenshots && !screenshotError && userScreenshots.length > 0 && (
-              <div data-screenshots-section>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '20px',
-                  padding: '8px 0',
-                  marginBottom: '30px'
-                }}>
-                  {userScreenshots.map((screenshot, index) => (
-                    <div
-                      key={screenshot.id || screenshot.filename || index}
-                      style={{
-                        backgroundColor: 'white',
-                        border: '1px solid #e1e5e9',
-                        borderRadius: '12px',
-                        cursor: 'pointer'
-                      }}
-                      className="screenshot-card"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 8px 24px var(--shadow-color)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-color)';
-                      }}
-                      onClick={() => {
-                        // Open image in modal
-                        console.log('🖼️ Image clicked, screenshot:', screenshot);
-                        
-                        if (screenshot.screenshot_url) {
-                          // Use the openImageModal function with proper image data
-                          openImageModal(userScreenshots, index);
-                        } else {
-                          console.error('❌ No screenshot_url found:', screenshot);
-                        }
+              <Box data-screenshots-section sx={{ mt: 3 }}>
+                <Divider sx={{ mb: 3, borderColor: themeObj.colors?.border || 'rgba(0,0,0,0.08)' }} />
+                
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                    gap: 2,
+                  }}
+                >
+                  {userScreenshots.map((screenshot, index) => {
+                    const { dateLabel, timeLabel } = formatDateTime(
+                      screenshot.timestamp,
+                      screenshot.date,
+                      screenshot.time
+                    );
+                    const sizeLabel = getSizeLabel(screenshot.size_mb);
+
+                    return (
+                      <Box key={screenshot.id || screenshot.filename || index}>
+                        <Card
+                          sx={{
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            border: `1px solid ${themeObj.colors?.border || 'rgba(0,0,0,0.08)'}`,
+                            backgroundColor: themeObj.colors?.surface || '#fff',
+                            boxShadow: 'none',
+                            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: themeObj.mode === 'dark' 
+                                ? '0 12px 24px rgba(0,0,0,0.3)' 
+                                : '0 12px 24px rgba(15,23,42,0.12)',
+                            },
+                          }}
+                        >
+                          <CardActionArea onClick={() => handleCardClick(index)}>
+                            <Box sx={{ position: 'relative', pt: '62%' }}>
+                              {screenshot.thumbnail_url || screenshot.screenshot_url ? (
+                                <CardMedia
+                                  component="img"
+                                  image={processScreenshotUrl(screenshot.thumbnail_url || screenshot.screenshot_url)}
+                                  alt={screenshot.filename || 'Screenshot'}
+                                  sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                  }}
+                                  onError={(e) => {
+                                    console.error('❌ Image failed to load:', e.target.src);
+                                    const sanitizedUrl = sanitizeS3Url(screenshot.screenshot_url);
+                                    if (sanitizedUrl && sanitizedUrl !== e.target.src) {
+                                      e.target.src = sanitizedUrl;
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <Box
+                                  sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: themeObj.colors?.background || 'rgba(148,163,184,0.15)',
+                                    color: themeObj.colors?.text?.secondary || '#6b7280',
+                                    flexDirection: 'column',
+                                  }}
+                                >
+                                  <ImageNotSupportedIcon fontSize="large" />
+                                  <Typography variant="caption">Preview unavailable</Typography>
+                                </Box>
+                              )}
+                              <Box
+                                sx={{
+                                  position: 'absolute',
+                                  bottom: 8,
+                                  right: 8,
+                                  bgcolor: themeObj.mode === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(15,23,42,0.55)',
+                                  color: '#fff',
+                                  borderRadius: '50%',
+                                  width: 36,
+                                  height: 36,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <ZoomInMapIcon fontSize="small" />
+                              </Box>
+                            </Box>
+                            <CardContent sx={{ minHeight: 96, backgroundColor: themeObj.colors?.surface || '#fff' }}>
+                              <Typography
+                                variant="subtitle2"
+                                sx={{ fontWeight: 600, mb: 0.5, color: themeObj.colors?.text?.primary || '#1f2937' }}
+                                noWrap
+                              >
+                                {screenshot.filename || screenshot.project_folder || 'Screenshot'}
+                              </Typography>
+                              <Typography variant="body2" sx={{ color: themeObj.colors?.text?.secondary || '#6b7280' }}>
+                                {dateLabel} · {timeLabel}
+                              </Typography>
+                              <Stack direction="row" spacing={1} sx={{ mt: 1 }} alignItems="center">
+                                {sizeLabel && (
+                                  <Chip
+                                    size="small"
+                                    label={sizeLabel}
+                                    sx={{ backgroundColor: 'rgba(59,130,246,0.12)', color: themeObj.colors?.primary || '#2563eb' }}
+                                  />
+                                )}
+                              </Stack>
+                            </CardContent>
+                          </CardActionArea>
+                        </Card>
+                      </Box>
+                    );
+                  })}
+                </Box>
+
+                {/* Footer with Pagination - MUI Design */}
+                <Stack
+                  direction={{ xs: 'column', md: 'row' }}
+                  spacing={2}
+                  alignItems={{ xs: 'stretch', md: 'center' }}
+                  justifyContent="space-between"
+                  sx={{ mt: 3 }}
+                >
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'stretch', sm: 'center' }}>
+                    <FormControl
+                      size="small"
+                      sx={{
+                        minWidth: 160,
+                        '& .MuiInputLabel-root': {
+                          color: themeObj.colors?.text?.secondary || '#6b7280',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          color: themeObj.colors?.text?.primary || '#1f2937',
+                          backgroundColor: themeObj.colors?.background || themeObj.colors?.surface || '#fff',
+                          '& fieldset': {
+                            borderColor: themeObj.colors?.border || 'rgba(0,0,0,0.08)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: themeObj.colors?.primary || '#2563eb',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: themeObj.colors?.primary || '#2563eb',
+                          },
+                        },
                       }}
                     >
-                      <style>{`
-                        [data-theme="dark"] .screenshot-card {
-                          background-color: #1d232c !important;
-                          border-color: #6b7280 !important;
-                          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-                        }
-                      `}</style>
-                      {/* Screenshot Image */}
-                      <div style={{
-                        width: '100%',
-                        height: '200px',
-                        backgroundColor: '#f8f9fa',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}>
-                        {screenshot.screenshot_url ? (
-                          <img
-                            src={processScreenshotUrl(screenshot.screenshot_url)}
-                            alt={`Screenshot ${screenshot.timestamp}`}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              transition: 'transform 0.2s',
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              zIndex: 2,
-                              opacity: 0
-                            }}
-                            onLoad={(e) => {
-                              e.target.style.display = 'block';
-                              e.target.style.opacity = '1';
-                              // Hide the placeholder when image loads
-                              const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
-                              if (placeholder && placeholder.querySelector('span')) {
-                                placeholder.style.display = 'none';
-                              }
-                            }}
-                            onError={(e) => {
-                              console.error('❌ Image failed to load:', e.target.src);
-                              
-                              // Only try direct S3 URL as fallback (sanitized)
-                              if (!e.target.src.startsWith('https://ddsfocustime.s3.eu-north-1.amazonaws.com')) {
-                                const sanitizedUrl = sanitizeS3Url(screenshot.screenshot_url);
-                                console.log('🔄 Retrying with sanitized URL:', sanitizedUrl);
-                                e.target.src = sanitizedUrl;
-                              } else {
-                                // Show placeholder if direct S3 also fails
-                                e.target.style.display = 'none';
-                                const placeholder = e.target.parentElement.querySelector('div:not([style*="position: absolute"])');
-                                if (placeholder && placeholder.querySelector('span')) {
-                                  placeholder.style.display = 'flex';
-                                  placeholder.querySelector('span').textContent = 'Failed to load';
-                                }
-                              }
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.transform = 'scale(1)';
-                            }}
-                          />
-                        ) : null}
-                        <div style={{
-                          display: screenshot.screenshot_url ? 'none' : 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#5f6368',
-                          fontSize: '14px',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: '#f8f9fa',
-                          zIndex: 1
-                        }}>
-                          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
-                          <span>Loading...</span>
-                        </div>
-                        
-                        {/* Overlay with timestamp */}
-                        <div style={{
-                          position: 'absolute',
-                          bottom: '8px',
-                          left: '8px',
-                          right: '8px',
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '500'
-                        }}>
-                          {(() => {
-                            // Always use selected date when activeDate is set
-                            if (activeDate && selectedMonth && selectedYear) {
-                              const timestamp = extractDateFromScreenshot(screenshot);
-                              const monthName = getMonthName(selectedMonth, 'short');
-                              const dayStr = activeDate.toString().padStart(2, '0');
-                              
-                              if (timestamp) {
-                                try {
-                                  const time = new Date(timestamp);
-                                  if (!isNaN(time.getTime())) {
-                                    const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-                                    return `${monthName} ${dayStr}, ${timeStr}`;
-                                  }
-                                } catch (e) {
-                                  console.warn('Time parsing error:', e);
-                                }
-                              }
-                              
-                              // Fallback: show selected date without time
-                              return `${monthName} ${dayStr}, ${selectedYear}`;
-                            }
-                            // Fallback: show actual timestamp when no specific date is selected
-                            return formatSafeTime(extractDateFromScreenshot(screenshot));
-                          })()}
-                        </div>
-                      </div>
-
-                      {/* Screenshot Info */}
-                      <div style={{ padding: '16px' }}>
-                 
-                        
-                        <div style={{
-                          fontSize: '11px',
-                          color: 'var(--text-secondary)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '8px'
-                        }}>
-                          <span style={{
-                            backgroundColor: '#e8f5e8',
-                            color: '#2e7d32',
-                            padding: '2px 6px',
-                            borderRadius: '12px',
-                            fontSize: '10px',
-                            fontWeight: '500'
-                          }}>
-                            {screenshot.activity_type || 'ACTIVE'}
-                          </span>
-                          <span style={{ fontWeight: '500' }}>
-                            {screenshot.file_size || `${screenshot.size_mb || 0} MB`}
-                          </span>
-                        </div>
-                        
-                        {screenshot.filename && (
-                          <div style={{
-                            fontSize: '10px',
-                            color: 'var(--text-secondary)',
-                            fontFamily: 'monospace',
-                            wordBreak: 'break-all',
-                            lineHeight: '1.3'
-                          }}>
-                            {screenshot.filename}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Simple Footer - Always show when user is selected */}
-                <div style={{
-                  borderTop: `1px solid var(--border-color)`,
-                  marginTop: '20px',
-                  paddingTop: '20px',
-                  backgroundColor: 'var(--bg-secondary)',
-                  borderRadius: '8px',
-                  padding: '16px'
-                }}>
-                  {/* Screenshot Statistics */}
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '16px',
-                    fontSize: '14px',
-                    color: 'var(--text-secondary)',
-                    flexWrap: 'wrap',
-                    gap: '12px'
-                  }}>
-                    <div>
-                      {totalScreenshots > 0 ? (
-                        <strong>📊 {t('showingOf')} {userScreenshots.length} {t('of')} {totalScreenshots} {t('totalScreenshots')}</strong>
-                      ) : (
-                        <strong>📷 {t('noScreenshotsForPeriod')}</strong>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                      <label htmlFor="screenshots-per-page" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>{t('screenshotsPerPage')}</label>
-                      <select 
-                        id="screenshots-per-page"
-                        value={screenshotsPerPage} 
+                      <InputLabel id="screenshots-per-page-label">{t('screenshotsPerPage')}</InputLabel>
+                      <MuiSelect
+                        labelId="screenshots-per-page-label"
+                        value={screenshotsPerPage}
+                        label={t('screenshotsPerPage')}
                         onChange={handleScreenshotsPerPageChange}
-                        style={{
-                          padding: '6px 12px',
-                          border: `1px solid var(--border-color)`,
-                          borderRadius: '6px',
-                          backgroundColor: 'var(--bg-primary)',
-                          color: 'var(--text-primary)',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          cursor: 'pointer'
+                        MenuProps={{
+                          PaperProps: {
+                            sx: {
+                              backgroundColor: themeObj.colors?.surface || '#fff',
+                              color: themeObj.colors?.text?.primary || '#1f2937',
+                              '& .MuiMenuItem-root': {
+                                color: themeObj.colors?.text?.primary || '#1f2937',
+                                '&:hover': {
+                                  backgroundColor: themeObj.colors?.background || 'rgba(59,130,246,0.1)',
+                                },
+                              },
+                            },
+                          },
                         }}
                       >
-                        <option value={50}>50 {t('perPage')}</option>
-                        <option value={100}>100 {t('perPage')}</option>
-                        <option value={200}>200 {t('perPage')}</option>
-                        <option value={500}>500 {t('perPage')}</option>
-                        <option value={1000}>1000 {t('perPage')}</option>
-                      </select>
-                    </div>
-                  </div>
+                        <MenuItem value={50}>50 {t('perPage')}</MenuItem>
+                        <MenuItem value={100}>100 {t('perPage')}</MenuItem>
+                        <MenuItem value={200}>200 {t('perPage')}</MenuItem>
+                        <MenuItem value={500}>500 {t('perPage')}</MenuItem>
+                        <MenuItem value={1000}>1000 {t('perPage')}</MenuItem>
+                      </MuiSelect>
+                    </FormControl>
+                  </Stack>
 
-                  {/* Pagination Controls - Always show when there are screenshots */}
-                  {totalScreenshots > 0 && totalPages > 1 && (
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      gap: '12px',
-                      marginTop: '16px',
-                      paddingTop: '16px',
-                      borderTop: `1px solid var(--border-color)`
-                    }}>
-                      <button
-                        onClick={() => handlePageChange(1)}
-                        disabled={currentPage === 1}
-                        style={{
-                          padding: '8px 12px',
-                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
-                          color: currentPage === 1 ? 'var(--text-disabled)' : 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        « {t('first')}
-                      </button>
-                      <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        style={{
-                          padding: '8px 12px',
-                          backgroundColor: currentPage === 1 ? 'var(--bg-tertiary)' : 'var(--primary-color)',
-                          color: currentPage === 1 ? 'var(--text-disabled)' : 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        ‹ {t('previous')}
-                      </button>
-                      
-                      <div style={{
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: 'var(--text-primary)',
-                        padding: '8px 16px'
-                      }}>
-                        {t('page')} {currentPage} {t('of')} {totalPages}
-                      </div>
-                      
-                      <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        style={{
-                          padding: '8px 12px',
-                          backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
-                          color: currentPage === totalPages ? 'var(--text-disabled)' : 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        {t('next')} ›
-                      </button>
-                      <button
-                        onClick={() => handlePageChange(totalPages)}
-                        disabled={currentPage === totalPages}
-                        style={{
-                          padding: '8px 12px',
-                          backgroundColor: currentPage === totalPages ? 'var(--bg-tertiary)' : 'var(--primary-color)',
-                          color: currentPage === totalPages ? 'var(--text-disabled)' : 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                          fontSize: '13px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        {t('last')} »
-                      </button>
-                    </div>
-                  )}
+                  <Box>
+                    <Typography variant="caption" sx={{ color: themeObj.colors?.text?.secondary || '#6b7280' }}>
+                      {t('showingOf')} {userScreenshots.length || 0} {t('of')} {totalScreenshots || 0}
+                    </Typography>
+                  </Box>
+                </Stack>
 
-                  {/* Quick Actions */}
-                  <div style={{
-                    marginTop: '16px',
-                    paddingTop: '16px',
-                    borderTop: `1px solid var(--border-color)`,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    fontSize: '12px',
-                    color: 'var(--text-tertiary)'
-                  }}>
-                    <div>
-                      🕒 {t('lastUpdated')} {new Date().toLocaleTimeString()}
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (selectedUser) {
-                          setCurrentPage(1);
-                          refreshUserDataFromAPI(selectedUser);
-                        }
+                {totalScreenshots > screenshotsPerPage && (
+                  <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                      color="primary"
+                      page={Math.min(currentPage, totalPages)}
+                      count={totalPages}
+                      onChange={(event, page) => handlePageChange(page)}
+                      disabled={isLoadingScreenshots}
+                      showFirstButton
+                      showLastButton
+                      sx={{
+                        '& .MuiPaginationItem-root': {
+                          color: themeObj.colors?.text?.primary || '#1f2937',
+                          '&.Mui-selected': {
+                            backgroundColor: themeObj.colors?.primary || '#2563eb',
+                            color: '#fff',
+                            '&:hover': {
+                              backgroundColor: themeObj.colors?.primary || '#2563eb',
+                            },
+                          },
+                          '&:hover': {
+                            backgroundColor: themeObj.colors?.background || 'rgba(59,130,246,0.1)',
+                          },
+                        },
                       }}
-                      style={{
-                        padding: '4px 8px',
-                        backgroundColor: 'transparent',
-                        color: 'var(--primary-color)',
-                        border: `1px solid var(--primary-color)`,
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}
-                    >
-                      🔄 {t('refresh')}
-                    </button>
-                  </div>
-                </div>
-              </div>
+                    />
+                  </Box>
+                )}
+              </Box>
             )}
 
             {/* No Screenshots */}
             {!isLoadingScreenshots && !screenshotError && userScreenshots.length === 0 && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '40px',
-                color: document.documentElement.getAttribute('data-theme') === 'dark' ? '#fff' : '#5f6368'
-              }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📷</div>
-                <p>{t('noScreenshotsFound')}</p>
-                <button
-                  onClick={() => refreshUserDataFromAPI(selectedUser)}
-                  style={{
-                    marginTop: '12px',
-                    padding: '8px 16px',
-                    backgroundColor: '#4285f4',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {t('refresh')}
-                </button>
-              </div>
+              <Box
+                sx={{
+                  borderRadius: 3,
+                  border: `2px dashed ${themeObj.colors?.border || 'rgba(148,163,184,0.6)'}`,
+                  p: 4,
+                  textAlign: 'center',
+                  color: themeObj.colors?.text?.secondary || '#6b7280',
+                  mt: 3
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                  No screenshots to display
+                </Typography>
+                <Typography variant="body2">
+                  {selectedUser 
+                    ? `No screenshots found for ${selectedUser.display_name || selectedUser.email || 'the selected user'} in this range.`
+                    : 'Select a user to view their screenshots.'}
+                </Typography>
+                {selectedUser && (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ 
+                      mt: 2,
+                      backgroundColor: themeObj.colors?.primary || '#2563eb',
+                      color: '#fff',
+                      '&:hover': {
+                        backgroundColor: themeObj.mode === 'dark' ? '#3b82f6' : '#1d4ed8',
+                      },
+                    }}
+                    onClick={() => refreshUserDataFromAPI(selectedUser)}
+                  >
+                    {t('refresh')}
+                  </Button>
+                )}
+              </Box>
             )}
           </div>
         ) : (
@@ -3734,202 +3609,130 @@ const ActivityStream = ({ compactPadding }) => {
         )}
       </ContentContainer>
       
-      {/* Simple Image Modal for testing */}
-      {isModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column'
-        }} onClick={() => setIsModalOpen(false)}>
-          
-          {/* Debug: Test if this shows */}
-    
-          
-          {/* Modal Header */}
-          <div style={{ 
-            position: 'absolute',
-            top: '80px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            color: 'white',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            zIndex: 99999
-          }}>
-            Image {currentImageIndex + 1} of {modalImages.length}
-          </div>
-
-          {/* Image Container */}
-          <div style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '90%',
-            height: '80%',
-            zIndex: 99999
-          }} onClick={(e) => e.stopPropagation()}>
-            
-            {/* Left Arrow */}
-            {modalImages.length > 1 && currentImageIndex > 0 && (
-              <button
-                onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
-                style={{
-                  position: 'absolute',
-                  left: '20px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
-                  color: 'white',
-                  fontSize: '18px',
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease',
-                  zIndex: 99999
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                  e.target.style.transform = 'translateY(-50%) scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                  e.target.style.transform = 'translateY(-50%) scale(1)';
-                }}
-                title="Previous Image (←)"
-              >
-                ◀
-              </button>
-            )}
-
-            {/* Image */}
-            {modalImages[currentImageIndex] && (
-              <img 
-                src={modalImages[currentImageIndex]}
-                alt="Screenshot"
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain',
-                  width: '100%',
-                  borderColor: selectedUser ? '#28a745' : undefined,
-                  borderWidth: selectedUser ? '2px' : undefined,
-                  backgroundColor: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#1e293b' : 'transparent',
-                  color: (typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.documentElement.classList.contains('dark-theme'))) ? '#ffffff' : 'var(--text-primary)'
-                }}
-                onLoad={() => console.log('✅ Simple modal image loaded')}
-                onError={(e) => console.error('❌ Simple modal image error:', e)}
-              />
-            )}
-            {selectedUser && (
-              <div style={{
+      {/* MUI Dialog Modal for Screenshots */}
+      {activeScreenshotIndex !== null && userScreenshots[activeScreenshotIndex] && (
+        <Dialog
+          open={activeScreenshotIndex !== null}
+          fullWidth
+          maxWidth="lg"
+          onClose={handleCloseModal}
+          onKeyDown={handleModalKeyDown}
+          sx={{
+            zIndex: 10000,
+            '& .MuiBackdrop-root': {
+              zIndex: 10000,
+            },
+          }}
+          PaperProps={{
+            sx: {
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+              zIndex: 10000,
+            },
+          }}
+        >
+          <DialogContent
+            sx={{
+              p: 0,
+              position: 'relative',
+              backgroundColor: themeObj.mode === 'dark' ? '#000' : '#0f172a',
+              maxHeight: '90vh',
+            }}
+          >
+            <IconButton
+              onClick={handleCloseModal}
+              sx={{
                 position: 'absolute',
-                right: '10px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#28a745',
-                fontSize: '18px',
-                pointerEvents: 'none'
-              }}>
+                top: 12,
+                right: 12,
+                zIndex: 2,
+                color: '#fff',
+                backgroundColor: 'rgba(15,23,42,0.5)',
+                '&:hover': { backgroundColor: 'rgba(15,23,42,0.7)' },
+              }}
+              aria-label="Close screenshot preview"
+            >
+              <CloseIcon />
+            </IconButton>
 
-              </div>
+            {activeScreenshotIndex > 0 && (
+              <IconButton
+                onClick={() => handleModalNavigation('previous')}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: 16,
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  color: '#fff',
+                  backgroundColor: 'rgba(15,23,42,0.5)',
+                  '&:hover': { backgroundColor: 'rgba(15,23,42,0.7)' },
+                }}
+                aria-label="Previous screenshot"
+              >
+                <ArrowBackIosNewIcon />
+              </IconButton>
+            )}
+            {activeScreenshotIndex < userScreenshots.length - 1 && (
+              <IconButton
+                onClick={() => handleModalNavigation('next')}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: 16,
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  color: '#fff',
+                  backgroundColor: 'rgba(15,23,42,0.5)',
+                  '&:hover': { backgroundColor: 'rgba(15,23,42,0.7)' },
+                }}
+                aria-label="Next screenshot"
+              >
+                <ArrowForwardIosIcon />
+              </IconButton>
             )}
 
-            {/* Right Arrow */}
-            {modalImages.length > 1 && currentImageIndex < modalImages.length - 1 && (
-              <button
-                onClick={() => setCurrentImageIndex(prev => Math.min(modalImages.length - 1, prev + 1))}
-                style={{
-                  position: 'absolute',
-                  right: '20px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '2px solid rgba(255, 255, 255, 0.3)',
-                  color: 'white',
-                  fontSize: '18px',
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
+            {userScreenshots[activeScreenshotIndex]?.screenshot_url || userScreenshots[activeScreenshotIndex]?.thumbnail_url ? (
+              <Box
+                component="img"
+                src={processScreenshotUrl(userScreenshots[activeScreenshotIndex].screenshot_url || userScreenshots[activeScreenshotIndex].thumbnail_url)}
+                alt={userScreenshots[activeScreenshotIndex].filename || 'Screenshot preview'}
+                sx={{
+                  width: '100%',
+                  maxHeight: '80vh',
+                  objectFit: 'contain',
+                  display: 'block',
+                  backgroundColor: themeObj.mode === 'dark' ? '#000' : '#0f172a',
+                }}
+                onError={(e) => {
+                  const sanitizedUrl = sanitizeS3Url(userScreenshots[activeScreenshotIndex].screenshot_url);
+                  if (sanitizedUrl && sanitizedUrl !== e.target.src) {
+                    e.target.src = sanitizedUrl;
+                  }
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  minHeight: '60vh',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  transition: 'all 0.2s ease',
-                  zIndex: 99999
+                  color: '#fff',
+                  flexDirection: 'column',
+                  gap: 1,
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                  e.target.style.transform = 'translateY(-50%) scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                  e.target.style.transform = 'translateY(-50%) scale(1)';
-                }}
-                title="Next Image (→)"
               >
-                ▶
-              </button>
+                <ImageNotSupportedIcon fontSize="large" />
+                <Typography variant="subtitle1" sx={{ color: '#fff' }}>
+                  Preview unavailable
+                </Typography>
+              </Box>
             )}
-          </div>
-
-          {/* Debug URL */}
-          <div style={{ 
-            position: 'absolute',
-            bottom: '60px',
-            left: '20px',
-            right: '20px',
-            color: 'yellow', 
-            fontSize: '12px',
-            textAlign: 'center',
-            wordBreak: 'break-all'
-          }}>
-          </div>
-
-          {/* Instructions */}
-          <div style={{ 
-            position: 'absolute',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            color: 'white',
-            fontSize: '14px'
-          }}>
-            Use arrows to navigate • Click outside to close
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
       )}
-      
-      {/* Original Image Modal - commented out for testing */}
-      {/*
-      <ImageModal
-        isOpen={isModalOpen}
-        onClose={closeImageModal}
-        images={modalImages}
-        currentIndex={currentImageIndex}
-        onIndexChange={handleModalIndexChange}
-        isDarkMode={isDarkMode}
-      />
-      */}
     </Container>
     </>
   );

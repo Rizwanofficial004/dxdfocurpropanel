@@ -1,5 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { 
+  Table as MuiTable,
+  TableBody,
+  TableCell as MuiTableCell,
+  TableContainer,
+  TableHead,
+  TableRow as MuiTableRow,
+  Paper,
+  Box,
+  Typography,
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  CircularProgress
+} from '@mui/material';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
@@ -371,14 +391,16 @@ const TableWrapper = styled.div`
   width: 100%;
 `;
 
-const TableContainer = styled.div`
-  // background: ${props => props.theme.colors.cardBackground};
-  border-radius: 8px;
-  border: 1px solid ${props => props.theme.colors.border};
-  transition: all 0.3s ease;
-  margin: 0 32px 32px 32px;
-  width: calc(100% - 64px);
-`;
+// Note: TableContainer is now imported from MUI, so this styled component is no longer needed
+// Keeping it commented out in case it's needed for future reference
+// const StyledTableContainer = styled.div`
+//   // background: ${props => props.theme.colors.cardBackground};
+//   border-radius: 8px;
+//   border: 1px solid ${props => props.theme.colors.border};
+//   transition: all 0.3s ease;
+//   margin: 0 32px 32px 32px;
+//   width: calc(100% - 64px);
+// `;
 
 const Table = styled.table`
   width: 100%;
@@ -1871,300 +1893,352 @@ const QuickView = () => {
 
         {/* Table */}
         <TableWrapper>
-          <TableContainer theme={theme}>
-            <Table>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${theme.colors.border}` }}>
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Employee Staff ID from system" theme={theme} icon="">
-                      STAFF ID
-                    </Tooltip>
-                  </TableHeader>
-                  <TableHeader 
-                    theme={theme} 
-                    $align="left" 
-                    style={{ cursor: 'pointer', userSelect: 'none' }}
-                    onClick={() => handleSort('name')}
-                  >
-                    {t('employeeName').toUpperCase()} {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
-                  </TableHeader>
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text={t('totalTimeLogged')} theme={theme} icon="">
-                      {t('loggedTime').toUpperCase()}
-                    </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text={t('timeProductiveActivities')} theme={theme} icon="">
-                      {t('productive').toUpperCase()}
-                    </Tooltip>
-                  </TableHeader>
-                  {/* <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Time spent on distracting activities" theme={theme} icon="">
-                      DISTRACTION
-                    </Tooltip>
-                  </TableHeader> */}
-                  {/* <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Time spent on neutral activities" theme={theme} icon="">
-                      NEUTRAL
-                    </Tooltip>
-                  </TableHeader> */}
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text={t('timeMeetings')} theme={theme} icon="">
-                      {t('meeting').toUpperCase()}
-                    </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text={t('timeIdle')} theme={theme} icon="">
-                      {t('idleTime').toUpperCase()}
-                    </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text="Total number of programs used by the employee" theme={theme} icon="">
-                      TOTAL PROGRAMS
-                    </Tooltip>
-                  </TableHeader>
-                  <TableHeader theme={theme} $align="center">
-                    <Tooltip text="List of programs used by the employee" theme={theme} icon="">
-                      PROGRAM NAMES
-                    </Tooltip>
-                  </TableHeader>
-                  {/* <TableHeader theme={theme} align="center">
-                    <Tooltip text="Break time taken by employee" theme={theme} icon="">
-                      BREAK
-                    </Tooltip>
-                  </TableHeader> */}
-                  {/* <TableHeader theme={theme} align="center">
-                    <Tooltip text="Time when employee was idle" theme={theme} icon="">
-                      IDLE
-                    </Tooltip>
-                  </TableHeader> */}
-                  {/* <TableHeader theme={theme} align="center">
-                    <Tooltip text="Time when employee was offline" theme={theme} icon="">
-                      OFFLINE
-                    </Tooltip>
-                  </TableHeader> */}
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedEmployees.length > 0 ? (
-                  paginatedEmployees.map((employee) => {
-                    const statusInfo = getStatusInfo(employee.status);
-                    
-                    return (
-                      <TableRow key={employee.id} theme={theme}>
-                      <TableCell theme={theme} $align="center">
-                        <div style={{
-                          background: theme.colors.primary + '15',
-                          padding: '6px 10px',
-                          borderRadius: '6px',
-                          border: `1px solid ${theme.colors.primary}40`,
-                          fontWeight: '700',
-                          fontSize: '13px',
-                          color: theme.colors.primary,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}>
-                          <span>🆔</span>
-                          {employee.staffId || employee.id || 'N/A'}
-                        </div>
-                      </TableCell>
+          <Box sx={{
+            margin: '0 32px 32px 32px',
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden'
+          }}>
+            {/* Employee Header Bar */}
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 20px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              borderRadius: '12px 12px 0 0',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }}>
+              <Typography variant="subtitle1" sx={{
+                fontSize: '15px',
+                fontWeight: 600,
+                color: 'white',
+                letterSpacing: '0.5px'
+              }}>
+                👥 EMPLOYEE QUICK VIEW
+              </Typography>
+              <Typography variant="body2" sx={{
+                fontSize: '13px',
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontWeight: 500
+              }}>
+                {selectedDate}
+              </Typography>
+            </Box>
+
+            <TableContainer 
+              component={Paper}
+              sx={{
+                maxWidth: '100%',
+                overflowX: 'auto',
+                boxShadow: 'none',
+                border: 'none',
+                borderRadius: 0
+              }}
+            >
+              <MuiTable sx={{ minWidth: 1000 }} size="medium">
+                <TableHead>
+                  <MuiTableRow sx={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    '& .MuiTableCell-head': {
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      color: 'white',
+                      whiteSpace: 'nowrap',
+                      borderBottom: 'none',
+                      padding: '16px 20px',
+                      letterSpacing: '0.3px',
+                      textTransform: 'uppercase',
+                      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                    }
+                  }}>
+                    <MuiTableCell align="center" sx={{ cursor: 'pointer', userSelect: 'none' }} onClick={() => handleSort('name')}>
+                      {t('employeeName').toUpperCase()} {sortBy === 'name' ? (sortOrder === 'asc' ? '↑' : '↓') : '↕'}
+                    </MuiTableCell>
+                    <MuiTableCell align="center">
+                      <Tooltip text="Employee Staff ID from system" theme={theme} icon="">
+                        STAFF ID
+                      </Tooltip>
+                    </MuiTableCell>
+                    <MuiTableCell align="center">
+                      <Tooltip text={t('totalTimeLogged')} theme={theme} icon="">
+                        {t('loggedTime').toUpperCase()}
+                      </Tooltip>
+                    </MuiTableCell>
+                    <MuiTableCell align="center">
+                      <Tooltip text={t('timeProductiveActivities')} theme={theme} icon="">
+                        {t('productive').toUpperCase()}
+                      </Tooltip>
+                    </MuiTableCell>
+                    <MuiTableCell align="center">
+                      <Tooltip text={t('timeMeetings')} theme={theme} icon="">
+                        {t('meeting').toUpperCase()}
+                      </Tooltip>
+                    </MuiTableCell>
+                    <MuiTableCell align="center">
+                      <Tooltip text={t('timeIdle')} theme={theme} icon="">
+                        {t('idleTime').toUpperCase()}
+                      </Tooltip>
+                    </MuiTableCell>
+                    <MuiTableCell align="center">
+                      <Tooltip text="Total number of programs used by the employee" theme={theme} icon="">
+                        TOTAL PROGRAMS
+                      </Tooltip>
+                    </MuiTableCell>
+                  </MuiTableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedEmployees.length > 0 ? (
+                    paginatedEmployees.map((employee, rowIndex) => {
+                      const statusInfo = getStatusInfo(employee.status);
                       
-                      <TableCell theme={theme} $align="left">
-                        <EmployeeInfo>
-                          <UserIcon $isManager={employee.isAdmin}>
-                            {employee.isAdmin ? 'M' : 'E'}
-                          </UserIcon>
-                          <EmployeeDetails>
-                            <EmployeeName theme={theme}>{employee.name}</EmployeeName>
-                            <TeamName theme={theme}>
-                              {employee.team || employee.designation || 'No Department'}
-                            </TeamName>
-                          </EmployeeDetails>
-                        </EmployeeInfo>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>{employee.loggedTime || '0h 0m'}</TimeText>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>{employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}</TimeText>
-                      </TableCell>
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell> */}
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell> */}
-                      
-                      <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>
-                          {employee.meetingTime === 'N/A' ? '0h 0m' : employee.meetingTime}
-                        </TimeText>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <div style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: isDarkMode ? 'rgba(158, 158, 158, 0.1)' : 'rgba(158, 158, 158, 0.08)',
-                          border: `1px solid ${isDarkMode ? 'rgba(158, 158, 158, 0.3)' : 'rgba(158, 158, 158, 0.2)'}`,
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: isDarkMode ? '#9e9e9e' : '#757575',
-                        }}>
-                          <span>⏸️</span>
-                          <TimeText theme={theme} style={{ color: 'inherit' }}>
-                            {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
-                          </TimeText>
-                        </div>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <div style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.08)',
-                          border: `1px solid ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`,
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: isDarkMode ? '#60a5fa' : '#3b82f6',
-                        }}>
-                          <span>💻</span>
-                          <TimeText theme={theme} style={{ color: 'inherit' }}>
-                            {employee.totalPrograms || 0}
-                          </TimeText>
-                        </div>
-                      </TableCell>
-                      
-                      <TableCell theme={theme} $align="center">
-                        <div style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          backgroundColor: isDarkMode ? 'rgba(34, 197, 94, 0.1)' : 'rgba(34, 197, 94, 0.08)',
-                          border: `1px solid ${isDarkMode ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.2)'}`,
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          color: isDarkMode ? '#4ade80' : '#22c55e',
-                          maxWidth: '200px',
-                          overflow: 'hidden',
-                        }}>
-                          <span>📋</span>
-                          <div style={{ 
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            flex: 1
+                      return (
+                        <MuiTableRow
+                          key={employee.id}
+                          sx={{
+                            backgroundColor: rowIndex % 2 === 0 ? '#ffffff' : '#f8f9fa',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              backgroundColor: '#f0f4ff',
+                              transform: 'scale(1.01)',
+                              boxShadow: '0 2px 8px rgba(102, 126, 234, 0.15)',
+                              cursor: 'pointer'
+                            },
+                            '&:last-child td': {
+                              borderBottom: 'none'
+                            },
+                            '& .MuiTableCell-body': {
+                              fontSize: '14px',
+                              color: theme.colors.text.primary,
+                              borderBottom: '1px solid #e5e7eb',
+                              padding: '14px 20px',
+                              fontWeight: 500,
+                              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                            }
+                          }}
+                        >
+                          <MuiTableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <Box sx={{
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '8px',
+                                background: employee.isAdmin 
+                                  ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
+                                  : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '14px',
+                                fontWeight: 700,
+                                flexShrink: 0,
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                              }}>
+                                {employee.isAdmin ? 'M' : 'E'}
+                              </Box>
+                              <Box>
+                                <Typography sx={{
+                                  fontWeight: 600,
+                                  fontSize: '14px',
+                                  color: theme.colors.text.primary,
+                                  marginBottom: '2px'
+                                }}>
+                                  {employee.name}
+                                </Typography>
+                                <Typography sx={{
+                                  fontSize: '12px',
+                                  color: theme.colors.text.secondary,
+                                  fontWeight: 500
+                                }}>
+                                  {employee.team || employee.designation || 'No Department'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </MuiTableCell>
+                          
+                          <MuiTableCell align="center" sx={{ 
+                            fontWeight: 600,
+                            color: '#667eea'
                           }}>
-                            {employee.programNames || 'No programs'}
-                          </div>
-                        </div>
-                      </TableCell>
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>
-                          {employee.breakTime === 'N/A' ? '0h 0m' : employee.breakTime}
-                        </TimeText>
-                      </TableCell> */}
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>
-                          {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
-                        </TimeText>
-                      </TableCell> */}
-                      
-                      {/* <TableCell theme={theme} $align="center">
-                        <TimeText theme={theme}>0h 0m</TimeText>
-                      </TableCell> */}
-                    </TableRow>
-                  );
-                  })
-                ) : (
-                  <TableRow theme={theme}>
-                    <TableCell theme={theme} colSpan="8">
-                      <EmptyStateCell theme={theme}>
-                        {loading ? <div className="loader-wrap">
-                    <div className="loader" style={{width:"30px" , height:"30px"}}></div>
-                  </div> : t('noEmployeesFound')}
-                      </EmptyStateCell>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </tbody>
-            </Table>
-          </TableContainer>
+                            <Box sx={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              background: 'rgba(102, 126, 234, 0.1)',
+                              border: '1px solid rgba(102, 126, 234, 0.3)',
+                              fontSize: '13px',
+                              fontWeight: 700
+                            }}>
+                              🆔 {employee.staffId || employee.id || 'N/A'}
+                            </Box>
+                          </MuiTableCell>
+                          
+                          <MuiTableCell align="center" sx={{ 
+                            fontWeight: 600,
+                            color: '#1e40af'
+                          }}>
+                            {employee.loggedTime || '0h 0m'}
+                          </MuiTableCell>
+                          
+                          <MuiTableCell align="center" sx={{ 
+                            fontWeight: 600,
+                            color: '#059669'
+                          }}>
+                            {employee.productiveTime === 'N/A' ? '0h 0m' : employee.productiveTime}
+                          </MuiTableCell>
+                          
+                          <MuiTableCell align="center" sx={{ 
+                            color: '#7c3aed',
+                            fontWeight: 600
+                          }}>
+                            {employee.meetingTime === 'N/A' ? '0h 0m' : employee.meetingTime}
+                          </MuiTableCell>
+                          
+                          <MuiTableCell align="center" sx={{ 
+                            color: '#dc2626',
+                            fontWeight: 600
+                          }}>
+                            <Box sx={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              background: 'rgba(220, 38, 38, 0.1)',
+                              border: '1px solid rgba(220, 38, 38, 0.3)',
+                              fontSize: '13px'
+                            }}>
+                              ⏸️ {employee.idleTime === 'N/A' ? '0h 0m' : employee.idleTime}
+                            </Box>
+                          </MuiTableCell>
+                          
+                          <MuiTableCell align="center">
+                            <Box sx={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              background: 'rgba(59, 130, 246, 0.1)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              color: '#3b82f6'
+                            }}>
+                              💻 {employee.totalPrograms || 0}
+                            </Box>
+                          </MuiTableCell>
+                        </MuiTableRow>
+                      );
+                    })
+                  ) : (
+                    <MuiTableRow>
+                      <MuiTableCell colSpan="7" align="center" sx={{ padding: '40px' }}>
+                        <Typography variant="body1" sx={{ color: theme.colors.text.secondary }}>
+                          {loading ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                              <CircularProgress size={30} sx={{ color: theme.colors.primary }} />
+                            </Box>
+                          ) : (
+                            t('noEmployeesFound')
+                          )}
+                        </Typography>
+                      </MuiTableCell>
+                    </MuiTableRow>
+                  )}
+                </TableBody>
+              </MuiTable>
+            </TableContainer>
+          </Box>
         </TableWrapper>
 
         {/* Pagination */}
-        <PaginationContainer>
-          <PaginationInfo>
-            <span>{t('employeesPerPage')}</span>
-            <ItemsPerPageSelector
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(Number(e.target.value))}
-            >
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </ItemsPerPageSelector>
-            <span>
-              {sortedEmployees.length > 0 
-                ? `${startIndex + 1} – ${Math.min(endIndex, sortedEmployees.length)} ${t('of')} ${sortedEmployees.length}`
-                : `0 – 0 ${t('of')} 0`
-              }
-            </span>
-          </PaginationInfo>
-          
-          <PaginationButtons>
-            <PaginationButton
+        {sortedEmployees.length > 0 && (
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: '12px',
+            marginTop: '20px',
+            paddingTop: '16px',
+            borderTop: '2px solid #e5e7eb',
+            margin: '0 32px 32px 32px',
+            padding: '16px 0'
+          }}>
+            <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+              Employees per page:
+            </Typography>
+            <FormControl size="small" sx={{ minWidth: 80 }}>
+              <Select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                sx={{
+                  fontSize: '14px',
+                  height: '32px'
+                }}
+              >
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={25}>25</MenuItem>
+                <MenuItem value={50}>50</MenuItem>
+                <MenuItem value={100}>100</MenuItem>
+              </Select>
+            </FormControl>
+            <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+              {startIndex + 1} - {Math.min(endIndex, sortedEmployees.length)} of {sortedEmployees.length}
+            </Typography>
+            <IconButton
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              title={t('page') + ' 1'}
+              size="small"
+              sx={{
+                border: '1px solid #d1d5db',
+                opacity: currentPage === 1 ? 0.5 : 1
+              }}
             >
-              «
-            </PaginationButton>
-            
-            <PaginationButton
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              <KeyboardDoubleArrowLeftIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              title={t('previous')}
+              size="small"
+              sx={{
+                border: '1px solid #d1d5db',
+                opacity: currentPage === 1 ? 0.5 : 1
+              }}
             >
-              ‹
-            </PaginationButton>
-            
-            <PaginationButton $active={true}>
-              {currentPage}
-            </PaginationButton>
-            
-            <PaginationButton
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              <KeyboardArrowLeftIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              title={t('next')}
+              size="small"
+              sx={{
+                border: '1px solid #d1d5db',
+                opacity: currentPage === totalPages ? 0.5 : 1
+              }}
             >
-              ›
-            </PaginationButton>
-            
-            <PaginationButton
+              <KeyboardArrowRightIcon fontSize="small" />
+            </IconButton>
+            <IconButton
               onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
-              title={t('page') + ' ' + totalPages}
+              size="small"
+              sx={{
+                border: '1px solid #d1d5db',
+                opacity: currentPage === totalPages ? 0.5 : 1
+              }}
             >
-              »
-            </PaginationButton>
-          </PaginationButtons>
-        </PaginationContainer>
+              <KeyboardDoubleArrowRightIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        )}
       </EmployeesPageWrapper>
     </DashboardLayout>
   );
