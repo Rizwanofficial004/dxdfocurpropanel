@@ -22,7 +22,6 @@ const TaskContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px;
   background: ${props => props.theme.colors.surface};
   border-radius: 8px;
 `;

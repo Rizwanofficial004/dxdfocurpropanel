@@ -27,78 +27,6 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedReportData, setGeneratedReportData] = useState(null);
 
-  // Dummy data for when no real data exists
-  const dummyData = {
-    status: 'success',
-    message: 'Dummy data for demonstration',
-    data: {
-      rows: [
-        {
-          date: '2024-11-01',
-          login_time: '09:00 AM',
-          logout_time: '06:00 PM',
-          logged_duration_minutes: 540,
-          logged_duration_hours: 9.0,
-          idle_duration_minutes: 30,
-          meetings: 2,
-          meeting_duration_minutes: 60,
-          tasks: 5,
-          tasks_durations_hours: 6.5,
-          active_duration_minutes: 480,
-          active_duration_hours: 8.0,
-          productive_time_minutes: 420,
-          productive_time_hours: 7.0
-        },
-        {
-          date: '2024-11-02',
-          login_time: '09:15 AM',
-          logout_time: '05:45 PM',
-          logged_duration_minutes: 510,
-          logged_duration_hours: 8.5,
-          idle_duration_minutes: 45,
-          meetings: 1,
-          meeting_duration_minutes: 30,
-          tasks: 4,
-          tasks_durations_hours: 7.0,
-          active_duration_minutes: 450,
-          active_duration_hours: 7.5,
-          productive_time_minutes: 390,
-          productive_time_hours: 6.5
-        },
-        {
-          date: '2024-11-03',
-          login_time: '08:30 AM',
-          logout_time: '06:30 PM',
-          logged_duration_minutes: 600,
-          logged_duration_hours: 10.0,
-          idle_duration_minutes: 20,
-          meetings: 3,
-          meeting_duration_minutes: 90,
-          tasks: 6,
-          tasks_durations_hours: 8.0,
-          active_duration_minutes: 570,
-          active_duration_hours: 9.5,
-          productive_time_minutes: 510,
-          productive_time_hours: 8.5
-        }
-      ],
-      summary: {
-        staff_id: selectedEmployee?.staff_id || 'N/A',
-        total_days: 3,
-        total_logged_minutes: 1650.0,
-        total_logged_hours: 27.5,
-        total_idle_minutes: 95.0,
-        total_idle_hours: 1.58,
-        total_meeting_minutes: 180.0,
-        total_meeting_hours: 3.0,
-        total_active_minutes: 1500.0,
-        total_active_hours: 25.0,
-        total_productive_minutes: 1320.0,
-        total_productive_hours: 22.0
-      }
-    }
-  };
-
   // Helper function to format minutes to HH:MM:SS
   const formatDuration = (minutes) => {
     if (!minutes || minutes === 0) return '00:00:00';
@@ -195,15 +123,8 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
     return () => clearTimeout(timeoutId);
   }, [selectedEmployee?.staff_id, selectedMonth, selectedYear, fetchAdvancedReport]);
 
-  // Determine which data to use: real data if available, otherwise dummy data
-  const reportData = generatedReportData?.data?.rows && generatedReportData.data.rows.length > 0 
-    ? generatedReportData 
-    : dummyData;
-  
-  const isUsingDummyData = !generatedReportData?.data?.rows || generatedReportData.data.rows.length === 0;
-
   // Calculate pagination for report data
-  const reportRows = reportData?.data?.rows || [];
+  const reportRows = generatedReportData?.data?.rows || [];
   const totalReports = reportRows.length;
   const totalPages = Math.ceil(totalReports / reportsPerPage);
   const startIndex = (currentPage - 1) * reportsPerPage;
@@ -243,34 +164,6 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
         padding: '20px'
       }}>
-        {/* Header */}
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px',
-          paddingBottom: '16px',
-          borderBottom: '2px solid #e5e7eb'
-        }}>
-          <Typography variant="h5" sx={{
-            fontWeight: 700,
-            color: theme.colors.text.primary,
-            fontSize: '20px'
-          }}>
-            ADVANCED REPORT VIEW
-            {isUsingDummyData && (
-              <span style={{
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#f59e0b',
-                marginLeft: '12px'
-              }}>
-                (Demo Data)
-              </span>
-            )}
-          </Typography>
-        </Box>
-
         {/* Summary Section - COMMENTED OUT */}
         {/* {reportData?.data?.summary && (
           <Box sx={{
@@ -406,14 +299,14 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                     <TableCell>Date</TableCell>
                     <TableCell>Login Time</TableCell>
                     <TableCell>Logout Time</TableCell>
-                    <TableCell>Logged Duration</TableCell>
                     <TableCell>Idle Duration</TableCell>
                     <TableCell>Meetings</TableCell>
                     <TableCell>Meeting Duration</TableCell>
                     <TableCell>Tasks</TableCell>
-                    <TableCell>Task Duration</TableCell>
-                    <TableCell>Active Duration</TableCell>
+                    <TableCell>Tasks Durations</TableCell>
                     <TableCell>Productive Time</TableCell>
+                    <TableCell>Active Duration</TableCell>
+                    <TableCell>Logged Duration</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -423,6 +316,12 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                       : '0.00';
                     
                     const isHighIdle = parseFloat(idlePercentage) > 10;
+                    
+                    // Calculate Productive Time = Active Duration - Idle Duration
+                    const activeDurationMinutes = row.active_duration_minutes || 0;
+                    const idleDurationMinutes = row.idle_duration_minutes || 0;
+                    const productiveTimeMinutes = Math.max(0, activeDurationMinutes - idleDurationMinutes);
+                    const productiveTimeHours = productiveTimeMinutes / 60;
                     
                     return (
                       <TableRow
@@ -466,12 +365,6 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                           fontWeight: 600
                         }}>
                           {row.logout_time || 'N/A'}
-                        </TableCell>
-                        <TableCell sx={{ 
-                          fontWeight: 600,
-                          color: '#1e40af'
-                        }}>
-                          {formatHours(row.logged_duration_hours || 0)}
                         </TableCell>
                         <TableCell sx={{ 
                           color: isHighIdle ? '#dc2626' : '#059669',
@@ -525,17 +418,23 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                           {formatHours(row.tasks_durations_hours || 0)}
                         </TableCell>
                         <TableCell sx={{ 
+                          color: '#16a34a',
+                          fontWeight: 700,
+                          fontSize: '15px'
+                        }}>
+                          {formatHours(productiveTimeHours)}
+                        </TableCell>
+                        <TableCell sx={{ 
                           color: '#059669',
                           fontWeight: 600
                         }}>
                           {formatHours(row.active_duration_hours || 0)}
                         </TableCell>
                         <TableCell sx={{ 
-                          color: '#16a34a',
-                          fontWeight: 700,
-                          fontSize: '15px'
+                          fontWeight: 600,
+                          color: '#1e40af'
                         }}>
-                          {formatHours(row.productive_time_hours || 0)}
+                          {formatHours(row.logged_duration_hours || 0)}
                         </TableCell>
                       </TableRow>
                     );

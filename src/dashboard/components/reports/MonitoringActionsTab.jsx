@@ -59,21 +59,16 @@ const MonitoringActionsTab = ({
     }));
   };
 
-  // Sample data structure - will be replaced with API data
-  const defaultData = [
-    {
-      start: '4:12 PM',
-      stop: '4:12 PM',
-      reason: ''
-    },
-    {
-      start: '10:33 AM',
-      stop: '4:12 PM',
-      reason: 'Did promotion work with marketing work'
-    }
-  ];
-
-  const actionsData = monitoringActionsData?.actions || monitoringActionsData || defaultData;
+  // Get data from API response
+  const apiData = monitoringActionsData?.data || monitoringActionsData;
+  
+  // Format the data for display - create array with single row if data exists
+  const actionsData = apiData && (apiData.screenshot_start_time || apiData.last_screenshot_time) 
+    ? [{
+        start: apiData.screenshot_start_time,
+        stop: apiData.last_screenshot_time
+      }]
+    : [];
 
   // Loading state
   if (isLoadingReportData) {
@@ -119,7 +114,6 @@ const MonitoringActionsTab = ({
 
   return (
     <div style={{ 
-      padding: '20px',
       background: theme.colors.surface,
       borderRadius: '8px'
     }}>
@@ -215,47 +209,6 @@ const MonitoringActionsTab = ({
                     )}
                   </span>
                 </th>
-                <th style={{ 
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: theme.colors.text.primary,
-                  position: 'relative'
-                }}>
-                  REASON
-                  <span
-                    style={{
-                      marginLeft: '6px',
-                      cursor: 'pointer',
-                      color: '#6b7280',
-                      fontSize: '12px',
-                      fontWeight: 'normal'
-                    }}
-                    onMouseEnter={() => setTooltipVisible(prev => ({ ...prev, reason: true }))}
-                    onMouseLeave={() => setTooltipVisible(prev => ({ ...prev, reason: false }))}
-                  >
-                    ⓘ
-                    {tooltipVisible.reason && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '100%',
-                        right: '0',
-                        marginTop: '4px',
-                        padding: '8px 12px',
-                        background: '#1f2937',
-                        color: 'white',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        maxWidth: '300px',
-                        zIndex: 1000,
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-                      }}>
-                        If an employee submits their report after stopping logging their work, the submitted report will be shown in this reason section.
-                      </div>
-                    )}
-                  </span>
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -281,19 +234,12 @@ const MonitoringActionsTab = ({
                     }}>
                       {formatTime(action.stop || action.stop_time || action.end_time || action.stopTime)}
                     </td>
-                    <td style={{ 
-                      padding: '12px 16px',
-                      fontSize: '13px',
-                      color: theme.colors.text.primary
-                    }}>
-                      {action.reason || action.report || action.description || ''}
-                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td 
-                    colSpan="3" 
+                    colSpan="2" 
                     style={{ 
                       padding: '40px',
                       textAlign: 'center',
@@ -319,8 +265,8 @@ const MonitoringActionsTab = ({
           fontSize: '12px',
           color: '#0369a1'
         }}>
-          <strong>ℹ️ Note:</strong> Monitoring actions start and stop are recorded based on the employees' latest activity on the client app. 
-          If an employee submits their report after stopping logging their work, the submitted report will be shown in the reason section.
+          <strong>ℹ️ Note:</strong> Monitoring actions start and stop times are recorded based on the employee's screenshot activity. 
+          Start time indicates when screenshot monitoring began, and stop time indicates the last recorded screenshot.
         </div>
       </div>
     </div>

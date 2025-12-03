@@ -1,27 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const FocusTimeline = ({ activities = [] }) => {
-  // Sample data structure - replace with actual data from props
-  const timelineData = activities.length > 0 ? activities : [
-    { time: '3:41 PM', duration: '0m 8s', app: 'Wine', detail: 'Save' },
-    { time: '3:39 PM', duration: '1m 52s', app: 'Wine', detail: 'PhotoScape' },
-    { time: '3:39 PM', duration: '0m 16s', app: 'Google-chrome', detail: 'Edit Reports | FocusRO Documentation - Google Chrome' },
-    { time: '3:39 PM', duration: '0m 3s', app: 'Google-chrome-stable', detail: 'Save File' },
-    { time: '3:39 PM', duration: '0m 11s', app: 'Google-chrome', detail: 'Edit Reports | FocusRO Documentation - Google Chrome' },
-    { time: '3:38 PM', duration: '0m 26s', app: 'Wine', detail: 'PhotoScape' },
-    { time: '3:38 PM', duration: '0m 32s', app: 'Google-chrome', detail: 'Edit Reports | FocusRO Documentation - Google Chrome' },
-  ];
+const FocusTimeline = ({ focusTimelineData = [] }) => {
 
   return (
     <TimelineContainer>
       <TimelineHeader>FOCUS TIMELINE</TimelineHeader>
       <TimelineList>
-        {timelineData.map((item, index) => (
+        {focusTimelineData.map((item, index) => (
           <TimelineItem key={index}>
             <TimelineMarker>
               <RadioButton />
-              {index < timelineData.length - 1 && <TimelineLine />}
+              {index < focusTimelineData.length - 1 && <TimelineLine />}
             </TimelineMarker>
             <TimelineContent>
               <TimelineTime>{item.time}</TimelineTime>

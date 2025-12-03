@@ -265,7 +265,6 @@ const ScreensTab = ({
   return (
     <Box
       sx={{
-        p: 3,
         backgroundColor: theme.colors.surface,
         borderRadius: 3,
         minHeight: '100%',

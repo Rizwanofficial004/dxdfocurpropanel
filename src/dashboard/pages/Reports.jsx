@@ -64,6 +64,7 @@ import {
   getProfilePhotoUrl,
   fetchScreenshotsData as fetchScreenshotsDataUtil
 } from '../../utils/reportUtils';
+import { InputLabel, MenuItem, Select } from '@mui/material';
 
 const Reports = () => {
   const { t } = useLanguage();
@@ -109,7 +110,7 @@ const Reports = () => {
   const [reportError, setReportError] = useState(null);
   const [dataAvailability, setDataAvailability] = useState(null);
   const [screenshotsOrder, setScreenshotsOrder] = useState('desc');
-  
+        
   // Ref to prevent concurrent API calls
   const isFetchingRef = useRef(false);
   
@@ -398,6 +399,24 @@ const Reports = () => {
     return null;
   };
 
+  const fetchMonitoringActionsData = async (employee) => {
+    if (!employee?.staff_id) return null;
+    
+    try {
+      const url = `https://dxdtime.ddsolutions.io/api/monitoring-action/?staff_id=${employee.staff_id}`;
+      const response = await fetch(url);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Monitoring Actions Data:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching monitoring actions data:', error);
+    }
+    return null;
+  };
+
   const fetchMeetingTimeQuickview = async (employee, date) => {
     if (!employee?.email) return null;
     
@@ -679,7 +698,8 @@ const Reports = () => {
         idleQuickview,
         availabilityData,
         activityPattern,
-        advancedReport
+        advancedReport,
+        monitoringActions
       ] = await Promise.all([
         fetchMeetingTimeData(employee, currentMonth),
         fetchIdleTimeData(employee, currentMonth),
@@ -698,7 +718,8 @@ const Reports = () => {
         specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null,
         fetchDataAvailability(employee, currentMonth),
         specificDate ? fetchActivityPatternData(employee, specificDate) : null,
-        fetchAdvancedReportData(employee, advancedStartDate, advancedEndDate, null)
+        fetchAdvancedReportData(employee, advancedStartDate, advancedEndDate, null),
+        fetchMonitoringActionsData(employee)
       ]);
       
       // Update state with fetched data
@@ -718,6 +739,7 @@ const Reports = () => {
       setDataAvailability(availabilityData);
       setActivityPatternData(activityPattern);
       setAdvancedReportData(advancedReport);
+      setMonitoringActionsData(monitoringActions);
       
       console.log('✅ All report data fetched successfully');
       
@@ -1398,51 +1420,52 @@ const Reports = () => {
           </EmployeeSelection>
 
           {/* Right content - Time reports */}
-          <ReportsContent theme={theme}>
+          <ReportsContent >
             {/* Filter Section */}
-            <FilterSection theme={theme}>
+            <FilterSection>
               <FilterRow>
                 {/* Year Filter */}
                 <FilterGroup>
-                  <FilterLabel theme={theme}>Year</FilterLabel>
-                  <FilterSelect
+                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',letterSpacing:'0.5px',textTransform:'capitalize'}} >Year</InputLabel>
+                  <Select
                     theme={theme}
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                   >
+                    
                     {years.map(year => (
-                      <option key={year} value={year}>{year}</option>
+                      <MenuItem key={year} value={year}>{year}</MenuItem>
                     ))}
-                  </FilterSelect>
+                  </Select>
                 </FilterGroup>
 
                 {/* Month Filter */}
                 <FilterGroup>
-                  <FilterLabel theme={theme}>Month</FilterLabel>
-                  <FilterSelect
+                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',textTransform:'capitalize',letterSpacing:'0.5px'}}>Month</InputLabel>
+                  <Select
                     theme={theme}
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                   >
                     {months.map(month => (
-                      <option key={month} value={month}>{month}</option>
+                      <MenuItem key={month} value={month}>{month}</MenuItem>
                     ))}
-                  </FilterSelect>
+                  </Select>
                 </FilterGroup>
 
                 {/* Date Filter */}
                 <FilterGroup>
-                  <FilterLabel theme={theme}>Date</FilterLabel>
-                  <FilterSelect
+                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',letterSpacing:'0.5px',textTransform:'capitalize'}}>Date</InputLabel>
+                  <Select
                     theme={theme}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                   >
-                    <option value="">Select Date</option>
+                    <MenuItem value="Select Date" sx={{mr:0}}>Select Date</MenuItem>
                     {dates.map(date => (
-                      <option key={date} value={date}>{date}</option>
+                      <MenuItem key={date} value={date}>{date}</MenuItem>
                     ))}
-                  </FilterSelect>
+                  </Select>
                 </FilterGroup>
 
                 {/* Hour Filter */}

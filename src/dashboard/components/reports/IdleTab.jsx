@@ -292,260 +292,337 @@ const IdleTab = ({
 
   return (
     <div style={{ 
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
+      display: 'flex',
+      flexDirection: 'column',
       gap: '20px',
-      padding: '20px',
       background: theme.colors.surface || '#f5f5f5',
       borderRadius: '8px',
       minHeight: '400px'
     }}>
-      {/* Left Section: IDLE Table */}
-      <div style={{ 
-        background: 'white',
-        borderRadius: '8px',
-        padding: '20px',
-        border: '1px solid #e9ecef',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <h3 style={{ 
-            margin: 0,
-            fontSize: '18px',
+      {/* View Mode Toggle Buttons - Outside the card */}
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <button
+          onClick={() => setViewMode('monthly')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'monthly' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+            borderRadius: '6px',
+            background: viewMode === 'monthly' ? '#3b82f6' : 'white',
+            color: viewMode === 'monthly' ? 'white' : theme.colors.text.primary,
+            cursor: 'pointer',
             fontWeight: 'bold',
-            color: theme.colors.text.primary
-          }}>
-            IDLE
-          </h3>
+            fontSize: '12px'
+          }}
+        >
+          📊 Monthly View
+        </button>
+        <button
+          onClick={() => setViewMode('daily')}
+          style={{
+            padding: '8px 16px',
+            border: viewMode === 'daily' ? '2px solid #3b82f6' : '1px solid #e9ecef',
+            borderRadius: '6px',
+            background: viewMode === 'daily' ? '#3b82f6' : 'white',
+            color: viewMode === 'daily' ? 'white' : theme.colors.text.primary,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '12px',
+            opacity: selectedDate ? 1 : 0.5,
+            pointerEvents: selectedDate ? 'auto' : 'none'
+          }}
+          disabled={!selectedDate}
+        >
+          📅 Daily View
+        </button>
+      </div>
 
-          {/* View Toggle Buttons */}
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '20px'
+      }}>
+        {/* Left Section: IDLE Table */}
+        <div style={{ 
+          background: 'white',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+          transition: 'all 0.2s ease'
+        }}>
           <div style={{
             display: 'flex',
-            gap: '8px',
-            background: theme.colors.background || '#f8f9fa',
-            padding: '4px',
-            borderRadius: '8px',
-            border: '1px solid #e9ecef'
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '20px',
+            paddingBottom: '16px',
+            borderBottom: '2px solid #f3f4f6'
           }}>
-            <button
-              onClick={() => setViewMode('monthly')}
-              style={{
-                padding: '8px 16px',
-                fontSize: '13px',
-                fontWeight: '600',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                background: viewMode === 'monthly' 
-                  ? (theme.colors.primary || '#3b82f6')
-                  : 'transparent',
-                color: viewMode === 'monthly' 
-                  ? 'white'
-                  : theme.colors.text.secondary,
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Monthly View
-            </button>
-            <button
-              onClick={() => setViewMode('daily')}
-              style={{
-                padding: '8px 16px',
-                fontSize: '13px',
-                fontWeight: '600',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                background: viewMode === 'daily' 
-                  ? (theme.colors.primary || '#3b82f6')
-                  : 'transparent',
-                color: viewMode === 'daily' 
-                  ? 'white'
-                  : theme.colors.text.secondary,
-                transition: 'all 0.2s ease',
-                opacity: selectedDate ? 1 : 0.5,
-                pointerEvents: selectedDate ? 'auto' : 'none'
-              }}
-              disabled={!selectedDate}
-            >
-              Daily View
-            </button>
+            <h3 style={{ 
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: '700',
+              color: theme.colors.text.primary,
+              letterSpacing: '-0.02em'
+            }}>
+              IDLE
+            </h3>
+            <div style={{
+              padding: '4px 12px',
+              background: '#f0f9ff',
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: '600',
+              color: '#0369a1',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {viewMode === 'monthly' ? 'Monthly' : 'Daily'}
+            </div>
           </div>
-        </div>
 
-        <div style={{ 
-          fontSize: '12px', 
-          color: theme.colors.text.secondary,
-          marginBottom: '16px'
-        }}>
-          {viewMode === 'monthly' ? (
-            <>📅 Showing idle sessions for {idleTimeData?.month || `${selectedMonth} ${selectedYear}`}</>
-          ) : (
-            <>📅 Showing idle sessions for {selectedDateFormatted ? new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'selected date'}</>
-          )}
-        </div>
-
-        <div style={{
-          background: 'white',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          border: '1px solid #e9ecef'
-        }}>
-          <table style={{ 
-            width: '100%', 
-            borderCollapse: 'collapse'
+          <div style={{ 
+            fontSize: '13px', 
+            color: theme.colors.text.secondary,
+            marginBottom: '20px',
+            padding: '10px 14px',
+            background: '#f8fafc',
+            borderRadius: '8px',
+            border: '1px solid #e2e8f0'
           }}>
-            <thead>
-              <tr style={{ 
-                background: theme.colors.background || '#f8f9fa',
-                borderBottom: '2px solid #e9ecef'
-              }}>
-                <th
-                  style={{ 
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: theme.colors.text.primary
+            {viewMode === 'monthly' ? (
+              <>📅 Showing idle sessions for {idleTimeData?.month || `${selectedMonth} ${selectedYear}`}</>
+            ) : (
+              <>📅 Showing idle sessions for {selectedDateFormatted ? new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'selected date'}</>
+            )}
+          </div>
+
+          <div style={{
+            background: 'white',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+          }}>
+            <table style={{ 
+              width: '100%', 
+              borderCollapse: 'collapse'
+            }}>
+              <thead>
+                <tr style={{ 
+                  background: 'linear-gradient(to bottom, #f8fafc, #f1f5f9)',
+                  borderBottom: '2px solid #e2e8f0'
                 }}>
-                  DATE
-                </th>
-                <th style={{ 
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: theme.colors.text.primary
-                }}>
-                  TOTAL COUNT
-                </th>
-                <th style={{ 
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: theme.colors.text.primary
-                }}>
-                  TOTAL DURATION
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {idleRows.length > 0 ? (
-                idleRows.map((row) => {
-                  const isSelected =
-                    selectedDate &&
-                    row.date === `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
-                  return (
-                    <tr
-                      key={row.date}
-                      style={{
-                        borderBottom: '1px solid #f3f4f6',
-                        background: isSelected ? '#eff6ff' : 'white'
+                  <th style={{ 
+                    padding: '14px 18px',
+                    textAlign: 'left',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    color: '#475569',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    DATE
+                  </th>
+                  <th style={{ 
+                    padding: '14px 18px',
+                    textAlign: 'right',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    color: '#475569',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    COUNT
+                  </th>
+                  <th style={{ 
+                    padding: '14px 18px',
+                    textAlign: 'right',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    color: '#475569',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    DURATION
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {idleRows.length > 0 ? (
+                  idleRows.map((row, index) => {
+                    const isSelected =
+                      selectedDate &&
+                      row.date === `${selectedYear}-${String(months.indexOf(selectedMonth) + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
+                    return (
+                      <tr
+                        key={row.date}
+                        style={{
+                          borderBottom: index < idleRows.length - 1 ? '1px solid #f1f5f9' : 'none',
+                          background: isSelected ? '#eff6ff' : 'white',
+                          transition: 'all 0.15s ease',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.background = '#f8fafc';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.background = 'white';
+                          }
+                        }}
+                      >
+                        <td style={{ 
+                          padding: '14px 18px',
+                          fontSize: '14px',
+                          color: theme.colors.text.primary,
+                          fontWeight: isSelected ? '600' : '500'
+                        }}>
+                          {row.displayDate}
+                        </td>
+                        <td style={{ 
+                          padding: '14px 18px',
+                          fontSize: '14px',
+                          color: theme.colors.text.primary,
+                          fontWeight: isSelected ? '700' : '600',
+                          textAlign: 'right'
+                        }}>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '4px 10px',
+                            background: isSelected ? '#3b82f6' : '#e2e8f0',
+                            color: isSelected ? 'white' : '#475569',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            minWidth: '32px',
+                            textAlign: 'center'
+                          }}>
+                            {row.count}
+                          </span>
+                        </td>
+                        <td style={{ 
+                          padding: '14px 18px',
+                          fontSize: '14px',
+                          color: theme.colors.text.primary,
+                          fontWeight: isSelected ? '700' : '600',
+                          textAlign: 'right'
+                        }}>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '4px 10px',
+                            background: isSelected ? '#10b981' : '#ecfdf5',
+                            color: isSelected ? 'white' : '#059669',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: '700'
+                          }}>
+                            {row.duration}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td 
+                      colSpan="3" 
+                      style={{ 
+                        padding: '40px 20px',
+                        textAlign: 'center',
+                        color: theme.colors.text.secondary,
+                        fontSize: '14px'
                       }}
                     >
-                      <td style={{ 
-                        padding: '12px 16px',
-                        fontSize: '13px',
-                        color: theme.colors.text.primary
-                      }}>
-                        {row.displayDate}
-                      </td>
-                      <td style={{ 
-                        padding: '12px 16px',
-                        fontSize: '13px',
-                        color: theme.colors.text.primary,
-                        fontWeight: isSelected ? 'bold' : 'normal'
-                      }}>
-                        {row.count}
-                      </td>
-                      <td style={{ 
-                        padding: '12px 16px',
-                        fontSize: '13px',
-                        color: theme.colors.text.primary,
-                        fontWeight: isSelected ? 'bold' : 'normal'
-                      }}>
-                        {row.duration}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td 
-                    colSpan="3" 
-                    style={{ 
-                      padding: '20px',
-                      textAlign: 'center',
-                      color: theme.colors.text.secondary,
-                      fontSize: '13px'
-                    }}
-                  >
-                    {!idleTimeData 
-                      ? 'No idle data available. Please select an employee and date.'
-                      : viewMode === 'daily' 
-                        ? (selectedDateFormatted 
-                          ? `No idle session data for ${new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`
-                          : 'Please select a date to view daily idle data.')
-                        : 'No idle session data above zero count for this period.'}
-                  </td>
-                </tr>
-              )}
-              {idleRows.length > 0 && (
-                <tr style={{
-                  background: theme.colors.background || '#f8f9fa',
-                  borderTop: '2px solid #e9ecef'
-                }}>
-                  <td style={{ 
-                    padding: '12px 16px',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    color: theme.colors.text.primary
+                      {!idleTimeData 
+                        ? 'No idle data available. Please select an employee and date.'
+                        : viewMode === 'daily' 
+                          ? (selectedDateFormatted 
+                            ? `No idle session data for ${new Date(selectedDateFormatted).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.`
+                            : 'Please select a date to view daily idle data.')
+                          : 'No idle session data above zero count for this period.'}
+                    </td>
+                  </tr>
+                )}
+                {idleRows.length > 0 && (
+                  <tr style={{
+                    background: 'linear-gradient(to bottom, #f8fafc, #f1f5f9)',
+                    borderTop: '2px solid #e2e8f0'
                   }}>
-                    {viewMode === 'daily' ? 'Daily Total' : 'Monthly Total'}
-                  </td>
-                  <td style={{ 
-                    padding: '12px 16px',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    color: theme.colors.text.primary
-                  }}>
-                    {totalIdleCount}
-                  </td>
-                  <td style={{ 
-                    padding: '12px 16px',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    color: theme.colors.text.primary
-                  }}>
-                    {totalIdleDuration}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    <td style={{ 
+                      padding: '16px 18px',
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      letterSpacing: '0.01em'
+                    }}>
+                      {viewMode === 'daily' ? 'Daily Total' : 'Monthly Total'}
+                    </td>
+                    <td style={{ 
+                      padding: '16px 18px',
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      textAlign: 'right'
+                    }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '6px 12px',
+                        background: '#3b82f6',
+                        color: 'white',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '700',
+                        minWidth: '40px',
+                        textAlign: 'center'
+                      }}>
+                        {totalIdleCount}
+                      </span>
+                    </td>
+                    <td style={{ 
+                      padding: '16px 18px',
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      color: '#1e293b',
+                      textAlign: 'right'
+                    }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '6px 12px',
+                        background: '#10b981',
+                        color: 'white',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '700'
+                      }}>
+                        {totalIdleDuration}
+                      </span>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
       {/* Right Section: IDLE CHART */}
       {chartData && !chartData.error ? (
         <div style={{ 
           background: 'white',
-          borderRadius: '8px',
-          padding: '20px',
-          border: '1px solid #e9ecef',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+          overflow: 'hidden'
         }}>
           <h3 style={{ 
-            margin: '0 0 20px 0',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            color: theme.colors.text.primary
+            margin: '0 0 24px 0',
+            fontSize: '20px',
+            fontWeight: '700',
+            color: theme.colors.text.primary,
+            letterSpacing: '-0.02em'
           }}>
             IDLE CHART
           </h3>
@@ -553,16 +630,22 @@ const IdleTab = ({
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '50px',
+            gap: '24px',
             justifyContent: 'center',
             marginTop: '20px',
-            flexWrap: 'wrap'
+            flexWrap: 'wrap',
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'visible'
           }}>
             {/* Donut Chart using Recharts */}
             <div style={{ 
-              width: '240px', 
-              height: '240px',
-              position: 'relative'
+              width: '220px', 
+              height: '220px',
+              minWidth: '220px',
+              maxWidth: '220px',
+              position: 'relative',
+              flexShrink: 0
             }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -570,8 +653,8 @@ const IdleTab = ({
                     data={chartData.pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={70}
-                    outerRadius={100}
+                    innerRadius={65}
+                    outerRadius={95}
                     paddingAngle={2}
                     dataKey="value"
                     startAngle={90}
@@ -593,7 +676,7 @@ const IdleTab = ({
                       value={`${chartData.idlePercentage}%`}
                       position="center"
                       style={{
-                        fontSize: '32px',
+                        fontSize: '28px',
                         fontWeight: 'bold',
                         fill: '#3b82f6',
                         fontFamily: 'system-ui, -apple-system, sans-serif'
@@ -624,8 +707,10 @@ const IdleTab = ({
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '16px',
-              minWidth: '200px'
+              gap: '12px',
+              flex: '1 1 auto',
+              minWidth: '180px',
+              maxWidth: '100%'
             }}>
               <div style={{
                 display: 'flex',
@@ -636,7 +721,10 @@ const IdleTab = ({
                 borderRadius: '8px',
                 border: '1px solid #e9ecef',
                 transition: 'all 0.2s',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                width: '100%',
+                minWidth: 0,
+                overflow: 'hidden'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#f1f3f5';
@@ -652,20 +740,31 @@ const IdleTab = ({
                   height: '20px',
                   borderRadius: '4px',
                   background: '#e5e7eb',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  flexShrink: 0
                 }}></div>
-                <div style={{ flex: 1 }}>
+                <div style={{ 
+                  flex: 1, 
+                  minWidth: 0,
+                  overflow: 'hidden'
+                }}>
                   <div style={{
                     fontSize: '13px',
                     fontWeight: '600',
                     color: theme.colors.text.primary,
-                    marginBottom: '2px'
+                    marginBottom: '2px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}>
                     Active Time
                   </div>
                   <div style={{
                     fontSize: '12px',
-                    color: theme.colors.text.secondary
+                    color: theme.colors.text.secondary,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}>
                     {loggedHours} ({chartData.loggedPercentage}%)
                   </div>
@@ -680,7 +779,10 @@ const IdleTab = ({
                 borderRadius: '8px',
                 border: '1px solid #e9ecef',
                 transition: 'all 0.2s',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                width: '100%',
+                minWidth: 0,
+                overflow: 'hidden'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#f1f3f5';
@@ -696,20 +798,31 @@ const IdleTab = ({
                   height: '20px',
                   borderRadius: '4px',
                   background: '#3b82f6',
-                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                  boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                  flexShrink: 0
                 }}></div>
-                <div style={{ flex: 1 }}>
+                <div style={{ 
+                  flex: 1, 
+                  minWidth: 0,
+                  overflow: 'hidden'
+                }}>
                   <div style={{
                     fontSize: '13px',
                     fontWeight: '600',
                     color: theme.colors.text.primary,
-                    marginBottom: '2px'
+                    marginBottom: '2px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}>
                     Idle Time
                   </div>
                   <div style={{
                     fontSize: '12px',
-                    color: theme.colors.text.secondary
+                    color: theme.colors.text.secondary,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}>
                     {totalIdleDuration} ({chartData.idlePercentage}%)
                   </div>
@@ -768,6 +881,8 @@ const IdleTab = ({
           </div>
         </div>
       )}
+      </div>
+
     </div>
   );
 };
