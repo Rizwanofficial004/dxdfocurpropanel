@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import dayjs from 'dayjs';
+import React, { useState } from 'react';
 import { 
   Table,
   TableBody,
@@ -24,8 +23,6 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedReportData, isLoadingReportData, selectedYear, selectedMonth, months = [] }) => {
   const [reportsPerPage, setReportsPerPage] = useState(25);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedReportData, setGeneratedReportData] = useState(null);
 
   // Helper function to format minutes to HH:MM:SS
   const formatDuration = (minutes) => {
@@ -51,80 +48,43 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
     return `${day}-${month}-${year}`;
   };
 
-  // Fetch advanced report data - using selectedMonth and selectedYear from parent
-  const fetchAdvancedReport = useCallback(async (showAlerts = false) => {
-    if (!selectedEmployee?.staff_id) {
-      if (showAlerts) {
-        alert('Please select an employee first');
-      }
-      return;
-    }
-
-    if (!selectedMonth || !selectedYear) {
-      return;
-    }
-
-    setIsGenerating(true);
+  // Helper function to format datetime string to time only (HH:MM:SS)
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return 'N/A';
     try {
-      // Calculate date range from selected month and year
-      const monthIndex = months.indexOf(selectedMonth);
-      if (monthIndex < 0) {
-        setIsGenerating(false);
-        return;
+      // Extract time part from "YYYY-MM-DD HH:MM:SS" format
+      const parts = dateTimeString.split(' ');
+      if (parts.length >= 2) {
+        return parts[1]; // Return HH:MM:SS
       }
-
-      const monthStart = dayjs(`${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-01`).startOf('day');
-      const monthEnd = monthStart.endOf('month').startOf('day');
-      const startDate = monthStart.format('YYYY-MM-DD');
-      const endDate = monthEnd.format('YYYY-MM-DD');
-
-      const url = `https://dxdtime.ddsolutions.io/api/advanced-report/?staff_id=${selectedEmployee.staff_id}&start_date=${startDate}&end_date=${endDate}`;
-
-      const response = await fetch(url);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Advanced Report Data:', data);
-        setGeneratedReportData(data);
-      } else {
-        const errorText = await response.text();
-        console.error('Advanced Report API Error:', response.status, errorText);
-        if (showAlerts) {
-          alert(`Failed to fetch report: ${response.status} ${response.statusText}`);
-        }
-      }
+      return dateTimeString;
     } catch (error) {
-      console.error('Error fetching advanced report:', error);
-      if (showAlerts) {
-        alert(`Error: ${error.message}`);
-      }
-    } finally {
-      setIsGenerating(false);
+      return dateTimeString;
     }
-  }, [selectedEmployee?.staff_id, selectedMonth, selectedYear, months]);
+  };
 
-  // Auto-fetch report when month/year or employee changes
-  useEffect(() => {
-    // Skip if no employee selected
-    if (!selectedEmployee?.staff_id) {
-      return;
+  // Helper function to format tasks array
+  const formatTasks = (tasks) => {
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+      return 'No Tasks';
     }
+    return tasks.join(', ');
+  };
 
-    // Skip if month or year not available
-    if (!selectedMonth || !selectedYear) {
-      return;
+  // Helper function to format tasks durations object
+  const formatTasksDurations = (tasksDurations) => {
+    if (!tasksDurations || typeof tasksDurations !== 'object') {
+      return '0h 0m';
     }
-
-    // Debounce to avoid too many API calls
-    const timeoutId = setTimeout(() => {
-      fetchAdvancedReport(false);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [selectedEmployee?.staff_id, selectedMonth, selectedYear, fetchAdvancedReport]);
+    // Sum all task durations
+    const totalHours = Object.values(tasksDurations).reduce((sum, hours) => {
+      return sum + (parseFloat(hours) || 0);
+    }, 0);
+    return formatHours(totalHours);
+  };
 
   // Calculate pagination for report data
-  const reportRows = generatedReportData?.data?.rows || [];
+  const reportRows = advancedReportData?.data?.rows || [];
   const totalReports = reportRows.length;
   const totalPages = Math.ceil(totalReports / reportsPerPage);
   const startIndex = (currentPage - 1) * reportsPerPage;
@@ -133,13 +93,13 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
 
   return (
     <div style={{
-      padding: '30px',
+      padding: '0',
       background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
       borderRadius: '12px',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
     }}>
       {/* Loading Indicator */}
-      {isGenerating && (
+      {isLoadingReportData && (
         <Box sx={{
           display: 'flex',
           justifyContent: 'center',
@@ -156,92 +116,95 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
         </Box>
       )}
 
-      {/* Advanced Report View Table */}
-      <div style={{
-        marginTop: '30px',
-        background: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-        padding: '20px'
-      }}>
-        {/* Summary Section - COMMENTED OUT */}
-        {/* {reportData?.data?.summary && (
-          <Box sx={{
-            marginBottom: '24px',
-            padding: '16px',
-            background: isUsingDummyData ? '#fef3c7' : '#f0f9ff',
-            borderRadius: '8px',
-            border: `1px solid ${isUsingDummyData ? '#f59e0b' : '#3b82f6'}`
-          }}>
-            <Typography variant="h6" sx={{
-              marginBottom: '12px',
-              fontSize: '16px',
-              fontWeight: 600,
-              color: theme.colors.text.primary
-            }}>
-              SUMMARY
-            </Typography>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '12px'
-            }}>
-              <div>
-                <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
-                  Total Days
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
-                  {reportData.data.summary.total_days || 0}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
-                  Total Logged Time
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
-                  {formatHours(reportData.data.summary.total_logged_hours || 0)}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
-                  Total Idle Time
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
-                  {formatHours(reportData.data.summary.total_idle_hours || 0)}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
-                  Total Meeting Time
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
-                  {formatHours(reportData.data.summary.total_meeting_hours || 0)}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
-                  Total Active Time
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
-                  {formatHours(reportData.data.summary.total_active_hours || 0)}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
-                  Total Productive Time
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
-                  {formatHours(reportData.data.summary.total_productive_hours || 0)}
-                </Typography>
-              </div>
-            </div>
-          </Box>
-        )} */}
-
-        {/* Report Data Table */}
-        {reportRows && reportRows.length > 0 ? (
-          <Box sx={{ position: 'relative' }}>
+      {/* Advanced Report View Table - Only show when not loading */}
+      {!isLoadingReportData && (
+        <div style={{
+          marginTop: '30px',
+          background: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+          padding: '0',
+          width: '100%',
+          overflow: 'hidden'
+        }}>
+          {/* Summary Section - COMMENTED OUT */}
+          {/* {reportData?.data?.summary && (
             <Box sx={{
+              marginBottom: '24px',
+              padding: '16px',
+              background: isUsingDummyData ? '#fef3c7' : '#f0f9ff',
+              borderRadius: '8px',
+              border: `1px solid ${isUsingDummyData ? '#f59e0b' : '#3b82f6'}`
+            }}>
+              <Typography variant="h6" sx={{
+                marginBottom: '12px',
+                fontSize: '16px',
+                fontWeight: 600,
+                color: theme.colors.text.primary
+              }}>
+                SUMMARY
+              </Typography>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px'
+              }}>
+                <div>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
+                    Total Days
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
+                    {reportData.data.summary.total_days || 0}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
+                    Total Logged Time
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
+                    {formatHours(reportData.data.summary.total_logged_hours || 0)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
+                    Total Idle Time
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
+                    {formatHours(reportData.data.summary.total_idle_hours || 0)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
+                    Total Meeting Time
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
+                    {formatHours(reportData.data.summary.total_meeting_hours || 0)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
+                    Total Active Time
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
+                    {formatHours(reportData.data.summary.total_active_hours || 0)}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, fontSize: '12px' }}>
+                    Total Productive Time
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.colors.text.primary }}>
+                    {formatHours(reportData.data.summary.total_productive_hours || 0)}
+                  </Typography>
+                </div>
+              </div>
+            </Box>
+          )} */}
+
+          {/* Report Data Table */}
+          {reportRows && reportRows.length > 0 ? (
+          <Box sx={{ position: 'relative' }}>
+            {/* <Box sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -266,21 +229,41 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
               }}>
                 {selectedMonth} {selectedYear}
               </Typography>
-            </Box>
+            </Box> */}
             <TableContainer 
               component={Paper}
               className="table-scroll-container"
               sx={{
+                width: '100%',
                 maxWidth: '100%',
                 overflowX: 'auto',
+                overflowY: 'auto',
+                maxHeight: '70vh',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 border: '1px solid #e5e7eb',
                 borderRadius: '12px',
-                overflow: 'hidden',
-                background: 'white'
+                background: 'white',
+                '&::-webkit-scrollbar': {
+                  width: '4px',
+                  height: '4px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f1f1f1',
+                  borderRadius: '2px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#888',
+                  borderRadius: '2px',
+                  '&:hover': {
+                    background: '#555',
+                  },
+                },
+                // Firefox scrollbar styling
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1',
               }}
             >
-              <Table sx={{ minWidth: 1400 }} size="medium">
+              <Table sx={{ minWidth: 1400, width: 'max-content' }} size="medium">
                 <TableHead>
                   <TableRow sx={{ 
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -317,12 +300,6 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                     
                     const isHighIdle = parseFloat(idlePercentage) > 10;
                     
-                    // Calculate Productive Time = Active Duration - Idle Duration
-                    const activeDurationMinutes = row.active_duration_minutes || 0;
-                    const idleDurationMinutes = row.idle_duration_minutes || 0;
-                    const productiveTimeMinutes = Math.max(0, activeDurationMinutes - idleDurationMinutes);
-                    const productiveTimeHours = productiveTimeMinutes / 60;
-                    
                     return (
                       <TableRow
                         key={rowIndex}
@@ -344,7 +321,8 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                             borderBottom: '1px solid #e5e7eb',
                             padding: '14px 20px',
                             fontWeight: 500,
-                            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif'
+                            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                            whiteSpace: 'nowrap'
                           }
                         }}
                       >
@@ -358,13 +336,13 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                           color: '#059669',
                           fontWeight: 600
                         }}>
-                          {row.login_time || 'N/A'}
+                          {formatDateTime(row.login_time)}
                         </TableCell>
                         <TableCell sx={{ 
                           color: '#dc2626',
                           fontWeight: 600
                         }}>
-                          {row.logout_time || 'N/A'}
+                          {formatDateTime(row.logout_time)}
                         </TableCell>
                         <TableCell sx={{ 
                           color: isHighIdle ? '#dc2626' : '#059669',
@@ -398,7 +376,11 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                         }}>
                           {formatDuration(row.meeting_duration_minutes || 0)}
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ 
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                          maxWidth: '250px'
+                        }}>
                           <span style={{
                             display: 'inline-block',
                             padding: '4px 10px',
@@ -408,21 +390,21 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
                             fontWeight: 600,
                             fontSize: '12px'
                           }}>
-                            {row.tasks || 0}
+                            {formatTasks(row.tasks)}
                           </span>
                         </TableCell>
                         <TableCell sx={{ 
                           color: '#92400e',
                           fontWeight: 600
                         }}>
-                          {formatHours(row.tasks_durations_hours || 0)}
+                          {formatTasksDurations(row.tasks_durations_hours)}
                         </TableCell>
                         <TableCell sx={{ 
                           color: '#16a34a',
                           fontWeight: 700,
                           fontSize: '15px'
                         }}>
-                          {formatHours(productiveTimeHours)}
+                          {formatHours(row.productive_time_hours || 0)}
                         </TableCell>
                         <TableCell sx={{ 
                           color: '#059669',
@@ -536,7 +518,8 @@ const AdvancedReportTab = ({ theme, employees = [], selectedEmployee, advancedRe
             </IconButton>
           </Box>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

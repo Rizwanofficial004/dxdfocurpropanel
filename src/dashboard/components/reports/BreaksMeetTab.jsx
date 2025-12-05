@@ -192,30 +192,36 @@ const BreaksMeetTab = ({
       ? parseInt(loggedMatch[1]) * 60 + parseInt(loggedMatch[2])
       : 0;
     
-    if (loggedMinutes === 0) {
+    if (loggedMinutes === 0 && totalMeetingMinutes === 0) {
       return { error: 'No logged time found. There is no active time data to display.' };
     }
-    console.log('loggedMinutes', loggedMinutes);
-    
     // Calculate active time (non-meeting time)
-    const activeMinutes = loggedMinutes - totalMeetingMinutes;
+    // If meeting time exceeds logged time, set active to 0
+    const activeMinutes = Math.max(0, loggedMinutes - totalMeetingMinutes);
     
-    // Check if active time exists
-    if (activeMinutes <= 0) {
-      return { error: 'No active time available. All logged time is meeting time, so the chart cannot be displayed.' };
-    }
+    // Calculate percentages based on the sum of loggedMinutes and totalMeetingMinutes
+    // Example: if loggedMinutes=4 and totalMeetingMinutes=6
+    // base = 4 + 6 = 10
+    // loggedMinutes % = 4/10 * 100 = 40% ✓
+    // totalMeetingMinutes % = 6/10 * 100 = 60% ✓
+    const baseForPercentage = loggedMinutes + totalMeetingMinutes;
     
-    // Calculate percentages based on logged hours (meeting is part of logged time)
-    const meetingPercentage = loggedMinutes > 0 
-      ? Math.round((totalMeetingMinutes / loggedMinutes) * 100) 
+    // Calculate percentages: loggedMinutes % and totalMeetingMinutes %
+    const loggedPercentage = baseForPercentage > 0 
+      ? Math.round((loggedMinutes / baseForPercentage) * 100)
       : 0;
-    const nonMeetingPercentage = Math.max(0, 100 - meetingPercentage);
+    const meetingPercentage = baseForPercentage > 0 
+      ? Math.round((totalMeetingMinutes / baseForPercentage) * 100)
+      : 0;
     
-    // Prepare data for Recharts PieChart
+    // For display, show loggedMinutes and totalMeetingMinutes as separate segments
+    // Use actual values for the chart
     const pieData = [
-      { name: 'Active Time', value: activeMinutes, percentage: nonMeetingPercentage, color: '#e5e7eb' },
+      { name: 'Logged Time', value: loggedMinutes, percentage: loggedPercentage, color: '#e5e7eb' },
       { name: 'Meeting Time', value: totalMeetingMinutes, percentage: meetingPercentage, color: '#3b82f6' }
     ];
+    
+    const nonMeetingPercentage = Math.max(0, 100 - meetingPercentage);
     
     return {
       totalMeetings,
@@ -223,7 +229,8 @@ const BreaksMeetTab = ({
       loggedMinutes,
       activeMinutes,
       totalMeetingDuration: meetingDurationStr,
-      meetingPercentage: Math.min(100, meetingPercentage),
+      meetingPercentage,
+      loggedPercentage,
       nonMeetingPercentage,
       pieData
     };
@@ -776,7 +783,7 @@ const BreaksMeetTab = ({
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
                   }}>
-                    Active Time
+                    Logged Time
                   </div>
                   <div style={{
                     fontSize: '12px',
@@ -785,7 +792,7 @@ const BreaksMeetTab = ({
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
                   }}>
-                    {loggedHours} ({chartData.nonMeetingPercentage}%)
+                    {loggedHours} ({chartData.loggedPercentage}%)
                   </div>
                 </div>
               </div>

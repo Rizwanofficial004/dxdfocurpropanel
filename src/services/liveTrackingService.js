@@ -16,8 +16,8 @@ class LiveTrackingService {
     this.staffsUrl = `${getApiBaseURL()}/sync-staffs/`;
     this.updateStaffUrl = `${getApiBaseURL()}/update-staff/`;
     this.defaultParams = {
-      aws_region: 'eu-north-1',
-      bucket_name: 'ddsfocustime'
+      // aws_region: 'eu-north-1',
+      // bucket_name: 'ddsfocustime'
     };
   }
 
@@ -59,8 +59,8 @@ class LiveTrackingService {
       include_metadata_only = false,
       sort_by = 'latest_date',
       order = 'desc',
-      aws_region = 'eu-north-1',
-      bucket_name = 'ddsfocustime',
+      // aws_region = 'eu-north-1',
+      // bucket_name = 'ddsfocustime',
       timeout = 90000,
       force_refresh = true
     } = options;
@@ -71,8 +71,8 @@ class LiveTrackingService {
         include_metadata_only,
         sort_by,
         order,
-        aws_region,
-        bucket_name,
+        // aws_region,
+        // bucket_name,
         _t: Date.now() // Cache buster
       };
 
@@ -96,8 +96,8 @@ class LiveTrackingService {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0',
-          'X-AWS-Region': aws_region,
-          'X-S3-Bucket': bucket_name
+          // 'X-AWS-Region': aws_region,
+          // 'X-S3-Bucket': bucket_name
         },
         withCredentials: false
       });
@@ -277,8 +277,8 @@ class LiveTrackingService {
       totalFiles: apiResponse.data.summary?.s3_files || 0,
       lastUpdated: apiResponse.data.summary?.last_updated || new Date().toISOString(),
       dataSource: apiResponse.data.data_sources?.s3_status || 'unknown',
-      region: apiResponse.data.aws_region || 'eu-north-1',
-      bucket: apiResponse.data.bucket_name || 'ddsfocustime'
+      // region: apiResponse.data.aws_region || 'eu-north-1',
+      // bucket: apiResponse.data.bucket_name || 'ddsfocustime'
     };
   }
 

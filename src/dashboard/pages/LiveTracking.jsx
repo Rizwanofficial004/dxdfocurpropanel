@@ -86,8 +86,8 @@ const LiveTracking = () => {
         include_metadata_only: false,
         sort_by: 'latest_date',
         order: 'desc',
-        aws_region: 'eu-north-1',
-        bucket_name: 'ddsfocustime',
+        // aws_region: 'eu-north-1',
+        // bucket_name: 'ddsfocustime',
         force_refresh: true, // Force fresh data from S3
         timeout: 90000 // Increase timeout to 90 seconds for S3 operations
       });

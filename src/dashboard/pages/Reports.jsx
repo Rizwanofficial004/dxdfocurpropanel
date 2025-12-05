@@ -113,6 +113,7 @@ const Reports = () => {
         
   // Ref to prevent concurrent API calls
   const isFetchingRef = useRef(false);
+  const isFetchingAdvancedReportRef = useRef(false);
   
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(months[currentMonthIndex]);
@@ -399,11 +400,21 @@ const Reports = () => {
     return null;
   };
 
-  const fetchMonitoringActionsData = async (employee) => {
+  const fetchMonitoringActionsData = async (employee, startDate = null, endDate = null) => {
     if (!employee?.staff_id) return null;
     
     try {
-      const url = `https://dxdtime.ddsolutions.io/api/monitoring-action/?staff_id=${employee.staff_id}`;
+      let url = `https://dxdtime.ddsolutions.io/api/monitoring-action/?staff_id=${employee.staff_id}`;
+      
+      // Add date range parameters (always provided - either selected date or current date)
+      if (startDate && endDate) {
+        url += `&start_date=${startDate}&end_date=${endDate}`;
+      } else {
+        // Fallback to current date if not provided
+        const currentDate = new Date().toISOString().split('T')[0];
+        url += `&start_date=${currentDate}&end_date=${currentDate}`;
+      }
+      
       const response = await fetch(url);
       
       if (response.ok) {
@@ -413,24 +424,6 @@ const Reports = () => {
       }
     } catch (error) {
       console.error('Error fetching monitoring actions data:', error);
-    }
-    return null;
-  };
-
-  const fetchMeetingTimeQuickview = async (employee, date) => {
-    if (!employee?.email) return null;
-    
-    try {
-      const url = `https://dxdtime.ddsolutions.io/api/meeting_time_summary?email=${employee.email}&date=${date}`;
-      const response = await fetch(url);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Meeting Time Quickview Data:', data);
-        return data;
-      }
-    } catch (error) {
-      console.error('Error fetching meeting time quickview data:', error);
     }
     return null;
   };
@@ -669,23 +662,16 @@ const Reports = () => {
         ? `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
         : null;
 
-      const defaultRange = computeDefaultScreenshotRange();
-      
-      // Calculate date range for advanced report (use current month if no specific date)
-      let advancedStartDate = null;
-      let advancedEndDate = null;
-      if (specificDate) {
-        advancedStartDate = specificDate;
-        advancedEndDate = specificDate;
-      } else {
-        // Use month range
-        const monthStart = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-01`;
-        const lastDay = new Date(parseInt(selectedYear), monthIndex + 1, 0).getDate();
-        advancedStartDate = monthStart;
-        advancedEndDate = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-      }
+        console.log('specificDate', specificDate);
 
-      // Fetch all data in parallel
+      const defaultRange = computeDefaultScreenshotRange();
+
+      // Calculate date range for monitoring actions (use selected date, or current date if not selected)
+      const currentDateFormatted = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      const monitoringStartDate = specificDate || currentDateFormatted;
+      const monitoringEndDate = specificDate || currentDateFormatted;
+
+      // Fetch all data in parallel (excluding advanced report - fetched separately)
       const [
         meetingData,
         idleData,
@@ -694,11 +680,9 @@ const Reports = () => {
         loggedData,
         screenshotCount,
         screenshotsResult,
-        meetingQuickview,
         idleQuickview,
         availabilityData,
         activityPattern,
-        advancedReport,
         monitoringActions
       ] = await Promise.all([
         fetchMeetingTimeData(employee, currentMonth),
@@ -714,12 +698,10 @@ const Reports = () => {
           dateRange: defaultRange,
           order: screenshotsOrder,
         }),
-        specificDate ? fetchMeetingTimeQuickview(employee, specificDate) : null,
         specificDate ? fetchIdleTimeQuickview(employee, specificDate) : null,
         fetchDataAvailability(employee, currentMonth),
         specificDate ? fetchActivityPatternData(employee, specificDate) : null,
-        fetchAdvancedReportData(employee, advancedStartDate, advancedEndDate, null),
-        fetchMonitoringActionsData(employee)
+        fetchMonitoringActionsData(employee, monitoringStartDate, monitoringEndDate)
       ]);
       
       // Update state with fetched data
@@ -738,7 +720,6 @@ const Reports = () => {
       setIdleQuickviewData(idleQuickview);
       setDataAvailability(availabilityData);
       setActivityPatternData(activityPattern);
-      setAdvancedReportData(advancedReport);
       setMonitoringActionsData(monitoringActions);
       
       console.log('✅ All report data fetched successfully');
@@ -778,15 +759,7 @@ const Reports = () => {
       (user.department && user.department.toLowerCase().includes(searchTerm))
     );
   };
-  const weeklyReportData = [
-    { name: 'Aba', teams: 'Sales,Auditing Team,Finance', apr2024: '31h 29m', mar2024: '36h 25m', feb2024: null },
-    { name: 'Adams', teams: 'Sales & Marketting,Auditing Team', apr2024: '20h 25m', mar2024: null, feb2024: '0h 3m' },
-    { name: 'Alita', teams: 'Promotion,IT Team', apr2024: '0h 12m', mar2024: '8h 9m', feb2024: '0h 5m' },
-    { name: 'Diana', teams: 'Auditing Team', apr2024: '13h 43m', mar2024: '8h 52m', feb2024: '0h 24m' },
-    { name: 'farina', teams: 'HR Admin,Back Office', apr2024: null, mar2024: null, feb2024: '0h 45m' },
-    { name: 'Veronica', teams: 'Marketing,Sales,Auditing Team', apr2024: '4h 5m', mar2024: null, feb2024: null },
-    { name: 'Alexei', teams: 'Finance,Auditing Team', apr2024: null, mar2024: null, feb2024: null },
-  ];
+
 
   // Filter options
   const years = ['2023', '2024', '2025'];
@@ -991,6 +964,45 @@ const Reports = () => {
       fetchReportData(selectedEmployee);
     }
   }, [selectedEmployee, selectedYear, selectedMonth, selectedDate, selectedHour]);
+
+  // Fetch advanced report data only when month or year changes (not when date changes)
+  useEffect(() => {
+    if (!selectedEmployee?.staff_id) {
+      return;
+    }
+
+    // Prevent concurrent calls
+    if (isFetchingAdvancedReportRef.current) {
+      return;
+    }
+
+    const monthIndex = months.indexOf(selectedMonth);
+    if (monthIndex < 0 || !selectedYear) {
+      return;
+    }
+
+    isFetchingAdvancedReportRef.current = true;
+
+    // Calculate date range for advanced report (always use month range)
+    const monthStart = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-01`;
+    const lastDay = new Date(parseInt(selectedYear), monthIndex + 1, 0).getDate();
+    const advancedStartDate = monthStart;
+    const advancedEndDate = `${selectedYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+    // Fetch advanced report data
+    fetchAdvancedReportData(selectedEmployee, advancedStartDate, advancedEndDate, null)
+      .then((data) => {
+        if (data) {
+          setAdvancedReportData(data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching advanced report data:', error);
+      })
+      .finally(() => {
+        isFetchingAdvancedReportRef.current = false;
+      });
+  }, [selectedEmployee?.staff_id, selectedYear, selectedMonth]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -1426,7 +1438,7 @@ const Reports = () => {
               <FilterRow>
                 {/* Year Filter */}
                 <FilterGroup>
-                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',letterSpacing:'0.5px',textTransform:'capitalize'}} >Year</InputLabel>
+                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',letterSpacing:'0.5px',textTransform:'uppercase'}} >Year</InputLabel>
                   <Select
                     theme={theme}
                     value={selectedYear}
@@ -1441,7 +1453,7 @@ const Reports = () => {
 
                 {/* Month Filter */}
                 <FilterGroup>
-                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',textTransform:'capitalize',letterSpacing:'0.5px'}}>Month</InputLabel>
+                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',textTransform:'uppercase',letterSpacing:'0.5px'}}>Month</InputLabel>
                   <Select
                     theme={theme}
                     value={selectedMonth}
@@ -1455,7 +1467,7 @@ const Reports = () => {
 
                 {/* Date Filter */}
                 <FilterGroup>
-                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',letterSpacing:'0.5px',textTransform:'capitalize'}}>Date</InputLabel>
+                  <InputLabel sx={{color:'#1e293b',fontWeight:'600',fontSize:'11px',letterSpacing:'0.5px',textTransform:'uppercase'}}>Date</InputLabel>
                   <Select
                     theme={theme}
                     value={selectedDate}
