@@ -1432,9 +1432,9 @@ const Reports = () => {
           </EmployeeSelection>
 
           {/* Right content - Time reports */}
-          <ReportsContent >
+          <ReportsContent theme={theme}>
             {/* Filter Section */}
-            <FilterSection>
+            <FilterSection theme={theme}>
               <FilterRow>
                 {/* Year Filter */}
                 <FilterGroup>
