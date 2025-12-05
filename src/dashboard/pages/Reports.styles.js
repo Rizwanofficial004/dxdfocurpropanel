@@ -1,5 +1,26 @@
 import styled from 'styled-components';
 
+// Helper function to add opacity to hex color
+const addOpacity = (hex, opacity) => {
+  if (!hex) return `rgba(59, 130, 246, ${opacity})`; // Default blue fallback
+  // Remove # if present
+  const hexColor = hex.replace('#', '');
+  // Validate hex color length
+  if (hexColor.length !== 6) {
+    return `rgba(59, 130, 246, ${opacity})`; // Default blue fallback
+  }
+  // Convert to RGB
+  const r = parseInt(hexColor.substring(0, 2), 16);
+  const g = parseInt(hexColor.substring(2, 4), 16);
+  const b = parseInt(hexColor.substring(4, 6), 16);
+  // Validate RGB values
+  if (isNaN(r) || isNaN(g) || isNaN(b)) {
+    return `rgba(59, 130, 246, ${opacity})`; // Default blue fallback
+  }
+  // Return rgba
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
 // Main wrapper
 export const ReportsWrapper = styled.div`
   padding: 24px;
@@ -91,11 +112,30 @@ export const EmployeeItem = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-  background: ${props => props.selected ? props.theme.colors.primary + '20' : 'transparent'};
-  border: ${props => props.selected ? `1px solid ${props.theme.colors.primary}` : '1px solid transparent'};
+  background: ${props => {
+    if (props.selected) {
+      const primaryColor = props.theme?.colors?.primary || '#3b82f6';
+      return addOpacity(primaryColor, 0.125);
+    }
+    return 'transparent';
+  }};
+  border: ${props => {
+    if (props.selected) {
+      const primaryColor = props.theme?.colors?.primary || '#3b82f6';
+      return `1px solid ${primaryColor}`;
+    }
+    return '1px solid transparent';
+  }};
   
   &:hover {
-    background: ${props => props.theme.colors.primary}10;
+    background: ${props => {
+      if (props.selected) {
+        const primaryColor = props.theme?.colors?.primary || '#3b82f6';
+        return addOpacity(primaryColor, 0.125);
+      }
+      const primaryColor = props.theme?.colors?.primary || '#3b82f6';
+      return addOpacity(primaryColor, 0.063);
+    }};
   }
 `;
 
@@ -316,7 +356,10 @@ export const CalendarDay = styled.div`
     background: ${props => {
       if (props.selected) return '#3b82f6';
       if (props.today) return '#10b981';
-      return props.theme.colors.primary + '20';
+      if (props.theme?.colors?.primary) {
+        return addOpacity(props.theme.colors.primary, 0.125);
+      }
+      return 'rgba(59, 130, 246, 0.125)';
     }};
   }
 `;
@@ -381,7 +424,13 @@ export const HourSlot = styled.div`
   transition: all 0.2s ease;
   
   &:hover {
-    background: ${props => props.selected ? '#3b82f6' : props.theme.colors.primary + '20'};
+    background: ${props => {
+      if (props.selected) return '#3b82f6';
+      if (props.theme?.colors?.primary) {
+        return addOpacity(props.theme.colors.primary, 0.125);
+      }
+      return 'rgba(59, 130, 246, 0.125)';
+    }};
   }
 `;
 
@@ -756,7 +805,12 @@ export const BreakMeetRow = styled.tr`
   }
   
   &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
+    background: ${props => {
+      if (props.theme?.colors?.background) {
+        return addOpacity(props.theme.colors.background, 0.31);
+      }
+      return 'rgba(0, 0, 0, 0.05)';
+    }};
   }
 `;
 
@@ -851,7 +905,12 @@ export const TaskRow = styled.tr`
   }
   
   &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
+    background: ${props => {
+      if (props.theme?.colors?.background) {
+        return addOpacity(props.theme.colors.background, 0.31);
+      }
+      return 'rgba(0, 0, 0, 0.05)';
+    }};
   }
 `;
 
@@ -934,7 +993,12 @@ export const IdleRow = styled.tr`
   }
   
   &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
+    background: ${props => {
+      if (props.theme?.colors?.background) {
+        return addOpacity(props.theme.colors.background, 0.31);
+      }
+      return 'rgba(0, 0, 0, 0.05)';
+    }};
   }
 `;
 
@@ -1134,7 +1198,12 @@ export const WeeklyHeaderCell = styled.th`
   cursor: pointer;
   
   &:hover {
-    background: ${props => props.theme.colors.background + '80'};
+    background: ${props => {
+      if (props.theme?.colors?.background) {
+        return addOpacity(props.theme.colors.background, 0.5);
+      }
+      return 'rgba(0, 0, 0, 0.05)';
+    }};
   }
 `;
 
@@ -1154,11 +1223,21 @@ export const WeeklyRow = styled.tr`
   }
   
   &:nth-child(even) {
-    background: ${props => props.theme.colors.background + '50'};
+    background: ${props => {
+      if (props.theme?.colors?.background) {
+        return addOpacity(props.theme.colors.background, 0.31);
+      }
+      return 'rgba(0, 0, 0, 0.05)';
+    }};
   }
   
   &:hover {
-    background: ${props => props.theme.colors.primary}10;
+    background: ${props => {
+      if (props.theme?.colors?.primary) {
+        return addOpacity(props.theme.colors.primary, 0.063);
+      }
+      return 'rgba(59, 130, 246, 0.063)';
+    }};
   }
 `;
 
