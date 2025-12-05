@@ -38,15 +38,15 @@ const IdleTab = ({
   }, [viewMode, selectedDate]);
   
   console.log("🚀 ~ IdleTab ~ loggedTimeData:", loggedTimeData)
-  // Format time from timestamp or time string (using Turkey timezone)
+  // Format time from timestamp or time string (using user's local timezone)
   const formatTime = (timeString) => {
     if (!timeString) return 'N/A';
     try {
       if (timeString.includes('T')) {
         const date = new Date(timeString);
-        // Add 3 hours for Turkey timezone (UTC+3)
-        const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-        return turkeyDate.toLocaleTimeString('en-US', { 
+        if (isNaN(date.getTime())) return timeString;
+        // toLocaleTimeString automatically converts to user's local timezone
+        return date.toLocaleTimeString(navigator.language || 'en-US', { 
           hour: 'numeric', 
           minute: '2-digit',
           hour12: true 
@@ -99,9 +99,11 @@ const IdleTab = ({
       .filter((day) => day.total_count > 0)
       .map((day) => {
         const dateObj = new Date(day.date);
-        // Add 3 hours for Turkey timezone (UTC+3)
-        const turkeyDate = new Date(dateObj.getTime() + (3 * 60 * 60 * 1000));
-        const displayDate = turkeyDate.toLocaleDateString('en-US', {
+        if (isNaN(dateObj.getTime())) {
+          return { ...day, displayDate: day.date };
+        }
+        // toLocaleDateString automatically uses user's local timezone
+        const displayDate = dateObj.toLocaleDateString(navigator.language || 'en-US', {
           month: 'short',
           day: 'numeric',
           year: 'numeric'

@@ -43,20 +43,18 @@ const formatDateTime = (timestamp, date, time) => {
   if (timestamp) {
     const parsed = dayjs(timestamp);
     if (parsed.isValid()) {
-      // Add 3 hours for Turkey timezone (UTC+3)
-      const turkeyTime = parsed.add(3, 'hours');
+      // dayjs automatically uses user's local timezone when formatting
       return {
-        dateLabel: turkeyTime.format('MMM D, YYYY'),
-        timeLabel: turkeyTime.format('hh:mm A'),
+        dateLabel: parsed.format('MMM D, YYYY'),
+        timeLabel: parsed.format('hh:mm A'),
       };
     }
   }
   const parsedDate = date ? dayjs(date) : null;
   if (parsedDate && parsedDate.isValid()) {
-    // Add 3 hours for Turkey timezone (UTC+3)
-    const turkeyDate = parsedDate.add(3, 'hours');
+    // dayjs automatically uses user's local timezone when formatting
     return {
-      dateLabel: turkeyDate.format('MMM D, YYYY'),
+      dateLabel: parsedDate.format('MMM D, YYYY'),
       timeLabel: time || 'Time unavailable',
     };
   }
@@ -185,9 +183,9 @@ const ScreensTab = ({
 
   const filtersSummary = useMemo(() => {
     if (startDate && endDate) {
-      // Add 3 hours for Turkey timezone (UTC+3)
-      const startLabel = dayjs(startDate).add(3, 'hours').format('MMM D, YYYY');
-      const endLabel = dayjs(endDate).add(3, 'hours').format('MMM D, YYYY');
+      // dayjs automatically uses user's local timezone when formatting
+      const startLabel = dayjs(startDate).format('MMM D, YYYY');
+      const endLabel = dayjs(endDate).format('MMM D, YYYY');
       if (startLabel === endLabel) {
         return startLabel;
       }

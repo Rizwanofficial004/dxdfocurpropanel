@@ -195,12 +195,13 @@ const TaskTab = ({
     }));
   };
 
-  // Format date for display (using Turkey timezone)
+  // Format date for display (using user's local timezone)
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
-    // Add 3 hours for Turkey timezone (UTC+3)
-    const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-    return turkeyDate.toLocaleDateString('en-US', {
+    if (isNaN(date.getTime())) return dateString;
+    // toLocaleDateString automatically uses user's local timezone
+    return date.toLocaleDateString(navigator.language || 'en-US', {
       weekday: 'short',
       year: 'numeric',
       month: 'short',

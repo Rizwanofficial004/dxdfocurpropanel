@@ -33,10 +33,9 @@ const MonitoringActionsTab = ({
     if (!timeString) return 'N/A';
     try {
       if (timeString.includes('T')) {
-        const date = new Date(timeString);
-        // Add 3 hours for Turkey timezone (UTC+3)
-        const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-        return turkeyDate.toLocaleTimeString('en-US', { 
+        // Convert ISO UTC string to local timezone automatically
+        const localDate = new Date(timeString);
+        return localDate.toLocaleTimeString('en-US', { 
           hour: 'numeric', 
           minute: '2-digit',
           hour12: true 
@@ -51,13 +50,6 @@ const MonitoringActionsTab = ({
     }
   };
 
-  // Toggle tooltip
-  const toggleTooltip = (field) => {
-    setTooltipVisible(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
 
   // Get data from API response
   const apiData = monitoringActionsData?.data || monitoringActionsData;
@@ -225,14 +217,14 @@ const MonitoringActionsTab = ({
                       fontSize: '13px',
                       color: theme.colors.text.primary
                     }}>
-                      {formatTime(action.start || action.start_time || action.startTime)}
+                      {formatTime(action.start)}
                     </td>
                     <td style={{ 
                       padding: '12px 16px',
                       fontSize: '13px',
                       color: theme.colors.text.primary
                     }}>
-                      {formatTime(action.stop || action.stop_time || action.end_time || action.stopTime)}
+                      {formatTime(action.stop)}
                     </td>
                   </tr>
                 ))

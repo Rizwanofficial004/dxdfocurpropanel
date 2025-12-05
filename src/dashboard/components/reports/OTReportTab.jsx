@@ -30,16 +30,16 @@ const OTReportTab = ({
   const [sortColumn, setSortColumn] = useState('duration');
   const [sortDirection, setSortDirection] = useState('desc');
 
-  // Format time from timestamp or time string (using Turkey timezone)
+  // Format time from timestamp or time string (using user's local timezone)
   const formatTime = (timeString) => {
     if (!timeString) return 'N/A';
     try {
       // Handle different time formats
       if (timeString.includes('T')) {
         const date = new Date(timeString);
-        // Add 3 hours for Turkey timezone (UTC+3)
-        const turkeyDate = new Date(date.getTime() + (3 * 60 * 60 * 1000));
-        return turkeyDate.toLocaleTimeString('en-US', { 
+        if (isNaN(date.getTime())) return timeString;
+        // toLocaleTimeString automatically converts to user's local timezone
+        return date.toLocaleTimeString(navigator.language || 'en-US', { 
           hour: 'numeric', 
           minute: '2-digit',
           hour12: true 
