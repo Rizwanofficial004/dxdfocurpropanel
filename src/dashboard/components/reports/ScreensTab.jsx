@@ -265,7 +265,7 @@ const ScreensTab = ({
       sx={{
         backgroundColor: theme.colors.surface,
         borderRadius: 3,
-        px: 3,
+        p: 3,
         minHeight: '100%',
         border: `1px solid ${theme.colors.border || 'rgba(0,0,0,0.08)'}`,
       }}
