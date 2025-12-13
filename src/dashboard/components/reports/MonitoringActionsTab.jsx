@@ -107,7 +107,8 @@ const MonitoringActionsTab = ({
   return (
     <div style={{ 
       background: theme.colors.surface,
-      borderRadius: '8px'
+      borderRadius: '8px',
+      padding: '20px',
     }}>
       <div style={{ 
         background: 'white',

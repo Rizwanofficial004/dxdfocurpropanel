@@ -161,62 +161,6 @@ const Reports = () => {
     // { id: 'TIME_LOG_SUMMARY', name: 'TIME LOG SUMMARY', icon: '📅' },
   ];
 
-
-  // Calculate total duration
-  const totalDuration = '3h 35m';
-
-  // Work time data for TOP_ACTIVITY tab
-  const workTimeData = [
-    { label: 'IDLE', value: '0h 6m', percentage: 1.82, color: '#6b7280' },
-    { label: 'MEETING', value: '0h 20m', percentage: 6.19, color: '#3b82f6' },
-    { label: 'BREAKS', value: '0h 54m', percentage: 16.14, color: '#f97316' },
-    { label: 'Active hours', value: '4h 30m', percentage: 82.04, color: '#10b981' },
-  ];
-
-  // Application usage data
-  const applicationData = [
-    { name: 'Google-chrome', duration: '3h 25m', percentage: '98%', color: '#4285f4' },
-    { name: 'Wine', duration: '0h 15m', percentage: '22%', color: '#8b5cf6' },
-    { name: 'firefox', duration: '0h 3m', percentage: '3%', color: '#ff7139' },
-    { name: 'Google-chrome-s', duration: '0h 1m', percentage: '2%', color: '#4285f4' },
-    { name: 'libreoffice-calc', duration: '0h 1m', percentage: '1%', color: '#0369a1' },
-  ];
-
-  // Break data for BREAKS_MEET tab
-  const breakData = [
-    { start: '2:24 PM', stop: '3:17 PM', duration: '0h 53m' }
-  ];
-
-  // Meeting data for BREAKS_MEET tab
-  const meetingData = [
-    { start: '2:03 PM', stop: '2:24 PM', duration: '0h 20m' }
-  ];
-
-  // Defined break data
-  const definedBreakData = [
-    { start: '11:00 AM', stop: '11:15 AM', duration: '0h 15m' },
-    { start: '2:00 PM', stop: '2:30 PM', duration: '0h 30m' },
-    { start: '5:30 PM', stop: '5:45 PM', duration: '0h 15m' }
-  ];
-
-  // IDLE data for IDLE tab
-  const idleData = [
-    { start: '10:59 AM', stop: '11:11 AM', duration: '0h 12m' },
-    { start: '11:25 AM', stop: '11:29 AM', duration: '0h 4m' },
-    { start: '4:26 PM', stop: '4:31 PM', duration: '0h 5m' },
-    { start: '5:08 PM', stop: '5:13 PM', duration: '0h 5m' },
-    { start: '6:39 PM', stop: '6:42 PM', duration: '0h 3m' }
-  ];
-
-  // OFFLINE data for OFFLINE tab
-  const offlineData = [
-    { start: '10:59 AM', stop: '11:11 AM', duration: '0h 12m' },
-    { start: '11:25 AM', stop: '11:29 AM', duration: '0h 4m' },
-    { start: '4:26 PM', stop: '4:31 PM', duration: '0h 5m' },
-    { start: '5:08 PM', stop: '5:13 PM', duration: '0h 5m' },
-    { start: '6:39 PM', stop: '6:42 PM', duration: '0h 3m' }
-  ];
-
   // Fetch users from sync-staffs API (same as ActivityStream)
   const fetchSyncStaffsUsers = async () => {
     try {

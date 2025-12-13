@@ -7,6 +7,7 @@ const ActivityPatternContainer = styled.div`
   background: ${props => props.theme.colors.surface};
   border: 2px solid #ef4444;
   border-radius: 8px;
+  padding: 24px;
 `;
 
 const ActivityPatternHeader = styled.div`

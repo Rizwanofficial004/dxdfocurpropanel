@@ -266,6 +266,7 @@ const BreaksMeetTab = ({
       display: 'flex',
       flexDirection: 'column',
       gap: '20px',
+      padding: '20px',
       background: theme.colors.surface || '#f5f5f5',
       borderRadius: '8px',
       minHeight: '400px'

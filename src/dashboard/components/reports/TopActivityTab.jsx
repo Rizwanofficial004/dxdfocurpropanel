@@ -22,6 +22,7 @@ if (typeof document !== 'undefined' && !document.getElementById('top-activity-sp
 const TopActivityContainer = styled.div`
   background: ${props => props.theme.colors.surface};
   border-radius: 8px;
+  padding: 20px;
 `;
 
 const TopActivityHeader = styled.div`

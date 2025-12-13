@@ -310,6 +310,7 @@ const FocusTimelineTab = ({
       display: 'grid', 
       gridTemplateColumns: '1fr 1fr', 
       gap: '20px',
+      padding: '20px',
       background: theme.colors.surface,
       borderRadius: '8px'
     }}>
@@ -318,6 +319,7 @@ const FocusTimelineTab = ({
       <div style={{ 
         background: 'white',
         borderRadius: '8px',
+        padding: '20px',
         maxHeight: '80vh',
         overflowY: 'auto'
       }}>
